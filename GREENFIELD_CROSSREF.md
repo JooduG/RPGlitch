@@ -173,9 +173,93 @@ Every discrepancy between previous roadmap claims / plans and verified disk real
 
 ---
 
-## 5. Unified Pre-Demolition Blockers Checklist
+## 5. Data Cross-Reference Matrix (`src/data/` & `src/definitions/` vs. Greenfield)
 
-Before `src/platform/`, `src/state/`, or `src/intelligence/` can be safely deleted without breaking tests or the application, the following concrete actions must be completed:
+### Package 1: Database Schema & Low-Level Persistence Engine (`src/data/db.js`)
+
+| # | Legacy Capability & Source (`file:line`) | Greenfield Counterpart (`file:line`) | Status | Verification | Classification & Verification Proof |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **D1** | Dexie Schema Definition & Stores: `db` (`src/data/db.js:46-60`) declaring `stories`, `simulation_log`, `entities`, `presets`, `profile_fields`, `kv_settings`, `mutation_ledger`. | `db` (`src/storage/db.js:29-43`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `db` in `src/storage/db.js` defines the identical 7 Dexie object stores with matching primary keys and compound indexes (`[story_id+round+seq]`, `[entity_id+field]`, `*npc_ids`). |
+| **D2** | Database Initialization & Versionchange Reload: `init_db` (`src/data/db.js:84-124`) with blocked logging, `set_versionchange_quiesce`, and reload debounce. | `init_db` (`src/storage/db.js:48-63`) | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `init_db` opens Dexie but drops `set_versionchange_quiesce` hook registration, reload debounce guarding, and blocked database warning logging. Must be brought to parity before replacing `@data/db.js`. |
+| **D3** | Active Entity Storage Keys: `ACTIVE_ENTITY_STORAGE_KEYS` (`src/data/db.js:33-40`) mapping `{ AI: "rpg_active_ai", ... }`. | Inlined in `src/storage/entities.js:18-22` & `src/storage/db.js:334-358` | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield storage accesses `kv_settings` directly through dedicated helpers (`get_setting`, `set_setting`). |
+
+### Package 2: Session Driver & Active Simulation Management (`src/data/sessions.svelte.js`)
+
+| # | Legacy Capability & Source (`file:line`) | Greenfield Counterpart (`file:line`) | Status | Verification | Classification & Verification Proof |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **D4** | Active Session Pointer RAM Cache & Getter: `session_driver.active_id` (`src/data/sessions.svelte.js:94-96`). | Handled by `Kernel` in `src/engine/kernel.svelte.js:21` or UI state | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `Kernel` holds active simulation state in RAM, but `src/storage/db.js` has no singleton active session cache; `bridge.js:348` still calls `session_driver.require_active()`. |
+| **D5** | Session Assertion Gate: `session_driver.require_active()` (`src/data/sessions.svelte.js:99-104`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **STATIC ANALYSIS** | Actively called by `src/engine/bridge.js:348`. Must be implemented in `src/storage/` or passed explicitly from the UI layer to `Kernel`. |
+| **D6** | Set Active Session & Persist Pointer: `session_driver.set_active(id)` (`src/data/sessions.svelte.js:107-113`). | `set_setting("active_session_id", id)` (`src/storage/db.js:345-348`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `set_setting` persists key-value settings to `kv_settings`. Bridge currently bypasses greenfield persistence for this key. |
+| **D7** | Clear Active Session Pointer: `session_driver.clear_active()` (`src/data/sessions.svelte.js:116-121`). | `delete_setting("active_session_id")` (`src/storage/db.js:355-358`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `delete_setting` provides identical capability on `kv_settings`. |
+| **D8** | Restore Active Pointer from Cold Storage: `session_driver.restore_active()` (`src/data/sessions.svelte.js:124-131`). | `get_setting("active_session_id")` (`src/storage/db.js:334-337`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `get_setting` reads from `kv_settings`. |
+| **D9** | Create Story Session from Selection: `session_driver.create_from_selection(selection)` (`src/data/sessions.svelte.js:134-225`) creating story, seeding NPC wanderers, logging prologue, writing `STORY_START` telemetry. | `create_story(data)` (`src/storage/db.js:114-128`) | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `create_story` creates the raw story row but does NOT seed wanderer NPCs, initialize bidirectional fractal bonds, create the initial prologue log entry, or emit `STORY_START` telemetry. |
+| **D10** | Delete Story & Cascading Session Cleanup: `session_driver.delete_story(story_id)` (`src/data/sessions.svelte.js:228-261`) deleting story, logs, ledger mutations, and resetting active session pointer. | `delete_story(id)` (`src/storage/db.js:155-165`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `delete_story` executes a Dexie transaction deleting from `stories`, `simulation_log`, and `mutation_ledger`. |
+| **D11** | Conclude Active Story: `session_driver.conclude_story(story_id)` (`src/data/sessions.svelte.js:264-273`). | `conclude_story(id)` (`src/storage/db.js:145-148`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `conclude_story` updates `is_concluded: true` and `updated_at`. |
+| **D12** | Load Simulation Log into UI Feed: `session_driver.load_log(story_id)` (`src/data/sessions.svelte.js:276-320`) mapping raw log rows into feed objects with attachments. | `get_story_log(story_id)` (`src/storage/db.js:284-287`) | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `get_story_log` returns raw array from IndexedDB. It does NOT populate reactive UI feed stores, map attachments, or handle legacy format migrations. |
+| **D13** | Edit Log Entry: `session_driver.edit_log_entry(id, new_text)` (`src/data/sessions.svelte.js:323-353`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `src/storage/db.js` has no `edit_log_entry` method. Consumed by `src/state/log.svelte.js:117` and UI feed edit actions. |
+| **D14** | Delete Log Entry with Abort Cleanup: `session_driver.delete_log_entry(id)` (`src/data/sessions.svelte.js:356-384`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **LIVE-VERIFIED** | Live verification of abort cleanup path confirms deleting a failed or in-flight log entry requires `delete_log_entry`. Missing in `src/storage/db.js`. |
+| **D15** | Attachment Mutation: `session_driver.update_log_attachment(log_id, attachment)` (`src/data/sessions.svelte.js:387-414`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `append_log_entry` does not even persist attachments array; attachment updating is completely absent in `src/storage/db.js`. |
+| **D16** | Attachment Deletion: `session_driver.delete_log_attachment(log_id, attachment_id)` (`src/data/sessions.svelte.js:417-434`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **STATIC ANALYSIS** | Greenfield `src/storage/db.js` has no attachment deletion capability. |
+| **D17** | Resolve Log Entity ID: `resolve_log_entity_id(role, character_name)` (`src/data/sessions.svelte.js:29-51`). | Inlined in `Kernel.submit_turn` (`src/engine/kernel.svelte.js:71-75`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `Kernel` resolves speaker identity directly from cast objects. |
+| **D18** | Internal Log Finder Helper: `_find_log_entry(id)` (`src/data/sessions.svelte.js:65-83`) with numeric/string key coercion and feed fallback. | Missing in `src/storage/db.js` | **MIGRATION GAP** | **STATIC ANALYSIS** | Helper supporting `edit_log_entry`, `delete_log_entry`, and attachment mutations. Missing in `src/storage/db.js`. |
+| **D19** | Send User Input: `session_driver.send(text)` (`src/data/sessions.svelte.js:437-440`). | Replaced by `Kernel.submit_turn` (`src/engine/kernel.svelte.js:48-140`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Handled natively by greenfield simulation kernel. Calling `session_driver.send` in `chrono.svelte.js:235` is what causes LIVE BUG 1. |
+| **D20** | Append Log Message with Telemetry Sentinel Guard: `session_driver.log_message(payload)` (`src/data/sessions.svelte.js:443-485`). | `append_log_entry(entry)` (`src/storage/db.js:265-277`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `append_log_entry` appends directly to `db.simulation_log`. Legacy empty-text check (`src/data/sessions.svelte.js:446-456`) swallowed empty strings unless telemetry sentinels (`DYNAMICS_DELTA`, `STORY_START`, etc.) were present. Greenfield `append_log_entry` is pure; telemetry filtering belongs in calling layer. |
+| **D21** | Append System Event Log: `session_driver.log_system_entry(text, meta)` (`src/data/sessions.svelte.js:488-498`). | `append_log_entry({ role: "system", ... })` (`src/storage/db.js:265-277`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `append_log_entry` supports arbitrary roles including `"system"`. |
+| **D22** | Log Entry Regeneration Pointer Rewind: `session_driver.regenerate(log_id)` (`src/data/sessions.svelte.js:501-526`). | Missing in greenfield | **MIGRATION GAP** | **STATIC ANALYSIS** | Legacy truncates the log up to `log_id` and restores prior round dynamics. Greenfield `Kernel` has no log rollback method yet. |
+
+### Package 3: Entity & Story Repositories (`src/data/repository.js`)
+
+| # | Legacy Capability & Source (`file:line`) | Greenfield Counterpart (`file:line`) | Status | Verification | Classification & Verification Proof |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **D23** | Entity Repository Facade: `entities.get(type, id)` (`src/data/repository.js:65-89`) with Float32Array vector deserialization. | `get_entity(type, id)` (`src/storage/db.js:223-228`) & `src/storage/entities.js:162-205` | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield stores entities in 4-quadrant format (`eternal`, `present`, `past`, `future`) where `past` is bracket text, removing the need for binary Float32Array deserialization. |
+| **D24** | Entity Upsert & Timestamping: `entities.upsert(type, id, data)` (`src/data/repository.js:92-127`). | `upsert_entity(entity)` (`src/storage/db.js:238-251`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `upsert_entity` enforces quadrant validation, normalizes entity, and writes to `db.entities`. |
+| **D25** | Entity List Queries & Filtering: `entities.list(type)` (`src/data/repository.js:130-153`). | `list_entities(type)` (`src/storage/db.js:176-189`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `list_entities` queries `db.entities` by type index and sorts by `updated_at`. |
+| **D26** | Entity Deletion: `entities.delete(type, id)` (`src/data/repository.js:156-173`). | `delete_entity(type, id)` (`src/storage/db.js:256-258`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `delete_entity` deletes by compound key `[type+id]`. |
+| **D27** | Active Entity ID Lookup: `entities.active_ids()` (`src/data/repository.js:176-188`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **STATIC ANALYSIS** | Legacy reads `ACTIVE_ENTITY_STORAGE_KEYS` from `kv_settings`. Missing in greenfield `src/storage/db.js`. |
+| **D28** | Story Repository Facade: `stories.get(id)` (`src/data/repository.js:234-245`). | `get_story(id)` (`src/storage/db.js:103-107`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield `get_story` fetches by coerced numeric or string ID. |
+| **D29** | Story Listing & Cast Descriptors: `stories.list()` (`src/data/repository.js:248-283`). | `list_stories()` (`src/storage/db.js:73-96`) | **MIGRATION GAP** | **STATIC ANALYSIS** | Legacy `stories.list()` includes `ai_id`, `user_id`, `fractal_id`, and `npc_ids`. Greenfield `list_stories()` omits trio IDs from summaries. |
+| **D30** | Story Cast Update: `stories.update_cast(id, npc_ids)` (`src/data/repository.js:314-325`). | Missing in `src/storage/db.js` | **MIGRATION GAP** | **LIVE-VERIFIED** | Live verification of storyboard claiming proves `update_cast` is required when adding or removing NPCs from a story cast. Missing in `src/storage/db.js`. |
+| **D31** | Premade Entity Seeding: `seed_premades()` (`src/data/repository.js:191-231`). | `seed_presets(db)` (`src/storage/presets.js:34-45`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield seeds presets into `db.presets` using clean quadrant entities. |
+
+### Package 4: Mutation Ledger & Time-Travel Engine (`src/data/ledger.js`)
+
+| # | Legacy Capability & Source (`file:line`) | Greenfield Counterpart (`file:line`) | Status | Verification | Classification & Verification Proof |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **D32** | Append Discrete Ledger Mutation: `append_ledger_entry(mutation)` & `append_ledger_entries(entries)` (`src/data/ledger.js:35-104`). | `append_ledger_entry(mutation)` & `append_ledger_entries(entries)` (`src/storage/db.js:372-386`) | **FULLY ACCOUNTED** | **LIVE-VERIFIED** | Live inspection of greenfield Turn 3 Caretaker run confirms `append_ledger_entries` writes discrete field diffs to `mutation_ledger`. Greenfield parity confirmed on disk. |
+| **D33** | Query Entity Mutation History: `query_entity_history(entity_id, field)` (`src/data/ledger.js:107-133`). | `get_entity_history(entity_id, field)` (`src/storage/db.js:393-400`) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Greenfield queries compound index `[entity_id+field]` with sorting by round and seq. |
+| **D34** | Time-Travel State Replay: `replay_entity_field(entity_id, field, target_round)` & `replay_full_entity_at_round(entity_id, target_round)` (`src/data/ledger.js:136-224`). | Missing in `src/storage/` | **MIGRATION GAP** | **STATIC ANALYSIS** | Legacy re-constructs historical entity states by applying chronological ledger deltas. Consumed by `FieldHistoryModal.svelte:11` and `TimelineModal.svelte:12`. Must be relocated to `src/storage/` or `src/engine/differential.js`. |
+
+### Package 5: Relocated Definitions Holding Location (`src/definitions/*`)
+
+| # | Legacy Capability & Source (`file:line`) | Greenfield Counterpart (`file:line`) | Status | Verification | Classification & Verification Proof |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **D35** | Visual Styles Catalog & Resolution: `VISUAL_STYLES`, `get_visual_style`, `resolve_portrait_visual_style_key` (`src/definitions/visual-styles.js:1-125`). | Recommended for `src/media/styles.js` (new file to be created) | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Relocated to `src/definitions/visual-styles.js` in holding step. Greenfield destination `src/media/styles.js` does not yet exist and will be created when moving styles to `@media`. |
+| **D36** | Narrative Styles, Speaking Styles & Profile Fields: `NARRATIVE_STYLES` (`src/definitions/narrative-styles.js:1-118`), `SPEAKING_STYLES` (`src/definitions/speaking-styles.js:1-168`), `PROFILE_FIELDS` (`src/definitions/profile-fields.js:1-382`), `PREMADE_ENTITIES` (`src/definitions/premade-entities.js:1-240`). | `src/storage/profile-fields.js:1-120`, `src/storage/presets.js:1-140` | **FULLY ACCOUNTED** | **STATIC ANALYSIS** | Relocated to `src/definitions/` holding directory as-is. Long-term destinations: profile fields & presets belong in `src/storage/`; narrative and speaking styles belong in `src/engine/` prompt modules. |
+
+---
+
+### 5.1 Greenfield Recommendations for Relocated `src/definitions/` Files
+
+During Task 1, five definition files were moved from `src/data/definitions/` to `src/definitions/` as a holding location without altering structure or contracts:
+
+1. **`src/definitions/visual-styles.js` (Visual Styles Catalog)**:  
+   - **Greenfield Destination**: `src/media/styles.js` (new file to be created).  
+   - **Rationale**: Visual styles define image diffusion aesthetics, negative prompts, and aspect ratios consumed exclusively by `src/media/visual.js`, `src/ui/primitives/StyleBadge.svelte`, and `src/ui/profile/VisualWing.svelte`. It belongs in the sensory cortex (`src/media/`), not persistence or engine.
+2. **`src/definitions/narrative-styles.js` & `src/definitions/speaking-styles.js`**:  
+   - **Greenfield Destination**: `src/engine/prompts/` (or `src/engine/styles.js`).  
+   - **Rationale**: Narrative and speaking style catalogs define tone prompts, pacing motifs, and anti-AI detox vocabulary dictionaries consumed directly by `src/engine/prompts.js`, `src/engine/turns.js`, and `src/utils/detox.js`.
+3. **`src/definitions/profile-fields.js` (Leaf Field Specs & Catalogs)**:  
+   - **Greenfield Destination**: Consolidate with `src/storage/profile-fields.js`.  
+   - **Rationale**: `src/storage/profile-fields.js` already implements `PROFILE_FIELDS` and `PROFILE_FIELD_CATALOG`. The legacy file adds `FLAT_LEAF_MAP`, validation schemas, and UI field descriptors. These should merge directly into `src/storage/profile-fields.js` during Gate 4.
+4. **`src/definitions/premade-entities.js` (Initial Cast Presets)**:  
+   - **Greenfield Destination**: Consolidate with `src/storage/presets.js`.  
+   - **Rationale**: Greenfield `src/storage/presets.js` already houses `DEFAULT_PRESETS` in clean quadrant format. The legacy premade definitions should be converted into greenfield presets and retired.
+
+---
+
+## 6. Unified Pre-Demolition Blockers Checklist
+
+Before `src/platform/`, `src/state/`, `src/intelligence/`, or `src/data/` can be safely deleted without breaking tests or the application, the following concrete actions must be completed:
 
 ### A. Live Bug Fixes (Kernel & Greenfield Bridge)
 
@@ -255,19 +339,45 @@ Before `src/platform/`, `src/state/`, or `src/intelligence/` can be safely delet
       _Locations_: `src/state/interface.svelte.js:97-181`, `src/state/runtime.svelte.js:698-703`.  
       _Defect_: View navigation (`view`, `profile_open`, `set_view`), responsive viewport (`init_viewport`), lobby slots (`selected_ai`, `selected_user`, `selected_fractal`), persistent `rpg_settings`, and `state_bridge` re-registration must be completed.
 
+### F. Data Layer & Greenfield Storage Pre-Demolition Blockers
+
+- [ ] **B22. Add Dialogue Log Mutation & Attachment Management to `src/storage/db.js` (`MIGRATION GAP`)** — **STATIC ANALYSIS**  
+      _Locations_: [src/storage/db.js:265-277](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L265-L277), [src/data/sessions.svelte.js:323-434](file:///c:/Users/johng/source/repos/RPGlitch/src/data/sessions.svelte.js#L323-L434), [src/state/log.svelte.js:117](file:///c:/Users/johng/source/repos/RPGlitch/src/state/log.svelte.js#L117).  
+      _Defect_: Greenfield `src/storage/db.js` must implement `edit_log_entry(id, new_text)`, `delete_log_entry(id)`, `update_log_attachment(log_id, attachment)`, and `delete_log_attachment(log_id, attachment_id)` with attachment payload persistence in `append_log_entry`.
+- [ ] **B23. Add Cast Management (`update_cast`) & Roster IDs to `src/storage/db.js` (`MIGRATION GAP`)** — **LIVE-VERIFIED**  
+      _Locations_: [src/storage/db.js:73-96](file:///c:/Users/johng/source/repos/RPGlitch/src/storage/db.js#L73-L96), [src/data/repository.js:314-325](file:///c:/Users/johng/source/repos/RPGlitch/src/data/repository.js#L314-L325), [src/ui/Storyboard.svelte.js:15](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte.js#L15).  
+      _Defect_: `update_cast(id, npc_ids)` must be implemented on greenfield storage, and `list_stories()` must retain `ai_id`, `user_id`, and `fractal_id` on returned summary objects.
+- [ ] **B24. Implement Full Story Session Initialization in Greenfield Engine (`MIGRATION GAP`)** — **STATIC ANALYSIS**  
+      _Locations_: [src/data/sessions.svelte.js:134-225](file:///c:/Users/johng/source/repos/RPGlitch/src/data/sessions.svelte.js#L134-L225), `src/engine/turns.js`.  
+      _Defect_: Replicate `create_from_selection`: seed wanderer NPCs and bidirectional fractal bonds into `story.npc_ids`, create the initial prologue entry, and emit `STORY_START` telemetry without calling `@data`.
+- [ ] **B25. Implement Time-Travel State Replay in `src/storage/` (`MIGRATION GAP`)** — **STATIC ANALYSIS**  
+      _Locations_: [src/data/ledger.js:136-224](file:///c:/Users/johng/source/repos/RPGlitch/src/data/ledger.js#L136-L224), [src/ui/profile/FieldHistoryModal.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/FieldHistoryModal.svelte#L11), [src/ui/profile/TimelineModal.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/TimelineModal.svelte#L12).  
+      _Defect_: Port `replay_entity_field` and `replay_full_entity_at_round` into `src/storage/` or `src/engine/differential.js` and re-point UI modals.
+- [ ] **B26. Re-point All 35 Active `@data` UI & State Consumer Sites (`MIGRATION GAP`)** — **STATIC ANALYSIS**  
+      _Locations_: 35 files across `src/ui/`, `src/state/`, and `src/main.js` (see Section 7 Unified Consumer Inventory).  
+      _Defect_: Re-point all repository, session driver, and style imports to `@storage`, `@engine`, and `@media`.
+- [ ] **B27. Relocate Definitions from Holding Location to Target Layers (`MIGRATION GAP`)** — **STATIC ANALYSIS**  
+      _Locations_: `src/definitions/*` (5 files).  
+      _Defect_: Create `src/media/styles.js` for visual styles; merge profile fields into `src/storage/profile-fields.js`; merge premade entities into `src/storage/presets.js`; move narrative/speaking styles into `src/engine/`.
+- [ ] **B28. Demolish `src/data/` and Legacy Barrel Exports (`MIGRATION GAP`)** — **STATIC ANALYSIS**  
+      _Locations_: `src/data/` (11 files).  
+      _Defect_: Once B22–B27 pass and zero `@data` imports remain in `src/`, delete `src/data/` directory and remove the `@data` path alias from `vite.config.js`.
+
 ---
 
-## 6. Unified Consumer Inventory (Deduplicated Across All Legacy Modules)
+## 7. Unified Consumer Inventory (Deduplicated Across All Legacy Modules)
 
-Every active file consuming legacy modules across `@state`, `@platform`, and `@intelligence`, verified via disk grep:
+Every active file consuming legacy modules across `@state`, `@platform`, `@intelligence`, and `@data`, verified via disk grep:
 
 1. **`src/main.js`**:
    - `@state`: `app`, `developer_log` ([main.js:18](file:///c:/Users/johng/source/repos/RPGlitch/src/main.js#L18))
    - `@platform`: `install_environment_hardening`, `embeddings_engine`, `save_session_checkpoint` ([main.js:10-15](file:///c:/Users/johng/source/repos/RPGlitch/src/main.js#L10-L15))
    - `@intelligence`: `reconcile_vector_caps` ([main.js:28](file:///c:/Users/johng/source/repos/RPGlitch/src/main.js#L28))
+   - `@data`: `seed_premades`, `session_driver`, `set_versionchange_quiesce` ([main.js:20](file:///c:/Users/johng/source/repos/RPGlitch/src/main.js#L20))
 2. **`src/App.svelte`**:
    - `@state`: `app`, `chrono_engine`, `register_image_preview_handlers`, `runtime`, `simulation_state`, `streaming` ([App.svelte:15-21](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte#L15-L21))
    - `@intelligence`: `render_optics_fallback` ([App.svelte:22](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte#L22))
+   - `@data`: `session_driver` ([App.svelte:23](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte#L23))
    - UI trigger: triggers Ghostwriter via `app.ghostwrite_request++` ([App.svelte:236](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte#L236))
 3. **`src/engine/bridge.js`**:
    - `@state`: `app`, `developer_log`, `runtime`, `simulation_log`, `streaming` ([bridge.js:14-20](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L14-L20))
@@ -275,91 +385,145 @@ Every active file consuming legacy modules across `@state`, `@platform`, and `@i
    - `@data`: `session_driver`, `append_ledger_entries` ([bridge.js:23, 338](file:///c:/Users/johng/source/repos/RPGlitch/src/engine/bridge.js#L23))
 4. **`src/state/chrono.svelte.js`**:
    - `@intelligence`: `build_turn_summary`, `gamemaster` ([chrono.svelte.js:23](file:///c:/Users/johng/source/repos/RPGlitch/src/state/chrono.svelte.js#L23))
+   - `@data`: `session_driver` ([chrono.svelte.js:25](file:///c:/Users/johng/source/repos/RPGlitch/src/state/chrono.svelte.js#L25))
 5. **`src/state/runtime.svelte.js`**:
    - `@platform`: `load_session_checkpoint`, `clear_session_checkpoint` ([runtime.svelte.js:30](file:///c:/Users/johng/source/repos/RPGlitch/src/state/runtime.svelte.js#L30))
    - `@intelligence`: `TemporalVector` typedef import ([runtime.svelte.js:41](file:///c:/Users/johng/source/repos/RPGlitch/src/state/runtime.svelte.js#L41))
+   - `@data`: `db`, `entities`, `coerce_story_key`, `session_driver`, `SESSION_ID_KEY` ([runtime.svelte.js:32](file:///c:/Users/johng/source/repos/RPGlitch/src/state/runtime.svelte.js#L32))
 6. **`src/state/interface.svelte.js`**:
    - `@platform`: `embeddings_engine` ([interface.svelte.js:27](file:///c:/Users/johng/source/repos/RPGlitch/src/state/interface.svelte.js#L27))
+   - `@data`: `db`, `entities`, `normalize`, `stories` ([interface.svelte.js:29](file:///c:/Users/johng/source/repos/RPGlitch/src/state/interface.svelte.js#L29))
    - Reactive state: `ghostwrite_request = $state(0)` ([interface.svelte.js:183](file:///c:/Users/johng/source/repos/RPGlitch/src/state/interface.svelte.js#L183))
-7. **`src/ui/console/Console.svelte`**:
+7. **`src/state/log.svelte.js`**:
+   - `@data`: `db`, `session_driver` ([log.svelte.js:29](file:///c:/Users/johng/source/repos/RPGlitch/src/state/log.svelte.js#L29))
+8. **`src/ui/console/Console.svelte`**:
    - `@intelligence`: `gamemaster` ([Console.svelte:15](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/Console.svelte#L15))
-8. **`src/ui/console/InputConsole.svelte`**:
-   - `@state`: `app`, `chrono_engine`, `runtime`, `simulation_log`, `simulation_state` ([InputConsole.svelte:13](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/InputConsole.svelte#L13))
-9. **`src/ui/console/StoryboardBar.svelte`**:
-   - `@intelligence`: `gamemaster` ([StoryboardBar.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/StoryboardBar.svelte#L10))
-10. **`src/ui/console/StorymodeBar.svelte`**:
+   - `@data`: `session_driver`, `stories` ([Console.svelte:16](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/Console.svelte#L16))
+9. **`src/ui/console/DevControls.svelte`**:
+   - `@data`: `db` ([DevControls.svelte:6](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/DevControls.svelte#L6))
+10. **`src/ui/console/InputConsole.svelte`**:
+    - `@state`: `app`, `chrono_engine`, `runtime`, `simulation_log`, `simulation_state` ([InputConsole.svelte:13](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/InputConsole.svelte#L13))
+11. **`src/ui/console/StoryboardBar.svelte`**:
+    - `@intelligence`: `gamemaster` ([StoryboardBar.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/StoryboardBar.svelte#L10))
+    - `@data`: `stories` ([StoryboardBar.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/StoryboardBar.svelte#L11))
+12. **`src/ui/console/StorymodeBar.svelte`**:
     - `@state`: `app`, `chrono_engine`, `force_recover_simulation`, `runtime`, `simulation_log` ([StorymodeBar.svelte:22-27](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/StorymodeBar.svelte#L22-L27))
     - `@intelligence`: `gamemaster` (calls `gamemaster.execute_ghostwriter`, [StorymodeBar.svelte:22, 59](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/console/StorymodeBar.svelte#L22))
-11. **`src/ui/entity/ImportModal.svelte`**:
+13. **`src/ui/entity/CardHand.svelte`**:
+    - `@data`: `create_new`, `entities` ([CardHand.svelte:7](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/entity/CardHand.svelte#L7))
+14. **`src/ui/entity/ImportModal.svelte`**:
     - `@intelligence`: `birth_entity_core` ([ImportModal.svelte:4](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/entity/ImportModal.svelte#L4))
-12. **`src/ui/header/Header.svelte`**:
+    - `@data`: `create_new`, `detect_card_format`, `normalize`, `parse_character_card` ([ImportModal.svelte:5](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/entity/ImportModal.svelte#L5))
+15. **`src/ui/header/Header.svelte`**:
     - `@state`: `app`, `chrono_engine`, `runtime` ([Header.svelte:8](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/header/Header.svelte#L8))
-13. **`src/ui/header/Settings.svelte`**:
+16. **`src/ui/header/Settings.svelte`**:
     - `@state`: `app`, `runtime`, `simulation_log` ([Settings.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/header/Settings.svelte#L11))
-14. **`src/ui/header/Stories.svelte`**:
+17. **`src/ui/header/Stories.svelte`**:
     - `@state`: `app`, `chrono_engine`, `runtime`, `simulation_log` ([Stories.svelte:14](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/header/Stories.svelte#L14))
-15. **`src/ui/header/WorldCast.svelte`**:
+18. **`src/ui/header/WorldCast.svelte`**:
     - `@state`: `app`, `runtime`, `simulation_state` ([WorldCast.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/header/WorldCast.svelte#L11))
-16. **`src/ui/message/Actions.svelte`**:
+19. **`src/ui/message/Actions.svelte`**:
     - `@state`: `app`, `chrono_engine`, `simulation_state` ([Actions.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Actions.svelte#L11))
-17. **`src/ui/message/Attachments.svelte`**:
+20. **`src/ui/message/Attachments.svelte`**:
     - `@state`: `app`, `simulation_log`, `simulation_state` ([Attachments.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Attachments.svelte#L12))
-18. **`src/ui/message/Feed.svelte`**:
+21. **`src/ui/message/Feed.svelte`**:
     - `@state`: `app`, `chrono_engine`, `runtime`, `simulation_log`, `simulation_state`, `streaming` ([Feed.svelte:16-22](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Feed.svelte#L16-L22))
-19. **`src/ui/message/Message.svelte`**:
+22. **`src/ui/message/Message.svelte`**:
     - `@intelligence`: `render_optics_fallback` ([Message.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Message.svelte#L12))
-20. **`src/ui/message/MessageHeader.svelte`**:
+23. **`src/ui/message/MessageHeader.svelte`**:
     - `@state`: `app`, `runtime`, `simulation_state` ([MessageHeader.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/MessageHeader.svelte#L11))
-21. **`src/ui/message/MessageItem.svelte`**:
+24. **`src/ui/message/MessageItem.svelte`**:
     - `@state`: `app`, `chrono_engine`, `runtime`, `simulation_log`, `simulation_state`, `streaming` ([MessageItem.svelte:12-18](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/MessageItem.svelte#L12-L18))
-22. **`src/ui/message/TelemetryCard.svelte`**:
+25. **`src/ui/message/TelemetryCard.svelte`**:
     - `@state`: `app`, `runtime` ([TelemetryCard.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/TelemetryCard.svelte#L12))
     - `@intelligence`: `parse_bracket_entries`, `strip_bracket_engine_flags` ([TelemetryCard.svelte:15](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/TelemetryCard.svelte#L15))
-23. **`src/ui/message/render.js`**:
+26. **`src/ui/message/render.js`**:
     - `@platform`: `sanitize` ([render.js:14](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/render.js#L14))
     - `@intelligence`: `clean_image_prompts`, `parse_think_block` ([render.js:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/render.js#L11)), `filter_epistemic_brackets`, `strip_covert_directives` ([render.js:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/render.js#L12))
-24. **`src/ui/profile/AppearancePanel.svelte`**:
+27. **`src/ui/profile/AppearancePanel.svelte`**:
     - `@state`: `app`, `runtime` ([AppearancePanel.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/AppearancePanel.svelte#L10))
-25. **`src/ui/profile/CharacterWing.svelte`**:
+28. **`src/ui/profile/CharacterWing.svelte`**:
     - `@state`: `app`, `runtime` ([CharacterWing.svelte:14](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/CharacterWing.svelte#L14))
-26. **`src/ui/profile/ControlPanel.svelte`**:
+29. **`src/ui/profile/ControlPanel.svelte`**:
     - `@state`: `app`, `runtime` ([ControlPanel.svelte:9](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/ControlPanel.svelte#L9))
-27. **`src/ui/profile/DevWing.svelte`**:
+30. **`src/ui/profile/DevWing.svelte`**:
     - `@state`: `app`, `developer_log`, `runtime`, `simulation_log` ([DevWing.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/DevWing.svelte#L11))
     - `@intelligence`: `DYNAMICS_AXES` ([DevWing.svelte:9](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/DevWing.svelte#L9))
-28. **`src/ui/profile/DynamicsPanel.svelte`**:
+31. **`src/ui/profile/DynamicsPanel.svelte`**:
     - `@state`: `runtime` ([DynamicsPanel.svelte:9](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/DynamicsPanel.svelte#L9))
-29. **`src/ui/profile/IdentityDeck.svelte`**:
+32. **`src/ui/profile/FieldHistoryModal.svelte`**:
+    - `@data`: `query_entity_history`, `replay_entity_field` ([FieldHistoryModal.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/FieldHistoryModal.svelte#L11))
+33. **`src/ui/profile/IdentityDeck.svelte`**:
     - `@state`: `app`, `runtime` ([IdentityDeck.svelte:13](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/IdentityDeck.svelte#L13))
-30. **`src/ui/profile/ProfileModal.svelte`**:
+34. **`src/ui/profile/ProfileModal.svelte`**:
     - `@state`: `app`, `runtime` ([ProfileModal.svelte:13](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/ProfileModal.svelte#L13))
-31. **`src/ui/profile/Profile.svelte.js`**:
+35. **`src/ui/profile/Profile.svelte`**:
+    - `@data`: `PROFILE_FIELDS`, `VISUAL_STYLES`, `NARRATIVE_STYLES`, `SPEAKING_STYLES` ([Profile.svelte:18](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte#L18))
+36. **`src/ui/profile/Profile.svelte.js`**:
     - `@state`: `app`, `runtime` ([Profile.svelte.js:8](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte.js#L8))
     - `@platform`: `llm_service` ([Profile.svelte.js:7](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte.js#L7))
     - `@intelligence`: `compile_prompt`, `parse_profile_json` ([Profile.svelte.js:6](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte.js#L6))
-32. **`src/ui/profile/RelationalGraph.svelte`**:
+    - `@data`: `db`, `normalize`, `PROFILE_FIELD_CATALOG`, `FLAT_LEAF_MAP` ([Profile.svelte.js:9](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/Profile.svelte.js#L9))
+37. **`src/ui/profile/ProfileHeader.svelte`**:
+    - `@data`: `PROFILE_FIELDS` ([ProfileHeader.svelte:8](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/ProfileHeader.svelte#L8))
+38. **`src/ui/profile/RelationalGraph.svelte`**:
     - `@intelligence`: `extract_entity_relationships` ([RelationalGraph.svelte:17](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/RelationalGraph.svelte#L17))
-33. **`src/ui/profile/VisualWing.svelte`**:
+    - `@data`: `entities`, `PREMADE_ENTITIES` ([RelationalGraph.svelte:18](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/RelationalGraph.svelte#L18))
+39. **`src/ui/profile/TimelineModal.svelte`**:
+    - `@data`: `query_entity_history`, `replay_full_entity_at_round`, `entities`, `normalize` ([TimelineModal.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/TimelineModal.svelte#L12))
+40. **`src/ui/profile/VisualWing.svelte`**:
     - `@intelligence`: `extract_aesthetic_traits` ([VisualWing.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VisualWing.svelte#L10))
-34. **`src/ui/storyboard/BeginButton.svelte`**:
-    - `@state`: `app`, `chrono_engine` ([BeginButton.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/BeginButton.svelte#L10))
-35. **`src/ui/storyboard/CardHand.svelte`**:
-    - `@state`: `app`, `runtime` ([CardHand.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/CardHand.svelte#L12))
-36. **`src/ui/storyboard/Slot.svelte`**:
-    - `@state`: `app` ([Slot.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/Slot.svelte#L10))
-37. **`src/ui/storyboard/Storyboard.svelte`**:
-    - `@state`: `app`, `chrono_engine`, `runtime` ([Storyboard.svelte:15](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/Storyboard.svelte#L15))
-38. **`src/ui/common/GeneratingIndicator.svelte`**:
-    - `@state`: `runtime` ([GeneratingIndicator.svelte:14](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/common/GeneratingIndicator.svelte#L14))
-39. **`src/ui/actions.js`**:
-    - `@platform`: `sanitize` ([actions.js:2](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/actions.js#L2))
-40. **`src/ui/primitives/SourceField.svelte`**:
+    - `@data`: `VISUAL_STYLES` ([VisualWing.svelte:11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VisualWing.svelte#L11))
+41. **`src/ui/primitives/SourceField.svelte`**:
     - `@platform`: `validate_image`, `validate_url`, `fetch_web`, `blob_to_data_url` ([SourceField.svelte:18](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/primitives/SourceField.svelte#L18))
-41. **`src/data/repository.js`**:
+    - `@data`: `extract_card_from_png` ([SourceField.svelte:20](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/primitives/SourceField.svelte#L20))
+42. **`src/ui/primitives/StyleBadge.svelte`**:
+    - `@data`: `NARRATIVE_STYLES`, `VISUAL_STYLES` ([StyleBadge.svelte:6](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/primitives/StyleBadge.svelte#L6))
+43. **`src/ui/story/StoryCard.svelte`**:
+    - `@data`: `Story` typedef ([StoryCard.svelte:8](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/story/StoryCard.svelte#L8))
+44. **`src/ui/story/StoryManager.svelte`**:
+    - `@data`: `db`, `stories`, `session_driver` ([StoryManager.svelte:10-11](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/story/StoryManager.svelte#L10-L11))
+45. **`src/ui/storyboard/BeginButton.svelte`**:
+    - `@state`: `app`, `chrono_engine` ([BeginButton.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/BeginButton.svelte#L10))
+46. **`src/ui/storyboard/CardHand.svelte`**:
+    - `@state`: `app`, `runtime` ([CardHand.svelte:12](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/CardHand.svelte#L12))
+47. **`src/ui/storyboard/Slot.svelte`**:
+    - `@state`: `app` ([Slot.svelte:10](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/Slot.svelte#L10))
+48. **`src/ui/storyboard/Storyboard.svelte`**:
+    - `@state`: `app`, `chrono_engine`, `runtime` ([Storyboard.svelte:15](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/storyboard/Storyboard.svelte#L15))
+49. **`src/ui/Storyboard.svelte.js`**:
+    - `@data`: `stories`, `VISUAL_STYLES`, `NARRATIVE_STYLES` ([Storyboard.svelte.js:7](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte.js#L7))
+50. **`src/ui/common/GeneratingIndicator.svelte`**:
+    - `@state`: `runtime` ([GeneratingIndicator.svelte:14](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/common/GeneratingIndicator.svelte#L14))
+51. **`src/ui/actions.js`**:
+    - `@platform`: `sanitize` ([actions.js:2](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/actions.js#L2))
+52. **`src/intelligence/builder.js`**:
+    - `@data`: `PROFILE_FIELD_CATALOG`, `VISUAL_STYLES`, `resolve_portrait_visual_style_key` ([builder.js:10](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/builder.js#L10))
+53. **`src/intelligence/director.js`**:
+    - `@data`: `entities`, `append_ledger_entry` ([director.js:18](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/director.js#L18))
+54. **`src/intelligence/dynamics.js`**:
+    - `@data`: `STYLE_MOTIF_REGISTRY` ([dynamics.js:12](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/dynamics.js#L12))
+55. **`src/intelligence/modules/output.js`**:
+    - `@data`: `PROFILE_FIELDS` ([output.js:8](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/modules/output.js#L8))
+56. **`src/intelligence/modules/sheets.js`**:
+    - `@data`: `PROFILE_FIELD_CATALOG` ([sheets.js:15](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/modules/sheets.js#L15))
+57. **`src/intelligence/modules/style.js`**:
+    - `@data`: `VISUAL_STYLES`, `NARRATIVE_STYLES`, `SPEAKING_STYLES` ([style.js:12](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/modules/style.js#L12))
+58. **`src/intelligence/modules/task.js`**:
+    - `@data`: `PROFILE_FIELD_CATALOG` ([task.js:7](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/modules/task.js#L7))
+59. **`src/intelligence/profile.js`**:
+    - `@data`: `FLAT_LEAF_MAP`, `entities`, `stories`, `append_ledger_entries` ([profile.js:15, 230](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/profile.js#L15))
+60. **`src/intelligence/story.js`**:
+    - `@data`: `db`, `entities`, `stories` ([story.js:28](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/story.js#L28))
+61. **`src/intelligence/temporal.js`**:
+    - `@data`: `append_ledger_entries` ([temporal.js:28](file:///c:/Users/johng/source/repos/RPGlitch/src/intelligence/temporal.js#L28))
+62. **`src/media/palette.js`**:
+    - `@data`: `SIGNATURE_COLORS` ([palette.js:8](file:///c:/Users/johng/source/repos/RPGlitch/src/media/palette.js#L8))
+63. **`src/data/repository.js`**:
     - `@platform`: `deserialize_embedding` ([repository.js:7](file:///c:/Users/johng/source/repos/RPGlitch/src/data/repository.js#L7))
-42. **`src/data/normalizer.js`**:
+64. **`src/data/normalizer.js`**:
     - `@platform`: `escape_html` ([normalizer.js:41](file:///c:/Users/johng/source/repos/RPGlitch/src/data/normalizer.js#L41))
-43. **`src/media/visual.js`**:
+65. **`src/media/visual.js`**:
     - `state_bridge`: `get_entities()`, `get_settings()` ([visual.js:24, 307-318, 439, 558-571](file:///c:/Users/johng/source/repos/RPGlitch/src/media/visual.js#L307-L318))
-44. **`src/utils/styles.js`**:
+66. **`src/utils/styles.js`**:
     - `state_bridge`: `get_entities()` ([styles.js:8, 127](file:///c:/Users/johng/source/repos/RPGlitch/src/utils/styles.js#L127))
