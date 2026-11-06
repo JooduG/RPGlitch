@@ -157,7 +157,8 @@ export const PURPOSE_CORES = Object.freeze({
     start_with: (context) => {
       const camera_note = typeof context === "string" ? context : context?.camera_note;
       if (!camera_note || !String(camera_note).trim()) return '{"_thought_process": "';
-      const safe_note = JSON.stringify(String(camera_note).trim()).slice(1, -1);
+      const compact_note = String(camera_note).trim().slice(0, 300);
+      const safe_note = JSON.stringify(compact_note).slice(1, -1);
       return `{"_thought_process": "${safe_note}. `;
     },
     resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
@@ -186,20 +187,13 @@ export const PURPOSE_CORES = Object.freeze({
     ### Negative Prompt
     Confine negative constraints strictly to global artifacts in \`negative_prompt\`. Start with standard quality anchors ("blurry, low quality, distorted, bad anatomy, bad hands, missing fingers, text, watermark") and append scene-specific opposites (e.g., "modern, cars" for a fantasy setting).
 
-    ### Resolution
-    Select the optimal resolution based on subject framing:
-    - **"512x768"** (Portrait): Single character portrait, vertical figure, or standing pose.
-    - **"768x512"** (Landscape): Wide environmental landscape, multi-character scene, or panoramic scenery.
-    - **"768x768"** (Square): Tight macro shots, symmetrical compositions, close-up details, or compact vignettes.
-
     ---
 
     <OUTPUT_FORMAT mode="json">
       {
         "_thought_process": "",
         "prompt": "",
-        "negative_prompt": "",
-        "resolution": "512x768 | 768x512 | 768x768"
+        "negative_prompt": ""
       }
     </OUTPUT_FORMAT>
 

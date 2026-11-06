@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Greenfield Engine Live Fixes & Sensory Precedence Harmonization (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/prompts.js`, `src/engine/index.js`, `src/engine/transport.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`, `src/media/visual.js`, `src/App.svelte`)**:
+- **Greenfield Engine Live Fixes & Sensory Precedence Harmonization (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/prompts.js`, `src/engine/index.js`, `src/engine/transport.js`, `src/engine/turns.js`, `src/state/chrono.svelte.js`, `src/media/visual.js`, `src/media/optics.js`, `src/ui/profile/VisualWing.svelte`, `src/App.svelte`)**:
+  - **Visualizer Response Hardening & Deterministic Resolution (`src/media/visual.js`, `src/media/optics.js`, `src/ui/profile/VisualWing.svelte`, `src/engine/prompts.js`)**:
+    - Stripped echoed startWith prefill before parsing JSON in `VisualEngine.enhance()`, handling exact matches and whitespace-drifted echoes so continuation fields with raw newlines parse cleanly without tripping into fallback.
+    - Added guard against persisting prefill or internal thought markers (`_thought_process` or `{"_thought_process"`) in both `VisualEngine.enhance()` and `VisualWing.svelte`'s `handle_creative_action()`, keeping the user's draft intact and logging a warning.
+    - Shortened visualizer startWith prefill to a compact cue (first 300 chars of `camera_note`) while preserving the full aesthetic direction in the task block.
+    - Derived render resolution deterministically from canonical tier mapping (`IMAGE_RESOLUTIONS` in `src/media/optics.js`), mapping `solo_entity` (character/user portraits) to `512x768` portrait and `story_scene` (fractal/scene pictures) to `768x512` landscape.
+    - Removed redundant `### Resolution` directive from the visualizer task block in `src/engine/prompts.js` and ensured `VisualEngine.generate()`, `visualize()`, and `enhance()` resolve tier dimensions deterministically.
   - **Visualizer Camera Note & Aesthetic Steering (`src/engine/prompts.js`, `src/engine/index.js`, `src/media/visual.js`)**:
     - Wired `PURPOSE_CORES.visualizer.start_with({ camera_note })` prefill through to `llm_service.generate()` in `VisualEngine.enhance()`, resolving model prefill with style guidance cues.
     - Exported `PURPOSE_CORES` from `src/engine/prompts.js` and barrel `src/engine/index.js` for clean downward access.

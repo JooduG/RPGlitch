@@ -8,7 +8,7 @@
  */
 
 import { generate_secure_seed, strip_cognition_blocks, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
-import { IMAGE_TIERS } from "./optics.js";
+import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 import { llm_service } from "@platform";
 import { compile_prompt, PURPOSE_CORES } from "../engine/prompts.js";
 import { get_visual_style } from "../data/definitions/visual-styles.js";
@@ -338,11 +338,13 @@ export class VisualEngine {
   is_offline = false;
 
   async generate(target, options = {}) {
+    const mode = options.mode || "solo_entity";
+    const tier_resolution = get_resolution_string(mode);
     const dispatched = await dispatch_visual_generation(
       {
         prompt: typeof target === "string" ? target : options.prompt || "",
         negative_prompt: options.negative_prompt,
-        resolution: options.resolution,
+        resolution: options.resolution || tier_resolution,
         guidance_scale: options.guidance_scale,
         seed: options.seed,
       },
@@ -356,11 +358,12 @@ export class VisualEngine {
 
   async visualize(story_id, text, tier, options = {}) {
     const prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
+    const tier_resolution = get_resolution_string(tier);
     const dispatched = await dispatch_visual_generation(
       {
         prompt,
         negative_prompt: options.negative_prompt,
-        resolution: options.resolution,
+        resolution: options.resolution || tier_resolution,
         guidance_scale: options.guidance_scale,
         seed: options.seed,
       },
@@ -443,8 +446,9 @@ export class VisualEngine {
     console.debug(`[VisualEngine.enhance] Resolved visual style "${style_key}" from ${style_source} precedence.`);
 
     const style_def = get_visual_style(style_key);
+    const tier_resolution = get_resolution_string(type);
     if (style_def && style_def.llm_refine === false) {
-      return { prompt: text.trim(), negative_prompt: style_def.negative_prompt || "" };
+      return { prompt: text.trim(), negative_prompt: style_def.negative_prompt || "", resolution: tier_resolution };
     }
 
     try {
@@ -474,36 +478,78 @@ export class VisualEngine {
       const response = await llm_service.generate({ system, role: "model", startWith: start_with }, { silent: true, priority: "background" });
 
       const base_negative = style_def?.negative_prompt || "";
+      const tier_resolution = get_resolution_string(type);
 
       if (!response) {
-        return { prompt: text.trim(), negative_prompt: base_negative };
+        return { prompt: text.trim(), negative_prompt: base_negative, resolution: tier_resolution };
       }
 
-      // Peel JSON format from visualizer output
-      const json_match = /\{[\s\S]*\}/.exec(String(response));
+      let response_text = String(response);
+
+      // Strip known prefill if echoed by model (exact or whitespace-drifted)
+      if (start_with) {
+        if (response_text.startsWith(start_with)) {
+          response_text = response_text.slice(start_with.length);
+        } else if (response_text.trimStart().startsWith(start_with.trimStart())) {
+          const trimmed_start_with = start_with.trimStart();
+          const offset = response_text.indexOf(trimmed_start_with);
+          if (offset !== -1) {
+            response_text = response_text.slice(offset + trimmed_start_with.length);
+          }
+        }
+      }
+
+      let candidate_prompt = "";
+      let candidate_negative = "";
+
+      // 1. Try JSON extraction on the stripped remainder
+      const json_match = /\{[\s\S]*\}/.exec(response_text);
       if (json_match) {
         try {
           const parsed = JSON.parse(json_match[0]);
           if (parsed && typeof parsed.prompt === "string" && parsed.prompt.trim()) {
-            const parsed_neg = typeof parsed.negative_prompt === "string" ? parsed.negative_prompt.trim() : "";
-            const combined_negative = [base_negative, parsed_neg].filter(Boolean).join(", ");
-            return {
-              prompt: parsed.prompt.trim(),
-              negative_prompt: combined_negative,
-              resolution: parsed.resolution,
-            };
+            candidate_prompt = parsed.prompt.trim();
+            if (typeof parsed.negative_prompt === "string" && parsed.negative_prompt.trim()) {
+              candidate_negative = parsed.negative_prompt.trim();
+            }
           }
         } catch (_json_err) {
           /* Fall back to regex/text extraction */
         }
       }
 
-      // Emergency fallback: strip think blocks and cleanup text
-      const cleaned = strip_cognition_blocks(String(response)).trim();
-      return { prompt: cleaned || text.trim(), negative_prompt: base_negative };
+      // 2. Fall back to regex field extraction if JSON.parse threw due to unescaped newlines/quotes
+      if (!candidate_prompt) {
+        const prompt_field_match = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(response_text);
+        if (prompt_field_match && prompt_field_match[1]) {
+          candidate_prompt = prompt_field_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim();
+        }
+        const neg_field_match = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(response_text);
+        if (neg_field_match && neg_field_match[1]) {
+          candidate_negative = neg_field_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n").trim();
+        }
+      }
+
+      // 3. Fall back to cognition stripping if still empty
+      if (!candidate_prompt) {
+        candidate_prompt = strip_cognition_blocks(response_text).trim();
+      }
+
+      // 4. Never persist our own prefill or thought process markers
+      if (!candidate_prompt || candidate_prompt.includes("_thought_process") || candidate_prompt.startsWith('{"_thought_process')) {
+        console.warn("[VisualEngine.enhance] Response contained prefill or unusable thought markers, keeping draft.");
+        return { prompt: text.trim(), negative_prompt: base_negative, resolution: tier_resolution };
+      }
+
+      const combined_negative = [base_negative, candidate_negative].filter(Boolean).join(", ");
+      return {
+        prompt: candidate_prompt,
+        negative_prompt: combined_negative,
+        resolution: tier_resolution,
+      };
     } catch (err) {
       console.warn("[VisualEngine.enhance] Visualizer refinement failed, using draft:", err);
-      return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "" };
+      return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: get_resolution_string(type) };
     }
   }
 }

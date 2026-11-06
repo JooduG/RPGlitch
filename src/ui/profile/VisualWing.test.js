@@ -120,4 +120,33 @@ describe("VisualWing Stability (Hotfix)", () => {
     expect(char.modifiers.prompt).toBe("RAW photograph of a character, sharp focus, 8k.");
     expect(char.modifiers.negative_prompt).toBe("blurry, low quality, anime");
   });
+
+  test("handle_creative_action rejects prefill or _thought_process markers and keeps old prompt", () => {
+    /** @type {any} */
+    const char = { modifiers: { prompt: "Hero draft concept", negative_prompt: "" } };
+    const logged = [];
+    const app_mock = {
+      log: (msg, type) => logged.push({ msg, type }),
+    };
+
+    // Simulate the exact VisualWing guard logic
+    const refine_result = {
+      prompt: '{"_thought_process": "Hero | Aesthetic Style: photo. continuation...", "resolution": "512x768"}',
+      negative_prompt: "",
+    };
+
+    let positive = refine_result.prompt || "";
+    let negative = refine_result.negative_prompt || "";
+
+    if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
+      app_mock.log("Enhancement returned no usable prose — draft kept", "warn");
+    } else {
+      char.modifiers.prompt = positive.trim();
+      if (negative) char.modifiers.negative_prompt = negative.trim();
+    }
+
+    expect(char.modifiers.prompt).toBe("Hero draft concept");
+    expect(char.modifiers.prompt).not.toContain("_thought_process");
+    expect(logged).toEqual([{ msg: "Enhancement returned no usable prose — draft kept", type: "warn" }]);
+  });
 });

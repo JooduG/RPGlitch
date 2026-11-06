@@ -4,7 +4,15 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { DEFAULT_IMAGE_TIER, IMAGE_TIERS, get_resolution, get_tier_guidance_scale, normalize_image_tier, resolve_image_trigger } from "./optics.js";
+import {
+  DEFAULT_IMAGE_TIER,
+  IMAGE_TIERS,
+  get_resolution,
+  get_resolution_string,
+  get_tier_guidance_scale,
+  normalize_image_tier,
+  resolve_image_trigger,
+} from "./optics.js";
 import { render_optics_fallback } from "@intelligence";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
@@ -65,6 +73,26 @@ describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
     it("normalizes fractal profile tier and landscape narrative group scenes to story_scene (768x512)", () => {
       expect(normalize_image_tier("fractal_profile")).toBe("story_scene");
       expect(get_resolution(normalize_image_tier("fractal_profile"))).toEqual({ width: 768, height: 512 });
+    });
+
+    it("exhaustively resolves every canonical tier in IMAGE_TIERS to an entry in TIER_RESOLUTIONS", () => {
+      for (const tier of IMAGE_TIERS) {
+        const res = get_resolution(tier);
+        expect(res).toBeDefined();
+        expect(res.width).toBeGreaterThan(0);
+        expect(res.height).toBeGreaterThan(0);
+        expect(get_resolution_string(tier)).toBe(`${res.width}x${res.height}`);
+      }
+    });
+
+    it("resolves character/user profile alias to solo_entity (512x768) and fractal/scene alias to story_scene (768x512)", () => {
+      expect(get_resolution_string("character")).toBe("512x768");
+      expect(get_resolution_string("user")).toBe("512x768");
+      expect(get_resolution_string("solo_entity")).toBe("512x768");
+
+      expect(get_resolution_string("fractal")).toBe("768x512");
+      expect(get_resolution_string("scene")).toBe("768x512");
+      expect(get_resolution_string("story_scene")).toBe("768x512");
     });
   });
 

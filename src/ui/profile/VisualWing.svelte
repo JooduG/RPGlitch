@@ -136,8 +136,13 @@
             }
           }
 
-          if (positive) profile_state.char.modifiers.prompt = positive.trim();
-          if (negative) profile_state.char.modifiers.negative_prompt = negative.trim();
+          // Guard against persisting prefill or internal thought markers as prompt
+          if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
+            app.log("Enhancement returned no usable prose — draft kept", "warn");
+          } else {
+            profile_state.char.modifiers.prompt = positive.trim();
+            if (negative) profile_state.char.modifiers.negative_prompt = negative.trim();
+          }
         }
       }
     } catch (err) {

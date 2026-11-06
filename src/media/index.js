@@ -45,7 +45,15 @@ export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./toke
 // Pure Visual Optics (Taxonomy, Triggers & Guidance Scales)
 // ============================================================================
 
-export { IMAGE_TIERS, DEFAULT_IMAGE_TIER, normalize_image_tier, get_resolution, get_tier_guidance_scale, resolve_image_trigger } from "./optics.js";
+export {
+  IMAGE_TIERS,
+  DEFAULT_IMAGE_TIER,
+  normalize_image_tier,
+  get_resolution,
+  get_resolution_string,
+  get_tier_guidance_scale,
+  resolve_image_trigger,
+} from "./optics.js";
 
 // ============================================================================
 // Stateless Visual Generation & Queue Lifecycle

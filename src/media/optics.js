@@ -45,8 +45,11 @@ export function normalize_image_tier(target_type) {
   if (str === "characters" || str === "group" || str === "story_entities") {
     return "story_entities";
   }
-  if (str === "fractal_profile" || str === "prologue" || str === "epilogue") {
+  if (str === "fractal_profile" || str === "fractal" || str === "scene" || str === "story_scene" || str === "prologue" || str === "epilogue") {
     return "story_scene";
+  }
+  if (str === "character" || str === "user" || str === "solo_entity") {
+    return "solo_entity";
   }
   if (IMAGE_TIERS.includes(/** @type {any} */ (str))) {
     return /** @type {any} */ (str);
@@ -62,6 +65,16 @@ export function normalize_image_tier(target_type) {
 export function get_resolution(mode) {
   const tier = normalize_image_tier(mode);
   return TIER_RESOLUTIONS[tier] || TIER_RESOLUTIONS.story_entities;
+}
+
+/**
+ * Resolves standard render resolution string "WIDTHxHEIGHT" for a tier mode or alias.
+ * @param {string | null | undefined} mode
+ * @returns {string} E.g., "512x768", "768x512", "768x768"
+ */
+export function get_resolution_string(mode) {
+  const dims = get_resolution(mode);
+  return `${dims.width}x${dims.height}`;
 }
 
 /**

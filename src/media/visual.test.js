@@ -174,5 +174,62 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       expect(result.negative_prompt).toContain("anime, illustration");
       spy.mockRestore();
     });
+
+    it("strips prefill echo with raw newlines in continuation and returns parsed prose", async () => {
+      const prefill = '{"_thought_process": "Hero | Aesthetic Style: photo. ';
+      // Continuation contains raw newlines in the thought process and a valid prompt
+      const continuation = `Evaluating character traits...
+Line 2 of thoughts
+Line 3 of thoughts",
+  "prompt": "Authentic candid snapshot of the hero in sunlight",
+  "negative_prompt": "blurry, low quality"
+}`;
+      const full_response = prefill + continuation;
+      const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(full_response);
+
+      const result = await visual_engine.enhance("Hero", "character", {
+        name: "Aria",
+        visual_style: "photo",
+      });
+
+      expect(result.prompt).toBe("Authentic candid snapshot of the hero in sunlight");
+      expect(result.prompt).not.toContain("_thought_process");
+      expect(result.negative_prompt).toContain("blurry, low quality");
+      spy.mockRestore();
+    });
+
+    it("falls back to original draft when model only echoes prefill or contains unusable thought markers", async () => {
+      const prefill_echo_only = '{"_thought_process": "Draft character concept. ';
+      const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(prefill_echo_only);
+
+      const result = await visual_engine.enhance("Draft character concept", "character", {
+        name: "Aria",
+        visual_style: "photo",
+      });
+
+      expect(result.prompt).toBe("Draft character concept");
+      expect(result.prompt).not.toContain("_thought_process");
+      spy.mockRestore();
+    });
+
+    it("derives resolution deterministically from tier mapping ignoring model's conflicting choice", async () => {
+      const mock_json = JSON.stringify({
+        _thought_process: "Portrait thought",
+        prompt: "A warrior",
+        negative_prompt: "blurry",
+        resolution: "768x512", // Model conflictingly picked landscape for solo character
+      });
+      const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
+
+      // 1. solo_entity / character -> always portrait 512x768
+      const char_result = await visual_engine.enhance("A warrior", "solo_entity");
+      expect(char_result.resolution).toBe("512x768");
+
+      // 2. scene / fractal -> always landscape 768x512
+      const scene_result = await visual_engine.enhance("Ancient ruins", "story_scene");
+      expect(scene_result.resolution).toBe("768x512");
+
+      spy.mockRestore();
+    });
   });
 });
