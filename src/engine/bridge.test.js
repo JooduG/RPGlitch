@@ -43,6 +43,29 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       }
     });
 
+    it("passes startWith and stopSequences down to the underlying generator", async () => {
+      const original_gen = window.generate_text;
+      let captured_params = null;
+
+      window.generate_text = vi.fn(async (params) => {
+        captured_params = params;
+        return "Continuation text";
+      });
+
+      try {
+        const stream_fn = create_live_stream_fn();
+        await stream_fn("System prompt", {
+          startWith: "<think>My thoughts</think>\nFirst line",
+          stopSequences: ["\n\n"],
+        });
+
+        expect(captured_params.startWith).toBe("<think>My thoughts</think>\nFirst line");
+        expect(captured_params.stopSequences).toEqual(["\n\n"]);
+      } finally {
+        window.generate_text = original_gen;
+      }
+    });
+
     it("prevents double-counting when both onToken and onChunk fire", async () => {
       const original_gen = window.generate_text;
       const chunks_emitted = [];

@@ -331,14 +331,14 @@ export async function execute_turn_2_continue({
     continuation_prose = continuation_prose.slice(clean_prose.length).trimStart();
   }
 
-  const { prose: bounded_continuation } = enforce_pacing_backstop(continuation_prose, turn_tempo);
-  const final_fused_prose = clean_prose ? `${clean_prose}${bounded_continuation ? ` ${bounded_continuation}` : ""}` : bounded_continuation;
+  // Fused result preserves the full continuation (continuations intentionally allow the scene to develop beyond initial turn tempo limits)
+  const final_fused_prose = clean_prose ? `${clean_prose}${continuation_prose ? ` ${continuation_prose}` : ""}` : continuation_prose;
 
   return {
     raw,
     think: think || clean_think,
     prose: final_fused_prose,
-    continuation_prose: bounded_continuation,
+    continuation_prose,
     turn_tempo,
   };
 }

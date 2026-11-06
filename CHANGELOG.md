@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
-- **Continue Message Feature (`src/engine/turns.js`, `src/engine/kernel.svelte.js`, `src/engine/bridge.js`, `src/state/chrono.svelte.js`, `src/ui/message/MessageHeader.svelte`, `src/ui/message/Feed.svelte`)**:
+- **Continue Message Feature & Continuation Transport Alignment (`src/engine/turns.js`, `src/engine/kernel.svelte.js`, `src/engine/bridge.js`, `src/state/chrono.svelte.js`, `src/ui/message/MessageHeader.svelte`, `src/ui/message/Feed.svelte`)**:
+  - **Bridge `startWith` Pass-Through (`src/engine/bridge.js`)**: Fixed `create_live_stream_fn()` to pass `startWith` and `stopSequences` directly into `window.generateText`, ensuring the Perchance LLM receives the prefilled prompt continuation prefix.
+  - **Full Prose Preservation (`src/engine/turns.js`)**: Removed artificial pacing backstop truncation on continuations so narrative extensions can develop organically beyond single-turn beat caps.
+  - **Robust Think-Block Extraction (`src/engine/bridge.js`)**: Added embedded `<think>`/`<THINK>` extraction from `target_entry.text` in addition to `target_entry.meta.think` to prevent duplicated cognitive blocks in continuation pre-fills.
+  - **Contextual History Alignment (`src/engine/bridge.js`)**: Sliced feed history prior to target message before passing to `reconstruct_history_from_feed()` to prevent empty-text telemetry entries from skewing turn order.
   - **Turn 2 Continue Execution (`src/engine/turns.js`, `src/engine/index.js`)**: Implemented `execute_turn_2_continue()` to resume character dialogue in-place without triggering Turn 1 Director staging. Pre-fills `startWith` with `<think>${think}</think>\n${prose}` (or `${prose}`), cleanly strips echoed prefixes, and fuses bounded prose onto the message.
   - **Kernel Continue Turn (`src/engine/kernel.svelte.js`)**: Added `continue_turn()` to the Sovereign Simulation Kernel, supporting contextual history scoping up to the target message and fusing prose/think into in-memory history.
   - **Bridge & Controller Integration (`src/engine/bridge.js`, `src/state/chrono.svelte.js`)**: Added `execute_greenfield_continue()` and updated `chrono_engine.continue(target_id)` to stream into the target message node and persist the fused text to IndexedDB via `simulation_log.edit_entry()`.

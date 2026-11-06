@@ -17,6 +17,7 @@
 import { Kernel } from "./kernel.svelte.js";
 import { create_transport } from "./transport.js";
 import { execute_turn_3_caretaker } from "./turns.js";
+import { extract_think_block } from "./parser.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries } from "../storage/parser.js";
 import { session_driver } from "../data/index.js";
@@ -68,7 +69,9 @@ export function create_live_stream_fn() {
       try {
         const generation = ai_engine({
           instruction: () => (typeof prompt === "function" ? prompt() : String(prompt || "")),
-          stop_sequences: options.stopSequences || [],
+          startWith: options.startWith != null ? String(options.startWith) : "",
+          stopSequences: options.stopSequences || options.stop_sequences || [],
+          stop_sequences: options.stopSequences || options.stop_sequences || [],
           signal: options.signal,
           onToken: (chunk) => {
             token_streamed = true;
@@ -489,23 +492,31 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
     director_enabled,
   });
 
-  // 3. Reconstruct history up to target message
+  // 3. Reconstruct history strictly up to the target message to prevent off-by-one or leaking future turns
   const feed = state_bridge.simulation_log?.feed || [];
-  const full_history = reconstruct_history_from_feed(feed, {
+  const target_index_in_feed = feed.findIndex((e) => String(e.id) === String(target_entry.id));
+
+  // Slice raw feed before target message so telemetry/empty entries don't skew index alignment
+  const prior_feed = target_index_in_feed >= 0 ? feed.slice(0, target_index_in_feed) : feed;
+  const contextual_history = reconstruct_history_from_feed(prior_feed, {
     user: user_quadrant,
     ai: ai_quadrant,
     fractal: fractal_quadrant,
   });
 
-  _active_kernel.history = full_history;
+  _active_kernel.history = contextual_history;
 
-  // Find target message index in feed for context slicing
-  const target_index_in_feed = feed.findIndex((e) => String(e.id) === String(target_entry.id));
-  const target_history_index = target_index_in_feed >= 0 ? target_index_in_feed : null;
+  // Extract existing think and prose from target entry, robustly handling embedded <think>/<THINK> blocks
+  let target_prose = target_entry.text || "";
+  let target_think = target_entry.meta?.think || "";
 
-  // Extract existing think and prose from target entry
-  const target_prose = target_entry.text || "";
-  const target_think = target_entry.meta?.think || "";
+  if (target_prose.includes("<think>") || target_prose.includes("<THINK>")) {
+    const extracted = extract_think_block(target_prose);
+    target_prose = extracted.prose;
+    if (!target_think && extracted.think) {
+      target_think = extracted.think;
+    }
+  }
 
   // 4. Begin UI streaming indicator targeting this message
   app.start_stream(target_entry.id, "ai");
@@ -516,7 +527,7 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
         target_prose,
         target_think,
         target_round: target_entry.round || _active_kernel.round,
-        target_history_index,
+        target_history_index: null, // Context is already cleanly scoped in _active_kernel.history
       },
       {
         signal: _options.signal,
