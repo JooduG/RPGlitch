@@ -3,6 +3,7 @@ import { DEVELOPER_TELEMETRY_STORAGE_KEY, DeveloperLogStore, developer_log, Simu
 import { TELEMETRY_CAPS } from "@config";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "@data";
+import { delete_log_entry, delete_log_attachment, edit_log_entry } from "@storage";
 import { generate_uuid } from "@utils";
 
 vi.mock("@data", async (importOriginal) => {
@@ -11,10 +12,17 @@ vi.mock("@data", async (importOriginal) => {
     ...actual,
     session_driver: {
       load_log: vi.fn().mockResolvedValue([]),
-      delete_log_entry: vi.fn().mockResolvedValue({}),
-      delete_log_attachment: vi.fn().mockResolvedValue({}),
-      edit_log_entry: vi.fn().mockResolvedValue({}),
     },
+  };
+});
+
+vi.mock("@storage", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    delete_log_entry: vi.fn().mockResolvedValue({}),
+    delete_log_attachment: vi.fn().mockResolvedValue({}),
+    edit_log_entry: vi.fn().mockResolvedValue({}),
   };
 });
 
@@ -104,20 +112,20 @@ describe("SimulationLogStore", () => {
   it("deletes an entry in persistence and feed via delete_entry", async () => {
     simulation_log.add({ id: "msg-del", role: "user", text: "To delete" });
     await simulation_log.delete_entry("msg-del");
-    expect(session_driver.delete_log_entry).toHaveBeenCalledWith("msg-del");
+    expect(delete_log_entry).toHaveBeenCalledWith("msg-del");
     expect(simulation_log.feed.length).toBe(0);
   });
 
   it("edits an entry in persistence and feed via edit_entry", async () => {
     simulation_log.add({ id: "msg-edit", role: "user", text: "Original" });
     await simulation_log.edit_entry("msg-edit", "New text");
-    expect(session_driver.edit_log_entry).toHaveBeenCalledWith("msg-edit", "New text");
+    expect(edit_log_entry).toHaveBeenCalledWith("msg-edit", "New text");
     expect(simulation_log.feed[0].text).toBe("New text");
   });
 
-  it("delegates attachment deletion to session_driver", async () => {
+  it("delegates attachment deletion to storage delete_log_attachment", async () => {
     await simulation_log.delete_attachment("msg-attach", 2);
-    expect(session_driver.delete_log_attachment).toHaveBeenCalledWith("msg-attach", 2);
+    expect(delete_log_attachment).toHaveBeenCalledWith("msg-attach", 2);
   });
 
   it("stamps entity_id at creation from the runtime trio by character_name", () => {

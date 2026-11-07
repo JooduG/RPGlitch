@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Storage Completion & Review Fixes Batch (B15/B16/B22) (`src/storage/db.js`, `src/storage/index.js`, `src/storage/entities.js`, `src/state/log.svelte.js`, `src/state/chrono.svelte.js`, `src/media/visualizer.js`, `src/media/visual.js`, `src/media/index.js`, `src/intelligence/dynamics.js`, `src/intelligence/story.js`)**:
+  - **Log Persistence in Greenfield Storage (B15)**: Implemented `append_log_entry` with support for `round`, `turn_type`, `entity_id`, and `attachments`. Added `delete_log_entry`, `edit_log_entry`, `update_log_attachment(id, attachment_index, new_attachment)`, and `delete_log_attachment(id, attachment_index)` with auto-cleanup of empty image bubble entries when text is whitespace. Re-pointed `log.svelte.js` and `chrono.svelte.js` from `session_driver` to `@storage`.
+  - **Cast IDs & Active Claims in Greenfield Storage (B16)**: Added `ai_id`, `user_id`, and `fractal_id` to `list_stories` summaries (null-tolerant string coercion). Implemented `active_entity_ids()` to resolve active claims from non-concluded, non-epilogue stories.
+  - **Cast Updating & Genesis NPC Registration (B22)**: Added `update_cast(id, npc_ids)` with trimming, null-filtering, and deduplication. Restored cast registration in `birth_entity_core` (`src/storage/entities.js`) when an NPC entity is generated during an active story session.
+  - **Visualizer Prompt Compilation Relocation**: Moved visualizer prompt compilation and purpose core into `src/media/visualizer.js` with co-located bracket parsing, severing upward imports from `src/media/` into `src/engine/` and eliminating the layer audit exception. Byte-identical output verified via test.
+  - **Caretaker Ingestion Core Parity**: Restored full Caretaker enhancer directives and bracket normalization rules to `compile_sorting_prompt` in `src/storage/entities.js`.
+  - **Dead Code Pruning**: Removed obsolete `build_turn_summary` from `src/intelligence/dynamics.js` and deleted dead `gamemaster.execute_ghostwriter` from `src/intelligence/story.js`.
+
 - **Definitions Relocation Holding Location (`src/definitions/`, `src/data/index.js`, `src/data/repository.js`, `src/data/normalizer.js`, `src/media/visual.js`, `src/utils/detox.test.js`, `src/utils/styles.test.js`)**:
   - Relocated `src/data/definitions/` (5 files + test suites: `narrative-styles.js`, `premade-entities.js`, `profile-fields.js`, `speaking-styles.js`, `visual-styles.js`) to `src/definitions/` as a dependency-safe holding location ahead of legacy data decommissioning.
   - Re-pointed all relative imports from `src/data/` barrel, repository, normalizer, `src/media/visual.js`, and test suites.

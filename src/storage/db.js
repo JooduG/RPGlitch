@@ -91,6 +91,9 @@ export async function list_stories() {
       fractal_name: fractal?.name || "The Void",
       signature_color: fractal?.signature_color || "default",
       npc_ids: Array.isArray(story.npc_ids) ? story.npc_ids : [],
+      ai_id: story.ai_id != null ? String(story.ai_id) : null,
+      user_id: story.user_id != null ? String(story.user_id) : null,
+      fractal_id: story.fractal_id != null ? String(story.fractal_id) : null,
     };
   });
 }
@@ -135,6 +138,56 @@ export async function create_story(data) {
 export async function update_story(id, changes) {
   const updated_at = changes.updated_at || Date.now();
   return await db.stories.update(coerce_story_key(id), { ...changes, updated_at });
+}
+
+/**
+ * Replaces a story's world-cast roster (NPC ids).
+ * Sanitizes input (trims, drops empties, dedupes).
+ *
+ * @param {string | number} id
+ * @param {string[]} npc_ids
+ * @returns {Promise<number>}
+ */
+export async function update_cast(id, npc_ids) {
+  const sanitized_npc_ids = Array.isArray(npc_ids)
+    ? [...new Set(npc_ids.map((npc_identifier) => (npc_identifier == null ? "" : String(npc_identifier).trim())).filter(Boolean))]
+    : [];
+  return await db.stories.update(coerce_story_key(id), { npc_ids: sanitized_npc_ids, updated_at: Date.now() });
+}
+
+/**
+ * Resolves the entity ids currently claimed by active (non-concluded) stories.
+ * Matches legacy repository active claims resolver semantics without importing @data.
+ *
+ * @returns {Promise<string[]>}
+ */
+export async function active_entity_ids() {
+  try {
+    const all_stories = await db.stories.toArray();
+    const story_ids = all_stories.map((story_record) => story_record.id);
+    const normalized_ids = [...new Set(story_ids.flatMap((id) => [String(id), id]))];
+
+    const epilogue_story_id_set = new Set();
+    if (normalized_ids.length > 0) {
+      const simulation_log_entries = await db.simulation_log.where("story_id").anyOf(normalized_ids).toArray();
+      for (const entry of simulation_log_entries) {
+        if (entry?.meta?.is_epilogue) epilogue_story_id_set.add(String(entry.story_id));
+      }
+    }
+
+    const claimed_entity_ids = new Set();
+    for (const story of all_stories) {
+      if (story.is_concluded || epilogue_story_id_set.has(String(story.id))) continue;
+      for (const key of ["ai_id", "user_id", "fractal_id"]) {
+        if (story[key] != null) claimed_entity_ids.add(String(story[key]));
+      }
+    }
+
+    return [...claimed_entity_ids];
+  } catch (error) {
+    console.error("[Storage] Failed to resolve active entity claims:", error);
+    return [];
+  }
 }
 
 /**
@@ -257,6 +310,24 @@ export async function delete_entity(id) {
 // ============================================================================
 
 /**
+ * Internal helper to find a simulation log entry by exact ID or metadata reference.
+ *
+ * @param {string | number} id
+ * @returns {Promise<any | null>}
+ */
+export async function _find_log_entry(id) {
+  const numeric_key = isNaN(Number(id)) ? null : Number(id);
+  let entry = numeric_key != null ? await db.simulation_log.get(numeric_key) : null;
+  if (!entry && typeof id === "string") {
+    entry = await db.simulation_log.get(id);
+  }
+  if (!entry) {
+    entry = await db.simulation_log.filter((message) => message.meta?.id === id).first();
+  }
+  return entry || null;
+}
+
+/**
  * Appends a message entry to the simulation log.
  *
  * @param {object} entry
@@ -272,8 +343,78 @@ export async function append_log_entry(entry) {
     seed: entry.seed ?? null,
     meta: entry.meta || {},
     created_at: entry.created_at || Date.now(),
+    round: entry.round != null ? Number(entry.round) : null,
+    turn_type: entry.turn_type || null,
+    entity_id: entry.entity_id != null ? String(entry.entity_id) : null,
+    attachments: Array.isArray(entry.attachments) ? entry.attachments : [],
   };
   return await db.simulation_log.add(payload);
+}
+
+/**
+ * Deletes a single simulation log entry by ID.
+ *
+ * @param {string | number} id
+ * @returns {Promise<void>}
+ */
+export async function delete_log_entry(id) {
+  const entry = await _find_log_entry(id);
+  const key = entry?.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+  await db.simulation_log.delete(key);
+}
+
+/**
+ * Updates text for an existing simulation log entry.
+ *
+ * @param {string | number} id
+ * @param {string} new_text
+ * @returns {Promise<void>}
+ */
+export async function edit_log_entry(id, new_text) {
+  const entry = await _find_log_entry(id);
+  const key = entry?.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+  await db.simulation_log.update(key, { text: new_text });
+}
+
+/**
+ * Updates an attachment at a specific index in a log entry.
+ *
+ * @param {string | number} id
+ * @param {number} attachment_index
+ * @param {Record<string, any>} new_attachment
+ * @returns {Promise<void>}
+ */
+export async function update_log_attachment(id, attachment_index, new_attachment) {
+  const entry = await _find_log_entry(id);
+  if (entry) {
+    if (!Array.isArray(entry.attachments)) {
+      entry.attachments = [];
+    }
+    entry.attachments[attachment_index] = new_attachment;
+    await db.simulation_log.put(entry);
+  }
+}
+
+/**
+ * Removes an attachment from a log entry (or deletes the entry if it becomes empty).
+ *
+ * @param {string | number} id
+ * @param {number} attachment_index
+ * @returns {Promise<void>}
+ */
+export async function delete_log_attachment(id, attachment_index) {
+  const entry = await _find_log_entry(id);
+  if (entry && Array.isArray(entry.attachments)) {
+    entry.attachments.splice(attachment_index, 1);
+    const is_empty_image_bubble =
+      !entry.text?.trim() && !entry.meta?.is_prologue && !entry.meta?.is_epilogue && (!entry.attachments || entry.attachments.length === 0);
+    if (is_empty_image_bubble) {
+      const key = entry.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+      await db.simulation_log.delete(key);
+    } else {
+      await db.simulation_log.put(entry);
+    }
+  }
 }
 
 /**

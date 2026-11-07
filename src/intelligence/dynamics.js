@@ -604,25 +604,6 @@ export async function capture_dynamics_delta(bridge, snapshot, meta = null) {
 }
 
 /**
- * Builds the per-turn DevMode summary line: which roles produced how many messages.
- *
- * @param {any[]} feed - Recent feed array
- * @param {number} round - Current round index
- * @returns {string}
- */
-export function build_turn_summary(feed, round) {
-  const tail = (feed || []).slice(-16);
-  const counts = {};
-  for (const m of tail) {
-    if (!m || m.role === "system") continue;
-    const role = m.role === "model" ? "ai" : m.role;
-    counts[role] = (counts[role] || 0) + 1;
-  }
-  const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
-  return `Turn ${round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
-}
-
-/**
  * Renders live dynamics values as a `<DYNAMIC_AXES>` block.
  * When rendered for Director system envelope (scope=null), co-locates delta bounds
  * attributes and qualitative calibration guidance directly on the block.

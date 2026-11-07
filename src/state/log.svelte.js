@@ -20,6 +20,7 @@
 
 import { SvelteSet } from "svelte/reactivity";
 import { db, session_driver } from "@data";
+import { delete_log_entry, delete_log_attachment, edit_log_entry } from "@storage";
 import { generate_uuid } from "@utils";
 import { TELEMETRY_CAPS } from "@config";
 import { runtime } from "./runtime.svelte.js";
@@ -153,7 +154,7 @@ export class SimulationLogStore {
    * @param {string} id
    */
   async delete_entry(id) {
-    await session_driver.delete_log_entry(id);
+    await delete_log_entry(id);
     this.remove(id);
   }
 
@@ -163,7 +164,7 @@ export class SimulationLogStore {
    * @param {number} attachment_index
    */
   async delete_attachment(id, attachment_index) {
-    await session_driver.delete_log_attachment(id, attachment_index);
+    await delete_log_attachment(id, attachment_index);
   }
 
   /**
@@ -172,7 +173,7 @@ export class SimulationLogStore {
    * @param {string} new_text
    */
   async edit_entry(id, new_text) {
-    await session_driver.edit_log_entry(id, new_text);
+    await edit_log_entry(id, new_text);
     this.update(id, { text: new_text });
   }
 

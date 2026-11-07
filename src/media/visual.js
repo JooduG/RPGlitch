@@ -10,7 +10,7 @@
 import { generate_secure_seed, strip_cognition_blocks, safe_parse_json, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 import { llm_service } from "@platform";
-import { compile_prompt, PURPOSE_CORES } from "../engine/prompts.js";
+import { compile_visualizer_prompt, PURPOSE_CORES } from "./visualizer.js";
 import { get_visual_style } from "../definitions/visual-styles.js";
 
 // ============================================================================
@@ -609,8 +609,7 @@ export class VisualEngine {
         : "";
       const camera_note = style_cues ? `${text.trim()} | Aesthetic Style: ${style_cues}` : text.trim();
 
-      const system = compile_prompt({
-        core: "visualizer",
+      const system = compile_visualizer_prompt({
         round: runtime_state.round || 1,
         entities: {
           AI: type !== "fractal" ? target_entity : null,

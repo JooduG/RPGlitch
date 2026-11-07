@@ -168,6 +168,73 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
       spy.mockRestore();
     });
 
+    it("structure_profile produces output that satisfies parse_profile_json and mandatory fields", async () => {
+      const { llm_service } = await import("@platform");
+      const mock_response = JSON.stringify({
+        _thought_process: "Structuring rogue archetype with stealth abilities.",
+        name: "Shadowblade",
+        eternal_physical: "[BUILD: wiry], [HAIR: raven]",
+        eternal_non_physical: "[CORE: cunning survivor]",
+        present_physical: "[CHEST: dark leather tunic]",
+        present_non_physical: "[MOOD: watchful]",
+        future: "[AGENDA: infiltrate the high citadel]",
+        past: "[ORIGIN: born in underground guild | is_origin | w: 9]",
+      });
+
+      const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue(mock_response);
+
+      const structured = await structure_profile("Raw notes for Shadowblade...", "character");
+      expect(structured).not.toBeNull();
+      expect(typeof structured._thought_process).toBe("string");
+      expect(structured.name).toBe("Shadowblade");
+      expect(structured.eternal_physical).toContain("[BUILD: wiry]");
+      expect(structured.eternal_non_physical).toContain("[CORE: cunning survivor]");
+      expect(structured.present_physical).toContain("[CHEST: dark leather tunic]");
+      expect(structured.present_non_physical).toContain("[MOOD: watchful]");
+      expect(structured.future).toContain("[AGENDA: infiltrate the high citadel]");
+      expect(structured.past).toContain("[ORIGIN: born in underground guild");
+
+      spy.mockRestore();
+    });
+
+    it("birth_entity_core persists entity and registers NPC cast via update_cast", async () => {
+      const { entities } = await import("@data");
+      const db = await import("./db.js");
+
+      const upsert_spy = vi.spyOn(entities, "upsert").mockImplementation(async (type, ent) => ({
+        ...ent,
+        id: "npc-777",
+      }));
+
+      const get_story_spy = vi.spyOn(db, "get_story").mockResolvedValue({
+        id: "story-active",
+        npc_ids: ["npc-existing"],
+      });
+
+      const update_cast_spy = vi.spyOn(db, "update_cast").mockResolvedValue({
+        id: "story-active",
+        npc_ids: ["npc-existing", "npc-777"],
+      });
+
+      const born = await birth_entity_core(
+        "character",
+        {
+          name: "Lyra",
+          description: "A nimble archer.",
+        },
+        { run_sorter: false, generate_portrait: false, story_id: "story-active" },
+      );
+
+      expect(upsert_spy).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Lyra" }));
+      expect(get_story_spy).toHaveBeenCalledWith("story-active");
+      expect(update_cast_spy).toHaveBeenCalledWith("story-active", ["npc-existing", "npc-777"]);
+      expect(born.id).toBe("npc-777");
+
+      upsert_spy.mockRestore();
+      get_story_spy.mockRestore();
+      update_cast_spy.mockRestore();
+    });
+
     it("birth_entity_core persists entity and returns canonical record", async () => {
       const { entities } = await import("@data");
       const upsert_spy = vi.spyOn(entities, "upsert").mockImplementation(async (type, ent) => ({

@@ -15,7 +15,6 @@ import {
   build_update_entry,
   build_retrieval,
   capture_dynamics_delta,
-  build_turn_summary,
 } from "./dynamics.js";
 import { render_dynamics_axes_xml } from "./dynamics.js";
 import { render_available_keywords_xml } from "./modules/task.js";
@@ -376,25 +375,6 @@ describe("dynamics.js", () => {
         expect(cleaned[0]._embedding).toBeUndefined();
         expect(cleaned[0]._recency_factor).toBeUndefined();
         expect(cleaned[1].content).toBe("Low relevance past");
-      });
-    });
-
-    describe("build_turn_summary()", () => {
-      it("summarizes message counts by role in the recent feed tail", () => {
-        const feed = [
-          { role: "user", text: "Hello" },
-          { role: "ai", text: "Greetings" },
-          { role: "npc", text: "Who goes there?" },
-          { role: "model", text: "Observing..." },
-          { role: "system", text: "Ignore system" },
-        ];
-
-        const summary = build_turn_summary(feed, 4);
-        expect(summary).toContain("Turn 4 complete");
-        expect(summary).toContain("user×1");
-        expect(summary).toContain("ai×2");
-        expect(summary).toContain("npc×1");
-        expect(summary).not.toContain("system");
       });
     });
 

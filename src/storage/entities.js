@@ -18,7 +18,8 @@
 
 import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets, parse_profile_json } from "./parser.js";
-import { FLAT_LEAF_MAP } from "./profile-fields.js";
+import { FLAT_LEAF_MAP, ENHANCER_DIRECTIVES } from "./profile-fields.js";
+import { get_story, update_cast } from "./db.js";
 import { entities } from "@data";
 import { llm_service } from "@platform";
 
@@ -284,7 +285,13 @@ export function serialize_entity_for_export(entity) {
  * @returns {string}
  */
 function compile_sorting_prompt(input_data, type) {
-  const target_name = type === "fractal" ? "New Fractal" : "New Character";
+  const is_fractal = type === "fractal";
+  const target_name = is_fractal ? "New Fractal" : "New Character";
+  const phys_dir = is_fractal ? ENHANCER_DIRECTIVES.SPATIAL_RENDERER : ENHANCER_DIRECTIVES.BIOMETRIC_RENDERER;
+  const non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.METAPHYSICAL_ARCHITECT : ENHANCER_DIRECTIVES.COGNITIVE_ARCHITECT;
+  const pres_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ATMOSPHERIC_TRACKER : ENHANCER_DIRECTIVES.SOMATIC_TRACKER;
+  const pres_non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ECOSYSTEM_ANALYZER : ENHANCER_DIRECTIVES.TACTICAL_ANALYZER;
+
   return `<SYSTEM round="1" identity="caretaker">
   You are the Continuum Caretaker for target entity "${target_name}". Organize temporal state into canonical profile brackets.
   <AXIOMATIC_CONSTITUTION>
@@ -296,8 +303,23 @@ function compile_sorting_prompt(input_data, type) {
 </SYSTEM>
 <TASK>
   ### Directives
-  - Review input notes and identify what shifts, updates, or polishes for the target.
-  - Emit ONLY non-empty "[KEY: value]" strings for fields being established; leave all other fields empty "".
+  - **Analysis (\`_thought_process\`)**: Review input notes and identify what shifts, updates, or polishes for the target.
+  - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
+    - Physical: ${phys_dir}
+    - Non-Physical: ${non_phys_dir}
+    - Establish baseline lore and physical features.
+  - **Present State (\`present_physical\`, \`present_non_physical\`)**:
+    - Physical: ${pres_phys_dir}
+    - Non-Physical: ${pres_non_phys_dir}
+  - **Future Agenda (\`future\`)**: ${ENHANCER_DIRECTIVES.TRAJECTORY_SIMULATOR}
+  - **Past Memories (\`past\`)**: ${ENHANCER_DIRECTIVES.PAST_COMPILER}
+  - **Delta-Only Principle**: Emit ONLY non-empty "[KEY: value]" strings for fields being established; leave all other fields empty "".
+
+  ### Bracket Mutation Rules
+  - Multiple brackets are supported per field separated by commas (e.g. [CHEST: bare], [MOOD: alert]).
+  - Relational dynamics targeting other entities must use @ (e.g. [@TARGET: dynamic | flags]).
+  - Optional flags: | hide for covert facts, | w: 1-10 for emotional weight/significance.
+
   <OUTPUT_FORMAT mode="json">
     {
       "_thought_process": "...",
@@ -312,6 +334,10 @@ function compile_sorting_prompt(input_data, type) {
   <INPUT kind="ingestion">
 ${input_data}
   </INPUT>
+
+  > [!IMPORTANT]
+  > No conversational preamble, no markdown code fence backticks, no trailing comments.
+  > Output MUST start with { and end with }.
 </TASK>`;
 }
 
@@ -508,6 +534,20 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
       await append_ledger_entries(ledger_lines);
     } catch (err) {
       void err;
+    }
+  }
+
+  // Register NPC on active story if spawned during a story session
+  if (type === "character" && story_id && story_id !== "debug") {
+    try {
+      const story = await get_story(story_id);
+      const existing_npcs = Array.isArray(story?.npc_ids) ? story.npc_ids : [];
+      const updated_npcs = [...new Set([...existing_npcs, saved_entity.id])];
+      if (updated_npcs.length !== existing_npcs.length) {
+        await update_cast(story_id, updated_npcs);
+      }
+    } catch (err) {
+      state_bridge.app?.log(`[Storage] Failed to register NPC on story ${story_id}: ${err?.message || err}`, "warn");
     }
   }
 

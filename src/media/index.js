@@ -94,3 +94,9 @@ export {
   IMAGE_RESOLVE_TIMEOUT_MS,
   IMAGE_GHOST_MAX_AGE_MS,
 } from "./visual.js";
+
+// ============================================================================
+// Visualizer Prompt Compilation
+// ============================================================================
+
+export { compile_visualizer_prompt, VISUALIZER_START_WITH } from "./visualizer.js";

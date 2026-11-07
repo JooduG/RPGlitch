@@ -28,6 +28,12 @@ import {
   append_ledger_entry,
   append_ledger_entries,
   get_story_ledger,
+  update_cast,
+  active_entity_ids,
+  delete_log_entry,
+  edit_log_entry,
+  update_log_attachment,
+  delete_log_attachment,
 } from "./db.js";
 
 describe("src/storage/db.js — Dexie Persistence & CRUD Engine", () => {
@@ -283,6 +289,136 @@ describe("src/storage/db.js — Dexie Persistence & CRUD Engine", () => {
       expect(ledger[0].writer).toBe("kernel");
       expect(ledger[0].key).toBe("CHEST");
       expect(ledger[0].new_value).toBe("bare");
+    });
+  });
+
+  describe("B15, B16, B22 Extended Persistence Operations", () => {
+    it("B15: append_log_entry persists round, turn_type, entity_id, and attachments payload", async () => {
+      const story_id = await create_story({ title: "Log Story" });
+      const entry_id = await append_log_entry({
+        story_id,
+        role: "assistant",
+        type: "dialogue",
+        character_name: "Sylvia",
+        text: "The path is clear.",
+        round: 4,
+        turn_type: "NARRATIVE_TURN",
+        entity_id: "char_sylvia",
+        attachments: [{ type: "image", url: "https://example.com/img.png" }],
+      });
+
+      expect(entry_id).toBeDefined();
+
+      const log = await get_story_log(story_id);
+      expect(log).toHaveLength(1);
+      expect(log[0].id).toBe(entry_id);
+      expect(log[0].round).toBe(4);
+      expect(log[0].turn_type).toBe("NARRATIVE_TURN");
+      expect(log[0].entity_id).toBe("char_sylvia");
+      expect(log[0].attachments).toHaveLength(1);
+      expect(log[0].attachments[0].url).toBe("https://example.com/img.png");
+    });
+
+    it("B15: edit_log_entry and delete_log_entry mutate persisted entries", async () => {
+      const story_id = await create_story({ title: "Edit Story" });
+      const entry_id = await append_log_entry({
+        story_id,
+        role: "user",
+        text: "Initial message",
+      });
+
+      await edit_log_entry(entry_id, "Edited message text");
+      let log = await get_story_log(story_id);
+      expect(log[0].text).toBe("Edited message text");
+
+      await delete_log_entry(entry_id);
+      log = await get_story_log(story_id);
+      expect(log).toHaveLength(0);
+    });
+
+    it("B15: update_log_attachment and delete_log_attachment update attachments array", async () => {
+      const story_id = await create_story({ title: "Attachment Story" });
+      const entry_id = await append_log_entry({
+        story_id,
+        role: "assistant",
+        text: "Here is the visual.",
+        attachments: [
+          { type: "image", url: "https://example.com/old.png" },
+          { type: "audio", url: "https://example.com/sound.mp3" },
+        ],
+      });
+
+      await update_log_attachment(entry_id, 0, { type: "image", url: "https://example.com/new.png" });
+      let log = await get_story_log(story_id);
+      expect(log[0].attachments[0].url).toBe("https://example.com/new.png");
+      expect(log[0].attachments[1].url).toBe("https://example.com/sound.mp3");
+
+      await delete_log_attachment(entry_id, 1);
+      log = await get_story_log(story_id);
+      expect(log[0].attachments).toHaveLength(1);
+      expect(log[0].attachments[0].url).toBe("https://example.com/new.png");
+    });
+
+    it("B15: delete_log_attachment auto-deletes empty image bubble when text is whitespace", async () => {
+      const story_id = await create_story({ title: "Empty Bubble Story" });
+      const entry_id = await append_log_entry({
+        story_id,
+        role: "assistant",
+        text: "   ",
+        attachments: [{ type: "image", url: "https://example.com/only.png" }],
+      });
+
+      await delete_log_attachment(entry_id, 0);
+      const log = await get_story_log(story_id);
+      expect(log).toHaveLength(0);
+    });
+
+    it("B16: list_stories returns ai_id, user_id, and fractal_id trio", async () => {
+      await create_story({
+        title: "Cast Story",
+        ai_id: "char_ai",
+        user_id: "char_user",
+        fractal_id: "fractal_world",
+      });
+
+      const summaries = await list_stories();
+      expect(summaries).toHaveLength(1);
+      expect(summaries[0].ai_id).toBe("char_ai");
+      expect(summaries[0].user_id).toBe("char_user");
+      expect(summaries[0].fractal_id).toBe("fractal_world");
+    });
+
+    it("B16: active_entity_ids returns claimed entity IDs from active non-concluded stories", async () => {
+      await create_story({
+        title: "Active Quest",
+        ai_id: "ai_1",
+        user_id: "user_1",
+        fractal_id: "fractal_1",
+      });
+
+      const concluded_story_id = await create_story({
+        title: "Finished Quest",
+        ai_id: "ai_dead",
+        user_id: "user_dead",
+        fractal_id: "fractal_dead",
+      });
+      await conclude_story(concluded_story_id);
+
+      const claims = await active_entity_ids();
+      expect(claims).toContain("ai_1");
+      expect(claims).toContain("user_1");
+      expect(claims).toContain("fractal_1");
+      expect(claims).not.toContain("ai_dead");
+      expect(claims).not.toContain("user_dead");
+      expect(claims).not.toContain("fractal_dead");
+    });
+
+    it("B22: update_cast sanitizes nulls, duplicates, and trims whitespace", async () => {
+      const story_id = await create_story({ title: "Cast Sanitize Story" });
+      await update_cast(story_id, [" npc_1 ", "", null, "npc_2", "npc_1", undefined, "  npc_3  "]);
+
+      const loaded = await get_story(story_id);
+      expect(loaded.npc_ids).toEqual(["npc_1", "npc_2", "npc_3"]);
     });
   });
 });

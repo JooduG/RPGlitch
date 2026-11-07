@@ -22,6 +22,7 @@
 import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
 import { build_turn_summary } from "@engine";
+import { delete_log_entry } from "@storage";
 import { state_bridge } from "@utils";
 import { execute_greenfield_turn, execute_greenfield_continue } from "../engine/bridge.js";
 
@@ -292,7 +293,7 @@ export class ChronoEngine {
               const latest_log = await session_driver.load_log(story_id);
               const last_message = latest_log[latest_log.length - 1];
               if (last_message?.role === "user" && last_message.id != null) {
-                await session_driver.delete_log_entry(last_message.id);
+                await delete_log_entry(last_message.id);
               }
             } catch (cleanup_err) {
               console.warn("[Chrono] Failed to purge aborted user message:", cleanup_err);

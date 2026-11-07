@@ -937,64 +937,6 @@ export const gamemaster = {
 
   // ── 4. Persona Ghostwriter ──────────────────────────────────────────────────
 
-  /**
-   * EXECUTE GHOSTWRITER
-   * Compiles and executes a Ghostwriter prompt on behalf of the User Persona.
-   * @param {string} [input_text=""]
-   * @param {AbortSignal|null} [signal=null]
-   * @param {Function|null} [on_token=null]
-   * @returns {Promise<string>}
-   */
-  async execute_ghostwriter(input_text = "", signal = null, on_token = null) {
-    const story_id = state_bridge.runtime.story_id;
-    const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
-    const simulation_log = filter_narrative_messages(raw_messages, { exclude_consolidated: true }).map((m) => ({
-      role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
-      content: m.text || m.content || "",
-      character_name: m.character_name,
-      entity_id: m.entity_id,
-    }));
-    const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
-
-    const ghost_prompt = compile_prompt("ghostwrite", { ...payload, input: input_text, ghostwrite: true });
-
-    let full_accumulated = "";
-    let is_inside_think = false;
-
-    const result = await llm_service.generate(
-      {
-        system: ghost_prompt.system,
-        role: "user",
-      },
-
-      {
-        silent: true,
-        signal,
-        onToken: (chunk) => {
-          full_accumulated += chunk;
-          if (typeof on_token === "function") {
-            const starts_think =
-              full_accumulated.trimStart().startsWith("<think") ||
-              full_accumulated.trimStart().startsWith("<THINK") ||
-              full_accumulated.trimStart() === "<";
-            if (starts_think || full_accumulated.includes(THINK_OPEN_TAG) || /<think>/i.test(full_accumulated)) {
-              is_inside_think = !(full_accumulated.includes(THINK_CLOSE_TAG) || /<\/think>/i.test(full_accumulated));
-              if (!is_inside_think) {
-                const cleaned = strip_cognition_blocks(full_accumulated).trimStart();
-                if (cleaned) on_token(cleaned, true);
-              }
-            } else if (!is_inside_think) {
-              on_token(chunk, false);
-            }
-          }
-        },
-      },
-    );
-
-    const clean_result = strip_cognition_blocks(typeof result === "string" ? result : result?.text || "").trim();
-    return clean_result;
-  },
-
   // ── 5. Network Retry & Resilience ───────────────────────────────────────────
 
   /**
