@@ -542,6 +542,8 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
     app.update_stream(`${clean_target_prose}${stream_seed_separator}`);
   }
 
+  let first_chunk = true;
+
   try {
     const outcome = await _active_kernel.continue_turn(
       {
@@ -558,10 +560,31 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
           if (clean_target_prose && (chunk.includes(clean_target_prose) || (target_think && chunk.includes(target_think)))) {
             return;
           }
+          if (first_chunk) {
+            first_chunk = false;
+            state_bridge.simulation_state?.set_delegated_speaker?.({
+              type: "ai",
+              name: ai_quadrant.name || "AI",
+              avatar: ai_quadrant.profile_picture || null,
+              color: ai_quadrant.signature_color || null,
+            });
+            state_bridge.simulation_state?.start_stream_stage?.();
+          }
           app.update_stream(chunk);
         },
       },
     );
+
+    // If onChunk never fired (e.g. non-streaming or mock without chunks), ensure stages transition cleanly
+    if (first_chunk) {
+      state_bridge.simulation_state?.set_delegated_speaker?.({
+        type: "ai",
+        name: ai_quadrant.name || "AI",
+        avatar: ai_quadrant.profile_picture || null,
+        color: ai_quadrant.signature_color || null,
+      });
+      state_bridge.simulation_state?.start_stream_stage?.();
+    }
 
     const fused_prose = outcome?.prose || target_prose;
     const fused_think = outcome?.think || target_think;

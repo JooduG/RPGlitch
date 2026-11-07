@@ -141,7 +141,7 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     expect(kernel.history[1].role).toBe("model");
   });
 
-  it("B02 regression: retry-after-AI-turn produces an outcome without aborting with null", async () => {
+  it("B02 regression: retry-after-AI-turn produces an outcome without aborting with null and replaces model entry", async () => {
     const mock_transport = {
       async stream() {
         return `<think>Retry thought.</think>Regenerated reply.`;
@@ -168,6 +168,13 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     // Retry should not advance round
     expect(kernel.round).toBe(1);
     expect(kernel.phase).toBe("idle");
+
+    // Retry history hygiene: exactly one model entry for the round replacing the previous reply
+    const round_1_model_entries = kernel.history.filter((h) => h.round === 1 && h.role === "model");
+    expect(round_1_model_entries).toHaveLength(1);
+    expect(round_1_model_entries[0].text).toBe("Regenerated reply.");
+    expect(kernel.history).toHaveLength(2);
+    expect(kernel.history[0]).toEqual({ role: "user", text: "First prompt", round: 1 });
   });
 
   it("B02 regression: targetless continue produces an outcome without aborting with null", async () => {

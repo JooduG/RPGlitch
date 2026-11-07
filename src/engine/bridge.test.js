@@ -392,5 +392,57 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
         window.generate_text = original_gen;
       }
     });
+
+    it("B03 coverage: execute_greenfield_continue transitions stages via set_delegated_speaker and start_stream_stage", async () => {
+      const original_gen = window.generate_text;
+      window.generate_text = vi.fn(async () => "Extended paragraph.");
+
+      const mock_app = {
+        settings: { director_enabled: false },
+        start_stream: vi.fn(),
+        update_stream: vi.fn(),
+        end_stream: vi.fn(),
+      };
+      const mock_simulation_state = {
+        set_delegated_speaker: vi.fn(),
+        start_stream_stage: vi.fn(),
+      };
+      const target_entry = {
+        id: "msg-99",
+        role: "ai",
+        text: "Existing text.",
+        round: 1,
+        meta: {},
+      };
+      const edit_entry = vi.fn().mockResolvedValue(true);
+
+      register_state_accessors({
+        app: mock_app,
+        simulation_state: mock_simulation_state,
+        runtime: {
+          active_ai: { id: "ai-1", name: "Lyra", profile_picture: "avatar.png", signature_color: "#00ffee" },
+          active_user: { id: "u-1", name: "Glitch" },
+          active_fractal: { id: "f-1", name: "Station" },
+          round: 1,
+        },
+        simulation_log: {
+          feed: [target_entry],
+          edit_entry,
+        },
+      });
+
+      try {
+        await execute_greenfield_continue(target_entry);
+        expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({
+          type: "ai",
+          name: "Lyra",
+          avatar: "avatar.png",
+          color: "#00ffee",
+        });
+        expect(mock_simulation_state.start_stream_stage).toHaveBeenCalled();
+      } finally {
+        window.generate_text = original_gen;
+      }
+    });
   });
 });

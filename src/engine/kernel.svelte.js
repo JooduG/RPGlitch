@@ -67,6 +67,17 @@ export class Kernel {
       this.round += 1;
     }
 
+    // On retry, prune trailing model entries for the active round so the retry replaces previous reply
+    if (options.is_retry) {
+      while (
+        this.history.length > 0 &&
+        this.history[this.history.length - 1].role === "model" &&
+        this.history[this.history.length - 1].round === this.round
+      ) {
+        this.history.pop();
+      }
+    }
+
     // Append user turn to history if provided and not already present at the tail
     const trimmed_user_text = typeof userText === "string" ? userText.trim() : "";
     if (trimmed_user_text) {
