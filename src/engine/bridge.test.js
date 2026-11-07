@@ -6,10 +6,13 @@ import {
   dispatch_caretaker_consolidation,
   execute_greenfield_turn,
   execute_greenfield_continue,
+  get_shared_transport,
+  reset_shared_transport,
 } from "./bridge.js";
 import { Kernel } from "./kernel.svelte.js";
 import { register_state_accessors } from "../utils/index.js";
-import { session_driver } from "../data/index.js";
+import * as storage_db from "../storage/db.js";
+import * as media_module from "../media/index.js";
 
 describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => {
   beforeEach(() => {
@@ -175,7 +178,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
         simulation_log: { feed: [] },
       });
 
-      vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1 });
+      vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
 
       const outcome = await execute_greenfield_turn("Move forward");
 
@@ -213,7 +216,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
         simulation_log: { feed: [] },
       });
 
-      vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1 });
+      vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
 
       await execute_greenfield_turn("Step into the light");
 
@@ -440,6 +443,188 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
           color: "#00ffee",
         });
         expect(mock_simulation_state.start_stream_stage).toHaveBeenCalled();
+      } finally {
+        window.generate_text = original_gen;
+      }
+    });
+  });
+
+  describe("B13: Shared Preemptive Transport Singleton", () => {
+    it("returns singleton transport instance across multiple calls and resets cleanly", () => {
+      reset_shared_transport();
+      const t1 = get_shared_transport();
+      const t2 = get_shared_transport();
+      expect(t1).toBe(t2);
+
+      reset_shared_transport();
+      const t3 = get_shared_transport();
+      expect(t3).not.toBe(t1);
+    });
+
+    it("foreground preempts background job through the shared gate without killing other queued background work", async () => {
+      reset_shared_transport();
+      const execution_order = [];
+      const original_gen = window.generate_text;
+
+      let resolve_background = null;
+      let reject_background = null;
+
+      window.generate_text = vi.fn(({ instruction, signal }) => {
+        const prompt = typeof instruction === "function" ? instruction() : instruction;
+        if (prompt.includes("background-job")) {
+          return new Promise((resolve, reject) => {
+            resolve_background = resolve;
+            reject_background = reject;
+            if (signal) {
+              signal.addEventListener("abort", () => {
+                const err = new Error("Background preempted by foreground");
+                err.name = "AbortError";
+                reject(err);
+              });
+            }
+          });
+        }
+        return Promise.resolve(`Foreground answer: ${prompt}`);
+      });
+
+      try {
+        const transport = get_shared_transport();
+
+        // 1. Launch background job
+        const background_promise = transport.stream("background-job-1", { priority: "background" });
+
+        // Let background job occupy the single gate slot
+        await new Promise((r) => setTimeout(r, 10));
+
+        // 2. Launch foreground job
+        const foreground_promise = transport.stream("foreground-job-1", { priority: "foreground" });
+
+        // Background should be preempted by foreground
+        await expect(background_promise).rejects.toThrow();
+
+        const foreground_result = await foreground_promise;
+        expect(foreground_result).toContain("foreground-job-1");
+      } finally {
+        window.generate_text = original_gen;
+        reset_shared_transport();
+      }
+    });
+  });
+
+  describe("B19: Automatic Visual Synthesis Wire-Up", () => {
+    it("evaluates get_image_generation_queue and calls spawn_image_beat without blocking turn", async () => {
+      const mock_app = {
+        settings: { director_enabled: true },
+        start_stream: vi.fn(),
+        update_stream: vi.fn(),
+        end_stream: vi.fn(),
+      };
+      const mock_simulation_state = {
+        set_delegated_speaker: vi.fn(),
+        start_stream_stage: vi.fn(),
+      };
+      const mock_runtime = {
+        active_ai: { name: "Lyra", dynamics: { chaos: 60, intensity: 60, openness: 50, affinity: 50 } },
+        active_user: { name: "Glitch", dynamics: {} },
+        active_fractal: { name: "Station", dynamics: { velocity: 50, entropy: 50 } },
+        round: 1,
+        story_id: "story-visual-test",
+        save_entity: vi.fn().mockResolvedValue(true),
+        save: vi.fn().mockResolvedValue(true),
+      };
+
+      register_state_accessors({
+        app: mock_app,
+        simulation_state: mock_simulation_state,
+        runtime: mock_runtime,
+        simulation_log: { feed: [] },
+      });
+
+      vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
+      const spawn_spy = vi.spyOn(media_module, "spawn_image_beat").mockResolvedValue({ id: "img-1" });
+      const queue_spy = vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
+      const trigger_spy = vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({
+        active: true,
+        tier: "story_scene",
+        source: "director",
+        director_explicit: true,
+        next_director_round: 1,
+      });
+
+      const original_gen = window.generate_text;
+      window.generate_text = vi.fn(async ({ instruction }) => {
+        const text = typeof instruction === "function" ? instruction() : instruction;
+        if (text.includes("orchestrating simulation mechanics and staging")) {
+          return JSON.stringify({
+            _thought_process: "Scene shifts to ruined hall.",
+            next_action: "MAIN_CHARACTER",
+            directors_note: "Look around.",
+            camera_note: "Wide establishing shot of the overgrown observatory.",
+            dynamics_deltas: { chaos: 5 },
+          });
+        }
+        return "<think>Observe carefully.</think>The dust hangs frozen in the air.";
+      });
+
+      try {
+        const outcome = await execute_greenfield_turn("Enter the observatory.");
+        expect(outcome.character_turn.prose).toBe("The dust hangs frozen in the air.");
+
+        // Queue checked and spawn_image_beat dispatched
+        expect(queue_spy).toHaveBeenCalled();
+        expect(trigger_spy).toHaveBeenCalled();
+        expect(spawn_spy).toHaveBeenCalledWith(
+          "story_scene",
+          expect.objectContaining({
+            explicit: true,
+            source: "director",
+            prompt: "The dust hangs frozen in the air.",
+            visual_staging: "Wide establishing shot of the overgrown observatory.",
+          }),
+        );
+      } finally {
+        window.generate_text = original_gen;
+      }
+    });
+
+    it("fails silently and never blocks the turn when spawn_image_beat rejects", async () => {
+      const mock_app = {
+        settings: { director_enabled: false },
+        start_stream: vi.fn(),
+        update_stream: vi.fn(),
+        end_stream: vi.fn(),
+      };
+      const mock_runtime = {
+        active_ai: { name: "Lyra", dynamics: {} },
+        active_user: { name: "Glitch", dynamics: {} },
+        active_fractal: { name: "Station", dynamics: {} },
+        round: 1,
+        story_id: "story-fail-test",
+        save_entity: vi.fn().mockResolvedValue(true),
+        save: vi.fn().mockResolvedValue(true),
+      };
+
+      register_state_accessors({
+        app: mock_app,
+        runtime: mock_runtime,
+        simulation_log: { feed: [] },
+      });
+
+      vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
+      vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({
+        active: true,
+        tier: "story_character",
+        source: "dynamics",
+      });
+      vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
+      vi.spyOn(media_module, "spawn_image_beat").mockRejectedValue(new Error("Visual plugin timeout"));
+
+      const original_gen = window.generate_text;
+      window.generate_text = vi.fn(async () => "<think>Thinking</think>Safe prose.");
+
+      try {
+        const outcome = await execute_greenfield_turn("Walk forward.");
+        expect(outcome.character_turn.prose).toBe("Safe prose.");
       } finally {
         window.generate_text = original_gen;
       }

@@ -23,7 +23,10 @@ import {
   get_active_session_id,
   set_active_session_id,
   clear_active_session_id,
+  require_active,
+  log_message,
   append_ledger_entry,
+  append_ledger_entries,
   get_story_ledger,
 } from "./db.js";
 
@@ -224,6 +227,41 @@ describe("src/storage/db.js — Dexie Persistence & CRUD Engine", () => {
 
       await clear_active_session_id();
       expect(await get_active_session_id()).toBeNull();
+    });
+
+    it("B17 storage shim: require_active returns active ID or throws on missing session", async () => {
+      await clear_active_session_id();
+      await expect(require_active()).rejects.toThrow("[Session] No active session found.");
+
+      await set_active_session_id("active_story_789");
+      expect(await require_active()).toBe("active_story_789");
+    });
+
+    it("B17 storage shim: log_message preserves telemetry-sentinel guard (drops empty prose without sentinels)", async () => {
+      await set_active_session_id("story_1");
+
+      // Empty prose without attachments or telemetry sentinels returns skip sentinel and does not write to DB
+      const skipped = await log_message("", "system", "Director");
+      expect(skipped.id).toMatch(/^skip-/);
+      const log_after_skip = await get_story_log("story_1");
+      expect(log_after_skip).toHaveLength(0);
+
+      // Telemetry sentinels (e.g. DYNAMICS_DELTA) with empty prose ARE persisted
+      const telemetry = await log_message("", "system", "Director", {
+        turn_type: "SYSTEM_TURN",
+        meta: { type: "DYNAMICS_DELTA", deltas: { chaos: 5 } },
+      });
+      expect(telemetry.id).toBeDefined();
+      expect(String(telemetry.id)).not.toMatch(/^skip-/);
+
+      // Normal non-empty prose is persisted
+      const normal = await log_message("Hello, world!", "ai", "Sylvia");
+      expect(normal.id).toBeDefined();
+
+      const log = await get_story_log("story_1");
+      expect(log).toHaveLength(2);
+      expect(log[0].meta.type).toBe("DYNAMICS_DELTA");
+      expect(log[1].text).toBe("Hello, world!");
     });
   });
 

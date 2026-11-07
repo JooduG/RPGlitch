@@ -20,9 +20,33 @@ import { execute_turn_3_caretaker } from "./turns.js";
 import { extract_think_block } from "./parser.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries } from "../storage/parser.js";
-import { session_driver } from "../data/index.js";
+import { append_ledger_entries, log_message } from "../storage/db.js";
 import { state_bridge } from "../utils/index.js";
 import { LLM_PRIORITY, merge_abort_signals, run_llm_job } from "../platform/llm-gate.js";
+import { resolve_image_trigger, get_image_generation_queue, spawn_image_beat } from "../media/index.js";
+
+/**
+ * Shared preemptive transport singleton for the active session.
+ * Replaces per-turn create_transport instantiation so foreground turns and background
+ * Caretaker consolidation share a single-slot preemptible pipeline.
+ */
+let _shared_transport = null;
+
+export function get_shared_transport() {
+  if (!_shared_transport) {
+    _shared_transport = {
+      stream: (prompt, options = {}) => {
+        const stream_fn = create_live_stream_fn();
+        return stream_fn(prompt, options);
+      },
+    };
+  }
+  return _shared_transport;
+}
+
+export function reset_shared_transport() {
+  _shared_transport = null;
+}
 
 /**
  * Creates a live browser streaming function backed by window.generateText
@@ -335,7 +359,6 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
 
       if (ledger_entries.length > 0) {
         try {
-          const { append_ledger_entries } = await import("../data/ledger.js");
           await append_ledger_entries(ledger_entries);
         } catch (ledger_err) {
           console.warn("[Bridge] Failed to append caretaker ledger entries:", ledger_err);
@@ -365,10 +388,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
   // 2. Initialize or reconfigure Kernel with live streaming transport
-  const live_transport = create_transport({
-    stream_fn: create_live_stream_fn(),
-    max_concurrency: 1,
-  });
+  const live_transport = get_shared_transport();
 
   // Resolves Gap 3: Read director_enabled dynamically from app settings rather than hardcoding true
   const director_enabled = Boolean(app?.settings?.director_enabled);
@@ -431,23 +451,28 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     const prose = outcome?.character_turn?.prose || "";
     const think = outcome?.character_turn?.think || "";
 
-    // 5. Commit generated turn to IndexedDB log via session_driver so feed renders it
+    // 5. Commit generated turn to IndexedDB log via log_message so feed renders it
     if (prose && runtime.story_id) {
-      await session_driver.log_message(prose, "ai", ai_quadrant.name || "AI", {
+      const logged_entry = await log_message(prose, "ai", ai_quadrant.name || "AI", {
         turn_type: "AI_TURN",
         round: _active_kernel.round,
+        story_id: runtime.story_id,
         meta: {
           think,
           director_staging: outcome.director_staging,
           greenfield: true,
         },
       });
+      if (logged_entry && state_bridge.simulation_log?.add) {
+        state_bridge.simulation_log.add(logged_entry);
+      }
 
       // Emit a DYNAMICS_DELTA system entry so Quick Shot TelemetryCard stays live on greenfield turns
       if (outcome.director_staging?.dynamics_deltas) {
-        await session_driver.log_message("", "system", "Director", {
+        const logged_delta = await log_message("", "system", "Director", {
           turn_type: "SYSTEM_TURN",
           round: _active_kernel.round,
+          story_id: runtime.story_id,
           meta: {
             type: "DYNAMICS_DELTA",
             deltas: outcome.director_staging.dynamics_deltas,
@@ -456,11 +481,60 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
             greenfield: true,
           },
         });
+        if (logged_delta && state_bridge.simulation_log?.add) {
+          state_bridge.simulation_log.add(logged_delta);
+        }
       }
     }
 
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas
     await write_back_kernel_state(_active_kernel, outcome, live_transport, _options);
+
+    // B19: Wire automatic visual synthesis into greenfield turn (fire-and-forget, non-blocking)
+    if (prose && runtime.story_id) {
+      try {
+        const turn_round = Number(_active_kernel.round || 0);
+        const last_director_beat_round = runtime.last_director_beat_round ?? -1;
+        const last_dynamics_beat_round = runtime.last_dynamics_beat_round ?? -1;
+        const resolved_image = resolve_image_trigger({
+          snapshot: {
+            ai: ai_quadrant,
+            fractal: fractal_quadrant,
+          },
+          prev_dynamics: _active_kernel.ai?.dynamics ? { ..._active_kernel.ai.dynamics } : null,
+          director_data: outcome.director_staging || {},
+          turn_round,
+          last_director_beat_round,
+          last_dynamics_beat_round,
+        });
+
+        if (resolved_image?.next_director_round != null) {
+          runtime.last_director_beat_round = resolved_image.next_director_round;
+        }
+        if (resolved_image?.next_dynamics_round != null) {
+          runtime.last_dynamics_beat_round = resolved_image.next_dynamics_round;
+        }
+
+        const is_image_trigger_active = Boolean(resolved_image?.active);
+        const image_tier = resolved_image?.tier;
+
+        if (is_image_trigger_active && image_tier) {
+          const queue = get_image_generation_queue();
+          if (Array.isArray(queue) && queue.length < 5) {
+            spawn_image_beat(image_tier, {
+              explicit: resolved_image.director_explicit,
+              source: resolved_image.source || "dynamics",
+              prompt: prose,
+              visual_staging: outcome.director_staging?.camera_note || "",
+            }).catch((image_err) => {
+              console.warn("[Bridge] Automatic image beat dispatch error:", image_err);
+            });
+          }
+        }
+      } catch (trigger_err) {
+        console.warn("[Bridge] Image trigger evaluation non-fatal warning:", trigger_err);
+      }
+    }
 
     return outcome;
   } finally {
@@ -490,11 +564,8 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
   const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
-  // 2. Instantiate or reuse active transport
-  const live_stream_fn = create_live_stream_fn();
-  const live_transport = create_transport({
-    stream_fn: live_stream_fn,
-  });
+  // 2. Reuse shared preemptive transport singleton
+  const live_transport = get_shared_transport();
 
   const director_enabled = Boolean(app?.settings?.director_enabled);
 

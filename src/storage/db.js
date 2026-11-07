@@ -337,6 +337,99 @@ export async function get_active_session_id() {
 }
 
 /**
+ * Returns the currently active session ID pointer, or throws if none is active.
+ *
+ * @returns {Promise<string>}
+ * @throws {Error} If no active session found.
+ */
+export async function require_active() {
+  const active_id = await get_active_session_id();
+  if (!active_id) {
+    throw new Error("[Session] No active session found.");
+  }
+  return active_id;
+}
+
+/**
+ * Appends a log message entry to the simulation log preserving the telemetry-sentinel guard.
+ * Discards empty-prose messages unless attachments, prologue/epilogue, or telemetry sentinels
+ * (e.g. DYNAMICS_DELTA, STORY_START, VECTOR_RESOLUTION, CONTINUUM_FORMATION, MEMORY_FORMATION) are present.
+ *
+ * @param {string} text - Message text or prose.
+ * @param {string} role - Message author role ('user', 'model', 'ai', 'system', 'fractal').
+ * @param {string} character_name - Name of the speaker.
+ * @param {object} [options={}]
+ * @param {string} [options.turn_type="USER_TURN"]
+ * @param {object} [options.meta={}]
+ * @param {Array<object>} [options.attachments=[]]
+ * @param {string | number} [options.story_id=null]
+ * @param {string} [options.entity_id=null]
+ * @param {number} [options.round=null]
+ * @returns {Promise<object>} Inserted or skipped log entry payload.
+ */
+export async function log_message(
+  text,
+  role,
+  character_name,
+  { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null, round = null } = {},
+) {
+  let effective_story_id = story_id ?? null;
+  if (effective_story_id == null) {
+    try {
+      effective_story_id = await require_active();
+    } catch {
+      return { id: meta?.id || `skip-${Date.now()}`, story_id: null, role, text: "", character_name, turn_type, meta };
+    }
+  }
+
+  const is_telemetry_meta =
+    meta?.type === "DYNAMICS_DELTA" ||
+    meta?.type === "STORY_START" ||
+    meta?.type === "VECTOR_RESOLUTION" ||
+    meta?.type === "CONTINUUM_FORMATION" ||
+    meta?.type === "MEMORY_FORMATION" ||
+    Boolean(meta?.is_telemetry);
+
+  const is_empty =
+    typeof text === "string" &&
+    !text.trim() &&
+    (!attachments || attachments.length === 0) &&
+    !meta?.is_prologue &&
+    !meta?.is_epilogue &&
+    !is_telemetry_meta;
+
+  if (is_empty) {
+    return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };
+  }
+
+  const entry = {
+    story_id: effective_story_id,
+    role: role === "ai" ? "model" : role,
+    type: "text",
+    text,
+    character_name,
+    entity_id: entity_id ?? null,
+    turn_type,
+    round: round != null ? round : 0,
+    meta: { ...meta },
+    created_at: Date.now(),
+  };
+
+  if (attachments && attachments.length > 0) {
+    entry.attachments = attachments;
+  }
+
+  if (meta && meta.id) {
+    entry.id = meta.id;
+    await db.simulation_log.put(entry);
+  } else {
+    entry.id = await db.simulation_log.add(entry);
+  }
+
+  return entry;
+}
+
+/**
  * Sets the active session ID pointer.
  * @param {string} session_id
  * @returns {Promise<void>}
@@ -386,6 +479,33 @@ export async function append_ledger_entry(entry) {
   };
 
   return await db.mutation_ledger.add(payload);
+}
+
+/**
+ * Appends multiple mutation entries to the ledger in a batch.
+ *
+ * @param {Array<object>} entries
+ * @returns {Promise<void>}
+ */
+export async function append_ledger_entries(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return;
+  const payloads = entries.map((entry) => ({
+    story_id: entry.story_id != null ? coerce_story_key(entry.story_id) : null,
+    entity_id: String(entry.entity_id || ""),
+    round: Number(entry.round ?? 0),
+    seq: Number(entry.seq ?? 0),
+    turn_id: entry.turn_id ?? null,
+    field: String(entry.field || ""),
+    key: entry.key ? String(entry.key).toUpperCase().trim() : null,
+    old_value: entry.old_value ?? null,
+    new_value: entry.new_value ?? null,
+    visibility: entry.visibility ?? null,
+    weight: entry.weight ?? null,
+    writer: entry.writer || "kernel",
+    decider: entry.decider || "kernel",
+    timestamp: entry.timestamp || Date.now(),
+  }));
+  await db.mutation_ledger.bulkAdd(payloads);
 }
 
 /**
