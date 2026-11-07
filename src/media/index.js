@@ -53,6 +53,8 @@ export {
   get_resolution_string,
   get_tier_guidance_scale,
   resolve_image_trigger,
+  extract_aesthetic_traits,
+  render_optics_fallback,
 } from "./optics.js";
 
 // ============================================================================

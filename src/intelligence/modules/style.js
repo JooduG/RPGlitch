@@ -13,7 +13,6 @@ import {
   safe_parse_pseudo_json,
   VISUAL_EXCLUDED_KEYS,
 } from "@utils";
-import { normalize_image_tier } from "@media";
 import {
   extract_style_dna,
   get_narrative_style,
@@ -421,68 +420,4 @@ export function flatten_aesthetic_map(entity = {}) {
     })
     .filter(Boolean);
   return normalize_comma_spacing([...visual_values, ...additional].join(". "));
-}
-
-export function extract_aesthetic_traits(entity = {}) {
-  const merged_aesthetic_map = build_aesthetic_map(entity);
-  const ordered_aesthetic_keys = [
-    ...ORDERED_VISUAL_STYLE_KEYS.filter((key) => merged_aesthetic_map[key]),
-    ...Object.keys(merged_aesthetic_map).filter((key) => !ORDERED_VISUAL_STYLE_KEYS.includes(key)),
-  ];
-
-  return ordered_aesthetic_keys
-    .map((key) => {
-      const value = merged_aesthetic_map[key];
-      if (value === undefined || value === null) return "";
-      const value_string = Array.isArray(value) ? value.join(", ") : String(value).trim();
-      if (!value_string) return "";
-      const formatted_value = normalize_comma_spacing(value_string);
-      const cleaned_key = key.replace(/^_visual_style_/, "");
-      return `  "${cleaned_key}": "${formatted_value.replace(/"/g, '\\"')}"`;
-    })
-    .filter(Boolean)
-    .join(",\n");
-}
-
-// ============================================================================
-// [SECTION 4: DETERMINISTIC OPTICS FALLBACK]
-// ============================================================================
-
-/**
- * Deterministically compiles a fallback <image_prompt> block for an entity when
- * LLM prompt extraction fails or returns empty.
- *
- * @param {Object} [parameters={}]
- * @param {string} [parameters.tier="solo_entity"]
- * @param {"ai" | "user" | "fractal"} [parameters.subject="ai"]
- * @param {any} [parameters.ai]
- * @param {any} [parameters.user]
- * @param {any} [parameters.fractal]
- * @param {string} [parameters.intent=""]
- * @returns {string}
- */
-export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
-  const normalized_tier = normalize_image_tier(tier);
-  const fallback_entity =
-    normalized_tier === "solo_entity"
-      ? subject === "user"
-        ? user
-        : subject === "fractal"
-          ? fractal
-          : ai
-      : normalized_tier === "story_scene" || normalized_tier === "story_entities"
-        ? fractal
-        : subject === "user"
-          ? user
-          : ai;
-
-  const fallback_description = flatten_aesthetic_map(fallback_entity);
-  const fallback_name = fallback_entity?.name || normalized_tier;
-  const short_intent = intent && intent.length < 200 ? intent : "";
-
-  if (normalized_tier === "story_character" && fractal) {
-    const fractal_description = flatten_aesthetic_map(fractal);
-    return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
-  }
-  return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
 }

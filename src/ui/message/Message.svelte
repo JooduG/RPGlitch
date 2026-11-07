@@ -8,8 +8,7 @@
    */
   import { parse_message } from "./render.js";
   import { resolve_speaking_style } from "@utils";
-  import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
-  import { render_optics_fallback } from "@intelligence";
+  import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
   import { ProfilePicture } from "@image";
   import ContextMenu from "../entity/ContextMenu.svelte";
   import { claim_menu } from "../entity/ContextMenu.svelte.js";

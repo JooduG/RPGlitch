@@ -87,12 +87,10 @@ export {
   render_visual_style_xml,
   resolve_style_dna,
   resolve_style_snapshot,
-  render_optics_fallback,
   compose_visual_generation_prompt,
   resolve_visual_engine_tokens,
   build_aesthetic_map,
   flatten_aesthetic_map,
-  extract_aesthetic_traits,
   ORDERED_VISUAL_STYLE_KEYS,
 } from "./modules/style.js";
 export { render_visual_history, format_sensory_history } from "./modules/recency.js";
@@ -106,7 +104,6 @@ export {
   format_bracket_entry,
   apply_bracket_mutation,
   filter_epistemic_brackets,
-  extract_entity_relationships,
   strip_epistemic_tags,
   strip_epistemic_secrets,
   verify_epistemic_integrity,

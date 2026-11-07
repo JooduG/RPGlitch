@@ -23,7 +23,6 @@ import {
   format_bracket_entry,
   apply_bracket_mutation,
   filter_epistemic_brackets,
-  extract_entity_relationships,
   strip_epistemic_tags,
   strip_epistemic_secrets,
   verify_epistemic_integrity,
@@ -197,100 +196,6 @@ describe("veil: filter_epistemic_brackets & privacy", () => {
   it("strip_bracket_engine_flags removes flags for clean embedding calculations", () => {
     const input = "[DAGGER: stiletto | hide | w: 8] [MOOD: alert | show]";
     expect(strip_bracket_engine_flags(input)).toBe("[DAGGER: stiletto] [MOOD: alert]");
-  });
-});
-
-describe("veil: extract_entity_relationships", () => {
-  const entity = {
-    eternal: { non_physical: "Solitary wanderer. [@ELARA: younger sister]" },
-    present: { non_physical: "Watchful and tense. [@ELARA: protective companion] [@ORION: bitter rival | hide]" },
-    past: [
-      { id: "ai_1", content: "Remembered a warm shared meal. [@ELARA: shared meal]" },
-      { id: "ai_2", content: "A violent encounter. [@ORION: clashed at the clocktower]" },
-    ],
-    future: "Plans to reach the coast. [@ELARA: guide safely to sanctuary] [@ORION: confront in the courtyard | hide]",
-  };
-
-  it("extracts all relational links for known entities under owner perspective", () => {
-    const relationships = extract_entity_relationships(entity, ["Elara", "Orion"], "owner");
-
-    expect(relationships.has("ELARA")).toBe(true);
-    expect(relationships.has("ORION")).toBe(true);
-
-    const elara_links = relationships.get("ELARA");
-    expect(elara_links.eternal).toBe("younger sister");
-    expect(elara_links.present).toBe("protective companion");
-    expect(elara_links.past).toHaveLength(1);
-    expect(elara_links.past[0]).toContain("shared meal");
-    expect(elara_links.future).toBe("guide safely to sanctuary");
-
-    const orion_links = relationships.get("ORION");
-    expect(orion_links.present).toBe("bitter rival");
-    expect(orion_links.past[0]).toContain("clashed at the clocktower");
-    expect(orion_links.future).toBe("confront in the courtyard");
-  });
-
-  it("redacts hidden relationships when harvested for other perspectives", () => {
-    const relationships = extract_entity_relationships(entity, ["Elara", "Orion"], "other");
-
-    expect(relationships.has("ELARA")).toBe(true);
-    const orion_links = relationships.get("ORION");
-    expect(orion_links?.present).toBeUndefined();
-    expect(orion_links?.future).toBeUndefined();
-    expect(orion_links?.past).toHaveLength(1);
-  });
-
-  it("extracts @TARGET brackets, resolves @USER/@CHAR, and expands @SPEAKER/@LISTENER macros", () => {
-    const actor = {
-      name: "Julien",
-      present: {
-        non_physical: "[@USER: @SPEAKER vows to protect @LISTENER | hide] [@BENEDICT: rival hacker]",
-      },
-    };
-    const ambient = {
-      USER: { id: "usr_alice", name: "Alice" },
-      AI: actor,
-    };
-
-    // Owner perspective sees the edge with expanded names
-    const owner_rels = extract_entity_relationships(actor, ["Benedict"], "owner", ambient);
-    expect(owner_rels.has("ALICE")).toBe(true);
-    expect(owner_rels.get("ALICE").present).toBe("Julien vows to protect Alice");
-    expect(owner_rels.has("BENEDICT")).toBe(true);
-    expect(owner_rels.get("BENEDICT").present).toBe("rival hacker");
-
-    // Other perspective hides the hidden edge
-    const other_rels = extract_entity_relationships(actor, ["Benedict"], "other", ambient);
-    expect(other_rels.has("ALICE")).toBe(false);
-    expect(other_rels.has("BENEDICT")).toBe(true);
-  });
-
-  it("resolves canonical single-word slugs and returns 4-quadrant relational record", () => {
-    const actor = {
-      name: "Glitch",
-      eternal: { non_physical: "[@SILVERS: corporate syndicate rival | show | w:9]" },
-      present: { non_physical: "[@SILVERS: hacking financial accounts | hide | w:8]" },
-      past: "[@SILVERS: stole security keys | show | w:7]",
-      future: "[@SILVERS: expose corruption | show | w:10]",
-    };
-    const known = [{ id: "SILVERS", name: "Lord Benedict Silvers" }];
-
-    // Owner sees all 4 quadrants
-    const owner_rels = extract_entity_relationships(actor, known, "owner");
-    expect(owner_rels.has("SILVERS")).toBe(true);
-    const silvers_link = owner_rels.get("SILVERS");
-    expect(silvers_link.target_id).toBe("SILVERS");
-    expect(silvers_link.target_name).toBe("Lord Benedict Silvers");
-    expect(silvers_link.eternal).toBe("corporate syndicate rival");
-    expect(silvers_link.present).toBe("hacking financial accounts");
-    expect(silvers_link.past).toEqual(["stole security keys"]);
-    expect(silvers_link.future).toBe("expose corruption");
-
-    // Other perspective redacts present (which is hidden)
-    const other_rels = extract_entity_relationships(actor, known, "other");
-    expect(other_rels.has("SILVERS")).toBe(true);
-    expect(other_rels.get("SILVERS").present).toBeUndefined();
-    expect(other_rels.get("SILVERS").eternal).toBe("corporate syndicate rival");
   });
 });
 

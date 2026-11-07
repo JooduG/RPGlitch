@@ -18,8 +18,7 @@
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@data";
   import { llm_service } from "@platform";
-  import { Audio, visual_engine } from "@media";
-  import { render_optics_fallback } from "@intelligence";
+  import { Audio, visual_engine, render_optics_fallback } from "@media";
 
   // --- DERIVED RUNES ---
 

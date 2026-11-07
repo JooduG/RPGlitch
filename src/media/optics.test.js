@@ -12,8 +12,9 @@ import {
   get_tier_guidance_scale,
   normalize_image_tier,
   resolve_image_trigger,
+  render_optics_fallback,
+  extract_aesthetic_traits,
 } from "./optics.js";
-import { render_optics_fallback } from "@intelligence";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
 describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
@@ -315,6 +316,32 @@ describe("render_optics_fallback()", () => {
     const fallback = render_optics_fallback({ tier: "story_character", subject: "ai", ai: test_entities.AI, fractal: test_entities.FRACTAL });
     expect(fallback).toContain(test_entities.AI.name);
     expect(fallback).toContain(test_entities.FRACTAL.name);
+  });
+
+  it("renders a solo_entity portrait cleanly with default parameters", () => {
+    const fallback = render_optics_fallback({ tier: "solo_entity", subject: "ai", ai: test_entities.AI, intent: "Close up portrait" });
+    expect(fallback).toContain(`Close up portrait, ${test_entities.AI.name}`);
+  });
+});
+
+describe("extract_aesthetic_traits()", () => {
+  it("extracts ordered aesthetic traits as formatted JSON fields from character brackets", () => {
+    const entity = {
+      visual_style: "cyberpunk",
+      eternal: { physical: "[HAIR: neon pink] [EYES: cybernetic blue]" },
+      present: { physical: "[OUTFIT: chrome jacket] [INVENTORY: datapad | hide]" },
+    };
+
+    const traits = extract_aesthetic_traits(entity);
+    expect(traits).toContain('"HAIR": "neon pink"');
+    expect(traits).toContain('"EYES": "cybernetic blue"');
+    expect(traits).toContain('"OUTFIT": "chrome jacket"');
+    // Hidden inventory should be excluded by build_aesthetic_map VISUAL_EXCLUDED_KEYS
+    expect(traits).not.toContain('"INVENTORY"');
+  });
+
+  it("handles empty entity by falling back to signature color aesthetic", () => {
+    expect(extract_aesthetic_traits({})).toBe('  "aesthetic": "in color #ec4899"');
   });
 });
 
