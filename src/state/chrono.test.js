@@ -4,16 +4,20 @@ import { register_state_accessors } from "@utils";
 import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
 
-vi.mock("@data", () => ({
-  session_driver: {
-    create_from_selection: vi.fn().mockResolvedValue("story-123"),
-    send: vi.fn().mockResolvedValue({}),
-    regenerate: vi.fn().mockResolvedValue({}),
-    load_log: vi.fn().mockResolvedValue([]),
-    log_message: vi.fn().mockResolvedValue({ id: "msg-test" }),
-    log_system_entry: vi.fn().mockResolvedValue({}),
-  },
-}));
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    session_driver: {
+      create_from_selection: vi.fn().mockResolvedValue("story-123"),
+      send: vi.fn().mockResolvedValue({}),
+      regenerate: vi.fn().mockResolvedValue({}),
+      load_log: vi.fn().mockResolvedValue([]),
+      log_message: vi.fn().mockResolvedValue({ id: "msg-test" }),
+      log_system_entry: vi.fn().mockResolvedValue({}),
+    },
+  };
+});
 
 vi.mock("@intelligence", () => ({
   gamemaster: {
