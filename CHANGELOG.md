@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Pre-Gate-4 Fixes: User-Turn Persistence, Dead Pacing Backstop & Storage Re-Points (`src/state/chrono.svelte.js`, `src/state/chrono.test.js`, `src/engine/turns.js`, `src/engine/index.js`, `src/ui/profile/RelationalGraph.svelte`, `src/ui/profile/RelationalGraph.test.js`)**:
+  - **Greenfield User-Turn Persistence**: Mirrored user-turn persistence via `session_driver.send(final_input)` into the greenfield engine path in `src/state/chrono.svelte.js` prior to `execute_greenfield_turn`. User messages now durably persist to IndexedDB and survive reloads without duplicating history.
+  - **User Turn Abort Safety**: Added unit test coverage in `src/state/chrono.test.js` validating user message persistence and verifying that abort triggers cleanup of orphaned user rows via `@storage` `delete_log_entry`.
+  - **Dead Code Pruning**: Removed unused `enforce_pacing_backstop` function from `src/engine/turns.js` and excised its export from `src/engine/index.js` along with unused `dev_log` import.
+  - **Storage Migration Re-Points**: Re-pointed `src/ui/profile/RelationalGraph.svelte` and its test suite from legacy `@data` to `@storage` (`list_entities` for characters/fractals, and `ALL_PREMADES` for uninstantiated entity constellation mapping).
+
 - **Follow-up Polish: Character Core Parity & Envision Log-String Cleanup (`src/engine/prompts.js`, `src/engine/prompts.test.js`, `src/App.svelte`, `src/ui/image/ImagePicker.svelte.js`, `src/ui/profile/VisualWing.svelte`)**:
   - **Character Core Parity**: Aligned the greenfield `character` purpose core in `src/engine/prompts.js` with canonical 4-step think format (Stance, Friction, Mask, Smallest Observable Action) and strict closing `</think>` tags, matching the ghostwrite core and legacy `THINK_CHARACTER` atom. Both Main Character and NPC turns resolve through this core.
   - **Envision Log & Comment Cleanup**: Updated remaining references from "enhance" to "envision" across image-generation paths (`App.svelte`, `ImagePicker.svelte.js`, `VisualWing.svelte`), keeping profile-field enhancement names and features strictly distinct and untouched.

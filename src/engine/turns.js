@@ -20,7 +20,6 @@ import { compile_prompt } from "./prompts.js";
 import { extract_think_block, parse_brackets } from "./parser.js";
 import { safe_parse_json } from "../utils/text.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
-import { dev_log } from "./dev.svelte.js";
 
 /** Output character budgets per turn_tempo beat level */
 export const TEMPO_OUTPUT_BUDGETS = Object.freeze({
@@ -47,77 +46,6 @@ export function build_turn_summary(feed, round) {
   }
   const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
   return `Turn ${round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
-}
-
-/**
- * Enforces post-hoc pacing backstop by truncating oversized prose at sentence boundaries.
- *
- * @param {string} prose
- * @param {number} tempo
- * @returns {{ prose: string, truncated: boolean }}
- */
-export function enforce_pacing_backstop(prose, tempo = 2) {
-  if (!prose || typeof prose !== "string") {
-    return { prose: "", truncated: false };
-  }
-
-  const budget = TEMPO_OUTPUT_BUDGETS[tempo] || TEMPO_OUTPUT_BUDGETS[2];
-  const trimmed = prose.trim();
-
-  // Extract sentence/beat chunks ending with terminal punctuation [.!?…] optionally closed by quotes/parentheses
-  const sentence_regex = /[^.!?…\n]+(?:[.!?…]+["'”’)]*|\n+|$)/g;
-  const matches = trimmed.match(sentence_regex);
-
-  if (!matches || matches.length === 0) {
-    if (trimmed.length <= budget.max_chars) {
-      return { prose, truncated: false };
-    }
-    return { prose: trimmed.slice(0, budget.max_chars), truncated: true };
-  }
-
-  let accumulated = "";
-  let beats_count = 0;
-
-  for (const match of matches) {
-    const chunk = match.trim();
-    if (!chunk) continue;
-
-    const is_terminal = /[.!?…]["'”’)]*$/.test(chunk);
-    if (is_terminal) {
-      beats_count++;
-    }
-
-    const candidate = accumulated ? `${accumulated} ${chunk}` : chunk;
-
-    // Break when beat budget or character budget is exceeded
-    if (beats_count > budget.max_beats || candidate.length > budget.max_chars) {
-      if (accumulated) {
-        break;
-      }
-      // If the very first sentence exceeds char budget, keep it rather than returning empty
-      accumulated = chunk;
-      break;
-    }
-
-    accumulated = candidate;
-  }
-
-  const enforced_prose = accumulated || trimmed;
-  const is_truncated = enforced_prose.length < trimmed.length;
-
-  if (is_truncated) {
-    dev_log.record("PACING_BACKSTOP", {
-      tempo,
-      original_length: trimmed.length,
-      enforced_length: enforced_prose.length,
-      max_beats: budget.max_beats,
-    });
-  }
-
-  return {
-    prose: enforced_prose,
-    truncated: is_truncated,
-  };
 }
 
 /** Default round-robin entity rotation for Turn 3 Caretaker consolidation */

@@ -198,10 +198,9 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
     });
 
     it("birth_entity_core persists entity and registers NPC cast via update_cast", async () => {
-      const { entities } = await import("@data");
       const db = await import("./db.js");
 
-      const upsert_spy = vi.spyOn(entities, "upsert").mockImplementation(async (type, ent) => ({
+      const upsert_spy = vi.spyOn(db, "upsert_entity").mockImplementation(async (ent) => ({
         ...ent,
         id: "npc-777",
       }));
@@ -225,7 +224,7 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
         { run_sorter: false, generate_portrait: false, story_id: "story-active" },
       );
 
-      expect(upsert_spy).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Lyra" }));
+      expect(upsert_spy).toHaveBeenCalledWith(expect.objectContaining({ name: "Lyra" }));
       expect(get_story_spy).toHaveBeenCalledWith("story-active");
       expect(update_cast_spy).toHaveBeenCalledWith("story-active", ["npc-existing", "npc-777"]);
       expect(born.id).toBe("npc-777");
@@ -236,8 +235,8 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
     });
 
     it("birth_entity_core persists entity and returns canonical record", async () => {
-      const { entities } = await import("@data");
-      const upsert_spy = vi.spyOn(entities, "upsert").mockImplementation(async (type, ent) => ({
+      const db = await import("./db.js");
+      const upsert_spy = vi.spyOn(db, "upsert_entity").mockImplementation(async (ent) => ({
         ...ent,
         id: "char-123",
       }));
@@ -251,7 +250,7 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
         { run_sorter: false, generate_portrait: false },
       );
 
-      expect(upsert_spy).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Lyra" }));
+      expect(upsert_spy).toHaveBeenCalledWith(expect.objectContaining({ name: "Lyra" }));
       expect(born.id).toBe("char-123");
       expect(born.name).toBe("Lyra");
       upsert_spy.mockRestore();

@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import RelationalGraph from "./RelationalGraph.svelte";
 
-vi.mock("@data", async (importOriginal) => {
+vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal();
   const mock_list = [
     {
@@ -27,10 +27,7 @@ vi.mock("@data", async (importOriginal) => {
   ];
   return {
     ...actual,
-    entities: {
-      ...actual.entities,
-      list: vi.fn(async (type) => (type === "character" ? mock_list : [])),
-    },
+    list_entities: vi.fn(async (type) => (type === "character" ? mock_list : [])),
   };
 });
 

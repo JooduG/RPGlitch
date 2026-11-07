@@ -17,7 +17,6 @@ export { DevLog, dev_log } from "./dev.svelte.js";
 export {
   calculate_turn_tempo,
   TEMPO_OUTPUT_BUDGETS,
-  enforce_pacing_backstop,
   CARETAKER_ROTATION,
   resolve_caretaker_target,
   execute_turn_1_director,

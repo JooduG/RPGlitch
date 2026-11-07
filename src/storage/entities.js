@@ -19,8 +19,7 @@
 import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets, parse_profile_json } from "./parser.js";
 import { FLAT_LEAF_MAP, ENHANCER_DIRECTIVES } from "./profile-fields.js";
-import { get_story, update_cast } from "./db.js";
-import { entities } from "@data";
+import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
 import { llm_service } from "@platform";
 
 const DEFAULT_CHARACTER_DYNAMICS = Object.freeze({
@@ -497,10 +496,9 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
   if (name) entity.name = name;
   if (raw_color) entity.signature_color = raw_color;
 
-  const saved_entity = await entities.upsert(type, entity);
+  const saved_entity = await upsert_entity(entity);
 
   // Write Genesis Ledger Entries for all populated quadrant fields
-  const { append_ledger_entries } = await import("@data");
   const story_id = options.story_id ?? state_bridge.runtime?.story_id ?? null;
   const ledger_lines = [];
 
@@ -561,7 +559,7 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
           .then(async (image_url) => {
             if (image_url && saved_entity.id) {
               const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
-              await entities.update("character", saved_entity.id, { profile_picture: data_url });
+              await update_entity(saved_entity.id, { profile_picture: data_url });
               await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
             }
           });

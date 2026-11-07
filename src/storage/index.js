@@ -37,6 +37,7 @@ export { FLAT_LEAF_MAP, resolve_flat_path, ENHANCER_DIRECTIVES } from "./profile
 export {
   PREMADE_CHARACTERS,
   PREMADE_FRACTALS,
+  PREMADE_ENTITIES,
   ALL_PREMADES,
   NARRATIVE_PRESETS,
   get_starter_entities,
@@ -73,6 +74,7 @@ export {
   list_entities,
   get_entity,
   upsert_entity,
+  update_entity,
   delete_entity,
   append_log_entry,
   delete_log_entry,

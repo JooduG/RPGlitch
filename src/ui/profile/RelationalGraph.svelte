@@ -11,10 +11,9 @@
   - Navigation: Clicking a satellite node triggers on_select_entity(entity).
 -->
 <script>
-  import { entities, PREMADE_ENTITIES } from "@data";
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
-  import { extract_entity_relationships } from "@storage";
+  import { extract_entity_relationships, list_entities, ALL_PREMADES } from "@storage";
 
   /**
    * @typedef {Object} Props
@@ -62,11 +61,11 @@
 
   // Load all known characters and fractals to resolve incoming relationships and satellite entity profiles
   $effect(() => {
-    Promise.all([entities.list("character"), entities.list("fractal")]).then(([chars, fracs]) => {
+    Promise.all([list_entities("character"), list_entities("fractal")]).then(([chars, fracs]) => {
       const combined = [...chars, ...fracs];
       // Merge with premades so uninstantiated premades can still be clicked / mapped
       const seen_ids = new Set(combined.map((e) => e.id));
-      for (const p of PREMADE_ENTITIES) {
+      for (const p of ALL_PREMADES) {
         if (!seen_ids.has(p.id)) {
           combined.push(p);
         }
@@ -109,7 +108,7 @@
     });
     if (token_match) return token_match;
     // 3. Match in premade catalog
-    const pm = PREMADE_ENTITIES.find((e) => {
+    const pm = ALL_PREMADES.find((e) => {
       const en = norm(e.name);
       const eid = norm(e.id);
       return en === n || en === n_no_underscore || eid === n || eid === n_no_underscore;

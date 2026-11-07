@@ -3,6 +3,21 @@ import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
 import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
+import { delete_log_entry } from "@storage";
+import { execute_greenfield_turn } from "../engine/bridge.js";
+
+vi.mock("@storage", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    delete_log_entry: vi.fn().mockResolvedValue(undefined),
+  };
+});
+
+vi.mock("../engine/bridge.js", () => ({
+  execute_greenfield_turn: vi.fn().mockResolvedValue({}),
+  execute_greenfield_continue: vi.fn().mockResolvedValue({}),
+}));
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
@@ -125,11 +140,31 @@ describe("ChronoEngine", () => {
       expect(gamemaster.execute_turn).toHaveBeenCalled();
     });
 
-    it("B01 regression: does not call session_driver.send when use_greenfield_engine is true", async () => {
+    it("persists a user-role row when greenfield engine is on and dispatches execute_greenfield_turn", async () => {
       mock_app.settings = { use_greenfield_engine: true };
       const result = await chrono_engine.send("Look around greenfield");
       expect(result).toBe(true);
-      expect(session_driver.send).not.toHaveBeenCalled();
+      expect(session_driver.send).toHaveBeenCalledWith("Look around greenfield");
+      expect(execute_greenfield_turn).toHaveBeenCalledWith(
+        "Look around greenfield",
+        expect.objectContaining({ is_retry: undefined, is_continue: undefined }),
+      );
+    });
+
+    it("purges orphaned user turn row from IndexedDB when a greenfield turn is aborted", async () => {
+      mock_app.settings = { use_greenfield_engine: true };
+      mock_runtime.story_id = "story-123";
+      session_driver.load_log.mockResolvedValueOnce([{ id: 42, role: "user", text: "Aborted user message" }]);
+      execute_greenfield_turn.mockImplementationOnce(() => {
+        const err = new Error("Generation interrupted");
+        err.name = "AbortError";
+        throw err;
+      });
+
+      const result = await chrono_engine.send("Aborted user message");
+      expect(result).toBe(true);
+      expect(delete_log_entry).toHaveBeenCalledWith(42);
+      expect(mock_app.log).toHaveBeenCalledWith("Generation interrupted cleanly.", "system");
     });
   });
 

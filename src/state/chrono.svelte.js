@@ -232,7 +232,7 @@ export class ChronoEngine {
 
     return (async () => {
       try {
-        if (final_input && !state_bridge.app?.settings?.use_greenfield_engine) {
+        if (final_input) {
           try {
             await session_driver.send(final_input);
           } catch (db_err) {

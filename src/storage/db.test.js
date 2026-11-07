@@ -13,6 +13,7 @@ import {
   list_entities,
   get_entity,
   upsert_entity,
+  update_entity,
   delete_entity,
   seed_starter_entities,
   append_log_entry,
@@ -26,7 +27,6 @@ import {
   require_active,
   log_message,
   append_ledger_entry,
-  append_ledger_entries,
   get_story_ledger,
   update_cast,
   active_entity_ids,
@@ -108,6 +108,19 @@ describe("src/storage/db.js — Dexie Persistence & CRUD Engine", () => {
 
       const unknown = await get_entity("does_not_exist");
       expect(unknown).toBeNull();
+    });
+
+    it("updates specific fields on an existing entity via update_entity", async () => {
+      await upsert_entity({ id: "update_target", name: "Original", type: "character" });
+      const updated_count = await update_entity("update_target", { profile_picture: "data:image/png;base64,123" });
+      expect(updated_count).toBe(1);
+
+      const fetched = await get_entity("update_target");
+      expect(fetched?.profile_picture).toBe("data:image/png;base64,123");
+      expect(fetched?.name).toBe("Original");
+
+      const missing_count = await update_entity("non_existent_target", { profile_picture: "none" });
+      expect(missing_count).toBe(0);
     });
 
     it("deletes an entity by ID", async () => {

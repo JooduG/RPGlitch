@@ -286,12 +286,25 @@ export async function get_entity(id) {
  * Upserts a canonical entity record into IndexedDB.
  *
  * @param {object} entity
- * @returns {Promise<string>} entity id
+ * @returns {Promise<object>} normalized entity record
  */
 export async function upsert_entity(entity) {
   const normalized = normalize_entity(entity);
   await db.entities.put(normalized);
-  return normalized.id;
+  return normalized;
+}
+
+/**
+ * Updates specific fields on an existing entity record in IndexedDB.
+ *
+ * @param {string} id
+ * @param {Record<string, any>} changes
+ * @returns {Promise<number>} Number of updated records (1 if updated, 0 if not found)
+ */
+export async function update_entity(id, changes) {
+  if (!id) return 0;
+  const updated_at = changes.updated_at || Date.now();
+  return await db.entities.update(id, { ...changes, updated_at });
 }
 
 /**
