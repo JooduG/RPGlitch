@@ -286,7 +286,7 @@ export async function run_image_regeneration(options = {}) {
 
     if (in_picker || regenerate_count >= 1 || is_unrefined) {
       try {
-        const refined = await visual_engine.enhance(prompt, mode);
+        const refined = await visual_engine.envision(prompt, mode);
         if (refined?.prompt) {
           final_prompt = refined.prompt;
           final_negative = refined.negative_prompt || negative_prompt;

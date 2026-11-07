@@ -103,7 +103,7 @@
         const configured_style = app.settings?.visual_style;
         const story_style = runtime.active_fractal?.visual_style;
         const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
-        const enhanced = await visual_engine.enhance(prompt, subject, entity, app_style);
+        const enhanced = await visual_engine.envision(prompt, subject, entity, app_style);
         if (enhanced?.prompt) {
           refined_prompt = enhanced.prompt;
         }

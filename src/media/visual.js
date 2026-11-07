@@ -75,11 +75,13 @@ export function rescue_visual_prose(text) {
 
 /**
  * Makes prompt text safe for the template-evaluating image plugin: rescues
- * prose out of JSON-shaped leftovers, then drops `{`/`}`/`[`/`]` (which would
- * otherwise be parsed as template syntax and throw).
+ * prose out of JSON-shaped leftovers, strips '@' prefixes from @TARGET-style
+ * tokens (preserving the entity/target name), then drops `{`/`}`/`[`/`]`
+ * (which would otherwise be parsed as template syntax and throw).
  */
 export function sanitize_visual_text(text) {
   return rescue_visual_prose(text)
+    .replace(/@([A-Za-z0-9_-]+)/g, "$1")
     .replace(/[{}[\]]/g, "")
     .replace(/,\s*\./g, ",")
     .replace(/\.\s*,/g, ",");
@@ -87,12 +89,12 @@ export function sanitize_visual_text(text) {
 
 /**
  * Resolves the visual style key governing a story image beat.
- * Precedence mirrors enhance(): explicit option > app-level choice >
+ * Precedence mirrors envision(): explicit option > app-level choice >
  * active fractal (which carries the story-level override, else its own) >
  * caller-asserted subject entity > "none".
  * NOTE: entity flavor is deliberately last — story-level coherence wins for
  * beats (a story-wide monochrome stays monochrome); per-entity styles still
- * govern profile pictures via enhance().
+ * govern profile pictures via envision().
  */
 export function resolve_story_beat_style(options = {}) {
   const explicit = options.style || options.app_style;
@@ -567,7 +569,7 @@ export class VisualEngine {
    * @param {string|null} [app_style=null] - User-selected app-level visual style (e.g. from app.settings.visual_style)
    * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
    */
-  async enhance(text, type = "character", entity = null, app_style = null) {
+  async envision(text, type = "character", entity = null, app_style = null) {
     if (!text || typeof text !== "string") {
       return { prompt: "", negative_prompt: "" };
     }
@@ -591,7 +593,7 @@ export class VisualEngine {
       style_source = "fractal";
     }
 
-    console.debug(`[VisualEngine.enhance] Resolved visual style "${style_key}" from ${style_source} precedence.`);
+    console.debug(`[VisualEngine.envision] Resolved visual style "${style_key}" from ${style_source} precedence.`);
 
     const style_def = get_visual_style(style_key);
     const tier_resolution = get_resolution_string(type);
@@ -607,7 +609,22 @@ export class VisualEngine {
       const style_cues = style_def?.engine
         ? [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
         : "";
-      const camera_note = style_cues ? `${text.trim()} | Aesthetic Style: ${style_cues}` : text.trim();
+      const trimmed_text = text.trim();
+      const camera_note = style_cues ? `${trimmed_text} | Aesthetic Style: ${style_cues}` : trimmed_text;
+
+      // Subject kind determination:
+      // - fractal profiles are place-focused
+      // - story_scene is place-focused if the draft names no specific active participant
+      let subject_kind = "character";
+      if (type === "fractal") {
+        subject_kind = "place";
+      } else if (type === "story_scene") {
+        const active_names = [runtime_state.active_ai?.name, runtime_state.active_user?.name, entity?.name].filter(Boolean);
+        const mentions_character = active_names.some((name) => trimmed_text.toLowerCase().includes(name.toLowerCase()));
+        if (!mentions_character) {
+          subject_kind = "place";
+        }
+      }
 
       const system = compile_visualizer_prompt({
         round: runtime_state.round || 1,
@@ -618,6 +635,7 @@ export class VisualEngine {
         },
         task_options: {
           camera_note,
+          subject_kind,
         },
       });
 
@@ -712,7 +730,7 @@ export class VisualEngine {
         looks_like_visual_json(candidate_prompt) ||
         has_unbalanced_visual_braces(candidate_prompt)
       ) {
-        console.warn("[VisualEngine.enhance] Response contained prefill or unusable thought markers, keeping draft.");
+        console.warn("[VisualEngine.envision] Response contained prefill or unusable thought markers, keeping draft.");
         return { prompt: text.trim(), negative_prompt: base_negative, resolution: tier_resolution };
       }
 
@@ -723,7 +741,7 @@ export class VisualEngine {
         resolution: tier_resolution,
       };
     } catch (err) {
-      console.warn("[VisualEngine.enhance] Visualizer refinement failed, using draft:", err);
+      console.warn("[VisualEngine.envision] Visualizer refinement failed, using draft:", err);
       return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: tier_resolution };
     }
   }

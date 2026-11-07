@@ -99,10 +99,10 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
     });
   });
 
-  describe("visual_engine.enhance", () => {
+  describe("visual_engine.envision", () => {
     it("bypasses LLM refinement when style has llm_refine === false", async () => {
       const spy = vi.spyOn(llm_service, "generate");
-      const result = await visual_engine.enhance("A raw photographic snapshot", "character", {
+      const result = await visual_engine.envision("A raw photographic snapshot", "character", {
         visual_style: "none",
       });
 
@@ -120,7 +120,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       });
       const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
 
-      const result = await visual_engine.enhance("Rough concept of a hero", "character", {
+      const result = await visual_engine.envision("Rough concept of a hero", "character", {
         name: "Aria",
         visual_style: "cinematic",
       });
@@ -159,7 +159,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
       });
       const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
 
-      const result = await visual_engine.enhance(
+      const result = await visual_engine.envision(
         "A photo",
         "character",
         {
@@ -188,7 +188,7 @@ Line 3 of thoughts",
       const full_response = prefill + continuation;
       const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(full_response);
 
-      const result = await visual_engine.enhance("Hero", "character", {
+      const result = await visual_engine.envision("Hero", "character", {
         name: "Aria",
         visual_style: "photo",
       });
@@ -203,7 +203,7 @@ Line 3 of thoughts",
       const prefill_echo_only = '{"_thought_process": "Some unusable thought process. ';
       const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(prefill_echo_only);
 
-      const result = await visual_engine.enhance("Draft character concept", "character", {
+      const result = await visual_engine.envision("Draft character concept", "character", {
         name: "Aria",
         visual_style: "photo",
       });
@@ -223,13 +223,55 @@ Line 3 of thoughts",
       const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
 
       // 1. solo_entity / character -> always portrait 512x768
-      const char_result = await visual_engine.enhance("A warrior", "solo_entity");
+      const char_result = await visual_engine.envision("A warrior", "solo_entity");
       expect(char_result.resolution).toBe("512x768");
 
       // 2. scene / fractal -> always landscape 768x512
-      const scene_result = await visual_engine.enhance("Ancient ruins", "story_scene");
+      const scene_result = await visual_engine.envision("Ancient ruins", "story_scene");
       expect(scene_result.resolution).toBe("768x512");
 
+      spy.mockRestore();
+    });
+
+    it("renders place-focused prompt instructions when subject is a place/fractal", async () => {
+      let captured_system = "";
+      const spy = vi.spyOn(llm_service, "generate").mockImplementation(async ({ system }) => {
+        captured_system = system;
+        return JSON.stringify({
+          _thought_process: "Observing geometry and architecture",
+          prompt: "Vast neon skyline under torrential rain with soaring spires",
+          negative_prompt: "blurry",
+        });
+      });
+
+      const result = await visual_engine.envision("Nova City skyline", "fractal", {
+        name: "Nova City",
+        type: "fractal",
+        visual_style: "cinematic",
+        eternal: { physical: "[FOUNDATION: built by Dr. Kaelen and corporate overlords]", non_physical: "Cyberpunk metropolis" },
+      });
+
+      expect(captured_system).toContain("The location and environment itself is the primary focal subject.");
+      expect(captured_system).toContain("Place Staging Mandate");
+      expect(result.prompt).toBe("Vast neon skyline under torrential rain with soaring spires");
+      spy.mockRestore();
+    });
+
+    it("strips @TARGET tokens from model output preserving the display name", async () => {
+      const mock_json = JSON.stringify({
+        _thought_process: "Character interaction scene",
+        prompt: "A dramatic confrontation between @ORION and @GLITCH in the dark alleyway",
+        negative_prompt: "blurry",
+      });
+      const spy = vi.spyOn(llm_service, "generate").mockResolvedValue(mock_json);
+
+      const result = await visual_engine.envision("Street showdown", "story_scene", {
+        visual_style: "cinematic",
+      });
+
+      expect(result.prompt).toBe("A dramatic confrontation between ORION and GLITCH in the dark alleyway");
+      expect(result.prompt).not.toContain("@ORION");
+      expect(result.prompt).not.toContain("@GLITCH");
       spy.mockRestore();
     });
 

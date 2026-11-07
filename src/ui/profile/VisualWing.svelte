@@ -115,7 +115,7 @@
       if (!has_prompt_text && !prompt_value) {
         profile_state.char.modifiers.prompt = extract_aesthetic_traits(profile_state.char);
       } else if (has_prompt_text) {
-        const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
+        const result = await app.visual.envision(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
         if (result) {
           // Rescue prose out of any JSON-shaped leftovers (older builds could
           // persist raw blobs) and strip template-significant braces — the
@@ -402,7 +402,7 @@
             variant="invisible"
             size="small"
             square
-            aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
+            aria-label={has_prompt_text ? "Envision Prompt" : "Fetch Data"}
             actions={[tooltip]}
             onclick={handle_creative_action}
             onmousedown={prevent_default}

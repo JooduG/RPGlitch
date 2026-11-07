@@ -128,16 +128,17 @@ export const PURPOSE_CORES = Object.freeze({
       const listener_name = context.listener_name || "the protagonist";
       return `  <TASK>
     ### Think Format
-    1. **Intent & Reflex**: Immediate physical or psychological reaction from ${listener_name}.
-    2. **Friction & Stakes**: The obstacle or emotional vulnerability at play.
-    3. **Physical Vector**: Concrete bodily movement, sensory observation, or speech.
+    1. **Stance**: Immediate unsaid want and internal feeling from ${listener_name}.
+    2. **Friction**: The obstacle, emotional vulnerability, or tension resisting that want.
+    3. **Mask**: How psychology leaks or conceals the feeling.
+    4. **Smallest Observable Action**: Single physical tell, bodily movement, sensory observation, or speech. Never pre-draft dialogue.
 
-    *Conclude internal cognition with a closing \\</think\\> tag before narrative prose.*
+    *Close \\</think\\> before narrative prose. Never emit visible prose inside think tags.*
 
     ### Ghostwriting Directives
     - Write strictly in present tense.
     - Embody ${listener_name}'s perspective, tone, and agency.
-    - Never summarize past events; advance the immediate moment with sensory grit, tactile posture, or spoken dialogue.
+    - Advance the immediate moment with sensory grit, tactile posture, or spoken dialogue. Never summarize past events.
 
     > [!IMPORTANT]
     > Emit in-character narrative prose.
@@ -198,15 +199,26 @@ export const PURPOSE_CORES = Object.freeze({
         ? `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - "${camera_note}"\n`
         : "";
 
+      const subject_kind = context?.subject_kind || "character";
+      const is_place = subject_kind === "place";
+
+      const focal_instruction = is_place
+        ? "1. **Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
+        : "1. **Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.";
+
+      const synthesis_focal_directive = is_place
+        ? "    - **Place Staging Mandate**: Emphasize architectural geometry, atmospheric depth, environmental textures, and weather/lighting. Do NOT place characters or human figures in frame unless explicitly requested in the camera note."
+        : "    - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.";
+
       return `  <TASK>
     ### Think Format
-    1. **Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.
+    ${focal_instruction}
     2. **Spatial Depth & Geometry**: Foreground, midground, and background layers, perspective, and camera angle.
     3. **Lighting & Luminary Sources**: Concrete light sources, shadow falloff, ambient bounce, and color palette.
     4. **Attire, Textures & Exposure**: Physical garment materials, surface textures, and visible skin mechanics.${aesthetic_direction}
     ### Prompt Synthesis
     Synthesize an evocative, photographic or artistic description in natural prose:
-    - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.
+${synthesis_focal_directive}
     - **Sensory Optics & Textures**: Focus on physical surfaces, fabric drape, skin texture, and concrete light sources. Avoid empty buzzwords ('photorealistic', 'hyperrealistic', 'trending on artstation').
     - **Weight Discipline**: Never emit numeric weight math ('(word:1.3)', '[word:0.5]'). Emphasize through descriptive vocabulary and attenuation ('subtle', 'intense', 'faint').
     - **Affirmative Description**: Describe what IS visible in frame ('softly moonlit room' instead of 'no daylight').
@@ -296,6 +308,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     is_character: Boolean(ai && ai.type !== "fractal"),
     directors_note: task_options.directors_note || "",
     camera_note: task_options.camera_note || "",
+    subject_kind: task_options.subject_kind || "character",
     turn_tempo: task_options.turn_tempo || 2,
     is_continuation: Boolean(task_options.is_continuation),
   };
