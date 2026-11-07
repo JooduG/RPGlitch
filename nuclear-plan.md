@@ -417,18 +417,18 @@ At runtime, standard RAG retrieval and stance classification are two expressions
 Standard RAG searches for _pre-existing_ text matching a query. **Emergent Motif Synthesis (`MOTIF_RESURGENCE`)** does something fundamentally different: it discovers _unpredicted, repeating patterns_ that emerge organically across the conversation without any pre-defined motif vocabulary.
 
 - **The Flow:**
-  1. **Window Vector Inspection:** Gathers the vectors of the last 5–8 uncompacted conversation rounds (already cached in RAM in the LRU cache from turn processing—zero new ONNX calls).
-  2. **Cross-Turn Cosine Clustering:** Computes pairwise similarity across non-adjacent turns ($Turn_i \times Turn_{i-2}$, $Turn_i \times Turn_{i-3}$). When semantic drift between recent turns drops below a distance threshold around a specific noun or sensory phrase (e.g. repeated unprompted mentions of mirrors, ticking clocks, ash, or cages):
-  3. **Emergent Theme Extraction:** The overlapping high-salience terms from those matching turns are isolated (e.g. `"confinement / gilded cage"`).
-  4. **Dynamic Prompt Injection:** Injects an emergent motif instruction into `<TRAJECTORY>` (Block 8–9) or the Director's staging envelope:
+  - _Window Vector Inspection:_ Gathers the vectors of the last 5–8 uncompacted conversation rounds (already cached in RAM in the LRU cache from turn processing—zero new ONNX calls).
+  - _Cross-Turn Cosine Clustering:_ Computes pairwise similarity across non-adjacent turns ($Turn_i \times Turn_{i-2}$, $Turn_i \times Turn_{i-3}$). When semantic drift between recent turns drops below a distance threshold around a specific noun or sensory phrase (e.g. repeated unprompted mentions of mirrors, ticking clocks, ash, or cages):
+  - _Emergent Theme Extraction:_ The overlapping high-salience terms from those matching turns are isolated (e.g. `"confinement / gilded cage"`).
+  - _Dynamic Prompt Injection:_ Injects an emergent motif instruction into `<TRAJECTORY>` (Block 8–9) or the Director's staging envelope:
 
-     ```xml
-     <EMERGENT_MOTIF echo="cages / gilded confinement">
-       Weave thematic resonance of physical confinement and patient predation into sensory beats and character tells.
-     </EMERGENT_MOTIF>
-     ```
+    ```xml
+    <EMERGENT_MOTIF echo="cages / gilded confinement">
+      Weave thematic resonance of physical confinement and patient predation into sensory beats and character tells.
+    </EMERGENT_MOTIF>
+    ```
 
-  - **Why This Matters:** It creates subtle literary callbacks and thematic depth unique to _that specific player's playthrough_, without maintaining a single static list of hardcoded tropes.
+  - _Why This Matters:_ It creates subtle literary callbacks and thematic depth unique to _that specific player's playthrough_, without maintaining a single static list of hardcoded tropes.
 
 #### 3. Deprecation of Legacy Chapter Compaction Trees
 
