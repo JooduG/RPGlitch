@@ -14,7 +14,7 @@
   import { entities, PREMADE_ENTITIES } from "@data";
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
-  import { extract_entity_relationships } from "../../storage/parser.js";
+  import { extract_entity_relationships } from "@storage";
 
   /**
    * @typedef {Object} Props
