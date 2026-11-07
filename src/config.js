@@ -361,6 +361,23 @@ export const DYNAMICS_SCALE = Object.freeze({
   BOUNDARY_CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
 });
 
+/**
+ * Dynamics axis definitions and metadata: somatic (character) and fractal (environmental) axes,
+ * plus explicit `low` and `high` spectrum bounds.
+ * @type {Record<string, { label: string, low: string, high: string, scope: "somatic" | "fractal" }>}
+ */
+export const DYNAMICS_AXES = Object.freeze({
+  // Character (Somatic) axes
+  chaos: { label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" },
+  intensity: { label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" },
+  openness: { label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" },
+  affinity: { label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" },
+
+  // Fractal (Environmental) axes
+  velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
+  entropy: { label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" },
+});
+
 /** Emotional salience scale for past entries and veil flags */
 export const EMOTIONAL_WEIGHT_SCALE = Object.freeze({ MIN: 1, MAX: 10, DEFAULT: 5 });
 

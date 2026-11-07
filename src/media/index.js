@@ -48,6 +48,10 @@ export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./toke
 export {
   IMAGE_TIERS,
   DEFAULT_IMAGE_TIER,
+  ORDERED_VISUAL_STYLE_KEYS,
+  build_aesthetic_map,
+  flatten_aesthetic_map,
+  resolve_visual_engine_tokens,
   normalize_image_tier,
   get_resolution,
   get_resolution_string,

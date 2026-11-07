@@ -25,7 +25,7 @@ import { seed_premades, session_driver, set_versionchange_quiesce } from "@data"
 import { Audio, sweep_stale_ghosts, ensure_theme_tokens } from "@media";
 import { install_environment_hardening, sanitize_to_fragment, save_session_checkpoint, embeddings_engine } from "@platform";
 import { mount } from "svelte";
-import { reconcile_vector_caps } from "@intelligence";
+import { normalize_entity } from "@storage";
 import App from "@/App.svelte";
 import { register_state_accessors, register_stream_handlers, state_bridge } from "@utils";
 
@@ -118,7 +118,12 @@ export const app_bootstrap = {
       ]) {
         if (!entity) continue;
         try {
-          if (reconcile_vector_caps(entity)) {
+          const normalized = normalize_entity(entity);
+          const changed =
+            JSON.stringify(normalized.past) !== JSON.stringify(entity.past) || JSON.stringify(normalized.future) !== JSON.stringify(entity.future);
+          if (changed) {
+            entity.past = normalized.past;
+            entity.future = normalized.future;
             await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
           }
         } catch (err) {

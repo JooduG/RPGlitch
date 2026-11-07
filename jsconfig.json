@@ -48,6 +48,12 @@
       "@storage/*": [
         "src/storage/*"
       ],
+      "@engine": [
+        "src/engine/index.js"
+      ],
+      "@engine/*": [
+        "src/engine/*"
+      ],
       "@intelligence": [
         "src/intelligence/index.js"
       ],

@@ -8,8 +8,7 @@
  */
 
 import MarkdownIt from "markdown-it";
-import { clean_image_prompts, parse_think_block } from "../../intelligence/parser.js";
-import { filter_epistemic_brackets, strip_covert_directives } from "@intelligence";
+import { clean_image_prompts, parse_think_block, filter_epistemic_brackets, strip_covert_directives } from "@storage";
 import { detox_prose } from "@utils";
 import { sanitize } from "@platform";
 

@@ -21,26 +21,9 @@
 
 import { clamp, escape_xml, render_xml_tag } from "@utils";
 import { STYLE_MOTIF_REGISTRY } from "@data";
+import { DYNAMICS_AXES } from "@config";
 
-// ── 1. Dynamics Axes ──────────────────────────────────────────────────────────
-
-/**
- * 6 core dynamics axes: 4 somatic (character) and 2 environmental (fractal).
- * Each axis carries a `scope` ("somatic" | "fractal") used to split sheets,
- * plus explicit `low` and `high` spectrum bounds.
- * @type {Record<string, { label: string, low: string, high: string, scope: "somatic" | "fractal" }>}
- */
-export const DYNAMICS_AXES = Object.freeze({
-  // Character (Somatic) axes
-  chaos: { label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" },
-  intensity: { label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" },
-  openness: { label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" },
-  affinity: { label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" },
-
-  // Fractal (Environmental) axes
-  velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
-  entropy: { label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" },
-});
+export { DYNAMICS_AXES };
 
 /**
  * Canonical dynamics metric names. Single source for telemetry shaping

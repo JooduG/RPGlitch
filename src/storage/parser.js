@@ -128,7 +128,114 @@ export function parse_brackets(text) {
   return tokens;
 }
 
-export const parse_bracket_entries = parse_brackets;
+/**
+ * Parses all [KEY: value | flags] bracket entries from a text string with token positions.
+ *
+ * @param {string|null|undefined} text
+ * @returns {Array<{ key: string, original_key: string, value: string, visibility: 'show'|'hide', weight: number, status: 'active'|'superseded', raw: string, start_index: number, end_index: number }>}
+ */
+export function parse_bracket_entries(text) {
+  if (!text || typeof text !== "string") return [];
+
+  const entries = [];
+  const length = text.length;
+  let index = 0;
+
+  while (index < length) {
+    if (text[index] === "[") {
+      const start_index = index;
+      let depth = 1;
+      let brace_depth = 0;
+      let end_index = -1;
+
+      for (let cursor = index + 1; cursor < length; cursor++) {
+        const character = text[cursor];
+
+        if (character === "{") {
+          brace_depth++;
+        } else if (character === "}") {
+          if (brace_depth > 0) brace_depth--;
+        } else if (character === "[" && brace_depth === 0) {
+          depth++;
+        } else if (character === "]" && brace_depth === 0) {
+          depth--;
+          if (depth === 0) {
+            end_index = cursor;
+            break;
+          }
+        }
+      }
+
+      if (end_index !== -1) {
+        const raw = text.slice(start_index, end_index + 1);
+        const inner_content = text.slice(start_index + 1, end_index).trim();
+        const colon_index = inner_content.indexOf(":");
+
+        if (colon_index !== -1) {
+          const original_key = inner_content.slice(0, colon_index).trim();
+          const key = original_key.toUpperCase();
+          const remainder = inner_content.slice(colon_index + 1).trim();
+
+          const segments = [];
+          let segment_start = 0;
+          let current_brace_depth = 0;
+
+          for (let character_index = 0; character_index < remainder.length; character_index++) {
+            const current_char = remainder[character_index];
+            if (current_char === "{") {
+              current_brace_depth++;
+            } else if (current_char === "}") {
+              if (current_brace_depth > 0) current_brace_depth--;
+            } else if (current_char === "|" && current_brace_depth === 0) {
+              segments.push(remainder.slice(segment_start, character_index).trim());
+              segment_start = character_index + 1;
+            }
+          }
+          segments.push(remainder.slice(segment_start).trim());
+
+          const value = segments[0] || "";
+          let visibility = "show";
+          let weight = 5;
+          let status = "active";
+
+          for (let flag_index = 1; flag_index < segments.length; flag_index++) {
+            const flag = segments[flag_index].toLowerCase();
+            if (flag === "hide" || flag === "private") {
+              visibility = "hide";
+            } else if (flag === "show") {
+              visibility = "show";
+            } else if (flag === "superseded") {
+              status = "superseded";
+            } else if (flag.startsWith("w:") || flag.startsWith("weight:")) {
+              const weight_value = parseInt(flag.split(":")[1], 10);
+              if (!Number.isNaN(weight_value)) {
+                weight = Math.max(1, Math.min(10, weight_value));
+              }
+            }
+          }
+
+          entries.push({
+            key,
+            original_key,
+            value,
+            visibility,
+            weight,
+            status,
+            raw,
+            start_index,
+            end_index: end_index + 1,
+          });
+        }
+
+        index = end_index + 1;
+        continue;
+      }
+    }
+    index++;
+  }
+
+  return entries;
+}
 
 /**
  * Filters brackets based on visibility and strips internal flags for clean prompt rendering.
@@ -431,4 +538,174 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
   scan_field(entity.future, "future");
 
   return relationships;
+}
+
+import { safe_parse_json } from "@utils";
+
+/**
+ * Parses a raw LLM profile-sorting response into a structured object.
+ * Strips cognition blocks and code fences, isolates the outermost JSON object,
+ * and returns null on any failure (no braces, malformed JSON).
+ *
+ * @param {string} raw
+ * @returns {Object|null}
+ */
+export function parse_profile_json(raw) {
+  if (typeof raw !== "string") {
+    if (raw == null) return null;
+    const coerced = typeof raw.text === "string" ? raw.text : String(raw);
+    if (!coerced || coerced === "[object Object]") return null;
+    raw = coerced;
+  }
+  const clean = raw
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/```json\n?|```/g, "")
+    .trim();
+  return safe_parse_json(clean);
+}
+
+/**
+ * Removes <image_prompt> tags, <image> tags, and Markdown images from text.
+ *
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function clean_image_prompts(text) {
+  if (!text) return "";
+  let clean = text.replace(/<image_prompt>[\s\S]*?<\/image_prompt>/gi, "");
+  clean = clean.replace(/<image>[\s\S]*?<\/image>/gi, "");
+  clean = clean.replace(/!\[.*?\]\(.*?\)/g, "");
+  return clean.trim();
+}
+
+/**
+ * Extracts <think> blocks from text.
+ * Handles partial tags during streaming and merges multiple blocks cleanly.
+ *
+ * @param {string|null|undefined} text
+ * @returns {{ content: string, think: string|null }}
+ */
+export function parse_think_block(text) {
+  if (!text) return { content: "", think: null };
+
+  const think_accumulator = [];
+
+  // 1. Match and extract closed <think>...</think> blocks
+  const closed_think_regex = /<think>([\s\S]*?)<\/think>/gi;
+  let match;
+  while ((match = closed_think_regex.exec(text)) !== null) {
+    const raw_block = match[1].replace(/<\/?think>/gi, "").trim();
+    if (raw_block) {
+      think_accumulator.push(raw_block);
+    }
+  }
+
+  // Clean closed <think>...</think> blocks from content
+  let content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+
+  // 2. Check for an unclosed partial block (streaming)
+  const think_openers = (text.match(/<think>/gi) || []).length;
+  const think_closers = (text.match(/<\/think>/gi) || []).length;
+
+  if (think_openers > think_closers) {
+    const lower_text = text.toLowerCase();
+    const last_think_index = lower_text.lastIndexOf("<think>");
+    if (last_think_index !== -1) {
+      const partial_think = text
+        .slice(last_think_index)
+        .replace(/<\/?think>/gi, "")
+        .trim();
+      if (partial_think) {
+        think_accumulator.push(partial_think);
+      }
+      content = text.slice(0, last_think_index);
+    }
+  }
+
+  return {
+    content: content.trim(),
+    think: think_accumulator.length > 0 ? think_accumulator.join("\n\n") : null,
+  };
+}
+
+/**
+ * Filters [KEY: value | flags] bracket tokens through the Epistemic Wall.
+ *
+ * @param {string|null|undefined} text
+ * @param {'owner'|'other'|'vision'} [perspective='other']
+ * @returns {string}
+ */
+export function filter_epistemic_brackets(text, perspective = "other") {
+  if (!text || typeof text !== "string") return "";
+
+  let working_text = text;
+
+  const entries = parse_bracket_entries(working_text);
+  if (entries.length === 0) return working_text;
+
+  // Process backwards to preserve character indices
+  for (let index = entries.length - 1; index >= 0; index--) {
+    const entry = entries[index];
+
+    if (entry.visibility === "hide") {
+      if (perspective === "owner") {
+        // Secrecy signal: keep entry formatted cleanly with '| hide'
+        const secret_replacement = `[${entry.original_key}: ${entry.value} | hide]`;
+        working_text = working_text.slice(0, entry.start_index) + secret_replacement + working_text.slice(entry.end_index);
+      } else {
+        // Omit completely for 'other' and 'vision'
+        const before = working_text.slice(0, entry.start_index);
+        let after = working_text.slice(entry.end_index);
+
+        if (before.endsWith("\n") && after.startsWith("\n")) {
+          after = after.slice(1);
+        } else if (before.endsWith(" ") && after.startsWith(" ")) {
+          after = after.slice(1);
+        }
+
+        working_text = before + after;
+      }
+    } else {
+      // Show entry: strip all internal engine flags (hide, show, w: N) before prompt sees it
+      const clean_replacement = `[${entry.original_key}: ${entry.value}]`;
+      working_text = working_text.slice(0, entry.start_index) + clean_replacement + working_text.slice(entry.end_index);
+    }
+  }
+
+  return working_text;
+}
+
+/**
+ * Strips private directive brackets across entity boundaries.
+ *
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function strip_covert_directives(text) {
+  if (!text || typeof text !== "string") return "";
+  return text
+    .replace(/\[(?:covert|secret|private|hidden)\s*:[^\]]*\]/gi, "")
+    .replace(/«(?:covert|secret|private|hidden)(?::[^»]*)?»/gi, "")
+    .replace(/[ \t]{2,}/g, " ");
+}
+
+/**
+ * Strips internal engine flags (| hide, | show, | w: N) from bracketed entries
+ * for clean vector embedding calculations, eliminating false semantic collisions.
+ *
+ * @param {string|null|undefined} text
+ * @returns {string} Clean text suitable for embedding models
+ */
+export function strip_bracket_engine_flags(text) {
+  if (!text || typeof text !== "string") return "";
+  const entries = parse_bracket_entries(text);
+  if (entries.length === 0) return text;
+
+  let working_text = text;
+  for (let index = entries.length - 1; index >= 0; index--) {
+    const entry = entries[index];
+    const stripped = `[${entry.original_key}: ${entry.value}]`;
+    working_text = working_text.slice(0, entry.start_index) + stripped + working_text.slice(entry.end_index);
+  }
+  return working_text;
 }

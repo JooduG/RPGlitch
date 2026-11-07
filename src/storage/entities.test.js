@@ -1,5 +1,12 @@
-import { describe, it, expect } from "vitest";
-import { normalize_entity, create_entity, filter_entity_epistemics, serialize_entity_for_export } from "./entities.js";
+import { describe, it, expect, vi } from "vitest";
+import {
+  normalize_entity,
+  create_entity,
+  filter_entity_epistemics,
+  serialize_entity_for_export,
+  structure_profile,
+  birth_entity_core,
+} from "./entities.js";
 
 describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", () => {
   describe("create_entity", () => {
@@ -147,6 +154,40 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
       expect(exported.updated_at).toBeUndefined();
       expect(exported.name).toBe("Export Hero");
       expect(exported.eternal.physical).toBe("[BUILD: muscular]");
+    });
+  });
+
+  describe("structure_profile & birth_entity_core", () => {
+    it("structures raw prose via enhance and parses JSON output", async () => {
+      const { llm_service } = await import("@platform");
+      const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue('{"name":"Kael","appearance":"Tall and cloaked."}');
+
+      const result = await structure_profile("Raw character description of Kael...", "character");
+      expect(spy).toHaveBeenCalled();
+      expect(result).toEqual({ name: "Kael", appearance: "Tall and cloaked." });
+      spy.mockRestore();
+    });
+
+    it("birth_entity_core persists entity and returns canonical record", async () => {
+      const { entities } = await import("@data");
+      const upsert_spy = vi.spyOn(entities, "upsert").mockImplementation(async (type, ent) => ({
+        ...ent,
+        id: "char-123",
+      }));
+
+      const born = await birth_entity_core(
+        "character",
+        {
+          name: "Lyra",
+          description: "A nimble archer.",
+        },
+        { run_sorter: false, generate_portrait: false },
+      );
+
+      expect(upsert_spy).toHaveBeenCalledWith("character", expect.objectContaining({ name: "Lyra" }));
+      expect(born.id).toBe("char-123");
+      expect(born.name).toBe("Lyra");
+      upsert_spy.mockRestore();
     });
   });
 });

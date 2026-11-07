@@ -118,6 +118,33 @@ export const PURPOSE_CORES = Object.freeze({
   </TASK>`,
   },
 
+  ghostwrite: {
+    identity: "user",
+    see_hidden: "all",
+    start_with: () => "<think>",
+    resolve_identity_text: (context) =>
+      `You are ghostwriting the next narrative action, dialogue, or reaction from the perspective of ${context.listener_name || "the protagonist"}.`,
+    task_block: (context) => {
+      const listener_name = context.listener_name || "the protagonist";
+      return `  <TASK>
+    ### Think Format
+    1. **Intent & Reflex**: Immediate physical or psychological reaction from ${listener_name}.
+    2. **Friction & Stakes**: The obstacle or emotional vulnerability at play.
+    3. **Physical Vector**: Concrete bodily movement, sensory observation, or speech.
+
+    *Conclude internal cognition with a closing \\</think\\> tag before narrative prose.*
+
+    ### Ghostwriting Directives
+    - Write strictly in present tense.
+    - Embody ${listener_name}'s perspective, tone, and agency.
+    - Never summarize past events; advance the immediate moment with sensory grit, tactile posture, or spoken dialogue.
+
+    > [!IMPORTANT]
+    > Emit in-character narrative prose.
+  </TASK>`;
+    },
+  },
+
   character: {
     identity: "character",
     see_hidden: "own",

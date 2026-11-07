@@ -22,6 +22,12 @@ export {
   apply_bracket_deltas,
   extract_memory_candidates,
   extract_entity_relationships,
+  parse_profile_json,
+  clean_image_prompts,
+  parse_think_block,
+  filter_epistemic_brackets,
+  strip_covert_directives,
+  strip_bracket_engine_flags,
 } from "./parser.js";
 
 // 2. Profile Fields, Leaf Mapping & Enhancers
@@ -39,7 +45,15 @@ export {
 } from "./presets.js";
 
 // 4. 4-Quadrant Entity Model & Normalizer
-export { normalize_entity, create_entity, filter_entity_epistemics, serialize_entity_for_export } from "./entities.js";
+export {
+  normalize_entity,
+  create_entity,
+  filter_entity_epistemics,
+  serialize_entity_for_export,
+  structure_profile,
+  apply_profile_to_entity,
+  birth_entity_core,
+} from "./entities.js";
 
 // 5. Greenfield Dexie Persistence Engine
 export {

@@ -1,7 +1,7 @@
 <script>
   import { Button, Modal, SourceField, Toggle } from "@primitives";
   import { app, simulation_state } from "@state";
-  import { birth_entity_core } from "@intelligence";
+  import { birth_entity_core } from "@storage";
   import { create_new, detect_card_format, normalize, parse_character_card } from "@data";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();

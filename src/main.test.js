@@ -162,4 +162,30 @@ describe("app_bootstrap", () => {
     console_spy.mockRestore();
     inner_htmlspy.mockRestore();
   });
+
+  test("normalizes entity vector pools on boot preserving truthiness contract", async () => {
+    const mock_entity = {
+      id: "char-legacy",
+      type: "character",
+      name: "Legacy Character",
+      past: ["Legacy memory 1", "Legacy memory 2"],
+      future: "Old future plan",
+    };
+
+    _mock_runtime.active_ai = mock_entity;
+    _mock_runtime.active_user = null;
+    _mock_runtime.active_fractal = null;
+    _mock_runtime.update_entity = vi.fn().mockResolvedValue(true);
+    _mock_runtime.is_ready = true;
+
+    await app_bootstrap.init();
+
+    expect(_mock_runtime.update_entity).toHaveBeenCalledWith(
+      "character",
+      "char-legacy",
+      expect.objectContaining({
+        past: expect.any(String),
+      }),
+    );
+  });
 });

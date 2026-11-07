@@ -9,32 +9,14 @@
  */
 
 import { generate_uuid, state_bridge } from "@utils";
-import { FLAT_LEAF_MAP, entities, stories } from "@data";
-import { parse_profile_json } from "./parser.js";
+import { FLAT_LEAF_MAP, stories } from "@data";
 import { temporal_engine } from "./temporal.js";
-import { llm_service } from "@platform";
-import { compile_prompt } from "./prompts.js";
+import { birth_entity_core as storage_birth_entity_core, structure_profile as storage_structure_profile } from "@storage";
+
+export const birth_entity_core = storage_birth_entity_core;
+export const structure_profile = storage_structure_profile;
 
 // ── 1. Profile Structuring & Schema Mapper ────────────────────────────────────
-
-/**
- * Runs the LLM ingestion sorter over raw prose and returns the structured profile.
- * Returns null when the LLM fails to structure (lenient by design).
- *
- * @param {string} raw
- * @param {'character' | 'fractal'} type
- * @returns {Promise<Object | null>}
- */
-export async function structure_profile(raw, type) {
-  const payload = compile_prompt("sorting", {
-    entity_type: type,
-    options: { ingestion: true },
-    input_data: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
-  });
-  const result = await llm_service.enhance(payload);
-  const text = typeof result === "string" ? result : String(result?.text ?? result ?? "");
-  return parse_profile_json(text);
-}
 
 /**
  * Applies a flat structured profile onto a freshly created entity, mapping flat
@@ -110,138 +92,7 @@ export function apply_profile_to_entity(entity, profile) {
   return entity;
 }
 
-// ── 2. Unified Entity Birth Core ──────────────────────────────────────────────
-
-/**
- * Common birth core shared across spawn_character and ImportModal.
- * Runs structuring (if prose), maps profile leaves, saves to DB,
- * writes genesis ledger entries, and chains post-save portrait generation.
- *
- * @param {'character' | 'fractal'} type
- * @param {Object} draft
- * @param {Object} [options]
- * @returns {Promise<any>}
- */
-export async function birth_entity_core(type, draft = {}, options = {}) {
-  const name = String(draft?.name || "").trim();
-  const raw_color = String(draft?.signature_color || "").trim();
-  const description = String(draft?.description || "").trim();
-  const scene_context = String(draft?.scene_context || "").trim();
-
-  let entity = {
-    name: name || (type === "fractal" ? "New Fractal" : "New Character"),
-    type,
-    description,
-    eternal: {
-      physical: description,
-      non_physical: "",
-    },
-    present: {
-      physical: description,
-      non_physical: "",
-    },
-    future: "",
-    past: [],
-    dynamics: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
-    dynamics_baseline: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
-    speaking_style: draft?.speaking_style || "casual",
-    is_wanderer: false,
-    signature_color: raw_color || undefined,
-  };
-
-  // Run structuring if rich synthesis text is provided
-  if (options.run_sorter || (!draft?.eternal && !draft?.present && (name || description))) {
-    try {
-      const synthesis_source = [
-        `Entity Name: ${entity.name}`,
-        description ? `Core Concept: ${description}` : "",
-        raw_color ? `Signature Color: ${raw_color}` : "",
-        scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n");
-
-      const rich_profile = await structure_profile(synthesis_source, type);
-      if (rich_profile && typeof rich_profile === "object") {
-        entity = apply_profile_to_entity(entity, rich_profile);
-      }
-    } catch (error) {
-      state_bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
-    }
-  } else if (draft && typeof draft === "object") {
-    entity = apply_profile_to_entity(entity, draft);
-  }
-
-  if (name) entity.name = name;
-  if (raw_color) entity.signature_color = raw_color;
-
-  const saved_entity = await entities.upsert(type, entity);
-
-  // Write Genesis Ledger Entries for all populated quadrant fields
-  const { append_ledger_entries } = await import("@data");
-  const story_id = options.story_id ?? state_bridge.runtime?.story_id ?? null;
-  const ledger_lines = [];
-
-  const record_genesis_field = (field_path, value) => {
-    if (!value) return;
-    const string_value = Array.isArray(value) ? JSON.stringify(value) : typeof value === "object" ? JSON.stringify(value) : String(value);
-    if (!string_value.trim()) return;
-    ledger_lines.push({
-      story_id,
-      round: 0,
-      seq: 0,
-      entity_id: saved_entity.id,
-      field: field_path,
-      new_value: string_value,
-      writer: "genesis",
-      decider: "genesis",
-    });
-  };
-
-  record_genesis_field("eternal.physical", saved_entity.eternal?.physical);
-  record_genesis_field("eternal.non_physical", saved_entity.eternal?.non_physical);
-  record_genesis_field("present.physical", saved_entity.present?.physical);
-  record_genesis_field("present.non_physical", saved_entity.present?.non_physical);
-  if (Array.isArray(saved_entity.past) ? saved_entity.past.length > 0 : saved_entity.past) {
-    record_genesis_field("past", saved_entity.past);
-  }
-  record_genesis_field("future", saved_entity.future);
-
-  if (ledger_lines.length > 0) {
-    try {
-      await append_ledger_entries(ledger_lines);
-    } catch (err) {
-      void err;
-    }
-  }
-
-  // Chained post-save portrait generation (fire-and-forget)
-  if (options.generate_portrait !== false && type === "character") {
-    const { visual_engine } = await import("@media");
-    if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
-      try {
-        const portrait_promise = visual_engine
-          .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
-          .then(async (image_url) => {
-            if (image_url && saved_entity.id) {
-              const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
-              await entities.update("character", saved_entity.id, { profile_picture: data_url });
-              await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
-            }
-          });
-        if (portrait_promise && typeof portrait_promise.catch === "function") {
-          portrait_promise.catch((error) =>
-            state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
-          );
-        }
-      } catch (_error) {
-        /* portrait failure must never break genesis */
-      }
-    }
-  }
-
-  return saved_entity;
-}
+// ── 2. Unified Entity Birth Core (Re-exported from @storage) ──────────────────
 
 // ── 3. Character Genesis & Active Cast Spawning ───────────────────────────────
 

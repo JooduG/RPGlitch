@@ -48,7 +48,8 @@ import { resolve_character_action_directive, resolve_scene_action_directive } fr
 import { extract_spent_ledger, render_constraints_directive, render_director_constraints_directive } from "./modules/reflex.js";
 import { resolve_optics_cinematography } from "./modules/style.js";
 import { get_output_format } from "./modules/output.js";
-import { DYNAMICS_AXES, PHYSICS_PROTOCOLS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
+import { PHYSICS_PROTOCOLS, evaluate_dynamics_rules, evaluate_subtext_protocols } from "./dynamics.js";
+import { DYNAMICS_AXES } from "@config";
 import { temporal_engine, resolve_vector_pool, resolve_settled_facts } from "./temporal.js";
 
 /**

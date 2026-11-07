@@ -4,8 +4,9 @@
  */
 
 import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, IMAGE_RESOLUTIONS, IMAGE_TRIGGER } from "@config";
-import { evaluate_image_trigger, normalize_comma_spacing } from "@utils";
-import { flatten_aesthetic_map, build_aesthetic_map, ORDERED_VISUAL_STYLE_KEYS } from "../intelligence/modules/style.js";
+import { evaluate_image_trigger, normalize_comma_spacing, CLOTHING_KEYS, CLEAR_TOKENS, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
+import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "../definitions/visual-styles.js";
+import { get_signature_label, PALETTE } from "./palette.js";
 
 // ============================================================================
 // [SECTION 1: TAXONOMY CONSTANTS & RESOLUTION SPECS]
@@ -189,6 +190,123 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
 // ============================================================================
 // [SECTION 3: AESTHETIC TRAIT EXTRACTOR & DETERMINISTIC OPTICS FALLBACK]
 // ============================================================================
+
+export const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
+  "_visual_style_medium",
+  "_visual_style_palette",
+  "_visual_style_camera",
+  "_visual_style_composition",
+  "_visual_style_texture",
+  "_visual_style_tags",
+]);
+
+/**
+ * Pre-compiled regex matching clothing removal markers in present state strings.
+ * Built dynamically from shared canonical CLOTHING_KEYS and CLEAR_TOKENS sets.
+ * @type {RegExp}
+ */
+const BARE_MARKER_REGEX = new RegExp(`\\[(?:${CLOTHING_KEYS.join("|")})\\s*:\\s*(?:${[...CLEAR_TOKENS].join("|")})\\s*\\]`, "i");
+
+export function resolve_visual_engine_tokens(visual_style_key) {
+  const visual_style = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
+  const engine = visual_style.engine || {};
+
+  return {
+    medium: String(engine.medium || "").trim(),
+    palette: String(engine.palette || "").trim(),
+    camera: String(engine.camera || "").trim(),
+    composition: String(engine.composition || "").trim(),
+    texture: String(engine.texture || "").trim(),
+    negative_prompt: String(visual_style.negative_prompt || "").trim(),
+  };
+}
+
+export function build_aesthetic_map(entity = {}) {
+  const eternal_parsed_object = safe_parse_pseudo_json(entity.eternal?.physical || "");
+  const present_parsed_object = safe_parse_pseudo_json(entity.present?.physical || "");
+
+  /** @type {Record<string, any>} */
+  const merged_aesthetic_map = {};
+
+  /**
+   * @param {Record<string, any>} source_object
+   * @param {string} fallback_label
+   */
+  const merge_input_source = (source_object, fallback_label) => {
+    if (source_object.__raw_prose__) {
+      merged_aesthetic_map[fallback_label] = source_object.__raw_prose__;
+    } else {
+      Object.entries(source_object).forEach(([key, value]) => {
+        if (VISUAL_EXCLUDED_KEYS.has(key)) return;
+        merged_aesthetic_map[key] = value;
+      });
+    }
+  };
+
+  merge_input_source(eternal_parsed_object, "eternal");
+  merge_input_source(present_parsed_object, "present");
+
+  // --- Clothing Override Protocol ---
+  const raw_present_physical = entity.present?.physical || "";
+  const has_bare_clothing_marker = BARE_MARKER_REGEX.test(raw_present_physical);
+
+  if (has_bare_clothing_marker) {
+    for (const clothing_key of CLOTHING_KEYS) {
+      if (merged_aesthetic_map[clothing_key] && !(clothing_key in present_parsed_object)) {
+        delete merged_aesthetic_map[clothing_key];
+      }
+    }
+  }
+
+  // --- Visual Style Engine Injection ---
+  const visual_style_key = resolve_portrait_visual_style_key(entity);
+  const visual_style_definition = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
+  const engine_tokens = resolve_visual_engine_tokens(visual_style_key);
+
+  if (engine_tokens.medium) merged_aesthetic_map._visual_style_medium = engine_tokens.medium;
+  if (engine_tokens.palette) merged_aesthetic_map._visual_style_palette = engine_tokens.palette;
+  if (engine_tokens.camera) merged_aesthetic_map._visual_style_camera = engine_tokens.camera;
+  if (engine_tokens.composition) merged_aesthetic_map._visual_style_composition = engine_tokens.composition;
+  const style_keywords = visual_style_definition.keywords || visual_style_definition.tags;
+  if (visual_style_key && visual_style_key !== "none" && Array.isArray(style_keywords) && style_keywords.length) {
+    merged_aesthetic_map._visual_style_tags = style_keywords.join(", ");
+  }
+
+  if (Array.isArray(entity.tags) && entity.tags.length) {
+    merged_aesthetic_map.tags = entity.tags.join(", ");
+  }
+
+  // --- Palette Signature Color Binding ---
+  const signature_color_name = get_signature_label(entity);
+  if (signature_color_name) {
+    const signature_color_hex = /** @type {Record<string, string>} */ (PALETTE)[signature_color_name];
+    merged_aesthetic_map.aesthetic = signature_color_hex ? `in color ${signature_color_hex}` : `${signature_color_name.toLowerCase()} aesthetic`;
+  }
+
+  return merged_aesthetic_map;
+}
+
+export function flatten_aesthetic_map(entity = {}) {
+  if (!entity) return "";
+  const map = build_aesthetic_map(entity);
+  const style_keys = [
+    "_visual_style_medium",
+    "_visual_style_palette",
+    "_visual_style_camera",
+    "_visual_style_composition",
+    "_visual_style_texture",
+    "_visual_style_tags",
+  ];
+  const visual_values = style_keys.map((k) => map[k]).filter(Boolean);
+  const additional = Object.entries(map)
+    .filter(([k]) => !style_keys.includes(k))
+    .map(([k, v]) => {
+      const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+      return k.startsWith("_visual_style_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;
+    })
+    .filter(Boolean);
+  return normalize_comma_spacing([...visual_values, ...additional].join(". "));
+}
 
 export function extract_aesthetic_traits(entity = {}) {
   const merged_aesthetic_map = build_aesthetic_map(entity);

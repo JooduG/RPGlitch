@@ -20,7 +20,8 @@
  */
 
 import { session_driver } from "@data";
-import { build_turn_summary, gamemaster } from "@intelligence";
+import { gamemaster } from "@intelligence";
+import { build_turn_summary } from "@engine";
 import { state_bridge } from "@utils";
 import { execute_greenfield_turn, execute_greenfield_continue } from "../engine/bridge.js";
 

@@ -25,6 +25,7 @@ export {
   execute_turn_2_continue,
   execute_turn_3_caretaker,
   execute_round,
+  build_turn_summary,
 } from "./turns.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
@@ -48,3 +49,6 @@ export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, sc
 
 // Streaming transport boundary
 export { create_transport } from "./transport.js";
+
+// Ghostwriter execution engine
+export { execute_ghostwriter } from "./ghostwriter.js";

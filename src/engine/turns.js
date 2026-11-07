@@ -31,6 +31,25 @@ export const TEMPO_OUTPUT_BUDGETS = Object.freeze({
 });
 
 /**
+ * Builds a brief human-readable turn summary from the recent feed tail.
+ *
+ * @param {any[]} feed - Recent feed array
+ * @param {number} round - Current round index
+ * @returns {string}
+ */
+export function build_turn_summary(feed, round) {
+  const tail = (feed || []).slice(-16);
+  const counts = {};
+  for (const m of tail) {
+    if (!m || m.role === "system") continue;
+    const role = m.role === "model" ? "ai" : m.role;
+    counts[role] = (counts[role] || 0) + 1;
+  }
+  const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
+  return `Turn ${round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
+}
+
+/**
  * Enforces post-hoc pacing backstop by truncating oversized prose at sentence boundaries.
  *
  * @param {string} prose

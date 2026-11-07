@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Accordion, Button, DataBox, Meter, tooltip } from "@primitives";
-  import { DYNAMICS_AXES } from "@intelligence";
+  import { DYNAMICS_AXES } from "@config";
   import { format_datetime } from "@utils";
   import { runtime } from "@state";
   import FieldHistoryModal from "./FieldHistoryModal.svelte";

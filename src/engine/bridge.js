@@ -311,8 +311,8 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
           field,
           key: item.key,
           new_value: item.value,
-          visibility: item.flags.hide ? "hide" : item.flags.show ? "show" : null,
-          weight: item.flags.weight ?? null,
+          visibility: item.flags ? (item.flags.hide ? "hide" : item.flags.show ? "show" : null) : item.visibility || null,
+          weight: item.flags ? (item.flags.weight ?? null) : (item.weight ?? null),
           writer: "caretaker",
           decider: "caretaker",
         });

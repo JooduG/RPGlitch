@@ -16,8 +16,12 @@
  * ============================================================================
  */
 
-import { generate_uuid } from "@utils";
-import { format_clean_brackets } from "./parser.js";
+import { generate_uuid, state_bridge } from "@utils";
+import { format_clean_brackets, parse_profile_json } from "./parser.js";
+import { FLAT_LEAF_MAP } from "./profile-fields.js";
+import { entities } from "@data";
+import { llm_service } from "@platform";
+import { compile_prompt } from "../engine/prompts.js";
 
 const DEFAULT_CHARACTER_DYNAMICS = Object.freeze({
   chaos: 50,
@@ -271,4 +275,239 @@ export function serialize_entity_for_export(entity) {
   const normalized = normalize_entity(entity);
   const { id: _id, created_at: _created_at, updated_at: _updated_at, origin_id: _origin_id, ...exportable } = normalized;
   return exportable;
+}
+
+/**
+ * Runs the LLM ingestion sorter over raw prose and returns the structured profile.
+ * Returns null when the LLM fails to structure (lenient by design).
+ *
+ * @param {string} raw
+ * @param {'character' | 'fractal'} type
+ * @returns {Promise<Object | null>}
+ */
+export async function structure_profile(raw, type) {
+  const payload = compile_prompt({
+    core: "caretaker",
+    entities: {
+      AI: {
+        name: type === "fractal" ? "New Fractal" : "New Character",
+        type,
+      },
+    },
+    task_options: {
+      ingestion: true,
+      input_data: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
+    },
+  });
+  const result = await llm_service.enhance(payload);
+  const text = typeof result === "string" ? result : String(result?.text ?? result ?? "");
+  return parse_profile_json(text);
+}
+
+/**
+ * Applies a flat structured profile onto a freshly created entity, mapping flat
+ * keys onto the nested Twin-Cylinder schema. Mutates and returns `entity`.
+ *
+ * @param {any} entity
+ * @param {Object} profile
+ * @returns {any}
+ */
+export function apply_profile_to_entity(entity, profile) {
+  if (!profile || typeof profile !== "object") return entity;
+
+  const leaf_map = FLAT_LEAF_MAP[entity.type] || FLAT_LEAF_MAP.character || {};
+
+  for (const [key, value] of Object.entries(profile)) {
+    // Identity/asset keys are set by the orchestrator, never by the profile.
+    if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
+
+    if (key === "past") {
+      const incoming_items = Array.isArray(value) ? value : typeof value === "string" ? [value] : null;
+      if (incoming_items) {
+        const cleaned_texts = incoming_items
+          .map((item) => {
+            if (typeof item === "string") return item;
+            if (item && typeof item === "object") return item.content || item.directive || JSON.stringify(item);
+            return "";
+          })
+          .map((text) => String(text || "").trim())
+          .filter(Boolean);
+        if (cleaned_texts.length > 0) {
+          if (typeof entity.past === "string") {
+            const current_text = entity.past.trim();
+            entity.past = current_text ? `${current_text} ${cleaned_texts.join(" ")}` : cleaned_texts.join(" ");
+          } else {
+            const new_vectors = cleaned_texts.map((vector_string) => ({
+              id: `usr_${generate_uuid()}`,
+              content: vector_string,
+              key: "MEMORY",
+              emotional_weight: 5,
+              created_at: Date.now(),
+            }));
+            entity.past = [...(Array.isArray(entity.past) ? entity.past : []), ...new_vectors];
+          }
+        }
+      }
+    } else if (key === "future" && typeof value === "string") {
+      entity.future = value.trim();
+    } else if (key === "tags" && Array.isArray(value)) {
+      entity.tags = value
+        .map((tag) => String(tag).trim())
+        .filter(Boolean)
+        .slice(0, 30);
+    } else if (typeof value === "object" && !Array.isArray(value)) {
+      // Nested flat objects -> shallow-copy their string leaves.
+      for (const [sub_key, sub_value] of Object.entries(value)) {
+        if (typeof sub_value === "string") {
+          if (!entity[key]) entity[key] = {};
+          entity[key][sub_key] = sub_value;
+        }
+      }
+    } else if (typeof value === "string") {
+      // Flat LLM keys -> nested DB schema; everything else lands verbatim.
+      const mapped_path = leaf_map[key] || FLAT_LEAF_MAP.character?.[key];
+      if (mapped_path) {
+        const [main_key, sub_key] = mapped_path.split(".");
+        if (!entity[main_key]) entity[main_key] = {};
+        entity[main_key][sub_key] = value;
+      } else if (key === "name") {
+        entity.name = value.trim().slice(0, 80);
+      } else {
+        entity[key] = value;
+      }
+    }
+  }
+
+  return entity;
+}
+
+/**
+ * Common birth core shared across spawn_character and ImportModal.
+ * Runs structuring (if prose), maps profile leaves, saves to DB,
+ * writes genesis ledger entries, and chains post-save portrait generation.
+ *
+ * @param {'character' | 'fractal'} type
+ * @param {Object} draft
+ * @param {Object} [options]
+ * @returns {Promise<any>}
+ */
+export async function birth_entity_core(type, draft = {}, options = {}) {
+  const name = String(draft?.name || "").trim();
+  const raw_color = String(draft?.signature_color || "").trim();
+  const description = String(draft?.description || "").trim();
+  const scene_context = String(draft?.scene_context || "").trim();
+
+  let entity = {
+    name: name || (type === "fractal" ? "New Fractal" : "New Character"),
+    type,
+    description,
+    eternal: {
+      physical: description,
+      non_physical: "",
+    },
+    present: {
+      physical: description,
+      non_physical: "",
+    },
+    future: "",
+    past: [],
+    dynamics: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
+    dynamics_baseline: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
+    speaking_style: draft?.speaking_style || "casual",
+    is_wanderer: false,
+    signature_color: raw_color || undefined,
+  };
+
+  // Run structuring if rich synthesis text is provided
+  if (options.run_sorter || (!draft?.eternal && !draft?.present && (name || description))) {
+    try {
+      const synthesis_source = [
+        `Entity Name: ${entity.name}`,
+        description ? `Core Concept: ${description}` : "",
+        raw_color ? `Signature Color: ${raw_color}` : "",
+        scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const rich_profile = await structure_profile(synthesis_source, type);
+      if (rich_profile && typeof rich_profile === "object") {
+        entity = apply_profile_to_entity(entity, rich_profile);
+      }
+    } catch (error) {
+      state_bridge.app?.log(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
+    }
+  } else if (draft && typeof draft === "object") {
+    entity = apply_profile_to_entity(entity, draft);
+  }
+
+  if (name) entity.name = name;
+  if (raw_color) entity.signature_color = raw_color;
+
+  const saved_entity = await entities.upsert(type, entity);
+
+  // Write Genesis Ledger Entries for all populated quadrant fields
+  const { append_ledger_entries } = await import("@data");
+  const story_id = options.story_id ?? state_bridge.runtime?.story_id ?? null;
+  const ledger_lines = [];
+
+  const record_genesis_field = (field_path, value) => {
+    if (!value) return;
+    const string_value = Array.isArray(value) ? JSON.stringify(value) : typeof value === "object" ? JSON.stringify(value) : String(value);
+    if (!string_value.trim()) return;
+    ledger_lines.push({
+      story_id,
+      round: 0,
+      seq: 0,
+      entity_id: saved_entity.id,
+      field: field_path,
+      new_value: string_value,
+      writer: "genesis",
+      decider: "genesis",
+    });
+  };
+
+  record_genesis_field("eternal.physical", saved_entity.eternal?.physical);
+  record_genesis_field("eternal.non_physical", saved_entity.eternal?.non_physical);
+  record_genesis_field("present.physical", saved_entity.present?.physical);
+  record_genesis_field("present.non_physical", saved_entity.present?.non_physical);
+  if (Array.isArray(saved_entity.past) ? saved_entity.past.length > 0 : saved_entity.past) {
+    record_genesis_field("past", saved_entity.past);
+  }
+  record_genesis_field("future", saved_entity.future);
+
+  if (ledger_lines.length > 0) {
+    try {
+      await append_ledger_entries(ledger_lines);
+    } catch (err) {
+      void err;
+    }
+  }
+
+  // Chained post-save portrait generation (fire-and-forget)
+  if (options.generate_portrait !== false && type === "character") {
+    const { visual_engine } = await import("@media");
+    if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
+      try {
+        const portrait_promise = visual_engine
+          .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
+          .then(async (image_url) => {
+            if (image_url && saved_entity.id) {
+              const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
+              await entities.update("character", saved_entity.id, { profile_picture: data_url });
+              await state_bridge.runtime?.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+            }
+          });
+        if (portrait_promise && typeof portrait_promise.catch === "function") {
+          portrait_promise.catch((error) =>
+            state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
+          );
+        }
+      } catch (_error) {
+        /* portrait failure must never break genesis */
+      }
+    }
+  }
+
+  return saved_entity;
 }

@@ -19,7 +19,7 @@
   import { tick } from "svelte";
   import { Button, Indicator, tooltip } from "@primitives";
   import { chrono_engine } from "@state";
-  import { gamemaster } from "@intelligence";
+  import { execute_ghostwriter } from "@engine";
   import { stab } from "@motion";
   import { app, runtime, simulation_state, force_recover_simulation } from "@state";
 
@@ -56,7 +56,7 @@
       app.is_ghostwriting = true;
       try {
         value = ""; // clear previous value for live drafting
-        const draft = await gamemaster.execute_ghostwriter(value, null, (chunk, is_full_replace) => {
+        const draft = await execute_ghostwriter(value, null, (chunk, is_full_replace) => {
           if (is_full_replace) {
             value = chunk;
           } else {
