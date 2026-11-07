@@ -21,7 +21,6 @@ import { format_clean_brackets, parse_profile_json } from "./parser.js";
 import { FLAT_LEAF_MAP } from "./profile-fields.js";
 import { entities } from "@data";
 import { llm_service } from "@platform";
-import { compile_prompt } from "../engine/prompts.js";
 
 const DEFAULT_CHARACTER_DYNAMICS = Object.freeze({
   chaos: 50,
@@ -278,6 +277,45 @@ export function serialize_entity_for_export(entity) {
 }
 
 /**
+ * Compiles a minimal Caretaker structuring prompt for raw entity ingestion.
+ *
+ * @param {string} input_data
+ * @param {'character' | 'fractal'} type
+ * @returns {string}
+ */
+function compile_sorting_prompt(input_data, type) {
+  const target_name = type === "fractal" ? "New Fractal" : "New Character";
+  return `<SYSTEM round="1" identity="caretaker">
+  You are the Continuum Caretaker for target entity "${target_name}". Organize temporal state into canonical profile brackets.
+  <AXIOMATIC_CONSTITUTION>
+    <AMENDMENT number="1" name="Causality">Physical reality and causality supersede consensus or morality. Reject unearned feats and items without tangible foundation.</AMENDMENT>
+    <AMENDMENT number="2" name="Epistemics">Act strictly from internal bias and immediate sensory horizons. Unvoiced thoughts and concealed items are Null Data across the Epistemic Wall.</AMENDMENT>
+    <AMENDMENT number="3" name="Sovereignty">Every entity owns their body, voice, and choices.</AMENDMENT>
+    <AMENDMENT number="4" name="Fidelity">Simulate high-stakes adversarial tension with uncompromising descriptive realism.</AMENDMENT>
+  </AXIOMATIC_CONSTITUTION>
+</SYSTEM>
+<TASK>
+  ### Directives
+  - Review input notes and identify what shifts, updates, or polishes for the target.
+  - Emit ONLY non-empty "[KEY: value]" strings for fields being established; leave all other fields empty "".
+  <OUTPUT_FORMAT mode="json">
+    {
+      "_thought_process": "...",
+      "eternal_physical": "[KEY: value]",
+      "eternal_non_physical": "[KEY: value]",
+      "present_physical": "[KEY: value]",
+      "present_non_physical": "[KEY: value]",
+      "future": "[KEY: value]",
+      "past": "[KEY: value]"
+    }
+  </OUTPUT_FORMAT>
+  <INPUT kind="ingestion">
+${input_data}
+  </INPUT>
+</TASK>`;
+}
+
+/**
  * Runs the LLM ingestion sorter over raw prose and returns the structured profile.
  * Returns null when the LLM fails to structure (lenient by design).
  *
@@ -286,19 +324,8 @@ export function serialize_entity_for_export(entity) {
  * @returns {Promise<Object | null>}
  */
 export async function structure_profile(raw, type) {
-  const payload = compile_prompt({
-    core: "caretaker",
-    entities: {
-      AI: {
-        name: type === "fractal" ? "New Fractal" : "New Character",
-        type,
-      },
-    },
-    task_options: {
-      ingestion: true,
-      input_data: typeof raw === "string" ? raw : JSON.stringify(raw, null, 2),
-    },
-  });
+  const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
+  const payload = compile_sorting_prompt(input_data, type);
   const result = await llm_service.enhance(payload);
   const text = typeof result === "string" ? result : String(result?.text ?? result ?? "");
   return parse_profile_json(text);

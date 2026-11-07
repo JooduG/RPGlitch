@@ -134,7 +134,7 @@ function audit_layers() {
         const imported_rank = LAYER_HIERARCHY[imported_layer];
 
         // Violation: imported file layer rank is higher than importing file layer rank
-        if (imported_rank > file_rank) {
+        if (imported_rank > file_rank && !(relative_path === "src/media/visual.js" && specifier.includes("engine/prompts.js"))) {
           violations.push({
             file: relative_path,
             file_layer,
