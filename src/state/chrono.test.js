@@ -10,6 +10,7 @@ vi.mock("@data", () => ({
     send: vi.fn().mockResolvedValue({}),
     regenerate: vi.fn().mockResolvedValue({}),
     load_log: vi.fn().mockResolvedValue([]),
+    log_message: vi.fn().mockResolvedValue({ id: "msg-test" }),
     log_system_entry: vi.fn().mockResolvedValue({}),
   },
 }));
@@ -39,6 +40,8 @@ describe("ChronoEngine", () => {
       view: "storyboard",
       set_view: vi.fn(),
       log: vi.fn(),
+      start_stream: vi.fn(),
+      update_stream: vi.fn(),
       end_stream: vi.fn(),
       streaming: {
         active: false,
@@ -116,6 +119,13 @@ describe("ChronoEngine", () => {
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");
       expect(gamemaster.execute_turn).toHaveBeenCalled();
+    });
+
+    it("B01 regression: does not call session_driver.send when use_greenfield_engine is true", async () => {
+      mock_app.settings = { use_greenfield_engine: true };
+      const result = await chrono_engine.send("Look around greenfield");
+      expect(result).toBe(true);
+      expect(session_driver.send).not.toHaveBeenCalled();
     });
   });
 

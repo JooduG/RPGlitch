@@ -395,13 +395,38 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
   const message_node_id = `msg-${Date.now()}`;
   app.start_stream(message_node_id, "ai");
 
+  let first_chunk = true;
+
   try {
     const outcome = await _active_kernel.submit_turn(user_input, {
       signal: _options.signal,
+      is_retry: _options.is_retry,
+      is_continue: _options.is_continue,
       onChunk: (chunk) => {
+        if (first_chunk) {
+          first_chunk = false;
+          state_bridge.simulation_state?.set_delegated_speaker?.({
+            type: "ai",
+            name: ai_quadrant.name || "AI",
+            avatar: ai_quadrant.profile_picture || null,
+            color: ai_quadrant.signature_color || null,
+          });
+          state_bridge.simulation_state?.start_stream_stage?.();
+        }
         app.update_stream(chunk);
       },
     });
+
+    // If onChunk never fired (e.g. non-streaming transport or mock without chunks), ensure stages transition cleanly
+    if (first_chunk) {
+      state_bridge.simulation_state?.set_delegated_speaker?.({
+        type: "ai",
+        name: ai_quadrant.name || "AI",
+        avatar: ai_quadrant.profile_picture || null,
+        color: ai_quadrant.signature_color || null,
+      });
+      state_bridge.simulation_state?.start_stream_stage?.();
+    }
 
     const prose = outcome?.character_turn?.prose || "";
     const think = outcome?.character_turn?.think || "";

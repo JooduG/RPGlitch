@@ -185,6 +185,48 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
     });
   });
 
+  describe("B03: Turn stage transitions on Director and Speaker", () => {
+    it("invokes set_delegated_speaker and start_stream_stage during execute_greenfield_turn", async () => {
+      const mock_app = {
+        settings: { director_enabled: false },
+        start_stream: vi.fn(),
+        update_stream: vi.fn(),
+        end_stream: vi.fn(),
+      };
+      const mock_simulation_state = {
+        set_delegated_speaker: vi.fn(),
+        start_stream_stage: vi.fn(),
+      };
+      const mock_runtime = {
+        active_ai: { name: "Viper", profile_picture: "data:img", signature_color: "#ff0055", dynamics: {} },
+        active_user: { name: "John", dynamics: {} },
+        active_fractal: { name: "Station", dynamics: {} },
+        round: 1,
+        story_id: "story-stage",
+        save_entity: vi.fn().mockResolvedValue(true),
+        save: vi.fn().mockResolvedValue(true),
+      };
+      register_state_accessors({
+        app: mock_app,
+        simulation_state: mock_simulation_state,
+        runtime: mock_runtime,
+        simulation_log: { feed: [] },
+      });
+
+      vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1 });
+
+      await execute_greenfield_turn("Step into the light");
+
+      expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({
+        type: "ai",
+        name: "Viper",
+        avatar: "data:img",
+        color: "#ff0055",
+      });
+      expect(mock_simulation_state.start_stream_stage).toHaveBeenCalled();
+    });
+  });
+
   describe("Gap 4: write_back_kernel_state updates and persists dynamics, round and Caretaker diffs", () => {
     it("writes back updated dynamics and round to runtime and persistence", async () => {
       const mock_runtime = {

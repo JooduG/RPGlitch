@@ -230,7 +230,7 @@ export class ChronoEngine {
 
     return (async () => {
       try {
-        if (final_input) {
+        if (final_input && !state_bridge.app?.settings?.use_greenfield_engine) {
           try {
             await session_driver.send(final_input);
           } catch (db_err) {
@@ -244,7 +244,11 @@ export class ChronoEngine {
         try {
           if (state_bridge.app?.settings?.use_greenfield_engine) {
             state_bridge.app.log("Executing turn via Sovereign Greenfield Engine (Kernel)...", "system");
-            await execute_greenfield_turn(final_input || "", { signal: controller.signal });
+            await execute_greenfield_turn(final_input || "", {
+              signal: controller.signal,
+              is_retry: options.is_retry,
+              is_continue: options.is_continue,
+            });
           } else {
             await gamemaster.execute_turn(story_id, {
               input: final_input ?? undefined,

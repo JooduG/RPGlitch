@@ -37,16 +37,20 @@ export class Kernel {
 
   /**
    * Submits a user message and executes the next simulation round.
-   * Increments the macro round counter upon submission.
+   * Increments the macro round counter upon submission (unless options.is_retry is set).
+   * Accepts empty string or omitted userText when options.is_retry or options.is_continue is set.
    *
    * @param {string} userText
    * @param {object} [options]
    * @param {(chunk: string) => void} [options.onChunk]
    * @param {AbortSignal} [options.signal]
+   * @param {boolean} [options.is_retry]
+   * @param {boolean} [options.is_continue]
    * @returns {Promise<object>} The completed round outcome
    */
   async submit_turn(userText, options = {}) {
-    if (!userText || typeof userText !== "string") return null;
+    const is_resubmit = Boolean(options.is_retry || options.is_continue);
+    if (!is_resubmit && (!userText || typeof userText !== "string")) return null;
     if (this.phase === "locked" || this.phase === "generating") {
       throw new Error("Simulation is locked or actively generating.");
     }
@@ -58,14 +62,24 @@ export class Kernel {
     const previous_ai_dynamics = this.ai?.dynamics ? { ...this.ai.dynamics } : null;
     const previous_fractal_dynamics = this.fractal?.dynamics ? { ...this.fractal.dynamics } : null;
     const previous_user_dynamics = this.user?.dynamics ? { ...this.user.dynamics } : null;
-    this.round += 1;
 
-    // Append user turn to history
-    this.history.push({
-      role: "user",
-      text: userText.trim(),
-      round: this.round,
-    });
+    if (!options.is_retry && !options.is_continue) {
+      this.round += 1;
+    }
+
+    // Append user turn to history if provided and not already present at the tail
+    const trimmed_user_text = typeof userText === "string" ? userText.trim() : "";
+    if (trimmed_user_text) {
+      const last_entry = this.history[this.history.length - 1];
+      const is_already_at_tail = last_entry && last_entry.role === "user" && last_entry.text === trimmed_user_text;
+      if (!is_already_at_tail) {
+        this.history.push({
+          role: "user",
+          text: trimmed_user_text,
+          round: this.round,
+        });
+      }
+    }
 
     try {
       const entities = {
@@ -217,5 +231,29 @@ export class Kernel {
     this.round = targetRound;
     this.phase = "idle";
     this.error = null;
+  }
+
+  /**
+   * Retries the previous AI turn by resubmitting without user input or round increment.
+   *
+   * @param {object} [options={}]
+   * @param {(chunk: string) => void} [options.onChunk]
+   * @param {AbortSignal} [options.signal]
+   * @returns {Promise<object>} The completed round outcome
+   */
+  async retry(options = {}) {
+    return await this.submit_turn("", { ...options, is_retry: true });
+  }
+
+  /**
+   * Continues the narrative without new user input.
+   *
+   * @param {object} [options={}]
+   * @param {(chunk: string) => void} [options.onChunk]
+   * @param {AbortSignal} [options.signal]
+   * @returns {Promise<object>} The completed round outcome
+   */
+  async continue(options = {}) {
+    return await this.submit_turn("", { ...options, is_continue: true });
   }
 }

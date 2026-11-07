@@ -112,4 +112,89 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     expect(kernel.history[1].text).toBe("She looks over and smiles softly.");
     expect(kernel.phase).toBe("idle");
   });
+
+  it("B01 regression: avoids duplicate user entry when user text is already at the tail of history", async () => {
+    const mock_transport = {
+      async stream() {
+        return `<think>Focus.</think>Action completed.`;
+      },
+    };
+
+    const kernel = new Kernel({
+      user: entities.USER,
+      ai: entities.AI,
+      fractal: entities.FRACTAL,
+      transport: mock_transport,
+    });
+
+    kernel.history = [{ role: "user", text: "Look around.", round: 1 }];
+
+    await kernel.submit_turn("Look around.");
+
+    // Exactly 1 user entry and 1 model entry, no duplicate user entry at tail
+    expect(kernel.history).toHaveLength(2);
+    expect(kernel.history[0]).toEqual({
+      role: "user",
+      text: "Look around.",
+      round: 1,
+    });
+    expect(kernel.history[1].role).toBe("model");
+  });
+
+  it("B02 regression: retry-after-AI-turn produces an outcome without aborting with null", async () => {
+    const mock_transport = {
+      async stream() {
+        return `<think>Retry thought.</think>Regenerated reply.`;
+      },
+    };
+
+    const kernel = new Kernel({
+      user: entities.USER,
+      ai: entities.AI,
+      fractal: entities.FRACTAL,
+      transport: mock_transport,
+      round: 1,
+    });
+
+    kernel.history = [
+      { role: "user", text: "First prompt", round: 1 },
+      { role: "model", text: "First reply", round: 1 },
+    ];
+
+    const outcome = await kernel.retry();
+
+    expect(outcome).not.toBeNull();
+    expect(outcome.character_turn.prose).toBe("Regenerated reply.");
+    // Retry should not advance round
+    expect(kernel.round).toBe(1);
+    expect(kernel.phase).toBe("idle");
+  });
+
+  it("B02 regression: targetless continue produces an outcome without aborting with null", async () => {
+    const mock_transport = {
+      async stream() {
+        return `<think>Continuing.</think>Extended scene text.`;
+      },
+    };
+
+    const kernel = new Kernel({
+      user: entities.USER,
+      ai: entities.AI,
+      fractal: entities.FRACTAL,
+      transport: mock_transport,
+      round: 1,
+    });
+
+    kernel.history = [
+      { role: "user", text: "First prompt", round: 1 },
+      { role: "model", text: "First reply", round: 1 },
+    ];
+
+    const outcome = await kernel.continue();
+
+    expect(outcome).not.toBeNull();
+    expect(outcome.character_turn.prose).toBe("Extended scene text.");
+    expect(kernel.round).toBe(1);
+    expect(kernel.phase).toBe("idle");
+  });
 });
