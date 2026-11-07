@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Follow-up Polish: Character Core Parity & Envision Log-String Cleanup (`src/engine/prompts.js`, `src/engine/prompts.test.js`, `src/App.svelte`, `src/ui/image/ImagePicker.svelte.js`, `src/ui/profile/VisualWing.svelte`)**:
+  - **Character Core Parity**: Aligned the greenfield `character` purpose core in `src/engine/prompts.js` with canonical 4-step think format (Stance, Friction, Mask, Smallest Observable Action) and strict closing `</think>` tags, matching the ghostwrite core and legacy `THINK_CHARACTER` atom. Both Main Character and NPC turns resolve through this core.
+  - **Envision Log & Comment Cleanup**: Updated remaining references from "enhance" to "envision" across image-generation paths (`App.svelte`, `ImagePicker.svelte.js`, `VisualWing.svelte`), keeping profile-field enhancement names and features strictly distinct and untouched.
+
 - **Polish Batch: Ghostwriter Parity, Visualizer Place Rule & Envision Rename (`src/engine/prompts.js`, `src/media/visualizer.js`, `src/media/visual.js`, `src/media/visual.test.js`, `src/App.svelte`, `src/ui/image/ImagePicker.svelte.js`, `src/ui/profile/VisualWing.svelte`)**:
   - **Ghostwriter Core Parity**: Aligned the greenfield `ghostwrite` purpose core in `src/engine/prompts.js` with legacy directives: 4-step think format (Stance, Friction, Mask, Smallest Observable Action), strict closing `</think>` before prose, present tense mandate, and embodiment of protagonist perspective/agency without summarizing past events.
   - **Visualizer Place Rule**: Added `subject_kind` context handling to `compile_visualizer_prompt` in `src/media/visualizer.js`. Characters retain the person-with-posture mandate, while places (`fractal` profile pictures and person-free `story_scene` prompts) receive the Place Staging Mandate, directing focus onto architecture, environment, and geometry with zero human figures in frame unless explicitly named in the camera note.

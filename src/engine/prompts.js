@@ -169,12 +169,12 @@ export const PURPOSE_CORES = Object.freeze({
 
       return `  <TASK>
     ### Think Format
-    1. **Intent & Atmosphere**: Immediate sensory and physical demand.
-    2. **Friction**: Ambivalence, tension, and internal resistance.
-    3. **Subtext**: What remains unspoken beneath the dialogue.
-    4. **Physical Vector**: Concrete physical action, weight, or posture.
+    1. **Stance**: Immediate unsaid want and internal feeling from ${context.speaker_name}.
+    2. **Friction**: What resists that want in this beat.
+    3. **Mask**: How psychology leaks or conceals the feeling.
+    4. **Smallest Observable Action**: Single physical tell or movement that carries the beat. Never pre-draft dialogue.
 
-    *Conclude internal cognition with a closing \\</think\\> tag before narrative prose.*
+    *Close \\</think\\> before narrative prose. Never emit visible prose inside think tags.*
 
     ### Pacing & Posture
     - **Tense & Rhythm**: Write in present tense.

@@ -104,7 +104,7 @@
   // --- HANDLERS ---
 
   /**
-   * Triggers AI enhancement for the visual prompt field, or extracts optics metadata
+   * Triggers AI envision refinement for the visual prompt field, or extracts optics metadata
    * when no prompt text is present.
    */
   async function handle_creative_action() {
@@ -125,7 +125,7 @@
 
           // Guard against persisting prefill or internal thought markers as prompt
           if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
-            app.log("Enhancement returned no usable prose — draft kept", "warn");
+            app.log("Envision returned no usable prose — draft kept", "warn");
           } else {
             profile_state.char.modifiers.prompt = positive;
             if (negative) profile_state.char.modifiers.negative_prompt = negative;
@@ -155,7 +155,7 @@
       // Profile pictures route through the `solo_entity` tier: an isolated portrait
       // rendered in the ENTITY'S OWN visual style, independent of the active story/fractal.
       // Curated user prompt text is preserved verbatim — no LLM re-translation here
-      // (the Enhance button in this wing is the only path that runs the LLM).
+      // (the Envision button in this wing is the only path that runs the LLM).
       const payload = await app.visual.generate(prompt_value, {
         mode: "solo_entity",
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,

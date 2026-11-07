@@ -94,7 +94,7 @@
 
       // Refine the prompt via the visualizer purpose core, falling back to original prompt on failure.
       // Story coherence: with no app camera set, the story-level override
-      // (carried on the active fractal) governs enhance too — otherwise the
+      // (carried on the active fractal) governs envision too — otherwise the
       // subject entity's own style gets painted into the prompt head and
       // fights the story style at generate time.
       let refined_prompt = prompt;
@@ -110,8 +110,8 @@
         if (enhanced?.negative_prompt) {
           enhanced_negative = enhanced.negative_prompt;
         }
-      } catch (enhance_err) {
-        console.warn("[take_photo] Enhancement failed, falling back to draft prompt:", enhance_err);
+      } catch (envision_err) {
+        console.warn("[take_photo] Envision failed, falling back to draft prompt:", envision_err);
       }
 
       // Log placeholder message immediately with null src attachment

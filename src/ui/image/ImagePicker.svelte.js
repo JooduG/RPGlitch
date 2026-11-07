@@ -291,14 +291,14 @@ export async function run_image_regeneration(options = {}) {
           final_prompt = refined.prompt;
           final_negative = refined.negative_prompt || negative_prompt;
         }
-      } catch (enhance_err) {
+      } catch (envision_err) {
         if (in_picker) {
-          console.warn("[ImagePicker] Prompt enhancement failed, using original prompt:", enhance_err);
+          console.warn("[ImagePicker] Prompt envision refinement failed, using original prompt:", envision_err);
         }
       }
     }
 
-    // Safety net: peel JSON blob if enhance returned raw stringified JSON
+    // Safety net: peel JSON blob if envision returned raw stringified JSON
     if (final_prompt.trim().startsWith("{")) {
       try {
         const parsed = JSON.parse(final_prompt.trim());
