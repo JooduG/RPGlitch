@@ -796,21 +796,17 @@ export async function execute_visualizer_envision(text, type = "character", enti
 
   const app_choice = app_style || app.settings?.visual_style;
   let style_key = "none";
-  let style_source = "default";
 
   if (app_choice && app_choice !== "none" && app_choice !== "default") {
     style_key = app_choice;
-    style_source = "app";
   } else if (entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default") {
     style_key = entity.visual_style;
-    style_source = "entity";
   } else if (
     runtime.active_fractal?.visual_style &&
     runtime.active_fractal.visual_style !== "none" &&
     runtime.active_fractal.visual_style !== "default"
   ) {
     style_key = runtime.active_fractal.visual_style;
-    style_source = "fractal";
   }
 
   const style_def = get_visual_style(style_key);

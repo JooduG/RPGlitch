@@ -7,7 +7,7 @@
  * circuit breaking, cancellation via AbortSignal, and queue / in-flight bookkeeping.
  */
 
-import { generate_secure_seed, strip_cognition_blocks, safe_parse_json, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
+import { generate_secure_seed, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 import { get_visual_style } from "../definitions/visual-styles.js";
 
@@ -35,17 +35,6 @@ function unescape_visual_json_value(value) {
 function looks_like_visual_json(text) {
   const t = String(text || "");
   return t.includes("_thought_process") || /"(negative_?prompt|prompt)"\s*:/i.test(t);
-}
-
-function has_unbalanced_visual_braces(text) {
-  const t = String(text || "");
-  let open = 0;
-  let close = 0;
-  for (const ch of t) {
-    if (ch === "{") open++;
-    else if (ch === "}") close++;
-  }
-  return open !== close;
 }
 
 /**

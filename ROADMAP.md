@@ -37,6 +37,7 @@ flowchart TD
         direction TB
         R1["State-of-the-Application Review & Strategic Realignment"]
         R2["Definitions Relocation & Data Cross-Reference Audit (`src/definitions/`, `narrative-styles.js`, `narrative-styles.test.js`, `premade-entities.js`, `premade-entities.test.js`, `profile-fields.js`, `profile-fields.test.js`, `speaking-styles.js`, `speaking-styles.test.js`, `visual-styles.js`, `visual-styles.test.js`, `detox.test.js`, `styles.test.js`)"]
+        R3["Repository Housekeeping & Lexical Hygiene (`src/ui/Storyboard.svelte.test.js -> src/ui/Storyboard.test.js`, `src/ui/Storyboard.test.js`, `src/engine/bridge.js`, `src/engine/bridge.test.js`, `src/intelligence/story.js`, `src/media/visual.js`, `src/platform/security.js`)"]
     end
 
     ShippedCore ==> ActiveBacklog

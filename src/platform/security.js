@@ -21,7 +21,6 @@
  * - Invariant: Zero-Trust — reject unverified binary headers even if file MIME type is in the allowed list.
  */
 
-import DOMPurify from "dompurify";
 import { sanitize, sanitize_to_fragment, escape_html } from "@utils";
 export { sanitize, sanitize_to_fragment, escape_html };
 

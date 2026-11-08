@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Housekeeping & Lexical Hygiene Sweep**:
+  - Renamed `src/ui/Storyboard.svelte.test.js` to `src/ui/Storyboard.test.js`, resolving the sole remaining lexical debt item (`N-LANG-002`) and bringing `npm run audit:hygiene` to 0 violations across all 502 scanned assets.
+  - Eliminated all 9 remaining ESLint warnings (`src/engine/bridge.js`, `src/engine/bridge.test.js`, `src/intelligence/story.js`, `src/media/visual.js`, `src/platform/security.js`), achieving 0 errors and 0 warnings on `npm run lint:js`.
+  - Reconciled `.env.example` with `.env` keys (Perchance multi-generator endpoints, Google Gemini, and Playwright tokens) with zero leaked secrets.
+  - Reconciled all 10 ignore layers against `ignores.master.json` via `npm run sync:ignores`.
+
 - **Bound Composer Height & Overflow in Storymode (`src/ui/Console.svelte`)**:
   - Capped composer `<textarea>` height to a maximum of 240px (`max-h-60`) in `adjust_height()` with `overflow-y: auto`, preventing long multi-paragraph ghostwrite drafts from exploding the console upward across the entire screen.
 

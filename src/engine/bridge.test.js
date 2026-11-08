@@ -463,18 +463,12 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
 
     it("foreground preempts background job through the shared gate without killing other queued background work", async () => {
       reset_shared_transport();
-      const execution_order = [];
       const original_gen = window.generate_text;
-
-      let resolve_background = null;
-      let reject_background = null;
 
       window.generate_text = vi.fn(({ instruction, signal }) => {
         const prompt = typeof instruction === "function" ? instruction() : instruction;
         if (prompt.includes("background-job")) {
-          return new Promise((resolve, reject) => {
-            resolve_background = resolve;
-            reject_background = reject;
+          return new Promise((_, reject) => {
             if (signal) {
               signal.addEventListener("abort", () => {
                 const err = new Error("Background preempted by foreground");
