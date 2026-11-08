@@ -291,7 +291,7 @@
   import { Audio, rect_of } from "@media";
   import { runtime, simulation_state } from "@state";
   import { birth_entity_core } from "@storage";
-  import { EntityCard } from "./index.js";
+  import { EntityCard } from "@ui";
   import { Modal, SourceField, Toggle } from "@primitives";
 
   // ============================================

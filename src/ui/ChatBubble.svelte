@@ -1237,7 +1237,7 @@
 
             <!-- 5. RAW DATA ACCORDION -->
             <Accordion label="View Raw Data">
-              <div class="terminal-box max-h-[calc(var(--spacing-unit)*60)] overflow-y-auto bg-black/10 p-4 text-sm">
+              <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-4 text-sm">
                 <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(meta, null, 2)}</pre>
               </div>
             </Accordion>

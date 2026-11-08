@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Fix Ghostwriter Infinite Effect Loop & Add Regression Suite (`src/ui/Console.svelte`, `src/ui/Console.test.js`)**:
+  - Guarded `$effect` watcher with `handled_ghostwrite_req` tracking non-reactive integer comparison, stopping completion writes (`value = ...`, `is_ghostwriting = false`) from infinitely re-triggering ghostwriting.
+  - Added unit test in `src/ui/Console.test.js` validating exact single-execution behavior per `app.ghostwrite_request` increment.
+
+- **Harmonize UI Module Imports to `@ui` (`src/ui/Storyboard.svelte`, `src/ui/Storymode.svelte`)**:
+  - Re-pointed relative `./index.js` self-imports to canonical `@ui` alias, eliminating fragile ESM cycle.
+
 - **Flatten Entity & Image Layers into Top-Level `@ui`**:
   - Relocated `EntityCard.svelte`, `ContextMenu.svelte`, `ContextMenu.svelte.js`, `ImagePreview.svelte`, and `ProfilePicture.svelte` directly to `src/ui/`, re-exporting them from [`src/ui/index.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/index.js).
   - Purged obsolete `src/ui/entity/` and `src/ui/image/` directories.

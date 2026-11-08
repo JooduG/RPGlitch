@@ -12,7 +12,7 @@
   import { sanitize, llm_service } from "@platform";
   import { session_driver } from "@data";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
-  import { run_image_regeneration, ProfilePicture } from "./index.js";
+  import { run_image_regeneration, ProfilePicture } from "@ui";
   import { app, runtime, simulation_state } from "@state";
 
   // --- STORYMODE SHARED STATE ---

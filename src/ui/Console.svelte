@@ -184,11 +184,13 @@
   install_begin_flight_effect();
 
   // Ghostwriter trigger watcher
+  let handled_ghostwrite_req = 0;
   $effect(() => {
     const req = app.ghostwrite_request;
-    if (req === 0) return;
+    if (req === 0 || req === handled_ghostwrite_req) return;
     if (is_ghostwriting || is_locked) return;
 
+    handled_ghostwrite_req = req;
     is_ghostwriting = true;
     const previous_text = value;
     value = "";

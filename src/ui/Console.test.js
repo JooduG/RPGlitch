@@ -1,12 +1,15 @@
 /**
- * @file src/ui/console/Console.test.js
+ * @file src/ui/Console.test.js
  * Unit test suite verifying Console & settings state.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { render, act } from "@testing-library/svelte";
 
 import { app } from "@state/interface.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { session_driver } from "@data";
+import Console from "./Console.svelte";
+import * as engine from "@engine";
 
 describe("Console & Settings State", () => {
   it("keeps dev_grid_visible decoupled from dev_mode (independent toggles)", async () => {
@@ -32,5 +35,41 @@ describe("Console & Settings State", () => {
     expect(app.view).toBe("storyboard");
     expect(runtime.story_id).toBe(mock_story_id);
     expect(session_driver.active_id).toBe(mock_story_id);
+  });
+
+  it("triggers ghostwriter exactly once per request and prevents loop", async () => {
+    const ghostwriter_spy = vi.spyOn(engine, "execute_ghostwriter").mockResolvedValue("Generated ghost text");
+    app.view = "storymode";
+    app.ghostwrite_request = 0;
+
+    render(Console);
+
+    // Initial state: not triggered
+    expect(ghostwriter_spy).toHaveBeenCalledTimes(0);
+
+    // Trigger request 1
+    await act(() => {
+      app.ghostwrite_request++;
+    });
+
+    expect(ghostwriter_spy).toHaveBeenCalledTimes(1);
+
+    // Wait for resolution
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    // Verify it didn't re-fire on completion writes
+    expect(ghostwriter_spy).toHaveBeenCalledTimes(1);
+
+    // Trigger request 2
+    await act(() => {
+      app.ghostwrite_request++;
+    });
+
+    expect(ghostwriter_spy).toHaveBeenCalledTimes(2);
+
+    ghostwriter_spy.mockRestore();
   });
 });
