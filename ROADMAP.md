@@ -303,6 +303,9 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/ui/Layout.svelte` (deleted; stage layout owned by App, Storyboard, and Storymode)
   - `src/ui/entity/CardHand.svelte` (deleted; merged into Storyboard.svelte)
   - `src/ui/entity/index.js` (pruned CardHand export)
+  - `src/ui/Console.svelte` (consolidated StoryManager.svelte into Library accordion deck)
+  - `src/ui/story/StoryManager.svelte` (deleted; merged into Console.svelte)
+  - `src/ui/story/index.js` (pruned StoryManager export)
 - **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---

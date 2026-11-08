@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate StoryManager into `src/ui/Console.svelte`**:
+  - Merged [`src/ui/story/StoryManager.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/story/StoryManager.svelte) directly into [`src/ui/Console.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Console.svelte) inside the Library control panel accordion.
+  - Inlined story listing, active story loading, transcript markdown export, renaming, and deletion confirmation dialogs into `Console.svelte`.
+  - Deleted `src/ui/story/StoryManager.svelte` and pruned its export from `src/ui/story/index.js`, keeping [`StoryCard.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/story/StoryCard.svelte) focused as the pure card presenter.
+
 - **Consolidate Storyboard Stage, CardHand & Retire `Layout.svelte` (`src/ui/Storyboard.svelte`, `src/App.svelte`, `src/ui/Storymode.svelte`)**:
   - Merged [`src/ui/Storyboard.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte.js), [`src/ui/entity/CardHand.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/entity/CardHand.svelte), and the Storyboard stage slots from `Layout.svelte` directly into [`src/ui/Storyboard.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte).
   - `Storyboard.svelte` now acts as the complete pre-story stage organism: owning its title header, the three entity selection slots (`AI Character`, `Fractal`, `User Persona`), slot context actions, shuffle deal choreography, begin-story flight effect, and the orbital card-fan hand overlay.
