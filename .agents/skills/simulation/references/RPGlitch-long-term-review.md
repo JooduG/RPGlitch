@@ -43,20 +43,20 @@ Verify that the Greenfield Nuclear Engine operates flawlessly in real Perchance 
 
 ## 2. The 10-Round Comparative A/B Protocol: Director Note Inlined vs. Non-Inlined
 
-To provide the empirical material needed for an upcoming architectural decision on how to manage Director's notes, the testing agent must run **two parallel, as-identical-as-possible story sessions of 10 rounds each**, varying *only* the Director note placement parameter.
+To provide the empirical material needed for an upcoming architectural decision on how to manage Director's notes, the testing agent must run **two parallel, as-identical-as-possible story sessions of 10 rounds each**, varying _only_ the Director note placement parameter.
 
 ### 2.1 Test Track Configuration
 
-| Parameter | Track 1: Inlined `<think>` Seed | Track 2: Non-Inlined / In `<TASK>` |
-| :--- | :--- | :--- |
-| **Engine** | Greenfield (`use_greenfield_engine: true`) | Greenfield (`use_greenfield_engine: true`) |
-| **Director Enabled** | `director_enabled: true` | `director_enabled: true` |
-| **Console Setting** | **`DIR IN TASK` = OFF** (`directors_note_in_task: false`) | **`DIR IN TASK` = ON** (`directors_note_in_task: true`) |
-| **Prompt Placement** | `directors_note_placement: "think"` | `directors_note_placement: "task"` |
-| **`<think>` Injection** | `startWith: "<think>${note}\n("` | `startWith: "<think>\n("` |
-| **`<TASK>` Injection** | *None* (omitted from task instructions) | Injected under `### Stage Direction` |
-| **Entities** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** |
-| **Seed Inputs** | Identical Scripted Dialogue Matrix (Rounds 1–10) | Identical Scripted Dialogue Matrix (Rounds 1–10) |
+| Parameter               | Track 1: Inlined `<think>` Seed                                            | Track 2: Non-Inlined / In `<TASK>`                                         |
+| :---------------------- | :------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
+| **Engine**              | Greenfield (`use_greenfield_engine: true`)                                 | Greenfield (`use_greenfield_engine: true`)                                 |
+| **Director Enabled**    | `director_enabled: true`                                                   | `director_enabled: true`                                                   |
+| **Console Setting**     | **`DIR IN TASK` = OFF** (`directors_note_in_task: false`)                  | **`DIR IN TASK` = ON** (`directors_note_in_task: true`)                    |
+| **Prompt Placement**    | `directors_note_placement: "think"`                                        | `directors_note_placement: "task"`                                         |
+| **`<think>` Injection** | `startWith: "<think>${note}\n("`                                           | `startWith: "<think>\n("`                                                  |
+| **`<TASK>` Injection**  | _None_ (omitted from task instructions)                                    | Injected under `### Stage Direction`                                       |
+| **Entities**            | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** |
+| **Seed Inputs**         | Identical Scripted Dialogue Matrix (Rounds 1–10)                           | Identical Scripted Dialogue Matrix (Rounds 1–10)                           |
 
 ---
 
@@ -73,7 +73,7 @@ Both tracks must be stimulated with the exact same sequence of player messages t
 - **Round 4 (Micro-Pacing Probe — < 25 Chars)**:  
   `"Keep low."`
 - **Round 5 (Secret Plant & Tension)**:  
-  *(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)*  
+  _(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)_  
   `"If we split up at the catwalk, do not look back. Just get to the upper transformer."`
 - **Round 6 (Expansive Narrative Probe — > 500 Chars)**:  
   `"I pull my thermal hood tight against the freezing mist rising off the exhaust vents. Below us, the entire undercity grid looks like exposed veins of dead copper. I've spent three years mapping the bypass conduits behind the megacorp signboards, but tonight the pressure gauges are redlining in reverse. Listen to me, Orion: when that substation blows, the blast wave will travel upward through the elevator shafts. We have ninety seconds to anchor the bypass clamp or the whole district goes dark permanently."`
@@ -118,7 +118,7 @@ For every round (1 through 10), record the telemetry under these specific headin
    - Did any meta-syntax, bracket markers, or Director phrasing leak into the spoken dialogue?
 5. **Caretaker Mutation & Downstream Feed**:
    - What bracket updates were parsed and persisted to IndexedDB?
-   - How did these new state brackets alter the character's profile for the *subsequent* round's Director evaluation?
+   - How did these new state brackets alter the character's profile for the _subsequent_ round's Director evaluation?
 6. **Divergence Delta**:
    - How did Track 1 and Track 2 branch at this turn? Document where and why the two stories begin to tell different tales despite identical inputs.
 
@@ -128,14 +128,14 @@ For every round (1 through 10), record the telemetry under these specific headin
 
 At the conclusion of the 10-round comparison, synthesize the findings across these key architectural criteria:
 
-| Dimension | Track 1 (Inlined `<think>`) | Track 2 (Non-Inlined `<TASK>`) | Verdict & Tradeoff Summary |
-| :--- | :--- | :--- | :--- |
-| **Director Adherence** | *Score 1–5:* Does character obey the staging note? | *Score 1–5:* Does character obey the staging note? | Which placement reliably steers action without being ignored? |
-| **Cognitive Autonomy** | *Observation:* Quality of reasoning inside `<think>`. | *Observation:* Quality of reasoning inside `<think>`. | Does inlining hijack the LLM's chain-of-thought, or help prime it? |
-| **Prose Naturalism** | *Observation:* Does speech feel organic or scripted? | *Observation:* Does speech feel organic or scripted? | Does one placement produce stiffer, more puppeted dialogue? |
-| **Kayfabe & Leak Resistance** | *Count:* Director phrase leaks into spoken text. | *Count:* Director phrase leaks into spoken text. | Which vector poses greater risk of breaking character? |
-| **Token & Time Overhead** | *Metrics:* Generation latency & token consumption. | *Metrics:* Generation latency & token consumption. | Is there a measurable latency or token difference? |
-| **Downstream State Stability** | *Observation:* Volatility of Caretaker bracket updates. | *Observation:* Volatility of Caretaker bracket updates. | Does one method produce more coherent long-term memory diffs? |
+| Dimension                      | Track 1 (Inlined `<think>`)                             | Track 2 (Non-Inlined `<TASK>`)                          | Verdict & Tradeoff Summary                                         |
+| :----------------------------- | :------------------------------------------------------ | :------------------------------------------------------ | :----------------------------------------------------------------- |
+| **Director Adherence**         | _Score 1–5:_ Does character obey the staging note?      | _Score 1–5:_ Does character obey the staging note?      | Which placement reliably steers action without being ignored?      |
+| **Cognitive Autonomy**         | _Observation:_ Quality of reasoning inside `<think>`.   | _Observation:_ Quality of reasoning inside `<think>`.   | Does inlining hijack the LLM's chain-of-thought, or help prime it? |
+| **Prose Naturalism**           | _Observation:_ Does speech feel organic or scripted?    | _Observation:_ Does speech feel organic or scripted?    | Does one placement produce stiffer, more puppeted dialogue?        |
+| **Kayfabe & Leak Resistance**  | _Count:_ Director phrase leaks into spoken text.        | _Count:_ Director phrase leaks into spoken text.        | Which vector poses greater risk of breaking character?             |
+| **Token & Time Overhead**      | _Metrics:_ Generation latency & token consumption.      | _Metrics:_ Generation latency & token consumption.      | Is there a measurable latency or token difference?                 |
+| **Downstream State Stability** | _Observation:_ Volatility of Caretaker bracket updates. | _Observation:_ Volatility of Caretaker bracket updates. | Does one method produce more coherent long-term memory diffs?      |
 
 ---
 
