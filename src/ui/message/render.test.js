@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { parse_message, wrap_dialogue } from "./render.js";
+import { parse_message, wrap_dialogue } from "../Storymode.svelte";
 
 describe("wrap_dialogue", () => {
   it("should wrap double quotes in span.dialogue tags and convert to curly quotes", () => {

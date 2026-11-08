@@ -13,7 +13,7 @@
   import { get_percentage } from "@utils";
   import { safe_html } from "@utils";
   import { parse_bracket_entries, strip_bracket_engine_flags } from "@storage";
-  import { parse_message } from "./render.js";
+  import { parse_message } from "../Storymode.svelte";
   import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label, clean_text_debris } from "./telemetry-format.js";
 
   /**

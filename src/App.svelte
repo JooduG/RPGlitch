@@ -1,27 +1,42 @@
 <script>
   /**
-   * @file App.svelte
+   * @file src/App.svelte
    * THE CORE SHELL
    * Central view orchestration shell executing view-switching logic natively.
-   * Refactored: Option A — persistent layout hoist.
-   * EntityCards and Console are mounted ONCE here and never destroyed
-   * during view transitions, enabling true View Transition API morphing.
+   *Console is mounted ONCE here and never destroyed during view transitions,
+   * while Storyboard and Storymode own their respective stage regions inside the
+   * persistent 12-column root grid.
    */
-  import { Shimmer, Tooltip } from "@primitives";
-  import { ImagePicker, ImagePreview, open_image_preview, close_image_preview, run_image_regeneration } from "@image";
-  import { motion, Audio, visual_engine, render_optics_fallback } from "@media";
-  import { CardHand, EntityCard } from "@entity";
-  import { Layout, Storyboard, Storymode, Console } from "@ui";
+  import { Tooltip } from "@primitives";
+  import { ImagePicker, ImagePreview, open_image_preview, close_image_preview } from "@image";
+  import { motion, Audio } from "@media";
+  import { Storyboard, Storymode, Console } from "@ui";
   import { Profile } from "@profile";
-  import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
-  import { session_driver } from "@data";
-  import { llm_service } from "@platform";
+  import { app, runtime, register_image_preview_handlers } from "@state";
 
   // --- DERIVED RUNES ---
 
   let active_fractal = $derived(runtime.active_fractal || app.selected_fractal);
   let fractal_url = $derived(active_fractal?.profile_picture || "");
   let fractal_opacity = $derived("var(--opacity-muted)");
+
+  let container_class = $derived(
+    app.viewport.mobile
+      ? app.view === "storymode"
+        ? "h-[100dvh] w-grid-width grid-cols-2 grid-rows-[min-content_16rem_1fr_min-content] overflow-hidden"
+        : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
+      : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden",
+  );
+
+  let footer_class = $derived(
+    app.viewport.mobile
+      ? app.view === "storymode"
+        ? "relative inset-auto col-span-full row-4 h-auto items-center"
+        : "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center"
+      : app.view === "storymode"
+        ? "col-start-1 col-end-13 row-start-12 h-row-unit items-start self-stretch"
+        : "col-start-2 col-end-12 row-start-11 h-row-unit items-center self-stretch",
+  );
 
   // --- LIFECYCLE EFFECTS ---
 
@@ -56,341 +71,7 @@
       Audio.destroy();
     };
   });
-
-  // --- ENTITY MENU ACTION BUILDERS ---
-
-  const is_locked = $derived(simulation_state.busy);
-
-  /** Portrait generation helper — logs a placeholder message immediately, then fills in the image */
-  async function take_photo(subject, prompt, kind, target_entity = null) {
-    if (is_locked) return;
-    const entity_map = {
-      ai: runtime.active_ai || app.selected_ai,
-      user: runtime.active_user || app.selected_user,
-      fractal: runtime.active_fractal || app.selected_fractal,
-    };
-    const label_map = { ai: "AI", user: "User", fractal: "Fractal", npc: "NPC" };
-    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN", npc: "AI_TURN" };
-    const entity = target_entity || entity_map[subject];
-    const role_label = entity?.name || label_map[subject] || subject;
-    const turn_type = turn_map[subject] || "AI_TURN";
-    /** @type {{ id?: string|number } | null} */
-    let placeholder_entry = null;
-    let target_mode = "";
-    try {
-      simulation_state.role = subject;
-      simulation_state.start_generation(subject);
-      simulation_state.start_media_stage({
-        type: subject,
-        name: role_label,
-        avatar: entity?.profile_picture || entity?.avatar || null,
-        color: entity?.signature_color || entity?.color || null,
-      });
-
-      target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
-
-      // Refine the prompt via the visualizer purpose core, falling back to original prompt on failure.
-      // Story coherence: with no app camera set, the story-level override
-      // (carried on the active fractal) governs envision too — otherwise the
-      // subject entity's own style gets painted into the prompt head and
-      // fights the story style at generate time.
-      let refined_prompt = prompt;
-      let enhanced_negative = "";
-      try {
-        const configured_style = app.settings?.visual_style;
-        const story_style = runtime.active_fractal?.visual_style;
-        const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
-        const enhanced = await visual_engine.envision(prompt, subject, entity, app_style);
-        if (enhanced?.prompt) {
-          refined_prompt = enhanced.prompt;
-        }
-        if (enhanced?.negative_prompt) {
-          enhanced_negative = enhanced.negative_prompt;
-        }
-      } catch (envision_err) {
-        console.warn("[take_photo] Envision failed, falling back to draft prompt:", envision_err);
-      }
-
-      // Log placeholder message immediately with null src attachment
-      placeholder_entry = await session_driver.log_message("", subject, role_label, {
-        turn_type,
-        attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
-      });
-
-      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, {
-        subject,
-        entity,
-        negative_prompt: enhanced_negative,
-      });
-
-      if (result?.imageUrl && placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: result.imageUrl,
-          metadata: { mode: target_mode, ...result.metadata, prompt: result.refinedPrompt },
-        });
-      } else if (!result?.imageUrl) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: target_mode, prompt, failed: true, error: "Image generation returned no image" },
-        });
-        app.log(`${role_label} image generation failed. Please try again.`, "error");
-      }
-    } catch (err) {
-      console.error(`[Photo Error: ${subject}]`, err);
-      if (placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: target_mode, prompt, failed: true, error: err?.message || "Image generation failed" },
-        });
-      }
-      app.log(`Image generation failed: ${err.message || err}`, "error");
-    } finally {
-      simulation_state.complete();
-    }
-  }
-
-  /** Group shot helper — logs placeholder immediately, then fills in the image */
-  async function take_group_photo() {
-    if (is_locked) return;
-    /** @type {{ id?: string|number } | null} */
-    let placeholder_entry = null;
-    try {
-      simulation_state.role = "fractal";
-      simulation_state.start_generation("fractal");
-      const fractal = runtime.active_fractal || app.selected_fractal;
-      simulation_state.start_media_stage({
-        type: "fractal",
-        name: fractal?.name || "Scene",
-        avatar: fractal?.profile_picture || fractal?.avatar || null,
-        color: fractal?.signature_color || fractal?.color || null,
-      });
-      const group_prompt = "A scene featuring both the AI character and the user persona together";
-
-      placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
-        turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: { mode: "story_entities", prompt: group_prompt } }],
-      });
-
-      const result = await visual_engine.visualize(runtime.story_id, group_prompt, "story_entities");
-
-      if (result?.imageUrl && placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: result.imageUrl,
-          metadata: { ...result.metadata, prompt: result.refinedPrompt },
-        });
-      } else if (!result?.imageUrl) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: "story_entities", prompt: group_prompt, failed: true, error: "Image generation returned no image" },
-        });
-        app.log("Story Image generation failed. Please try again.", "error");
-      }
-    } catch (err) {
-      console.error("[Story Image Error]", err);
-      if (placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: "story_entities", failed: true, error: err?.message || "Image generation failed" },
-        });
-      }
-      app.log(`Story Image failed: ${err.message || err}`, "error");
-    } finally {
-      simulation_state.complete();
-    }
-  }
-
-  /**
-   * Regenerate orchestration — generates 3 candidates in the background.
-   * Delegates to unified run_image_regeneration in ImagePicker.svelte.js.
-   * @param {{ prompt: string, negative_prompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
-   */
-  async function regenerate_image(ctx) {
-    const { prompt, negative_prompt, mode = "story_character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
-    const key = `${log_id}:${attach_idx}`;
-
-    await run_image_regeneration({
-      key,
-      prompt,
-      negative_prompt,
-      mode,
-      signature_color,
-      regenerate_count,
-      on_select: (candidate) => {
-        if (log_id) {
-          session_driver.update_log_attachment(log_id, attach_idx, {
-            src: candidate.url,
-            metadata: { ...candidate.metadata, regenerate_count: regenerate_count + 1 },
-          });
-        }
-      },
-    });
-  }
-
-  /** Ghostwriter trigger — fires a signal the Console watches */
-  function ghostwrite() {
-    if (is_locked) return;
-    app.ghostwrite_request++;
-  }
-
-  // Expose regenerate_image and take_photo to Message.svelte via the app store
-  app.regenerate_image_handler = regenerate_image;
-  app.take_photo_handler = take_photo;
-
-  /** Mock message — streams a placeholder message for the given entity role (devmode only) */
-  async function run_mock(role) {
-    if (is_locked) return;
-    const entity_map = {
-      ai: runtime.active_ai || app.selected_ai,
-      user: runtime.active_user || app.selected_user,
-      fractal: runtime.active_fractal || app.selected_fractal,
-    };
-    const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
-    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
-    const entity = entity_map[role];
-    const content = llm_service.get_mock_message();
-
-    simulation_state.start_generation(role);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2500));
-      app.start_stream("mock-node", role);
-
-      let buffer = "";
-      const words = content.split(" ");
-      for (let i = 0; i < words.length; i++) {
-        buffer += (i === 0 ? "" : " ") + words[i];
-        app.streaming.content = buffer;
-        await new Promise((resolve) => setTimeout(resolve, 60));
-      }
-
-      await session_driver.log_message(content, role, entity?.name || label_map[role], { turn_type: turn_map[role] });
-    } finally {
-      simulation_state.complete();
-      app.end_stream();
-    }
-  }
-
-  // --- ACTION MENU CONFIGS ---
-
-  /**
-   * Factory: builds the context-menu action list for an entity slot.
-   * Contextual: image actions and ghostwrite are storymode-only; swap is storyboard-only.
-   * @param {"ai" | "user" | "fractal"} type
-   * @returns {any[]}
-   */
-  function build_actions(type) {
-    const in_storymode = app.view === "storymode";
-    const in_dev = app.settings.dev_mode;
-    const entity_map = {
-      ai: app.selected_ai || runtime.active_ai,
-      user: app.selected_user || runtime.active_user,
-      fractal: app.selected_fractal || runtime.active_fractal,
-    };
-    const entity = entity_map[type];
-
-    const photo_label = type === "ai" ? "Generate AI Character Image" : type === "user" ? "Generate User Persona Image" : "Generate Fractal Image";
-    const tier = type === "fractal" ? "story_scene" : "story_character";
-    const raw_fallback = render_optics_fallback({
-      tier,
-      subject: type,
-      ai: entity_map.ai,
-      user: entity_map.user,
-      fractal: entity_map.fractal,
-    });
-    // Strip XML <image_prompt>...</image_prompt> wrapper for raw diffusion prompt payload
-    const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
-
-    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];
-
-    if (entity?.profile_picture) {
-      items.push({
-        label: "Profile Picture",
-        onSelect: () =>
-          app.open_image_preview({
-            src: entity.profile_picture,
-            metadata: entity.modifiers
-              ? {
-                  prompt: entity.modifiers.prompt,
-                  negative_prompt: entity.modifiers.negative_prompt,
-                  seed: entity.modifiers.last_generated_seed,
-                }
-              : null,
-          }),
-      });
-    }
-
-    if (type === "ai" || type === "fractal") {
-      const voice_label = Audio.entity_voice.ai ? "Disable AI Voice" : "Enable AI Voice";
-      items.push({
-        label: voice_label,
-        active: Audio.entity_voice.ai,
-        onSelect: () => Audio.toggle_entity_voice("ai"),
-      });
-    }
-
-    if (in_storymode) {
-      items.push({ separator: true });
-      items.push({
-        label: photo_label,
-        onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "story_scene" : "story_character"),
-        disabled: is_locked || visual_engine.is_loading,
-      });
-      if (type === "fractal") {
-        items.push({
-          label: "Generate Story Image",
-          onSelect: () => take_group_photo(),
-          disabled: is_locked || visual_engine.is_loading,
-        });
-      }
-      if (type === "user") {
-        items.push({
-          label: app.settings.call_mode ? "Disable Microphone" : "Enable Microphone",
-          active: app.settings.call_mode,
-          onSelect: () => {
-            app.settings.call_mode = !app.settings.call_mode;
-            app.save_settings();
-          },
-        });
-        items.push({ separator: true });
-        items.push({
-          label: "Ghostwrite",
-          onSelect: () => ghostwrite(),
-          disabled: is_locked,
-        });
-      }
-    }
-
-    if (!in_storymode) {
-      items.push({ separator: true });
-      items.push({
-        label: "Swap",
-        onSelect: () => app.open_card_hand(type),
-      });
-    }
-
-    if (in_dev) {
-      items.push(
-        { separator: true },
-        {
-          label: "Mock Message",
-          onSelect: () => run_mock(type),
-          disabled: is_locked,
-        },
-      );
-    }
-
-    return items;
-  }
-
-  let ai_actions = $derived(build_actions("ai"));
-  let user_actions = $derived(build_actions("user"));
-  let fractal_actions = $derived(build_actions("fractal"));
 </script>
-
-{#snippet card_skeleton()}
-  <div class="relative isolate h-full min-h-50 w-full overflow-hidden rounded-xl border border-solid border-white/10 bg-zinc-900/40 backdrop-blur-sm">
-    <Shimmer color="rgba(255, 255, 255, 0.4)" />
-  </div>
-{/snippet}
 
 <main
   id="main-content"
@@ -401,7 +82,7 @@
     <div data-bg="gradient"></div>
 
     <div
-      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-all duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
+      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-[opacity,filter] duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
       style:view-transition-name={app.view === "storymode" && !app.transitioning_profile ? "entity-morph-fractal" : undefined}
@@ -418,115 +99,20 @@
   <ImagePreview />
   <ImagePicker />
 
-  <!--
-    PERSISTENT LAYOUT — single instance always in the DOM.
-    mode drives column sizing via CSS class matrix in Layout.svelte.
-    Only center/header snippets are swapped between views.
-  -->
-  <Layout mode={app.view === "storymode" ? "storymode" : "storyboard"}>
-    {#snippet header()}
-      {#if app.view === "storyboard" && app.entities_loaded}
-        <Storyboard />
-      {/if}
-    {/snippet}
+  <!-- PERSISTENT STAGE GRID: Storyboard / Storymode stage + persistent Console footer -->
+  <div class="fixed inset-0 z-20 m-auto grid overflow-hidden text-white transition-opacity duration-300 {container_class}">
+    {#if app.view === "storyboard"}
+      <Storyboard />
+    {:else if app.view === "storymode"}
+      <Storymode />
+    {/if}
 
-    {#snippet left()}
-      {#if !app.entities_loaded}
-        {@render card_skeleton()}
-      {:else if app.view === "storymode"}
-        <!-- Side cards are hidden in storymode — the feed owns the center stage. -->
-      {:else}
-        <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
-          <EntityCard
-            variant={app.selected_ai || runtime.active_ai ? "panel" : "slot"}
-            type="ai"
-            entity={app.selected_ai || runtime.active_ai}
-            role_label="AI Character"
-            actions={ai_actions}
-            on_select={() => {
-              if (app.selected_ai || runtime.active_ai) {
-                app.toggle_profile(true, app.selected_ai || runtime.active_ai);
-              } else if (app.view === "storyboard") {
-                app.open_card_hand("ai");
-              }
-            }}
-          />
-        </div>
-      {/if}
-    {/snippet}
-
-    {#snippet center()}
-      {#if app.view === "storyboard"}
-        {#if !app.entities_loaded}
-          {@render card_skeleton()}
-        {:else}
-          {@const entity = app.selected_fractal || runtime.active_fractal}
-          <div class="flex h-full w-full items-center justify-center" data-slot-type="fractal">
-            <EntityCard
-              variant={entity ? "panel" : "slot"}
-              type="fractal"
-              {entity}
-              role_label="Fractal"
-              actions={fractal_actions}
-              on_select={() => {
-                if (entity) {
-                  app.toggle_profile(true, entity);
-                } else {
-                  app.open_card_hand("fractal");
-                }
-              }}
-            />
-          </div>
-        {/if}
-      {:else if app.view === "storymode"}
-        <div class="relative flex h-full w-full flex-col overflow-hidden">
-          {#if !app.entities_loaded}
-            {@render card_skeleton()}
-          {:else}
-            <Storymode card_actions={{ ai: ai_actions, user: user_actions, fractal: fractal_actions }} />
-          {/if}
-        </div>
-      {/if}
-    {/snippet}
-
-    {#snippet right()}
-      {#if !app.entities_loaded}
-        {@render card_skeleton()}
-      {:else}
-        {@const entity = app.selected_user || runtime.active_user}
-        {#if app.view === "storymode"}
-          <!-- User side card hidden in storymode — persona lives in the feed controls. -->
-        {:else}
-          <div class="flex h-full w-full items-center justify-center" data-slot-type="user" data-panel-card="user">
-            <EntityCard
-              variant={entity ? "panel" : "slot"}
-              type="user"
-              {entity}
-              role_label="User Persona"
-              actions={user_actions}
-              on_select={() => {
-                if (entity) {
-                  app.toggle_profile(true, entity);
-                } else if (app.view === "storyboard") {
-                  app.open_card_hand("user");
-                }
-              }}
-            />
-          </div>
-        {/if}
-      {/if}
-    {/snippet}
-
-    {#snippet footer()}
+    <footer class="pointer-events-none relative z-40 flex justify-center {footer_class}">
       {#if app.entities_loaded}
         <Console />
       {/if}
-    {/snippet}
-  </Layout>
-
-  {#if app.entities_loaded}
-    <CardHand />
-  {/if}
+    </footer>
+  </div>
 
   {#if app.profile_open}
     <Profile entity_type={app.profile_target_type} />
@@ -557,19 +143,7 @@
   </div>
 {/if}
 
-<!--
-CHANGELOG:
-- 2026-09-19: Fallback-aware regeneration (F6): trigger LLM prompt enhancement on pass 1 if the stored prompt is unrefined or raw fallback markup.
--->
-
-<!--
-CHANGELOG:
-- 2026-09-06: Allowed target_entity in take_photo and bound app.take_photo_handler to support direct NPC portrait generation.
--->
-
 <style>
-  /* ── Core Shell (Ultra-Lean Stage Matrix) ────────────────────── */
-
   /* ── Atmospheric Stage Configuration ────────────────────────── */
 
   [data-bg="gradient"] {

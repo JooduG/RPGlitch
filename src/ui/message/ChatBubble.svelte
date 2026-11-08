@@ -5,7 +5,7 @@
    * Unified message chassis consolidating message headers, narrative prose,
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
-  import { parse_message } from "./render.js";
+  import { parse_message } from "../Storymode.svelte";
   import { resolve_speaking_style, safe_html } from "@utils";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
   import { ProfilePicture, Attachments } from "@image";

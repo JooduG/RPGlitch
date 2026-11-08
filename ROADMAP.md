@@ -289,6 +289,20 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/ui/message/render.test.js` (concealed bracket rendering unit tests)
   - `src/ui/message/MessageHeader.svelte` (unextended h-0 header DOM weight elimination)
   - `src/ui/Storymode.svelte` (feed ghost row suppression)
+  - `src/ui/message/ChatBubble.svelte` (unified message bubble consolidating Message, MessageHeader, Body, Prologue, Epilogue)
+  - `src/ui/message/TelemetryCard.svelte` (re-pointed to Storymode parse_message)
+  - `src/ui/Storyboard.svelte.js` (re-pointed to Storymode parse_message)
+  - `src/ui/index.js` (exported Storymode, storymode_state, parse_message, wrap_dialogue, take_photo, regenerate_image, UndoToast)
+  - `src/ui/message/index.js` (pruned Feed and render.js exports)
+  - `src/ui/message/Feed.svelte` (deleted; merged into Storymode.svelte)
+  - `src/ui/message/render.js` (deleted; merged into Storymode.svelte)
+  - `src/App.svelte` (slimmer shell; relegated photo and mock handlers to Storymode; retired Layout.svelte)
+  - `src/ui/Storyboard.svelte` (consolidated Storyboard.svelte.js, Layout storyboard slots, and CardHand.svelte)
+  - `src/ui/Storyboard.svelte.js` (deleted; merged into Storyboard.svelte)
+  - `src/ui/Storyboard.svelte.test.js` (re-pointed imports to Storyboard.svelte)
+  - `src/ui/Layout.svelte` (deleted; stage layout owned by App, Storyboard, and Storymode)
+  - `src/ui/entity/CardHand.svelte` (deleted; merged into Storyboard.svelte)
+  - `src/ui/entity/index.js` (pruned CardHand export)
 - **Key Modules**: `src/ui/`, `src/state/`, `src/intelligence/`, `src/data/`, `src/media/`, `src/utils/`, `src/config.js`, `src/lib/`.
 
 ---

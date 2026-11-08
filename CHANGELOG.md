@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate Storyboard Stage, CardHand & Retire `Layout.svelte` (`src/ui/Storyboard.svelte`, `src/App.svelte`, `src/ui/Storymode.svelte`)**:
+  - Merged [`src/ui/Storyboard.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte.js), [`src/ui/entity/CardHand.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/entity/CardHand.svelte), and the Storyboard stage slots from `Layout.svelte` directly into [`src/ui/Storyboard.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte).
+  - `Storyboard.svelte` now acts as the complete pre-story stage organism: owning its title header, the three entity selection slots (`AI Character`, `Fractal`, `User Persona`), slot context actions, shuffle deal choreography, begin-story flight effect, and the orbital card-fan hand overlay.
+  - Retired and deleted `src/ui/Layout.svelte`, `src/ui/Storyboard.svelte.js`, and `src/ui/entity/CardHand.svelte`.
+  - Simplified [`src/App.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte) to own the persistent 12-column root grid and `<Console />` footer directly while `<Storyboard />` and `<Storymode />` own their respective stage regions.
+
+- **Consolidate Storymode & Message Feed into `src/ui/Storymode.svelte`**:
+  - Unified [`src/ui/message/Feed.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Feed.svelte) and [`src/ui/message/render.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/render.js) directly into [`src/ui/Storymode.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storymode.svelte).
+  - Merged message parsing (`parse_message`), dialogue quote wrapping (`wrap_dialogue`), and Storymode-specific reactive state (`storymode_state`, `pinned_message_id`) into `Storymode.svelte` `<script module>`.
+  - Moved storymode action dispatchers (`take_photo`, `take_group_photo`, `regenerate_image`, `ghostwrite`, `run_mock`) out of [`src/App.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte) and into `Storymode.svelte`, slimming down `App.svelte` by over 270 lines and keeping it focused as a pure top-level stage shell.
+  - Purged obsolete files `src/ui/message/Feed.svelte` and `src/ui/message/render.js`, re-pointing all consumers (`ChatBubble.svelte`, `TelemetryCard.svelte`, `Storyboard.svelte.js`, and `render.test.js`) to `Storymode.svelte` and `@ui`.
+  - Re-exported `Storymode`, `storymode_state`, `parse_message`, `wrap_dialogue`, `take_photo`, and `regenerate_image` from `src/ui/index.js`.
+
 - **Consolidate Message Components into Unified `src/ui/message/ChatBubble.svelte`**:
   - Consolidated the 5-component message display tree (`Message.svelte`, `MessageHeader.svelte`, `Body.svelte`, `Prologue.svelte`, and `Epilogue.svelte`) into a unified [`src/ui/message/ChatBubble.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/ChatBubble.svelte) using clean Svelte 5 snippets (`header_bar`, `body_content`, `entity_trio`, `cursive_title`).
   - Purged obsolete subcomponents (`Message.svelte`, `MessageHeader.svelte`, `Body.svelte`, `Prologue.svelte`, `Epilogue.svelte`) and updated [`Feed.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Feed.svelte) and barrel [`src/ui/message/index.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/index.js) to re-export `ChatBubble`.
