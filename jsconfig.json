@@ -84,23 +84,11 @@
       "@ui/*": [
         "src/ui/*"
       ],
-      "@entity": [
-        "src/ui/entity/index.js"
-      ],
-      "@entity/*": [
-        "src/ui/entity/*"
-      ],
       "@profile": [
         "src/ui/profile/index.js"
       ],
       "@profile/*": [
         "src/ui/profile/*"
-      ],
-      "@image": [
-        "src/ui/image/index.js"
-      ],
-      "@image/*": [
-        "src/ui/image/*"
       ]
     },
     "strict": true,

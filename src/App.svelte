@@ -8,7 +8,7 @@
    * persistent 12-column root grid.
    */
   import { Tooltip } from "@primitives";
-  import { ImagePreview, open_image_preview, close_image_preview } from "@image";
+  import { ImagePreview, open_image_preview, close_image_preview } from "@ui";
   import { motion, Audio } from "@media";
   import { Storyboard, Storymode, Console } from "@ui";
   import { Profile } from "@profile";

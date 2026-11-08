@@ -8,7 +8,7 @@
   import { download_json_file, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
   import { Shimmer } from "@primitives";
-  import { ProfilePicture } from "@image";
+  import { ProfilePicture } from "@ui";
   import { get_signature_color } from "@media";
   import { Dialog } from "@primitives";
   import AudioWing from "./AudioWing.svelte";

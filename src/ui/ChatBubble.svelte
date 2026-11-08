@@ -194,14 +194,13 @@
   import { parse_message } from "./Storymode.svelte";
   import { resolve_speaking_style, safe_html } from "@utils";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
-  import { ProfilePicture, image_picker, open_picker } from "@image";
-  import ContextMenu from "./entity/ContextMenu.svelte";
-  import { claim_menu } from "./entity/ContextMenu.svelte.js";
+  import { ProfilePicture, image_picker, open_picker, EntityCard } from "@ui";
+  import ContextMenu from "./ContextMenu.svelte";
+  import { claim_menu } from "./ContextMenu.svelte.js";
   import { app, runtime, simulation_log, simulation_state } from "@state";
   import { get_resolution } from "@media";
   import Typewriter from "./Typewriter.svelte";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
-  import { EntityCard } from "@entity";
   import { get_percentage } from "@utils";
   import { parse_bracket_entries, strip_bracket_engine_flags } from "@storage";
 

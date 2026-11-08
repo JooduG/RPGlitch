@@ -7,12 +7,12 @@
    */
 
   import { StyleBadge } from "@primitives";
-  import { ProfilePicture } from "@image";
+  import ProfilePicture from "./ProfilePicture.svelte";
   import { guarded_transition } from "@utils";
   import { get_signature_color } from "@media";
   import { motion } from "@media";
   import { app, runtime } from "@state";
-  import MacroText from "../profile/MacroText.svelte";
+  import MacroText from "./profile/MacroText.svelte";
   import { flushSync } from "svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";

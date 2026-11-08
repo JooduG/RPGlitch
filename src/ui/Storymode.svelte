@@ -12,7 +12,7 @@
   import { sanitize, llm_service } from "@platform";
   import { session_driver } from "@data";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
-  import { run_image_regeneration } from "@image";
+  import { run_image_regeneration, ProfilePicture } from "./index.js";
   import { app, runtime, simulation_state } from "@state";
 
   // --- STORYMODE SHARED STATE ---
@@ -330,7 +330,6 @@
 <script>
   import { onDestroy, tick } from "svelte";
   import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
-  import { ProfilePicture } from "@image";
   import { motion, item_in, update_card_scrub, clear_card_location } from "@media";
   import { simulation_log, chrono_engine } from "@state";
   import ChatBubble from "./ChatBubble.svelte";

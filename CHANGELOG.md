@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Flatten Entity & Image Layers into Top-Level `@ui`**:
+  - Relocated `EntityCard.svelte`, `ContextMenu.svelte`, `ContextMenu.svelte.js`, `ImagePreview.svelte`, and `ProfilePicture.svelte` directly to `src/ui/`, re-exporting them from [`src/ui/index.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/index.js).
+  - Purged obsolete `src/ui/entity/` and `src/ui/image/` directories.
+  - Retired `@entity` and `@image` path aliases from `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `audit-layers.js`.
+
 - **Consolidate ImagePicker State into `ImagePreview.svelte` & Insource ImportModal to `Storyboard.svelte`**:
   - Inlined regeneration candidate runes state (`image_picker`, `run_image_regeneration`, `open_picker`, `select_candidate`, `close_regenerate`) from `ImagePicker.svelte.js` directly into [`src/ui/image/ImagePreview.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/image/ImagePreview.svelte) `<script module>`.
   - Deleted `src/ui/image/ImagePicker.svelte.js` and updated `@image` barrel re-exports.
