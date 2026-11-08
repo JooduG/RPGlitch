@@ -166,6 +166,20 @@ A comprehensive, code-grounded review of the running application and execution o
   - `src/state/chrono.svelte.js` (wire greenfield engine bridge with toggleable use_greenfield_engine flag)
   - `src/state/interface.svelte.js` (purge dead Kokoro neural voice checks from models_ready/models_progress)
   - `src/state/interface.test.js` (verify models_ready and models_progress behavior)
+  - `src/ui/message/ChatBubble.svelte` (unified message bubble chassis consolidating headers, narrative prose, think block drawers, audio controls, prologue, and epilogue layouts)
+  - `src/ui/message/Feed.svelte` (message stream rendering re-pointed to ChatBubble and relocated UndoToast)
+  - `src/ui/message/Message.svelte` (merged into ChatBubble.svelte)
+  - `src/ui/message/MessageHeader.svelte` (merged into ChatBubble.svelte)
+  - `src/ui/message/Body.svelte` (merged into ChatBubble.svelte)
+  - `src/ui/message/Prologue.svelte` (merged into ChatBubble.svelte)
+  - `src/ui/message/Epilogue.svelte` (merged into ChatBubble.svelte)
+  - `src/ui/message/Attachments.svelte` (relocated to src/ui/image/Attachments.svelte)
+  - `src/ui/image/Attachments.svelte` (image attachments gallery relocated from message layer to @image)
+  - `src/ui/image/index.js` (re-exporting Attachments gallery primitive)
+  - `src/ui/message/UndoToast.svelte` (relocated to src/ui/UndoToast.svelte)
+  - `src/ui/UndoToast.svelte` (soft-delete countdown grace period toast relocated to @ui near Console)
+  - `src/ui/index.js` (re-exporting UndoToast alongside Console chassis)
+  - `src/ui/message/index.js` (re-exporting ChatBubble, TelemetryCard, and Typewriter)
   - `src/ui/message/TelemetryCard.svelte` (consolidated telemetry module unifying quick shot, back shot, and vector resolution; renders individual bracket boxes with clean quadrant headers)
   - `src/ui/message/TelemetryCard.test.js` (telemetry formatting, directed edge parsing, and quadrant tests)
   - `src/ui/message/telemetry-format.js` (clean_text_debris, parse_relationship_edge, vector_label, and entity block projection)
@@ -303,6 +317,9 @@ The complete historical specifications, task decompositions, and touchpoint refe
 
 ## 📌 Parking Lot & Tactical Backlog
 
+- **Console-Integrated Undo Bar Interaction**:
+  - Unify the soft-delete grace period countdown (`UndoToast.svelte`) directly into the floating bottom `Console.svelte` chassis.
+  - When a user deletes a message in the feed, rather than rendering an inline toast block inside the feed scroll area, the console pill transitions temporarily into an alert/undo bar (showing "Message deleted", a countdown shrink bar, and a quick "Undo" trigger button) before returning to the active composer/action mode.
 - **Sensory Presentation, Virtualization & Live A/B Harness (Former Phase VI)**:
   - _Feed Virtualization Recon & DOM Windowing_: Trace `visible_feed` upstream of `Feed.svelte`; implement measured DOM windowing keeping only visible messages mounted for smooth 60fps scrolling in 100+ turn roleplays. Audit round sequence step increments (`chrono.svelte.js`) under rapid user submissions (`[BUG]` F6).
   - _Slash Command Directing Bar_: Floating shortcut bar above message input allowing direct Director intervention (`/ooc`, `/time`, `/mood`) without polluting in-character dialogue.

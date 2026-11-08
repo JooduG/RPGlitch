@@ -1,13 +1,13 @@
 <script>
   /**
-   * @file src/ui/message/Attachments.svelte
+   * @file src/ui/image/Attachments.svelte
    * 🖼️ MESSAGE ATTACHMENTS GALLERY
    * Renders the attachment strip with the four regenerate-flow states:
    * error / candidates-ready ("Click to select") / regenerating / preview.
    */
   import { Button } from "@primitives";
   import { Shimmer } from "@primitives";
-  import { image_picker, open_picker } from "@image";
+  import { image_picker, open_picker } from "./ImagePicker.svelte.js";
   import { get_resolution } from "@media";
   import { app, simulation_log } from "@state";
 

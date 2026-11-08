@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate Message Components into Unified `src/ui/message/ChatBubble.svelte`**:
+  - Consolidated the 5-component message display tree (`Message.svelte`, `MessageHeader.svelte`, `Body.svelte`, `Prologue.svelte`, and `Epilogue.svelte`) into a unified [`src/ui/message/ChatBubble.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/ChatBubble.svelte) using clean Svelte 5 snippets (`header_bar`, `body_content`, `entity_trio`, `cursive_title`).
+  - Purged obsolete subcomponents (`Message.svelte`, `MessageHeader.svelte`, `Body.svelte`, `Prologue.svelte`, `Epilogue.svelte`) and updated [`Feed.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/Feed.svelte) and barrel [`src/ui/message/index.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/index.js) to re-export `ChatBubble`.
+  - Relocated [`Attachments.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/image/Attachments.svelte) from `src/ui/message/` to `src/ui/image/Attachments.svelte`, unifying all image presentation elements in `@image`.
+  - Relocated [`UndoToast.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/UndoToast.svelte) from `src/ui/message/` to `src/ui/UndoToast.svelte` (alongside `Console.svelte`), re-exported from `@ui`, and documented the future console-integrated undo interaction in `ROADMAP.md`.
+
 - **Consolidate Console into Unified `src/ui/Console.svelte`**:
   - Merged the 8-file fragmented `src/ui/console/` directory (`Console.svelte`, `StoryboardBar.svelte`, `StorymodeBar.svelte`, `ControlPanel.svelte`, `EndStoryModal.svelte`, `AudioControls.svelte`, `SettingsButton.svelte`, `DevControls.svelte`, and `index.js`) into a single top-level organism: [`src/ui/Console.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Console.svelte).
   - Used Svelte 5 snippets (`settings_gear`, `storyboard_bar`, `storymode_bar`, `control_panel`) with inlined modals for zero prop drilling while strictly preserving the persistent console hoist and View Transition morphing in [`App.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte).

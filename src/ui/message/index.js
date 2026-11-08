@@ -1,11 +1,7 @@
 export { default as Feed } from "./Feed.svelte";
-export { default as Message } from "./Message.svelte";
-export { default as MessageHeader } from "./MessageHeader.svelte";
-export { default as Body } from "./Body.svelte";
-export { default as Attachments } from "./Attachments.svelte";
-export { default as Prologue } from "./Prologue.svelte";
-export { default as Epilogue } from "./Epilogue.svelte";
-export { default as UndoToast } from "./UndoToast.svelte";
+export { default as ChatBubble } from "./ChatBubble.svelte";
 export { default as TelemetryCard } from "./TelemetryCard.svelte";
 export { default as Typewriter } from "./Typewriter.svelte";
 export { typewriter } from "./Typewriter.svelte.js";
+export { parse_message, wrap_dialogue } from "./render.js";
+export * from "./telemetry-format.js";

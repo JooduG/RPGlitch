@@ -2,8 +2,8 @@
   import { onDestroy, tick } from "svelte";
   import { ScrollArea, Button } from "@primitives";
   import { Dialog } from "@primitives";
-  import Message from "./Message.svelte";
-  import UndoToast from "./UndoToast.svelte";
+  import ChatBubble from "./ChatBubble.svelte";
+  import UndoToast from "../UndoToast.svelte";
   import { Audio } from "@media/audio.svelte.js";
   import { chrono_engine } from "@state";
   import { app, simulation_state, simulation_log } from "@state";
@@ -284,7 +284,7 @@
           class:prologue-awaiting-flight={entry.meta?.is_prologue && app.begin_story_pending && !motion.is_reduced}
           in:item_in={{ duration: entry.meta?.is_prologue ? 0 : 300 }}
         >
-          <Message
+          <ChatBubble
             id={entry.id}
             text={entry.text}
             sender={map_role(entry.role)}
@@ -323,7 +323,7 @@
             left-[calc(var(--spacing-column-unit)*0.5)]
             m-0
             flex
-            w-(--spacing-column-unit)
+            w-column-unit
             -translate-y-1/2
             items-center
             justify-center
@@ -338,11 +338,11 @@
             class="
               group/badge
               relative
-              [isolation:isolate]
+              isolate
               m-0
               aspect-3/4
-              w-(--spacing-column-unit)
-              [transform:translateZ(0)]
+              w-column-unit
+              transform-[translateZ(0)]
               animate-pulse
               overflow-hidden
               rounded-xl
@@ -374,7 +374,7 @@
             {:else}
               <!-- Director Abstract Evaluation Rune / Lens -->
               <div class="flex h-full w-full items-center justify-center bg-slate-950/80">
-                <svg viewBox="0 0 24 24" class="size-5 animate-spin text-(--color-frozen) opacity-80" style="animation-duration: 3s;">
+                <svg viewBox="0 0 24 24" class="size-5 animate-spin text-frozen opacity-80" style="animation-duration: 3s;">
                   <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="14 10" />
                 </svg>
               </div>
@@ -454,15 +454,15 @@
 
 <style>
   :global([data-id="storymode-scroll-area"]) {
-    overflow-x: visible !important;
+    overflow-x: visible;
   }
 
   :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
-    position: fixed !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    height: 100dvh !important;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 100dvh;
   }
 
   /* Prologue entrance: the message fades in as the storyboard cards fly into
