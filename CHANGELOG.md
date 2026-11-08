@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate Attachments & TelemetryCard into `src/ui/message/ChatBubble.svelte`**:
+  - Merged [`src/ui/image/Attachments.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/ChatBubble.svelte) directly into [`src/ui/message/ChatBubble.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/ChatBubble.svelte) as an internal Svelte 5 snippet (`attachments_gallery`), unifying inline message attachments, loading shimmers, failed generation retries, and the mini 3-card candidate spread trigger.
+  - Merged [`src/ui/message/TelemetryCard.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/message/ChatBubble.svelte) directly into `ChatBubble.svelte` as internal Svelte 5 snippets (`telemetry_content` and `temporal_row`), embedding HUD gauges, simulation initialization cards, and vector resolution data directly into DevMode bubbles.
+  - Deleted obsolete subcomponents `src/ui/image/Attachments.svelte` and `src/ui/message/TelemetryCard.svelte`, pruning their exports from `src/ui/image/index.js` and `src/ui/message/index.js`.
+
 - **Consolidate StoryManager into `src/ui/Console.svelte`**:
   - Merged [`src/ui/story/StoryManager.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/story/StoryManager.svelte) directly into [`src/ui/Console.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Console.svelte) inside the Library control panel accordion.
   - Inlined story listing, active story loading, transcript markdown export, renaming, and deletion confirmation dialogs into `Console.svelte`.

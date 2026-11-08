@@ -8,14 +8,18 @@
   import { parse_message } from "../Storymode.svelte";
   import { resolve_speaking_style, safe_html } from "@utils";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
-  import { ProfilePicture, Attachments } from "@image";
+  import { ProfilePicture } from "@image";
+  import { image_picker, open_picker } from "../image/ImagePicker.svelte.js";
   import ContextMenu from "../entity/ContextMenu.svelte";
   import { claim_menu } from "../entity/ContextMenu.svelte.js";
-  import { app, runtime, simulation_state } from "@state";
-  import TelemetryCard from "./TelemetryCard.svelte";
+  import { app, runtime, simulation_log, simulation_state } from "@state";
+  import { get_resolution } from "@media";
   import Typewriter from "./Typewriter.svelte";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
   import { EntityCard } from "@entity";
+  import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label, clean_text_debris } from "./telemetry-format.js";
+  import { get_percentage } from "@utils";
+  import { parse_bracket_entries, strip_bracket_engine_flags } from "@storage";
 
   /**
    * @typedef {Object} Props
@@ -275,6 +279,96 @@
   let is_image_only = $derived(
     attachments.length > 0 && !has_display_text && !think_block && !meta?.is_prologue && !meta?.is_epilogue && !is_editing && !meta?.type && !busy,
   );
+
+  /**
+   * Resolves exact aspect ratio and dimensions for an attachment or loading placeholder.
+   * @param {any} attachment
+   * @param {string} regenerate_key
+   * @returns {{ width: number, height: number }}
+   */
+  function get_attachment_resolution(attachment, regenerate_key) {
+    const meta_res = typeof attachment === "object" && attachment?.metadata?.resolution;
+    if (meta_res && typeof meta_res === "string" && meta_res.includes("x")) {
+      const [w, h] = meta_res.split("x").map(Number);
+      if (w && h) return { width: w, height: h };
+    }
+    let mode = typeof attachment === "object" && (attachment?.metadata?.mode || attachment?.mode);
+    if (!mode && image_picker.regenerating_key === regenerate_key && image_picker.last_mode) {
+      mode = image_picker.last_mode;
+    }
+    if (!mode) {
+      mode = is_fractal ? "landscape" : "character";
+    }
+    return get_resolution(mode);
+  }
+
+  /**
+   * Builds the preview payload for an attachment, wiring the regenerate handler
+   * when the attachment carries an image-generation prompt.
+   * @param {any} attachment
+   * @param {string|number} preview_id
+   * @param {number} attach_idx
+   * @param {string} preview_signature
+   * @returns {any}
+   */
+  function build_preview_options(attachment, preview_id, attach_idx, preview_signature) {
+    const preview_options = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+    if (!preview_options.metadata) preview_options.metadata = {};
+    preview_options.signature_color = preview_signature;
+    if (preview_id) {
+      preview_options.on_delete = () => {
+        simulation_log.delete_attachment(String(preview_id), attach_idx);
+      };
+    }
+    if (preview_id && app.regenerate_image_handler) {
+      preview_options.on_regenerate = () => {
+        app.regenerate_image_handler({
+          prompt: preview_options.metadata?.prompt || "A cinematic scene portrait",
+          negative_prompt: preview_options.metadata?.negative_prompt,
+          mode: preview_options.metadata?.mode || (is_fractal ? "landscape" : "character"),
+          log_id: preview_id,
+          attach_idx,
+          signature_color: preview_signature,
+          regenerate_count: preview_options.metadata?.regenerate_count || 0,
+        });
+      };
+    }
+    return preview_options;
+  }
+
+  // Telemetry processing helpers
+  let consolidated_vectors = $derived(
+    Array.isArray(meta?.vectors) ? meta.vectors : Array.isArray(meta?.past) ? meta.past : Array.isArray(meta?.memories) ? meta.memories : [],
+  );
+
+  let entity_blocks = $derived(meta ? process_entity_blocks(meta) : []);
+
+  let telemetry_card_label = $derived(meta ? get_telemetry_label(meta, runtime) : "");
+
+  const get_entity_name = (key) => {
+    return resolve_entity_name(key, runtime);
+  };
+
+  const render_telemetry_text = (txt) => {
+    if (!txt) return "";
+    return parse_message(strip_bracket_engine_flags(clean_text_debris(txt))).displayText;
+  };
+
+  /**
+   * Extracts individual bracket lines or sentences from a quadrant text payload.
+   * @param {any} text_or_obj
+   * @returns {string[]}
+   */
+  function extract_bracket_items(text_or_obj) {
+    if (!text_or_obj) return [];
+    const raw = typeof text_or_obj === "string" ? text_or_obj : `${text_or_obj.physical || ""} ${text_or_obj.non_physical || ""}`.trim();
+    if (!raw) return [];
+    const entries = parse_bracket_entries(raw);
+    if (entries.length > 0) {
+      return entries.map((e) => e.raw).filter(Boolean);
+    }
+    return [raw];
+  }
 </script>
 
 {#snippet header_bar()}
@@ -492,7 +586,7 @@
     {#if app.settings.dev_mode}
       {#if meta && (meta.dynamics || meta.vectors || meta.deltas || meta.updates)}
         <div class="mb-4">
-          <TelemetryCard {meta} />
+          {@render telemetry_content()}
         </div>
       {/if}
     {/if}
@@ -617,6 +711,360 @@
   {/if}
 {/snippet}
 
+{#snippet attachments_gallery()}
+  {#if attachments.length > 0}
+    <div class="flex justify-center {has_display_text || (should_use_typewriter && (has_display_text || busy)) ? 'mt-4' : ''}">
+      {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
+        {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
+        {@const regenerate_key = `${id}:${attach_idx}`}
+        {@const res = get_attachment_resolution(attachment, regenerate_key)}
+        {@const box_h = 480}
+        {@const box_w = Math.round((box_h * res.width) / res.height)}
+        {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60vh; aspect-ratio: ${res.width} / ${res.height};`}
+        {@const preview_options = build_preview_options(attachment, id, attach_idx, signature_color)}
+        {@const is_failed = typeof attachment === "object" && attachment !== null && Boolean(attachment?.metadata?.failed)}
+        {#if image_picker.hasError(regenerate_key)}
+          <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4" style={container_style}>
+            <p class="text-center text-sm text-red-400">{image_picker.error}</p>
+          </div>
+        {:else if image_picker.isReady(regenerate_key)}
+          <Button
+            variant="bare"
+            class="group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
+            style={container_style}
+            onclick={() => open_picker()}
+            aria-label="Select image from candidates"
+          >
+            <!-- Mini 3-card spread with dynamic mouseover animation -->
+            <div class="relative h-16 w-24 transition-transform duration-300 group-hover:scale-110">
+              <div
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition-all duration-300 group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
+                style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;"
+              ></div>
+              <div
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
+                style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;"
+              ></div>
+              <div
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition-all duration-300 group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
+                style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;"
+              ></div>
+            </div>
+            <div class="flex items-center gap-2 transition-transform duration-200 group-hover:scale-105">
+              <span
+                class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-200 group-hover:text-white"
+              >
+                Click to select
+              </span>
+              <svg
+                viewBox="0 0 24 24"
+                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition-all duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </div>
+          </Button>
+        {:else if image_picker.isRegenerating(regenerate_key)}
+          <div
+            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+            style={container_style}
+          >
+            <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
+          </div>
+        {:else if is_failed}
+          <div
+            class="relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-red-900/50 bg-red-950/25 p-4"
+            style={container_style}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              class="h-8 w-8 fill-none stroke-2 text-red-400/80 [stroke-linecap:round] [stroke-linejoin:round]"
+              aria-hidden="true"
+            >
+              <path d="M12 3 L21 21 H3 Z" />
+              <line x1="12" y1="9" x2="12" y2="14" />
+              <line x1="12" y1="17.5" x2="12.01" y2="17.5" />
+            </svg>
+            <p class="text-center text-xs font-medium text-red-300">Image generation failed</p>
+            <p class="text-center text-[10px] text-red-400/70">The image service timed out. Retry or remove.</p>
+            <div class="flex items-center gap-2">
+              {#if preview_options.on_regenerate}
+                <Button
+                  variant="bare"
+                  onclick={preview_options.on_regenerate}
+                  class="rounded-md border border-red-400/40 bg-red-950/40 px-3 py-1 text-[11px] font-medium text-red-200 transition-colors hover:border-red-300/70 hover:text-white"
+                >
+                  Retry
+                </Button>
+              {/if}
+              {#if id}
+                <Button
+                  variant="bare"
+                  onclick={() => simulation_log.delete_attachment(String(id), attach_idx)}
+                  class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white"
+                >
+                  Remove
+                </Button>
+              {/if}
+            </div>
+          </div>
+        {:else if src}
+          <Button
+            variant="bare"
+            class="
+              mx-auto
+              block
+              w-fit
+              overflow-hidden
+              rounded-lg
+              border
+              border-(--signature-color,slate-600)/30
+              bg-neutral-900/50
+              transition-[filter]
+              duration-200
+              hover:brightness-110
+            "
+            onclick={() => app.open_image_preview(preview_options)}
+            aria-label="View Attachment"
+          >
+            <img
+              {src}
+              alt="Attachment {attach_idx + 1}"
+              class="
+                mx-auto
+                max-h-120
+                w-auto
+                max-w-full
+                cursor-zoom-in
+                rounded-lg
+                object-contain
+              "
+            />
+          </Button>
+        {:else}
+          <div
+            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+            style={container_style}
+          >
+            <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
+          </div>
+        {/if}
+      {/each}
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet temporal_row(label, content, isMuted = false)}
+  {#if clean_text_debris(content)}
+    <div
+      class="flex gap-4 rounded-sm border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
+        ? 'border-l-slate-500 bg-black/20'
+        : 'border-l-(--color-dev-accent) bg-black/40'}"
+    >
+      <span class="w-28 shrink-0 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">{label}</span>
+      <span class="flex-1 {isMuted ? 'text-slate-300' : 'text-slate-200'}" use:safe_html={render_telemetry_text(content)}></span>
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet telemetry_content()}
+  <div class="w-full">
+    {#if meta.type === "STORY_START"}
+      <div class="rounded-sm border border-(--color-dev-accent)/20 bg-(--color-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
+        <div class="flex items-center gap-2">
+          <div class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></div>
+          <span class="text-sm font-bold tracking-widest text-(--color-dev-accent) uppercase">Simulation Initiated</span>
+        </div>
+        <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
+      </div>
+    {:else}
+      <div
+        class="terminal-box overflow-hidden {meta.type === 'CONTINUUM_FORMATION' ||
+        meta.type === 'MEMORY_FORMATION' ||
+        meta.type === 'VECTOR_RESOLUTION'
+          ? 'animate-[pulse-resonance_1.5s_cubic-bezier(0.4,0,0.2,1)_2] border-(--color-dev-accent)'
+          : ''}"
+      >
+        {#if telemetry_card_label}
+          <header
+            class="border-b border-solid border-electric-cyan/20 bg-electric-cyan/5 px-4 py-3 text-xs font-extrabold tracking-wider text-[#f2f7fa] uppercase"
+          >
+            {telemetry_card_label}
+          </header>
+        {/if}
+        <div class="p-4">
+          <div class="flex flex-col gap-4">
+            <!-- 1. IMAGE TRIGGER INDICATOR -->
+            {#if meta.trigger_image === true || meta.image_trigger === true}
+              <div class="flex flex-wrap items-center gap-2 rounded-sm border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+                <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+                {#if meta.image_tier}
+                  <span
+                    class="rounded-sm bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+                  >
+                    {meta.image_tier}
+                  </span>
+                {/if}
+                {#if meta.image_source}
+                  <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
+                {/if}
+                {#if meta.image_signals?.band_entry}
+                  <span class="font-mono text-[10px] text-slate-400">
+                    · Band: {meta.image_signals.band_entry.axis}
+                    {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
+                  </span>
+                {/if}
+                {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
+                  <span class="font-mono text-[10px] text-slate-400">
+                    · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
+                  </span>
+                {/if}
+              </div>
+            {/if}
+
+            <!-- 2. QUICK SHOT: PER-ENTITY STATE CHANGES -->
+            {#if entity_blocks.length > 0}
+              <div class="flex flex-col gap-4">
+                {#each entity_blocks as block (block.key)}
+                  <div class="flex flex-col gap-2">
+                    <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                      {block.name || get_entity_name(block.key)}
+                    </header>
+
+                    <!-- DYNAMICS BAR GAUGES -->
+                    {#if block.dynamics.length > 0}
+                      <div class="grid grid-cols-2 gap-4">
+                        {#each block.dynamics as delta (delta.axis)}
+                          {@const fill_width = delta.has_delta
+                            ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
+                            : get_percentage(delta.value)}
+                          {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
+                          <div class="flex items-center justify-between gap-4">
+                            <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
+                            <div class="flex flex-1 items-center gap-4">
+                              <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+                                <div
+                                  class="absolute h-full transition-all duration-300"
+                                  style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
+                                ></div>
+                                {#if delta.has_delta}
+                                  <div
+                                    class="absolute z-10 h-full opacity-40 transition-all duration-300"
+                                    style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
+                                  ></div>
+                                {/if}
+                              </div>
+                              <div class="flex flex-col items-end gap-0.5">
+                                <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
+                                  <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
+                                  {#if delta.has_delta}
+                                    <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
+                                      ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                                    </span>
+                                  {/if}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        {/each}
+                      </div>
+                    {/if}
+
+                    <!-- TEMPORAL ROWS -->
+                    {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
+                      <div class="flex flex-col gap-1.5 pt-1">
+                        {#each extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`) as item, i (i)}
+                          {@render temporal_row("ETERNAL", item)}
+                        {/each}
+                        {#each extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`) as item, i (i)}
+                          {@render temporal_row("PRESENT", item)}
+                        {/each}
+
+                        {#if block.new_vectors.length > 0}
+                          {#each block.new_vectors as nv, i (i)}
+                            {@render temporal_row(vector_label(nv.type, "past"), nv.content)}
+                          {/each}
+                        {/if}
+
+                        {#if block.retrieval?.length > 0}
+                          {#each block.retrieval as rv (rv.id || rv.content)}
+                            {@render temporal_row(vector_label(rv.type, "past"), rv.content, true)}
+                          {/each}
+                        {/if}
+                      </div>
+                    {/if}
+
+                    <!-- RELATIONAL MUTATIONS -->
+                    {#if block.relationships?.length > 0}
+                      <div class="flex flex-col gap-1.5 pt-1">
+                        <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                          RELATIONAL MUTATIONS
+                        </header>
+                        <div class="flex flex-col gap-1">
+                          {#each block.relationships as rel, i (i)}
+                            <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
+                              <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
+                              <span class="text-slate-100">{rel.dynamic}</span>
+                            </div>
+                          {/each}
+                        </div>
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
+              </div>
+            {/if}
+
+            <!-- 3. BACK SHOT: MEMORY FORMATION -->
+            {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
+              <div class="flex flex-col gap-1.5 pt-1">
+                {#each extract_bracket_items(meta.eternal) as item, i (i)}
+                  {@render temporal_row("ETERNAL", item)}
+                {/each}
+                {#each extract_bracket_items(meta.present) as item, i (i)}
+                  {@render temporal_row("PRESENT", item)}
+                {/each}
+                {#each extract_bracket_items(meta.future) as item, i (i)}
+                  {@render temporal_row("FUTURE", item)}
+                {/each}
+
+                {#if consolidated_vectors.length > 0}
+                  {#each consolidated_vectors as v, i (v.id || v.content || i)}
+                    {@render temporal_row(vector_label(v.type, "past"), v.content || v.directive)}
+                  {/each}
+                {/if}
+              </div>
+            {/if}
+
+            <!-- 4. VECTOR RESOLUTION -->
+            {#if meta.type === "VECTOR_RESOLUTION"}
+              <div class="flex flex-col gap-1.5 pt-1">
+                {#if meta.vector}
+                  {@render temporal_row(vector_label(meta.vector.type, "past"), meta.vector.content, true)}
+                {/if}
+                {#if meta.resolution}
+                  <div class="flex gap-4 rounded-sm border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                    <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
+                    <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+            <!-- 5. RAW DATA ACCORDION -->
+            <Accordion label="View Raw Data">
+              <div class="terminal-box max-h-[calc(var(--spacing-unit)*60)] overflow-y-auto bg-black/10 p-4 text-sm">
+                <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(meta, null, 2)}</pre>
+              </div>
+            </Accordion>
+          </div>
+        </div>
+      </div>
+    {/if}
+  </div>
+{/snippet}
+
 <!-- ========================================================================= -->
 <!-- CHASSIS RENDERING                                                         -->
 <!-- ========================================================================= -->
@@ -625,7 +1073,7 @@
   {#if app.settings.dev_mode}
     <div class="relative flex w-full justify-center p-4 transition-all duration-200">
       <div class="w-[calc(var(--spacing-column-unit)*6)]">
-        <TelemetryCard {meta} />
+        {@render telemetry_content()}
       </div>
     </div>
   {/if}
@@ -634,7 +1082,7 @@
 {:else if is_image_only}
   <div class="relative flex w-full items-center justify-center p-4">
     <div class="w-[calc(var(--spacing-column-unit)*5)] max-w-full">
-      <Attachments {attachments} {id} {signature_color} {is_fractal} {has_display_text} {busy} {should_use_typewriter} />
+      {@render attachments_gallery()}
     </div>
   </div>
 {:else if !has_display_text && !think_block && attachments.length === 0 && !busy && !is_telemetry && !is_editing && !meta?.is_prologue && !meta?.is_epilogue}
@@ -789,7 +1237,7 @@
 
         {@render body_content()}
 
-        <Attachments {attachments} {id} {signature_color} {is_fractal} {has_display_text} {busy} {should_use_typewriter} />
+        {@render attachments_gallery()}
       </div>
     </div>
 
