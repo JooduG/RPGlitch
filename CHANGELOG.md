@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Decouple Parsers & Prune Duplicate Engine Parser (`src/engine/parser.js`, `src/engine/parser.test.js`, `src/engine/index.js`, `src/engine/turns.js`, `src/engine/bridge.js`, `src/storage/parser.js`)**:
+  - Deleted duplicate `src/engine/parser.js` and `src/engine/parser.test.js`.
+  - Consolidated streaming cognition parsing into canonical `src/storage/parser.js` (`parse_think_block`), ensuring uniform extraction of `{ think, prose, content }`.
+  - Re-routed all engine calls (`turns.js`, `bridge.js`) directly to `@storage/parser.js`.
+
+
 - **Character Core Prompt Streamlining (`src/engine/prompts.js`, `src/engine/prompts.test.js`, `src/engine/turns.test.js`)**:
   - Removed redundant `PURPOSE_CORES.ghostwrite` and `is_continuation` branching (`Continuation Directive` and additive pacing instruction) from `src/engine/prompts.js`.
   - Pacing budget is now uniformly expressed as `- **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.`.

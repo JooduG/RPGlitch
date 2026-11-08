@@ -17,8 +17,7 @@
  */
 
 import { compile_prompt } from "./prompts.js";
-import { extract_think_block } from "./parser.js";
-import { parse_brackets } from "../storage/parser.js";
+import { parse_brackets, parse_think_block } from "../storage/parser.js";
 import { safe_parse_json } from "../utils/text.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
 
@@ -192,7 +191,7 @@ export async function execute_turn_2_character({
   } else if (raw && !raw.trimStart().startsWith("<think>")) {
     raw = start_with + raw;
   }
-  const { think, prose } = extract_think_block(raw);
+  const { think, prose } = parse_think_block(raw);
 
   return {
     raw,
@@ -271,7 +270,7 @@ export async function execute_turn_2_continue({
     raw = `<think>${clean_think}</think>\n${raw}`;
   }
 
-  let { think, prose } = extract_think_block(raw);
+  let { think, prose } = parse_think_block(raw);
 
   // Compute just the delta continuation (strip original target_prose if echoed at the start of generated prose)
   let continuation_prose = prose;
@@ -299,7 +298,7 @@ export async function execute_turn_2_continue({
       startWith: fallback_start_with,
       signal,
     });
-    const fallback_extracted = extract_think_block(
+    const fallback_extracted = parse_think_block(
       fallback_raw && !fallback_raw.includes("<think>") ? `${fallback_start_with}${fallback_raw}` : fallback_raw,
     );
     let fallback_delta = fallback_extracted.prose.trim();

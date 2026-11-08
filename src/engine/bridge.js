@@ -16,9 +16,8 @@
 
 import { Kernel } from "./kernel.svelte.js";
 import { execute_turn_2_character, execute_turn_3_caretaker } from "./turns.js";
-import { extract_think_block } from "./parser.js";
 import { normalize_entity } from "../storage/entities.js";
-import { apply_bracket_deltas, parse_bracket_entries } from "../storage/parser.js";
+import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
 import { append_ledger_entries, log_message } from "../storage/db.js";
 import { state_bridge } from "../utils/index.js";
 import { LLM_PRIORITY, merge_abort_signals, run_llm_job } from "../platform/llm-gate.js";
@@ -596,7 +595,7 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
   let target_think = target_entry.meta?.think || "";
 
   if (target_prose.includes("<think>") || target_prose.includes("<THINK>")) {
-    const extracted = extract_think_block(target_prose);
+    const extracted = parse_think_block(target_prose);
     target_prose = extracted.prose;
     if (!target_think && extracted.think) {
       target_think = extracted.think;
@@ -732,7 +731,7 @@ export async function execute_ghostwriter(input_text = "", signal = null, on_tok
         if (lower.includes("<think>") || lower.startsWith("<think") || full_accumulated.trimStart() === "<") {
           is_inside_think = !lower.includes("</think>");
           if (!is_inside_think) {
-            const extracted = extract_think_block(full_accumulated);
+            const extracted = parse_think_block(full_accumulated);
             const cleaned = (extracted.prose || "").trimStart();
             if (cleaned) on_token(cleaned, true);
           }

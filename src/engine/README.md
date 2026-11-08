@@ -45,10 +45,10 @@ The package exposes its public interface via [`src/engine/index.js`](./index.js)
 
 ### 4. Parsing & Stream Tokenization
 
-- [`parse_brackets(text)`](./parser.js): Extracts bracket tokens `[KEY: VALUE]` into structured token lists.
-- [`parse_bracket_token(raw_token)`](./parser.js): Parses a single bracket string into key, value, and metadata flags.
-- [`extract_think_block(text)`](./parser.js): Extracts `<think>...</think>` internal monologue from streaming or completed LLM outputs.
-- [`format_clean_brackets(state_obj)`](./parser.js): Serializes state objects into canonical `[KEY: VALUE]` bracket format.
+- [`parse_brackets(text)`](../storage/parser.js): Extracts bracket tokens `[KEY: VALUE]` into structured token lists.
+- [`parse_bracket_token(raw_token)`](../storage/parser.js): Parses a single bracket string into key, value, and metadata flags.
+- [`parse_think_block(text)`](../storage/parser.js): Extracts `<think>...</think>` internal monologue from streaming or completed LLM outputs.
+- [`format_clean_brackets(state_obj)`](../storage/parser.js): Serializes state objects into canonical `[KEY: VALUE]` bracket format.
 
 ### 5. Two-Tier Sieve RAG & Vector Math
 

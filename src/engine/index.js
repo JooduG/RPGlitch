@@ -40,9 +40,6 @@ export {
   verify_compiled_prompt,
 } from "./verifier.js";
 
-// Stream cognition parsing
-export { extract_think_block } from "./parser.js";
-
 // Two-Tier Sieve RAG & vector math
 export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
 

@@ -586,7 +586,7 @@ export function clean_image_prompts(text) {
  * @returns {{ content: string, think: string|null }}
  */
 export function parse_think_block(text) {
-  if (!text) return { content: "", think: null };
+  if (!text) return { content: "", think: null, prose: "" };
 
   const think_accumulator = [];
 
@@ -622,9 +622,13 @@ export function parse_think_block(text) {
     }
   }
 
+  const think_string = think_accumulator.length > 0 ? think_accumulator.join("\n\n") : null;
+  const cleaned_content = content.trim();
+
   return {
-    content: content.trim(),
-    think: think_accumulator.length > 0 ? think_accumulator.join("\n\n") : null,
+    content: cleaned_content,
+    prose: cleaned_content,
+    think: think_string || "",
   };
 }
 
