@@ -129,7 +129,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
         expect.objectContaining({
           role: "model",
           system: expect.stringContaining("Aesthetic Direction"),
-          startWith: '{"_thought_process": "',
+          startWith: "<think>\n",
         }),
         expect.any(Object),
       );
@@ -143,11 +143,11 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
     it("passes bare prefill to llm_service.generate when camera_note has no style cues or is empty", async () => {
       // Direct unit check on PURPOSE_CORES.visualizer.start_with
       const { PURPOSE_CORES } = await import("../engine/prompts.js");
-      expect(PURPOSE_CORES.visualizer.start_with()).toBe('{"_thought_process": "');
-      expect(PURPOSE_CORES.visualizer.start_with({})).toBe('{"_thought_process": "');
-      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "" })).toBe('{"_thought_process": "');
-      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "   " })).toBe('{"_thought_process": "');
-      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "Hero | Aesthetic Style: photo" })).toBe('{"_thought_process": "');
+      expect(PURPOSE_CORES.visualizer.start_with()).toBe("<think>\n");
+      expect(PURPOSE_CORES.visualizer.start_with({})).toBe("<think>\n");
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "" })).toBe("<think>\n");
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "   " })).toBe("<think>\n");
+      expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "Hero | Aesthetic Style: photo" })).toBe("<think>\n");
     });
 
     it("respects explicit app_style parameter over entity.visual_style precedence", async () => {

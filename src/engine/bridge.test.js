@@ -582,6 +582,19 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
             visual_staging: "Wide establishing shot of the overgrown observatory.",
           }),
         );
+
+        // Verify DYNAMICS_DELTA log message includes director thoughts
+        expect(storage_db.log_message).toHaveBeenCalledWith(
+          "",
+          "system",
+          "Director",
+          expect.objectContaining({
+            meta: expect.objectContaining({
+              type: "DYNAMICS_DELTA",
+              thoughts: "Scene shifts to ruined hall.",
+            }),
+          }),
+        );
       } finally {
         window.generate_text = original_gen;
       }

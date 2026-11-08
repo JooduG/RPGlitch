@@ -22,15 +22,22 @@ describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
     expect(calculate_turn_tempo([])).toBe(2);
   });
 
-  it("executes Turn 1 Director quick shot and parses structured JSON", async () => {
+  it("executes Turn 1 Director quick shot and parses structured JSON with separate <think>", async () => {
+    let captured_start_with = null;
     const mock_transport = {
-      async stream() {
-        return JSON.stringify({
-          _thought_process: "Tension rising.",
-          next_action: "MAIN_CHARACTER",
-          directors_note: "Keep your hand near your weapon.",
-          dynamics_deltas: { chaos: 5, intensity: 10, openness: -5, affinity: 0 },
-        });
+      async stream(prompt, options = {}) {
+        captured_start_with = options.startWith;
+        return `<think>
+Causality: Player is attempting an infiltration.
+Dynamics: Intensity +10, chaos +5.
+Routing: Active companion responds.
+</think>
+{
+  "next_action": "MAIN_CHARACTER",
+  "directors_note": "Keep your hand near your weapon.",
+  "dynamics_deltas": { "chaos": 5, "intensity": 10, "openness": -5, "affinity": 0 },
+  "camera_note": "Tight framing on holster"
+}`;
       },
     };
 
@@ -41,9 +48,12 @@ describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
       history,
     });
 
+    expect(captured_start_with).toBe("<think>\n");
+    expect(staging._thought_process).toContain("Causality: Player is attempting an infiltration.");
     expect(staging.next_action).toBe("MAIN_CHARACTER");
     expect(staging.directors_note).toBe("Keep your hand near your weapon.");
     expect(staging.dynamics_deltas.intensity).toBe(10);
+    expect(staging.camera_note).toBe("Tight framing on holster");
   });
 
   it("executes Turn 2 Character narrative shot and extracts <think> block", async () => {
@@ -123,18 +133,23 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     expect(resolve_caretaker_target(4)).toBe("AI");
   });
 
-  it("executes Turn 3 Caretaker memory synthesis and parses extracted brackets", async () => {
+  it("executes Turn 3 Caretaker memory synthesis and parses extracted brackets with separate <think>", async () => {
+    let captured_start_with = null;
     const mock_transport = {
-      async stream() {
-        return JSON.stringify({
-          _thought_process: "Target observed the perimeter and gathered tools.",
-          eternal_physical: "",
-          eternal_non_physical: "",
-          present_physical: "[INVENTORY: rusted lockpick]",
-          present_non_physical: "[MOOD: vigilant]",
-          future: "[GOAL: breach security hub]",
-          past: "[FACT: heard strange frequency on radio | w: 8]",
-        });
+      async stream(prompt, options = {}) {
+        captured_start_with = options.startWith;
+        return `<think>
+Delta: Infiltrated perimeter, found lockpick.
+Routing: Present physical gets lockpick, mood vigilant.
+</think>
+{
+  "eternal_physical": "",
+  "eternal_non_physical": "",
+  "present_physical": "[INVENTORY: rusted lockpick]",
+  "present_non_physical": "[MOOD: vigilant]",
+  "future": "[GOAL: breach security hub]",
+  "past": "[FACT: heard strange frequency on radio | w: 8]"
+}`;
       },
     };
 
@@ -145,6 +160,8 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       history,
     });
 
+    expect(captured_start_with).toBe("<think>\n");
+    expect(result._thought_process).toContain("Delta: Infiltrated perimeter, found lockpick.");
     expect(result.target).toBe("AI");
     expect(result.present_non_physical).toBe("[MOOD: vigilant]");
     expect(result.present_physical).toBe("[INVENTORY: rusted lockpick]");

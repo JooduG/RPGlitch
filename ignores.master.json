@@ -1,5 +1,14 @@
 {
-  "antigravityignore": [],
+  "antigravityignore": [
+    "!**/*.env",
+    "!**/*.git/**",
+    "!**/*scribbles**",
+    "!**/*scrabbles**",
+    "!**/templates/**",
+    "!**/test-results/**",
+    "!**/tmp/**",
+    "!tmp/**/*"
+  ],
   "common": [
     "*.bak",
     "*.log",
@@ -48,7 +57,7 @@
     "!**/tmp/**",
     "!tmp/**/*"
   ],
-  "gitignore": ["!.env.example", "!package-lock.json", "!**/*rpglitch-left-panel.txt", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
+  "gitignore": ["!.env.example", "!package-lock.json", "!**/*main.pjs", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
   "linters": {
     "eslint": [],
     "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],

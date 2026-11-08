@@ -390,6 +390,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
 
   // Resolves Gap 3: Read director_enabled dynamically from app settings rather than hardcoding true
   const director_enabled = Boolean(app?.settings?.director_enabled);
+  const directors_note_placement = app?.settings?.directors_note_in_task === false ? "think" : "task";
 
   _active_kernel = new Kernel({
     user: user_quadrant,
@@ -398,6 +399,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     round: Number(runtime.round || 0),
     transport: live_transport,
     director_enabled,
+    directors_note_placement,
   });
 
   // 3. Reconstruct history from existing simulation log
@@ -476,6 +478,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
             deltas: outcome.director_staging.dynamics_deltas,
             director_note: outcome.director_staging.directors_note,
             camera_note: outcome.director_staging.camera_note,
+            thoughts: outcome.director_staging._thought_process || "",
             greenfield: true,
           },
         });

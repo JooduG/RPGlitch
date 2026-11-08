@@ -53,6 +53,7 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(result.valid).toBe(true);
     expect(prompt).toContain('OUTPUT_FORMAT mode="json"');
     expect(prompt).toContain("directors_note");
+    expect(prompt).not.toContain('"_thought_process"');
   });
 
   it("compiles caretaker core with structured brackets task", () => {
@@ -71,6 +72,7 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(prompt).toContain('"present_non_physical"');
     expect(prompt).toContain('"future"');
     expect(prompt).toContain('"past"');
+    expect(prompt).not.toContain('"_thought_process"');
   });
 
   it("compiles visualizer core with diffusion prompt directives", () => {
@@ -83,6 +85,7 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     const result = verify_compiled_prompt(prompt);
     expect(result.valid).toBe(true);
     expect(prompt).toContain("negative_prompt");
+    expect(prompt).not.toContain('"_thought_process"');
   });
 
   it("omits empty child tags and supports isolated 1-entity prompt generation", () => {
@@ -117,20 +120,102 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(single_entity_prompt).not.toContain("<RECENT");
   });
 
-  it("compiles character core with canonical 4-step think format", () => {
-    const character_prompt = compile_prompt({
+  it("compiles character core with Character Immersion thinking mode and A/B directors note placement", () => {
+    // Variant B (default: directors_note in <TASK>)
+    const prompt_task = compile_prompt({
       core: "character",
-      round: 1,
+      round: 3,
+      entities,
+      history,
+      task_options: {
+        directors_note: "Keep your hand near your holster.",
+        directors_note_placement: "task",
+      },
+    });
+
+    expect(prompt_task).toContain('<TASK round="3">');
+    expect(prompt_task).toContain('<SYSTEM identity="character">');
+    expect(prompt_task).not.toContain('<SYSTEM round="3"');
+    expect(prompt_task).toContain("[Role Immersion Requirement]");
+    expect(prompt_task).toContain("### Stage Direction");
+    expect(prompt_task).toContain("Keep your hand near your holster.");
+    expect(prompt_task).toContain("Use first-person inner monologue in parentheses");
+    expect(prompt_task).toContain("internal friction, and masking in first person");
+    expect(prompt_task).toContain("Commit to one concrete physical tell");
+    expect(prompt_task).toContain("Never pre-draft spoken dialogue");
+
+    const check_task = verify_compiled_prompt(prompt_task);
+    expect(check_task.valid).toBe(true);
+
+    // Verify 3rd person POV enforces pivot rule
+    const prompt_3rd = compile_prompt({
+      core: "character",
+      round: 3,
+      entities: {
+        ...entities,
+        AI: { ...entities.AI, pov: "3rd_person" },
+      },
+      history,
+    });
+    expect(prompt_3rd).toContain("Pivot immediately to third-person perspective");
+    expect(verify_compiled_prompt(prompt_3rd).valid).toBe(true);
+
+    // Variant A (directors_note in <think> prefill)
+    const prompt_think = compile_prompt({
+      core: "character",
+      round: 3,
+      entities,
+      history,
+      task_options: {
+        directors_note: "Keep your hand near your holster.",
+        directors_note_placement: "think",
+      },
+    });
+    expect(prompt_think).not.toContain("### Stage Direction");
+    const check_think = verify_compiled_prompt(prompt_think);
+    expect(check_think.valid).toBe(true);
+  });
+
+  it("compiles fractal world turn with Pure Analysis thinking mode", () => {
+    const fractal_prompt = compile_prompt({
+      core: "character",
+      round: 2,
+      entities: {
+        AI: { id: "fractal_world", name: "The Citadel", type: "fractal" },
+        USER: entities.USER,
+        FRACTAL: entities.FRACTAL,
+      },
+      history,
+    });
+
+    expect(fractal_prompt).toContain("[Thinking Mode Requirement]");
+    expect(fractal_prompt).toContain("no roleplay-style inner acting");
+    expect(fractal_prompt).toContain("Physical causality & spatial resistance");
+    expect(fractal_prompt).toContain("Atmospheric shift & environmental reaction");
+    expect(fractal_prompt).toContain("Sensory hook for protagonist agency");
+    expect(fractal_prompt).not.toContain("[Role Immersion Requirement]");
+
+    const check_fractal = verify_compiled_prompt(fractal_prompt);
+    expect(check_fractal.valid).toBe(true);
+  });
+
+  it("compiles director core with Pure Analysis thinking mode", () => {
+    const director_prompt = compile_prompt({
+      core: "director",
+      round: 2,
       entities,
       history,
     });
 
-    expect(character_prompt).toContain("### Think Format");
-    expect(character_prompt).toContain("1. **Stance**:");
-    expect(character_prompt).toContain("2. **Friction**:");
-    expect(character_prompt).toContain("3. **Mask**:");
-    expect(character_prompt).toContain("4. **Smallest Observable Action**:");
-    expect(character_prompt).toContain("Never pre-draft dialogue");
-    expect(character_prompt).toContain("Never emit visible prose inside think tags");
+    expect(director_prompt).toContain("[Thinking Mode Requirement]");
+    expect(director_prompt).toContain("Causality & stakes");
+    expect(director_prompt).toContain("Dynamics deltas & tension");
+    expect(director_prompt).toContain("Speaker routing & staging");
+    expect(director_prompt).toContain('<TASK round="2">');
+    expect(director_prompt).toContain('<SYSTEM identity="director">');
+    expect(director_prompt).not.toContain('<SYSTEM round="2"');
+
+    const check_director = verify_compiled_prompt(director_prompt);
+    expect(check_director.valid).toBe(true);
   });
 });

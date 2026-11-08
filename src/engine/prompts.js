@@ -23,6 +23,40 @@ import { ENHANCER_DIRECTIVES } from "../storage/profile-fields.js";
 import { DYNAMICS_SCALE, TEMPO_ROUNDS } from "../config.js";
 
 /**
+ * Renders the thinking mode requirements block (Character Immersion vs. Pure Analysis).
+ * Follows DeepSeek thinking mode specifications while escaping XML tags for verifier safety.
+ *
+ * @param {object} options
+ * @param {"immersion" | "analysis"} options.mode
+ * @param {string} [options.lens=""] - Domain-specific focus points
+ * @param {number} [options.max_words=120] - Target word count budget for the reasoning process
+ * @param {boolean} [options.pivot_pov=false] - Whether to enforce 1st-to-3rd person pivot at \</think\>
+ * @returns {string} Formatted markdown/text directives for <TASK>
+ */
+export function render_thinking_mode({ mode = "analysis", lens = "", max_words = 120, pivot_pov = false } = {}) {
+  if (mode === "immersion") {
+    const pov_rule = pivot_pov
+      ? "\n    4. **Perspective Pivot**: Close \\</think\\> before narrative prose. Pivot immediately to third-person perspective ('he', 'she', 'they') for all narrative prose; never voice first-person pronouns ('I', 'me') outside \\</think\\>."
+      : "\n    4. **Boundary**: Close \\</think\\> before narrative prose. Never emit visible prose inside \\<think\\> tags.";
+
+    return `    ### Thinking Mode
+    [Role Immersion Requirement] In your thinking process (inside \\<think\\> tags, under ~${max_words} words):
+    1. **Inner Monologue**: Use first-person inner monologue in parentheses, e.g. "(...)" or "(inner voice: ...)".
+    2. **Internal Feelings**: Describe raw emotional stance, internal friction, and masking in first person, such as "I feel...", "I want...", "I won't let on...".
+    3. **Smallest Observable Action**: Commit to one concrete physical tell, involuntary reaction, or sensory shift that embodies your stance. Never pre-draft spoken dialogue.${pov_rule}`;
+  }
+
+  const lens_lines = lens ? `\n    Focus your analysis strictly on:\n${lens}` : "";
+
+  return `    ### Thinking Mode
+    [Thinking Mode Requirement] In your thinking process (inside \\<think\\> tags, under ~${max_words} words):
+    1. **Direct Reasoning**: Do NOT use parentheses for inner monologue; present all reasoning directly and objectively.
+    2. **Analytical Tone**: Do NOT use first-person emotional narration like "I think" or "I feel".
+    3. **Pure Analysis**: Focus purely on logical scenario analysis, causality, and response planning; no roleplay-style inner acting.${lens_lines}
+    4. **Boundary**: Close \\</think\\> before output. Never emit visible content inside \\<think\\> tags.`;
+}
+
+/**
  * Co-located Purpose Core Definitions.
  * Each core bundles its identity, Epistemic Wall visibility, startWith token, opening line, and task block.
  */
@@ -30,9 +64,21 @@ export const PURPOSE_CORES = Object.freeze({
   director: {
     identity: "director",
     see_hidden: "all",
-    start_with: '{"_thought_process": "',
+    start_with: () => "<think>\n",
     resolve_identity_text: () => "You are the Director orchestrating simulation mechanics and staging.",
-    task_block: `  <TASK>
+    task_block: (context) => {
+      const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
+      const thinking_block = render_thinking_mode({
+        mode: "analysis",
+        max_words: 80,
+        lens: `    - Causality & stakes: evaluate recent physical actions and participant hazards
+    - Dynamics deltas & tension: calibrate numerical tension shifts
+    - Speaker routing & staging: determine who speaks next and frame the next beat`,
+      });
+
+      return `  <TASK${round_attr}>
+${thinking_block}
+
     ### Dynamics deltas *(\`dynamics_deltas\`)*
     - Signed integer adjustments *(base meters live on ${DYNAMICS_SCALE.MIN}-${DYNAMICS_SCALE.MAX}, clipped to ${DYNAMICS_SCALE.BOUNDARY_CLIP})*.
     - Standard turn shift: **${DYNAMICS_SCALE.DELTA_STANDARD}**
@@ -47,7 +93,6 @@ export const PURPOSE_CORES = Object.freeze({
 
     <OUTPUT_FORMAT mode="json">
       {
-        "_thought_process": "Evaluate recent events, physical causality, and emotional friction",
         "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
         "next_action": "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
         "directors_note": "Scene guidance delivered to the above next_action",
@@ -56,16 +101,16 @@ export const PURPOSE_CORES = Object.freeze({
     </OUTPUT_FORMAT>
 
     > [!IMPORTANT]
-    > **No** conversational preamble, **no** markdown code fence backticks, **no** trailing comments.
     > Output **MUST** start with { and end with }.
     > Output **MUST** be json.
-  </TASK>`,
+  </TASK>`;
+    },
   },
 
   caretaker: {
     identity: "caretaker",
     see_hidden: "all",
-    start_with: '{"_thought_process": "',
+    start_with: () => "<think>\n",
     resolve_identity_text: (context) =>
       `You are the Continuum Caretaker for target entity "${context.target_name}". Organize temporal state into canonical profile brackets.`,
     task_block: (context) => {
@@ -76,10 +121,20 @@ export const PURPOSE_CORES = Object.freeze({
       const pres_non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ECOSYSTEM_ANALYZER : ENHANCER_DIRECTIVES.TACTICAL_ANALYZER;
 
       const input_block = context?.input_data ? `\n  <INPUT kind="ingestion">\n${context.input_data}\n  </INPUT>\n` : "";
+      const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
 
-      return `  <TASK>
+      const thinking_block = render_thinking_mode({
+        mode: "analysis",
+        max_words: 120,
+        lens: `    - Entity change delta: identify what physical, emotional, or agenda state evolved
+    - Temporal quadrant routing: map facts to eternal, present, future, or past
+    - Bracket precision: preserve existing keys, delete cleared states via [KEY: none], ensure @TARGET syntax`,
+      });
+
+      return `  <TASK${round_attr}>
+${thinking_block}
+
     ### Directives
-    - **Analysis (\`_thought_process\`)**: Review input notes or recent events and identify what shifts, updates, or polishes for the target.
     - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
       - Physical: ${phys_dir}
       - Non-Physical: ${non_phys_dir}
@@ -102,7 +157,6 @@ export const PURPOSE_CORES = Object.freeze({
 
     <OUTPUT_FORMAT mode="json">
       {
-        "_thought_process": "...",
         "eternal_physical": "[KEY: value]",
         "eternal_non_physical": "[KEY: value]",
         "present_physical": "[KEY: value]",
@@ -121,30 +175,60 @@ export const PURPOSE_CORES = Object.freeze({
   character: {
     identity: "character",
     see_hidden: "own",
-    start_with: (context) => (context?.directors_note ? `<think>${context.directors_note}\n` : "<think>"),
+    start_with: (context) => {
+      const is_character = context?.is_character ?? true;
+      const note = context?.directors_note ? String(context.directors_note).trim() : "";
+      const placement = context?.directors_note_placement || "task";
+
+      if (is_character) {
+        if (placement === "think" && note) {
+          return `<think>${note}\n(`;
+        }
+        return "<think>\n(";
+      }
+      if (placement === "think" && note) {
+        return `<think>${note}\n`;
+      }
+      return "<think>\n";
+    },
     resolve_identity_text: (context) =>
       `You are ${context.speaker_name}, the main character of ${context.fractal_name}. ${context.listener_name} is also here.`,
     task_block: (context) => {
       const tempo = context?.turn_tempo || 2;
       const is_first_person = context?.is_character && context?.pov === "1st_person";
+      const is_character = context?.is_character ?? true;
+      const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
+      const note = context?.directors_note ? String(context.directors_note).trim() : "";
+      const placement = context?.directors_note_placement || "task";
+
+      const stage_direction_block =
+        placement === "task" && note ? `    ### Stage Direction\n    Anchor the opening beat to this directorial note:\n    - "${note}"\n\n` : "";
+
       const perspective_rule = is_first_person
         ? "Maintain strict **first-person** perspective *('I', 'me', 'my')* anchored to your own sensory experience. Never speak, script, or dictate actions for anyone else."
         : "Maintain strict **third-person** perspective anchored to your own identity. Never speak, script, or dictate actions for anyone else.";
 
-      return `  <TASK>
-    ### Pacing & Posture
+      const thinking_block = is_character
+        ? render_thinking_mode({
+            mode: "immersion",
+            max_words: 120,
+            pivot_pov: !is_first_person,
+          })
+        : render_thinking_mode({
+            mode: "analysis",
+            max_words: 80,
+            lens: `    - Physical causality & spatial resistance: how the environment shifts or obstructs
+    - Atmospheric shift & environmental reaction: weather, ambient lighting, sensory pressure
+    - Sensory hook for protagonist agency: leave an unanswered sensory clue or physical affordance`,
+          });
+
+      return `  <TASK${round_attr}>
+${stage_direction_block}    ### Pacing & Posture
     - Write in **present tense**.
     - Deliver crisp, grounded interaction calibrated to a tempo of **${tempo} beat(s)**.
     - ${perspective_rule}
 
-    ### Think Format
-    1. **Stance**: Your immediate subtextual wants and internal feelings.
-    2. **Friction**: What's resisting those wants right now?
-    3. **Mask**: How psychological coping mechanisms leaks or conceals these feelings.
-    4. **Smallest Observable Action**: A non-verbal physical tell or movement that carries the subtextual beat. Never pre-draft dialogue.
-
-    > [!IMPORTANT]
-    > Close \\</think\\> before narrative prose. Never emit visible prose inside think tags.
+${thinking_block}
   </TASK>`;
     },
   },
@@ -152,7 +236,7 @@ export const PURPOSE_CORES = Object.freeze({
   visualizer: {
     identity: "visualizer",
     see_hidden: "none",
-    start_with: () => '{"_thought_process": "',
+    start_with: () => "<think>\n",
     resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
     task_block: (context) => {
       const raw_note = typeof context === "string" ? context : context?.camera_note;
@@ -163,6 +247,7 @@ export const PURPOSE_CORES = Object.freeze({
 
       const subject_kind = context?.subject_kind || "character";
       const is_place = subject_kind === "place";
+      const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
 
       const focal_instruction = is_place
         ? "1. **Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
@@ -172,12 +257,18 @@ export const PURPOSE_CORES = Object.freeze({
         ? "    - **Place Staging Mandate**: Emphasize architectural geometry, atmospheric depth, environmental textures, and weather/lighting. Do NOT place characters or human figures in frame unless explicitly requested in the camera note."
         : "    - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.";
 
-      return `  <TASK>
-    ### Think Format
-    ${focal_instruction}
-    2. **Spatial Depth & Geometry**: Foreground, midground, and background layers, perspective, and camera angle.
-    3. **Lighting & Luminary Sources**: Concrete light sources, shadow falloff, ambient bounce, and color palette.
-    4. **Attire, Textures & Exposure**: Physical garment materials, surface textures, and visible skin mechanics.${aesthetic_direction}
+      const thinking_block = render_thinking_mode({
+        mode: "analysis",
+        max_words: 120,
+        lens: `    - ${focal_instruction}
+    - Spatial Depth & Geometry: foreground, midground, background, and camera perspective
+    - Lighting & Luminary Sources: key light source, shadow falloff, color palette
+    - Attire & Textures: fabric materials, physical surfaces, and visible details`,
+      });
+
+      return `  <TASK${round_attr}>
+${thinking_block}
+${aesthetic_direction}
     ### Prompt Synthesis
     Synthesize an evocative, photographic or artistic description in natural prose:
 ${synthesis_focal_directive}
@@ -194,7 +285,6 @@ ${synthesis_focal_directive}
 
     <OUTPUT_FORMAT mode="json">
       {
-        "_thought_process": "",
         "prompt": "",
         "negative_prompt": ""
       }
@@ -210,9 +300,9 @@ ${synthesis_focal_directive}
 /**
  * Renders Block 1: System, Identity Anchor, Axiomatic Constitution, and Protocols.
  */
-function render_block_1_system({ round = 1, identity = "character", identity_text = "" }) {
+function render_block_1_system({ identity = "character", identity_text = "" }) {
   const identity_line = identity_text ? `  ${identity_text}\n` : "";
-  return `<SYSTEM round="${round}" identity="${identity}">
+  return `<SYSTEM identity="${identity}">
 ${identity_line}  <AXIOMATIC_CONSTITUTION>
     <AMENDMENT number="1" name="Causality">Physical reality and causality supersede consensus or morality. Reject unearned feats and items without tangible foundation. Maintain state continuity: exertion causes fatigue, damage persists, and actions demand localized physical resistance. Never hallucinate survival across fatal events.</AMENDMENT>
     <AMENDMENT number="2" name="Epistemics">Act strictly from internal bias and immediate sensory horizons (sight, sound, touch). Unvoiced thoughts and concealed items are Null Data across the Epistemic Wall. Omniscience and telepathy are prohibited.</AMENDMENT>
@@ -277,12 +367,14 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     camera_note: task_options.camera_note || "",
     subject_kind: task_options.subject_kind || "character",
     turn_tempo: task_options.turn_tempo || 2,
+    directors_note_placement: task_options.directors_note_placement || "task",
+    round,
   };
 
   const identity_text = purpose_core.resolve_identity_text(core_context);
 
   // --- Block 1: System & Protocols ---
-  const b1 = render_block_1_system({ round, identity, identity_text });
+  const b1 = render_block_1_system({ identity, identity_text });
 
   // --- Block 2: Reality (World truths) ---
   let b2 = "";

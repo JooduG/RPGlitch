@@ -25,6 +25,7 @@ export class Kernel {
   history = $state([]);
   error = $state(null);
   director_enabled = $state(false);
+  directors_note_placement = $state("task");
 
   constructor(options = {}) {
     this.user = options.user || null;
@@ -32,6 +33,7 @@ export class Kernel {
     this.fractal = options.fractal || null;
     this.round = options.round || 0;
     this.director_enabled = options.director_enabled || false;
+    this.directors_note_placement = options.directors_note_placement || "task";
     this.transport = options.transport || create_transport();
   }
 
@@ -105,6 +107,7 @@ export class Kernel {
         entities,
         history: this.history,
         director_enabled: this.director_enabled,
+        directors_note_placement: options.directors_note_placement || this.directors_note_placement,
         onChunk: options.onChunk,
         signal: options.signal,
       });

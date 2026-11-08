@@ -16,10 +16,45 @@
  * ============================================================================
  */
 
-import { compile_prompt } from "./prompts.js";
+import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 import { parse_brackets, parse_think_block } from "../storage/parser.js";
 import { safe_parse_json } from "../utils/text.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
+
+/**
+ * Normalizes prefilled startWith markers, parses <think>...</think> cognition,
+ * and extracts the remainder body.
+ *
+ * @param {string} raw - Raw model output
+ * @param {string} [start_with=""] - The startWith prefix sent to transport
+ * @returns {{ think: string, body: string }}
+ */
+export function extract_think_and_body(raw, start_with = "") {
+  if (!raw || typeof raw !== "string") {
+    return { think: "", body: "" };
+  }
+
+  let text = raw;
+
+  // Reconcile startWith prefix if stripped by transport or echoed by model
+  if (start_with && !text.includes("<think>")) {
+    // If the mock/model returned raw output without any <think> tags, check if it's pure prose/body
+    // Only prepend start_with if the output already looks like it was continuing mid-stream, or close the think tag
+    if (text.includes("</think>")) {
+      text = `${start_with}${text}`;
+    } else {
+      text = `${start_with}</think>\n${text}`;
+    }
+  } else if (start_with && !text.trimStart().startsWith("<think>")) {
+    text = `${start_with}${text}`;
+  }
+
+  const { think, prose } = parse_think_block(text);
+  return {
+    think: think || "",
+    body: (prose || "").trim(),
+  };
+}
 
 /**
  * Builds a brief human-readable turn summary from the recent feed tail.
@@ -104,11 +139,13 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
     history,
   });
 
-  const start_prefix = '{"_thought_process": "';
+  const start_prefix = PURPOSE_CORES.director.start_with();
   let raw_output = await transport.stream(prompt, { startWith: start_prefix, signal });
 
-  // Locate JSON block within output using safe_parse_json (with prefix restoration)
-  const parsed = safe_parse_json(raw_output, { prefix: start_prefix });
+  const { think, body } = extract_think_and_body(raw_output, start_prefix);
+  // Locate JSON block within body or raw output using safe_parse_json
+  const parsed = safe_parse_json(body) || safe_parse_json(raw_output, { prefix: start_prefix });
+
   if (parsed) {
     // Sanitize and clamp numeric dynamics deltas to safe bounds
     const raw_deltas = parsed?.dynamics_deltas || {};
@@ -121,8 +158,10 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
       entropy: Math.max(-20, Math.min(20, Math.round(Number(raw_deltas.entropy) || 0))),
     };
 
+    const resolved_thought = think || (typeof parsed?._thought_process === "string" ? parsed._thought_process : "");
+
     return {
-      _thought_process: typeof parsed?._thought_process === "string" ? parsed._thought_process : "",
+      _thought_process: resolved_thought,
       next_action: typeof parsed?.next_action === "string" ? parsed.next_action : "MAIN_CHARACTER",
       directors_note: typeof parsed?.directors_note === "string" ? parsed.directors_note : "",
       dynamics_deltas,
@@ -131,7 +170,7 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
   }
 
   return {
-    _thought_process: "Direct staging fallback.",
+    _thought_process: think || "Direct staging fallback.",
     next_action: "MAIN_CHARACTER",
     directors_note: "Continue the scene naturally.",
     dynamics_deltas: { chaos: 0, intensity: 0, openness: 0, affinity: 0, velocity: 0, entropy: 0 },
@@ -160,10 +199,12 @@ export async function execute_turn_2_character({
   history = [],
   memories = [],
   directors_note = "",
+  directors_note_placement = "task",
   onChunk = null,
   signal = null,
 }) {
   const turn_tempo = calculate_turn_tempo(history);
+  const is_character = Boolean(entities.AI && entities.AI.type !== "fractal");
 
   const prompt = compile_prompt({
     core: "character",
@@ -171,19 +212,17 @@ export async function execute_turn_2_character({
     entities,
     history,
     memories,
-    task_options: { directors_note, turn_tempo },
+    task_options: { directors_note, directors_note_placement, turn_tempo },
   });
 
-  const start_with = directors_note ? `<think>${directors_note}\n` : "<think>";
+  const start_with = PURPOSE_CORES.character.start_with({
+    is_character,
+    directors_note,
+    directors_note_placement,
+  });
   let raw = await transport.stream(prompt, { onChunk, startWith: start_with, signal });
 
-  // If the model closed the prefilled <think> block or continued prose directly without closing it
-  if (raw && !raw.includes("<think>")) {
-    raw = `${start_with}</think>\n${raw}`;
-  } else if (raw && !raw.trimStart().startsWith("<think>")) {
-    raw = start_with + raw;
-  }
-  const { think, prose } = parse_think_block(raw);
+  const { think, body: prose } = extract_think_and_body(raw, start_with);
 
   return {
     raw,
@@ -338,6 +377,7 @@ export async function execute_round({
   history = [],
   memories = [],
   director_enabled = false,
+  directors_note_placement = "task",
   onChunk = null,
   signal = null,
 }) {
@@ -360,6 +400,7 @@ export async function execute_round({
     history,
     memories,
     directors_note: director_staging?.directors_note || "",
+    directors_note_placement,
     onChunk,
     signal,
   });
@@ -396,12 +437,13 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
     task_options: { target_entity_key: target },
   });
 
-  const start_prefix = '{"_thought_process": "';
+  const start_prefix = PURPOSE_CORES.caretaker.start_with();
   const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
 
-  const parsed = safe_parse_json(raw, { prefix: start_prefix });
+  const { think, body } = extract_think_and_body(raw, start_prefix);
+  const parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
 
-  const _thought_process = parsed?._thought_process || "";
+  const _thought_process = think || parsed?._thought_process || "";
   const eternal_physical = typeof parsed?.eternal_physical === "string" ? parsed.eternal_physical : "";
   const eternal_non_physical = typeof parsed?.eternal_non_physical === "string" ? parsed.eternal_non_physical : "";
   const present_physical = typeof parsed?.present_physical === "string" ? parsed.present_physical : "";
@@ -472,21 +514,23 @@ export async function execute_turn_visualizer({ transport, round = 1, entities =
     },
   });
 
-  const start_prefix = '{"_thought_process": "';
+  const start_prefix = PURPOSE_CORES.visualizer.start_with();
   const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
-  let parsed = safe_parse_json(raw, { prefix: start_prefix });
+  const { think, body } = extract_think_and_body(raw, start_prefix);
+  let parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
 
   let candidate_prompt = typeof parsed?.prompt === "string" ? parsed.prompt.trim() : "";
   let candidate_negative = typeof parsed?.negative_prompt === "string" ? parsed.negative_prompt.trim() : "";
-  let thought_process = typeof parsed?._thought_process === "string" ? parsed._thought_process.trim() : "";
+  let thought_process = think || (typeof parsed?._thought_process === "string" ? parsed._thought_process.trim() : "");
 
   // Robust fallback for raw unescaped newlines in JSON thought string
-  if (!candidate_prompt && raw) {
-    const p_match = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(raw);
+  if (!candidate_prompt && (body || raw)) {
+    const text_to_search = body || raw;
+    const p_match = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(text_to_search);
     if (p_match && p_match[1]) {
       candidate_prompt = p_match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
     }
-    const n_match = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(raw);
+    const n_match = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(text_to_search);
     if (n_match && n_match[1]) {
       candidate_negative = n_match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
     }
@@ -541,9 +585,10 @@ export async function execute_turn_structuring({ transport, input_data = "", typ
     },
   });
 
-  const start_prefix = '{"_thought_process": "';
+  const start_prefix = PURPOSE_CORES.caretaker.start_with();
   const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
-  const parsed = safe_parse_json(raw, { prefix: start_prefix });
+  const { body } = extract_think_and_body(raw, start_prefix);
+  const parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
 
   return parsed;
 }
