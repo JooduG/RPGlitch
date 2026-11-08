@@ -16,4 +16,5 @@ export {
   claimed_entity_lock,
 } from "./Storyboard.svelte";
 export { default as Console } from "./Console.svelte";
+export { default as StoryCard } from "./StoryCard.svelte";
 export { default as UndoToast } from "./UndoToast.svelte";

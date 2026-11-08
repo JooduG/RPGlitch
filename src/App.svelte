@@ -8,7 +8,7 @@
    * persistent 12-column root grid.
    */
   import { Tooltip } from "@primitives";
-  import { ImagePicker, ImagePreview, open_image_preview, close_image_preview } from "@image";
+  import { ImagePreview, open_image_preview, close_image_preview } from "@image";
   import { motion, Audio } from "@media";
   import { Storyboard, Storymode, Console } from "@ui";
   import { Profile } from "@profile";
@@ -97,7 +97,6 @@
   </div>
 
   <ImagePreview />
-  <ImagePicker />
 
   <!-- PERSISTENT STAGE GRID: Storyboard / Storymode stage + persistent Console footer -->
   <div class="fixed inset-0 z-20 m-auto grid overflow-hidden text-white transition-opacity duration-300 {container_class}">

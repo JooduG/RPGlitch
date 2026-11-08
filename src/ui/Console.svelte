@@ -16,7 +16,7 @@
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
   import { item_in } from "@media";
   import { build_story_export_filename } from "@utils";
-  import StoryCard from "./story/StoryCard.svelte";
+  import StoryCard from "./StoryCard.svelte";
   import { storyboard, install_begin_flight_effect } from "@ui";
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---

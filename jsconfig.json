@@ -84,18 +84,6 @@
       "@ui/*": [
         "src/ui/*"
       ],
-      "@console": [
-        "src/ui/console/index.js"
-      ],
-      "@console/*": [
-        "src/ui/console/*"
-      ],
-      "@story": [
-        "src/ui/story/index.js"
-      ],
-      "@story/*": [
-        "src/ui/story/*"
-      ],
       "@message": [
         "src/ui/message/index.js"
       ],

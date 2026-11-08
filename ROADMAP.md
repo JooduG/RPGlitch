@@ -117,6 +117,8 @@ flowchart TD
     - All 4 media test suites passing 100% green (65/65 tests).
   - **Gate 4: Flat UI Domain Components & Atomic Cutover (`src/ui/`, `App.svelte`, `main.js`)** — **NEXT ACTIVE SPRINT**:
     - Collapse nested UI directories into flat Svelte 5 domain components without empty wrapper abstractions.
+    - Consolidate `src/ui/image/ImagePicker.svelte` directly into `src/ui/image/ImagePreview.svelte` as an internal snippet (`picker_overlay`) and prune redundant picker wrapper.
+    - Relocate `src/ui/story/StoryCard.svelte` directly to `src/ui/StoryCard.svelte`, pruning empty `src/ui/story/` directory and retiring `@story` path aliases.
     - Re-wire `App.svelte` and `main.js` to `src/engine/` and `src/storage/`.
     - **Pre-Gate-4 Fixes & Greenfield Hardening**:
       - Greenfield user-turn persistence in `src/state/chrono.svelte.js` (mirroring user message write before `execute_greenfield_turn` with abort purge safety; tested in `src/state/chrono.test.js`).
