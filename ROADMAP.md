@@ -89,10 +89,15 @@ flowchart TD
     - **Slice 2: Prune Trivial Wrapper Primitives in `src/ui/primitives/` (COMPLETED)**:
       - Codified styling patterns into `DESIGN.md` as Tailwind v4 utilities (`@utility glass-input`, `@utility terminal-box`) and synchronized via `sync-css.js`.
       - Inlined `<div class="glass-input">` in `src/ui/profile/ProfileHeader.svelte`.
-      - Inlined semantic pulsing indicator `<span role="status" class="inline-block shrink-0 animate-pulse rounded-full size-1.5 bg-amber-400">` in `src/ui/console/StorymodeBar.svelte`.
+      - Inlined semantic pulsing indicator `<span role="status" class="inline-block shrink-0 animate-pulse rounded-full size-1.5 bg-amber-400">` in `src/ui/Console.svelte`.
       - Replaced `<Skeleton>` instances in `src/App.svelte` with local Svelte 5 snippet `{#snippet card_skeleton()}` wrapping `<Shimmer color="rgba(255, 255, 255, 0.4)" />`.
       - Replaced `<DataBox>` in `src/ui/message/Body.svelte`, `src/ui/message/TelemetryCard.svelte`, and `src/ui/profile/DevWing.svelte` with native `.terminal-box` containers and clean overflow scrolling.
       - Pruned eliminated primitive component files (`src/ui/primitives/GlassWrapper.svelte`, `src/ui/primitives/Indicator.svelte`, `src/ui/primitives/Skeleton.svelte`, `src/ui/primitives/DataBox.svelte`) and updated `src/ui/primitives/index.js` barrel.
+    - **Slice 3: Console Unification into `src/ui/Console.svelte` (COMPLETED)**:
+      - Collapsed `src/ui/console/` (9 files: `Console.svelte`, `StoryboardBar.svelte`, `StorymodeBar.svelte`, `ControlPanel.svelte`, `EndStoryModal.svelte`, `AudioControls.svelte`, `SettingsButton.svelte`, `DevControls.svelte`, `index.js`) into a single cohesive organism: `src/ui/Console.svelte`.
+      - Inlined sub-bars, accordion decks, and dialogs as Svelte 5 snippets (`settings_gear`, `storyboard_bar`, `storymode_bar`, `control_panel`).
+      - Preserved the single persistent mount in `src/App.svelte` and zero cross-view unmount transitions.
+      - Relocated test to `src/ui/Console.test.js` and purged `@console` path alias from `vite.config.js` and `audit-layers.js`.
     - Audited and hardened via adversarial EGM Goldfish review (`egm-codebase-details`): JSON escaping in prefill streams, Caretaker 4-quadrant bracket parsing, dynamics delta integer clamping, and clean history-driven turn tempo.
   - **Gate 2: Storage & Persistence Consolidation (`src/storage/`)** — **COMPLETED**:
     - Parallel persistence layer established in `src/storage/` (`parser.js`, `profile-fields.js`, `presets.js`, `entities.js`, `db.js`, `index.js`).

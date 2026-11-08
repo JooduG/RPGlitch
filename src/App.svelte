@@ -11,10 +11,8 @@
   import { ImagePicker, ImagePreview, open_image_preview, close_image_preview, run_image_regeneration } from "@image";
   import { motion, Audio, visual_engine, render_optics_fallback } from "@media";
   import { CardHand, EntityCard } from "@entity";
-  import { Layout } from "@ui";
+  import { Layout, Storyboard, Storymode, Console } from "@ui";
   import { Profile } from "@profile";
-  import { Storyboard, Storymode } from "@ui";
-  import { Console } from "@console";
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@data";
   import { llm_service } from "@platform";
@@ -389,9 +387,7 @@
 </script>
 
 {#snippet card_skeleton()}
-  <div
-    class="relative isolate h-full min-h-50 w-full overflow-hidden rounded-xl border border-solid border-white/10 bg-zinc-900/40 backdrop-blur-sm"
-  >
+  <div class="relative isolate h-full min-h-50 w-full overflow-hidden rounded-xl border border-solid border-white/10 bg-zinc-900/40 backdrop-blur-sm">
     <Shimmer color="rgba(255, 255, 255, 0.4)" />
   </div>
 {/snippet}

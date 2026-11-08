@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate Console into Unified `src/ui/Console.svelte`**:
+  - Merged the 8-file fragmented `src/ui/console/` directory (`Console.svelte`, `StoryboardBar.svelte`, `StorymodeBar.svelte`, `ControlPanel.svelte`, `EndStoryModal.svelte`, `AudioControls.svelte`, `SettingsButton.svelte`, `DevControls.svelte`, and `index.js`) into a single top-level organism: [`src/ui/Console.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Console.svelte).
+  - Used Svelte 5 snippets (`settings_gear`, `storyboard_bar`, `storymode_bar`, `control_panel`) with inlined modals for zero prop drilling while strictly preserving the persistent console hoist and View Transition morphing in [`App.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/App.svelte).
+  - Relocated test to [`src/ui/Console.test.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Console.test.js) and removed the legacy `@console` path alias from `vite.config.js` and `audit-layers.js`.
+
+- **Fix Storyboard Shuffle & Card Flight Motion Engine (`src/media/motion.svelte.js`)**:
+  - Restored canonical multi-argument flight signatures for `fly_card_in(source_el, from_rect, to_rect, options)` and `fly_card_out(source_el, to_rect, options)` in `src/media/motion.svelte.js`.
+  - Resolved `TypeError: e.getBoundingClientRect is not a function` during storyboard shuffle deal where plain Rect geometry objects passed as target positions previously caused invalid DOM queries.
+
+- **Controlled UI Decomposition & Primitive Pruning (`src/ui/`, `DESIGN.md`, `ROADMAP.md`)**:
+  - **Slice 1: Evict Non-UI Logic**: Moved HTML sanitization to `src/utils/html.js` (`sanitize`, `sanitize_to_fragment`, `escape_html`), actions to `src/utils/actions.js`, consolidated motion physics into `src/media/motion.svelte.js`, moved `Shimmer` to `src/ui/primitives/Shimmer.svelte`, relocated `Typewriter` to `src/ui/message/`, and pruned `src/ui/motion/`.
+  - **Slice 2: Prune Trivial Wrapper Primitives**: Codified `@utility glass-input` and `@utility terminal-box` in `DESIGN.md`, inlined `<div class="glass-input">` in `ProfileHeader.svelte`, inlined pulsing indicator in `StorymodeBar.svelte`, replaced `<Skeleton>` with local Svelte 5 snippet in `App.svelte`, inlined `.terminal-box` with native scrolling in `Body.svelte`, `TelemetryCard.svelte`, and `DevWing.svelte`, and pruned `GlassWrapper.svelte`, `Indicator.svelte`, `Skeleton.svelte`, and `DataBox.svelte`.
+
 - **Dual-Write Design Tokens to `src/design.css` (`.agents/skills/design/scripts/sync-css.js`, `token-utils.js`, `audit-design.js`, `ignores.master.json`)**:
   - Updated the CSS design token synchronizer (`npm run sync:css`) to dual-write tokens: directly to the nuclear styling root `src/design.css` (configured with `@source "./";` for whole-tree component discovery) while preserving the legacy mirror at `src/media/design.css` (with `@source "../";`) until `src/media/` is fully retired.
   - Updated token audit utilities to treat both paths as generated token sources, and registered `src/design.css` across workspace ignore configurations.

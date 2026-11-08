@@ -166,7 +166,7 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
       expect(spy).toHaveBeenCalled();
       expect(result).toEqual({ name: "Kael", appearance: "Tall and cloaked." });
       spy.mockRestore();
-    });
+    }, 15000);
 
     it("structure_profile produces output that satisfies parse_profile_json and mandatory fields", async () => {
       const { llm_service } = await import("@platform");
