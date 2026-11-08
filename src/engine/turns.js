@@ -21,14 +21,6 @@ import { parse_brackets, parse_think_block } from "../storage/parser.js";
 import { safe_parse_json } from "../utils/text.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
 
-/** Output character budgets per turn_tempo beat level */
-export const TEMPO_OUTPUT_BUDGETS = Object.freeze({
-  1: { max_beats: 1, max_chars: 280 },
-  2: { max_beats: 2, max_chars: 600 },
-  3: { max_beats: 3, max_chars: 1200 },
-  4: { max_beats: 4, max_chars: 2400 },
-});
-
 /**
  * Builds a brief human-readable turn summary from the recent feed tail.
  *
@@ -450,5 +442,72 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
     future_text: future,
     past_text: past,
     brackets,
+  };
+}
+
+/**
+ * Executes an Envision turn to refine and synthesize visual staging prompts for image diffusion.
+ *
+ * @param {object} params
+ * @param {object} params.transport - Shared transport or LLM interface
+ * @param {number} [params.round=1]
+ * @param {object} [params.entities={}] - Cast entities ({ AI?, USER?, FRACTAL? })
+ * @param {string} [params.camera_note=""] - Draft text, camera angle, or aesthetic notes
+ * @param {"character" | "place"} [params.subject_kind="character"]
+ * @param {AbortSignal} [params.signal=null]
+ * @returns {Promise<{ prompt: string, negative_prompt: string, _thought_process: string, raw: string }>}
+ */
+export async function execute_turn_visualizer({
+  transport,
+  round = 1,
+  entities = {},
+  camera_note = "",
+  subject_kind = "character",
+  signal = null,
+}) {
+  if (signal?.aborted) {
+    throw new Error("Stream aborted by user.");
+  }
+
+  const prompt = compile_prompt({
+    core: "visualizer",
+    round,
+    entities,
+    task_options: {
+      camera_note,
+      subject_kind,
+    },
+  });
+
+  const start_prefix = '{"_thought_process": "';
+  const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
+  let parsed = safe_parse_json(raw, { prefix: start_prefix });
+
+  let candidate_prompt = typeof parsed?.prompt === "string" ? parsed.prompt.trim() : "";
+  let candidate_negative = typeof parsed?.negative_prompt === "string" ? parsed.negative_prompt.trim() : "";
+  let thought_process = typeof parsed?._thought_process === "string" ? parsed._thought_process.trim() : "";
+
+  // Robust fallback for raw unescaped newlines in JSON thought string
+  if (!candidate_prompt && raw) {
+    const p_match = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(raw);
+    if (p_match && p_match[1]) {
+      candidate_prompt = p_match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
+    }
+    const n_match = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(raw);
+    if (n_match && n_match[1]) {
+      candidate_negative = n_match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
+    }
+  }
+
+  // Strip @ from [@TARGET] or @TARGET tokens in diffusion prompts while keeping display name
+  if (candidate_prompt.includes("@")) {
+    candidate_prompt = candidate_prompt.replace(/@([A-Za-z0-9_]+)/g, "$1");
+  }
+
+  return {
+    prompt: candidate_prompt,
+    negative_prompt: candidate_negative,
+    _thought_process: thought_process,
+    raw: raw || "",
   };
 }

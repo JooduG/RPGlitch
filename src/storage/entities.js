@@ -20,19 +20,9 @@ import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets, parse_profile_json } from "./parser.js";
 import { FLAT_LEAF_MAP, ENHANCER_DIRECTIVES } from "./profile-fields.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
-import { llm_service } from "@platform";
+import { DEFAULT_AI_DYNAMICS, DEFAULT_FRACTAL_DYNAMICS, DYNAMICS_SCALE } from "../config.js";
 
-const DEFAULT_CHARACTER_DYNAMICS = Object.freeze({
-  chaos: 50,
-  intensity: 50,
-  openness: 50,
-  affinity: 50,
-});
-
-const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
-  velocity: 50,
-  entropy: 50,
-});
+const DEFAULT_CHARACTER_DYNAMICS = DEFAULT_AI_DYNAMICS;
 
 /**
  * Clamps a dynamics number to an integer between 1 and 100.
@@ -41,10 +31,10 @@ const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
  * @param {number} fallback
  * @returns {number}
  */
-function clamp_dynamic(value, fallback = 50) {
+function clamp_dynamic(value, fallback = DYNAMICS_SCALE.MID) {
   const num = Number(value);
   if (!Number.isFinite(num) || isNaN(num)) return fallback;
-  return Math.max(1, Math.min(100, Math.round(num)));
+  return Math.max(DYNAMICS_SCALE.MIN, Math.min(DYNAMICS_SCALE.MAX, Math.round(num)));
 }
 
 /**
@@ -349,6 +339,7 @@ ${input_data}
  * @returns {Promise<Object | null>}
  */
 export async function structure_profile(raw, type) {
+  const { llm_service } = await import("@platform");
   const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
   const payload = compile_sorting_prompt(input_data, type);
   const result = await llm_service.enhance(payload);
@@ -385,19 +376,8 @@ export function apply_profile_to_entity(entity, profile) {
           .map((text) => String(text || "").trim())
           .filter(Boolean);
         if (cleaned_texts.length > 0) {
-          if (typeof entity.past === "string") {
-            const current_text = entity.past.trim();
-            entity.past = current_text ? `${current_text} ${cleaned_texts.join(" ")}` : cleaned_texts.join(" ");
-          } else {
-            const new_vectors = cleaned_texts.map((vector_string) => ({
-              id: `usr_${generate_uuid()}`,
-              content: vector_string,
-              key: "MEMORY",
-              emotional_weight: 5,
-              created_at: Date.now(),
-            }));
-            entity.past = [...(Array.isArray(entity.past) ? entity.past : []), ...new_vectors];
-          }
+          const current_text = typeof entity.past === "string" ? entity.past.trim() : "";
+          entity.past = current_text ? `${current_text} ${cleaned_texts.join(" ")}` : cleaned_texts.join(" ");
         }
       }
     } else if (key === "future" && typeof value === "string") {

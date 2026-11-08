@@ -15,7 +15,7 @@
  */
 
 import { Kernel } from "./kernel.svelte.js";
-import { execute_turn_2_character, execute_turn_3_caretaker } from "./turns.js";
+import { execute_turn_2_character, execute_turn_3_caretaker, execute_turn_visualizer } from "./turns.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
 import { append_ledger_entries, log_message } from "../storage/db.js";
@@ -743,4 +743,110 @@ export async function execute_ghostwriter(input_text = "", signal = null, on_tok
   });
 
   return (outcome?.prose || "").trim();
+}
+
+/**
+ * Executes visual prompt envisioning/refinement via the greenfield visualizer purpose core.
+ *
+ * @param {string} text - Draft description or camera note
+ * @param {string} [type="character"] - Generation mode or kind ("character", "fractal", "story_scene", etc.)
+ * @param {object|null} [entity=null] - Target entity snapshot
+ * @param {string|null} [app_style=null] - App-level visual style override
+ * @param {AbortSignal|null} [signal=null]
+ * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
+ */
+export async function execute_visualizer_envision(text, type = "character", entity = null, app_style = null, signal = null) {
+  if (!text || typeof text !== "string") {
+    return { prompt: "", negative_prompt: "" };
+  }
+
+  const { get_resolution_string } = await import("../media/optics.js");
+  const { get_visual_style } = await import("../definitions/visual-styles.js");
+  const runtime = state_bridge.runtime || {};
+  const app = state_bridge.app || {};
+
+  const app_choice = app_style || app.settings?.visual_style;
+  let style_key = "none";
+  let style_source = "default";
+
+  if (app_choice && app_choice !== "none" && app_choice !== "default") {
+    style_key = app_choice;
+    style_source = "app";
+  } else if (entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default") {
+    style_key = entity.visual_style;
+    style_source = "entity";
+  } else if (
+    runtime.active_fractal?.visual_style &&
+    runtime.active_fractal.visual_style !== "none" &&
+    runtime.active_fractal.visual_style !== "default"
+  ) {
+    style_key = runtime.active_fractal.visual_style;
+    style_source = "fractal";
+  }
+
+  const style_def = get_visual_style(style_key);
+  const tier_resolution = get_resolution_string(type);
+  if (style_def && style_def.llm_refine === false) {
+    return { prompt: text.trim(), negative_prompt: style_def.negative_prompt || "", resolution: tier_resolution };
+  }
+
+  try {
+    const target_entity = entity || (type === "fractal" ? runtime.active_fractal : runtime.active_ai);
+    const style_cues = style_def?.engine
+      ? [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
+      : "";
+    const trimmed_text = text.trim();
+    const camera_note = style_cues ? `${trimmed_text} | Aesthetic Style: ${style_cues}` : trimmed_text;
+
+    let subject_kind = "character";
+    if (type === "fractal") {
+      subject_kind = "place";
+    } else if (type === "story_scene") {
+      const active_names = [runtime.active_ai?.name, runtime.active_user?.name, entity?.name].filter(Boolean);
+      const mentions_character = active_names.some((name) => trimmed_text.toLowerCase().includes(name.toLowerCase()));
+      if (!mentions_character) {
+        subject_kind = "place";
+      }
+    }
+
+    const live_transport = {
+      stream: async (compiled_prompt, stream_options = {}) => {
+        const { llm_service } = await import("../platform/transport.js");
+        const response = await llm_service.generate(
+          {
+            system: compiled_prompt,
+            role: "model",
+            startWith: stream_options.startWith != null ? String(stream_options.startWith) : "",
+          },
+          {
+            silent: true,
+            priority: stream_options.priority || "background",
+            signal: stream_options.signal,
+          },
+        );
+        return typeof response === "string" ? response : response?.text || "";
+      },
+    };
+    const result = await execute_turn_visualizer({
+      transport: live_transport,
+      round: Number(runtime.round || 1),
+      entities: {
+        AI: type !== "fractal" ? normalize_entity(target_entity) : null,
+        USER: null,
+        FRACTAL: type === "fractal" ? normalize_entity(target_entity) : normalize_entity(runtime.active_fractal),
+      },
+      camera_note,
+      subject_kind,
+      signal,
+    });
+
+    const base_negative = style_def?.negative_prompt || "";
+    const prompt = result.prompt || trimmed_text;
+    const negative_prompt = [base_negative, result.negative_prompt].filter(Boolean).join(", ");
+
+    return { prompt, negative_prompt, resolution: tier_resolution };
+  } catch (err) {
+    console.warn("[execute_visualizer_envision] Visualizer refinement failed, using draft:", err);
+    return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: tier_resolution };
+  }
 }

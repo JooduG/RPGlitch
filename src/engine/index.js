@@ -16,16 +16,24 @@ export { DevLog, dev_log } from "./dev.svelte.js";
 // Pure headless turn orchestration
 export {
   calculate_turn_tempo,
-  TEMPO_OUTPUT_BUDGETS,
   CARETAKER_ROTATION,
   resolve_caretaker_target,
   execute_turn_1_director,
   execute_turn_2_character,
   execute_turn_2_continue,
   execute_turn_3_caretaker,
+  execute_turn_visualizer,
   execute_round,
   build_turn_summary,
 } from "./turns.js";
+
+// Bridge affordances
+export {
+  execute_greenfield_turn,
+  execute_greenfield_continue,
+  execute_ghostwriter,
+  execute_visualizer_envision,
+} from "./bridge.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
 export { compile_prompt, PURPOSE_CORES } from "./prompts.js";
@@ -45,6 +53,3 @@ export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, sc
 
 // Streaming transport boundary
 export { create_transport } from "./transport.js";
-
-// Ghostwriter execution engine
-export { execute_ghostwriter } from "./bridge.js";

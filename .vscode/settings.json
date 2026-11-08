@@ -34,9 +34,7 @@
     "**/pnpm-lock.yaml": true,
     "**/Thumbs.db": true,
     "**/yarn.lock": true,
-    "**/.gemini/config/skills/**/templates": true,
-    "src/media/design.css": true,
-    "src/media/tokens.js": true
+    "**/.gemini/config/skills/**/templates": true
   },
   "[xml]": {
     "editor.defaultFormatter": "redhat.vscode-xml"

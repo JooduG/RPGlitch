@@ -142,7 +142,7 @@ describe("visual.js — Stateless Perchance Image Dispatcher", () => {
 
     it("passes bare prefill to llm_service.generate when camera_note has no style cues or is empty", async () => {
       // Direct unit check on PURPOSE_CORES.visualizer.start_with
-      const { PURPOSE_CORES } = await import("./visualizer.js");
+      const { PURPOSE_CORES } = await import("../engine/prompts.js");
       expect(PURPOSE_CORES.visualizer.start_with()).toBe('{"_thought_process": "');
       expect(PURPOSE_CORES.visualizer.start_with({})).toBe('{"_thought_process": "');
       expect(PURPOSE_CORES.visualizer.start_with({ camera_note: "" })).toBe('{"_thought_process": "');
@@ -286,46 +286,6 @@ Line 3 of thoughts",
       expect(resolve_story_beat_style({ style: "noir" })).toBe("noir");
       expect(resolve_story_beat_style({ entity: { visual_style: "manga" } })).toBe("manga");
       expect(resolve_story_beat_style({})).toBe("none");
-    });
-
-    it("compiles visualizer prompt byte-identically to engine compile_prompt", async () => {
-      const { compile_prompt } = await import("../engine/prompts.js");
-      const { compile_visualizer_prompt } = await import("./visualizer.js");
-
-      const mock_entity = {
-        id: "c1",
-        name: "Vesper",
-        eternal: { physical: "[HAIR: silver] [EYES: blue]", non_physical: "Steadfast" },
-        present: { physical: "[CLOTHING: trench coat]", non_physical: "Alert" },
-        dynamics: { intensity: 75, chaos: 20 },
-      };
-
-      const mock_fractal = {
-        id: "f1",
-        name: "Neon District",
-        eternal: { physical: "[WEATHER: rain]", non_physical: "Dystopian" },
-        present: { physical: "[STREET: flooded]", non_physical: "Sirens wailing" },
-        future: "A blackout approaches",
-        dynamics: { velocity: 40, entropy: 60 },
-      };
-
-      const params_engine = {
-        core: "visualizer",
-        round: 3,
-        entities: { AI: mock_entity, USER: null, FRACTAL: mock_fractal },
-        task_options: { camera_note: "Cinematic wide angle | Aesthetic Style: photo" },
-      };
-
-      const params_media = {
-        round: 3,
-        entities: { AI: mock_entity, USER: null, FRACTAL: mock_fractal },
-        task_options: { camera_note: "Cinematic wide angle | Aesthetic Style: photo" },
-      };
-
-      const engine_prompt = compile_prompt(params_engine);
-      const media_prompt = compile_visualizer_prompt(params_media);
-
-      expect(media_prompt).toBe(engine_prompt);
     });
   });
 });
