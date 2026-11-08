@@ -1,24 +1,24 @@
 # RPGlitch — Live Greenfield Simulation Forensics & Integrity Test Protocol
 
 > **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)  
-> **Protocol Focus**: Live Interactive Roleplay Stress Test & State Audit for the Greenfield Nuclear Architecture  
-> **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/storage/`, and modernized `src/media/` per `tmp/archive/GREENFIELD_REPORT.md` and `nuclear-plan.md`). Covers 1-shot / 2-shot Director execution, Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
+> **Protocol Focus**: Live Interactive Roleplay Stress Test, Early-Story A/B Comparative Forensics, and State Audit for Greenfield Nuclear Architecture  
+> **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/storage/`, and modernized `src/media/` per `nuclear-plan.md`). Features a dedicated **10-Round A/B Comparative Director Note Trial** (Inlined `<think>` Seed vs. Non-Inlined `<TASK>` Stage Direction), alongside Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
 
 ---
 
-## 1. Primary Objectives & Inquiries Under Test (Greenfield Verification)
+## 1. Primary Objectives & Inquiries Under Test
 
-Verify that the Greenfield Nuclear Engine operates flawlessly in real Perchance iframe play with the `GREENFIELD` toggle enabled (`use_greenfield_engine: true`):
+Verify that the Greenfield Nuclear Engine operates flawlessly in real Perchance iframe play with the `GREENFIELD` toggle enabled (`use_greenfield_engine: true`), with special focus on Director Note causality and delivery mechanics:
 
 - **1. Turn Pipeline & Round Sovereignty (`execute_greenfield_turn` $\rightarrow$ `Kernel.submit_turn`)**:
   - Verify player message submission advances through the greenfield turn bridge seamlessly without UI lockup or orphan entries.
   - Verify authoritative macro round counter increments strictly $+1$ per round across turns ($0 \rightarrow 1 \rightarrow 2 \rightarrow \dots$), preventing skipped round stamps or chrono double-increments.
   - Verify assistant message rows in IndexedDB are stamped with `greenfield: true` metadata and the matching round number.
-- **2. 2-Shot Director & Dynamic Pacing (`execute_round` $\rightarrow$ `execute_turn_1_director` $\rightarrow$ `execute_turn_2_character`)**:
-  - Verify Turn 1 Director Quick Shot executes fast JSON staging inference when `director_enabled: true`, outputting `next_action`, `directors_note`, `camera_note`, and clamped `dynamics_deltas` ($[-20, 20]$).
-  - Verify Turn 2 Storyteller receives the Director's note inside the prefilled `<think>` block, reflects the subtext and staging, and streams in-character prose to the player.
-  - Verify dynamic turn tempo budgeting (`calculate_turn_tempo`) enforces sentence/beat constraints (1 beat for $<25$ chars, 2 beats for $<150$ chars, 3 beats for $<500$ chars, 4 beats for $\ge 500$ chars).
-  - Verify 1-shot execution when `director_enabled: false` bypasses Turn 1 and streams character prose directly.
+- **2. Director Staging & A/B Delivery Mechanics (`directors_note_placement`)**:
+  - **Track A (Inlined in `<think>`)**: `directors_note_in_task = false` (`directors_note_placement: "think"`). The Director's note is seeded directly as prompt completion prefix: `<think>${note}\n(`.
+  - **Track B (Non-Inlined / In `<TASK>`)**: `directors_note_in_task = true` (`directors_note_placement: "task"`). The note is delivered under `### Stage Direction` within the `<TASK>` block; `<think>` tag remains clean and unseeded (`<think>\n(`).
+  - Verify Turn 1 Director Quick Shot outputs `next_action`, `directors_note`, `camera_note`, and clamped `dynamics_deltas` ($[-20, 20]$).
+  - Trace the round-by-round causal ripple: **Director Staging $\rightarrow$ Placement Vector $\rightarrow$ Character Cognition (`<think>`) $\rightarrow$ Visible Prose $\rightarrow$ Caretaker State Consolidation $\rightarrow$ Next Round Director Input**.
 - **3. Subconscious Memory & Caretaker 3-Cycle Rotation (`execute_turn_3_caretaker`)**:
   - Verify Turn 3 Caretaker runs asynchronously in the background during player deliberation without introducing UI latency.
   - Verify the consolidation target rotates sequentially across rounds: $\text{AI} \rightarrow \text{USER} \rightarrow \text{FRACTAL}$.
@@ -35,110 +35,135 @@ Verify that the Greenfield Nuclear Engine operates flawlessly in real Perchance 
 - **6. Media & Sensory Dispatch (`src/media/`)**:
   - Verify image diffusion requests route through `dispatch_visual_generation` with proper resolution of host `{ dataUrl }` and `{ image }` shapes without throwing `EMPTY_IMAGE_RESPONSE`.
   - Verify profile picture generation and regeneration in `VisualWing.svelte` persist `payload.url` to the entity.
-  - Verify context menu "Generate AI Character Image" runs through `VisualEngine.enhance()` before dispatching to `visualize()`.
-  - Verify procedural Web Audio sound effects (`play_sfx`) fire on direct user gesture and Web Speech API fallback functions safely without audio context crashes.
 - **7. Transactional Rollback & Transport Resilience**:
   - Verify aborted or failed generation triggers `Kernel.submit_turn` rollback (restoring previous dynamics, reverting round count, and pruning orphan history entries).
   - Verify single-lane transport mutex (`create_transport`) serializes foreground and background requests safely.
 
 ---
 
-## 2. Turn-by-Turn Narrative Stress Test Matrix (20–25 Turns)
+## 2. The 10-Round Comparative A/B Protocol: Director Note Inlined vs. Non-Inlined
 
-```text
-[T0: Genesis & Greenfield Arming] ──► [T1–T3: 2-Shot Staging & Caretaker Cycle] ──► [T4–T6: Pacing & Epistemic Plant]
-                                                                                               │
-[T16–T20: Scaling Window & Image Pipeline] ◄── [T11–T15: Pacing Contrasts & Retries] ◄── [T7–T10: 1-Shot & Rollback] ◄┘
+To provide the empirical material needed for an upcoming architectural decision on how to manage Director's notes, the testing agent must run **two parallel, as-identical-as-possible story sessions of 10 rounds each**, varying *only* the Director note placement parameter.
+
+### 2.1 Test Track Configuration
+
+| Parameter | Track 1: Inlined `<think>` Seed | Track 2: Non-Inlined / In `<TASK>` |
+| :--- | :--- | :--- |
+| **Engine** | Greenfield (`use_greenfield_engine: true`) | Greenfield (`use_greenfield_engine: true`) |
+| **Director Enabled** | `director_enabled: true` | `director_enabled: true` |
+| **Console Setting** | **`DIR IN TASK` = OFF** (`directors_note_in_task: false`) | **`DIR IN TASK` = ON** (`directors_note_in_task: true`) |
+| **Prompt Placement** | `directors_note_placement: "think"` | `directors_note_placement: "task"` |
+| **`<think>` Injection** | `startWith: "<think>${note}\n("` | `startWith: "<think>\n("` |
+| **`<TASK>` Injection** | *None* (omitted from task instructions) | Injected under `### Stage Direction` |
+| **Entities** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** |
+| **Seed Inputs** | Identical Scripted Dialogue Matrix (Rounds 1–10) | Identical Scripted Dialogue Matrix (Rounds 1–10) |
+
+---
+
+### 2.2 Scripted 10-Round Dialogue Matrix (Identical Player Inputs)
+
+Both tracks must be stimulated with the exact same sequence of player messages to isolate the downstream effects of note placement:
+
+- **Round 1 (Opening Anchor)**:  
+  `"Check your harness, Orion. Nova City power grid is surging, and the neon along 4th Avenue just blinked out."`
+- **Round 2 (Commitment & Trade)**:  
+  `"Here — take the Silvers courier key. We use it at the rooftop relay mast before the security drone sweeps."`
+- **Round 3 (Environmental Hazard)**:  
+  `"The storm sirens across Sector 4 just went dead. That's not a blackout, Orion — someone severed the conduits."`
+- **Round 4 (Micro-Pacing Probe — < 25 Chars)**:  
+  `"Keep low."`
+- **Round 5 (Secret Plant & Tension)**:  
+  *(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)*  
+  `"If we split up at the catwalk, do not look back. Just get to the upper transformer."`
+- **Round 6 (Expansive Narrative Probe — > 500 Chars)**:  
+  `"I pull my thermal hood tight against the freezing mist rising off the exhaust vents. Below us, the entire undercity grid looks like exposed veins of dead copper. I've spent three years mapping the bypass conduits behind the megacorp signboards, but tonight the pressure gauges are redlining in reverse. Listen to me, Orion: when that substation blows, the blast wave will travel upward through the elevator shafts. We have ninety seconds to anchor the bypass clamp or the whole district goes dark permanently."`
+- **Round 7 (Direct Sensory Challenge)**:  
+  `"Your pink light is blinding in this rain. Can you dim the glow, or are you trying to announce us to the perimeter scouts?"`
+- **Round 8 (Climactic Pivot)**:  
+  `"The relay hatch is jammed with melted solder. Give me your shoulder — force the lever while I ground the terminal!"`
+- **Round 9 (High-Stakes Action)**:  
+  `"Look out! Spark shower from the feeder line!"`
+- **Round 10 (Scene Resolution / Cliffhanger)**:  
+  `"Grid stabilized... but the signature on the terminal isn't syndicate code. Orion, look at this crest. Who really gave you this assignment?"`
+
+---
+
+### 2.3 Round-by-Round Causal Sequence Tracker
+
+During each round, the testing agent must document the **precise causal chain**:
+
+```mermaid
+flowchart TD
+    P["1. Player Input"] --> D["2. Shot 1: Director Quick Shot<br>(Note & Dynamics Deltas)"]
+    D --> V["3. Delivery Vector<br>(Track 1: inlined think vs Track 2: TASK)"]
+    V --> C["4. Shot 2: Storyteller Inference<br>(think Cognition & Visible Prose)"]
+    C --> K["5. Quality & Leak Audit<br>(Adherence, Tone, Kayfabe, Meta-Syntax)"]
+    C --> CT["6. Shot 3: Caretaker Subconscious<br>(Quad Bracket Diffs & Persistence)"]
+    CT --> N["7. Next Round Director Input<br>(Mutated State Feeds Next Turn)"]
 ```
 
----
+For every round (1 through 10), record the telemetry under these specific headings:
 
-### Phase 1: Genesis, Greenfield Arming & 3-Cycle Caretaker (Turns 0–3)
-
-- **Turn 0 — Genesis, Engine Selection & Baseline Verification**:
-  - _Action_: Launch a fresh story session using premades (AI **Orion the Pink Protector**, USER **Glitch**, FRACTAL **Nova City**). Open the Console / DevControls (`DEVMODE`) and toggle the **`GREENFIELD`** switch to ON (`use_greenfield_engine: true`). Ensure `director_enabled: true`.
-  - _Audit Gate_: Verify `[Kernel]` initializes with `round: 0`. Inspect prompt compilation in DevTools console: confirm `<SYSTEM round="0" identity="...">` root envelope, correct tag sequence (`REALITY` $\rightarrow$ `CHARACTERS` $\rightarrow$ `SCENARIO` $\rightarrow$ `TRAJECTORY` $\rightarrow$ `TASK`), and zero legacy mustache template leaks (`{{char}}`, `{{user}}`).
-- **Turn 1 — Turn 1 Director Staging $\rightarrow$ Turn 2 Character $\rightarrow$ Turn 3 AI Caretaker**:
-  - _Action_: Player sends a grounded introductory message (_"Check your harness, Orion. Nova City power grid is surging."_).
-  - _Audit Gate_:
-    - **Shot 1**: Director Quick Shot executes; outputs `next_action: "ai"`, `directors_note`, and valid `dynamics_deltas` within $[-20, 20]$.
-    - **Shot 2**: Character streams prose; inner `<think>` block opens with Director's note prefill and closes cleanly before dialogue.
-    - **Shot 3**: Background Caretaker consolidation fires targeting **Orion** (`Target = 1 % 3 = 1` $\rightarrow$ AI). Inspect IndexedDB to verify new bracket updates in Orion's state.
-    - **Round Stamp**: Confirm assistant reply is stored in IndexedDB with `greenfield: true` and stamped with `round: 1`.
-- **Turn 2 — Caretaker Rotation to User Persona**:
-  - _Action_: Player offers a significant narrative commitment or trade (_"Here — take the Silvers courier key. We use it at the relay mast."_).
-  - _Audit Gate_:
-    - Caretaker consolidation fires targeting **Glitch** (`Target = 2 % 3 = 2` $\rightarrow$ User).
-    - Verify Glitch's state in IndexedDB records new bracket diffs (e.g. `[EVENT: Glitch offered a Silvers courier key... | w: 5]`) and updated user dynamics persist.
-- **Turn 3 — Caretaker Rotation to Fractal / Environment**:
-  - _Action_: Player shifts focus to the environment (_"The storm sirens across Sector 4 just went dead."_).
-  - _Audit Gate_:
-    - Caretaker consolidation fires targeting **Nova City** (`Target = 3 % 3 = 0` $\rightarrow$ Fractal).
-    - If no world-shattering event occurred, verify clean no-op without fabricating bogus state diffs.
+1. **Trigger Input**: The exact player message sent.
+2. **Director Quick Shot Output**:
+   - `directors_note`: Exact string produced.
+   - `dynamics_deltas`: Numerical shifts applied to entity axes.
+   - `next_action`: Staging intent (`"ai"`, `"user"`, etc.).
+3. **Delivery & Cognition Analysis (`<think>`)**:
+   - **Track 1**: How did the character's `<think>` evolve from the seeded note? Did the model immediately parrot the note, elaborate naturally, or experience cognitive derailment?
+   - **Track 2**: How did the character's unseeded `<think>` interpret the `### Stage Direction` from `<TASK>`? Was internal reasoning more autonomous?
+4. **Prose Delivery & Stage Adherence**:
+   - Did the character physically/narratively execute the Director's note?
+   - Did the opening beat feel organic or mechanically forced?
+   - Did any meta-syntax, bracket markers, or Director phrasing leak into the spoken dialogue?
+5. **Caretaker Mutation & Downstream Feed**:
+   - What bracket updates were parsed and persisted to IndexedDB?
+   - How did these new state brackets alter the character's profile for the *subsequent* round's Director evaluation?
+6. **Divergence Delta**:
+   - How did Track 1 and Track 2 branch at this turn? Document where and why the two stories begin to tell different tales despite identical inputs.
 
 ---
 
-### Phase 2: Pacing Budgets, Epistemic Wall & 1-Shot Bypass (Turns 4–10)
+### 2.4 Comparative Decision Scorecard (To Be Completed by Tester Agent)
 
-- **Turn 4 — Input-Proportional Pacing (Tiny Input)**:
-  - _Action_: Player enters a very short message (< 25 chars: _"Nod."_ or _"Keep moving."_).
-  - _Audit Gate_: Verify `calculate_turn_tempo` assigns a 1-beat budget. Storyteller output delivers 1 snappy, concise beat without ballooning into multi-paragraph exposition.
-- **Turn 5 — Epistemic Wall Secret Planting (`| hide`)**:
-  - _Action_: Open Profile Studio for Glitch. Add a hidden bracket to `present.non_physical`: `[SECRET_GOAL: betray the syndicate at midnight | hide]`. (Plant through UI profile editor to ensure in-memory state is synchronized). Then send a normal, unrelated message.
-  - _Audit Gate_:
-    - Inspect compiled prompts for Director, Character, and Caretaker in DevTools console.
-    - Confirm `SECRET_GOAL` is completely redacted from the Character core prompt (`see_hidden: "own"` strips counterpart hidden brackets).
-    - Confirm AI character exhibits zero telepathic knowledge in `<think>` cognition or spoken dialogue.
-- **Turn 6 — Input-Proportional Pacing (Expansive Input)**:
-  - _Action_: Player authors a detailed, multi-sentence prompt (> 500 chars) exploring physical environment, sensory details, and tactical planning.
-  - _Audit Gate_: Verify `calculate_turn_tempo` assigns a 4-beat budget. Storyteller output delivers rich, expansive multi-beat prose advancing the scene.
-- **Turns 7–8 — 1-Shot Mode Toggle (Director Bypass)**:
-  - _Action_: In DevControls, toggle `director_enabled` to OFF. Send a player message.
-  - _Audit Gate_: Verify Turn 1 Director call is completely bypassed. Generation proceeds immediately to Turn 2 Character, followed by normal background Caretaker consolidation.
-- **Turn 9 — Abort & Transactional Rollback Audit**:
-  - _Action_: Send a message, then click the **Stop** button mid-stream.
-  - _Audit Gate_:
-    - Verify `simulation_state` returns to `"idle"`.
-    - Verify round counter rolls back to previous value without leaving an orphan user message in transcript history.
-    - Verify entity dynamics restore cleanly to their pre-turn values.
-- **Turn 10 — Greenfield Retry Execution**:
-  - _Action_: Click the message Regenerate / Retry button on the last turn.
-  - _Audit Gate_: Verify generation retries on the **greenfield** branch, executing a fresh prompt compilation rather than throwing missing method errors.
+At the conclusion of the 10-round comparison, synthesize the findings across these key architectural criteria:
+
+| Dimension | Track 1 (Inlined `<think>`) | Track 2 (Non-Inlined `<TASK>`) | Verdict & Tradeoff Summary |
+| :--- | :--- | :--- | :--- |
+| **Director Adherence** | *Score 1–5:* Does character obey the staging note? | *Score 1–5:* Does character obey the staging note? | Which placement reliably steers action without being ignored? |
+| **Cognitive Autonomy** | *Observation:* Quality of reasoning inside `<think>`. | *Observation:* Quality of reasoning inside `<think>`. | Does inlining hijack the LLM's chain-of-thought, or help prime it? |
+| **Prose Naturalism** | *Observation:* Does speech feel organic or scripted? | *Observation:* Does speech feel organic or scripted? | Does one placement produce stiffer, more puppeted dialogue? |
+| **Kayfabe & Leak Resistance** | *Count:* Director phrase leaks into spoken text. | *Count:* Director phrase leaks into spoken text. | Which vector poses greater risk of breaking character? |
+| **Token & Time Overhead** | *Metrics:* Generation latency & token consumption. | *Metrics:* Generation latency & token consumption. | Is there a measurable latency or token difference? |
+| **Downstream State Stability** | *Observation:* Volatility of Caretaker bracket updates. | *Observation:* Volatility of Caretaker bracket updates. | Does one method produce more coherent long-term memory diffs? |
 
 ---
 
-### Phase 3: Sensory Cortex, Scaling Window & Diffusion (Turns 11–20)
+## 3. Extended Narrative Stress Test Matrix (Turns 11–20)
+
+Once the 10-round A/B trial is logged, continue the winning track through Turns 11–20 to audit long-term engine stability:
 
 - **Turn 11 — Context Cliff Sliding Window (Turn 8+ Check)**:
-  - _Action_: Advance dialogue through turn 11.
-  - _Audit Gate_:
-    - Inspect the compiled prompt length in DevTools console.
-    - Verify dialogue history is sliced to the canonical `TEMPO_ROUNDS.STANDARD = 8` working-memory window.
-    - Confirm total compiled prompt character count remains safely below host truncation thresholds (~20–22k chars, ~6k tokens), with zero middle-out truncation warnings from the host plugin.
+  - Verify dialogue history is sliced to the canonical `TEMPO_ROUNDS.STANDARD = 8` working-memory window.
+  - Confirm compiled prompt length remains safely below host truncation thresholds (~20–22k chars, ~6k tokens), with zero middle-out truncation warnings.
 - **Turn 12 — Visual Optics Enhancement Pass (`VisualEngine.enhance`)**:
-  - _Action_: Right-click Orion's EntityCard or use the message context menu and click **"Generate AI Character Image"**.
-  - _Audit Gate_:
-    - Verify the request calls `visual_engine.enhance(prompt, subject, entity)`.
-    - Verify the greenfield `visualizer` purpose core compiles and executes an LLM refinement pass (returning structured `{ prompt, negative_prompt }`).
-    - Verify diffusion dispatches with the refined prompt, situating the character within the active fractal setting.
+  - Right-click Orion's EntityCard and select **"Generate AI Character Image"**.
+  - Verify the `visualizer` purpose core compiles and executes an LLM refinement pass (`{ prompt, negative_prompt }`) situating Orion within Nova City.
 - **Turn 13 — Visual Style Raw Bypass (`llm_refine: false`)**:
-  - _Action_: In Profile Studio, switch visual style to `none` (or a style configured with `llm_refine: false`). Trigger image generation.
-  - _Audit Gate_: Verify `VisualEngine.enhance()` detects the bypass and returns the draft prompt untouched without calling the LLM.
+  - Switch visual style to `none` (or a style configured with `llm_refine: false`). Trigger image generation.
+  - Verify `VisualEngine.enhance()` returns draft prompt untouched without calling the LLM.
 - **Turn 14 — Profile Picture Generation & Persistence**:
-  - _Action_: Open `VisualWing.svelte` in Profile Studio and generate a new portrait.
-  - _Audit Gate_: Verify `VisualEngine.generate()` returns `{ ...dispatched, url: dispatched.image_url }`, allowing `VisualWing` (`if (payload?.url)`) to cleanly update and persist `profile_picture`.
+  - Open `VisualWing.svelte` in Profile Studio and generate a new portrait. Verify payload URL updates and persists to entity state in IndexedDB.
 - **Turns 15–18 — Origin Attribution & Multi-Role History**:
-  - _Action_: Roleplay across varied scene shifts involving environmental announcements and system events.
-  - _Audit Gate_: Verify `<ROUND number="..." origin="...">` in compiled prompts cleanly attributes speakers (`user`, `ai`, `fractal`, `system`) without misattributing narrative events to the wrong entity.
-- **Turns 19–20 — Audio SFX & Web Speech Verification**:
-  - _Action_: Interact with buttons and UI toggles; trigger dialogue speech where available.
-  - _Audit Gate_:
-    - Verify procedural Web Audio sound effects (`play_sfx`) play cleanly on user gesture with 0 downloaded assets.
-    - Verify `speak` calls route safely through the native Web Speech API without locking or throwing unhandled errors.
+  - Roleplay across scene shifts involving environmental announcements and system events. Verify `<ROUND origin="...">` tags preserve accurate speaker roles (`user`, `ai`, `fractal`, `system`).
+- **Turn 19 — Abort & Transactional Rollback Audit**:
+  - Send a message, then click **Stop** mid-stream. Verify simulation returns to `"idle"`, round counter rolls back, and no orphan messages persist in IndexedDB.
+- **Turn 20 — Procedural Web Audio & Speech Fallback**:
+  - Interact with UI controls and verify procedural Web Audio sound effects (`play_sfx`) execute safely without audio context errors.
 
 ---
 
-## 3. Forensic Telemetry & Inspection Guide (For Tester Agent)
+## 4. Forensic Telemetry & Inspection Guide (For Tester Agent)
 
 Execute the test in the live browser environment against the deployed Perchance generator:
 
@@ -150,23 +175,24 @@ Execute the test in the live browser environment against the deployed Perchance 
    - Check `entities` table: verify 4 quadrants (`eternal`, `present`, `future`, `past`) are stored as clean multiline strings.
    - Check `stories` table: verify log rows contain `greenfield: true` and synchronized round numbers.
    - Check `mutation_ledger`: verify event diffs recorded by Caretaker and genesis.
-3. **DevControls & DevLog Panel**:
-   - Use the **`GREENFIELD`** toggle to switch engines dynamically.
+3. **DevControls & Settings Toggles**:
+   - Use the **`GREENFIELD`** toggle to verify engine mode.
+   - Toggle **`DIR IN TASK`** (`app.settings.directors_note_in_task`) between **OFF** (Track 1: inlined `<think>`) and **ON** (Track 2: `<TASK>` stage direction).
    - Inspect `dev_log` ring-buffer entries for `DYNAMICS_DELTA`, `TURN_TEMPO`, and staging decisions.
 
 ---
 
-## 4. Greenfield Quality Scorecard
+## 5. Greenfield Quality Scorecard
 
 ### Kernel & Turn Orchestration
 
 - [ ] **Authoritative Round Sovereignty**: Macro round increments strictly $+1$ per round ($0 \rightarrow 1 \rightarrow 2\dots$), matching IndexedDB reply stamps.
 - [ ] **2-Shot Director Execution**: Director JSON staging produces valid `next_action`, `directors_note`, and $[-20, 20]$ dynamics deltas.
+- [ ] **A/B Director Note Placement**: Both Track 1 (`placement: "think"`) and Track 2 (`placement: "task"`) execute without compile errors.
 - [ ] **1-Shot Direct Streaming**: Disabling Director bypasses Turn 1 and streams character prose directly.
 - [ ] **Dynamic Pacing Budget**: `calculate_turn_tempo` enforces 1/2/3/4-beat constraints matching player message lengths.
 - [ ] **Caretaker 3-Cycle Rotation**: Consolidation alternates sequentially between AI $\rightarrow$ User $\rightarrow$ Fractal each round.
 - [ ] **Transactional Rollback**: Stream abort or failure rolls back round count, entity dynamics, and orphan messages.
-- [ ] **Greenfield Retry**: Message retry/regeneration executes cleanly on the greenfield branch without missing-method crashes.
 
 ### Memory & Prompt Architecture
 
@@ -183,10 +209,10 @@ Execute the test in the live browser environment against the deployed Perchance 
 - [ ] **Style Bypass (`llm_refine: false`)**: Preserves draft prompts untouched when visual style opts out of LLM refinement.
 - [ ] **Profile Picture Persistence**: `VisualEngine.generate()` returns `url` alias, updating `profile_picture` in `VisualWing`.
 - [ ] **Procedural Web Audio**: UI sound effects (`play_sfx`) play cleanly on user gesture with 0 downloaded MP3/WAV assets.
-- [ ] **Web Speech API**: Positional speech calls route cleanly through browser TTS without crashing.
 
 ### Narrative Quality & Roleplay Purity
 
 - [ ] **Immersion & Tone**: Dense, sensory, scene-faithful prose without meta-commentary or breaking kayfabe.
 - [ ] **Perspective Integrity**: Third-person limited / first-person non-user voice maintained without mind-reading or puppeteering the protagonist.
 - [ ] **Directive Adherence**: Storyteller incorporates Director's subtext notes without mechanical leak into speech bubbles.
+- [ ] **A/B Decision Findings**: Documented trade-offs between inlined `<think>` seed vs. `<TASK>` stage direction delivered with concrete evidence.
