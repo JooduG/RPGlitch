@@ -84,12 +84,6 @@
       "@ui/*": [
         "src/ui/*"
       ],
-      "@message": [
-        "src/ui/message/index.js"
-      ],
-      "@message/*": [
-        "src/ui/message/*"
-      ],
       "@entity": [
         "src/ui/entity/index.js"
       ],

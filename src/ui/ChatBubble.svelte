@@ -1,23 +1,208 @@
+<script module>
+  /**
+   * 🔭 TELEMETRY FORMATTERS
+   * Pure helpers that turn Director/continuum metadata (DYNAMICS_DELTA, telemetry
+   * cards) into renderable per-entity blocks.
+   */
+  const ENTITY_KEYS = {
+    AI_CHARACTER: "ai",
+    USER_PERSONA: "user",
+    FRACTAL: "fractal",
+  };
+
+  /**
+   * Resolves a telemetry entity key to its display name — the runtime's active
+   * entity when available, otherwise a static label. Unknown keys pass through.
+   * @param {string} key
+   * @param {{ active_ai?: any, active_user?: any, active_fractal?: any, active_npcs?: Record<string, any> }} [runtime]
+   * @returns {string}
+   */
+  export function resolve_entity_name(key, runtime) {
+    const map = {
+      AI_CHARACTER: () => runtime?.active_ai?.name || "AI CHARACTER",
+      USER_PERSONA: () => runtime?.active_user?.name || "USER PERSONA",
+      FRACTAL: () => runtime?.active_fractal?.name || "FRACTAL",
+      ai: () => runtime?.active_ai?.name || "AI CHARACTER",
+      user: () => runtime?.active_user?.name || "USER PERSONA",
+      fractal: () => runtime?.active_fractal?.name || "FRACTAL",
+    };
+    const resolver = map[key];
+    if (resolver) return resolver();
+    if (runtime?.active_npcs?.[key]?.name) {
+      return runtime.active_npcs[key].name;
+    }
+    return String(key ?? "");
+  }
+
+  /**
+   * Derives the title label for a telemetry card based on event type and metadata.
+   * @param {any} meta
+   * @param {{ active_ai?: any, active_user?: any, active_fractal?: any, active_npcs?: Record<string, any> }} [runtime]
+   * @returns {string}
+   */
+  export function get_telemetry_label(meta, runtime) {
+    if (meta?.type === "MEMORY_FORMATION" || meta?.type === "CONTINUUM_FORMATION") {
+      const name = resolve_entity_name(meta.target, runtime);
+      const turns = meta.turns_count ? ` from ${meta.turns_count} turns` : "";
+      return `${name} — Back Shot${turns}`;
+    }
+    if (meta?.type === "VECTOR_RESOLUTION") {
+      return "Past Vector Resolved";
+    }
+    return "Quick Shot";
+  }
+
+  export function vector_label(type, fallback = "past") {
+    if (type == null) return fallback === "memory" || fallback === "past" ? "PAST" : fallback.toUpperCase();
+    const t = String(type).toUpperCase();
+    if (t === "PAST" || t === "MEMORY") return "PAST";
+    if (t === "FUTURE" || t === "AGENDUM") return "FUTURE";
+    if (t === "PRESENT") return "PRESENT";
+    if (t === "ETERNAL") return "ETERNAL";
+    return t;
+  }
+
+  /**
+   * Cleans comma debris, double commas, and leading/trailing punctuation from prose strings.
+   * @param {any} text
+   * @returns {string}
+   */
+  export function clean_text_debris(text) {
+    if (text == null) return "";
+    let s = String(text).trim();
+    s = s.replace(/^[\s,;]+/g, "");
+    s = s.replace(/,(\s*,)+/g, ",");
+    s = s.replace(/[\s,;]+$/g, "");
+    return s.trim();
+  }
+
+  /**
+   * Parses a directed relationship edge string or object into a structured object.
+   * @param {any} edge
+   * @returns {{ source: string, target: string, dynamic: string } | null}
+   */
+  export function parse_relationship_edge(edge) {
+    if (!edge) return null;
+    if (typeof edge === "object") {
+      const source = String(edge.source || "").trim();
+      const target = String(edge.target || "").trim();
+      const dynamic = String(edge.dynamic ?? edge.content ?? "").trim();
+      if (!source && !target && !dynamic) return null;
+      return { source: source || "Entity", target: target || "Target", dynamic };
+    }
+    if (typeof edge === "string") {
+      const match = String(edge).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
+      if (!match) return null;
+      const [, source, target, dynamic] = match;
+      const s = source.trim();
+      const t = target.trim();
+      const d = dynamic.trim();
+      if (!s && !t && !d) return null;
+      return { source: s || "Entity", target: t || "Target", dynamic: d };
+    }
+    return null;
+  }
+
+  /**
+   * Projects a DYNAMICS_DELTA `updates` map into renderable per-entity blocks.
+   * @param {any} meta
+   * @returns {Array<any>}
+   */
+  export function process_entity_blocks(meta) {
+    const updates = meta?.updates && typeof meta.updates === "object" ? meta.updates : {};
+    const blocks = [];
+    for (const [key, raw] of Object.entries(updates)) {
+      if (!raw || typeof raw !== "object") continue;
+      const block_key = ENTITY_KEYS[key];
+      if (!block_key) continue;
+
+      const dynamics = (Array.isArray(raw.dynamics) ? raw.dynamics : []).map((d) => ({
+        axis: d.axis,
+        value: d.new_value,
+        old_value: d.old_value,
+        new_value: d.new_value,
+        diff: d.diff,
+        has_delta: true,
+      }));
+
+      const new_vectors = (Array.isArray(raw.vectors?.new) ? raw.vectors.new : []).map((v) => ({
+        type: v.type,
+        weight: v.emotional_weight,
+        ...(v.id ? { id: v.id } : {}),
+        content: clean_text_debris(v.content),
+      }));
+
+      const retrieval = (Array.isArray(raw.vectors?.retrieval) ? raw.vectors.retrieval : []).map((v) => ({
+        type: v.type,
+        id: v.id,
+        content: clean_text_debris(v.content),
+        relevance: v._relevance,
+      }));
+
+      const physical = clean_text_debris(raw.present_mutations?.physical ?? "");
+      const non_physical = clean_text_debris(raw.present_mutations?.non_physical ?? "");
+      const eternal_physical = clean_text_debris(raw.eternal_mutations?.physical ?? "");
+      const eternal_non_physical = clean_text_debris(raw.eternal_mutations?.non_physical ?? "");
+      const has_mods = !!eternal_physical || !!eternal_non_physical;
+      const raw_relationships = Array.isArray(raw.relationships)
+        ? raw.relationships
+        : Array.isArray(meta?.relationships) && ((meta.consolidated_entity ?? meta.forged_entity) === block_key || meta.target === key)
+          ? meta.relationships
+          : [];
+      const relationships = raw_relationships
+        .map(parse_relationship_edge)
+        .filter((r) => r !== null && (r.source !== "Entity" || r.target !== "Target" || r.dynamic));
+
+      if (
+        !dynamics.length &&
+        !new_vectors.length &&
+        !retrieval.length &&
+        !physical &&
+        !non_physical &&
+        !eternal_physical &&
+        !eternal_non_physical &&
+        !relationships.length
+      ) {
+        continue;
+      }
+
+      blocks.push({
+        key: block_key,
+        name: raw.name || resolve_entity_name(key, {}),
+        physical,
+        non_physical,
+        eternal_physical,
+        eternal_non_physical,
+        dynamics,
+        new_vectors,
+        retrieval,
+        relationships,
+        has_mods,
+      });
+    }
+    return blocks;
+  }
+</script>
+
 <script>
   /**
-   * @file src/ui/message/ChatBubble.svelte
+   * @file src/ui/ChatBubble.svelte
    * 💬 THE SOVEREIGN CHAT BUBBLE
    * Unified message chassis consolidating message headers, narrative prose,
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
-  import { parse_message } from "../Storymode.svelte";
+  import { parse_message } from "./Storymode.svelte";
   import { resolve_speaking_style, safe_html } from "@utils";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
   import { ProfilePicture } from "@image";
-  import { image_picker, open_picker } from "../image/ImagePicker.svelte.js";
-  import ContextMenu from "../entity/ContextMenu.svelte";
-  import { claim_menu } from "../entity/ContextMenu.svelte.js";
+  import { image_picker, open_picker } from "./image/ImagePicker.svelte.js";
+  import ContextMenu from "./entity/ContextMenu.svelte";
+  import { claim_menu } from "./entity/ContextMenu.svelte.js";
   import { app, runtime, simulation_log, simulation_state } from "@state";
   import { get_resolution } from "@media";
   import Typewriter from "./Typewriter.svelte";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
   import { EntityCard } from "@entity";
-  import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label, clean_text_debris } from "./telemetry-format.js";
   import { get_percentage } from "@utils";
   import { parse_bracket_entries, strip_bracket_engine_flags } from "@storage";
 

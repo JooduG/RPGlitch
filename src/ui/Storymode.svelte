@@ -333,7 +333,7 @@
   import { ProfilePicture } from "@image";
   import { motion, item_in, update_card_scrub, clear_card_location } from "@media";
   import { simulation_log, chrono_engine } from "@state";
-  import ChatBubble from "./message/ChatBubble.svelte";
+  import ChatBubble from "./ChatBubble.svelte";
   import UndoToast from "./UndoToast.svelte";
 
   // --- CONTEXT MENU BUILDERS ---

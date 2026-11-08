@@ -7,7 +7,7 @@ import {
   vector_label,
   parse_relationship_edge,
   clean_text_debris,
-} from "./telemetry-format.js";
+} from "./ChatBubble.svelte";
 
 describe("TelemetryCard Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {

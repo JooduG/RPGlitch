@@ -17,7 +17,6 @@ export default defineConfig({
       "@state": path.resolve(import.meta.dirname, "./src/state"),
       "@media": path.resolve(import.meta.dirname, "./src/media"),
       "@ui": path.resolve(import.meta.dirname, "./src/ui"),
-      "@message": path.resolve(import.meta.dirname, "./src/ui/message"),
       "@entity": path.resolve(import.meta.dirname, "./src/ui/entity"),
       "@profile": path.resolve(import.meta.dirname, "./src/ui/profile"),
       "@image": path.resolve(import.meta.dirname, "./src/ui/image"),

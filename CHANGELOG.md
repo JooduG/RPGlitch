@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate Message Layer into Top-Level `@ui` & Retire `src/ui/message/`**:
+  - Inlined pure telemetry parsing and formatting helpers (`get_telemetry_label`, `process_entity_blocks`, `resolve_entity_name`, `vector_label`, `parse_relationship_edge`, `clean_text_debris`) from `telemetry-format.js` into `<script module>` in [`src/ui/ChatBubble.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/ChatBubble.svelte).
+  - Relocated [`ChatBubble.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/ChatBubble.svelte), [`Typewriter.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Typewriter.svelte), and [`Typewriter.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Typewriter.svelte.js) to top-level `src/ui/`, re-exporting them from [`src/ui/index.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/index.js).
+  - Relocated unit tests and benchmarks to `src/ui/` (`ChatBubble.test.js`, `render.test.js`, `feed-dom-benchmark.test.js`).
+  - Completely purged the `src/ui/message/` folder and retired the `@message` alias across `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `audit-layers.js`.
+
 - **Consolidate ImagePicker into `src/ui/image/ImagePreview.svelte` & Relocate StoryCard to `@ui`**:
   - Merged [`src/ui/image/ImagePicker.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/image/ImagePicker.svelte) directly into [`src/ui/image/ImagePreview.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/image/ImagePreview.svelte) as an internal Svelte 5 snippet (`picker_overlay`), providing candidate variant switching, thumbnail selection, and custom image uploads.
   - Deleted redundant `src/ui/image/ImagePicker.svelte` and pruned legacy `@image` barrel export.
