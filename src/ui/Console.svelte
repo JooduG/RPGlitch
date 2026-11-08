@@ -234,7 +234,9 @@
   function adjust_height() {
     if (!textarea) return;
     textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    const next_height = Math.min(textarea.scrollHeight, 240);
+    textarea.style.height = `${next_height}px`;
+    textarea.style.overflowY = textarea.scrollHeight > 240 ? "auto" : "hidden";
   }
 
   async function send_or_restore(text) {
@@ -494,6 +496,7 @@
     class="
       m-0
       box-border
+      max-h-60
       flex-1
       resize-none
       border-none

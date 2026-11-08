@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Bound Composer Height & Overflow in Storymode (`src/ui/Console.svelte`)**:
+  - Capped composer `<textarea>` height to a maximum of 240px (`max-h-60`) in `adjust_height()` with `overflow-y: auto`, preventing long multi-paragraph ghostwrite drafts from exploding the console upward across the entire screen.
+
+- **Pin Storymode Scrollbar to Viewport Right Edge (`src/ui/Storymode.svelte`)**:
+  - Enforced `position: fixed !important; right: 0 !important; top: 0 !important; bottom: 0 !important; height: 100dvh !important; z-index: 9999 !important;` on `[data-orientation="vertical"]` within `[data-id="storymode-scroll-area"]`, anchoring the scrollbar cleanly against the rightmost viewport boundary.
+
+- **Consolidate Telemetry Cards by Quadrant (`src/ui/ChatBubble.svelte`)**:
+  - Introduced `temporal_quadrant` snippet replacing per-bracket `temporal_row` loops.
+  - Grouped all bracket mutations under their respective quadrant headers (`ETERNAL`, `PRESENT`, `FUTURE`, `PAST`) inside a single cohesive card per quadrant, eliminating repetitive 10+ stacked row cards.
+
 - **Fix Card Scrub Opacity Crash & Begin-Story Flight TypeError (`src/media/motion.svelte.js`, `src/media/motion.test.js`)**:
   - Restored canonical `update_card_scrub()`, `clear_card_location()`, `capture_storyboard_flight()`, and `fly_storyboard_cards_into_prologue(assets, dst_rects)` implementations from `card-flight.svelte.js` that had been overwritten with mismatched signatures in `src/media/motion.svelte.js`.
   - Fixed `TypeError: Cannot set properties of undefined (setting 'opacity')` thrown on every scroll/resize frame in `Storymode.svelte` (`update_card_scrub({ pending })` previously treated its options object as an `HTMLElement` and called `clear_card_location(target_card)` which accessed `target_card.style.opacity`).

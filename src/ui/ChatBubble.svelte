@@ -1037,15 +1037,25 @@
   {/if}
 {/snippet}
 
-{#snippet temporal_row(label, content, isMuted = false)}
-  {#if clean_text_debris(content)}
+{#snippet temporal_quadrant(label, items, isMuted = false)}
+  {@const clean_items = (Array.isArray(items) ? items : [items])
+    .filter(Boolean)
+    .filter((it) => clean_text_debris(typeof it === "string" ? it : it?.content || it?.directive || ""))}
+  {#if clean_items.length > 0}
     <div
       class="flex gap-4 rounded-sm border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
         ? 'border-l-slate-500 bg-black/20'
         : 'border-l-(--color-dev-accent) bg-black/40'}"
     >
       <span class="w-28 shrink-0 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">{label}</span>
-      <span class="flex-1 {isMuted ? 'text-slate-300' : 'text-slate-200'}" use:safe_html={render_telemetry_text(content)}></span>
+      <div class="flex flex-1 flex-col gap-1.5 {isMuted ? 'text-slate-300' : 'text-slate-200'}">
+        {#each clean_items as item, i (i)}
+          {@const text = typeof item === "string" ? item : item.content || item.directive}
+          <div>
+            <span use:safe_html={render_telemetry_text(text)}></span>
+          </div>
+        {/each}
+      </div>
     </div>
   {/if}
 {/snippet}
@@ -1157,23 +1167,25 @@
                     <!-- TEMPORAL ROWS -->
                     {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
                       <div class="flex flex-col gap-1.5 pt-1">
-                        {#each extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`) as item, i (i)}
-                          {@render temporal_row("ETERNAL", item)}
-                        {/each}
-                        {#each extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`) as item, i (i)}
-                          {@render temporal_row("PRESENT", item)}
-                        {/each}
+                        {@render temporal_quadrant(
+                          "ETERNAL",
+                          extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`),
+                        )}
+                        {@render temporal_quadrant("PRESENT", extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`))}
 
                         {#if block.new_vectors.length > 0}
-                          {#each block.new_vectors as nv, i (i)}
-                            {@render temporal_row(vector_label(nv.type, "past"), nv.content)}
-                          {/each}
+                          {@render temporal_quadrant(
+                            "PAST",
+                            block.new_vectors.map((nv) => nv.content),
+                          )}
                         {/if}
 
                         {#if block.retrieval?.length > 0}
-                          {#each block.retrieval as rv (rv.id || rv.content)}
-                            {@render temporal_row(vector_label(rv.type, "past"), rv.content, true)}
-                          {/each}
+                          {@render temporal_quadrant(
+                            "PAST (RETRIEVAL)",
+                            block.retrieval.map((rv) => rv.content),
+                            true,
+                          )}
                         {/if}
                       </div>
                     {/if}
@@ -1202,20 +1214,15 @@
             <!-- 3. BACK SHOT: MEMORY FORMATION -->
             {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
               <div class="flex flex-col gap-1.5 pt-1">
-                {#each extract_bracket_items(meta.eternal) as item, i (i)}
-                  {@render temporal_row("ETERNAL", item)}
-                {/each}
-                {#each extract_bracket_items(meta.present) as item, i (i)}
-                  {@render temporal_row("PRESENT", item)}
-                {/each}
-                {#each extract_bracket_items(meta.future) as item, i (i)}
-                  {@render temporal_row("FUTURE", item)}
-                {/each}
+                {@render temporal_quadrant("ETERNAL", extract_bracket_items(meta.eternal))}
+                {@render temporal_quadrant("PRESENT", extract_bracket_items(meta.present))}
+                {@render temporal_quadrant("FUTURE", extract_bracket_items(meta.future))}
 
                 {#if consolidated_vectors.length > 0}
-                  {#each consolidated_vectors as v, i (v.id || v.content || i)}
-                    {@render temporal_row(vector_label(v.type, "past"), v.content || v.directive)}
-                  {/each}
+                  {@render temporal_quadrant(
+                    "PAST",
+                    consolidated_vectors.map((v) => v.content || v.directive),
+                  )}
                 {/if}
               </div>
             {/if}
@@ -1224,7 +1231,7 @@
             {#if meta.type === "VECTOR_RESOLUTION"}
               <div class="flex flex-col gap-1.5 pt-1">
                 {#if meta.vector}
-                  {@render temporal_row(vector_label(meta.vector.type, "past"), meta.vector.content, true)}
+                  {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
                 {/if}
                 {#if meta.resolution}
                   <div class="flex gap-4 rounded-sm border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">

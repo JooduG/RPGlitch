@@ -960,12 +960,14 @@
     overflow-x: visible;
   }
 
+  :global(body:has([data-id="storymode-scroll-area"]) [data-id="storymode-scroll-area"] > [data-orientation="vertical"]),
   :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    height: 100dvh;
+    position: fixed !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+    z-index: 9999 !important;
   }
 
   .message--prologue {
