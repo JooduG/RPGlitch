@@ -6,7 +6,7 @@
    * error / candidates-ready ("Click to select") / regenerating / preview.
    */
   import { Button } from "@primitives";
-  import { Shimmer } from "@motion";
+  import { Shimmer } from "@primitives";
   import { image_picker, open_picker } from "@image";
   import { get_resolution } from "@media";
   import { app, simulation_log } from "@state";

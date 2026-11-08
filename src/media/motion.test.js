@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { pulse } from "./kinetic.svelte.js";
+import { pulse } from "./motion.svelte.js";
 
 describe("kinetic utilities", () => {
   /** @type {HTMLElement} */
@@ -7,7 +7,6 @@ describe("kinetic utilities", () => {
 
   beforeEach(() => {
     node = document.createElement("div");
-    // Mock animate
     node.animate = vi.fn().mockReturnValue({
       cancel: vi.fn(),
       play: vi.fn(),
@@ -44,17 +43,13 @@ describe("kinetic utilities", () => {
       const action = pulse(node);
       node.dispatchEvent(new MouseEvent("mouseenter"));
 
-      // Stop
       node.dispatchEvent(new MouseEvent("mouseleave"));
 
-      // Should have called animate twice (one for pulse, one for return)
       expect(node.animate).toHaveBeenCalledTimes(2);
       const return_anim = /** @type {any} */ (node.animate).mock.results[1].value;
 
-      // Dataset should stay true (capability flag)
       expect(node.dataset.kinetic).toBe("true");
 
-      // Trigger finish
       if (return_anim.onfinish) return_anim.onfinish();
       expect(node.dataset.kinetic).toBe("true");
       action.destroy?.();
@@ -63,23 +58,14 @@ describe("kinetic utilities", () => {
     it("handles trigger while return animation is running (race condition fix)", () => {
       const action = pulse(node);
 
-      // 1. Trigger pulse
       node.dispatchEvent(new MouseEvent("mouseenter"));
-
-      // 2. Stop (starts return_anim)
       node.dispatchEvent(new MouseEvent("mouseleave"));
       const return_anim1 = /** @type {any} */ (node.animate).mock.results[1].value;
 
-      // 3. Trigger pulse again before return_anim finishes
       node.dispatchEvent(new MouseEvent("mouseenter"));
 
-      // return_anim1 should have been cancelled
       expect(return_anim1.cancel).toHaveBeenCalled();
       expect(node.dataset.kinetic).toBe("true");
-
-      // 4. Simulate return_anim1.onfinish (which might still fire if not cancelled correctly,
-      // but our code should have cleared the reference or the listener shouldn't fire if cancelled)
-      // Even if it fires, it should have been the reference from the previous call.
 
       action.destroy?.();
     });

@@ -8,9 +8,8 @@
    * in StoryboardBar, and the shuffle / begin-story choreography in
    * Storyboard.svelte.js (via @ui).
    */
-  import { click_outside } from "@ui";
-  import { Backdrop, Button } from "@primitives";
-  import { Shimmer } from "@motion";
+  import { click_outside } from "@utils";
+  import { Backdrop, Button, Shimmer } from "@primitives";
   import { session_driver, stories } from "@data";
   import { gamemaster } from "@intelligence";
   import { get_signature_color } from "@media";

@@ -141,7 +141,6 @@ export default defineConfig(({ command, mode }) => {
         "@profile": path.resolve(import.meta.dirname, "./src/ui/profile"),
         "@image": path.resolve(import.meta.dirname, "./src/ui/image"),
         "@primitives": path.resolve(import.meta.dirname, "./src/ui/primitives"),
-        "@motion": path.resolve(import.meta.dirname, "./src/ui/motion"),
         "@utils": path.resolve(import.meta.dirname, "./src/utils"),
         "@config": path.resolve(import.meta.dirname, "./src/config.js"),
       },

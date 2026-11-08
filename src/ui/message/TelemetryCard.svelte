@@ -8,10 +8,10 @@
   sleek left-accented rows and bar gauges.
 -->
 <script>
-  import { Accordion, DataBox } from "@primitives";
+  import { Accordion } from "@primitives";
   import { runtime } from "@state";
   import { get_percentage } from "@utils";
-  import { safe_html } from "@ui";
+  import { safe_html } from "@utils";
   import { parse_bracket_entries, strip_bracket_engine_flags } from "@storage";
   import { parse_message } from "./render.js";
   import { get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label, clean_text_debris } from "./telemetry-format.js";
@@ -103,176 +103,189 @@
       <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>
   {:else}
-    <DataBox
-      label={card_label}
-      height="auto"
-      isResonating={meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"}
+    <div
+      class="terminal-box overflow-hidden {meta.type === 'CONTINUUM_FORMATION' ||
+      meta.type === 'MEMORY_FORMATION' ||
+      meta.type === 'VECTOR_RESOLUTION'
+        ? 'animate-[pulse-resonance_1.5s_cubic-bezier(0.4,0,0.2,1)_2] border-(--color-dev-accent)'
+        : ''}"
     >
-      <div class="flex flex-col gap-4">
-        <!-- 1. IMAGE TRIGGER INDICATOR -->
-        {#if meta.trigger_image === true || meta.image_trigger === true}
-          <div class="flex flex-wrap items-center gap-2 rounded-sm border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
-            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
-            <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
-            {#if meta.image_tier}
-              <span
-                class="rounded-sm bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
-              >
-                {meta.image_tier}
-              </span>
-            {/if}
-            {#if meta.image_source}
-              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
-            {/if}
-            {#if meta.image_signals?.band_entry}
-              <span class="font-mono text-[10px] text-slate-400">
-                · Band: {meta.image_signals.band_entry.axis}
-                {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
-              </span>
-            {/if}
-            {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
-              <span class="font-mono text-[10px] text-slate-400">
-                · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
-              </span>
-            {/if}
-          </div>
-        {/if}
+      {#if card_label}
+        <header
+          class="border-b border-solid border-electric-cyan/20 bg-electric-cyan/5 px-4 py-3 text-xs font-extrabold tracking-wider text-[#f2f7fa] uppercase"
+        >
+          {card_label}
+        </header>
+      {/if}
+      <div class="p-4">
+        <div class="flex flex-col gap-4">
+          <!-- 1. IMAGE TRIGGER INDICATOR -->
+          {#if meta.trigger_image === true || meta.image_trigger === true}
+            <div class="flex flex-wrap items-center gap-2 rounded-sm border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+              <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+              <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+              {#if meta.image_tier}
+                <span
+                  class="rounded-sm bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+                >
+                  {meta.image_tier}
+                </span>
+              {/if}
+              {#if meta.image_source}
+                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
+              {/if}
+              {#if meta.image_signals?.band_entry}
+                <span class="font-mono text-[10px] text-slate-400">
+                  · Band: {meta.image_signals.band_entry.axis}
+                  {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
+                </span>
+              {/if}
+              {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
+                <span class="font-mono text-[10px] text-slate-400">
+                  · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
+                </span>
+              {/if}
+            </div>
+          {/if}
 
-        <!-- 2. QUICK SHOT: PER-ENTITY STATE CHANGES -->
-        {#if entity_blocks.length > 0}
-          <div class="flex flex-col gap-4">
-            {#each entity_blocks as block (block.key)}
-              <div class="flex flex-col gap-2">
-                <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
-                  {block.name || get_entity_name(block.key)}
-                </header>
+          <!-- 2. QUICK SHOT: PER-ENTITY STATE CHANGES -->
+          {#if entity_blocks.length > 0}
+            <div class="flex flex-col gap-4">
+              {#each entity_blocks as block (block.key)}
+                <div class="flex flex-col gap-2">
+                  <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                    {block.name || get_entity_name(block.key)}
+                  </header>
 
-                <!-- DYNAMICS BAR GAUGES -->
-                {#if block.dynamics.length > 0}
-                  <div class="grid grid-cols-2 gap-4">
-                    {#each block.dynamics as delta (delta.axis)}
-                      {@const fill_width = delta.has_delta
-                        ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
-                        : get_percentage(delta.value)}
-                      {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
-                      <div class="flex items-center justify-between gap-4">
-                        <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
-                        <div class="flex flex-1 items-center gap-4">
-                          <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
-                            <div
-                              class="absolute h-full transition-all duration-300"
-                              style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
-                            ></div>
-                            {#if delta.has_delta}
+                  <!-- DYNAMICS BAR GAUGES -->
+                  {#if block.dynamics.length > 0}
+                    <div class="grid grid-cols-2 gap-4">
+                      {#each block.dynamics as delta (delta.axis)}
+                        {@const fill_width = delta.has_delta
+                          ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
+                          : get_percentage(delta.value)}
+                        {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
+                        <div class="flex items-center justify-between gap-4">
+                          <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
+                          <div class="flex flex-1 items-center gap-4">
+                            <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
-                                class="absolute z-10 h-full opacity-40 transition-all duration-300"
-                                style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
+                                class="absolute h-full transition-all duration-300"
+                                style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
                               ></div>
-                            {/if}
-                          </div>
-                          <div class="flex flex-col items-end gap-0.5">
-                            <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
-                              <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
                               {#if delta.has_delta}
-                                <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
-                                  ({delta.diff > 0 ? "+" : ""}{delta.diff})
-                                </span>
+                                <div
+                                  class="absolute z-10 h-full opacity-40 transition-all duration-300"
+                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
+                                ></div>
                               {/if}
+                            </div>
+                            <div class="flex flex-col items-end gap-0.5">
+                              <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
+                                <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
+                                {#if delta.has_delta}
+                                  <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
+                                    ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                                  </span>
+                                {/if}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    {/each}
-                  </div>
-                {/if}
-
-                <!-- TEMPORAL ROWS -->
-                {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
-                  <div class="flex flex-col gap-1.5 pt-1">
-                    {#each extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`) as item, i (i)}
-                      {@render temporalRow("ETERNAL", item)}
-                    {/each}
-                    {#each extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`) as item, i (i)}
-                      {@render temporalRow("PRESENT", item)}
-                    {/each}
-
-                    {#if block.new_vectors.length > 0}
-                      {#each block.new_vectors as nv, i (i)}
-                        {@render temporalRow(vector_label(nv.type, "past"), nv.content)}
-                      {/each}
-                    {/if}
-
-                    {#if block.retrieval?.length > 0}
-                      {#each block.retrieval as rv (rv.id || rv.content)}
-                        {@render temporalRow(vector_label(rv.type, "past"), rv.content, true)}
-                      {/each}
-                    {/if}
-                  </div>
-                {/if}
-
-                <!-- RELATIONAL MUTATIONS -->
-                {#if block.relationships?.length > 0}
-                  <div class="flex flex-col gap-1.5 pt-1">
-                    <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">RELATIONAL MUTATIONS</header>
-                    <div class="flex flex-col gap-1">
-                      {#each block.relationships as rel, i (i)}
-                        <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
-                          <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
-                          <span class="text-slate-100">{rel.dynamic}</span>
-                        </div>
                       {/each}
                     </div>
-                  </div>
-                {/if}
-              </div>
-            {/each}
-          </div>
-        {/if}
+                  {/if}
 
-        <!-- 3. BACK SHOT: MEMORY FORMATION -->
-        {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
-          <div class="flex flex-col gap-1.5 pt-1">
-            {#each extract_bracket_items(meta.eternal) as item, i (i)}
-              {@render temporalRow("ETERNAL", item)}
-            {/each}
-            {#each extract_bracket_items(meta.present) as item, i (i)}
-              {@render temporalRow("PRESENT", item)}
-            {/each}
-            {#each extract_bracket_items(meta.future) as item, i (i)}
-              {@render temporalRow("FUTURE", item)}
-            {/each}
+                  <!-- TEMPORAL ROWS -->
+                  {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
+                    <div class="flex flex-col gap-1.5 pt-1">
+                      {#each extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`) as item, i (i)}
+                        {@render temporalRow("ETERNAL", item)}
+                      {/each}
+                      {#each extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`) as item, i (i)}
+                        {@render temporalRow("PRESENT", item)}
+                      {/each}
 
-            {#if consolidated_vectors.length > 0}
-              {#each consolidated_vectors as v, i (v.id || v.content || i)}
-                {@render temporalRow(vector_label(v.type, "past"), v.content || v.directive)}
+                      {#if block.new_vectors.length > 0}
+                        {#each block.new_vectors as nv, i (i)}
+                          {@render temporalRow(vector_label(nv.type, "past"), nv.content)}
+                        {/each}
+                      {/if}
+
+                      {#if block.retrieval?.length > 0}
+                        {#each block.retrieval as rv (rv.id || rv.content)}
+                          {@render temporalRow(vector_label(rv.type, "past"), rv.content, true)}
+                        {/each}
+                      {/if}
+                    </div>
+                  {/if}
+
+                  <!-- RELATIONAL MUTATIONS -->
+                  {#if block.relationships?.length > 0}
+                    <div class="flex flex-col gap-1.5 pt-1">
+                      <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                        RELATIONAL MUTATIONS
+                      </header>
+                      <div class="flex flex-col gap-1">
+                        {#each block.relationships as rel, i (i)}
+                          <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
+                            <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
+                            <span class="text-slate-100">{rel.dynamic}</span>
+                          </div>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
+                </div>
               {/each}
-            {/if}
-          </div>
-        {/if}
+            </div>
+          {/if}
 
-        <!-- 4. VECTOR RESOLUTION -->
-        {#if meta.type === "VECTOR_RESOLUTION"}
-          <div class="flex flex-col gap-1.5 pt-1">
-            {#if meta.vector}
-              {@render temporalRow(vector_label(meta.vector.type, "past"), meta.vector.content, true)}
-            {/if}
-            {#if meta.resolution}
-              <div class="flex gap-4 rounded-sm border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
-                <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
-                <span class="flex-1 text-slate-300" use:safe_html={render_text(meta.resolution)}></span>
-              </div>
-            {/if}
-          </div>
-        {/if}
+          <!-- 3. BACK SHOT: MEMORY FORMATION -->
+          {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
+            <div class="flex flex-col gap-1.5 pt-1">
+              {#each extract_bracket_items(meta.eternal) as item, i (i)}
+                {@render temporalRow("ETERNAL", item)}
+              {/each}
+              {#each extract_bracket_items(meta.present) as item, i (i)}
+                {@render temporalRow("PRESENT", item)}
+              {/each}
+              {#each extract_bracket_items(meta.future) as item, i (i)}
+                {@render temporalRow("FUTURE", item)}
+              {/each}
 
-        <!-- 5. RAW DATA ACCORDION -->
-        <Accordion label="View Raw Data">
-          <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
-            <pre class="font-mono">{JSON.stringify(meta, null, 2)}</pre>
-          </DataBox>
-        </Accordion>
+              {#if consolidated_vectors.length > 0}
+                {#each consolidated_vectors as v, i (v.id || v.content || i)}
+                  {@render temporalRow(vector_label(v.type, "past"), v.content || v.directive)}
+                {/each}
+              {/if}
+            </div>
+          {/if}
+
+          <!-- 4. VECTOR RESOLUTION -->
+          {#if meta.type === "VECTOR_RESOLUTION"}
+            <div class="flex flex-col gap-1.5 pt-1">
+              {#if meta.vector}
+                {@render temporalRow(vector_label(meta.vector.type, "past"), meta.vector.content, true)}
+              {/if}
+              {#if meta.resolution}
+                <div class="flex gap-4 rounded-sm border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                  <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
+                  <span class="flex-1 text-slate-300" use:safe_html={render_text(meta.resolution)}></span>
+                </div>
+              {/if}
+            </div>
+          {/if}
+
+          <!-- 5. RAW DATA ACCORDION -->
+          <Accordion label="View Raw Data">
+            <div class="terminal-box max-h-[calc(var(--spacing-unit)*60)] overflow-y-auto bg-black/10 p-4 text-sm">
+              <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(meta, null, 2)}</pre>
+            </div>
+          </Accordion>
+        </div>
       </div>
-    </DataBox>
+    </div>
   {/if}
 </div>
 

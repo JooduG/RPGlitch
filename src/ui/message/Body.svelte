@@ -1,8 +1,9 @@
 <script>
-  import { Accordion, DataBox, TextField } from "@primitives";
+  import { Accordion, TextField } from "@primitives";
   import TelemetryCard from "./TelemetryCard.svelte";
-  import { Shimmer, Typewriter } from "@motion";
-  import { safe_html } from "@ui";
+  import { Typewriter } from "./index.js";
+  import { Shimmer } from "@primitives";
+  import { safe_html } from "@utils";
   import { app } from "@state";
 
   /**
@@ -41,9 +42,11 @@
 {#if app.settings.dev_mode && think_block}
   <div class="mb-4">
     <Accordion label="Thoughts">
-      <DataBox label="" isCode={false} isProse={true} class="[&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono!">
+      <div
+        class="terminal-box max-h-[300px] overflow-y-auto p-4 text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+      >
         <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
-      </DataBox>
+      </div>
     </Accordion>
   </div>
 {/if}

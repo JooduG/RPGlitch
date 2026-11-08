@@ -5,7 +5,7 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.
    */
-  import { Accordion, Button, DataBox, Meter, tooltip } from "@primitives";
+  import { Accordion, Button, Meter, tooltip } from "@primitives";
   import { DYNAMICS_AXES } from "@config";
   import { format_datetime } from "@utils";
   import { runtime } from "@state";
@@ -150,9 +150,9 @@
 
   <!-- RAW EXPLORER & HISTORY INSPECTOR -->
   <Accordion label="View JSON Data">
-    <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
-      <pre class="font-mono">{JSON.stringify(profile_state.char, null, 2)}</pre>
-    </DataBox>
+    <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-4 text-sm">
+      <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(profile_state.char, null, 2)}</pre>
+    </div>
   </Accordion>
 
   <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/20 p-3">

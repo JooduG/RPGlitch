@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Dual-Write Design Tokens to `src/design.css` (`.agents/skills/design/scripts/sync-css.js`, `token-utils.js`, `audit-design.js`, `ignores.master.json`)**:
+  - Updated the CSS design token synchronizer (`npm run sync:css`) to dual-write tokens: directly to the nuclear styling root `src/design.css` (configured with `@source "./";` for whole-tree component discovery) while preserving the legacy mirror at `src/media/design.css` (with `@source "../";`) until `src/media/` is fully retired.
+  - Updated token audit utilities to treat both paths as generated token sources, and registered `src/design.css` across workspace ignore configurations.
+
 - **Telemetry & Think Block Display Fixes (`src/ui/message/Message.svelte`, `src/state/interface.svelte.js`, `src/ui/console/DevControls.svelte`, `src/engine/bridge.js`)**:
   - **Think Block Persistence in UI**: In `src/ui/message/Message.svelte`, derived `think_block` from `parsed.think || meta?.think || null`, ensuring completed message rows with extracted `<think>` stored in `meta.think` retain their visible thought box instead of collapsing to null.
   - **Director Enablement by Default**: Set `director_enabled: true` in `app.settings` default interface state (`src/state/interface.svelte.js`), and added a `DIRECTOR` toggle switch in `src/ui/console/DevControls.svelte`.

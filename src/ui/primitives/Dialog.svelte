@@ -6,7 +6,7 @@
    * Svelte 5 runes · Fully accessible.
    */
   import { Backdrop, Button } from "@primitives";
-  import { overlay_in, overlay_out } from "@motion";
+  import { overlay_in, overlay_out } from "@media";
   import { resolve_ms } from "@utils";
   import { AlertDialog } from "bits-ui";
 

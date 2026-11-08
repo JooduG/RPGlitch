@@ -1,12 +1,5 @@
-/**
- * @file src/ui/motion/transitions.test.js
- * Unit tests for the unified transition vocabulary. Locks in the shared visual
- * parameters (rise, settle scale, ease) and the reduced-motion contract so no
- * future tweak silently breaks overlay/list choreography consistency.
- */
 import { describe, expect, it, beforeEach } from "vitest";
-import { motion } from "./engine.svelte.js";
-import { overlay_in, overlay_out, item_in } from "./transitions.svelte.js";
+import { motion, overlay_in, overlay_out, item_in } from "./motion.svelte.js";
 
 describe("unified transitions", () => {
   beforeEach(() => {
@@ -47,8 +40,8 @@ describe("unified transitions", () => {
   });
 
   it("defaults match the design-token durations", () => {
-    expect(overlay_in({}).duration).toBe(300); // --duration-standard
-    expect(overlay_out({}).duration).toBe(160); // between --duration-fast and --duration-standard
-    expect(item_in({}).duration).toBe(300); // --duration-standard
+    expect(overlay_in({}).duration).toBe(300);
+    expect(overlay_out({}).duration).toBe(160);
+    expect(item_in({}).duration).toBe(300);
   });
 });

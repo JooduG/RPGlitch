@@ -5,10 +5,10 @@
            serialized queued message drainage, ghostwriting trigger synchronization,
            and generation interrupt/unstick affordances.
   Dependencies:
-    - @primitives: Button, Indicator, tooltip
+    - @primitives: Button, tooltip
     - @state: chrono_engine, app, runtime, simulation_state, force_recover_simulation
     - @intelligence: gamemaster
-    - @motion: stab
+    - @media: stab
   Rules:
     - Never mutate $state inside an $effect.
     - All queued message drainage must be serialized via drain_pending_queue.
@@ -17,10 +17,10 @@
 
 <script>
   import { tick } from "svelte";
-  import { Button, Indicator, tooltip } from "@primitives";
+  import { Button, tooltip } from "@primitives";
   import { chrono_engine } from "@state";
   import { execute_ghostwriter } from "@engine";
-  import { stab } from "@motion";
+  import { stab } from "@media";
   import { app, runtime, simulation_state, force_recover_simulation } from "@state";
 
   /* eslint-disable no-useless-assignment */
@@ -207,7 +207,7 @@
       ? `${pending_count} messages queued; they send when the current turn finishes.`
       : "Message queued; it sends when the current turn finishes."}
   >
-    <Indicator color="bg-amber-400" size="sm" />
+    <span class="inline-block size-1.5 shrink-0 animate-pulse rounded-full bg-amber-400" role="status" aria-label="Status indicator"></span>
     {pending_count > 1 ? `${pending_count} queued` : "Queued"}
   </span>
 {/if}

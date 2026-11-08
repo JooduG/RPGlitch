@@ -11,6 +11,7 @@ export const PATHS = {
   src: path.resolve(__dirname, "../../../../src"),
   designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
   designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
+  designCssRoot: process.env.CSS_ROOT_PATH || path.resolve(__dirname, "../../../../src/design.css"),
   jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
 };
 
@@ -153,13 +154,11 @@ export const TOKENS = Object.freeze(${JSON.stringify(tokens, null, 2)});
 }
 
 /**
- * Forward sync: reads DESIGN.md frontmatter and writes design.css + tokens.js + signature-colors.js.
+ * Forward sync: reads DESIGN.md frontmatter and writes design.css (both src/design.css and src/media/design.css) + tokens.js + signature-colors.js.
  */
 export function syncToCss() {
   const { data, body } = parseMarkdownDoc();
   const flat_data = flattenFrontmatter(data);
-
-  const css_header = `${generatedHeader("src/media/design.css")}\n\n@import "tailwindcss";\n@source "../";\n\n@theme {`;
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;
@@ -174,9 +173,16 @@ export function syncToCss() {
 
   const css_blocks = [...body.matchAll(/```css([\s\S]*?)```/g)].map((m) => m[1].trim()).join("\n\n");
 
-  const css_output = `${css_header}\n${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
+  // 1. Root destination (nuclear architecture): src/design.css
+  const root_header = `${generatedHeader("src/design.css")}\n\n@import "tailwindcss";\n@source "./";\n\n@theme {`;
+  const root_css_output = `${root_header}\n${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
+  fs.writeFileSync(PATHS.designCssRoot, root_css_output);
 
-  fs.writeFileSync(PATHS.designCss, css_output);
+  // 2. Legacy mirror destination: src/media/design.css
+  const legacy_header = `${generatedHeader("src/media/design.css")}\n\n@import "tailwindcss";\n@source "../";\n\n@theme {`;
+  const legacy_css_output = `${legacy_header}\n${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
+  fs.writeFileSync(PATHS.designCss, legacy_css_output);
+
   buildJsBridge(flat_data);
 }
 

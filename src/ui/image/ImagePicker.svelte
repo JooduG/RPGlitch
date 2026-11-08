@@ -9,7 +9,7 @@
   import { image_picker, select_candidate, close_regenerate, run_image_regeneration } from "./ImagePicker.svelte.js";
   import { get_resolution } from "@media";
   import { Backdrop, Button } from "@primitives";
-  import { Shimmer } from "@motion";
+  import { Shimmer } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 

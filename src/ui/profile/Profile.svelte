@@ -4,10 +4,10 @@
    * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import { auto_resize, click_outside } from "@ui";
+  import { auto_resize, click_outside } from "@utils";
   import { download_json_file, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
-  import { Shimmer } from "@motion";
+  import { Shimmer } from "@primitives";
   import { ProfilePicture } from "@image";
   import { get_signature_color } from "@media";
   import { Dialog } from "@primitives";

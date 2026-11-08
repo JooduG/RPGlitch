@@ -7,3 +7,5 @@ export { default as Prologue } from "./Prologue.svelte";
 export { default as Epilogue } from "./Epilogue.svelte";
 export { default as UndoToast } from "./UndoToast.svelte";
 export { default as TelemetryCard } from "./TelemetryCard.svelte";
+export { default as Typewriter } from "./Typewriter.svelte";
+export { typewriter } from "./Typewriter.svelte.js";

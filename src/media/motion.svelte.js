@@ -1,0 +1,618 @@
+/**
+ * @file src/media/motion.svelte.js
+ * 🌌 THE UNIFIED MOTION & KINETIC ENGINE
+ * Centralized Svelte 5 native physics, spring curves, card flight travel,
+ * and shared enter/exit transitions.
+ *
+ * Consolidates engine, kinetic, transitions, and card-flight into a single
+ * cohesive media module.
+ */
+
+import { clamp, resolve_ms, resolve_number, resolve_string } from "@utils";
+import { Spring } from "svelte/motion";
+import { quartOut } from "svelte/easing";
+
+// =============================================================================
+// [SECTION 1: GLOBAL MOTION STATE & ACCESSIBILITY]
+// =============================================================================
+
+const media_query = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+
+let is_reduced_state = $state(!!media_query?.matches);
+
+if (media_query) {
+  media_query.addEventListener("change", (e) => {
+    is_reduced_state = e.matches;
+  });
+}
+
+/**
+ * Global motion state engine tracking visual intensity and accessibility states.
+ * @namespace
+ * @property {number} intensity - Global animation speed/play multiplier (0.0 to 1.0).
+ * @property {boolean} is_reduced - Evaluates to true if hardware or user requests reduced motion.
+ */
+export const motion = $state({
+  intensity: 1.0,
+  get is_reduced() {
+    return is_reduced_state;
+  },
+  set is_reduced(value) {
+    is_reduced_state = value;
+  },
+});
+
+// =============================================================================
+// [SECTION 2: KINETIC HOVER & SPRING PRIMITIVES]
+// =============================================================================
+
+/**
+ * Helper to find appropriate animation target
+ * @param {Element} node
+ * @returns {HTMLElement}
+ */
+const get_target = (node) => /** @type {HTMLElement} */ (node.querySelector("svg") || node);
+
+/**
+ * Standardized manager for registering hover-triggered physical animations.
+ * Synchronizes with global motion engine intensity and prefers-reduced-motion.
+ *
+ * @param {HTMLElement} node - Element target.
+ * @param {object} config - Configuration options.
+ * @param {(target: HTMLElement, intensity: number) => Animation | null} config.animate - Trigger animation builder.
+ * @param {(target: HTMLElement, currentAnimation: Animation | null) => void} [config.onStop] - Stop animation hook.
+ * @returns {import('svelte/action').ActionReturn}
+ */
+function create_kinetic_action(node, config) {
+  /** @type {Animation | null} */
+  let animation = null;
+  let is_hovered = false;
+
+  const trigger = () => {
+    is_hovered = true;
+    node.dataset.kinetic = "true";
+
+    const intensity = motion.is_reduced ? 0 : motion.intensity;
+    if (intensity === 0) return;
+
+    const target = get_target(node);
+    if (animation) {
+      animation.cancel();
+      animation = null;
+    }
+    animation = config.animate(target, intensity);
+  };
+
+  const stop = () => {
+    is_hovered = false;
+    const target = get_target(node);
+    if (config.onStop) {
+      config.onStop(target, animation);
+    } else if (animation) {
+      animation.cancel();
+    }
+    animation = null;
+  };
+
+  /** @type {(() => void) | null} */
+  let cleanup_effect = null;
+  if (typeof window !== "undefined") {
+    cleanup_effect = $effect.root(() => {
+      $effect(() => {
+        const intensity = motion.is_reduced ? 0 : motion.intensity;
+        if (is_hovered) {
+          if (intensity === 0) {
+            if (animation) {
+              animation.cancel();
+              animation = null;
+            }
+          } else if (animation) {
+            animation.playbackRate = intensity;
+          } else {
+            const target = get_target(node);
+            animation = config.animate(target, intensity);
+          }
+        }
+      });
+    });
+  }
+
+  node.addEventListener("mouseenter", trigger);
+  node.addEventListener("mouseleave", stop);
+
+  return {
+    destroy() {
+      if (animation) animation.cancel();
+      if (cleanup_effect) cleanup_effect();
+      node.removeEventListener("mouseenter", trigger);
+      node.removeEventListener("mouseleave", stop);
+    },
+  };
+}
+
+/**
+ * Shimmy Action - nervous high-frequency jitter (rotation + translation).
+ * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
+ */
+export function shimmy(node) {
+  return create_kinetic_action(node, {
+    animate: (target, intensity) => {
+      const base_duration = resolve_ms("--duration-(--duration-slow)", 500, node);
+      const animation = target.animate(
+        [
+          { transform: "translate(0, 0) rotate(0deg)" },
+          {
+            transform: "translate(calc(var(--spacing-kinetic-shimmy-offset) * -1), var(--spacing-kinetic-shimmy-y)) rotate(-30deg)",
+          },
+          {
+            transform: "translate(var(--spacing-kinetic-shimmy-offset), calc(var(--spacing-kinetic-shimmy-y) * -1)) rotate(30deg)",
+          },
+          { transform: "translate(0, 0) rotate(0deg)" },
+        ],
+        {
+          duration: base_duration,
+          easing: "linear",
+          iterations: Infinity,
+        },
+      );
+      animation.playbackRate = intensity;
+      return animation;
+    },
+  });
+}
+shimmy.is_kinetic = true;
+
+/**
+ * Pulse Action - looping heartbeat thump.
+ * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
+ */
+export function pulse(node) {
+  /** @type {Animation | null} */
+  let return_anim = null;
+
+  return create_kinetic_action(node, {
+    animate: (target, intensity) => {
+      if (return_anim) {
+        return_anim.cancel();
+        return_anim = null;
+      }
+      const base_duration = resolve_ms("--duration-(--duration-ambient)", 1000, node);
+      const animation = target.animate(
+        [
+          { transform: "scale(1)", offset: 0 },
+          { transform: "var(--scale-pulse)", offset: 0.14 },
+          { transform: "scale(1)", offset: 0.28 },
+          { transform: "var(--scale-pulse)", offset: 0.42 },
+          { transform: "scale(1)", offset: 0.7 },
+          { transform: "scale(1)", offset: 1 },
+        ],
+        {
+          duration: base_duration,
+          easing: "ease-in-out",
+          iterations: Infinity,
+        },
+      );
+      animation.playbackRate = intensity;
+      return animation;
+    },
+    onStop: (target, currentAnimation) => {
+      if (currentAnimation) {
+        currentAnimation.cancel();
+        const duration = resolve_ms("--duration-(--duration-fast)", 250, node);
+        const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
+        return_anim = target.animate([{ transform: "scale(1)" }], { duration, easing });
+        return_anim.onfinish = () => {
+          return_anim = null;
+        };
+      }
+    },
+  });
+}
+pulse.is_kinetic = true;
+
+/**
+ * Roll Action - full 360 degree rotation powered by spring physics.
+ * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
+ */
+export function roll(node) {
+  const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
+  const damping = resolve_number("--spring-damping-default", 0.8, node);
+  const angle_spring = new Spring(0, { stiffness, damping });
+
+  const target = get_target(node);
+
+  const trigger = () => {
+    node.dataset.kinetic = "true";
+    angle_spring.target = 360;
+  };
+
+  const stop = () => {
+    angle_spring.target = 0;
+  };
+
+  /** @type {(() => void) | null} */
+  let cleanup_effect = null;
+  if (typeof window !== "undefined") {
+    cleanup_effect = $effect.root(() => {
+      $effect(() => {
+        const val = angle_spring.current;
+        target.style.transform = `rotate(${val}deg)`;
+      });
+    });
+  }
+
+  node.addEventListener("mouseenter", trigger);
+  node.addEventListener("mouseleave", stop);
+
+  return {
+    destroy() {
+      if (cleanup_effect) cleanup_effect();
+      node.removeEventListener("mouseenter", trigger);
+      node.removeEventListener("mouseleave", stop);
+    },
+  };
+}
+roll.is_kinetic = true;
+
+/**
+ * Stab Action - quick horizontal thrust.
+ * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
+ */
+export function stab(node) {
+  return create_kinetic_action(node, {
+    animate: (target, intensity) => {
+      const base_duration = resolve_ms("--duration-(--duration-slow)", 500, node);
+      const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
+      const animation = target.animate(
+        [
+          { transform: "translateX(0)", offset: 0 },
+          { transform: "translateX(var(--spacing-kinetic-stab-distance))", offset: 0.2 },
+          { transform: "translateX(0)", offset: 1 },
+        ],
+        {
+          duration: base_duration,
+          easing,
+          iterations: Infinity,
+        },
+      );
+      animation.playbackRate = intensity;
+      return animation;
+    },
+  });
+}
+stab.is_kinetic = true;
+
+// =============================================================================
+// [SECTION 3: SHARED ENTER/EXIT TRANSITIONS]
+// =============================================================================
+
+const RISE_DISTANCE = 10;
+const SETTLE_SCALE = 0.97;
+
+/**
+ * Standard overlay entrance: fade + rise 10px + settle from 97% scale.
+ * @param {HTMLElement} _node
+ * @param {{ duration?: number }} [opts]
+ * @returns {import('svelte/transition').TransitionConfig}
+ */
+export function overlay_in(_node, { duration = 300 } = {}) {
+  const d = motion.is_reduced ? 0 : duration;
+  return {
+    duration: d,
+    easing: quartOut,
+    css: (t) => `opacity: ${t}; transform: translateY(${(1 - t) * RISE_DISTANCE}px) scale(${SETTLE_SCALE + (1 - SETTLE_SCALE) * t});`,
+  };
+}
+
+/**
+ * Standard overlay exit: quick fade + settle down to 97% scale.
+ * @param {HTMLElement} _node
+ * @param {{ duration?: number }} [opts]
+ * @returns {import('svelte/transition').TransitionConfig}
+ */
+export function overlay_out(_node, { duration = 160 } = {}) {
+  const d = motion.is_reduced ? 0 : duration;
+  return {
+    duration: d,
+    easing: quartOut,
+    css: (t) => `opacity: ${t}; transform: scale(${SETTLE_SCALE + (1 - SETTLE_SCALE) * t});`,
+  };
+}
+
+/**
+ * Feed / library item entrance: gentle rise, no scale (keeps text crisp).
+ * @param {HTMLElement} _node
+ * @param {{ duration?: number }} [opts]
+ * @returns {import('svelte/transition').TransitionConfig}
+ */
+export function item_in(_node, { duration = 300 } = {}) {
+  const d = motion.is_reduced ? 0 : duration;
+  return {
+    duration: d,
+    easing: quartOut,
+    css: (t) => `opacity: ${t}; transform: translateY(${(1 - t) * RISE_DISTANCE}px);`,
+  };
+}
+
+// =============================================================================
+// [SECTION 4: CLONE-BASED PHYSICAL CARD FLIGHT ENGINE]
+// =============================================================================
+
+const GLIDE_EASE = "cubic-bezier(0.25, 1, 0.5, 1)";
+const PICKUP_EASE = "cubic-bezier(0.3, 0.9, 0.4, 1)";
+const EXIT_EASE = "cubic-bezier(0.4, 0, 1, 1)";
+
+/** @typedef {{ left: number, top: number, width: number, height: number }} Rect */
+
+const CARD_TYPES = ["ai", "fractal", "user"];
+let _begin_flight_running = false;
+let scrub_style_injected = false;
+
+/**
+ * Clones a card element into a fixed-position stand-in ready to be flown.
+ * @param {HTMLElement} el
+ * @param {string} tag
+ * @param {number} z
+ * @returns {HTMLElement}
+ */
+export function make_card_clone(el, tag, z) {
+  const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
+  clone.classList.remove("scale-96");
+  clone.setAttribute(tag, "true");
+  clone.setAttribute("aria-hidden", "true");
+  clone.style.position = "fixed";
+  clone.style.margin = "0";
+  clone.style.zIndex = String(z);
+  clone.style.pointerEvents = "none";
+  clone.style.willChange = "transform, opacity";
+  clone.style.transformOrigin = "top left";
+  clone.style.transition = "none";
+  clone.style.opacity = "";
+  clone.style.filter = "brightness(1.12) drop-shadow(0 calc(var(--spacing-unit, 4px) * 3) calc(var(--spacing-unit, 4px) * 5) rgba(0, 0, 0, 0.55))";
+  clone.removeAttribute("data-scrub-hidden");
+  clone.removeAttribute("data-scrub-prev-tabindex");
+  clone.style.cursor = "default";
+  clone.querySelectorAll(".pointer-events-auto").forEach((n) => n.style.setProperty("pointer-events", "none", "important"));
+  strip_card_text(clone);
+  document.body.appendChild(clone);
+  return clone;
+}
+
+/** @param {HTMLElement} el */
+export function rect_of(el) {
+  return el.getBoundingClientRect();
+}
+
+/**
+ * Hides a card's text and badge layers (art-only flight).
+ * @param {HTMLElement} el
+ */
+export function strip_card_text(el) {
+  el.querySelectorAll("[data-card-text], [data-card-badge]").forEach((node) => {
+    node.style.opacity = "0";
+  });
+}
+
+function place(clone, rect) {
+  clone.style.left = `${rect.left}px`;
+  clone.style.top = `${rect.top}px`;
+  clone.style.width = `${rect.width}px`;
+  clone.style.height = `${rect.height}px`;
+}
+
+function ease_out_cubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+/**
+ * Flies a newly-selected card from the deck hand into its target slot.
+ * @param {HTMLElement} card_el
+ * @param {HTMLElement} slot_el
+ * @param {() => void} on_land
+ */
+export function fly_card_in(card_el, slot_el, on_land) {
+  if (motion.is_reduced || !card_el || !slot_el) {
+    on_land();
+    return;
+  }
+
+  const from = rect_of(card_el);
+  const to = rect_of(slot_el);
+  if (!from.width || !to.width) {
+    on_land();
+    return;
+  }
+
+  const clone = make_card_clone(card_el, "data-flight-clone", 100);
+  place(clone, from);
+
+  const dx = to.left - from.left;
+  const dy = to.top - from.top;
+  const sx = to.width / from.width;
+  const sy = to.height / from.height;
+
+  clone.animate(
+    [
+      { transform: "translate(0px, 0px) scale(1)", filter: "brightness(1) drop-shadow(0 4px 6px rgba(0,0,0,0.3))" },
+      { transform: "translate(0px, -24px) scale(1.04)", filter: "brightness(1.15) drop-shadow(0 20px 30px rgba(0,0,0,0.55))", offset: 0.22 },
+      { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, filter: "brightness(1) drop-shadow(0 6px 10px rgba(0,0,0,0.35))" },
+    ],
+    { duration: 460, easing: GLIDE_EASE, fill: "forwards" },
+  ).onfinish = () => {
+    on_land();
+    clone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 90, easing: "linear", fill: "forwards" }).onfinish = () => clone.remove();
+  };
+}
+
+/**
+ * Flies the replaced card from its slot down off-screen.
+ * @param {HTMLElement} slot_el
+ * @param {() => void} [on_clear]
+ */
+export function fly_card_out(slot_el, on_clear) {
+  if (motion.is_reduced || !slot_el) {
+    on_clear?.();
+    return;
+  }
+
+  const from = rect_of(slot_el);
+  if (!from.width) {
+    on_clear?.();
+    return;
+  }
+
+  const clone = make_card_clone(slot_el, "data-flight-clone", 90);
+  place(clone, from);
+  on_clear?.();
+
+  const dy = window.innerHeight - from.top + 60;
+  clone.animate(
+    [
+      { transform: "translate(0px, 0px) scale(1)", opacity: 1 },
+      { transform: "translate(0px, -14px) scale(0.98)", opacity: 0.95, offset: 0.18 },
+      { transform: `translate(0px, ${dy}px) scale(0.85)`, opacity: 0 },
+    ],
+    { duration: 320, easing: EXIT_EASE, fill: "forwards" },
+  ).onfinish = () => clone.remove();
+}
+
+/**
+ * Returns snapshot of storyboard layout element positions.
+ * @returns {Record<string, { rect: Rect, el: HTMLElement }> | null}
+ */
+export function capture_storyboard_flight() {
+  if (typeof document === "undefined") return null;
+  /** @type {Record<string, { rect: Rect, el: HTMLElement }>} */
+  const out = {};
+  for (const type of CARD_TYPES) {
+    const el = document.querySelector(`[data-slot-type="${type}"]`);
+    if (el instanceof HTMLElement) {
+      const r = rect_of(el);
+      if (r.width > 0 && r.height > 0) out[type] = { rect: r, el };
+    }
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
+
+/**
+ * Orchestrates storyboard cards flying into the story feed prologue upon game start.
+ * @param {Record<string, { rect: Rect, el: HTMLElement }>} storyboard_snapshot
+ * @param {() => void} [on_finish]
+ */
+export function fly_storyboard_cards_into_prologue(storyboard_snapshot, on_finish) {
+  if (typeof document === "undefined" || !storyboard_snapshot || _begin_flight_running) {
+    on_finish?.();
+    return;
+  }
+
+  if (motion.is_reduced) {
+    on_finish?.();
+    return;
+  }
+
+  _begin_flight_running = true;
+
+  requestAnimationFrame(() => {
+    /** @type {Array<{ clone: HTMLElement, from: Rect, to: Rect, dest_el: HTMLElement }>} */
+    const entries = [];
+
+    for (const type of CARD_TYPES) {
+      const snap = storyboard_snapshot[type];
+      if (!snap) continue;
+      const target_el = document.querySelector(`[data-prologue-entity="${type}"]`);
+      if (!(target_el instanceof HTMLElement)) continue;
+      const to = rect_of(target_el);
+      if (!to.width || !to.height) continue;
+
+      const clone = make_card_clone(snap.el, "data-begin-flight-clone", 95);
+      place(clone, snap.rect);
+      target_el.style.opacity = "0";
+      entries.push({ clone, from: snap.rect, to, dest_el: target_el });
+    }
+
+    if (entries.length === 0) {
+      _begin_flight_running = false;
+      on_finish?.();
+      return;
+    }
+
+    let completed = 0;
+    entries.forEach(({ clone, from, to, dest_el }, i) => {
+      const dx = to.left - from.left;
+      const dy = to.top - from.top;
+      const sx = to.width / from.width;
+      const sy = to.height / from.height;
+
+      const anim = clone.animate(
+        [
+          { transform: "translate(0, 0) scale(1)", filter: "brightness(1)" },
+          { transform: `translate(${dx * 0.25}px, ${dy * 0.15 - 18}px) scale(${1 + (sx - 1) * 0.15})`, filter: "brightness(1.15)", offset: 0.25 },
+          { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, filter: "brightness(1)" },
+        ],
+        { duration: 520, delay: i * 40, easing: GLIDE_EASE, fill: "forwards" },
+      );
+
+      anim.onfinish = () => {
+        dest_el.style.opacity = "";
+        dest_el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: "linear" });
+
+        clone.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 80, easing: "linear", fill: "forwards" }).onfinish = () => {
+          clone.remove();
+          completed++;
+          if (completed >= entries.length) {
+            _begin_flight_running = false;
+            on_finish?.();
+          }
+        };
+      };
+    });
+  });
+}
+
+function ensure_scrub_style() {
+  if (scrub_style_injected || typeof document === "undefined") return;
+  const style = document.createElement("style");
+  style.id = "card-flight-scrub-style";
+  style.textContent = `
+    [data-scrub-hidden="true"] {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+  scrub_style_injected = true;
+}
+
+/**
+ * Updates card opacity and transforms during scrub interaction.
+ * @param {HTMLElement} target_card
+ * @param {number} raw_progress - Value from 0.0 to 1.0.
+ */
+export function update_card_scrub(target_card, raw_progress) {
+  if (!target_card) return;
+  ensure_scrub_style();
+  const progress = clamp(raw_progress, 0, 1);
+
+  if (progress <= 0) {
+    clear_card_location(target_card);
+    return;
+  }
+
+  const t = ease_out_cubic(progress);
+  target_card.style.opacity = String(1 - t * 0.6);
+  target_card.style.transform = `scale(${1 - t * 0.05}) translateY(${t * 8}px)`;
+}
+
+/**
+ * Restores a card after scrub interaction finishes or resets.
+ * @param {HTMLElement} target_card
+ */
+export function clear_card_location(target_card) {
+  if (!target_card) return;
+  target_card.style.opacity = "";
+  target_card.style.transform = "";
+}

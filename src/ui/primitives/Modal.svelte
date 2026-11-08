@@ -6,8 +6,8 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import { Backdrop } from "@primitives";
-  import { overlay_in, overlay_out } from "@motion";
-  import { use_actions } from "@ui";
+  import { overlay_in, overlay_out } from "@media";
+  import { use_actions } from "@utils";
   import { Dialog } from "bits-ui";
 
   let {

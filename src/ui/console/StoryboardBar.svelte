@@ -5,7 +5,7 @@
    * gear, the models-progress / "BEGIN STORY" trigger, and the shuffle control.
    */
   import { Button, ProgressBar, tooltip } from "@primitives";
-  import { pulse, shimmy } from "@motion";
+  import { pulse, shimmy } from "@media";
   import { app, runtime, chrono_engine } from "@state";
   import { gamemaster } from "@intelligence";
   import { stories } from "@data";

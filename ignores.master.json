@@ -36,6 +36,7 @@
     "**/out/**",
     "**/pnpm-lock.yaml",
     "**/public/assets/**",
+    "src/design.css",
     "src/media/design.css",
     "src/media/tokens.js",
     "**/*scribbles**",
@@ -73,9 +74,7 @@
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
       "**/src/**/index.js": true,
-      "**/.gemini/config/skills/**/templates": true,
-      "src/media/design.css": true,
-      "src/media/tokens.js": true
+      "**/.gemini/config/skills/**/templates": true
     }
   },
   "jsconfig": {

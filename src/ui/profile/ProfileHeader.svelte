@@ -6,9 +6,8 @@
    * Enforces strict Svelte 5 state machine physics and Nordic styling token regimes.
    */
 
-  import { auto_resize } from "@ui";
+  import { auto_resize } from "@utils";
   import { PROFILE_FIELDS } from "@data";
-  import { GlassWrapper } from "@primitives";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -95,7 +94,7 @@
   "
   >
     {#if is_editing}
-      <GlassWrapper is_expanded={active_field === "name"} {signature_color}>
+      <div class="glass-input" data-expanded={active_field === "name"} style="--signature-color: {signature_color};">
         <input
           bind:this={name_input}
           bind:value={name}
@@ -120,7 +119,7 @@
           onfocus={() => on_focus_field("name", "Entity Name")}
           onblur={() => on_focus_field("", "")}
         />
-      </GlassWrapper>
+      </div>
     {:else}
       <h1
         class="
@@ -143,7 +142,7 @@
   </div>
 
   {#if is_editing}
-    <GlassWrapper is_expanded={active_field === "description"} {signature_color}>
+    <div class="glass-input" data-expanded={active_field === "description"} style="--signature-color: {signature_color};">
       <textarea
         class="
           z-20
@@ -179,7 +178,7 @@
         use:auto_resize
         onfocus={() => on_focus_field("description", "Description")}
         onblur={() => on_focus_field("", "")}></textarea>
-    </GlassWrapper>
+    </div>
   {:else if description}
     <p
       class="

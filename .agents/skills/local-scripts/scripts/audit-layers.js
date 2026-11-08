@@ -38,7 +38,6 @@ const ALIAS_LAYER_MAP = {
   "@profile": "src/ui",
   "@image": "src/ui",
   "@primitives": "src/ui",
-  "@motion": "src/ui",
   "@state": "src/state",
   "@intelligence": "src/intelligence",
   "@storage": "src/storage",

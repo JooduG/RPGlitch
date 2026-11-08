@@ -17,6 +17,49 @@
 
 import { truncate_at_word } from "./text.js";
 import { INGESTION } from "@config";
+import DOMPurify from "dompurify";
+
+// ============================================================================
+// [SECTION 0: HTML SANITIZATION & ESCAPING]
+// ============================================================================
+
+/**
+ * Sanitizes dirty HTML string and returns safe sanitized HTML string.
+ * @param {any} dirty
+ * @returns {string}
+ */
+export function sanitize(dirty) {
+  if (typeof window === "undefined") return dirty;
+  return DOMPurify.sanitize(dirty, {
+    RETURN_DOM_FRAGMENT: false,
+    SANITIZE_DOM: true,
+    SANITIZE_NAMED_PROPS: true,
+  });
+}
+
+/**
+ * Sanitizes dirty HTML string and returns a safe sanitized DocumentFragment.
+ * @param {any} dirty
+ * @returns {DocumentFragment | any}
+ */
+export function sanitize_to_fragment(dirty) {
+  if (typeof window === "undefined") return dirty;
+  return DOMPurify.sanitize(dirty, {
+    RETURN_DOM_FRAGMENT: true,
+    SANITIZE_DOM: true,
+    SANITIZE_NAMED_PROPS: true,
+  });
+}
+
+/**
+ * Escapes special HTML characters (&, <, >, ", ') into safe entity equivalents.
+ * @param {any} str
+ * @returns {string}
+ */
+export function escape_html(str) {
+  if (str === null || str === undefined) return "";
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & INGESTION BUDGETS]

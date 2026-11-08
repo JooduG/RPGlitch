@@ -9,7 +9,7 @@
   import { Progress, useId } from "bits-ui";
   import { Tween } from "svelte/motion";
   import { quartOut } from "svelte/easing";
-  import { motion } from "@motion";
+  import { motion } from "@media";
   import Label from "./Label.svelte";
 
   /**

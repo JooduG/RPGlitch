@@ -11,6 +11,7 @@ export const PATHS = {
   src: path.resolve(__dirname, "../../../../src"),
   designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
   designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
+  designCssRoot: process.env.CSS_ROOT_PATH || path.resolve(__dirname, "../../../../src/design.css"),
   jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
   signatureColors: process.env.SIGNATURE_COLORS_PATH || path.resolve(__dirname, "../../../../src/data/definitions/signature-colors.js"),
 };

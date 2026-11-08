@@ -13,6 +13,30 @@
 // Procedural Audio & Web Speech Fallback Engine
 // ============================================================================
 
+// ============================================================================
+// Unified Kinetic & Motion Physics Engine
+// ============================================================================
+
+export {
+  motion,
+  pulse,
+  roll,
+  shimmy,
+  stab,
+  overlay_in,
+  overlay_out,
+  item_in,
+  fly_card_in,
+  fly_card_out,
+  make_card_clone,
+  rect_of,
+  strip_card_text,
+  capture_storyboard_flight,
+  fly_storyboard_cards_into_prologue,
+  update_card_scrub,
+  clear_card_location,
+} from "./motion.svelte.js";
+
 export {
   Audio,
   audio_engine,

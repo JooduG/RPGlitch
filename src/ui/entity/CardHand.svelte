@@ -9,7 +9,7 @@
   import { create_new, entities as repository } from "@data";
   import ImportModal from "./ImportModal.svelte";
   import EntityCard from "./EntityCard.svelte";
-  import { motion, fly_card_in, fly_card_out, rect_of } from "@motion";
+  import { motion, fly_card_in, fly_card_out, rect_of } from "@media";
   import { app } from "@state";
 
   // --- RUNES & CORE VIEW ENGINE CONNECTIONS ---

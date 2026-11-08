@@ -42,6 +42,7 @@ export default defineConfig([
       "**/out/**",
       "**/pnpm-lock.yaml",
       "**/public/assets/**",
+      "src/design.css",
       "src/media/design.css",
       "src/media/tokens.js",
       "**/*scribbles**",

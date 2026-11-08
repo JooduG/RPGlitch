@@ -294,6 +294,73 @@ file by hand.
   opacity: 0;
 }
 
+@utility glass-input {
+  position: relative;
+  display: flex;
+  width: var(--state-fill-end);
+  border-radius: var(--radius-standard);
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 4%, var(--color-glass-sunken));
+  transition-property: border-color, box-shadow, background;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-standard);
+
+  &::before {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: var(--spacing-pixel);
+    opacity: var(--opacity-whisper);
+    transition-property: opacity;
+    transition-duration: var(--duration-standard);
+    content: "";
+    background: linear-gradient(to bottom, color-mix(in srgb, transparent, var(--signature-color, var(--color-frozen)) 40%), transparent 40%);
+    /* stylelint-disable property-no-vendor-prefix */
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    /* stylelint-enable property-no-vendor-prefix */
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
+  &:focus-within,
+  &[data-expanded="true"] {
+    border-color: transparent;
+    background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 8%, var(--color-glass-sunken));
+
+    &::before {
+      opacity: var(--opacity-solid);
+      background: linear-gradient(
+        to bottom,
+        var(--signature-color, var(--color-frozen)),
+        color-mix(in srgb, var(--signature-color, var(--color-frozen)), transparent 60%) 30%,
+        transparent 80%
+      );
+    }
+  }
+}
+
+@utility terminal-box {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-sharp);
+  border: var(--spacing-pixel) solid color-mix(in srgb, var(--color-electric-cyan) 20%, transparent);
+  background-color: rgba(24, 24, 27, 0.4);
+  text-align: left;
+  font-family: var(--font-mono);
+  backdrop-filter: blur(4px);
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--duration-standard);
+  transition-timing-function: var(--ease-standard);
+}
+
 @layer base {
   *,
   *::before,

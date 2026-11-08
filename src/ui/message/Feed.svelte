@@ -7,7 +7,8 @@
   import { Audio } from "@media/audio.svelte.js";
   import { chrono_engine } from "@state";
   import { app, simulation_state, simulation_log } from "@state";
-  import { motion, item_in, update_card_scrub, clear_card_location, Shimmer } from "@motion";
+  import { motion, item_in, update_card_scrub, clear_card_location } from "@media";
+  import { Shimmer } from "@primitives";
   import { ProfilePicture } from "@image";
 
   /**

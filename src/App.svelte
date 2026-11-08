@@ -7,9 +7,9 @@
    * EntityCards and Console are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
-  import { Skeleton, Tooltip } from "@primitives";
+  import { Shimmer, Tooltip } from "@primitives";
   import { ImagePicker, ImagePreview, open_image_preview, close_image_preview, run_image_regeneration } from "@image";
-  import { motion } from "@motion";
+  import { motion, Audio, visual_engine, render_optics_fallback } from "@media";
   import { CardHand, EntityCard } from "@entity";
   import { Layout } from "@ui";
   import { Profile } from "@profile";
@@ -18,7 +18,6 @@
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@data";
   import { llm_service } from "@platform";
-  import { Audio, visual_engine, render_optics_fallback } from "@media";
 
   // --- DERIVED RUNES ---
 
@@ -389,6 +388,14 @@
   let fractal_actions = $derived(build_actions("fractal"));
 </script>
 
+{#snippet card_skeleton()}
+  <div
+    class="relative isolate h-full min-h-50 w-full overflow-hidden rounded-xl border border-solid border-white/10 bg-zinc-900/40 backdrop-blur-sm"
+  >
+    <Shimmer color="rgba(255, 255, 255, 0.4)" />
+  </div>
+{/snippet}
+
 <main
   id="main-content"
   class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left"
@@ -429,7 +436,7 @@
 
     {#snippet left()}
       {#if !app.entities_loaded}
-        <Skeleton variant="card" width="100%" height="100%" />
+        {@render card_skeleton()}
       {:else if app.view === "storymode"}
         <!-- Side cards are hidden in storymode — the feed owns the center stage. -->
       {:else}
@@ -455,7 +462,7 @@
     {#snippet center()}
       {#if app.view === "storyboard"}
         {#if !app.entities_loaded}
-          <Skeleton variant="card" width="100%" height="100%" />
+          {@render card_skeleton()}
         {:else}
           {@const entity = app.selected_fractal || runtime.active_fractal}
           <div class="flex h-full w-full items-center justify-center" data-slot-type="fractal">
@@ -478,7 +485,7 @@
       {:else if app.view === "storymode"}
         <div class="relative flex h-full w-full flex-col overflow-hidden">
           {#if !app.entities_loaded}
-            <Skeleton variant="card" width="100%" height="100%" />
+            {@render card_skeleton()}
           {:else}
             <Storymode card_actions={{ ai: ai_actions, user: user_actions, fractal: fractal_actions }} />
           {/if}
@@ -488,7 +495,7 @@
 
     {#snippet right()}
       {#if !app.entities_loaded}
-        <Skeleton variant="card" width="100%" height="100%" />
+        {@render card_skeleton()}
       {:else}
         {@const entity = app.selected_user || runtime.active_user}
         {#if app.view === "storymode"}

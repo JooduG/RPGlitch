@@ -22,6 +22,8 @@
  */
 
 import DOMPurify from "dompurify";
+import { sanitize, sanitize_to_fragment, escape_html } from "@utils";
+export { sanitize, sanitize_to_fragment, escape_html };
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & VALIDATION CONFIGURATION]
@@ -82,46 +84,8 @@ const IMAGE_SIGNATURE_VALIDATORS = {
 };
 
 // ============================================================================
-// [SECTION 2: HTML SANITIZATION & ESCAPING]
+// [SECTION 2: HTML SANITIZATION & ESCAPING (RE-EXPORTED FROM @UTILS)]
 // ============================================================================
-
-/**
- * Sanitizes dirty HTML string and returns safe sanitized HTML string.
- * @param {any} dirty
- * @returns {string}
- */
-export function sanitize(dirty) {
-  if (typeof window === "undefined") return dirty;
-  return DOMPurify.sanitize(dirty, {
-    RETURN_DOM_FRAGMENT: false,
-    SANITIZE_DOM: true,
-    SANITIZE_NAMED_PROPS: true,
-  });
-}
-
-/**
- * Sanitizes dirty HTML string and returns a safe sanitized DocumentFragment.
- * @param {any} dirty
- * @returns {DocumentFragment | any}
- */
-export function sanitize_to_fragment(dirty) {
-  if (typeof window === "undefined") return dirty;
-  return DOMPurify.sanitize(dirty, {
-    RETURN_DOM_FRAGMENT: true,
-    SANITIZE_DOM: true,
-    SANITIZE_NAMED_PROPS: true,
-  });
-}
-
-/**
- * Escapes special HTML characters (&, <, >, ", ') into safe entity equivalents.
- * @param {any} str
- * @returns {string}
- */
-export function escape_html(str) {
-  if (str === null || str === undefined) return "";
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
 
 // ============================================================================
 // [SECTION 3: BINARY FILE & IMAGE SECURITY VALIDATION]

@@ -10,7 +10,7 @@
   import { ProfilePicture } from "@image";
   import { guarded_transition } from "@utils";
   import { get_signature_color } from "@media";
-  import { motion } from "@motion";
+  import { motion } from "@media";
   import { app, runtime } from "@state";
   import MacroText from "../profile/MacroText.svelte";
   import { flushSync } from "svelte";

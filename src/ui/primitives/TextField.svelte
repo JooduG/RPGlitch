@@ -10,9 +10,9 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { Button, ScrollArea, tooltip } from "@primitives";
-  import { Shimmer } from "@motion";
+  import { Shimmer } from "./index.js";
   import { parse_markdown } from "@utils";
-  import { auto_resize, use_actions } from "@ui";
+  import { auto_resize, use_actions } from "@utils";
   import { fade, slide } from "svelte/transition";
   import { onDestroy } from "svelte";
 

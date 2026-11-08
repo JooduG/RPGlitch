@@ -5,7 +5,7 @@
    * Shared by the storymode/story-locked/input states of the console.
    */
   import { Button, tooltip } from "@primitives";
-  import { roll } from "@motion";
+  import { roll } from "@media";
   import { app } from "@state";
 
   let { variant = "invisible", disabled = false, testid = undefined } = $props();

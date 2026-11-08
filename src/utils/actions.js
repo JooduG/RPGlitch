@@ -1,5 +1,5 @@
-import { resolve_px } from "@utils";
-import { sanitize_to_fragment } from "@platform";
+import { resolve_px } from "./ui-helpers.js";
+import { sanitize_to_fragment } from "./html.js";
 
 /**
  * @typedef {import('svelte/action').Action} Action
@@ -8,7 +8,7 @@ import { sanitize_to_fragment } from "@platform";
  */
 
 /**
- * @file src/ui/actions.js
+ * @file src/utils/actions.js
  * 🔗 UNIVERSAL ACTION BRIDGE
  * Orchestrates multiple Svelte actions on a single node with Map-based reconciliation.
  * Now detects kinetic actions to enable CSS-based transition stabilization.
@@ -120,7 +120,7 @@ export function safe_html(node, content) {
 }
 
 /**
- * @file src/ui/actions.js
+ * @file src/utils/actions.js
  * Svelte 5 logic action to resize textareas automatically based on their content.
  * Optimized to prevent layout thrashing by batching DOM reads and writes.
  */
