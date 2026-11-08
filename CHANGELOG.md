@@ -15,19 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Implemented `execute_turn_structuring` in `src/engine/turns.js` and `structure_profile` in `src/engine/bridge.js`.
   - Pure storage layer `src/storage/entities.js` now delegates structuring directly to `@engine`.
 
-
 - **Eliminate Media Visualizer Clone, Dead Tempo Budgets & Storage Physics Duplication (`src/media/visualizer.js`, `src/media/visual.js`, `src/media/visual.test.js`, `src/engine/turns.js`, `src/engine/bridge.js`, `src/engine/index.js`, `src/storage/entities.js`)**:
   - Deleted duplicate 332-line prompt compiler `src/media/visualizer.js`.
   - Re-routed visual prompt envisioning (`visual_engine.envision()`) to `src/engine/bridge.js` (`execute_visualizer_envision`), orchestrating the turn through `execute_turn_visualizer` and the canonical `PURPOSE_CORES.visualizer` in `src/engine/prompts.js`.
   - Purged unconsumed `TEMPO_OUTPUT_BUDGETS` from `src/engine/turns.js` and barrel `src/engine/index.js`.
   - Replaced hardcoded dynamics objects and clamped ranges in `src/storage/entities.js` with canonical `DEFAULT_AI_DYNAMICS`, `DEFAULT_FRACTAL_DYNAMICS`, and `DYNAMICS_SCALE` from `src/config.js`. Enforced pure string-only merging for `past` in `apply_profile_to_entity`.
 
-
 - **Decouple Parsers & Prune Duplicate Engine Parser (`src/engine/parser.js`, `src/engine/parser.test.js`, `src/engine/index.js`, `src/engine/turns.js`, `src/engine/bridge.js`, `src/storage/parser.js`)**:
   - Deleted duplicate `src/engine/parser.js` and `src/engine/parser.test.js`.
   - Consolidated streaming cognition parsing into canonical `src/storage/parser.js` (`parse_think_block`), ensuring uniform extraction of `{ think, prose, content }`.
   - Re-routed all engine calls (`turns.js`, `bridge.js`) directly to `@storage/parser.js`.
-
 
 - **Character Core Prompt Streamlining (`src/engine/prompts.js`, `src/engine/prompts.test.js`, `src/engine/turns.test.js`)**:
   - Removed redundant `PURPOSE_CORES.ghostwrite` and `is_continuation` branching (`Continuation Directive` and additive pacing instruction) from `src/engine/prompts.js`.

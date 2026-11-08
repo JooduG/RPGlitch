@@ -15,12 +15,7 @@
  */
 
 import { Kernel } from "./kernel.svelte.js";
-import {
-  execute_turn_2_character,
-  execute_turn_3_caretaker,
-  execute_turn_visualizer,
-  execute_turn_structuring,
-} from "./turns.js";
+import { execute_turn_2_character, execute_turn_3_caretaker, execute_turn_visualizer, execute_turn_structuring } from "./turns.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
 import { append_ledger_entries, log_message } from "../storage/db.js";

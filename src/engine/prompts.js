@@ -75,9 +75,7 @@ export const PURPOSE_CORES = Object.freeze({
       const pres_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ATMOSPHERIC_TRACKER : ENHANCER_DIRECTIVES.SOMATIC_TRACKER;
       const pres_non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ECOSYSTEM_ANALYZER : ENHANCER_DIRECTIVES.TACTICAL_ANALYZER;
 
-      const input_block = context?.input_data
-        ? `\n  <INPUT kind="ingestion">\n${context.input_data}\n  </INPUT>\n`
-        : "";
+      const input_block = context?.input_data ? `\n  <INPUT kind="ingestion">\n${context.input_data}\n  </INPUT>\n` : "";
 
       return `  <TASK>
     ### Directives
@@ -254,11 +252,12 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const speaker_name = ai?.name || "AI";
   const listener_name = user?.name || "USER";
   const fractal_name = fractal?.name || "World";
-  const target_entity = task_options.target_entity_key
-    ? entities[task_options.target_entity_key]
-    : ai;
+  const target_entity = task_options.target_entity_key ? entities[task_options.target_entity_key] : ai;
   const target_name = target_entity?.name || task_options.target_entity_key || speaker_name;
-  const target_type = task_options.target_type || target_entity?.type || (core === "caretaker" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
+  const target_type =
+    task_options.target_type ||
+    target_entity?.type ||
+    (core === "caretaker" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
 
   // Resolve active purpose core definition
   const purpose_core = PURPOSE_CORES[core] || PURPOSE_CORES.character;

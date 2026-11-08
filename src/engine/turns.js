@@ -457,14 +457,7 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
  * @param {AbortSignal} [params.signal=null]
  * @returns {Promise<{ prompt: string, negative_prompt: string, _thought_process: string, raw: string }>}
  */
-export async function execute_turn_visualizer({
-  transport,
-  round = 1,
-  entities = {},
-  camera_note = "",
-  subject_kind = "character",
-  signal = null,
-}) {
+export async function execute_turn_visualizer({ transport, round = 1, entities = {}, camera_note = "", subject_kind = "character", signal = null }) {
   if (signal?.aborted) {
     throw new Error("Stream aborted by user.");
   }
@@ -522,12 +515,7 @@ export async function execute_turn_visualizer({
  * @param {AbortSignal} [params.signal=null]
  * @returns {Promise<Record<string, any> | null>}
  */
-export async function execute_turn_structuring({
-  transport,
-  input_data = "",
-  type = "character",
-  signal = null,
-}) {
+export async function execute_turn_structuring({ transport, input_data = "", type = "character", signal = null }) {
   if (signal?.aborted) {
     throw new Error("Stream aborted by user.");
   }
