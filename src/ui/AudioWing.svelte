@@ -10,7 +10,7 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('@profile/Profile.svelte.js').ProfileState} profile_state - The profile state controller
+   * @property {import('./Profile.svelte.js').ProfileState} profile_state - The profile state controller
    */
 
   /** @type {Props} */

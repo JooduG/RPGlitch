@@ -17,10 +17,16 @@ export {
 } from "./Storyboard.svelte";
 export { default as Console } from "./Console.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
+export { default as Profile } from "./Profile.svelte";
+export { ProfileState } from "./Profile.svelte.js";
+export { default as RelationalGraph } from "./RelationalGraph.svelte";
+export { default as VisualWing } from "./VisualWing.svelte";
+export { default as AudioWing } from "./AudioWing.svelte";
+export { default as DevWing } from "./DevWing.svelte";
+export { default as MacroText } from "./MacroText.svelte";
 export { default as UndoToast } from "./UndoToast.svelte";
 export { default as ChatBubble } from "./ChatBubble.svelte";
-export { default as Typewriter } from "./Typewriter.svelte";
-export { typewriter } from "./Typewriter.svelte.js";
+export { default as Typewriter, typewriter } from "./Typewriter.svelte";
 export { default as EntityCard } from "./EntityCard.svelte";
 export { default as ContextMenu } from "./ContextMenu.svelte";
 export * from "./ContextMenu.svelte.js";

@@ -134,7 +134,6 @@ export default defineConfig(({ command, mode }) => {
         "@state": path.resolve(import.meta.dirname, "./src/state"),
         "@media": path.resolve(import.meta.dirname, "./src/media"),
         "@ui": path.resolve(import.meta.dirname, "./src/ui"),
-        "@profile": path.resolve(import.meta.dirname, "./src/ui/profile"),
         "@primitives": path.resolve(import.meta.dirname, "./src/ui/primitives"),
         "@utils": path.resolve(import.meta.dirname, "./src/utils"),
         "@config": path.resolve(import.meta.dirname, "./src/config.js"),

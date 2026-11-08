@@ -31,7 +31,6 @@ const LAYER_HIERARCHY = {
 
 const ALIAS_LAYER_MAP = {
   "@ui": "src/ui",
-  "@profile": "src/ui",
   "@primitives": "src/ui",
   "@state": "src/state",
   "@intelligence": "src/intelligence",

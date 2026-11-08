@@ -4,7 +4,7 @@
    * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import { auto_resize, click_outside } from "@utils";
+  import { auto_resize, click_outside, format_datetime, generate_uuid } from "@utils";
   import { download_json_file, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
   import { Shimmer } from "@primitives";
@@ -14,24 +14,27 @@
   import AudioWing from "./AudioWing.svelte";
   import DevWing from "./DevWing.svelte";
   import VisualWing from "./VisualWing.svelte";
-  import FieldHistoryModal from "./FieldHistoryModal.svelte";
-  import TimelineModal from "./TimelineModal.svelte";
   import { ProfileState } from "./Profile.svelte.js";
-  import ProfileHeader from "./ProfileHeader.svelte";
   import RelationalGraph from "./RelationalGraph.svelte";
   import { app, runtime, simulation_state } from "@state";
   import { resolve_display_macro_segments } from "@utils";
   import MacroText from "./MacroText.svelte";
   import { fade } from "svelte/transition";
+  import { SvelteSet } from "svelte/reactivity";
   import {
     NARRATIVE_STYLES,
     VISUAL_STYLES,
     get_narrative_style,
     get_visual_style,
     PROFILE_SECTIONS_BY_TYPE,
+    PROFILE_FIELDS,
     serialize_character_card,
     serialize_rpglitch_entity,
     normalize,
+    query_entity_history,
+    replay_entity_field,
+    replay_full_entity_at_round,
+    entities,
   } from "@data";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -51,6 +54,188 @@
   let history_target_field = $state("present.non_physical");
   /** Full Profile Timeline Scrubber & Branching Mode */
   let show_timeline_modal = $state(false);
+
+  // --- FIELD HISTORY STATE ---
+  let is_field_history_loading = $state(false);
+  /** @type {Array<any>} */
+  let field_history_records = $state([]);
+  let reconstructed_brackets = $state("");
+  let reconstructed_prose = $state("");
+  let field_history_active_tab = $state("timeline"); // "timeline" | "reconstructed"
+
+  $effect(() => {
+    if (show_field_history_modal && profile_state.char?.id) {
+      load_field_history();
+    }
+  });
+
+  async function load_field_history() {
+    if (!profile_state.char?.id) return;
+    is_field_history_loading = true;
+    try {
+      const records = await query_entity_history(profile_state.char.id, history_target_field);
+      field_history_records = records.reverse();
+      const replay_result = await replay_entity_field(profile_state.char.id, history_target_field);
+      reconstructed_brackets = replay_result.reconstructed_brackets;
+      reconstructed_prose = replay_result.raw_prose;
+    } catch (err) {
+      console.error("[Profile:FieldHistory] Failed to load history:", err);
+      field_history_records = [];
+    } finally {
+      is_field_history_loading = false;
+    }
+  }
+
+  // --- TIMELINE MODAL STATE ---
+  let is_timeline_loading = $state(false);
+  let is_performing_timeline_action = $state(false);
+  /** @type {Array<number>} */
+  let available_timeline_rounds = $state([]);
+  let selected_timeline_round = $state(0);
+  /** @type {any} */
+  let reconstructed_timeline_state = $state(null);
+  /** @type {Array<any>} */
+  let timeline_round_events = $state([]);
+
+  $effect(() => {
+    if (show_timeline_modal && profile_state.char?.id) {
+      load_timeline_data();
+    }
+  });
+
+  async function load_timeline_data() {
+    if (!profile_state.char?.id) return;
+    is_timeline_loading = true;
+    try {
+      const history = await query_entity_history(profile_state.char.id);
+      const rounds_set = new SvelteSet();
+      rounds_set.add(0);
+      for (const entry of history) {
+        if (typeof entry.round === "number") {
+          rounds_set.add(entry.round);
+        }
+      }
+      available_timeline_rounds = Array.from(rounds_set).sort((a, b) => a - b);
+      selected_timeline_round = available_timeline_rounds[available_timeline_rounds.length - 1] ?? 0;
+      await fetch_timeline_round_state(selected_timeline_round, history);
+    } catch (err) {
+      console.error("[Profile:Timeline] Failed to load entity timeline:", err);
+      available_timeline_rounds = [0];
+      selected_timeline_round = 0;
+    } finally {
+      is_timeline_loading = false;
+    }
+  }
+
+  /**
+   * Fetches the reconstructed profile state up to the target round.
+   * @param {number} round
+   * @param {Array<any>} [provided_history]
+   */
+  async function fetch_timeline_round_state(round, provided_history = null) {
+    if (!profile_state.char?.id) return;
+    try {
+      const history = provided_history || (await query_entity_history(profile_state.char.id));
+      timeline_round_events = history.filter((e) => e.round === round);
+      reconstructed_timeline_state = await replay_full_entity_at_round(profile_state.char.id, round);
+    } catch (err) {
+      console.error("[Profile:Timeline] Failed to replay entity at round:", err);
+    }
+  }
+
+  async function handle_select_timeline_round(round) {
+    if (round === selected_timeline_round) return;
+    selected_timeline_round = round;
+    await fetch_timeline_round_state(round);
+  }
+
+  /**
+   * Reverts the active entity's Four-Quadrant state in-place to this historical snapshot.
+   */
+  async function handle_timeline_update_from_point() {
+    if (!reconstructed_timeline_state || !profile_state.char?.id || is_performing_timeline_action) return;
+    is_performing_timeline_action = true;
+    try {
+      const updated_entity = {
+        ...profile_state.char,
+        eternal: {
+          ...profile_state.char.eternal,
+          ...reconstructed_timeline_state.eternal,
+        },
+        present: {
+          ...profile_state.char.present,
+          ...reconstructed_timeline_state.present,
+        },
+        past: reconstructed_timeline_state.past,
+        future: reconstructed_timeline_state.future,
+      };
+
+      await entities.upsert(entity_type, updated_entity);
+      await app.load_entities();
+
+      if (runtime.active_ai?.id === profile_state.char.id) runtime.active_ai = updated_entity;
+      if (runtime.active_user?.id === profile_state.char.id) runtime.active_user = updated_entity;
+      if (runtime.active_fractal?.id === profile_state.char.id) runtime.active_fractal = updated_entity;
+
+      profile_state.char = normalize(profile_state.char);
+      show_timeline_modal = false;
+    } catch (err) {
+      console.error("[Profile:Timeline] Failed to revert entity state:", err);
+    } finally {
+      is_performing_timeline_action = false;
+    }
+  }
+
+  /**
+   * Clones a new timeline branch into the census from this historical snapshot.
+   */
+  async function handle_timeline_clone_from_point() {
+    if (!reconstructed_timeline_state || !profile_state.char || is_performing_timeline_action) return;
+    is_performing_timeline_action = true;
+    try {
+      const branch_id = generate_uuid();
+      const branch_name = `${profile_state.char.name || "Entity"} (R${selected_timeline_round} Branch)`;
+      const new_entity = normalize({
+        ...profile_state.char,
+        id: branch_id,
+        name: branch_name,
+        eternal: {
+          ...profile_state.char.eternal,
+          ...reconstructed_timeline_state.eternal,
+        },
+        present: {
+          ...profile_state.char.present,
+          ...reconstructed_timeline_state.present,
+        },
+        past: reconstructed_timeline_state.past,
+        future: reconstructed_timeline_state.future,
+      });
+
+      await entities.upsert(entity_type, new_entity);
+      await app.load_entities();
+      show_timeline_modal = false;
+    } catch (err) {
+      console.error("[Profile:Timeline] Failed to clone entity branch:", err);
+    } finally {
+      is_performing_timeline_action = false;
+    }
+  }
+
+  // --- HEADER REF RUNES ---
+  /** @type {HTMLInputElement | undefined} */
+  let name_input = $state();
+
+  function format_header_name(rawName) {
+    if (!rawName) return "";
+    return rawName.trim();
+  }
+
+  $effect(() => {
+    if (profile_state.is_editing && profile_state.active_field?.key === "name" && name_input) {
+      name_input.focus();
+      name_input.select();
+    }
+  });
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
@@ -626,17 +811,151 @@
         </div>
 
         <div class={info_container_class} bind:this={info_container_el}>
-          <ProfileHeader
-            bind:id={profile_state.char.id}
-            bind:name={profile_state.char.name}
-            bind:description={profile_state.char.description}
-            is_editing={profile_state.is_editing}
-            active_field={profile_state.active_field?.key}
-            {signature_color}
-            {entity_type}
-            class={entity_type === "fractal" && !app.viewport.mobile ? "pr-44 pl-10" : ""}
-            on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profile_state.set_active_field(key, label)}
-          />
+          <!-- Inlined ProfileHeader snippet -->
+          <div
+            class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-2 {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
+            data-testid="profile-header"
+            role="banner"
+          >
+            {#if profile_state.is_editing}
+              <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80">
+                <span class="text-slate-400">@ID:</span>
+                <input
+                  type="text"
+                  bind:value={profile_state.char.id}
+                  placeholder="SLUG"
+                  pattern={"^[A-Za-z0-9_-]{2,20}$"}
+                  maxlength="20"
+                  class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
+                  style="color: {signature_color};"
+                  oninput={(event) => {
+                    profile_state.char.id = event.currentTarget.value
+                      .toUpperCase()
+                      .replace(/[^A-Z0-9_-]/g, "")
+                      .slice(0, 20);
+                  }}
+                  onfocus={() => profile_state.set_active_field("id", "Entity Handle (@ID)")}
+                  onblur={() => profile_state.set_active_field("", "")}
+                />
+              </div>
+            {:else if profile_state.char.id}
+              <div
+                class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
+                style="color: {signature_color};"
+              >
+                @{profile_state.char.id.toUpperCase()}
+              </div>
+            {/if}
+
+            <div class="w-full min-w-0 shrink-0">
+              {#if profile_state.is_editing}
+                <div class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
+                  <input
+                    bind:this={name_input}
+                    bind:value={profile_state.char.name}
+                    class="
+                      z-20
+                      box-border
+                      w-full
+                      border-none
+                      bg-transparent
+                      p-3
+                      text-left
+                      font-heading
+                      text-4xl
+                      leading-none
+                      font-extrabold
+                      tracking-normal
+                      outline-none
+                      sm:text-5xl
+                      md:text-6xl
+                    "
+                    style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem) !important;"
+                    onfocus={() => profile_state.set_active_field("name", "Entity Name")}
+                    onblur={() => profile_state.set_active_field("", "")}
+                  />
+                </div>
+              {:else}
+                <h1
+                  class="
+                    m-0
+                    block
+                    {entity_type === 'fractal' ? 'text-left' : 'text-right'}
+                    font-heading
+                    text-6xl leading-none font-extrabold
+                    tracking-tight
+                    text-balance
+                    sm:text-7xl
+                    md:text-8xl
+                    lg:text-[5.5rem]
+                  "
+                  style="margin: 0 !important; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem) !important; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
+                >
+                  {format_header_name(profile_state.char.name)}
+                </h1>
+              {/if}
+            </div>
+
+            {#if profile_state.is_editing}
+              <div
+                class="glass-input"
+                data-expanded={profile_state.active_field?.key === "description"}
+                style="--signature-color: {signature_color};"
+              >
+                <textarea
+                  class="
+                    z-20
+                    m-0
+                    max-h-[calc(var(--spacing-row-unit)*4)]
+                    min-h-row-unit
+                    w-full
+                    resize-none
+                    [scrollbar-color:color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))_transparent]
+                    border-none
+                    bg-transparent
+                    p-3
+                    text-left
+                    font-sans
+                    text-sm
+                    leading-relaxed
+                    [text-wrap:auto]
+                    text-slate-50
+                    outline-none
+                    placeholder:text-slate-400
+                    placeholder:italic
+                    placeholder:opacity-60
+                    [&::-webkit-scrollbar]:h-[calc(var(--spacing-unit)*2)]
+                    [&::-webkit-scrollbar]:w-[calc(var(--spacing-unit)*2)]
+                    [&::-webkit-scrollbar-thumb]:rounded-standard
+                    [&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))]
+                    hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
+                    [&::-webkit-scrollbar-track]:bg-transparent
+                  "
+                  placeholder={PROFILE_FIELDS.description?.description || "Description"}
+                  bind:value={profile_state.char.description}
+                  use:auto_resize
+                  onfocus={() => profile_state.set_active_field("description", "Description")}
+                  onblur={() => profile_state.set_active_field("", "")}></textarea>
+              </div>
+            {:else if profile_state.char.description}
+              <p
+                class="
+                  m-0
+                  rounded-md
+                  {entity_type === 'fractal' ? 'text-left' : 'text-right'}
+                  font-sans
+                  text-sm
+                  leading-relaxed
+                  text-balance
+                  whitespace-pre-wrap
+                  text-slate-200
+                  opacity-75
+                "
+              >
+                {profile_state.char.description}
+              </p>
+            {/if}
+          </div>
 
           {#if entity_type === "fractal" && app.viewport.mobile}
             {@const active_style = get_narrative_style(profile_state.char.narrative_style)}
@@ -783,12 +1102,24 @@
             >
               <AudioWing {profile_state} />
               {#if app.settings.dev_mode}
-                <DevWing {profile_state} />
+                <DevWing
+                  {profile_state}
+                  on_inspect_history={(field) => {
+                    history_target_field = field;
+                    show_field_history_modal = true;
+                  }}
+                />
               {/if}
             </div>
           {:else if app.settings.dev_mode}
             <div style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""} class={app.viewport.mobile ? "max-w-sm" : "w-full"}>
-              <DevWing {profile_state} />
+              <DevWing
+                {profile_state}
+                on_inspect_history={(field) => {
+                  history_target_field = field;
+                  show_field_history_modal = true;
+                }}
+              />
             </div>
           {/if}
         </div>
@@ -796,24 +1127,306 @@
     </div>
   </Modal>
 
+  <!-- Field History Inspector Modal (Inlined) -->
   {#if show_field_history_modal && profile_state.char?.id}
-    <FieldHistoryModal
+    <Modal
       bind:open={show_field_history_modal}
-      entity_id={profile_state.char.id}
-      entity_name={profile_state.char.name}
-      field={history_target_field}
-    />
+      variant="bare"
+      z_index="400"
+      class="relative flex max-h-[85vh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      on_close={() => {
+        show_field_history_modal = false;
+      }}
+    >
+      <div class="flex h-full flex-col gap-4 overflow-hidden font-sans">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex flex-col">
+            <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Mutation Ledger Inspector</h4>
+            <span class="font-mono text-xs text-slate-400">
+              {profile_state.char.name} &bull; <span class="text-cyan-200">{history_target_field}</span>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="flex rounded-lg bg-black/40 p-0.5">
+              <button
+                type="button"
+                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab ===
+                'timeline'
+                  ? 'bg-cyan-500/20 text-cyan-300'
+                  : 'text-slate-400 hover:text-slate-200'}"
+                onclick={() => (field_history_active_tab = "timeline")}
+              >
+                Timeline ({field_history_records.length})
+              </button>
+              <button
+                type="button"
+                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab ===
+                'reconstructed'
+                  ? 'bg-cyan-500/20 text-cyan-300'
+                  : 'text-slate-400 hover:text-slate-200'}"
+                onclick={() => (field_history_active_tab = "reconstructed")}
+              >
+                Reconstructed State
+              </button>
+            </div>
+
+            <Button variant="invisible" size="small" square={true} onclick={() => (show_field_history_modal = false)} aria-label="Close">
+              <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </Button>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="flex flex-1 flex-col overflow-y-auto pr-1">
+          {#if is_field_history_loading}
+            <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Replaying ledger stream...</div>
+          {:else if field_history_active_tab === "timeline"}
+            {#if field_history_records.length === 0}
+              <div class="flex h-48 flex-col items-center justify-center gap-1 font-mono text-xs text-slate-500">
+                <span>No ledger events recorded for this field.</span>
+                <span class="text-[10px] text-slate-600">Mutations during genesis or turns will appear here.</span>
+              </div>
+            {:else}
+              <div class="flex flex-col gap-2.5 py-1">
+                {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
+                  <div
+                    class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-3 text-xs transition-colors hover:border-cyan-500/20"
+                  >
+                    <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
+                      <div class="flex items-center gap-2">
+                        <span class="rounded bg-cyan-950/60 px-1.5 py-0.5 font-bold text-cyan-400">
+                          R{record.round}:S{record.seq}
+                        </span>
+                        <span class="text-slate-300 capitalize">{record.writer}</span>
+                        {#if record.decider && record.decider !== record.writer}
+                          <span class="text-slate-500">via {record.decider}</span>
+                        {/if}
+                      </div>
+                      <span>{format_datetime(record.timestamp)}</span>
+                    </div>
+
+                    <div class="flex items-start gap-2 pt-0.5">
+                      {#if record.key}
+                        <span class="shrink-0 font-mono text-xs font-semibold text-cyan-300">
+                          [{record.key}]
+                        </span>
+                      {/if}
+
+                      <div class="flex flex-1 flex-col gap-1">
+                        {#if record.new_value === null}
+                          <span class="font-mono text-xs text-red-400 italic">cleared (null)</span>
+                        {:else}
+                          <span class="font-mono text-xs text-slate-200">
+                            {record.new_value}
+                          </span>
+                        {/if}
+
+                        {#if record.old_value != null && record.old_value !== record.new_value}
+                          <span class="font-mono text-[10px] text-slate-500 line-through">
+                            was: {record.old_value}
+                          </span>
+                        {/if}
+                      </div>
+
+                      {#if record.visibility || record.weight}
+                        <div class="flex shrink-0 items-center gap-1.5 font-mono text-[10px]">
+                          {#if record.visibility === "hide"}
+                            <span class="rounded bg-red-950/40 px-1.5 py-0.5 text-red-400">hide</span>
+                          {/if}
+                          {#if record.weight && record.weight !== 5}
+                            <span class="rounded bg-amber-950/40 px-1.5 py-0.5 text-amber-300">w:{record.weight}</span>
+                          {/if}
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          {:else}
+            <!-- Reconstructed Tab -->
+            <div class="flex flex-col gap-3 py-1">
+              <div class="flex flex-col gap-1">
+                <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
+                <div class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs leading-relaxed break-words text-cyan-200">
+                  {reconstructed_brackets || "(empty state)"}
+                </div>
+              </div>
+
+              {#if reconstructed_prose}
+                <div class="flex flex-col gap-1">
+                  <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Raw Prose </span>
+                  <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs text-slate-300">
+                    {reconstructed_prose}
+                  </div>
+                </div>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      </div>
+    </Modal>
   {/if}
 
+  <!-- Timeline Scrubber & Branching Modal (Inlined) -->
   {#if show_timeline_modal && profile_state.char?.id}
-    <TimelineModal
+    <Modal
       bind:open={show_timeline_modal}
-      entity={profile_state.char}
-      {entity_type}
-      on_reverted={() => {
-        profile_state.char = normalize(profile_state.char);
+      variant="bare"
+      z_index="400"
+      class="relative flex max-h-[88vh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      on_close={() => {
+        show_timeline_modal = false;
       }}
-    />
+    >
+      <div class="flex h-full flex-col gap-4 overflow-hidden font-sans">
+        <!-- Header -->
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div class="flex flex-col">
+            <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Profile Timeline Scrubber</h4>
+            <span class="font-mono text-xs text-slate-400">
+              {profile_state.char.name || "Entity"} &bull; <span class="text-cyan-200">Timeline Branching & Historical Reversion</span>
+            </span>
+          </div>
+
+          <Button variant="invisible" size="small" square={true} onclick={() => (show_timeline_modal = false)} aria-label="Close">
+            <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </Button>
+        </div>
+
+        <!-- Scrubber Bar -->
+        <div class="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/40 p-3">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-semibold text-slate-300"> SELECT TIMELINE POINT </span>
+            <span class="rounded bg-cyan-950/70 px-2 py-0.5 font-mono text-xs font-bold text-cyan-400">
+              Round {selected_timeline_round}
+              {selected_timeline_round === 0 ? "(Genesis Baseline)" : ""}
+            </span>
+          </div>
+
+          <!-- Round Selector Strip -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-1">
+            {#each available_timeline_rounds as r (r)}
+              <button
+                type="button"
+                class="cursor-pointer rounded-lg px-3 py-1 font-mono text-xs font-medium transition-all {selected_timeline_round === r
+                  ? 'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                  : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
+                onclick={() => handle_select_timeline_round(r)}
+              >
+                R{r}
+              </button>
+            {/each}
+          </div>
+        </div>
+
+        <!-- Snapshot Replay Body -->
+        <div class="flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
+          {#if is_timeline_loading}
+            <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">
+              Reconstructing Four-Quadrant Matrix...
+            </div>
+          {:else if reconstructed_timeline_state}
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <!-- Present Quadrant -->
+              <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
+                <span class="font-mono text-xs font-bold text-cyan-300">PRESENT QUADRANT</span>
+                <div class="flex flex-col gap-1.5 font-mono text-xs">
+                  <span class="text-[10px] text-slate-400 uppercase">Physical:</span>
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 text-slate-300">
+                    {reconstructed_timeline_state.present.physical || "<empty>"}
+                  </div>
+                  <span class="text-[10px] text-slate-400 uppercase">Non-Physical:</span>
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 text-slate-300">
+                    {reconstructed_timeline_state.present.non_physical || "<empty>"}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Past & Future Quadrants -->
+              <div class="flex flex-col gap-3">
+                <!-- Past Quadrant -->
+                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
+                  <span class="font-mono text-xs font-bold text-cyan-300">PAST</span>
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-xs text-slate-300">
+                    {reconstructed_timeline_state.past || "<empty>"}
+                  </div>
+                </div>
+
+                <!-- Future / Standing Trajectory -->
+                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
+                  <span class="font-mono text-xs font-bold text-cyan-300">FUTURE (STANDING AGENDA)</span>
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-xs text-slate-300">
+                    {reconstructed_timeline_state.future || "<empty>"}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recorded mutations in this specific round -->
+            {#if timeline_round_events.length > 0}
+              <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/20 p-3">
+                <span class="font-mono text-[11px] font-semibold text-slate-400">
+                  Round {selected_timeline_round} Mutations ({timeline_round_events.length})
+                </span>
+                <div class="flex max-h-32 flex-col gap-1 overflow-y-auto font-mono text-[11px] text-slate-300">
+                  {#each timeline_round_events as ev (ev.id || `${ev.field}-${ev.round}-${ev.seq || 0}-${ev.timestamp}`)}
+                    <div class="flex items-center justify-between gap-2 border-b border-white/5 py-0.5">
+                      <div class="flex items-center gap-2 truncate">
+                        <span class="text-cyan-400">[{ev.field}]</span>
+                        {#if ev.key}
+                          <span class="text-slate-200">[{ev.key}] &rarr; {ev.new_value ?? "cleared"}</span>
+                        {:else}
+                          <span class="truncate text-slate-400">{ev.new_value}</span>
+                        {/if}
+                      </div>
+                      <span class="shrink-0 text-[10px] text-slate-500">{format_datetime(ev.timestamp)}</span>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          {/if}
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="flex items-center justify-between border-t border-white/10 pt-3">
+          <div class="font-mono text-[11px] text-slate-500">Reverting alters current profile. Cloning branches a separate entity into census.</div>
+
+          <div class="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              size="medium"
+              disabled={is_performing_timeline_action || is_timeline_loading}
+              onclick={handle_timeline_clone_from_point}
+              aria-label="Clone from this point into a new entity"
+              actions={[tooltip]}
+            >
+              {is_performing_timeline_action ? "Cloning..." : "Clone from this point"}
+            </Button>
+
+            <Button
+              variant="primary"
+              size="medium"
+              disabled={is_performing_timeline_action || is_timeline_loading}
+              onclick={handle_timeline_update_from_point}
+              aria-label="Revert entity in-place to this historical round"
+              actions={[tooltip]}
+            >
+              {is_performing_timeline_action ? "Reverting..." : "Update from this point"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </Modal>
   {/if}
 {/if}
 

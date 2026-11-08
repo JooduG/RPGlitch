@@ -1,3 +1,36 @@
+<script module>
+  import { mount, unmount } from "svelte";
+  import Typewriter from "./Typewriter.svelte";
+
+  /**
+   * Svelte Action: Safely types out sanitized HTML character-by-character.
+   * Preserves all HTML tags intact and only truncates text nodes reactively.
+   *
+   * @param {HTMLElement} node - The element anchor mapping the text insertion phase.
+   * @param {string | null | undefined} initialHtml
+   */
+  export function typewriter(node, initialHtml = "") {
+    let destroyed = false;
+    const props = $state({ target_html: initialHtml || "" });
+
+    const component = mount(Typewriter, {
+      target: node,
+      props: props,
+    });
+
+    return {
+      update: function (/** @type {string | null | undefined} */ new_content) {
+        if (destroyed) return;
+        props.target_html = new_content ?? "";
+      },
+      destroy() {
+        destroyed = true;
+        unmount(component);
+      },
+    };
+  }
+</script>
+
 <script>
   /**
    * @file Typewriter.svelte

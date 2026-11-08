@@ -11,7 +11,7 @@
   import { ImagePreview, open_image_preview, close_image_preview } from "@ui";
   import { motion, Audio } from "@media";
   import { Storyboard, Storymode, Console } from "@ui";
-  import { Profile } from "@profile";
+  import { Profile } from "@ui";
   import { app, runtime, register_image_preview_handlers } from "@state";
 
   // --- DERIVED RUNES ---

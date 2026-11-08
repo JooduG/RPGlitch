@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/profile/DevWing.svelte
+   * @file src/ui/DevWing.svelte
    * DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.
@@ -9,18 +9,16 @@
   import { DYNAMICS_AXES } from "@config";
   import { format_datetime } from "@utils";
   import { runtime } from "@state";
-  import FieldHistoryModal from "./FieldHistoryModal.svelte";
 
   /**
    * @typedef {Object} Props
-   * @property {import('@profile/Profile.svelte.js').ProfileState} profile_state - The profile state controller
+   * @property {import('./Profile.svelte.js').ProfileState} profile_state - The profile state controller
+   * @property {(field: string) => void} [on_inspect_history] - Callback to inspect field history
    */
 
   /** @type {Props} */
-  let { profile_state } = $props();
+  let { profile_state, on_inspect_history = () => {} } = $props();
 
-  let show_history_modal = $state(false);
-  let inspector_field = $state("present.non_physical");
   let show_token_details = $state(false);
 
   /**
@@ -162,8 +160,7 @@
         variant="bare"
         size="small"
         onclick={() => {
-          inspector_field = "present.non_physical";
-          show_history_modal = true;
+          on_inspect_history("present.non_physical");
         }}
         class="cursor-pointer font-mono text-[11px] text-cyan-300 hover:text-cyan-200"
       >
@@ -220,10 +217,6 @@
     </div>
   </footer>
 </section>
-
-{#if show_history_modal && profile_state.char?.id}
-  <FieldHistoryModal bind:open={show_history_modal} entity_id={profile_state.char.id} entity_name={profile_state.char.name} field={inspector_field} />
-{/if}
 
 <!--
 CHANGELOG:

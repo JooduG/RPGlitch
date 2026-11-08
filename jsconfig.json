@@ -83,12 +83,6 @@
       ],
       "@ui/*": [
         "src/ui/*"
-      ],
-      "@profile": [
-        "src/ui/profile/index.js"
-      ],
-      "@profile/*": [
-        "src/ui/profile/*"
       ]
     },
     "strict": true,

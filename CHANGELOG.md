@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Flatten Profile Domain Organisms to `@ui` & Consolidate Subcomponents**:
+  - Inlined [`ProfileHeader.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte), [`FieldHistoryModal.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte), and [`TimelineModal.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte) directly into [`src/ui/Profile.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte) via internal Svelte 5 snippets and dialogs.
+  - Relocated profile organisms and wings ([`Profile.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte), [`Profile.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte.js), [`RelationalGraph.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/RelationalGraph.svelte), [`VisualWing.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/VisualWing.svelte), [`AudioWing.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/AudioWing.svelte), [`DevWing.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/DevWing.svelte), [`MacroText.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/MacroText.svelte)) to top-level `src/ui/`.
+  - Deleted redundant subcomponents `ProfileHeader.svelte`, `FieldHistoryModal.svelte`, and `TimelineModal.svelte`, and pruned the obsolete `src/ui/profile/` directory.
+  - Removed deprecated `@profile` path alias from `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `audit-layers.js`, re-pointing all imports through `@ui`.
+
+- **Consolidate Typewriter Action into `src/ui/Typewriter.svelte`**:
+  - Inlined the `typewriter` Svelte action directly into `<script module>` inside [`src/ui/Typewriter.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Typewriter.svelte).
+  - Deleted redundant wrapper `src/ui/Typewriter.svelte.js` and updated barrel re-export in [`src/ui/index.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/index.js).
+
 - **Fix Ghostwriter Infinite Effect Loop & Add Regression Suite (`src/ui/Console.svelte`, `src/ui/Console.test.js`)**:
   - Guarded `$effect` watcher with `handled_ghostwrite_req` tracking non-reactive integer comparison, stopping completion writes (`value = ...`, `is_ghostwriting = false`) from infinitely re-triggering ghostwriting.
   - Added unit test in `src/ui/Console.test.js` validating exact single-execution behavior per `app.ghostwrite_request` increment.
