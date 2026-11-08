@@ -194,8 +194,7 @@
   import { parse_message } from "./Storymode.svelte";
   import { resolve_speaking_style, safe_html } from "@utils";
   import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
-  import { ProfilePicture } from "@image";
-  import { image_picker, open_picker } from "./image/ImagePicker.svelte.js";
+  import { ProfilePicture, image_picker, open_picker } from "@image";
   import ContextMenu from "./entity/ContextMenu.svelte";
   import { claim_menu } from "./entity/ContextMenu.svelte.js";
   import { app, runtime, simulation_log, simulation_state } from "@state";

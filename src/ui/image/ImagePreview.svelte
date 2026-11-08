@@ -5,11 +5,16 @@
    * Consolidates:
    * 1. Single image lightbox inspection (zoom, metadata, seed, prompt, download, profile promotion).
    * 2. Three-candidate Polaroid regenerate picker (choose A/B/C or discard & re-generate).
+   * 3. Module-level runes state for image regeneration pipeline & lightbox.
    * Managed via Svelte 5 Global Module State.
    */
+  import { visual_engine } from "@media";
 
+  /** @typedef {{ url: string, metadata: any, signature_color: string | null }} Candidate */
+
+  // --- LIGHTBOX STATE ---
   /** @type {{ active: boolean, src: string | null, canvas: HTMLCanvasElement | null, caption: string, metadata: any, on_regenerate: Function | null, on_delete: Function | null, signature_color: string | null }} */
-  let state = $state({
+  let preview_state = $state({
     active: false,
     src: null,
     canvas: null,
@@ -22,53 +27,298 @@
 
   export const image_preview = {
     get active() {
-      return state.active;
+      return preview_state.active;
     },
     get src() {
-      return state.src;
+      return preview_state.src;
     },
     get canvas() {
-      return state.canvas;
+      return preview_state.canvas;
     },
     get caption() {
-      return state.caption;
+      return preview_state.caption;
     },
     get metadata() {
-      return state.metadata;
+      return preview_state.metadata;
     },
     get on_regenerate() {
-      return state.on_regenerate;
+      return preview_state.on_regenerate;
     },
     get on_delete() {
-      return state.on_delete;
+      return preview_state.on_delete;
     },
     get signature_color() {
-      return state.signature_color;
+      return preview_state.signature_color;
     },
   };
 
   export const open_image_preview = (options, caption = "") => {
-    state.active = true;
+    preview_state.active = true;
     if (typeof options === "string") {
-      state.src = options;
-      state.caption = caption;
-      state.canvas = null;
-      state.metadata = null;
-      state.on_regenerate = null;
-      state.on_delete = null;
-      state.signature_color = null;
+      preview_state.src = options;
+      preview_state.caption = caption;
+      preview_state.canvas = null;
+      preview_state.metadata = null;
+      preview_state.on_regenerate = null;
+      preview_state.on_delete = null;
+      preview_state.signature_color = null;
     } else if (options) {
-      state.src = options.src || null;
-      state.canvas = options.canvas || null;
-      state.caption = options.caption || caption || "";
-      state.metadata = options.metadata || null;
-      state.on_regenerate = options.on_regenerate || null;
-      state.on_delete = options.on_delete || null;
-      state.signature_color = options.signature_color || null;
+      preview_state.src = options.src || null;
+      preview_state.canvas = options.canvas || null;
+      preview_state.caption = options.caption || caption || "";
+      preview_state.metadata = options.metadata || null;
+      preview_state.on_regenerate = options.on_regenerate || null;
+      preview_state.on_delete = options.on_delete || null;
+      preview_state.signature_color = options.signature_color || null;
     }
   };
 
-  export const close_image_preview = () => (state.active = false);
+  export const close_image_preview = () => (preview_state.active = false);
+
+  // --- REGENERATION CANDIDATES & PICKER STATE ---
+  let _persisted_prompt = "";
+  let _persisted_mode = "character";
+  let _persisted_negative = "";
+
+  /** @type {{ regenerating_key: string | null, candidates_ready: boolean, candidates: Candidate[], picker_open: boolean, selected_index: number | null, on_select: ((c: Candidate, index: number) => void) | null, signature_color: string | null, error: string | null }} */
+  let picker_state = $state({
+    regenerating_key: null,
+    candidates_ready: false,
+    candidates: [],
+    picker_open: false,
+    selected_index: null,
+    on_select: null,
+    signature_color: null,
+    error: null,
+  });
+
+  export const image_picker = {
+    get regenerating_key() {
+      return picker_state.regenerating_key;
+    },
+    get candidates_ready() {
+      return picker_state.candidates_ready;
+    },
+    get candidates() {
+      return picker_state.candidates;
+    },
+    get picker_open() {
+      return picker_state.picker_open;
+    },
+    get selected_index() {
+      return picker_state.selected_index;
+    },
+    get on_select() {
+      return picker_state.on_select;
+    },
+    get signature_color() {
+      return picker_state.signature_color;
+    },
+    get error() {
+      return picker_state.error;
+    },
+    get last_prompt() {
+      return _persisted_prompt;
+    },
+    get last_mode() {
+      return _persisted_mode;
+    },
+    get last_negative() {
+      return _persisted_negative;
+    },
+
+    isRegenerating(key) {
+      return picker_state.regenerating_key === key && !picker_state.candidates_ready && !picker_state.error;
+    },
+
+    isReady(key) {
+      return picker_state.regenerating_key === key && picker_state.candidates_ready && !picker_state.error;
+    },
+
+    hasError(key) {
+      return picker_state.regenerating_key === key && !!picker_state.error;
+    },
+  };
+
+  export function start_regenerate(key, opts) {
+    picker_state.regenerating_key = key;
+    picker_state.candidates_ready = false;
+    picker_state.candidates = [];
+    picker_state.picker_open = false;
+    picker_state.selected_index = null;
+    picker_state.on_select = opts.on_select ?? null;
+    picker_state.signature_color = opts.signature_color ?? null;
+    picker_state.error = null;
+  }
+
+  export function deliver_candidates(candidates, meta) {
+    picker_state.candidates = candidates;
+    picker_state.candidates_ready = true;
+    picker_state.error = null;
+    if (meta) {
+      if (meta.prompt) _persisted_prompt = meta.prompt;
+      if (meta.mode) _persisted_mode = meta.mode;
+      if (meta.negative_prompt) _persisted_negative = meta.negative_prompt;
+    }
+  }
+
+  export function open_picker() {
+    if (picker_state.candidates_ready && picker_state.candidates.length >= 2) {
+      picker_state.picker_open = true;
+      picker_state.selected_index = null;
+    }
+  }
+
+  export function select_candidate(index) {
+    if (index < 0 || index >= picker_state.candidates.length) return;
+    picker_state.selected_index = index;
+    const candidate = picker_state.candidates[index];
+    if (typeof picker_state.on_select === "function") {
+      picker_state.on_select(candidate, index);
+    }
+    setTimeout(() => close_regenerate(), 400);
+  }
+
+  export function begin_picker_regeneration() {
+    if (picker_state.candidates.length > 0 && picker_state.candidates[0]?.metadata?.prompt && !_persisted_prompt) {
+      _persisted_prompt = picker_state.candidates[0].metadata.prompt;
+      _persisted_mode = picker_state.candidates[0].metadata.mode || _persisted_mode;
+      _persisted_negative = picker_state.candidates[0].metadata.negative_prompt || _persisted_negative;
+    }
+    picker_state.candidates_ready = false;
+    picker_state.candidates = [];
+    picker_state.selected_index = null;
+    picker_state.error = null;
+  }
+
+  export function close_picker() {
+    if (picker_state.candidates.length > 0 && picker_state.candidates[0]?.metadata?.prompt && !_persisted_prompt) {
+      _persisted_prompt = picker_state.candidates[0].metadata.prompt;
+      _persisted_mode = picker_state.candidates[0].metadata.mode || _persisted_mode;
+      _persisted_negative = picker_state.candidates[0].metadata.negative_prompt || _persisted_negative;
+    }
+    picker_state.picker_open = false;
+    picker_state.candidates_ready = false;
+    picker_state.candidates = [];
+    picker_state.selected_index = null;
+    picker_state.error = null;
+  }
+
+  export function close_regenerate() {
+    picker_state.regenerating_key = null;
+    picker_state.candidates_ready = false;
+    picker_state.candidates = [];
+    picker_state.picker_open = false;
+    picker_state.selected_index = null;
+    picker_state.on_select = null;
+    picker_state.signature_color = null;
+    picker_state.error = null;
+  }
+
+  export function set_regenerate_error(msg) {
+    picker_state.error = msg;
+    picker_state.candidates_ready = false;
+  }
+
+  export function get_persisted_meta() {
+    return {
+      prompt: _persisted_prompt,
+      mode: _persisted_mode,
+      negative_prompt: _persisted_negative,
+    };
+  }
+
+  export async function run_image_regeneration(options = {}) {
+    const { in_picker = false } = options;
+
+    let key = options.key || picker_state.regenerating_key;
+    if (!key && !in_picker) {
+      set_regenerate_error("No image context available to regenerate.");
+      return;
+    }
+
+    const persisted = get_persisted_meta();
+    const signature_color = options.signature_color ?? picker_state.signature_color;
+    const regenerate_count = options.regenerate_count ?? 0;
+    const mode = options.mode || (in_picker ? persisted.mode : "story_character");
+    const prompt = options.prompt ?? (in_picker ? persisted.prompt : "");
+    const negative_prompt = options.negative_prompt ?? (in_picker ? persisted.negative_prompt : "");
+
+    if (in_picker) {
+      begin_picker_regeneration();
+    } else if (key) {
+      start_regenerate(key, {
+        signature_color,
+        on_select: options.on_select || (() => {}),
+      });
+    }
+
+    if (!prompt) {
+      set_regenerate_error("No prompt found for this image. Cannot regenerate.");
+      return;
+    }
+
+    try {
+      let final_prompt = prompt;
+      let final_negative = negative_prompt;
+
+      const is_unrefined =
+        !prompt || prompt.length < 30 || prompt.includes("<image_prompt>") || prompt.startsWith("RAW photograph or structured artistic rendering of");
+
+      if (in_picker || regenerate_count >= 1 || is_unrefined) {
+        try {
+          const refined = await visual_engine.envision(prompt, mode);
+          if (refined?.prompt) {
+            final_prompt = refined.prompt;
+            final_negative = refined.negative_prompt || negative_prompt;
+          }
+        } catch (envision_err) {
+          if (in_picker) {
+            console.warn("[ImagePreview] Prompt envision refinement failed, using original prompt:", envision_err);
+          }
+        }
+      }
+
+      if (final_prompt.trim().startsWith("{")) {
+        try {
+          const parsed = JSON.parse(final_prompt.trim());
+          if (parsed.prompt && typeof parsed.prompt === "string") {
+            final_prompt = parsed.prompt;
+            if (parsed.negative_prompt) final_negative = parsed.negative_prompt;
+          }
+        } catch (_e) {
+          const prompt_match = final_prompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+          if (prompt_match && prompt_match[1]) {
+            final_prompt = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+          }
+        }
+      }
+
+      const candidates = await visual_engine.generate_candidates(final_prompt, {
+        mode,
+        negative_prompt: final_negative,
+        count: 3,
+        min_success: 2,
+      });
+
+      if (candidates.length < 2) {
+        set_regenerate_error("Not enough images generated. Please try again.");
+        return;
+      }
+
+      deliver_candidates(
+        candidates.map((c) => ({
+          url: c.url,
+          metadata: { ...c.metadata, prompt: final_prompt, mode },
+          signature_color,
+        })),
+        { prompt: final_prompt, mode, negative_prompt: final_negative },
+      );
+    } catch (err) {
+      console.error("[Regenerate Error]", err);
+      set_regenerate_error(`Regenerate failed: ${err.message || err}`);
+    }
+  }
 </script>
 
 <script>
@@ -77,7 +327,6 @@
   import { get_resolution } from "@media";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
-  import { image_picker, select_candidate, close_regenerate, run_image_regeneration } from "./ImagePicker.svelte.js";
 
   // --- CANDIDATE PICKER STATE & LOGIC ---
   let is_picker_regenerating = $state(false);
@@ -118,23 +367,23 @@
   };
 
   const handle_download = () => {
-    if (state.canvas) {
+    if (preview_state.canvas) {
       const link = document.createElement("a");
-      link.download = `image_${state.metadata?.seed || Date.now()}.png`;
-      link.href = state.canvas.toDataURL();
+      link.download = `image_${preview_state.metadata?.seed || Date.now()}.png`;
+      link.href = preview_state.canvas.toDataURL();
       link.click();
-    } else if (state.src) {
+    } else if (preview_state.src) {
       const link = document.createElement("a");
-      link.download = `image_${state.metadata?.seed || Date.now()}.png`;
-      link.href = state.src;
+      link.download = `image_${preview_state.metadata?.seed || Date.now()}.png`;
+      link.href = preview_state.src;
       link.click();
     }
   };
 
   const handle_copy_prompt = async () => {
-    if (state.metadata?.prompt) {
+    if (preview_state.metadata?.prompt) {
       try {
-        await navigator.clipboard.writeText(state.metadata.prompt);
+        await navigator.clipboard.writeText(preview_state.metadata.prompt);
       } catch (err) {
         console.error("Failed to copy prompt:", err);
       }
@@ -142,9 +391,9 @@
   };
 
   const handle_copy_negative_prompt = async () => {
-    if (state.metadata?.negative_prompt) {
+    if (preview_state.metadata?.negative_prompt) {
       try {
-        await navigator.clipboard.writeText(state.metadata.negative_prompt);
+        await navigator.clipboard.writeText(preview_state.metadata.negative_prompt);
       } catch (err) {
         console.error("Failed to copy negative prompt:", err);
       }
@@ -152,9 +401,9 @@
   };
 
   const handle_copy_seed = async () => {
-    if (state.metadata?.seed) {
+    if (preview_state.metadata?.seed) {
       try {
-        await navigator.clipboard.writeText(String(state.metadata.seed));
+        await navigator.clipboard.writeText(String(preview_state.metadata.seed));
       } catch (err) {
         console.error("Failed to copy seed:", err);
       }
@@ -168,8 +417,8 @@
   };
 
   const handle_regenerate = () => {
-    if (typeof state.on_regenerate === "function") {
-      state.on_regenerate();
+    if (typeof preview_state.on_regenerate === "function") {
+      preview_state.on_regenerate();
     }
     close_image_preview();
   };
@@ -203,7 +452,7 @@
   const handle_use_as_profile = async (slot) => {
     const target = get_profile_target(slot);
     if (!target || !target.id) return;
-    const src = state.canvas ? state.canvas.toDataURL() : state.src;
+    const src = preview_state.canvas ? preview_state.canvas.toDataURL() : preview_state.src;
     if (!src) return;
     const clean_url = String(src).trim();
     const type = slot === "fractal" ? "fractal" : "character";
@@ -216,7 +465,7 @@
 
   let modal_open = $state(false);
   $effect(() => {
-    if (state.active !== modal_open) modal_open = state.active;
+    if (preview_state.active !== modal_open) modal_open = preview_state.active;
   });
 </script>
 
@@ -233,31 +482,31 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div class="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden" onclick={(e) => e.stopPropagation()}>
-    {#if state.canvas}
+    {#if preview_state.canvas}
       <div
         role="img"
         aria-label="Generated canvas render preview"
         class="pointer-events-auto max-h-[85vh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
-        use:copy_canvas={state.canvas}
+        use:copy_canvas={preview_state.canvas}
       ></div>
-    {:else if state.src}
+    {:else if preview_state.src}
       <img
         class="pointer-events-auto max-h-[85vh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
-        src={state.src}
-        alt={state.caption || "Preview"}
+        src={preview_state.src}
+        alt={preview_state.caption || "Preview"}
       />
     {/if}
 
-    {#if state.caption && !state.metadata}
+    {#if preview_state.caption && !preview_state.metadata}
       <div
         class="z-50 mt-4 max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
       >
-        {state.caption}
+        {preview_state.caption}
       </div>
     {/if}
   </div>
 
-  {#if state.metadata && (state.metadata.prompt || state.metadata.negative_prompt || state.metadata.seed != null)}
+  {#if preview_state.metadata && (preview_state.metadata.prompt || preview_state.metadata.negative_prompt || preview_state.metadata.seed != null)}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
@@ -265,9 +514,9 @@
       onclick={(e) => e.stopPropagation()}
     >
       <div class="flex scrollbar-none flex-col gap-gap-standard overflow-y-auto [&::-webkit-scrollbar]:hidden">
-        {#if state.metadata.prompt}
+        {#if preview_state.metadata.prompt}
           <div class="flex flex-col gap-2 text-left">
-            <TextField value={state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
+            <TextField value={preview_state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
               {#snippet status()}
                 <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
               {/snippet}
@@ -291,10 +540,10 @@
           </div>
         {/if}
 
-        {#if state.metadata.negative_prompt}
+        {#if preview_state.metadata.negative_prompt}
           <div class="flex flex-col gap-2 text-left">
             <TextField
-              value={state.metadata.negative_prompt.trim()}
+              value={preview_state.metadata.negative_prompt.trim()}
               is_edit={false}
               always_expanded={false}
               signature_color="var(--color-frozen)"
@@ -325,9 +574,9 @@
 
         <div class="mt-auto grid shrink-0 grid-cols-2 gap-4">
           <!-- Row 1: Seed & Regenerate -->
-          {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
+          {#if preview_state.metadata.seed !== undefined && preview_state.metadata.seed !== null}
             <NumberField
-              value={state.metadata.seed}
+              value={preview_state.metadata.seed}
               placeholder="Seed"
               readonly={true}
               actions={[tooltip]}
@@ -338,7 +587,7 @@
             />
           {/if}
 
-          {#if state.on_regenerate}
+          {#if preview_state.on_regenerate}
             <Button variant="secondary" class="col-start-2 row-start-1 h-12! w-full!" onclick={handle_regenerate}>
               <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
                 <path
@@ -370,12 +619,12 @@
             Download
           </Button>
 
-          {#if state.on_delete}
+          {#if preview_state.on_delete}
             <Button
               variant="danger"
               class="col-start-2 row-start-2 h-12! w-full!"
               onclick={() => {
-                const fn = state.on_delete;
+                const fn = preview_state.on_delete;
                 close_image_preview();
                 fn();
               }}

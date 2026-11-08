@@ -287,10 +287,12 @@
 <script>
   import { untrack } from "svelte";
   import { Backdrop, Button, Shimmer, tooltip } from "@primitives";
-  import { create_new, entities as repository } from "@data";
+  import { create_new, entities as repository, detect_card_format, normalize, parse_character_card } from "@data";
   import { Audio, rect_of } from "@media";
-  import { runtime } from "@state";
-  import { EntityCard, ImportModal } from "@entity";
+  import { runtime, simulation_state } from "@state";
+  import { birth_entity_core } from "@storage";
+  import { EntityCard } from "@entity";
+  import { Modal, SourceField, Toggle } from "@primitives";
 
   // ============================================
   // TITLE HEADER STATE & CONSTANTS
@@ -496,6 +498,125 @@
   let hovered_index = $state(null);
   let show_import_modal = $state(false);
   let flight_active = $state(false);
+
+  // Ingestion state for ImportModal snippet
+  let import_raw_text = $state("");
+  let import_image_data = $state(null);
+  let import_character = $state(true);
+  let import_fractal = $state(false);
+  let import_loading = $state(false);
+  let import_error_message = $state("");
+
+  const import_fetch_type = $derived(import_fractal && !import_character ? "fractal" : "character");
+
+  $effect(() => {
+    if (show_import_modal) {
+      import_character = card_hand_type !== "fractal";
+      import_fractal = card_hand_type === "fractal";
+      import_error_message = "";
+    }
+  });
+
+  function handle_import_source(info) {
+    if (info.kind === "error") {
+      import_error_message = info.message || "Failed to load source.";
+      return;
+    }
+    import_error_message = "";
+    if (info.kind === "url") {
+      app.log(`Fetched ${info.chars?.toLocaleString()} chars from ${info.url}`, "system");
+    } else if (info.kind === "file") {
+      app.log(`Loaded ${info.name}${info.chars ? ` (${info.chars.toLocaleString()} chars)` : ""}`, "system");
+    } else if (info.kind === "image") {
+      app.log(`Loaded avatar from ${info.name || info.url}`, "system");
+    }
+  }
+
+  async function import_native_json(type, parsed) {
+    const merged = { ...create_new(type), ...normalize(parsed) };
+    if (import_image_data) merged.profile_picture = import_image_data;
+    await birth_entity_core(type, merged, {
+      run_sorter: false,
+      generate_portrait: false,
+    });
+  }
+
+  async function import_card(type, parsed) {
+    const flat = parse_character_card(parsed);
+    if (import_image_data) flat.profile_picture = import_image_data;
+    await birth_entity_core(type, flat, { generate_portrait: !import_image_data });
+  }
+
+  async function import_from_llm(type, raw) {
+    const draft = { description: raw };
+    if (import_image_data) draft.profile_picture = import_image_data;
+    await birth_entity_core(type, draft, {
+      run_sorter: true,
+      generate_portrait: !import_image_data,
+    });
+  }
+
+  async function execute_entity_import() {
+    if (!import_raw_text.trim()) {
+      import_error_message = "Please provide raw text to import.";
+      return;
+    }
+    if (!import_character && !import_fractal) {
+      import_error_message = "Please select at least one target to import (Character or Fractal).";
+      return;
+    }
+
+    import_loading = true;
+    import_error_message = "";
+    simulation_state.set_intent_active(true);
+
+    try {
+      let parsed = null;
+      try {
+        parsed = JSON.parse(import_raw_text);
+      } catch (_e) {
+        /* prose falls through */
+      }
+      const format = parsed && typeof parsed === "object" ? detect_card_format(parsed) : "unknown";
+      const is_structured = format !== "unknown";
+
+      const targets = [];
+      if (import_character) targets.push("character");
+      if (import_fractal) targets.push("fractal");
+
+      for (const type of targets) {
+        if (is_structured) {
+          if (format === "rpglitch") await import_native_json(type, parsed);
+          else await import_card(type, parsed);
+        } else {
+          await import_from_llm(type, import_raw_text);
+        }
+      }
+
+      app.log(`Import successful.`, "system");
+      await app.load_entities();
+
+      if (import_character && !app.selected_ai) {
+        const latest_char = app.ai_list[app.ai_list.length - 1];
+        if (latest_char) app.selected_ai = latest_char;
+      }
+      if (import_fractal && !app.selected_fractal) {
+        const latest_fractal = app.fractal_list[app.fractal_list.length - 1];
+        if (latest_fractal) app.selected_fractal = latest_fractal;
+      }
+
+      import_raw_text = "";
+      import_image_data = null;
+      show_import_modal = false;
+    } catch (err) {
+      console.error(err);
+      import_error_message = err.message || "Failed to import entities.";
+      app.log(`Import failed: ${import_error_message}`, "error");
+    } finally {
+      import_loading = false;
+      simulation_state.set_intent_active(false);
+    }
+  }
 
   let render_active = $state(false);
   let is_visible = $state(false);
@@ -1141,7 +1262,63 @@
     </div>
   {/if}
 
-  <ImportModal bind:open={show_import_modal} target_type={card_hand_type === "fractal" ? "fractal" : "character"} />
+  <Modal
+    bind:open={show_import_modal}
+    variant="bare"
+    z_index="1000"
+    class="relative max-h-[92vh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    on_close={() => {
+      show_import_modal = false;
+      import_error_message = "";
+    }}
+  >
+    <div class="flex h-full flex-col gap-4 font-sans">
+      <div class="flex items-center justify-between">
+        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">Import Entity</h5>
+        <div class="flex items-center gap-4 font-mono text-xs text-slate-300">
+          <Toggle label="Character" bind:value={import_character} disabled={import_loading} />
+          <Toggle label="Fractal" bind:value={import_fractal} disabled={import_loading} />
+        </div>
+      </div>
+
+      <div class="flex flex-1 flex-col">
+        {#if import_error_message}
+          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
+            {import_error_message}
+          </div>
+        {/if}
+
+        <SourceField
+          bind:value={import_raw_text}
+          bind:image_data={import_image_data}
+          type={import_fetch_type}
+          disabled={import_loading}
+          on_source={handle_import_source}
+        />
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] text-slate-500 italic">
+          Native RPGlitch JSON imports directly; character cards and prose are structured by the AI sorter.
+        </span>
+
+        <Button
+          variant="primary"
+          size="small"
+          onclick={execute_entity_import}
+          busy={import_loading}
+          disabled={import_loading || (!import_character && !import_fractal)}
+        >
+          <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
+        </Button>
+      </div>
+    </div>
+  </Modal>
 {/if}
 
 <style>

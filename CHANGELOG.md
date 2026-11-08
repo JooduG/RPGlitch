@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Consolidate ImagePicker State into `ImagePreview.svelte` & Insource ImportModal to `Storyboard.svelte`**:
+  - Inlined regeneration candidate runes state (`image_picker`, `run_image_regeneration`, `open_picker`, `select_candidate`, `close_regenerate`) from `ImagePicker.svelte.js` directly into [`src/ui/image/ImagePreview.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/image/ImagePreview.svelte) `<script module>`.
+  - Deleted `src/ui/image/ImagePicker.svelte.js` and updated `@image` barrel re-exports.
+  - Inlined [`ImportModal.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/entity/ImportModal.svelte) character/fractal ingestion directly into [`src/ui/Storyboard.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Storyboard.svelte) modal snippet, deleting `src/ui/entity/ImportModal.svelte` and pruning its export from `src/ui/entity/index.js`.
+
 - **Prune Legacy Message Tests (`render.test.js` & `feed-dom-benchmark.test.js`)**:
   - Removed obsolete benchmark `src/ui/feed-dom-benchmark.test.js` and redundant message render unit tests `src/ui/render.test.js` whose contracts are now comprehensively covered across `src/ui/ChatBubble.test.js` and `src/utils/markdown.test.js`.
 
