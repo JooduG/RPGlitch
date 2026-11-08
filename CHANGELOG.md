@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Fix Card Scrub Opacity Crash & Begin-Story Flight TypeError (`src/media/motion.svelte.js`, `src/media/motion.test.js`)**:
+  - Restored canonical `update_card_scrub()`, `clear_card_location()`, `capture_storyboard_flight()`, and `fly_storyboard_cards_into_prologue(assets, dst_rects)` implementations from `card-flight.svelte.js` that had been overwritten with mismatched signatures in `src/media/motion.svelte.js`.
+  - Fixed `TypeError: Cannot set properties of undefined (setting 'opacity')` thrown on every scroll/resize frame in `Storymode.svelte` (`update_card_scrub({ pending })` previously treated its options object as an `HTMLElement` and called `clear_card_location(target_card)` which accessed `target_card.style.opacity`).
+  - Fixed `TypeError: t is not a function` thrown during begin-story card flight (`fly_storyboard_cards_into_prologue(assets, dst_rects)` previously treated `dst_rects` as an `on_finish()` callback).
+  - Eliminated 4 unused-variable lint warnings (`cover_flight`, `msg_card`, `hide_card`, `show_card`) in `src/media/motion.svelte.js`.
+
 - **Flatten Profile Domain Organisms to `@ui` & Consolidate Subcomponents**:
   - Inlined [`ProfileHeader.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte), [`FieldHistoryModal.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte), and [`TimelineModal.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte) directly into [`src/ui/Profile.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte) via internal Svelte 5 snippets and dialogs.
   - Relocated profile organisms and wings ([`Profile.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte), [`Profile.svelte.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Profile.svelte.js), [`RelationalGraph.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/RelationalGraph.svelte), [`VisualWing.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/VisualWing.svelte), [`AudioWing.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/AudioWing.svelte), [`DevWing.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/DevWing.svelte), [`MacroText.svelte`](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/MacroText.svelte)) to top-level `src/ui/`.
