@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Upstream Diffusion Sanitize Guard in `execute_turn_visualizer` (`src/engine/turns.js`)**:
+  - Added template-significant bracket (`{}[\]`) and punctuation sanitization directly inside `execute_turn_visualizer()` before returning prompts, ensuring downstream callers can never inadvertently pass raw unescaped curly/square brackets to host Perchance template engines.
+
+
 - **Unify Ingestion & Caretaker Prompt Compilation in Greenfield Engine (`src/engine/prompts.js`, `src/engine/turns.js`, `src/engine/bridge.js`, `src/storage/entities.js`, `src/engine/index.js`)**:
   - Deleted duplicate prompt compiler `compile_sorting_prompt` from `src/storage/entities.js`.
   - Upgraded canonical `PURPOSE_CORES.caretaker` in `src/engine/prompts.js` to dynamically handle both runtime turn delta updates and raw prose bio `<INPUT kind="ingestion">` structuring.

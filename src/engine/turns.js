@@ -497,9 +497,19 @@ export async function execute_turn_visualizer({ transport, round = 1, entities =
     candidate_prompt = candidate_prompt.replace(/@([A-Za-z0-9_]+)/g, "$1");
   }
 
+  // Sanitize prompt and negative prompt: strip template-significant characters ({}[])
+  // to prevent curly/square bracket syntax errors in host Perchance diffusion plugins.
+  const sanitize_diffusion_text = (str) =>
+    String(str || "")
+      .replace(/@([A-Za-z0-9_-]+)/g, "$1")
+      .replace(/[{}[\]]/g, "")
+      .replace(/,\s*\./g, ",")
+      .replace(/\.\s*,/g, ",")
+      .trim();
+
   return {
-    prompt: candidate_prompt,
-    negative_prompt: candidate_negative,
+    prompt: sanitize_diffusion_text(candidate_prompt),
+    negative_prompt: sanitize_diffusion_text(candidate_negative),
     _thought_process: thought_process,
     raw: raw || "",
   };
