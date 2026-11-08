@@ -68,16 +68,27 @@ export const PURPOSE_CORES = Object.freeze({
     start_with: '{"_thought_process": "',
     resolve_identity_text: (context) =>
       `You are the Continuum Caretaker for target entity "${context.target_name}". Organize temporal state into canonical profile brackets.`,
-    task_block: `  <TASK>
+    task_block: (context) => {
+      const is_fractal = context?.target_type === "fractal";
+      const phys_dir = is_fractal ? ENHANCER_DIRECTIVES.SPATIAL_RENDERER : ENHANCER_DIRECTIVES.BIOMETRIC_RENDERER;
+      const non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.METAPHYSICAL_ARCHITECT : ENHANCER_DIRECTIVES.COGNITIVE_ARCHITECT;
+      const pres_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ATMOSPHERIC_TRACKER : ENHANCER_DIRECTIVES.SOMATIC_TRACKER;
+      const pres_non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ECOSYSTEM_ANALYZER : ENHANCER_DIRECTIVES.TACTICAL_ANALYZER;
+
+      const input_block = context?.input_data
+        ? `\n  <INPUT kind="ingestion">\n${context.input_data}\n  </INPUT>\n`
+        : "";
+
+      return `  <TASK>
     ### Directives
     - **Analysis (\`_thought_process\`)**: Review input notes or recent events and identify what shifts, updates, or polishes for the target.
     - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
-      - Physical: ${ENHANCER_DIRECTIVES.BIOMETRIC_RENDERER} (or SPATIAL_RENDERER for worlds).
-      - Non-Physical: ${ENHANCER_DIRECTIVES.COGNITIVE_ARCHITECT} (or METAPHYSICAL_ARCHITECT for worlds).
+      - Physical: ${phys_dir}
+      - Non-Physical: ${non_phys_dir}
       - Leave empty \`""\` unless establishing baseline lore or an irreversible transformation occurred.
     - **Present State (\`present_physical\`, \`present_non_physical\`)**:
-      - Physical: ${ENHANCER_DIRECTIVES.SOMATIC_TRACKER} (or ATMOSPHERIC_TRACKER for worlds).
-      - Non-Physical: ${ENHANCER_DIRECTIVES.TACTICAL_ANALYZER} (or ECOSYSTEM_ANALYZER for worlds).
+      - Physical: ${pres_phys_dir}
+      - Non-Physical: ${pres_non_phys_dir}
     - **Future Agenda (\`future\`)**: ${ENHANCER_DIRECTIVES.TRAJECTORY_SIMULATOR}
     - **Past Memories (\`past\`)**: ${ENHANCER_DIRECTIVES.PAST_COMPILER}
     - **Delta-Only Principle**: Emit ONLY non-empty \`"[KEY: value]"\` strings for fields being established, updated, or polished; leave all other fields empty \`""\`.
@@ -101,12 +112,12 @@ export const PURPOSE_CORES = Object.freeze({
         "future": "[KEY: value]",
         "past": "[KEY: value]"
       }
-    </OUTPUT_FORMAT>
-
+    </OUTPUT_FORMAT>${input_block}
     > [!IMPORTANT]
     > No conversational preamble, no markdown code fence backticks, no trailing comments.
     > Output MUST start with { and end with }.
-  </TASK>`,
+  </TASK>`;
+    },
   },
 
   character: {
@@ -243,9 +254,11 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const speaker_name = ai?.name || "AI";
   const listener_name = user?.name || "USER";
   const fractal_name = fractal?.name || "World";
-  const target_name = task_options.target_entity_key
-    ? entities[task_options.target_entity_key]?.name || task_options.target_entity_key
-    : speaker_name;
+  const target_entity = task_options.target_entity_key
+    ? entities[task_options.target_entity_key]
+    : ai;
+  const target_name = target_entity?.name || task_options.target_entity_key || speaker_name;
+  const target_type = task_options.target_type || target_entity?.type || (core === "caretaker" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
 
   // Resolve active purpose core definition
   const purpose_core = PURPOSE_CORES[core] || PURPOSE_CORES.character;
@@ -257,6 +270,8 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     listener_name,
     fractal_name,
     target_name,
+    target_type,
+    input_data: task_options.input_data || "",
     pov: ai?.pov || "3rd_person",
     is_character: Boolean(ai && ai.type !== "fractal"),
     directors_note: task_options.directors_note || "",

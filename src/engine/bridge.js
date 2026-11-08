@@ -15,7 +15,12 @@
  */
 
 import { Kernel } from "./kernel.svelte.js";
-import { execute_turn_2_character, execute_turn_3_caretaker, execute_turn_visualizer } from "./turns.js";
+import {
+  execute_turn_2_character,
+  execute_turn_3_caretaker,
+  execute_turn_visualizer,
+  execute_turn_structuring,
+} from "./turns.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
 import { append_ledger_entries, log_message } from "../storage/db.js";
@@ -848,5 +853,41 @@ export async function execute_visualizer_envision(text, type = "character", enti
   } catch (err) {
     console.warn("[execute_visualizer_envision] Visualizer refinement failed, using draft:", err);
     return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: tier_resolution };
+  }
+}
+
+/**
+ * Executes raw prose structuring via the greenfield Caretaker purpose core.
+ *
+ * @param {string} raw - Raw bio, concept, or character prose
+ * @param {"character" | "fractal"} [type="character"]
+ * @param {AbortSignal|null} [signal=null]
+ * @returns {Promise<Record<string, any> | null>}
+ */
+export async function structure_profile(raw, type = "character", signal = null) {
+  const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
+  const live_transport = {
+    stream: async (compiled_prompt, stream_options = {}) => {
+      const { llm_service } = await import("../platform/transport.js");
+      const response = await llm_service.enhance({
+        system: compiled_prompt,
+        role: "model",
+        startWith: stream_options.startWith != null ? String(stream_options.startWith) : "",
+      });
+      return typeof response === "string" ? response : response?.text || "";
+    },
+  };
+
+  try {
+    const parsed = await execute_turn_structuring({
+      transport: live_transport,
+      input_data,
+      type,
+      signal,
+    });
+    return parsed;
+  } catch (err) {
+    console.warn("[structure_profile] Structuring failed:", err);
+    return null;
   }
 }

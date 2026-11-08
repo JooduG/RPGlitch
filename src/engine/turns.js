@@ -511,3 +511,41 @@ export async function execute_turn_visualizer({
     raw: raw || "",
   };
 }
+
+/**
+ * Executes an Ingestion/Structuring turn to map raw text notes into structured 4-quadrant profile brackets.
+ *
+ * @param {object} params
+ * @param {object} params.transport - Shared transport or LLM interface
+ * @param {string} params.input_data - Raw prose notes or bio text
+ * @param {"character" | "fractal"} [params.type="character"]
+ * @param {AbortSignal} [params.signal=null]
+ * @returns {Promise<Record<string, any> | null>}
+ */
+export async function execute_turn_structuring({
+  transport,
+  input_data = "",
+  type = "character",
+  signal = null,
+}) {
+  if (signal?.aborted) {
+    throw new Error("Stream aborted by user.");
+  }
+
+  const prompt = compile_prompt({
+    core: "caretaker",
+    round: 1,
+    entities: {},
+    task_options: {
+      target_name: type === "fractal" ? "New Fractal" : "New Character",
+      target_type: type,
+      input_data,
+    },
+  });
+
+  const start_prefix = '{"_thought_process": "';
+  const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
+  const parsed = safe_parse_json(raw, { prefix: start_prefix });
+
+  return parsed;
+}

@@ -17,8 +17,8 @@
  */
 
 import { generate_uuid, state_bridge } from "@utils";
-import { format_clean_brackets, parse_profile_json } from "./parser.js";
-import { FLAT_LEAF_MAP, ENHANCER_DIRECTIVES } from "./profile-fields.js";
+import { format_clean_brackets } from "./parser.js";
+import { FLAT_LEAF_MAP } from "./profile-fields.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
 import { DEFAULT_AI_DYNAMICS, DEFAULT_FRACTAL_DYNAMICS, DYNAMICS_SCALE } from "../config.js";
 
@@ -267,84 +267,16 @@ export function serialize_entity_for_export(entity) {
 }
 
 /**
- * Compiles a minimal Caretaker structuring prompt for raw entity ingestion.
- *
- * @param {string} input_data
- * @param {'character' | 'fractal'} type
- * @returns {string}
- */
-function compile_sorting_prompt(input_data, type) {
-  const is_fractal = type === "fractal";
-  const target_name = is_fractal ? "New Fractal" : "New Character";
-  const phys_dir = is_fractal ? ENHANCER_DIRECTIVES.SPATIAL_RENDERER : ENHANCER_DIRECTIVES.BIOMETRIC_RENDERER;
-  const non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.METAPHYSICAL_ARCHITECT : ENHANCER_DIRECTIVES.COGNITIVE_ARCHITECT;
-  const pres_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ATMOSPHERIC_TRACKER : ENHANCER_DIRECTIVES.SOMATIC_TRACKER;
-  const pres_non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ECOSYSTEM_ANALYZER : ENHANCER_DIRECTIVES.TACTICAL_ANALYZER;
-
-  return `<SYSTEM round="1" identity="caretaker">
-  You are the Continuum Caretaker for target entity "${target_name}". Organize temporal state into canonical profile brackets.
-  <AXIOMATIC_CONSTITUTION>
-    <AMENDMENT number="1" name="Causality">Physical reality and causality supersede consensus or morality. Reject unearned feats and items without tangible foundation.</AMENDMENT>
-    <AMENDMENT number="2" name="Epistemics">Act strictly from internal bias and immediate sensory horizons. Unvoiced thoughts and concealed items are Null Data across the Epistemic Wall.</AMENDMENT>
-    <AMENDMENT number="3" name="Sovereignty">Every entity owns their body, voice, and choices.</AMENDMENT>
-    <AMENDMENT number="4" name="Fidelity">Simulate high-stakes adversarial tension with uncompromising descriptive realism.</AMENDMENT>
-  </AXIOMATIC_CONSTITUTION>
-</SYSTEM>
-<TASK>
-  ### Directives
-  - **Analysis (\`_thought_process\`)**: Review input notes and identify what shifts, updates, or polishes for the target.
-  - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
-    - Physical: ${phys_dir}
-    - Non-Physical: ${non_phys_dir}
-    - Establish baseline lore and physical features.
-  - **Present State (\`present_physical\`, \`present_non_physical\`)**:
-    - Physical: ${pres_phys_dir}
-    - Non-Physical: ${pres_non_phys_dir}
-  - **Future Agenda (\`future\`)**: ${ENHANCER_DIRECTIVES.TRAJECTORY_SIMULATOR}
-  - **Past Memories (\`past\`)**: ${ENHANCER_DIRECTIVES.PAST_COMPILER}
-  - **Delta-Only Principle**: Emit ONLY non-empty "[KEY: value]" strings for fields being established; leave all other fields empty "".
-
-  ### Bracket Mutation Rules
-  - Multiple brackets are supported per field separated by commas (e.g. [CHEST: bare], [MOOD: alert]).
-  - Relational dynamics targeting other entities must use @ (e.g. [@TARGET: dynamic | flags]).
-  - Optional flags: | hide for covert facts, | w: 1-10 for emotional weight/significance.
-
-  <OUTPUT_FORMAT mode="json">
-    {
-      "_thought_process": "...",
-      "eternal_physical": "[KEY: value]",
-      "eternal_non_physical": "[KEY: value]",
-      "present_physical": "[KEY: value]",
-      "present_non_physical": "[KEY: value]",
-      "future": "[KEY: value]",
-      "past": "[KEY: value]"
-    }
-  </OUTPUT_FORMAT>
-  <INPUT kind="ingestion">
-${input_data}
-  </INPUT>
-
-  > [!IMPORTANT]
-  > No conversational preamble, no markdown code fence backticks, no trailing comments.
-  > Output MUST start with { and end with }.
-</TASK>`;
-}
-
-/**
  * Runs the LLM ingestion sorter over raw prose and returns the structured profile.
- * Returns null when the LLM fails to structure (lenient by design).
+ * Delegates to the greenfield Caretaker purpose core via @engine.
  *
  * @param {string} raw
  * @param {'character' | 'fractal'} type
  * @returns {Promise<Object | null>}
  */
-export async function structure_profile(raw, type) {
-  const { llm_service } = await import("@platform");
-  const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
-  const payload = compile_sorting_prompt(input_data, type);
-  const result = await llm_service.enhance(payload);
-  const text = typeof result === "string" ? result : String(result?.text ?? result ?? "");
-  return parse_profile_json(text);
+export async function structure_profile(raw, type = "character") {
+  const { structure_profile: engine_structure } = await import("@engine");
+  return engine_structure(raw, type);
 }
 
 /**

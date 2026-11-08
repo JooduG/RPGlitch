@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Unify Ingestion & Caretaker Prompt Compilation in Greenfield Engine (`src/engine/prompts.js`, `src/engine/turns.js`, `src/engine/bridge.js`, `src/storage/entities.js`, `src/engine/index.js`)**:
+  - Deleted duplicate prompt compiler `compile_sorting_prompt` from `src/storage/entities.js`.
+  - Upgraded canonical `PURPOSE_CORES.caretaker` in `src/engine/prompts.js` to dynamically handle both runtime turn delta updates and raw prose bio `<INPUT kind="ingestion">` structuring.
+  - Implemented `execute_turn_structuring` in `src/engine/turns.js` and `structure_profile` in `src/engine/bridge.js`.
+  - Pure storage layer `src/storage/entities.js` now delegates structuring directly to `@engine`.
+
+
 - **Eliminate Media Visualizer Clone, Dead Tempo Budgets & Storage Physics Duplication (`src/media/visualizer.js`, `src/media/visual.js`, `src/media/visual.test.js`, `src/engine/turns.js`, `src/engine/bridge.js`, `src/engine/index.js`, `src/storage/entities.js`)**:
   - Deleted duplicate 332-line prompt compiler `src/media/visualizer.js`.
   - Re-routed visual prompt envisioning (`visual_engine.envision()`) to `src/engine/bridge.js` (`execute_visualizer_envision`), orchestrating the turn through `execute_turn_visualizer` and the canonical `PURPOSE_CORES.visualizer` in `src/engine/prompts.js`.

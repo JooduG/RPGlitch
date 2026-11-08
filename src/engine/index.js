@@ -23,6 +23,7 @@ export {
   execute_turn_2_continue,
   execute_turn_3_caretaker,
   execute_turn_visualizer,
+  execute_turn_structuring,
   execute_round,
   build_turn_summary,
 } from "./turns.js";
@@ -33,6 +34,7 @@ export {
   execute_greenfield_continue,
   execute_ghostwriter,
   execute_visualizer_envision,
+  structure_profile,
 } from "./bridge.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
