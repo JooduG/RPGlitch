@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Telemetry & Think Block Display Fixes (`src/ui/message/Message.svelte`, `src/state/interface.svelte.js`, `src/ui/console/DevControls.svelte`, `src/engine/bridge.js`)**:
+  - **Think Block Persistence in UI**: In `src/ui/message/Message.svelte`, derived `think_block` from `parsed.think || meta?.think || null`, ensuring completed message rows with extracted `<think>` stored in `meta.think` retain their visible thought box instead of collapsing to null.
+  - **Director Enablement by Default**: Set `director_enabled: true` in `app.settings` default interface state (`src/state/interface.svelte.js`), and added a `DIRECTOR` toggle switch in `src/ui/console/DevControls.svelte`.
+  - **Caretaker Telemetry Logging**: In `src/engine/bridge.js`, wired `dispatch_caretaker_consolidation` to log a `CONTINUUM_FORMATION` system message entry to `simulation_log`, rendering the Caretaker Back Shot telemetry card with its present, past, future deltas, and thoughts.
+
 - **Upstream Diffusion Sanitize Guard in `execute_turn_visualizer` (`src/engine/turns.js`)**:
   - Added template-significant bracket (`{}[\]`) and punctuation sanitization directly inside `execute_turn_visualizer()` before returning prompts, ensuring downstream callers can never inadvertently pass raw unescaped curly/square brackets to host Perchance template engines.
 

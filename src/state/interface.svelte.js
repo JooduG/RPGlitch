@@ -176,6 +176,7 @@ export class InterfaceStore {
     dev_mode: false,
     dev_grid_visible: false,
     use_greenfield_engine: true,
+    director_enabled: true,
     directors_note_in_task: true,
     narrative_style: "default",
     visual_style: "none",

@@ -106,7 +106,7 @@
   let active_text = $derived(is_streaming_target ? app.streaming.content : text);
   let parsed = $derived(parse_message(active_text, speaking_style));
   let display_text = $derived(parsed.displayText);
-  let think_block = $derived(parsed.think);
+  let think_block = $derived(parsed.think || meta?.think || null);
   let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));
 
   // Track when this specific message becomes an active stream target

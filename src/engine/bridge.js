@@ -362,6 +362,32 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
           console.warn("[Bridge] Failed to append caretaker ledger entries:", ledger_err);
         }
       }
+
+      // Emit CONTINUUM_FORMATION telemetry card so Caretaker consolidation appears in the timeline
+      if (runtime.story_id) {
+        try {
+          const present_combined = [caretaker_outcome.present_physical, caretaker_outcome.present_non_physical].filter(Boolean).join(" ");
+          const logged_continuum = await log_message("", "system", "Caretaker", {
+            turn_type: "SYSTEM_TURN",
+            round,
+            story_id: runtime.story_id,
+            meta: {
+              type: "CONTINUUM_FORMATION",
+              target: target_key,
+              present: present_combined,
+              future: caretaker_outcome.future_text || "",
+              past: caretaker_outcome.past_text || "",
+              thought_process: caretaker_outcome._thought_process || "",
+              greenfield: true,
+            },
+          });
+          if (logged_continuum && state_bridge.simulation_log?.add) {
+            state_bridge.simulation_log.add(logged_continuum);
+          }
+        } catch (card_err) {
+          console.warn("[Bridge] Failed to emit caretaker telemetry card:", card_err);
+        }
+      }
     }
   } catch (caretaker_err) {
     console.warn("[Bridge] Caretaker write-back non-fatal warning:", caretaker_err);
