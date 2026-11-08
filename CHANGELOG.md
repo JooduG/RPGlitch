@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Character Core Prompt Streamlining (`src/engine/prompts.js`, `src/engine/prompts.test.js`, `src/engine/turns.test.js`)**:
+  - Removed redundant `PURPOSE_CORES.ghostwrite` and `is_continuation` branching (`Continuation Directive` and additive pacing instruction) from `src/engine/prompts.js`.
+  - Pacing budget is now uniformly expressed as `- **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.`.
+- **Ghostwriter Consolidation & Greenfield Integration (`src/engine/bridge.js`, `src/engine/index.js`, `src/ui/console/StorymodeBar.svelte`)**:
+  - Deleted standalone `src/engine/ghostwriter.js` and its isolated test file.
+  - Relocated and consolidated `execute_ghostwriter` directly into `src/engine/bridge.js` to execute via `execute_turn_2_character` using the active session's shared preemptive transport and 4-quadrant character normalization.
+  - Fixed seed input bug in `src/ui/console/StorymodeBar.svelte` where drafting wiped typed input before passing it into `execute_ghostwriter`.
+
 - **Pre-Gate-4 Fixes: User-Turn Persistence, Dead Pacing Backstop & Storage Re-Points (`src/state/chrono.svelte.js`, `src/state/chrono.test.js`, `src/engine/turns.js`, `src/engine/index.js`, `src/ui/profile/RelationalGraph.svelte`, `src/ui/profile/RelationalGraph.test.js`)**:
   - **Greenfield User-Turn Persistence**: Mirrored user-turn persistence via `session_driver.send(final_input)` into the greenfield engine path in `src/state/chrono.svelte.js` prior to `execute_greenfield_turn`. User messages now durably persist to IndexedDB and survive reloads without duplicating history.
   - **User Turn Abort Safety**: Added unit test coverage in `src/state/chrono.test.js` validating user message persistence and verifying that abort triggers cleanup of orphaned user rows via `@storage` `delete_log_entry`.

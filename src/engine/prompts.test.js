@@ -117,7 +117,7 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(single_entity_prompt).not.toContain("<RECENT");
   });
 
-  it("compiles character and ghostwrite cores with canonical 4-step think format", () => {
+  it("compiles character core with canonical 4-step think format", () => {
     const character_prompt = compile_prompt({
       core: "character",
       round: 1,
@@ -132,32 +132,5 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(character_prompt).toContain("4. **Smallest Observable Action**:");
     expect(character_prompt).toContain("Never pre-draft dialogue");
     expect(character_prompt).toContain("Never emit visible prose inside think tags");
-
-    const ghostwrite_prompt = compile_prompt({
-      core: "ghostwrite",
-      round: 1,
-      entities,
-      history,
-    });
-
-    expect(ghostwrite_prompt).toContain("### Think Format");
-    expect(ghostwrite_prompt).toContain("1. **Stance**:");
-    expect(ghostwrite_prompt).toContain("2. **Friction**:");
-    expect(ghostwrite_prompt).toContain("3. **Mask**:");
-    expect(ghostwrite_prompt).toContain("4. **Smallest Observable Action**:");
-    expect(ghostwrite_prompt).toContain("Never pre-draft dialogue");
-  });
-
-  it("includes Continuation Directive and additive pacing budget when task_options.is_continuation is true", () => {
-    const prompt = compile_prompt({
-      core: "character",
-      round: 1,
-      entities,
-      history,
-      task_options: { turn_tempo: 3, is_continuation: true },
-    });
-
-    expect(prompt).toContain("Continuation Directive");
-    expect(prompt).toContain("Append 3 additional beat(s) beyond the prefilled text");
   });
 });

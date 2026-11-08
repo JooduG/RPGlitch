@@ -1,16 +1,13 @@
 /**
  * src/engine/parser.js
  * ============================================================================
- * 📜 PURE BRACKET & STREAMING PARSER
+ * 📜 PURE STREAMING COGNITION PARSER
  * ============================================================================
  *
- * Handles streaming extraction (<think>) and pure re-exports of canonical
- * bracket tokenization, Epistemic Wall filtering, and delta merging from
- * the persistence layer (`@storage`).
+ * Handles LLM stream cognition extraction (<think>...</think> blocks).
+ * All entity bracket tokenization and Epistemic Wall filtering live in `@storage/parser.js`.
  * ============================================================================
  */
-
-export { parse_bracket_token, parse_brackets, format_clean_brackets, apply_bracket_deltas, extract_memory_candidates } from "../storage/parser.js";
 
 /**
  * Extracts and strips <think>...</think> cognition blocks from streamed prose.

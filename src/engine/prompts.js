@@ -18,7 +18,7 @@
  * ============================================================================
  */
 
-import { format_clean_brackets } from "./parser.js";
+import { format_clean_brackets } from "../storage/parser.js";
 import { ENHANCER_DIRECTIVES } from "../storage/profile-fields.js";
 import { DYNAMICS_SCALE, TEMPO_ROUNDS } from "../config.js";
 
@@ -33,41 +33,32 @@ export const PURPOSE_CORES = Object.freeze({
     start_with: '{"_thought_process": "',
     resolve_identity_text: () => "You are the Director orchestrating simulation mechanics and staging.",
     task_block: `  <TASK>
-    ### Directives
-    - **Analysis (\`_thought_process\`)**: Evaluate recent events, physical causality, and emotional friction.
-    - **Next Action (\`next_action\`)**: Determine who or what reacts next (\`MAIN_CHARACTER\`, \`SCENARIO\`, or \`OTHER_CHARACTERS\`). On fatal trauma, emit \`"EPILOGUE_COLLAPSED"\`.
-    - **Staging Directive (\`directors_note\`)**: Acting guidance delivered exclusively to the \`next_action\` entity (never script actions for the protagonist).
-    - **Cinematography (\`camera_note\`)**: Frame physical posture, lighting, and camera angle for visual synthesis.
+    ### Dynamics deltas *(\`dynamics_deltas\`)*
+    - Signed integer adjustments *(base meters live on ${DYNAMICS_SCALE.MIN}-${DYNAMICS_SCALE.MAX}, clipped to ${DYNAMICS_SCALE.BOUNDARY_CLIP})*.
+    - Standard turn shift: **${DYNAMICS_SCALE.DELTA_STANDARD}**
+    - Dramatic turn shift: **${DYNAMICS_SCALE.DELTA_EXTREME}**
+    - Calibrate integer deltas for narrative tension; avoid extreme swings.
 
-    <DYNAMICS_DELTAS scale="${DYNAMICS_SCALE.MIN}-${DYNAMICS_SCALE.MAX}" standard="${DYNAMICS_SCALE.DELTA_STANDARD}" dramatic="${DYNAMICS_SCALE.DELTA_EXTREME}" clamp="${DYNAMICS_SCALE.BOUNDARY_CLIP}">
-      Character Dynamics:
-      - **chaos**: (+) Volatility / Unpredictability vs (-) Order / Stability
-      - **intensity**: (+) Surge / High Stakes vs (-) Stillness / Calm
-      - **openness**: (+) Permeability / Vulnerability vs (-) Insulation / Guarded
-      - **affinity**: (+) Connection / Coalescence vs (-) Isolation / Friction
-
-      Scenario Dynamics:
-      - **velocity**: (+) Acceleration / Rapid Pacing vs (-) Suspension / Slowness
-      - **entropy**: (+) Glitching / Decay / Fragmentation vs (-) Coherence / Purity
-
-      Calibrate integer deltas to turn friction. Avoid extreme swings near boundaries.
-    </DYNAMICS_DELTAS>
-
-    ---
+    ### Next Action *(\`next_action\`)*
+    - Active scene speaker: select one literal enum: \`MAIN_CHARACTER\`, \`SCENARIO\`, or \`OTHER_CHARACTERS\`.
+    - Story climax/resolution:
+      - Emit "EPILOGUE_CONCLUDED" when the scene reaches a conclusive win/resolution.
+      - Emit "EPILOGUE_COLLAPSED" on fatal trauma or irreversible failure.
 
     <OUTPUT_FORMAT mode="json">
       {
-        "_thought_process": "",
-        "next_action": "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
-        "directors_note": "",
+        "_thought_process": "Evaluate recent events, physical causality, and emotional friction",
         "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
-        "camera_note": ""
+        "next_action": "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
+        "directors_note": "Scene guidance delivered to the above next_action",
+        "camera_note": "Cinematically frame physical posture, lighting, and camera angle for visual synthesis"
       }
     </OUTPUT_FORMAT>
 
     > [!IMPORTANT]
-    > No conversational preamble, no markdown code fence backticks, no trailing comments.
-    > Output MUST start with { and end with }.
+    > **No** conversational preamble, **no** markdown code fence backticks, **no** trailing comments.
+    > Output **MUST** start with { and end with }.
+    > Output **MUST** be json.
   </TASK>`,
   },
 
@@ -118,71 +109,33 @@ export const PURPOSE_CORES = Object.freeze({
   </TASK>`,
   },
 
-  ghostwrite: {
-    identity: "user",
-    see_hidden: "all",
-    start_with: () => "<think>",
-    resolve_identity_text: (context) =>
-      `You are ghostwriting the next narrative action, dialogue, or reaction from the perspective of ${context.listener_name || "the protagonist"}.`,
-    task_block: (context) => {
-      const listener_name = context.listener_name || "the protagonist";
-      return `  <TASK>
-    ### Think Format
-    1. **Stance**: Immediate unsaid want and internal feeling from ${listener_name}.
-    2. **Friction**: The obstacle, emotional vulnerability, or tension resisting that want.
-    3. **Mask**: How psychology leaks or conceals the feeling.
-    4. **Smallest Observable Action**: Single physical tell, bodily movement, sensory observation, or speech. Never pre-draft dialogue.
-
-    *Close \\</think\\> before narrative prose. Never emit visible prose inside think tags.*
-
-    ### Ghostwriting Directives
-    - Write strictly in present tense.
-    - Embody ${listener_name}'s perspective, tone, and agency.
-    - Advance the immediate moment with sensory grit, tactile posture, or spoken dialogue. Never summarize past events.
-
-    > [!IMPORTANT]
-    > Emit in-character narrative prose.
-  </TASK>`;
-    },
-  },
-
   character: {
     identity: "character",
     see_hidden: "own",
     start_with: (context) => (context?.directors_note ? `<think>${context.directors_note}\n` : "<think>"),
     resolve_identity_text: (context) =>
-      `You are ${context.speaker_name} within FRACTAL ${context.fractal_name}, interacting with ${context.listener_name}.`,
+      `You are ${context.speaker_name}, the main character of ${context.fractal_name}. ${context.listener_name} is also here.`,
     task_block: (context) => {
       const tempo = context?.turn_tempo || 2;
       const is_first_person = context?.is_character && context?.pov === "1st_person";
       const perspective_rule = is_first_person
-        ? "Maintain first-person limited perspective ('I', 'me', 'my') anchored strictly to your own sensory experience. Never speak, script, or dictate actions for the counterpart."
-        : "Maintain third-person limited perspective anchored strictly to your own identity. Never speak, script, or dictate actions for the counterpart.";
-
-      const pacing_budget_line = context?.is_continuation
-        ? `- **Pacing Budget**: Append ${tempo} additional beat(s) beyond the prefilled text. Deliver crisp, grounded continuation calibrated to this tempo.`
-        : `- **Pacing Budget**: ${tempo} beat(s). Deliver crisp, grounded interaction calibrated to this tempo.`;
-
-      const continuation_directive = context?.is_continuation
-        ? "\n    - **Continuation Directive**: The scene has been prefilled up to the current moment. Advance the scene further with the next immediate action, visceral sensation, or dialogue beat. Never stop prematurely or repeat prior text."
-        : "";
+        ? "Maintain strict **first-person** perspective *('I', 'me', 'my')* anchored to your own sensory experience. Never speak, script, or dictate actions for anyone else."
+        : "Maintain strict **third-person** perspective anchored to your own identity. Never speak, script, or dictate actions for anyone else.";
 
       return `  <TASK>
-    ### Think Format
-    1. **Stance**: Immediate unsaid want and internal feeling from ${context.speaker_name}.
-    2. **Friction**: What resists that want in this beat.
-    3. **Mask**: How psychology leaks or conceals the feeling.
-    4. **Smallest Observable Action**: Single physical tell or movement that carries the beat. Never pre-draft dialogue.
-
-    *Close \\</think\\> before narrative prose. Never emit visible prose inside think tags.*
-
     ### Pacing & Posture
-    - **Tense & Rhythm**: Write in present tense.
-    ${pacing_budget_line}
-    - ${perspective_rule}${continuation_directive}
+    - Write in **present tense**.
+    - Deliver crisp, grounded interaction calibrated to a tempo of **${tempo} beat(s)**.
+    - ${perspective_rule}
+
+    ### Think Format
+    1. **Stance**: Your immediate subtextual wants and internal feelings.
+    2. **Friction**: What's resisting those wants right now?
+    3. **Mask**: How psychological coping mechanisms leaks or conceals these feelings.
+    4. **Smallest Observable Action**: A non-verbal physical tell or movement that carries the subtextual beat. Never pre-draft dialogue.
 
     > [!IMPORTANT]
-    > Emit in-character narrative prose.
+    > Close \\</think\\> before narrative prose. Never emit visible prose inside think tags.
   </TASK>`;
     },
   },
@@ -310,7 +263,6 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     camera_note: task_options.camera_note || "",
     subject_kind: task_options.subject_kind || "character",
     turn_tempo: task_options.turn_tempo || 2,
-    is_continuation: Boolean(task_options.is_continuation),
   };
 
   const identity_text = purpose_core.resolve_identity_text(core_context);

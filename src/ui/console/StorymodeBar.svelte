@@ -23,8 +23,9 @@
   import { stab } from "@motion";
   import { app, runtime, simulation_state, force_recover_simulation } from "@state";
 
-  /* eslint-disable-next-line no-useless-assignment */
+  /* eslint-disable no-useless-assignment */
   let { is_focused = $bindable(false), has_text = $bindable(false) } = $props();
+  /* eslint-enable no-useless-assignment */
 
   let value = $state("");
   $effect(() => {
@@ -55,8 +56,9 @@
       is_ghostwriting = true;
       app.is_ghostwriting = true;
       try {
+        const seed_input = value;
         value = ""; // clear previous value for live drafting
-        const draft = await execute_ghostwriter(value, null, (chunk, is_full_replace) => {
+        const draft = await execute_ghostwriter(seed_input, null, (chunk, is_full_replace) => {
           if (is_full_replace) {
             value = chunk;
           } else {

@@ -17,7 +17,8 @@
  */
 
 import { compile_prompt } from "./prompts.js";
-import { extract_think_block, parse_brackets } from "./parser.js";
+import { extract_think_block } from "./parser.js";
+import { parse_brackets } from "../storage/parser.js";
 import { safe_parse_json } from "../utils/text.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
 

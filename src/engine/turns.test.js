@@ -223,7 +223,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       target_think: "Bait the hero.",
     });
 
-    expect(captured_prompt).toContain("Continuation Directive");
+    expect(captured_prompt).toContain('identity="character"');
     expect(captured_start_with).toBe('<think>Bait the hero.</think>\n"Too slow to catch me!"\n\n');
     expect(result.continuation_prose).toBe("He steps closer to the edge.");
     expect(result.prose).toBe('"Too slow to catch me!"\n\nHe steps closer to the edge.');
