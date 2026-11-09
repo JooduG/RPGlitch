@@ -16,12 +16,6 @@
       "@/*": [
         "src/*"
       ],
-      "@motion": [
-        "src/ui/motion/index.js"
-      ],
-      "@motion/*": [
-        "src/ui/motion/*"
-      ],
       "@primitives": [
         "src/ui/primitives/index.js"
       ],
