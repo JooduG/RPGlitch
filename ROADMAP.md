@@ -122,9 +122,13 @@ flowchart TD
       - Purged `src/platform/` entirely (10 files deleted), consolidated zero-trust sandbox and web fetch into `src/utils/html.js`, vector codecs into `src/utils/math.js`, embeddings into `src/utils/embeddings.svelte.js`, signal resilience into `src/utils/resilience.js`, text sanitization into `src/utils/text.js`, and priority gate into `src/engine/gate.js`. Removed `@platform` alias.
     - **Pulse 2: Eradicate `src/data/` (COMPLETED)**:
       - Purged `src/data/` entirely (13 files deleted). Relocated card conversion to `src/storage/card-conversion.js`, sessions driver to `src/storage/sessions.svelte.js`, and ledger replay into `src/storage/db.js`. Exposed `stories` and `entities` facades in `@storage`. Removed `@data` alias across `vite.config.js`, `vitest.config.js`, and `jsconfig.json`. Repointed all UI, state, media, and intelligence consumers. Verified with 72/72 test files green (1,314 tests) and bundle at 1.53 MB.
-    - **Pulse 3: Eradicate `src/intelligence/` (NEXT ACTIVE SPRINT)**:
-      - Relocate prompt builders, director shot logic, dynamics, and veil parser into `@engine` and `@definitions`.
-      - Wire all inference callers directly into `@engine` and delete `src/intelligence/`.
+    - **Pulse 3: Eradicate `src/intelligence/` (COMPLETED)**:
+      - Purged `src/intelligence/` entirely (41 files and ~20,000 lines deleted) including legacy prompt compilers, modules (`constitution.js`, `constitution.test.js`, `entities.js`, `entities.test.js`, `output.js`, `output.test.js`, `protocols.js`, `recency.js`, `recency.test.js`, `reflex.js`, `reflex.test.js`, `sheets.js`, `sheets.test.js`, `style.js`, `style.test.js`, `system.js`, `system.test.js`, `task.js`, `task.test.js`), `builder.js`, `builder.test.js`, `director.js`, `director.test.js`, `dynamics.js`, `dynamics.test.js`, `index.js`, `parser.js`, `parser.test.js`, `profile.js`, `profile.test.js`, `prompt-verification.js`, `prompt-verification.test.js`, `prompts.js`, `prompts.test.js`, `story.js`, `temporal.js`, `temporal.test.js`, `veil.js`, `veil.test.js`, and retired obsolete differential tests (`src/engine/differential.test.js`).
+      - Separated dynamics declarative registries into `src/definitions/dynamics.js` and pure simulation physics / gravity calculations into `src/engine/dynamics.js` (`src/engine/dynamics.test.js`).
+      - Unified profile sorting and enhancement into the single sovereign `caretaker` purpose core via `structure_profile` from `@engine` in `src/ui/Profile.svelte.js` (`src/ui/Profile.test.js`).
+      - Implemented `execute_greenfield_epilogue` in `src/engine/bridge.js` and decoupled `Console.svelte` and `chrono.svelte.js` from `gamemaster`.
+      - Extracted deterministic engine test fixtures into `src/engine/fixtures.test-util.js`.
+      - Removed `@intelligence` alias across `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `.agents/skills/local-scripts/scripts/audit-layers.js`.
     - **Pulse 4: Eradicate `src/state/`**:
       - Replace reactive state facades with greenfield engine stores in `@engine` / `@ui` and delete `src/state/`.
     - Collapse nested UI directories into flat Svelte 5 domain components without empty wrapper abstractions.

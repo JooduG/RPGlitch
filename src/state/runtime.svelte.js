@@ -38,7 +38,11 @@ import { app } from "./interface.svelte.js";
 // ============================================================================
 
 /**
- * @typedef {import('@intelligence/temporal.js').TemporalVector} TemporalVector
+ * @typedef {Object} TemporalVector
+ * @property {string} id
+ * @property {number} timestamp
+ * @property {string} content
+ * @property {Float32Array | null} [embedding]
  */
 
 /**

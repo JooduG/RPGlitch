@@ -9,7 +9,7 @@ import {
   execute_round,
   build_turn_summary,
 } from "./turns.js";
-import { create_contract_fixtures } from "../intelligence/prompt-verification.js";
+import { create_contract_fixtures } from "./fixtures.test-util.js";
 
 describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
   const { entities, history } = create_contract_fixtures();

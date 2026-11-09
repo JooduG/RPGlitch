@@ -10,8 +10,7 @@
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { Audio, get_signature_color, overlay_in, overlay_out, pulse, roll, shimmy, stab } from "@media";
   import { chrono_engine, app, runtime, simulation_log, simulation_state, force_recover_simulation } from "@state";
-  import { execute_ghostwriter } from "@engine";
-  import { gamemaster } from "@intelligence";
+  import { execute_ghostwriter, execute_greenfield_epilogue } from "@engine";
   import { db, session_driver, stories } from "@storage";
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
   import { item_in } from "@media";
@@ -374,7 +373,7 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      await gamemaster.execute_epilogue(runtime.story_id);
+      await execute_greenfield_epilogue(runtime.story_id);
       if (runtime.story_id) {
         await stories.conclude(runtime.story_id);
         await app.load_entities();

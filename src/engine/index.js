@@ -34,6 +34,8 @@ export {
 export {
   execute_greenfield_turn,
   execute_greenfield_continue,
+  execute_greenfield_prologue,
+  execute_greenfield_epilogue,
   execute_ghostwriter,
   execute_visualizer_envision,
   structure_profile,

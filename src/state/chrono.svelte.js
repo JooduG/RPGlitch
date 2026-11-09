@@ -20,7 +20,6 @@
  */
 
 import { session_driver } from "@storage";
-import { gamemaster } from "@intelligence";
 import { build_turn_summary } from "@engine";
 import { delete_log_entry } from "@storage";
 import { state_bridge } from "@utils";
@@ -95,13 +94,8 @@ export class ChronoEngine {
       // 4. Trigger Prologue Generation
       state_bridge.simulation_state.start_generation("fractal");
       try {
-        if (state_bridge.app?.settings?.use_greenfield_engine) {
-          await execute_greenfield_prologue(story_id);
-          state_bridge.app.log("Greenfield prologue generated and opening turn executed.", "system");
-        } else {
-          await gamemaster.execute_prologue(story_id);
-          state_bridge.app.log("Prologue generated and opening turn executed.", "system");
-        }
+        await execute_greenfield_prologue(story_id);
+        state_bridge.app.log("Prologue generated and opening turn executed.", "system");
       } catch (e) {
         console.error("[Chrono] Prologue Failed:", e);
         state_bridge.app.log("Error: Prologue Failed.", "error");
@@ -249,19 +243,12 @@ export class ChronoEngine {
         state_bridge.simulation_state.start_director_stage();
 
         try {
-          if (state_bridge.app?.settings?.use_greenfield_engine) {
-            state_bridge.app.log("Executing turn via Sovereign Greenfield Engine (Kernel)...", "system");
-            await execute_greenfield_turn(final_input || "", {
-              signal: controller.signal,
-              is_retry: options.is_retry,
-              is_continue: options.is_continue,
-            });
-          } else {
-            await gamemaster.execute_turn(story_id, {
-              input: final_input ?? undefined,
-              signal: controller.signal,
-            });
-          }
+          state_bridge.app.log("Executing turn via Sovereign Greenfield Engine (Kernel)...", "system");
+          await execute_greenfield_turn(final_input || "", {
+            signal: controller.signal,
+            is_retry: options.is_retry,
+            is_continue: options.is_continue,
+          });
           state_bridge.app.log("Generation complete.", "system");
 
           try {
@@ -332,14 +319,7 @@ export class ChronoEngine {
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");
-                    if (state_bridge.app?.settings?.use_greenfield_engine) {
-                      await execute_greenfield_turn(final_input, { signal: controller.signal });
-                    } else {
-                      await gamemaster.execute_turn(story_id, {
-                        input: final_input,
-                        signal: controller.signal,
-                      });
-                    }
+                    await execute_greenfield_turn(final_input, { signal: controller.signal });
                     retry_landed = true;
                     state_bridge.app.log("Orphaned turn recovered.", "system");
                   }

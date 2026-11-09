@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { Kernel } from "./kernel.svelte.js";
 import { dev_log } from "./dev.svelte.js";
-import { create_contract_fixtures } from "../intelligence/prompt-verification.js";
+import { create_contract_fixtures } from "./fixtures.test-util.js";
 
 describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
   const { entities } = create_contract_fixtures();

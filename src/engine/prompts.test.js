@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { create_contract_fixtures } from "../intelligence/prompt-verification.js";
+import { create_contract_fixtures } from "./fixtures.test-util.js";
 import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 import { verify_compiled_prompt } from "./verifier.js";
 

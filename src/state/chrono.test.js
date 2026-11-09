@@ -2,7 +2,6 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
 import { session_driver, delete_log_entry } from "@storage";
-import { gamemaster } from "@intelligence";
 import { execute_greenfield_turn, execute_greenfield_prologue } from "../engine/bridge.js";
 
 vi.mock("@storage", async (importOriginal) => {
@@ -25,14 +24,6 @@ vi.mock("../engine/bridge.js", () => ({
   execute_greenfield_turn: vi.fn().mockResolvedValue({}),
   execute_greenfield_continue: vi.fn().mockResolvedValue({}),
   execute_greenfield_prologue: vi.fn().mockResolvedValue({}),
-}));
-
-vi.mock("@intelligence", () => ({
-  gamemaster: {
-    execute_prologue: vi.fn().mockResolvedValue({}),
-    execute_turn: vi.fn().mockResolvedValue({}),
-  },
-  build_turn_summary: vi.fn().mockReturnValue("Turn summary"),
 }));
 
 describe("ChronoEngine", () => {
@@ -126,11 +117,11 @@ describe("ChronoEngine", () => {
       expect(session_driver.send).not.toHaveBeenCalled();
     });
 
-    it("accepts valid text and dispatches execute_turn", async () => {
+    it("accepts valid text and dispatches execute_greenfield_turn", async () => {
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");
-      expect(gamemaster.execute_turn).toHaveBeenCalled();
+      expect(execute_greenfield_turn).toHaveBeenCalled();
     });
 
     it("persists a user-role row when greenfield engine is on and dispatches execute_greenfield_turn", async () => {
@@ -179,30 +170,7 @@ describe("ChronoEngine", () => {
         }),
       );
       expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
-      expect(gamemaster.execute_prologue).toHaveBeenCalledWith("story-123");
-      expect(mock_app.suppress_card_transitions).toBe(false);
-    });
-
-    it("executes greenfield prologue when use_greenfield_engine is enabled", async () => {
-      mock_app.settings = { use_greenfield_engine: true };
-      const selection = {
-        ai: { id: "ai-1", name: "Iris" },
-        user: { id: "usr-1", name: "Player" },
-        fractal: { id: "fr-1", name: "Citadel", visual_style: "photo", narrative_style: "casual" },
-      };
-
-      await chrono_engine.start(selection);
-
-      expect(session_driver.create_from_selection).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ai_id: "ai-1",
-          user_id: "usr-1",
-          fractal_id: "fr-1",
-        }),
-      );
-      expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
       expect(execute_greenfield_prologue).toHaveBeenCalledWith("story-123");
-      expect(gamemaster.execute_prologue).not.toHaveBeenCalled();
       expect(mock_app.suppress_card_transitions).toBe(false);
     });
   });
@@ -211,13 +179,13 @@ describe("ChronoEngine", () => {
     it("calls session_driver.regenerate on retry and advances turn", async () => {
       await chrono_engine.retry();
       expect(session_driver.regenerate).toHaveBeenCalled();
-      expect(gamemaster.execute_turn).toHaveBeenCalled();
+      expect(execute_greenfield_turn).toHaveBeenCalled();
     });
 
     it("advances turn on continue without incrementing round again if continue option is set", async () => {
       const initial_round = mock_runtime.round;
       await chrono_engine.continue();
-      expect(gamemaster.execute_turn).toHaveBeenCalled();
+      expect(execute_greenfield_turn).toHaveBeenCalledWith("", expect.objectContaining({ is_continue: true }));
       expect(mock_runtime.round).toBe(initial_round);
     });
   });

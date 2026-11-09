@@ -3,11 +3,10 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize_entity as normalize } from "@storage";
-import { PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "../definitions/profile-fields.js";
-import { compile_prompt, parse_profile_json } from "@intelligence";
-import { llm_service } from "@engine";
+import { PROFILE_FIELD_CATALOG } from "../definitions/profile-fields.js";
+import { structure_profile } from "@engine";
 import { app, runtime } from "@state";
-import { get_value, set_value, strip_cognition_blocks, safe_parse_pseudo_json, strip_profile_wrappers, unwrap_enhancement_text } from "@utils";
+import { get_value, set_value, safe_parse_pseudo_json } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
@@ -294,35 +293,21 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = compile_prompt("enhancement", {
-        field_id: key,
-        content: value,
-        entity_name: this.char.name || "",
-        entity_type: type,
-        is_image_field: false,
-        entity: this.char,
-      });
-      const result = await llm_service.enhance(payload);
-      if (result) {
-        const clean_result = strip_profile_wrappers(strip_cognition_blocks(result).trim());
+      const structured = await structure_profile(
+        `Field: "${key}"\nCurrent Value: "${value || ""}"\nEntity: ${this.char.name || "Entity"} (${type})`,
+        type,
+      );
+      if (structured) {
+        let field_val = "";
+        if (key === "eternal.physical") field_val = structured.eternal_physical || "";
+        else if (key === "eternal.non_physical") field_val = structured.eternal_non_physical || "";
+        else if (key === "present.physical") field_val = structured.present_physical || "";
+        else if (key === "present.non_physical") field_val = structured.present_non_physical || "";
+        else if (key === "future") field_val = structured.future || "";
+        else if (key === "past") field_val = structured.past || "";
 
-        if (key.endsWith(".physical")) {
-          const normalized = this._normalize_physical_enhancement(key, unwrap_enhancement_text(clean_result, key), type);
-          if (normalized == null) {
-            console.warn(`[ProfileState] Physical enhancement for ${key} rejected — unparsable or missing mandatory keys. Keeping current value.`);
-          } else {
-            set_value(this.char, key, normalized);
-            this._user_mutated = true;
-          }
-        } else {
-          const final_val =
-            key === "name"
-              ? clean_result
-                  .replace(/[\r\n]+/g, " ")
-                  .trim()
-                  .slice(0, 80)
-              : unwrap_enhancement_text(clean_result, key);
-          set_value(this.char, key, final_val);
+        if (field_val) {
+          set_value(this.char, key, field_val.trim());
           this._user_mutated = true;
         }
       }
@@ -377,47 +362,15 @@ export class ProfileState {
     this.busy_fields.add("description");
 
     try {
-      const payload = compile_prompt("sorting", {
-        input_data: this.char,
-        entity_type,
-        options: { redistribute: true },
-      });
-      const result = await llm_service.enhance(payload);
-
-      if (result) {
-        const clean_json = parse_profile_json(result);
-
-        if (clean_json) {
-          for (let [key, val] of Object.entries(clean_json)) {
-            if (key === "name" || key === "description" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
-
-            if (FLAT_LEAF_MAP[key]) key = FLAT_LEAF_MAP[key];
-
-            if (key === "past") {
-              if (typeof val === "string") {
-                set_value(this.char, "past", strip_profile_wrappers(val));
-              } else if (Array.isArray(val)) {
-                const bracket_lines = val.map((item) => {
-                  const content = typeof item === "string" ? item : item.content || item.directive || item.text || "";
-                  return content.trim().startsWith("[") ? content.trim() : `[MEM: ${content.trim()}]`;
-                });
-                set_value(this.char, "past", bracket_lines.join("\n"));
-              }
-            } else if (key === "future" && typeof val === "string") {
-              // FUTURE is a prose field — flat string value lands directly.
-              set_value(this.char, "future", strip_profile_wrappers(val));
-            } else if (typeof val === "object" && !Array.isArray(val)) {
-              for (const [sub_key, subVal] of Object.entries(val)) {
-                if (typeof subVal === "string") {
-                  set_value(this.char, `${key}.${sub_key}`, strip_profile_wrappers(subVal));
-                }
-              }
-            } else if (typeof val === "string") {
-              set_value(this.char, key, strip_profile_wrappers(val));
-            }
-          }
-          this._user_mutated = true;
-        }
+      const structured = await structure_profile(this.char, entity_type);
+      if (structured) {
+        if (structured.eternal_physical) set_value(this.char, "eternal.physical", structured.eternal_physical);
+        if (structured.eternal_non_physical) set_value(this.char, "eternal.non_physical", structured.eternal_non_physical);
+        if (structured.present_physical) set_value(this.char, "present.physical", structured.present_physical);
+        if (structured.present_non_physical) set_value(this.char, "present.non_physical", structured.present_non_physical);
+        if (structured.future) set_value(this.char, "future", structured.future);
+        if (structured.past) set_value(this.char, "past", structured.past);
+        this._user_mutated = true;
       }
     } catch (err) {
       console.error("Enhance profile failed:", err);

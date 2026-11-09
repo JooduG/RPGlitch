@@ -1079,3 +1079,66 @@ export async function execute_greenfield_prologue(story_id) {
     }
   }
 }
+
+/**
+ * Executes an Epilogue conclusion narrative beat for story conclusion.
+ *
+ * @param {string | number} story_id
+ * @param {"CONCLUDED" | "COLLAPSED"} [conclusion_status="CONCLUDED"]
+ * @returns {Promise<string | null>}
+ */
+export async function execute_greenfield_epilogue(story_id, conclusion_status = "CONCLUDED") {
+  const runtime = state_bridge.runtime;
+  const app = state_bridge.app;
+
+  app.log(`[Greenfield] Generating epilogue (${conclusion_status})...`, "system");
+  const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
+  const fractal_name = runtime?.active_fractal?.name || "Fractal Entity";
+
+  const { compile_prompt } = await import("./prompts.js");
+  const { llm_service } = await import("./legacy-transport.js");
+
+  const prompt = compile_prompt({
+    core: "character",
+    round: (Number(runtime?.round) || 1) + 1,
+    entities: {
+      FRACTAL: runtime?.active_fractal || {},
+      AI: runtime?.active_ai || {},
+      USER: runtime?.active_user || {},
+    },
+    task_options: {
+      speaker_role: "fractal",
+      is_epilogue: true,
+      conclusion_status,
+    },
+  });
+
+  const response = await llm_service.generate({
+    system: prompt,
+    role: "fractal",
+    node_id,
+  });
+
+  const { parse_think_block } = await import("../storage/parser.js");
+  const { detox_prose } = await import("../utils/detox.js");
+  const cleaned_prose = detox_prose(parse_think_block(response || "").body);
+
+  if (state_bridge.session_driver?.log_message) {
+    await state_bridge.session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
+      turn_type: "SYSTEM_TURN",
+      story_id,
+      meta: {
+        id: node_id,
+        is_epilogue: true,
+        conclusion_status,
+        story_status: conclusion_status,
+      },
+    });
+  }
+
+  app.end_stream?.();
+  if (typeof state_bridge.simulation_state !== "undefined") {
+    state_bridge.simulation_state.phase = "locked";
+  }
+  return cleaned_prose;
+}

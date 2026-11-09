@@ -7,6 +7,11 @@ vi.mock("@engine", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
+    structure_profile: vi.fn(() => {
+      return new Promise((resolve) => {
+        resolveEnhanceFn = resolve;
+      });
+    }),
     llm_service: {
       enhance: vi.fn(() => {
         return new Promise((resolve) => {

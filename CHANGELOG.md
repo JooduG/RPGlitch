@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Pulse 3 Demolition: Eradicate `src/intelligence/` & Decouple Inference into `@engine` & `@definitions`**:
+  - Completely obliterated legacy directory `src/intelligence/` (all 41 modules and test suites eradicated, removing ~20,000 lines of legacy code) under P4 Zero Backwards Compatibility.
+  - Separated the dynamics declarative prompt library and somatic protocols registry into `src/definitions/dynamics.js` (`PHYSICS_PROTOCOLS`, `AVAILABLE_KEYWORDS`, `DYNAMICS_RULES`, `DYNAMICS_METRIC_NAMES`, `DYNAMICS_AXES`).
+  - Implemented pure simulation dynamics math and somatic evaluation in `src/engine/dynamics.js` (`reduce_dynamics`, `apply_dynamics_gravity`, `extract_entity_dynamics_baselines`, `compute_dynamics_deltas`, `evaluate_subtext_protocols`, `evaluate_dynamics_rules`) and tested in `src/engine/dynamics.test.js`.
+  - Re-routed entity profile enhancement and sorting mechanics in `src/ui/Profile.svelte.js` through `structure_profile` from `@engine` (powered by the unified `caretaker` purpose core) and `parse_profile_json` from `@storage`, completely severing `Profile.svelte.js` from `src/intelligence/`.
+  - Implemented `execute_greenfield_epilogue` in `src/engine/bridge.js` (re-exported via `@engine`) providing direct story conclusion narrative generation.
+  - Re-pointed `Console.svelte` epilogue handling to `execute_greenfield_epilogue`, eliminating reliance on legacy `gamemaster`.
+  - Re-pointed `chrono.svelte.js` to execute purely through `@engine` (`execute_greenfield_prologue`, `execute_greenfield_turn`), removing all `gamemaster` invocations.
+  - Extracted deterministic engine test fixtures into `src/engine/fixtures.test-util.js`, retiring legacy `prompt-verification.js` and obsolete `differential.test.js`.
+  - Removed `@intelligence` path alias from `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `.agents/skills/local-scripts/scripts/audit-layers.js`.
+  - Verified with `npm run audit:layers` (0 violations) and `npm run deploy:prepare` (54/54 test suites green, 734/734 unit tests passing, single-file bundle shrank from 1.53 MB down to 1.33 MB).
+
 - **Pulse 2 Demolition: Eradicate `src/data/` & Consolidate Persistence into `@storage`**:
   - Completely obliterated legacy directory `src/data/` (all 13 modules and test suites eradicated) under P4 Zero Backwards Compatibility.
   - Relocated character card conversion and PNG metadata parsing (`detect_card_format`, `parse_character_card`, `extract_card_from_png`, `serialize_character_card`, `serialize_rpglitch_entity`) to `src/storage/card-conversion.js` and `src/storage/card-conversion.test.js`.
