@@ -136,23 +136,23 @@
     "vitest-browser-svelte": "^3.1.0"
   },
   "overrides": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
-    "axios": "^1.15.1",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "axios": "^1.21.1",
     "devalue": "^5.8.1",
-    "express-rate-limit": "^8.5.0",
+    "express-rate-limit": "^8.7.3",
     "firecrawl-fastmcp": {
-      "@modelcontextprotocol/sdk": "^1.29.0"
+      "@modelcontextprotocol/sdk": "^1.32.2"
     },
-    "hono": "^4.12.23",
+    "hono": "^4.13.17",
     "ip-address": "^10.1.1",
     "lodash": "^4.17.21",
     "lodash-es": "^4.17.21",
     "svelte": "^5.57.3",
-    "toad-cache": "3.7.0",
+    "toad-cache": "^3.7.4",
     "uuid": "^11.1.1",
     "markdown-it": "^15.0.3",
     "js-yaml": "^4.3.2",
-    "esbuild": "^0.25.0",
-    "dotenv": "^16.4.7"
+    "esbuild": "^0.28.2",
+    "dotenv": "^18.0.10"
   }
 }
