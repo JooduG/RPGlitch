@@ -2,7 +2,8 @@
  * @file src/ui/profile/Profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
-import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
+import { db, normalize_entity as normalize } from "@storage";
+import { PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "../definitions/profile-fields.js";
 import { compile_prompt, parse_profile_json } from "@intelligence";
 import { llm_service } from "@engine";
 import { app, runtime } from "@state";

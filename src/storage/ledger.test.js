@@ -34,7 +34,7 @@ describe("mutation ledger persistence & replay", () => {
   it("appends and queries discrete ledger entries", async () => {
     const { init_db } = await import("./db.js");
     await init_db();
-    const { append_ledger_entry, query_entity_history } = await import("./ledger.js");
+    const { append_ledger_entry, query_entity_history } = await import("./db.js");
 
     const row_id = await append_ledger_entry({
       story_id: "story_123",
@@ -59,7 +59,7 @@ describe("mutation ledger persistence & replay", () => {
   }, 15000);
 
   it("replays entity field states correctly with supersession and clearing", async () => {
-    const { append_ledger_entries, replay_entity_field } = await import("./ledger.js");
+    const { append_ledger_entries, replay_entity_field } = await import("./db.js");
 
     await append_ledger_entries([
       {
@@ -122,7 +122,7 @@ describe("mutation ledger persistence & replay", () => {
   }, 15000);
 
   it("filters snapshot entries by max round and sequence", async () => {
-    const { append_ledger_entries, query_story_snapshot } = await import("./ledger.js");
+    const { append_ledger_entries, query_story_snapshot } = await import("./db.js");
 
     await append_ledger_entries([
       { story_id: "s1", round: 1, seq: 1, entity_id: "e1", field: "past" },
@@ -137,7 +137,7 @@ describe("mutation ledger persistence & replay", () => {
   });
 
   it("skips duplicate writes with identical values and flags (dedup guard)", async () => {
-    const { append_ledger_entry, append_ledger_entries, query_entity_history } = await import("./ledger.js");
+    const { append_ledger_entry, append_ledger_entries, query_entity_history } = await import("./db.js");
 
     const row_1 = await append_ledger_entry({
       story_id: "s_dedup",
@@ -182,7 +182,7 @@ describe("mutation ledger persistence & replay", () => {
   });
 
   it("restores visibility and weight flags in replay_entity_field", async () => {
-    const { append_ledger_entries, replay_entity_field } = await import("./ledger.js");
+    const { append_ledger_entries, replay_entity_field } = await import("./db.js");
 
     await append_ledger_entries([
       {
@@ -217,7 +217,7 @@ describe("mutation ledger persistence & replay", () => {
   });
 
   it("preserves un-mutated Round 0 Genesis brackets when replaying subsequent single-key updates", async () => {
-    const { append_ledger_entries, replay_entity_field, replay_full_entity_at_round } = await import("./ledger.js");
+    const { append_ledger_entries, replay_entity_field, replay_full_entity_at_round } = await import("./db.js");
 
     // Round 0 Genesis: full bracket string written with key: null
     await append_ledger_entries([

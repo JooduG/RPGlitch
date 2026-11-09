@@ -19,7 +19,7 @@
  */
 
 import { SvelteSet } from "svelte/reactivity";
-import { db, session_driver } from "@data";
+import { db, session_driver } from "@storage";
 import { delete_log_entry, delete_log_attachment, edit_log_entry } from "@storage";
 import { generate_uuid } from "@utils";
 import { TELEMETRY_CAPS } from "@config";

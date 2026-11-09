@@ -16,7 +16,7 @@
    */
   import { Button, TextField, tooltip } from "@primitives";
   import { blob_to_data_url, fetch_web, validate_image } from "@utils";
-  import { extract_card_from_png } from "@data";
+  import { extract_card_from_png } from "@storage";
 
   let {
     value = $bindable(""),

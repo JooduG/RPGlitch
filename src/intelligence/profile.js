@@ -9,7 +9,8 @@
  */
 
 import { generate_uuid, state_bridge } from "@utils";
-import { FLAT_LEAF_MAP, stories } from "@data";
+import { FLAT_LEAF_MAP } from "../definitions/profile-fields.js";
+import { stories } from "@storage";
 import { temporal_engine } from "./temporal.js";
 import { birth_entity_core as storage_birth_entity_core, structure_profile as storage_structure_profile } from "@storage";
 

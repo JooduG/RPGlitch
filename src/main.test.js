@@ -60,7 +60,7 @@ vi.mock("@utils", async (importOriginal) => {
   };
 });
 
-vi.mock("@data", async (importOriginal) => {
+vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -68,7 +68,7 @@ vi.mock("@data", async (importOriginal) => {
   };
 });
 
-import * as repository from "@data";
+import * as repository from "@storage";
 import { app_bootstrap, reset_bootstrap_guard } from "./main.js";
 
 vi.mock("svelte", () => ({

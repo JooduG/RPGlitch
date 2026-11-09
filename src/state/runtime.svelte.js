@@ -26,7 +26,7 @@
  */
 
 import { SvelteSet } from "svelte/reactivity";
-import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "@data";
+import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "@storage";
 import { load_session_checkpoint, clear_session_checkpoint } from "@storage";
 import { decompose_story_title } from "@utils";
 import { get_signature_color } from "@media";

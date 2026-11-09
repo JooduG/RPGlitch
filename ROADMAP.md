@@ -117,7 +117,16 @@ flowchart TD
     - Purged legacy 1,248-line `audio.svelte.js`, 978-line `visual.svelte.js`, and 373-line Kokoro `speech.js` stack.
     - Updated test suites across sensory cortex: created `src/media/visual.test.js`, purged retired `src/media/visual.svelte.test.js`, updated `src/media/tokens.test.js` and `src/media/optics.test.js`, and migrated `src/ui/profile/VisualWing.svelte` to `extract_aesthetic_traits` from `@intelligence/modules/style.js` (`src/intelligence/index.js`) following `aesthetic_resolver` extraction.
     - All 4 media test suites passing 100% green (65/65 tests).
-  - **Gate 4: Flat UI Domain Components & Atomic Cutover (`src/ui/`, `App.svelte`, `main.js`)** — **NEXT ACTIVE SPRINT**:
+  - **Gate 4: Demolition Execution & Legacy Folder Annihilation (`nuclear-plan.md`)** — **IN PROGRESS**:
+    - **Pulse 1: Eradicate `src/platform/` (COMPLETED)**:
+      - Purged `src/platform/` entirely (10 files deleted), consolidated zero-trust sandbox and web fetch into `src/utils/html.js`, vector codecs into `src/utils/math.js`, embeddings into `src/utils/embeddings.svelte.js`, signal resilience into `src/utils/resilience.js`, text sanitization into `src/utils/text.js`, and priority gate into `src/engine/gate.js`. Removed `@platform` alias.
+    - **Pulse 2: Eradicate `src/data/` (COMPLETED)**:
+      - Purged `src/data/` entirely (13 files deleted). Relocated card conversion to `src/storage/card-conversion.js`, sessions driver to `src/storage/sessions.svelte.js`, and ledger replay into `src/storage/db.js`. Exposed `stories` and `entities` facades in `@storage`. Removed `@data` alias across `vite.config.js`, `vitest.config.js`, and `jsconfig.json`. Repointed all UI, state, media, and intelligence consumers. Verified with 72/72 test files green (1,314 tests) and bundle at 1.53 MB.
+    - **Pulse 3: Eradicate `src/intelligence/` (NEXT ACTIVE SPRINT)**:
+      - Relocate prompt builders, director shot logic, dynamics, and veil parser into `@engine` and `@definitions`.
+      - Wire all inference callers directly into `@engine` and delete `src/intelligence/`.
+    - **Pulse 4: Eradicate `src/state/`**:
+      - Replace reactive state facades with greenfield engine stores in `@engine` / `@ui` and delete `src/state/`.
     - Collapse nested UI directories into flat Svelte 5 domain components without empty wrapper abstractions.
     - Consolidate `src/ui/Typewriter.svelte.js` action into `<script module>` in `src/ui/Typewriter.svelte` and prune wrapper file.
     - Consolidate `src/ui/profile/ProfileHeader.svelte`, `src/ui/profile/FieldHistoryModal.svelte`, and `src/ui/profile/TimelineModal.svelte` directly into `src/ui/Profile.svelte` and flatten profile components (`Profile.svelte`, `Profile.svelte.js`, `Profile.test.js`, `RelationalGraph.svelte`, `RelationalGraph.test.js`, `VisualWing.svelte`, `VisualWing.test.js`, `AudioWing.svelte`, `DevWing.svelte`, `MacroText.svelte`) to top-level `src/ui/`, retiring `src/ui/profile/` and `@profile` path aliases.

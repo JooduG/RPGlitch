@@ -18,7 +18,8 @@
  * ============================================================================
  */
 
-import { PROFILE_FIELD_CATALOG, VISUAL_STYLES, resolve_portrait_visual_style_key } from "@data";
+import { PROFILE_FIELD_CATALOG } from "../definitions/profile-fields.js";
+import { VISUAL_STYLES, resolve_portrait_visual_style_key } from "../media/styles.js";
 import {
   prompt_escape,
   strip_cognition_blocks,

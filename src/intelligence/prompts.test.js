@@ -13,7 +13,7 @@ import { TASK_LIBRARY } from "./modules/task.js";
 import { PROTOCOL_LIBRARY } from "./modules/protocols.js";
 import { REFLEX_LIBRARY } from "./modules/reflex.js";
 import { ROLE_LIBRARY } from "./modules/system.js";
-import { PREMADE_ENTITIES } from "@data";
+import { PREMADE_ENTITIES } from "@storage";
 
 const entities = {
   AI: {

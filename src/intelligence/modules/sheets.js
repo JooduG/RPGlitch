@@ -40,7 +40,7 @@ import {
   render_xml_tag,
   create_relational_context,
 } from "@utils";
-import { PROFILE_FIELD_CATALOG } from "@data";
+import { PROFILE_FIELD_CATALOG } from "../../definitions/profile-fields.js";
 import { strip_epistemic_secrets } from "../veil.js";
 
 // ============================================================================

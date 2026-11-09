@@ -19,8 +19,7 @@
  */
 
 import { state_bridge, stories_bridge, has_bracket_bond } from "@utils";
-import { db } from "./db.js";
-import { append_ledger_entries } from "./ledger.js";
+import { db, append_ledger_entries } from "./db.js";
 
 /** Durable IndexedDB key for the active-session pointer (kv_settings). */
 export const SESSION_ID_KEY = "active_session_id";

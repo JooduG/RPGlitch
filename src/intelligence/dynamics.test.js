@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NARRATIVE_STYLES } from "@data";
+import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
 import {
   apply_dynamics_gravity,
   extract_entity_dynamics_baselines,

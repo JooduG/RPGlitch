@@ -28,7 +28,7 @@
  */
 
 import { render_xml_tag } from "@utils";
-import { PROFILE_FIELDS } from "@data";
+import { PROFILE_FIELDS } from "../../definitions/profile-fields.js";
 
 export const OUTPUT_FORMATS = Object.freeze({
   PROSE: "After closing </THINK>, emit strictly plain prose: no preamble, commentary, markdown, or structural tags.",

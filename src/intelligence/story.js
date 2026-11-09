@@ -3,7 +3,7 @@
  * 🎬 STORY PIPELINE — Intelligence Kernel Turn Coordinator
  */
 
-import { db, entities, stories } from "@data";
+import { db, entities, stories } from "@storage";
 import {
   generate_uuid,
   create_job_queue,

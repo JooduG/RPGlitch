@@ -93,7 +93,7 @@ describe("runtime.sync checkpoint restore", () => {
   afterEach(async () => {
     runtime?.teardown_effects?.();
     try {
-      const { db } = await import("@data/db.js");
+      const { db } = await import("@storage");
       if (db?.isOpen()) {
         db.close();
       }
@@ -104,7 +104,7 @@ describe("runtime.sync checkpoint restore", () => {
   });
 
   async function seed_story(round = 3) {
-    const { db, init_db } = await import("@data/db.js");
+    const { db, init_db } = await import("@storage");
     await init_db();
     await db.entities.put(base_entity("user-1", "You", "character"));
     await db.entities.put(base_entity("ai-1", "Silas", "character"));
@@ -162,7 +162,7 @@ describe("runtime.sync checkpoint restore", () => {
     const { story_id } = await seed_story(3);
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
 
-    const { session_driver } = await import("@data");
+    const { session_driver } = await import("@storage");
 
     await runtime.sync();
 
@@ -188,7 +188,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
   afterEach(async () => {
     runtime?.teardown_effects?.();
     try {
-      const { db } = await import("@data/db.js");
+      const { db } = await import("@storage");
       if (db?.isOpen()) {
         db.close();
       }
@@ -199,7 +199,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
   });
 
   async function seed_story_with_npcs(npc_entities = []) {
-    const { db, init_db } = await import("@data/db.js");
+    const { db, init_db } = await import("@storage");
     await init_db();
     await db.entities.put(base_entity("user-1", "You", "character"));
     await db.entities.put(base_entity("ai-1", "Silas", "character"));

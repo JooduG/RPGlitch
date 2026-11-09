@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Pulse 2 Demolition: Eradicate `src/data/` & Consolidate Persistence into `@storage`**:
+  - Completely obliterated legacy directory `src/data/` (all 13 modules and test suites eradicated) under P4 Zero Backwards Compatibility.
+  - Relocated character card conversion and PNG metadata parsing (`detect_card_format`, `parse_character_card`, `extract_card_from_png`, `serialize_character_card`, `serialize_rpglitch_entity`) to `src/storage/card-conversion.js` and `src/storage/card-conversion.test.js`.
+  - Relocated session lifecycle driver to `src/storage/sessions.svelte.js` and `src/storage/sessions.test.js`.
+  - Consolidated event-sourced ledger mutation diffs, replay engines (`query_entity_history`, `query_story_snapshot`, `replay_entity_field`, `replay_full_entity_at_round`), and deduplication guards into `src/storage/db.js` and `src/storage/ledger.test.js`.
+  - Exposed complete Promise-based `stories` and `entities` facades, `seed_premades` alias, and `set_versionchange_quiesce` in `@storage`.
+  - Repointed all remaining importers across `src/main.js`, `src/state/`, `src/ui/`, `src/intelligence/`, and `src/media/` to `@storage`, `@definitions`, and `@media`.
+  - Removed `@data` path alias from `vite.config.js`, `vitest.config.js`, and `jsconfig.json`.
+  - Updated `audit-layers.js` and `.agents/skills/simulation/scripts/test-setup.js` to eliminate `@data` references. Verified with `npm run audit:layers` (0 violations) and `npm run deploy:prepare` (72/72 test suites green, 1,314/1,314 tests passing, single-file bundle $\le 1.53$ MB).
+
 - **Pulse 1 Demolition: Eradicate `src/platform/` & Consolidate Primitives**:
   - Completely purged and removed legacy directory `src/platform/` (all 10 modules and test suites eradicated) under P4 Zero Backwards Compatibility.
   - Relocated zero-trust web fetch (`fetch_web`, `validate_url`, `blob_to_data_url`) and sandbox environment hardening (`install_environment_hardening`, `is_perchance_frame_error`) to `src/utils/html.js`.

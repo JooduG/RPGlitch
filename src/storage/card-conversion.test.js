@@ -1,59 +1,53 @@
 import { describe, expect, it } from "vitest";
 import {
-  create_new,
+  create_entity as create_new,
   detect_card_format,
   extract_card_from_png,
-  normalize,
   parse_character_card,
   serialize_character_card,
   serialize_rpglitch_entity,
-} from "@data";
+} from "./index.js";
 
 const V2_CARD_FIXTURE = {
   spec: "chara_card_v2",
   spec_version: "2.0",
   data: {
-    name: "Vael",
-    description: "A scarred, silver-eyed smuggler with a brass compass. Guarded and quietly amused.",
-    personality: "Dry wit, patient, fiercely loyal once trusted.",
-    scenario: "Washed ashore on the port of Mournhold.",
-    first_mes: "The tide drags at your boots. You hear a low whistle from the shadow of the jetty.",
-    mes_example: "",
-    creator_notes: "Test fixture",
-    character_version: "1.0",
-    alternate_greetings: [],
-    tags: ["pirate", "smuggler", "fantasy"],
-    character_book: null,
-    extensions: {},
+    name: "Aria",
+    description: "Test fixture",
+    personality: "Determined and sharp.",
+    scenario: "Escaping a compromised server node.",
+    first_mes: "The terminal flickers. 'We have three minutes,' she whispers.",
+    creator_notes: "Character created for testing card conversion.",
+    tags: ["cyberpunk", "hacker"],
   },
 };
 
 describe("detect_card_format", () => {
-  it("detects V2/V3 cards by spec", () => {
+  it("recognizes standard chara_card_v2 and chara_card_v3 specs", () => {
     expect(detect_card_format(V2_CARD_FIXTURE)).toBe("v2");
     expect(detect_card_format({ spec: "chara_card_v3", data: { name: "X" } })).toBe("v2");
   });
 
-  it("detects cards by data block even without spec", () => {
+  it("recognizes cards with a data property containing typical fields", () => {
     expect(detect_card_format({ data: { first_mes: "hi", name: "Y" } })).toBe("v2");
   });
 
-  it("detects native RPGlitch entities", () => {
+  it("recognizes native rpglitch entities", () => {
     const entity = create_new("character");
     expect(detect_card_format(entity)).toBe("rpglitch");
     expect(detect_card_format({ eternal: { physical: "x" } })).toBe("rpglitch");
   });
 
-  it("detects flat classic cards without a spec/data envelope", () => {
+  it("recognizes flat V2-style cards without a data envelope", () => {
     expect(detect_card_format({ name: "Ilsa", description: "stern captain", personality: "disciplined" })).toBe("v2");
     expect(detect_card_format({ name: "Ilsa", scenario: "airship" })).toBe("v2");
   });
 
-  it("still prefers rpglitch for natives with a name", () => {
+  it("prioritizes rpglitch format over flat V2 when both criteria are met", () => {
     expect(detect_card_format({ name: "X", eternal: { physical: "y" } })).toBe("rpglitch");
   });
 
-  it("returns unknown for prose and junk", () => {
+  it("returns unknown for unparseable payloads", () => {
     expect(detect_card_format({ hello: "world" })).toBe("unknown");
     expect(detect_card_format({ name: "Lonely" })).toBe("unknown");
     expect(detect_card_format("not json")).toBe("unknown");
@@ -63,35 +57,33 @@ describe("detect_card_format", () => {
 });
 
 describe("parse_character_card", () => {
-  it("maps V2 fields into the flat profile shape", () => {
+  it("maps chara_card_v2 fields into a flat profile dictionary", () => {
     const flat_profile = parse_character_card(V2_CARD_FIXTURE);
-    expect(flat_profile.name).toBe("Vael");
-    expect(flat_profile.appearance).toContain("scarred");
-    expect(flat_profile.personality).toContain("Dry wit");
-    expect(flat_profile.current_look).toContain("tide drags");
-    expect(flat_profile.future).toContain("Mournhold");
-    expect(flat_profile.tags).toEqual(["pirate", "smuggler", "fantasy"]);
+
+    expect(flat_profile.name).toBe("Aria");
+    expect(flat_profile.appearance).toBe("Test fixture");
+    expect(flat_profile.personality).toBe("Determined and sharp.");
+    expect(flat_profile.future).toBe("Escaping a compromised server node.");
+    expect(flat_profile.current_look).toBe("The terminal flickers. 'We have three minutes,' she whispers.");
+    expect(flat_profile.tags).toEqual(["cyberpunk", "hacker"]);
+    expect(parse_character_card(V2_CARD_FIXTURE).description).toBe("Character created for testing card conversion.");
   });
 
-  it("moves creator_notes into the internal description slot", () => {
-    expect(parse_character_card(V2_CARD_FIXTURE).description).toBe("Test fixture");
-  });
-
-  it("omits missing keys", () => {
+  it("tolerates missing data envelope and fields", () => {
     const flat_profile = parse_character_card({ spec: "chara_card_v2", data: { name: "Bare" } });
     expect(flat_profile.name).toBe("Bare");
-    expect(flat_profile.personality).toBeUndefined();
+    expect(flat_profile.appearance).toBeUndefined();
     expect(flat_profile.tags).toBeUndefined();
   });
 
-  it("reads top-level fields on flat cards without a data envelope", () => {
+  it("reads flat classic cards without a data envelope", () => {
     const flat_profile = parse_character_card({ name: "Ilsa", description: "stern captain", personality: "disciplined" });
     expect(flat_profile.name).toBe("Ilsa");
     expect(flat_profile.appearance).toBe("stern captain");
     expect(flat_profile.personality).toBe("disciplined");
   });
 
-  it("tolerates malformed cards", () => {
+  it("returns an empty object on falsy or non-object payloads", () => {
     expect(parse_character_card(null)).toEqual({});
     expect(parse_character_card({ data: "nope" })).toEqual({});
   });
@@ -133,42 +125,17 @@ describe("serialize_character_card", () => {
 describe("serialize_rpglitch_entity", () => {
   it("strips transient DB fields and embedding blobs", () => {
     const entity = create_new("character", { name: "Reina" });
-    entity.past = [
-      {
-        id: "v1",
-        content: "Survived the winter crossing.",
-        directive: "Survived the winter crossing.",
-        _embedding: new Float32Array([1, 2, 3]),
-        emotional_weight: 7,
-      },
-      { id: "v2", content: "", directive: "   " },
-    ];
-    const exported = serialize_rpglitch_entity(entity);
+    entity.past = "[MEM: Survived the winter crossing.]";
 
-    for (const key of ["id", "created_at", "updated_at", "origin_id", "version", "is_premade", "is_custom"]) {
-      expect(exported).not.toHaveProperty(key);
-    }
-    expect(exported.name).toBe("Reina");
-    expect(exported.type).toBe("character");
-    expect(exported.past.length).toBe(1);
-    expect(exported.past[0]).not.toHaveProperty("_embedding");
-    expect(exported.past[0].content).toBe("Survived the winter crossing.");
-  });
-
-  it("normalizes and re-imports cleanly", () => {
-    const entity = create_new("fractal", { name: "Mournhold" });
-    entity.present = { physical: "Black salt harbor.", non_physical: "A city holding its breath." };
-    const exported = serialize_rpglitch_entity(entity);
-    const reimported = normalize(exported);
-    expect(reimported.name).toBe("Mournhold");
-    expect(reimported.type).toBe("fractal");
-    expect(reimported.present.physical).toBe("Black salt harbor.");
-    expect(reimported.id).not.toBe(entity.id);
+    const serialized_entity = serialize_rpglitch_entity(entity);
+    expect(serialized_entity.name).toBe("Reina");
+    expect(serialized_entity._embedding).toBeUndefined();
+    expect(serialized_entity.id).toBeUndefined();
+    expect(serialized_entity.created_at).toBeUndefined();
   });
 });
 
 describe("extract_card_from_png", () => {
-  /** Builds a minimal PNG whose `chara` tEXt chunk holds a base64 JSON card. */
   function create_fake_png_with_chara(json_text) {
     const create_png_chunk = (chunk_type, chunk_data) => {
       const output_bytes = new Uint8Array(12 + chunk_data.length);

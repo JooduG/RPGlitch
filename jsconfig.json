@@ -31,12 +31,6 @@
       "@config": [
         "src/config.js"
       ],
-      "@data": [
-        "src/data/index.js"
-      ],
-      "@data/*": [
-        "src/data/*"
-      ],
       "@storage": [
         "src/storage/index.js"
       ],

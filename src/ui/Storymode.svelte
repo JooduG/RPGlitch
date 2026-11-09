@@ -7,11 +7,10 @@
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
   import MarkdownIt from "markdown-it";
-  import { clean_image_prompts, parse_think_block, filter_epistemic_brackets, strip_covert_directives } from "@storage";
+  import { clean_image_prompts, parse_think_block, filter_epistemic_brackets, strip_covert_directives, session_driver } from "@storage";
   import { detox_prose } from "@utils";
   import { llm_service } from "@engine";
   import { sanitize } from "@utils";
-  import { session_driver } from "@data";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
   import { run_image_regeneration, ProfilePicture } from "@ui";
   import { app, runtime, simulation_state } from "@state";

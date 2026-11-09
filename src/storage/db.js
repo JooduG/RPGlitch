@@ -42,6 +42,36 @@ db.version(2).stores({
   mutation_ledger: "++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp",
 });
 
+let _versionchange_quiesce = null;
+let _is_versionchange_pending = false;
+
+/**
+ * Registers an emergency quiesce callback invoked synchronously when Dexie receives
+ * a `versionchange` event from another tab attempting an upgrade.
+ * @param {(() => void) | null} quiesce_callback
+ */
+export function set_versionchange_quiesce(quiesce_callback) {
+  _versionchange_quiesce = quiesce_callback;
+}
+
+db.on("blocked", () => {
+  console.warn("[Database] Database is blocked by another tab/version. Please close other instances.");
+});
+
+db.on("versionchange", () => {
+  if (_is_versionchange_pending) return;
+  _is_versionchange_pending = true;
+  try {
+    _versionchange_quiesce?.();
+  } catch (error) {
+    console.warn("[Database] Versionchange quiesce failed:", error);
+  }
+  db.close();
+  if (typeof window !== "undefined") {
+    window.location.reload();
+  }
+});
+
 /**
  * Initializes and opens the database connection.
  * @returns {Promise<typeof db>}
@@ -199,6 +229,42 @@ export async function conclude_story(id) {
   return await db.stories.update(coerce_story_key(id), { is_concluded: 1, updated_at: Date.now() });
 }
 
+export const stories = {
+  list: list_stories,
+  get: get_story,
+  create: create_story,
+  update: update_story,
+  update_cast,
+  active_entity_ids,
+  conclude: conclude_story,
+  delete: delete_story,
+};
+
+export const entities = {
+  list: (type) => list_entities(type),
+  get: (type_or_id, maybe_id) => {
+    const id = maybe_id !== undefined ? maybe_id : type_or_id;
+    const type = maybe_id !== undefined ? type_or_id : null;
+    return get_entity(id, type);
+  },
+  upsert: (type_or_entity, maybe_entity) => {
+    const entity = maybe_entity !== undefined ? maybe_entity : type_or_entity;
+    if (maybe_entity !== undefined && type_or_entity) {
+      entity.type = type_or_entity;
+    }
+    return upsert_entity(entity);
+  },
+  update: update_entity,
+  delete: (type_or_id, maybe_id) => {
+    const id = maybe_id !== undefined ? maybe_id : type_or_id;
+    return delete_entity(id);
+  },
+  remove: (type_or_id, maybe_id) => {
+    const id = maybe_id !== undefined ? maybe_id : type_or_id;
+    return delete_entity(id);
+  },
+};
+
 /**
  * Deletes a story and cascades to simulation logs and mutation ledger.
  * @param {string | number} id
@@ -223,6 +289,8 @@ export async function delete_story(id) {
  * Concurrency guard for starter seeding.
  */
 let _is_seeding_active = false;
+
+export const seed_premades = seed_starter_entities;
 
 /**
  * Seeds starter entities into IndexedDB idempotently by ID.
@@ -275,10 +343,11 @@ export async function list_entities(type) {
  * @param {string} id
  * @returns {Promise<object | null>}
  */
-export async function get_entity(id) {
+export async function get_entity(id, expected_type = null) {
   if (!id) return null;
   const raw = await db.entities.get(id);
   if (!raw) return null;
+  if (expected_type && raw.type !== expected_type) return null;
   return normalize_entity(raw);
 }
 
@@ -608,13 +677,27 @@ export async function clear_active_session_id() {
 // 5. MUTATION LEDGER & PROVENANCE TAGGING
 // ============================================================================
 
+function is_identical_mutation(entry) {
+  if (!entry) return true;
+  if (entry.old_value === undefined && entry.old_visibility === undefined && entry.old_weight === undefined) {
+    return false;
+  }
+  const is_same_value = (entry.old_value ?? null) === (entry.new_value ?? null);
+  const is_same_visibility = (entry.old_visibility ?? null) === (entry.visibility ?? null);
+  const is_same_weight = (entry.old_weight ?? null) === (entry.weight ?? null);
+  return is_same_value && is_same_visibility && is_same_weight;
+}
+
 /**
  * Appends a state mutation diff to the ledger tagged with writer: "kernel".
  *
  * @param {object} entry
- * @returns {Promise<number>} entry id
+ * @returns {Promise<number | null>} entry id
  */
 export async function append_ledger_entry(entry) {
+  if (is_identical_mutation(entry)) {
+    return null;
+  }
   const payload = {
     story_id: entry.story_id != null ? coerce_story_key(entry.story_id) : null,
     entity_id: String(entry.entity_id || ""),
@@ -623,10 +706,10 @@ export async function append_ledger_entry(entry) {
     turn_id: entry.turn_id ?? null,
     field: String(entry.field || ""),
     key: entry.key ? String(entry.key).toUpperCase().trim() : null,
-    old_value: entry.old_value ?? null,
-    new_value: entry.new_value ?? null,
-    visibility: entry.visibility ?? null,
-    weight: entry.weight ?? null,
+    old_value: entry.old_value != null ? String(entry.old_value) : null,
+    new_value: entry.new_value != null ? String(entry.new_value) : null,
+    visibility: entry.visibility === "hide" ? "hide" : entry.visibility === "show" ? "show" : null,
+    weight: typeof entry.weight === "number" && !Number.isNaN(entry.weight) ? entry.weight : null,
     writer: entry.writer || "kernel",
     decider: entry.decider || "kernel",
     timestamp: entry.timestamp || Date.now(),
@@ -643,7 +726,9 @@ export async function append_ledger_entry(entry) {
  */
 export async function append_ledger_entries(entries) {
   if (!Array.isArray(entries) || entries.length === 0) return;
-  const payloads = entries.map((entry) => ({
+  const filtered_entries = entries.filter((entry) => !is_identical_mutation(entry));
+  if (filtered_entries.length === 0) return;
+  const payloads = filtered_entries.map((entry) => ({
     story_id: entry.story_id != null ? coerce_story_key(entry.story_id) : null,
     entity_id: String(entry.entity_id || ""),
     round: Number(entry.round ?? 0),
@@ -651,10 +736,10 @@ export async function append_ledger_entries(entries) {
     turn_id: entry.turn_id ?? null,
     field: String(entry.field || ""),
     key: entry.key ? String(entry.key).toUpperCase().trim() : null,
-    old_value: entry.old_value ?? null,
-    new_value: entry.new_value ?? null,
-    visibility: entry.visibility ?? null,
-    weight: entry.weight ?? null,
+    old_value: entry.old_value != null ? String(entry.old_value) : null,
+    new_value: entry.new_value != null ? String(entry.new_value) : null,
+    visibility: entry.visibility === "hide" ? "hide" : entry.visibility === "show" ? "show" : null,
+    weight: typeof entry.weight === "number" && !Number.isNaN(entry.weight) ? entry.weight : null,
     writer: entry.writer || "kernel",
     decider: entry.decider || "kernel",
     timestamp: entry.timestamp || Date.now(),
@@ -672,6 +757,156 @@ export async function get_story_ledger(story_id) {
   const key = coerce_story_key(story_id);
   const ids_to_match = [...new Set([key, String(key)])];
   return await db.mutation_ledger.where("story_id").anyOf(ids_to_match).sortBy("id");
+}
+
+/**
+ * Queries mutation ledger records for a specific entity or [entity_id + field].
+ *
+ * @param {string|number} entity_id
+ * @param {string|null} [field=null]
+ * @returns {Promise<any[]>}
+ */
+export async function query_entity_history(entity_id, field = null) {
+  if (!entity_id) return [];
+  if (field) {
+    return await db.mutation_ledger
+      .where("[entity_id+field]")
+      .equals([String(entity_id), String(field)])
+      .sortBy("timestamp");
+  }
+  return await db.mutation_ledger.where("entity_id").equals(String(entity_id)).sortBy("timestamp");
+}
+
+/**
+ * Retrieves all ledger entries for a story up to a specific (round, seq) point.
+ *
+ * @param {string|number} story_id
+ * @param {number} [max_round=Infinity]
+ * @param {number} [max_seq=Infinity]
+ * @returns {Promise<any[]>}
+ */
+export async function query_story_snapshot(story_id, max_round = Infinity, max_seq = Infinity) {
+  if (story_id == null) return [];
+  const story_ids = [...new Set([String(story_id), coerce_story_key(story_id)])];
+  const entries = await db.mutation_ledger.where("story_id").anyOf(story_ids).sortBy("id");
+
+  return entries.filter((e) => {
+    if (e.round < max_round) return true;
+    if (e.round === max_round && e.seq <= max_seq) return true;
+    return false;
+  });
+}
+
+/**
+ * Replays ledger entries for an entity's field to reconstruct the bracket dictionary or prose state.
+ *
+ * @param {string} entity_id
+ * @param {string} field
+ * @param {number} [up_to_round=Infinity]
+ * @param {number} [up_to_seq=Infinity]
+ * @returns {Promise<{
+ *   key_values: Map<string, string>,
+ *   entries_map: Map<string, { value: string, visibility: 'show'|'hide', weight: number }>,
+ *   reconstructed_brackets: string,
+ *   raw_prose: string
+ * }>}
+ */
+export async function replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity) {
+  const { parse_bracket_entries } = await import("./parser.js");
+  const history = await query_entity_history(entity_id, field);
+  const key_values = new Map();
+  const entries_map = new Map();
+  let raw_prose = "";
+
+  for (const entry of history) {
+    if (entry.round > up_to_round) continue;
+    if (entry.round === up_to_round && entry.seq > up_to_seq) continue;
+
+    if (entry.key) {
+      if (entry.new_value === null) {
+        key_values.delete(entry.key);
+        entries_map.delete(entry.key);
+      } else {
+        key_values.set(entry.key, entry.new_value);
+        entries_map.set(entry.key, {
+          value: entry.new_value,
+          visibility: entry.visibility === "hide" ? "hide" : "show",
+          weight: typeof entry.weight === "number" ? entry.weight : 5,
+        });
+      }
+      if (Array.isArray(entry.supersedes)) {
+        for (const super_key of entry.supersedes) {
+          key_values.delete(super_key.toUpperCase());
+          entries_map.delete(super_key.toUpperCase());
+        }
+      }
+    } else if (entry.new_value != null) {
+      const parsed_brackets = parse_bracket_entries(entry.new_value);
+      if (parsed_brackets.length > 0) {
+        for (const bracket of parsed_brackets) {
+          key_values.set(bracket.key, bracket.value);
+          const is_hidden = bracket.flags ? bracket.flags.hide : bracket.visibility === "hide";
+          const resolved_weight = bracket.flags?.weight ?? bracket.weight ?? 5;
+          entries_map.set(bracket.key, {
+            value: bracket.value,
+            visibility: is_hidden ? "hide" : "show",
+            weight: typeof resolved_weight === "number" ? resolved_weight : 5,
+          });
+        }
+        const unbracketed = entry.new_value.replace(/\[[^\]:]+:[^\]]+\]/g, "").trim();
+        if (unbracketed) raw_prose = unbracketed;
+      } else {
+        raw_prose = entry.new_value;
+      }
+    }
+  }
+
+  const bracket_lines = [];
+  for (const [key, meta] of entries_map.entries()) {
+    const flags = [];
+    if (meta.visibility === "hide") flags.push("hide");
+    if (meta.weight && meta.weight !== 5) flags.push(`w:${meta.weight}`);
+    const flag_suffix = flags.length > 0 ? ` | ${flags.join(" ")}` : "";
+    bracket_lines.push(`[${key}: ${meta.value}${flag_suffix}]`);
+  }
+  const reconstructed_brackets = bracket_lines.join(" ");
+
+  return { key_values, entries_map, reconstructed_brackets, raw_prose };
+}
+
+/**
+ * Replays all quadrants for an entity up to a target round to reconstruct its full profile state.
+ *
+ * @param {string} entity_id
+ * @param {number} [up_to_round=Infinity]
+ * @returns {Promise<{
+ *   eternal: { physical: string, non_physical: string },
+ *   present: { physical: string, non_physical: string },
+ *   future: string
+ * }>}
+ */
+export async function replay_full_entity_at_round(entity_id, up_to_round = Infinity) {
+  const [eternal_p, eternal_np, present_p, present_np, past_res, future_res] = await Promise.all([
+    replay_entity_field(entity_id, "eternal.physical", up_to_round),
+    replay_entity_field(entity_id, "eternal.non_physical", up_to_round),
+    replay_entity_field(entity_id, "present.physical", up_to_round),
+    replay_entity_field(entity_id, "present.non_physical", up_to_round),
+    replay_entity_field(entity_id, "past", up_to_round),
+    replay_entity_field(entity_id, "future", up_to_round),
+  ]);
+
+  return {
+    eternal: {
+      physical: eternal_p.reconstructed_brackets || eternal_p.raw_prose || "",
+      non_physical: eternal_np.reconstructed_brackets || eternal_np.raw_prose || "",
+    },
+    present: {
+      physical: present_p.reconstructed_brackets || present_p.raw_prose || "",
+      non_physical: present_np.reconstructed_brackets || present_np.raw_prose || "",
+    },
+    past: past_res.reconstructed_brackets || past_res.raw_prose || "",
+    future: future_res.raw_prose || future_res.reconstructed_brackets || "",
+  };
 }
 
 // ============================================================================

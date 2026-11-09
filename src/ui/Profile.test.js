@@ -37,18 +37,18 @@ vi.mock("@state/runtime.svelte.js", () => ({
   },
 }));
 
-vi.mock("@data/db.js", () => ({
-  db: {
-    entities: {
-      update: vi.fn().mockResolvedValue(true),
+vi.mock("@storage", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    db: {
+      entities: {
+        update: vi.fn().mockResolvedValue(true),
+      },
     },
-  },
-  set_versionchange_quiesce: vi.fn(),
-}));
-
-vi.mock("@data/normalizer.js", () => ({
-  normalize: vi.fn((char) => char),
-}));
+    normalize_entity: vi.fn((char) => char),
+  };
+});
 
 describe("ProfileState setImage", () => {
   beforeEach(() => {
@@ -65,7 +65,7 @@ describe("ProfileState setImage", () => {
     expect(state.char.profile_picture).toBe("data:image/png;base64,trimmed123");
 
     // Assert persistence
-    const { db } = await import("@data/db.js");
+    const { db } = await import("@storage");
     const { runtime } = await import("@state/runtime.svelte.js");
 
     expect(db.entities.update).toHaveBeenCalledWith("test-char", {

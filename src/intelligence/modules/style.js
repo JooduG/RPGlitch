@@ -4,15 +4,8 @@
  */
 
 import { escape_xml, prompt_escape, render_xml_tag } from "@utils";
-import {
-  extract_style_dna,
-  get_narrative_style,
-  get_style_keywords,
-  get_visual_style,
-  resolve_active_style_key,
-  resolve_story_visual_style_key,
-  VISUAL_STYLES,
-} from "@data";
+import { extract_style_dna, get_narrative_style, get_style_keywords, resolve_active_style_key } from "../../definitions/narrative-styles.js";
+import { get_visual_style, resolve_story_visual_style_key, VISUAL_STYLES } from "../../media/styles.js";
 import { resolve_optics_atom } from "./protocols.js";
 
 /**

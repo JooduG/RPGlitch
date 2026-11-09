@@ -19,7 +19,7 @@
  * - `@utils` (`state_bridge`): Decoupled bridge to `app`, `runtime`, `simulation_state`, and `simulation_log`.
  */
 
-import { session_driver } from "@data";
+import { session_driver } from "@storage";
 import { gamemaster } from "@intelligence";
 import { build_turn_summary } from "@engine";
 import { delete_log_entry } from "@storage";

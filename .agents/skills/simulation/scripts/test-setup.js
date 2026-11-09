@@ -158,7 +158,7 @@ import { afterAll } from "vitest";
 afterAll(async () => {
   try {
     // Dynamically import to avoid breaking test environments that don't need it
-    const { db } = await import("../../../../src/data/db.js");
+    const { db } = await import("../../../../src/storage/db.js");
     if (db && typeof db.close === "function") {
       db.close();
     }

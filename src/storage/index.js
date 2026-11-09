@@ -56,6 +56,15 @@ export {
   birth_entity_core,
 } from "./entities.js";
 
+// 4b. Character Card Conversion & PNG Metadata
+export {
+  detect_card_format,
+  parse_character_card,
+  extract_card_from_png,
+  serialize_character_card,
+  serialize_rpglitch_entity,
+} from "./card-conversion.js";
+
 // 5. Greenfield Dexie Persistence Engine
 export {
   db,
@@ -76,6 +85,8 @@ export {
   conclude_story,
   delete_story,
   seed_starter_entities,
+  seed_premades,
+  set_versionchange_quiesce,
   list_entities,
   get_entity,
   upsert_entity,
@@ -94,5 +105,15 @@ export {
   set_active_session_id,
   clear_active_session_id,
   append_ledger_entry,
+  append_ledger_entries,
   get_story_ledger,
+  query_entity_history,
+  query_story_snapshot,
+  replay_entity_field,
+  replay_full_entity_at_round,
+  stories,
+  entities,
 } from "./db.js";
+
+// 6. Session Driver & Lifecycle Manager
+export { session_driver } from "./sessions.svelte.js";

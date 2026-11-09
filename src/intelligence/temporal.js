@@ -24,13 +24,13 @@ import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
 import { compile_prompt } from "./prompts.js";
 import { parse_bracket_entries, format_bracket_entry, strip_bracket_engine_flags } from "./veil.js";
-import { append_ledger_entries } from "@data";
+import { append_ledger_entries } from "@storage";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
- * @typedef {import('@data/sessions.svelte.js').session_driver} SessionDriver
- * @typedef {typeof import('@data/db.js').db} Database
- * @typedef {import('@data/repository.js').entities} EntityRepository
+ * @typedef {import('@storage').session_driver} SessionDriver
+ * @typedef {typeof import('@storage').db} Database
+ * @typedef {import('@storage').entities} EntityRepository
  */
 
 /**

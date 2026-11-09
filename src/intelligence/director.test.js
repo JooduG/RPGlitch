@@ -33,7 +33,7 @@ vi.mock("@engine", async (importOriginal) => {
   };
 });
 
-vi.mock("@data", async (importOriginal) => {
+vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -501,7 +501,7 @@ describe("execute_director_shot", () => {
 
 describe("apply_relationships()", () => {
   it("persists only the present patch and never rewrites past pools", async () => {
-    const { entities } = await import("@data");
+    const { entities } = await import("@storage");
     const ai = { id: "viper", type: "character", name: "Viper", past: "[VIPER: old scar]", present: { non_physical: "Calm." } };
     const ghost = { id: "ghost", type: "character", name: "Ghost", past: [], present: { non_physical: "Quiet." } };
     const bridge = { runtime: { active_ai: ai, active_user: ghost, active_fractal: null, active_npcs: {} } };

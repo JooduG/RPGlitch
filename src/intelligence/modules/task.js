@@ -5,7 +5,7 @@
  */
 
 import { escape_xml, prompt_escape, inline_or_block, render_atom_xml, render_xml_tag } from "@utils";
-import { PROFILE_FIELD_CATALOG } from "@data";
+import { PROFILE_FIELD_CATALOG } from "../../definitions/profile-fields.js";
 import { resolve_style_dna } from "./style.js";
 import { resolve_output_plan, render_output_plan, render_json_return } from "./output.js";
 import { resolve_macro_directive, resolve_optics_atom } from "./protocols.js";

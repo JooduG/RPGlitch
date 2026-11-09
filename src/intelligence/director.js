@@ -15,7 +15,7 @@
  * 6. Relational Mesh Actuator (normalize_relationships, apply_relationships)
  */
 
-import { entities, append_ledger_entry } from "@data";
+import { entities, append_ledger_entry } from "@storage";
 import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
 import { llm_service } from "@engine";
 import { raw_stop_reason, raw_to_text } from "@utils";

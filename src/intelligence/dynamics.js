@@ -20,7 +20,7 @@
  */
 
 import { clamp, escape_xml, render_xml_tag } from "@utils";
-import { STYLE_MOTIF_REGISTRY } from "@data";
+import { STYLE_MOTIF_REGISTRY } from "../definitions/narrative-styles.js";
 import { DYNAMICS_AXES } from "@config";
 
 export { DYNAMICS_AXES };

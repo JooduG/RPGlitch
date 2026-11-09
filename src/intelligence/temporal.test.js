@@ -51,17 +51,14 @@ vi.mock("@engine", async (importOriginal) => {
   };
 });
 
-vi.mock("@data/sessions.svelte.js", () => ({
-  session_driver: {
-    log_system_entry: vi.fn(),
-    require_active: vi.fn(() => "test-story-id"),
-  },
-}));
-
-vi.mock("@data", async (importOriginal) => {
+vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal().catch(() => ({}));
   return {
     ...actual,
+    session_driver: {
+      log_system_entry: vi.fn(),
+      require_active: vi.fn(() => "test-story-id"),
+    },
     append_ledger_entry: vi.fn(async () => 1),
     append_ledger_entries: vi.fn(async () => {}),
   };
@@ -790,7 +787,7 @@ describe("temporal_engine.consolidate()", () => {
   });
 
   it("skips appending ledger lines when consolidated values are identical to current entity state (compare-then-skip guard)", async () => {
-    const { append_ledger_entries } = await import("@data");
+    const { append_ledger_entries } = await import("@storage");
     vi.mocked(append_ledger_entries).mockClear();
 
     const mock_user = {

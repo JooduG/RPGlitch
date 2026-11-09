@@ -1,34 +1,16 @@
 /**
+ * src/storage/card-conversion.js
  * ============================================================================
- * RPGlitch — Card Conversion Codec
+ * 🎴 CHARACTER CARD CONVERSION CODEC (Tavern / Chub / Janitor / RPGlitch)
  * ============================================================================
  *
- * OVERVIEW:
  * Translates between native RPGlitch entities and third-party AI Roleplay
- * character card formats (Tavern / Chub / Janitor "chara_card_v2" & "chara_card_v3"),
- * as well as embedded PNG character cards (`chara` tEXt chunk encoding).
- *
- * SUPPORTED FORMATS:
- * 1. Standard Character Card JSON (.json) — Spec definition + `data.*` payload.
- * 2. Character Card PNG           (.png)  — PNG holding base64 JSON in `chara` chunk.
- * 3. Native RPGlitch Entity JSON  (.json) — Full normalized entity schema.
- *
- * MAPPING CONCORDANCE:
- * - data.name              <-> entity.name
- * - data.description       <-> entity.eternal.physical
- * - data.personality       <-> entity.eternal.non_physical
- * - data.first_mes         <-> entity.present.non_physical
- * - data.scenario          <-> entity.future
- * - data.tags              <-> entity.tags
- * - data.creator_notes     <-> entity.description
- *
- * RULES:
- * - Pure codec logic only. State persistence and entity lifecycle live in stores/pipelines.
- * - Adheres strictly to GEMINI.md naming standards (anti-abbreviation mandate).
+ * character card formats (chara_card_v2 & chara_card_v3), as well as embedded
+ * PNG character cards (`chara` tEXt chunk encoding).
  * ============================================================================
  */
 
-import { normalize, serialize_entity_for_export } from "./normalizer.js";
+import { normalize_entity, serialize_entity_for_export } from "./entities.js";
 
 // ============================================================================
 // 1. FORMAT DETECTION
@@ -101,11 +83,6 @@ export function parse_character_card(payload_json) {
   /** @type {Record<string, any>} */
   const flat_profile = {};
 
-  /**
-   * Helper to safely trim and sanitize string fields.
-   * @param {unknown} value
-   * @returns {string}
-   */
   const sanitize_text = (value) => (typeof value === "string" ? value.trim() : "");
 
   const character_name = sanitize_text(card_data.name);
@@ -248,13 +225,5 @@ export function serialize_character_card(entity) {
  * @returns {Record<string, any>} Export-ready sanitized entity object.
  */
 export function serialize_rpglitch_entity(entity) {
-  return serialize_entity_for_export(normalize(entity));
+  return serialize_entity_for_export(normalize_entity(entity));
 }
-
-/**
- * CHANGELOG:
- * - 2026-10-16: Import reliability — `detect_card_format` recognizes flat classic cards (top-level name + description/personality/scenario/first_mes, checked after the rpglitch branch so natives never hijack); `parse_character_card` reads top-level fields when no data envelope is present.
- * - 2026-08-29: Harmonized module structure, added formal Universal Header,
- *   organized dividers, full anti-abbreviation compliance, robust PNG chunk
- *   bounds handling and atob try/catch guard.
- */

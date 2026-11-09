@@ -22,20 +22,19 @@
   import { fade } from "svelte/transition";
   import { SvelteSet } from "svelte/reactivity";
   import {
-    NARRATIVE_STYLES,
-    VISUAL_STYLES,
-    get_narrative_style,
-    get_visual_style,
-    PROFILE_SECTIONS_BY_TYPE,
-    PROFILE_FIELDS,
     serialize_character_card,
     serialize_rpglitch_entity,
-    normalize,
+    normalize_entity as normalize,
     query_entity_history,
     replay_entity_field,
     replay_full_entity_at_round,
-    entities,
-  } from "@data";
+    upsert_entity,
+    update_entity,
+  } from "@storage";
+  import { PROFILE_SECTIONS_BY_TYPE, PROFILE_FIELDS } from "../definitions/profile-fields.js";
+  import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
+  import { VISUAL_STYLES, get_visual_style } from "../media/styles.js";
+  const entities = { upsert: upsert_entity, update: update_entity };
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();

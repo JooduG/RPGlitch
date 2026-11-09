@@ -12,7 +12,7 @@
   import { chrono_engine, app, runtime, simulation_log, simulation_state, force_recover_simulation } from "@state";
   import { execute_ghostwriter } from "@engine";
   import { gamemaster } from "@intelligence";
-  import { db, session_driver, stories } from "@data";
+  import { db, session_driver, stories } from "@storage";
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
   import { item_in } from "@media";
   import { build_story_export_filename } from "@utils";
@@ -82,7 +82,13 @@
   }
 
   async function refresh_stories() {
-    story_cache = await stories.list();
+    try {
+      if (db.isOpen()) {
+        story_cache = await stories.list();
+      }
+    } catch {
+      // Ignore if db is closed during teardown
+    }
   }
 
   async function export_story(story) {

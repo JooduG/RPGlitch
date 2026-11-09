@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
-import { session_driver } from "@data";
+import { session_driver, delete_log_entry } from "@storage";
 import { gamemaster } from "@intelligence";
-import { delete_log_entry } from "@storage";
 import { execute_greenfield_turn, execute_greenfield_prologue } from "../engine/bridge.js";
 
 vi.mock("@storage", async (importOriginal) => {
@@ -11,6 +10,14 @@ vi.mock("@storage", async (importOriginal) => {
   return {
     ...actual,
     delete_log_entry: vi.fn().mockResolvedValue(undefined),
+    session_driver: {
+      create_from_selection: vi.fn().mockResolvedValue("story-123"),
+      send: vi.fn().mockResolvedValue({}),
+      regenerate: vi.fn().mockResolvedValue({}),
+      continue: vi.fn().mockResolvedValue({}),
+      record_system_marker: vi.fn().mockResolvedValue(undefined),
+      load_log: vi.fn().mockResolvedValue([]),
+    },
   };
 });
 
@@ -19,21 +26,6 @@ vi.mock("../engine/bridge.js", () => ({
   execute_greenfield_continue: vi.fn().mockResolvedValue({}),
   execute_greenfield_prologue: vi.fn().mockResolvedValue({}),
 }));
-
-vi.mock("@data", async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
-    session_driver: {
-      create_from_selection: vi.fn().mockResolvedValue("story-123"),
-      send: vi.fn().mockResolvedValue({}),
-      regenerate: vi.fn().mockResolvedValue({}),
-      load_log: vi.fn().mockResolvedValue([]),
-      log_message: vi.fn().mockResolvedValue({ id: "msg-test" }),
-      log_system_entry: vi.fn().mockResolvedValue({}),
-    },
-  };
-});
 
 vi.mock("@intelligence", () => ({
   gamemaster: {

@@ -2,24 +2,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DEVELOPER_TELEMETRY_STORAGE_KEY, DeveloperLogStore, developer_log, SimulationLogStore, simulation_log } from "./log.svelte.js";
 import { TELEMETRY_CAPS } from "@config";
 import { runtime } from "./runtime.svelte.js";
-import { session_driver } from "@data";
-import { delete_log_entry, delete_log_attachment, edit_log_entry } from "@storage";
+import { session_driver, delete_log_entry, delete_log_attachment, edit_log_entry } from "@storage";
 import { generate_uuid } from "@utils";
 
-vi.mock("@data", async (importOriginal) => {
+vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
     session_driver: {
       load_log: vi.fn().mockResolvedValue([]),
     },
-  };
-});
-
-vi.mock("@storage", async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
     delete_log_entry: vi.fn().mockResolvedValue({}),
     delete_log_attachment: vi.fn().mockResolvedValue({}),
     edit_log_entry: vi.fn().mockResolvedValue({}),

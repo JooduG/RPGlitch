@@ -23,9 +23,7 @@ const LAYER_HIERARCHY = {
   "src/engine": 3,
   "src/intelligence": 3,
   "src/storage": 2,
-  "src/data": 2,
   "src/media": 1, // Sensory presentation & audio/visual engine (platform sibling)
-  "src/platform": 1,
   "src/utils": 1,
 };
 
@@ -35,8 +33,6 @@ const ALIAS_LAYER_MAP = {
   "@state": "src/state",
   "@intelligence": "src/intelligence",
   "@storage": "src/storage",
-  "@data": "src/data",
-  "@platform": "src/platform",
   "@media": "src/media",
   "@utils": "src/utils",
 };
