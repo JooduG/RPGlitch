@@ -48,21 +48,11 @@
     "**/tmp/**",
     "tmp/**/*"
   ],
-  "geminiignore": [
-    "!**/*.env",
-    "!**/*.git/**",
-    "!**/*scribbles**",
-    "!**/*scrabbles**",
-    "!**/templates/**",
-    "!**/test-results/**",
-    "!**/tmp/**",
-    "!tmp/**/*"
-  ],
   "gitignore": ["!.env.example", "!package-lock.json", "!**/*main.pjs", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
   "linters": {
     "eslint": [],
     "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
-    "prettier": ["**/suggestion*"],
+    "prettier": ["**/suggestion*", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
     "stylelint": []
   },
   "vscode": {

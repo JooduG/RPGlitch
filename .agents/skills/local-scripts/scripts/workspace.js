@@ -6,8 +6,8 @@
  * primary conceptual pipelines:
  *
  *   1. WORKSPACE SYNCHRONIZER (`sync`):
- *      Reconciles `ignores.master.json` into all 10 configuration layers:
- *      ESLint, Git, Gemini, Antigravity, linters, VS Code settings, JSConfig, Vitest.
+ *      Reconciles `ignores.master.json` into all 9 configuration layers:
+ *      ESLint, Git, Antigravity, linters, VS Code settings, JSConfig, Vitest.
  *
  *   2. HYGIENE & DEBT AUDITOR (`hygiene`):
  *      Deep semantic audit across three key dimensions:
@@ -285,7 +285,6 @@ export function sync_workspace() {
   // 1b. Line-Based Ignore Files
   const line_based_files = [
     { file: ".gitignore", patterns: [...common_patterns, ...(master_configuration.gitignore || [])] },
-    { file: ".geminiignore", patterns: [...common_patterns, ...(master_configuration.geminiignore || [])] },
     { file: ".antigravityignore", patterns: [...common_patterns, ...(master_configuration.antigravityignore || [])] },
     { file: ".markdownlintignore", patterns: [...common_patterns, ...(master_configuration.linters?.markdownlint || [])] },
     { file: ".prettierignore", patterns: [...common_patterns, ...(master_configuration.linters?.prettier || [])] },

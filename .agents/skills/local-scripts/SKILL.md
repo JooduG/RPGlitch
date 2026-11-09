@@ -27,7 +27,7 @@ Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 | Command                              | Script Target          | Operational Purpose                                                                                                  |
 | :----------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------- |
 | `npm run audit:hygiene`              | `workspace.js hygiene` | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). |
-| `npm run sync:ignores`               | `workspace.js sync`    | Workspace Synchronizer: reconciles `ignores.master.json` into all 10 configuration layers.                           |
+| `npm run sync:ignores`               | `workspace.js sync`    | Workspace Synchronizer: reconciles `ignores.master.json` into all 9 configuration layers.                            |
 | `node .../workspace.js all`          | `workspace.js all`     | Unified Master Pass: runs `sync` followed by complete `hygiene` audit.                                               |
 | `npm run test:hooks`                 | `hooks.test.js`        | End-to-end automated contract suite testing all 10 Antigravity lifecycle hooks in `hooks.js`.                        |
 | `npx vitest run .../bridges.test.js` | `bridges.test.js`      | Unit test suite verifying `bridges.js` CLI proxying, fallbacks, and DeepWiki MCP integration.                        |
