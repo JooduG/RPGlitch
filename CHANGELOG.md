@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Platform Layer Evacuation & Security Consolidation (`src/utils/html.js`, `src/storage/db.js`)**:
+  - Evacuated binary image validation (`DEFAULT_MAX_IMAGE_SIZE_BYTES`, `DEFAULT_ALLOWED_IMAGE_MIME_TYPES`, `IMAGE_SIGNATURE_VALIDATORS`, and `validate_image`) into `src/utils/html.js` and re-exported from `@utils`.
+  - Evacuated 3-tier reload-safe session checkpointing (`save_session_checkpoint`, `load_session_checkpoint`, `clear_session_checkpoint`, `CHECKPOINT_KEY`, `WINDOW_NAME_CHECKPOINT_PREFIX`) into `src/storage/db.js` and re-exported from `@storage`.
+  - Grounded foundational storage & security primitives ahead of full `@platform` retirement.
+
 - **Definitions Relocation & Greenfield Storage Consolidation (`src/media/styles.js`, `src/storage/presets.js`)**:
   - Relocated `src/definitions/visual-styles.js` and its test suite to `src/media/styles.js` and `src/media/styles.test.js`, bringing visual style resolution and catalog into the sovereign `@media` domain.
   - Consolidated `src/definitions/premade-entities.js` into `src/storage/presets.js`, re-pointing all entity archetype consumers and query primitives (`PREMADE_ENTITIES`, `get_premade_entity_by_id`, `has_premade_entity`, `get_premade_characters`, `get_premade_fractals`) to `@storage`.
