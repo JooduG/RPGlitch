@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowArbitraryExtensions": true,
     "allowJs": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "checkJs": false,
     "lib": [

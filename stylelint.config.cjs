@@ -4,7 +4,7 @@ const master = require("./ignores.master.json");
 module.exports = {
   // One source of truth for ignore globs (complemented by .stylelintignore)
   ignoreFiles: master.linters?.stylelint || [],
-  extends: ["stylelint-config-standard-scss", "stylelint-config-html/svelte", "stylelint-prettier/recommended"],
+  extends: ["stylelint-config-standard", "stylelint-config-html/svelte", "stylelint-prettier/recommended"],
   overrides: [
     {
       files: ["**/*.svelte"],
@@ -32,13 +32,6 @@ module.exports = {
       },
     ],
 
-    "scss/at-rule-no-unknown": [
-      true,
-      {
-        ignoreAtRules: ["tailwind", "utility", "theme", "source", "config", "plugin", "custom-variant", "variant", "import"],
-      },
-    ],
-
     "at-rule-no-unknown": [
       true,
       {
@@ -56,6 +49,9 @@ module.exports = {
     /* ========================================================================
        DEVELOPER SANITY OVERRIDES
        ======================================================================== */
+
+    // Permit modern or legacy @import syntax
+    "import-notation": null,
 
     // Unplug the decimals vs percentages debate for alpha
     "alpha-value-notation": null,
