@@ -52,7 +52,7 @@ export default defineConfig([
       "**/test-results/**",
       "**/yarn.lock",
       "**/tmp/**",
-      "tmp/**/*"
+      "tmp/**/*",
     ],
     // @agent:ignore-end
   },
@@ -122,7 +122,7 @@ export default defineConfig([
     },
   },
 
-  // 5. Advanced Tailwind Configuration & Local Parser Binding
+  // 5. Advanced Tailwind Configuration & Rules (Markup Files Only)
   {
     files: ["**/*.{svelte,html}"],
     plugins: {
@@ -133,6 +133,26 @@ export default defineConfig([
         cwd: "./",
         entryPoint: "src/media/design.css",
       },
+    },
+    rules: {
+      "better-tailwindcss/no-unknown-classes": [
+        "error",
+        {
+          ignore: [
+            "scroll-area-viewport",
+            "think-block-container",
+            "display-text-container",
+            "touch-target-coarse",
+            "meter-card",
+            "meter-label",
+            "meter-controls",
+            "meter-input",
+            "meter-progress",
+            "meter-value",
+          ],
+        },
+      ],
+      "better-tailwindcss/enforce-consistent-line-wrapping": "off",
     },
   },
   {
@@ -160,57 +180,23 @@ export default defineConfig([
     },
   },
 
-  // 7. Code Scope Overrides & General Penalty Downgrades
+  // 7. Core Quality Enforcement
   {
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte,html}"],
     rules: {
       "no-irregular-whitespace": "off",
 
       "no-unused-vars": [
-        "warn",
+        "error",
         {
           argsIgnorePattern: "^_",
           varsIgnorePattern: "^_",
           caughtErrorsIgnorePattern: "^_",
         },
       ],
-      "no-undef": "warn",
-    },
-  },
-
-  // 8. Tailwind Template Rules (Markup Files Only)
-  {
-    files: ["**/*.{svelte,html}"],
-    plugins: {
-      "better-tailwindcss": eslintPluginBetterTailwindcss,
-    },
-    settings: {
-      "better-tailwindcss": {
-        cwd: "./",
-        entryPoint: "src/media/design.css",
-      },
-    },
-    rules: {
-      "better-tailwindcss/no-unknown-classes": [
-        "warn",
-        {
-          ignore: [
-            "scroll-area-viewport",
-            "think-block-container",
-            "display-text-container",
-            "touch-target-coarse",
-            "meter-card",
-            "meter-label",
-            "meter-controls",
-            "meter-input",
-            "meter-progress",
-            "meter-value",
-          ],
-        },
-      ],
-      "better-tailwindcss/enforce-consistent-line-wrapping": "off",
+      "no-undef": "error",
     },
   },
   prettier,
-  svelte.configs.prettier
+  svelte.configs.prettier,
 ]);

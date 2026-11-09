@@ -5,93 +5,39 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "checkJs": false,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
+    "lib": ["esnext", "dom", "dom.iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@motion": [
-        "src/ui/motion/index.js"
-      ],
-      "@motion/*": [
-        "src/ui/motion/*"
-      ],
-      "@primitives": [
-        "src/ui/primitives/index.js"
-      ],
-      "@primitives/*": [
-        "src/ui/primitives/*"
-      ],
-      "@utils": [
-        "src/utils/index.js"
-      ],
-      "@utils/*": [
-        "src/utils/*"
-      ],
-      "@config": [
-        "src/config.js"
-      ],
-      "@data": [
-        "src/data/index.js"
-      ],
-      "@data/*": [
-        "src/data/*"
-      ],
-      "@storage": [
-        "src/storage/index.js"
-      ],
-      "@storage/*": [
-        "src/storage/*"
-      ],
-      "@engine": [
-        "src/engine/index.js"
-      ],
-      "@engine/*": [
-        "src/engine/*"
-      ],
-      "@intelligence": [
-        "src/intelligence/index.js"
-      ],
-      "@intelligence/*": [
-        "src/intelligence/*"
-      ],
-      "@media": [
-        "src/media/index.js"
-      ],
-      "@media/*": [
-        "src/media/*"
-      ],
-      "@platform": [
-        "src/platform/index.js"
-      ],
-      "@platform/*": [
-        "src/platform/*"
-      ],
-      "@state": [
-        "src/state/index.js"
-      ],
-      "@state/*": [
-        "src/state/*"
-      ],
-      "@ui": [
-        "src/ui/index.js"
-      ],
-      "@ui/*": [
-        "src/ui/*"
-      ]
+      "@/*": ["src/*"],
+      "@motion": ["src/ui/motion/index.js"],
+      "@motion/*": ["src/ui/motion/*"],
+      "@primitives": ["src/ui/primitives/index.js"],
+      "@primitives/*": ["src/ui/primitives/*"],
+      "@utils": ["src/utils/index.js"],
+      "@utils/*": ["src/utils/*"],
+      "@config": ["src/config.js"],
+      "@data": ["src/data/index.js"],
+      "@data/*": ["src/data/*"],
+      "@storage": ["src/storage/index.js"],
+      "@storage/*": ["src/storage/*"],
+      "@engine": ["src/engine/index.js"],
+      "@engine/*": ["src/engine/*"],
+      "@intelligence": ["src/intelligence/index.js"],
+      "@intelligence/*": ["src/intelligence/*"],
+      "@media": ["src/media/index.js"],
+      "@media/*": ["src/media/*"],
+      "@platform": ["src/platform/index.js"],
+      "@platform/*": ["src/platform/*"],
+      "@state": ["src/state/index.js"],
+      "@state/*": ["src/state/*"],
+      "@ui": ["src/ui/index.js"],
+      "@ui/*": ["src/ui/*"]
     },
     "strict": true,
     "target": "esnext",
     "verbatimModuleSyntax": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
   "exclude": [
     "**/.git/**",
@@ -105,9 +51,5 @@
     ".secrets",
     "**/*.lock"
   ],
-  "include": [
-    "src/**/*",
-    "types.d.ts",
-    "tmp/harness"
-  ]
+  "include": ["src/**/*", "types.d.ts", "tmp/harness"]
 }

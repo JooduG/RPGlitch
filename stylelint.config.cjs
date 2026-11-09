@@ -53,19 +53,10 @@ module.exports = {
     // Permit modern or legacy @import syntax
     "import-notation": null,
 
-    // Unplug the decimals vs percentages debate for alpha
+    // Permit decimal or percentage notation for alpha channel
     "alpha-value-notation": null,
 
-    // Permit vendor prefixes for WebKit mask compositing
-    "property-no-vendor-prefix": null,
-
-    // Let yourself use empty lines for readability
+    // Custom properties: allow grouping without forced blank lines
     "custom-property-empty-line-before": null,
-
-    // Stop it from yelling about cascading duplicate variables
-    "declaration-block-no-duplicate-custom-properties": null,
-
-    // Unplug modern color-function demands to preserve legacy RPGlitch palettes
-    "color-function-notation": null,
   },
 };

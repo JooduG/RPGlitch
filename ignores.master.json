@@ -62,7 +62,7 @@
   "linters": {
     "eslint": [],
     "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
-    "prettier": ["**/suggestion*", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
+    "prettier": ["**/suggestion*"],
     "stylelint": []
   },
   "vscode": {

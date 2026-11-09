@@ -36,7 +36,3 @@ src/media/tokens.js
 **/tmp/**
 tmp/**/*
 **/suggestion*
-eslint.config.js
-.vscode/settings.json
-jsconfig.json
-vitest.config.js
