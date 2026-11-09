@@ -15,7 +15,8 @@
  */
 
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
-import { LLM_PRIORITY, merge_abort_signals, run_llm_job } from "../platform/llm-gate.js";
+import { LLM_PRIORITY, run_llm_job } from "./gate.js";
+import { merge_abort_signals } from "../utils/resilience.js";
 import { append_ledger_entries, log_message } from "../storage/db.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
@@ -875,7 +876,7 @@ export async function execute_visualizer_envision(text, type = "character", enti
 
     const live_transport = {
       stream: async (compiled_prompt, stream_options = {}) => {
-        const { llm_service } = await import("../platform/transport.js");
+        const { llm_service } = await import("./legacy-transport.js");
         const response = await llm_service.generate(
           {
             system: compiled_prompt,
@@ -927,7 +928,7 @@ export async function structure_profile(raw, type = "character", signal = null) 
   const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
   const live_transport = {
     stream: async (compiled_prompt, stream_options = {}) => {
-      const { llm_service } = await import("../platform/transport.js");
+      const { llm_service } = await import("./legacy-transport.js");
       const response = await llm_service.enhance({
         system: compiled_prompt,
         role: "model",

@@ -17,7 +17,7 @@
  */
 
 import { escape_unescaped_json_quotes, strip_cognition_blocks, safe_parse_json, detox_prose } from "@utils";
-import { sanitize_llm } from "@platform";
+import { sanitize_llm } from "@utils";
 
 // ── 1. Refusal & Safety Guardrails ────────────────────────────────────────────
 

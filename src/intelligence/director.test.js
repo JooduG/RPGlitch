@@ -16,14 +16,14 @@ import {
   STORY_STATUS_VALUES,
 } from "./director.js";
 import { compile_prompt } from "./prompts.js";
-import { llm_service } from "@platform";
+import { llm_service } from "@engine";
 
 const _mock_app = {
   settings: { narrative_style: "default" },
   log: vi.fn(),
 };
 
-vi.mock("@platform", async (importOriginal) => {
+vi.mock("@engine", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,

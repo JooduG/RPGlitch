@@ -30,7 +30,7 @@ import {
   create_relational_context,
   has_bracket_bond,
 } from "@utils";
-import { ensure_embeddings } from "@platform";
+import { ensure_embeddings } from "@utils";
 import { normalize_image_tier } from "@media";
 import { resolve_style_snapshot, resolve_visual_engine_tokens } from "./modules/style.js";
 import { resolve_stability_lock } from "./modules/reflex.js";

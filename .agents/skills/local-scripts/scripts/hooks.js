@@ -520,7 +520,7 @@ export function handle_circuit_breaker(payload) {
  *
  * @param {any} payload Hook payload from stdin.
  */
-export function handle_svelte_pre_invocation(payload) {
+export function handle_svelte_pre_invocation(_payload) {
   send_hook_response({ injectSteps: [] });
 }
 

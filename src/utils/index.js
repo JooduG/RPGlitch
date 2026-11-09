@@ -59,6 +59,7 @@ export * from "./math.js";
 // ============================================================================
 
 export * from "./onnx.js";
+export * from "./embeddings.svelte.js";
 
 // ============================================================================
 // XML Escaping, Prompt Serialization & Bracket Transforms

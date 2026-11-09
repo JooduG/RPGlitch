@@ -28,7 +28,8 @@ import {
   clear_generation_in_flight,
 } from "@media";
 import { validate_and_repair_response, force_close_response, strip_directors_note_seed, THINK_OPEN_TAG } from "./parser.js";
-import { llm_service, looks_truncated, calculate_semantic_drift } from "@platform";
+import { llm_service } from "@engine";
+import { looks_truncated, calculate_semantic_drift } from "@utils";
 import { apply_dynamics_gravity, extract_entity_dynamics_baselines, capture_dynamics_delta } from "./dynamics.js";
 import { DYNAMICS_AXES } from "@config";
 import { execute_director_shot, resolve_npc_entity, apply_in_scene_change } from "./director.js";

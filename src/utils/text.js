@@ -1441,3 +1441,83 @@ export function has_bracket_bond(entity, target_identifier_or_entity) {
 
   return false;
 }
+
+// ============================================================================
+// [SECTION 14: LLM PROSE SANITIZATION & NORMALIZATION]
+// ============================================================================
+
+/**
+ * Detects whether an LLM generation ended abruptly or truncated mid-sentence.
+ * Strips `<think>` tags and checks if the terminal character is valid sentence-ending punctuation.
+ * @param {string} text
+ * @returns {boolean}
+ */
+export function looks_truncated(text) {
+  if (!text || typeof text !== "string") return false;
+  if (!text.trim()) return false;
+
+  const stripped = strip_cognition_blocks(text);
+
+  if (!stripped) return true; // Think-only response or empty narrative
+
+  const last_char = stripped[stripped.length - 1];
+  const quotes = `"'“”‘’`;
+
+  if (quotes.includes(last_char)) {
+    const preceding = stripped.slice(0, -1).trimEnd();
+    const prev_last = preceding[preceding.length - 1] || "";
+    return !/[.!?…"]/.test(prev_last);
+  }
+
+  return !/[.!?…]/.test(last_char);
+}
+
+/**
+ * Normalizes an LLM raw output result (primitive string or plugin String object with `.text`/`.generatedText`) into plain text.
+ * @param {any} raw
+ * @returns {string}
+ */
+export function raw_to_text(raw) {
+  if (typeof raw === "string") return raw.trim();
+  if (raw && typeof raw === "object") {
+    return String(raw.generatedText ?? raw.text ?? "").trim();
+  }
+  return String(raw ?? "").trim();
+}
+
+/**
+ * Extracts the server stop reason from a raw Perchance plugin result if attached.
+ * @param {any} raw
+ * @returns {string}
+ */
+export function raw_stop_reason(raw) {
+  if (raw && typeof raw === "object" && !(raw instanceof String)) return "";
+  return raw && typeof raw === "object" && raw.stopReason ? String(raw.stopReason) : "";
+}
+
+/**
+ * Strips code fences, stray outer quotes, and conversational filler prefixes from LLM output.
+ * Preserves `<think>` blocks for DevMode telemetry and database persistence.
+ * @param {string} text
+ * @returns {string}
+ */
+export function sanitize_llm(text) {
+  if (!text) return "";
+
+  // 1. Strip conversational filler and code fences
+  let out = text
+    .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
+    .replace(/^\s*```.*?[\r\n]/gm, "")
+    .replace(/```\s*$/gm, "")
+    .trim();
+
+  // 2. Outer-quote cleanup: strip leading unmatched quote without destroying trailing dialogue quotes
+  if (out.length > 1) {
+    const first = out[0];
+    if ((first === '"' || first === "'") && out[out.length - 1] !== first) {
+      out = out.slice(1).trim();
+    }
+  }
+
+  return out;
+}

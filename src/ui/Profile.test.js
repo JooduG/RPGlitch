@@ -1,20 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ProfileState } from "./Profile.svelte.js";
 
-// Mock platform module
+// Mock engine module
 let resolveEnhanceFn;
-vi.mock("@platform", () => ({
-  llm_service: {
-    enhance: vi.fn(() => {
-      return new Promise((resolve) => {
-        resolveEnhanceFn = resolve;
-      });
-    }),
-  },
-  security: {
-    sanitize: vi.fn((val) => val),
-  },
-}));
+vi.mock("@engine", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    llm_service: {
+      enhance: vi.fn(() => {
+        return new Promise((resolve) => {
+          resolveEnhanceFn = resolve;
+        });
+      }),
+    },
+  };
+});
 
 // Mock imports
 vi.mock("@state/interface.svelte.js", () => ({

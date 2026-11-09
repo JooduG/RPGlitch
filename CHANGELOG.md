@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Pulse 1 Demolition: Eradicate `src/platform/` & Consolidate Primitives**:
+  - Completely purged and removed legacy directory `src/platform/` (all 10 modules and test suites eradicated) under P4 Zero Backwards Compatibility.
+  - Relocated zero-trust web fetch (`fetch_web`, `validate_url`, `blob_to_data_url`) and sandbox environment hardening (`install_environment_hardening`, `is_perchance_frame_error`) to `src/utils/html.js`.
+  - Relocated vector codecs (`serialize_embedding`, `deserialize_embedding`, `quantize_vector_q8`, `dequantize_vector_q8`) to `src/utils/math.js`.
+  - Relocated neural embeddings pipeline, LRU cache, and `embeddings_engine` to `src/utils/embeddings.svelte.js` and re-exported via `@utils`.
+  - Relocated signal resilience (`merge_abort_signals`) to `src/utils/resilience.js` and output normalization/truncation checks (`looks_truncated`, `raw_to_text`, `raw_stop_reason`, `sanitize_llm`) to `src/utils/text.js`.
+  - Relocated priority LLM queue and preemption engine (`LLM_PRIORITY`, `run_llm_job`, `get_llm_gate_status`) to `src/engine/gate.js`.
+  - Created temporary bridging transport `src/engine/legacy-transport.js` for active callers during migration pulses.
+  - Removed `@platform` path alias from `vite.config.js`, `vitest.config.js`, and `jsconfig.json`.
+  - Updated all downstream consumers across `@data`, `@intelligence`, `@state`, `@media`, `@storage`, and `@ui` to import directly from `@utils`, `@storage`, or `@engine`.
+
 - **Platform Layer Evacuation & Security Consolidation (`src/utils/html.js`, `src/storage/db.js`)**:
   - Evacuated binary image validation (`DEFAULT_MAX_IMAGE_SIZE_BYTES`, `DEFAULT_ALLOWED_IMAGE_MIME_TYPES`, `IMAGE_SIGNATURE_VALIDATORS`, and `validate_image`) into `src/utils/html.js` and re-exported from `@utils`.
   - Evacuated 3-tier reload-safe session checkpointing (`save_session_checkpoint`, `load_session_checkpoint`, `clear_session_checkpoint`, `CHECKPOINT_KEY`, `WINDOW_NAME_CHECKPOINT_PREFIX`) into `src/storage/db.js` and re-exported from `@storage`.

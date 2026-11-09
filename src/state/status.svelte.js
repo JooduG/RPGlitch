@@ -26,7 +26,7 @@
 
 import { Audio } from "@media";
 import { WATCHDOG_POLICY } from "@config";
-import { get_llm_gate_status } from "@platform";
+import { get_llm_gate_status } from "@engine";
 import { developer_log } from "./log.svelte.js";
 
 // ============================================================================

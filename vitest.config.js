@@ -9,7 +9,6 @@ export default defineConfig({
     // Aliases strictly synced with Vite and JSConfig to prevent spaghetti code
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
-      "@platform": path.resolve(import.meta.dirname, "./src/platform"),
       "@intelligence": path.resolve(import.meta.dirname, "./src/intelligence"),
       "@data": path.resolve(import.meta.dirname, "./src/data"),
       "@storage": path.resolve(import.meta.dirname, "./src/storage"),

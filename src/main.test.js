@@ -41,25 +41,14 @@ vi.mock("@media/audio.svelte.js", () => ({
   Audio: _mock_audio,
 }));
 
-vi.mock("@platform", async (importOriginal) => {
+// Mock the state bridge so main.js/boot can access app/runtime without pulling real @state
+vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
     embeddings_engine: {
       load_model: vi.fn().mockResolvedValue(),
     },
-  };
-});
-
-vi.mock("@data/repository.js", () => ({
-  seed_premades: vi.fn(),
-}));
-
-// Mock the state bridge so main.js/boot can access app/runtime without pulling real @state
-vi.mock("@utils", async (importOriginal) => {
-  const actual = await importOriginal();
-  return {
-    ...actual,
     state_bridge: {
       get app() {
         return _mock_app;
@@ -68,6 +57,14 @@ vi.mock("@utils", async (importOriginal) => {
         return _mock_runtime;
       },
     },
+  };
+});
+
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    seed_premades: vi.fn(),
   };
 });
 

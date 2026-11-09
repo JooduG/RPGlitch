@@ -15,7 +15,7 @@
    * @platform blob_to_data_url. This component only routes sources.
    */
   import { Button, TextField, tooltip } from "@primitives";
-  import { blob_to_data_url, fetch_web, validate_image } from "@platform";
+  import { blob_to_data_url, fetch_web, validate_image } from "@utils";
   import { extract_card_from_png } from "@data";
 
   let {

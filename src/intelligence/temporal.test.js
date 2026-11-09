@@ -35,16 +35,21 @@ import {
 } from "./temporal.js";
 import { get_output_format } from "./modules/output.js";
 import { PROMPTS } from "./prompts.js";
-import { llm_service, embed } from "@platform";
+import { llm_service } from "@engine";
+import { embed } from "@utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cosine_similarity } from "@utils";
 
 // Mock dependencies
-vi.mock("@platform/transport.js", () => ({
-  llm_service: {
-    generate: vi.fn(),
-  },
-}));
+vi.mock("@engine", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    llm_service: {
+      generate: vi.fn(),
+    },
+  };
+});
 
 vi.mock("@data/sessions.svelte.js", () => ({
   session_driver: {
@@ -70,24 +75,21 @@ vi.mock("./prompts.js", async (importOriginal) => {
   };
 });
 
-vi.mock("@platform/embeddings.svelte.js", () => ({
-  ensure_embedding: vi.fn(async (v) => {
-    if (v) v._embedding = new Float32Array(384);
-    return v?._embedding;
-  }),
-  ensure_embeddings: vi.fn(async () => {}),
-  score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
-  embed: vi.fn(async () => new Float32Array(384)),
-  is_ready: vi.fn(() => false),
-  serialize_embedding: vi.fn((e) => (e ? Array.from(e) : null)),
-  deserialize_embedding: vi.fn((e) => (e ? (e instanceof Float32Array ? e : Float32Array.from(e)) : null)),
-  EMBEDDING_DIM: 384,
-}));
-
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
+    ensure_embedding: vi.fn(async (v) => {
+      if (v) v._embedding = new Float32Array(384);
+      return v?._embedding;
+    }),
+    ensure_embeddings: vi.fn(async () => {}),
+    score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
+    embed: vi.fn(async () => new Float32Array(384)),
+    is_ready: vi.fn(() => false),
+    serialize_embedding: vi.fn((e) => (e ? Array.from(e) : null)),
+    deserialize_embedding: vi.fn((e) => (e ? (e instanceof Float32Array ? e : Float32Array.from(e)) : null)),
+    EMBEDDING_DIM: 384,
     cosine_similarity: vi.fn(() => 0.5),
   };
 });

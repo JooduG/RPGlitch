@@ -23,6 +23,75 @@ import DOMPurify from "dompurify";
 // [SECTION 0: HTML SANITIZATION & ESCAPING]
 // ============================================================================
 
+/** Text pattern identifying benign ResizeObserver layout deferral warnings. */
+const RESIZE_OBSERVER_LOOP_PATTERN = "ResizeObserver loop";
+
+/** Text patterns identifying benign Perchance iframe sandbox internal artifacts. */
+const PERCHANCE_FRAME_ERROR_PATTERNS = ["Symbol", "numActualScriptLines"];
+
+/**
+ * Checks whether an error or rejection payload matches known Perchance sandbox internal errors.
+ * @param {any} target
+ * @returns {boolean}
+ */
+export function is_perchance_frame_error(target) {
+  if (!target) return false;
+  try {
+    const message = target.message ? String(target.message) : String(target);
+    return PERCHANCE_FRAME_ERROR_PATTERNS.some((pattern) => message.includes(pattern));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Installs all environment hardening and sandbox error guards.
+ * Uses a single unified capturing error listener and unhandledrejection handler
+ * to silence benign ResizeObserver loop notices and Perchance iframe boundary faults
+ * without double-dispatch or global constructor monkey-patching.
+ * Synchronously invoked at bootstrap in `src/main.js` before DOM mounting.
+ */
+export function install_environment_hardening() {
+  if (typeof window === "undefined") return;
+
+  const original_onerror = window.onerror;
+  window.onerror = function (msg, source, lineno, colno, error) {
+    if (msg && String(msg).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+      return true; // Suppress benign loop notification
+    }
+    return original_onerror ? original_onerror.call(this, msg, source, lineno, colno, error) : false;
+  };
+
+  // Single unified capture-phase error listener for ResizeObserver and Perchance sandbox artifacts
+  window.addEventListener(
+    "error",
+    (event) => {
+      const message = event?.message;
+      if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+        event.preventDefault?.();
+        event.stopImmediatePropagation?.();
+        return;
+      }
+      if (is_perchance_frame_error(event)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "unhandledrejection",
+    (event) => {
+      if (is_perchance_frame_error(event?.reason)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+      }
+    },
+    true,
+  );
+}
+
 /**
  * Sanitizes dirty HTML string and returns safe sanitized HTML string.
  * @param {any} dirty
@@ -62,8 +131,16 @@ export function escape_html(str) {
 }
 
 // ============================================================================
-// [SECTION 0B: BINARY IMAGE & SOURCE VALIDATION]
+// [SECTION 0C: SECURITY CONVENIENCE FACADE]
 // ============================================================================
+
+export const security = {
+  sanitize,
+  sanitize_to_fragment,
+  escape_html,
+  validate_image,
+  install_environment_hardening,
+};
 
 /** Default maximum permissible image upload size in bytes (25 MB). */
 export const DEFAULT_MAX_IMAGE_SIZE_BYTES = 25 * 1024 * 1024;
@@ -135,6 +212,198 @@ export async function validate_image(file, options = {}) {
   }
 
   return true;
+}
+
+/**
+ * Reads a Response-like object into a binary Blob.
+ * @param {any} response
+ * @returns {Promise<Blob>}
+ */
+async function blob_from_response(response) {
+  if (typeof response?.blob === "function") {
+    const blob = await response.blob();
+    if (blob) return blob;
+  }
+  if (typeof response?.arrayBuffer === "function") {
+    return new Blob([new Uint8Array(await response.arrayBuffer())]);
+  }
+  if (typeof response?.text === "function") {
+    return new Blob([await response.text()]);
+  }
+  throw new Error("Could not read data from that page.");
+}
+
+/**
+ * Converts a Blob or File into a base64 data URL.
+ * Shared between web image fetching and UI file drop ingestion.
+ * @param {Blob} blob
+ * @returns {Promise<string>}
+ */
+export function blob_to_data_url(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new globalThis.FileReader();
+    reader.onload = (event) => resolve(/** @type {string} */ (event.target?.result));
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Resolves the Perchance super-fetch plugin engine across window and parent-frame scopes.
+ * Resolution is deliberately uncached to allow dynamic testing and hot-swapping.
+ * @returns {((url: string) => Promise<any>) | null}
+ */
+export function get_super_fetch_engine() {
+  if (typeof window === "undefined") return null;
+
+  try {
+    if (typeof window.fetch_web === "function") return window.fetch_web;
+  } catch {
+    /* Ignore sandbox access */
+  }
+
+  try {
+    if (typeof window.pluginFetchWeb === "function") return window.pluginFetchWeb;
+  } catch {
+    /* Ignore sandbox access */
+  }
+
+  try {
+    if (typeof window.parent !== "undefined") {
+      // @ts-ignore
+      if (typeof window.parent.fetch_web === "function") return window.parent.fetch_web;
+      // @ts-ignore
+      if (typeof window.parent.pluginFetchWeb === "function") return window.parent.pluginFetchWeb;
+    }
+  } catch {
+    /* Ignore cross-origin errors in sandboxed iframes */
+  }
+
+  return null;
+}
+
+/**
+ * @typedef {Object} UrlValidationOptions
+ * @property {boolean} [allow_http] - Whether insecure http:// URLs are permitted.
+ * @property {string[]} [allowed_hosts] - Optional allowlist of hostnames or domain suffixes.
+ */
+
+/**
+ * Validates a web URL for ingestion.
+ * Enforces https schemes (or http when explicitly allowed) and optional host allowlists.
+ * Blocks dangerous schemes (javascript:, data:, file:) and returns the canonical URL string.
+ * @param {string} raw_url
+ * @param {UrlValidationOptions} [options]
+ * @returns {string}
+ */
+export function validate_url(raw_url, options = {}) {
+  if (typeof raw_url !== "string" || !raw_url.trim()) {
+    throw new Error("A URL is required.");
+  }
+
+  const trimmed = raw_url.trim();
+  let parsed;
+
+  try {
+    parsed = new URL(trimmed);
+  } catch (err) {
+    throw new Error(`Invalid URL "${trimmed.slice(0, 80)}". Enter a full web address, e.g. https://example.com/wiki/Page`, { cause: err });
+  }
+
+  const scheme = parsed.protocol.toLowerCase().replace(":", "");
+  const allowed = options.allow_http ? ["https", "http"] : ["https"];
+
+  if (!allowed.includes(scheme)) {
+    throw new Error(`Blocked URL scheme "${scheme}:". Only ${allowed.join(" and ")} pages are supported.`);
+  }
+
+  if (Array.isArray(options.allowed_hosts) && options.allowed_hosts.length > 0) {
+    const host = parsed.hostname.toLowerCase();
+    const is_allowed = options.allowed_hosts.some((allowed_entry) => {
+      const clean_entry = String(allowed_entry).toLowerCase().replace(/^\./, "");
+      return clean_entry && (host === clean_entry || host.endsWith(`.${clean_entry}`));
+    });
+
+    if (!is_allowed) {
+      throw new Error(`Host "${parsed.hostname}" is not on the allowed list for ingestion.`);
+    }
+  }
+
+  return parsed.href;
+}
+
+/**
+ * @typedef {Object} WebFetchOptions
+ * @property {boolean} [allow_http] - Whether http:// URLs are allowed.
+ * @property {string[]} [allowed_hosts] - Optional domain whitelist.
+ * @property {'character' | 'fractal' | 'world'} [type] - Entity category for lore budget selection.
+ * @property {number} [max_chars] - Character budget override for plain text extraction.
+ * @property {boolean} [as_image] - Whether to fetch as a binary image and return a data URL.
+ */
+
+/**
+ * Fetches a web resource for ingestion.
+ * Uses the super-fetch-plugin (CORS-free, binary-safe) when available; falls back to native fetch in local dev.
+ * Extracts clean plain text within character budget or converts binary image responses to data URLs.
+ * @param {string} raw_url
+ * @param {WebFetchOptions} [options]
+ * @returns {Promise<{ url: string, text: string } | { url: string, data_url: string }>}
+ */
+export async function fetch_web(raw_url, options = {}) {
+  const url = validate_url(raw_url, options);
+  const budget = options.max_chars || (options.type === "fractal" || options.type === "world" ? INGESTION_LORE_LIMIT : INGESTION_CHAR_LIMIT);
+
+  const engine = get_super_fetch_engine();
+
+  if (!engine) {
+    const is_local_dev =
+      typeof window !== "undefined" &&
+      !(typeof process !== "undefined" && process.env.VITEST) &&
+      (window.location?.hostname === "localhost" || window.location?.hostname === "127.0.0.1" || import.meta.env.DEV);
+
+    if (is_local_dev) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Page returned HTTP ${res.status}.`);
+
+      if (options.as_image) {
+        const blob = await blob_from_response(res);
+        if (!blob.type?.startsWith("image/")) throw new Error("That URL is not an image.");
+        return { url, data_url: await blob_to_data_url(blob) };
+      }
+
+      const html = await res.text();
+      const text = html_to_plain_text(html, { max_chars: budget });
+      if (!text.trim()) throw new Error("No readable text found on that page.");
+      return { url, text };
+    }
+
+    throw new Error("fetch_web plugin unavailable. Add fetch_web = {import:super-fetch-plugin} to the Perchance left panel, then reload.");
+  }
+
+  let response;
+  try {
+    response = await engine(url);
+  } catch (err) {
+    throw new Error(`Network request to "${url}" failed.`, { cause: err });
+  }
+
+  const status = typeof response?.status === "number" ? response.status : response?.ok ? 200 : null;
+  if (status != null && (status < 200 || status >= 300)) {
+    throw new Error(`Page returned HTTP ${status}.`);
+  }
+
+  if (options.as_image) {
+    const blob = await blob_from_response(response);
+    if (!blob.type?.startsWith("image/")) throw new Error("That URL is not an image.");
+    return { url, data_url: await blob_to_data_url(blob) };
+  }
+
+  const html = typeof response?.text === "function" ? await response.text() : String(response?.responseText ?? response?.body ?? response ?? "");
+
+  const text = html_to_plain_text(html, { max_chars: budget });
+  if (!text.trim()) throw new Error("No readable text found on that page.");
+
+  return { url, text };
 }
 
 // ============================================================================

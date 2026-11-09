@@ -4,7 +4,7 @@
  */
 import { db, normalize, PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP } from "@data";
 import { compile_prompt, parse_profile_json } from "@intelligence";
-import { llm_service } from "@platform";
+import { llm_service } from "@engine";
 import { app, runtime } from "@state";
 import { get_value, set_value, strip_cognition_blocks, safe_parse_pseudo_json, strip_profile_wrappers, unwrap_enhancement_text } from "@utils";
 import { SvelteSet } from "svelte/reactivity";

@@ -125,7 +125,6 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "./src"),
-        "@platform": path.resolve(import.meta.dirname, "./src/platform"),
         "@intelligence": path.resolve(import.meta.dirname, "./src/intelligence"),
         "@data": path.resolve(import.meta.dirname, "./src/data"),
         "@storage": path.resolve(import.meta.dirname, "./src/storage"),

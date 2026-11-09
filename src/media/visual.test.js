@@ -17,7 +17,7 @@ import {
   resolve_story_beat_style,
   compose_story_beat_prompt,
 } from "./visual.js";
-import { llm_service } from "@platform";
+import { llm_service } from "@engine";
 
 describe("visual.js — Stateless Perchance Image Dispatcher", () => {
   beforeEach(() => {

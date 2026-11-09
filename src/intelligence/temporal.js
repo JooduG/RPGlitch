@@ -18,7 +18,8 @@ import {
   first_sentence,
   fnv1a_hash,
 } from "@utils";
-import { llm_service, ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@platform";
+import { llm_service } from "@engine";
+import { ensure_embedding, score_by_semantics, embed, is_ready, deserialize_embedding } from "@utils";
 import { apply_relationships } from "./director.js";
 import { extract_and_repair_json } from "./parser.js";
 import { compile_prompt } from "./prompts.js";

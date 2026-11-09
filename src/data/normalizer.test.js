@@ -8,15 +8,20 @@ import {
   normalize,
   serialize_entity_for_export,
 } from "./normalizer.js";
-import { security } from "@platform";
+import { security } from "@utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock security.sanitize
-vi.mock("@platform/security.js", () => ({
-  security: {
-    sanitize: vi.fn((val) => (typeof val === "string" ? val.trim() : val)),
-  },
-}));
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    security: {
+      ...actual.security,
+      sanitize: vi.fn((val) => (typeof val === "string" ? val.trim() : val)),
+    },
+  };
+});
 
 describe("normalizer.js", () => {
   beforeEach(() => {

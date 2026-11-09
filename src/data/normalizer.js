@@ -38,7 +38,7 @@
  */
 
 import { generate_uuid, pick_random } from "@utils";
-import { security } from "@platform";
+import { security } from "@utils";
 import { CHAPTER, ENTITY_SCHEMA, PROSE, IDENT } from "@config";
 import { SIGNATURE_COLORS } from "../media/tokens.js";
 import { is_valid_speaking_style } from "../definitions/speaking-styles.js";

@@ -64,6 +64,102 @@ export function cosine_similarity(a, b) {
   return dot;
 }
 
+/**
+ * Serializes an embedding into a JSON-safe form (number[]).
+ * @param {ArrayBufferView | ArrayLike<number> | null | undefined} raw_embedding
+ * @returns {number[] | null}
+ */
+export function serialize_embedding(raw_embedding) {
+  if (!raw_embedding) return null;
+  if (Array.isArray(raw_embedding)) return raw_embedding.length ? raw_embedding.slice() : null;
+  if (raw_embedding instanceof Float32Array) return Array.from(raw_embedding);
+  if (ArrayBuffer.isView(raw_embedding)) {
+    return Array.from(new Float32Array(raw_embedding.buffer, raw_embedding.byteOffset, raw_embedding.length));
+  }
+  return null;
+}
+
+/**
+ * Deserializes a stored embedding into a Float32Array.
+ * Supports legacy number[], Float32Array, and quantized base64/Uint8Array shapes.
+ * @param {string | number[] | Float32Array | Uint8Array | null | undefined} stored_embedding
+ * @returns {Float32Array | null}
+ */
+export function deserialize_embedding(stored_embedding) {
+  if (!stored_embedding) return null;
+  if (stored_embedding instanceof Float32Array) return stored_embedding;
+  if (Array.isArray(stored_embedding)) return new Float32Array(stored_embedding);
+  if (typeof stored_embedding === "string" || stored_embedding instanceof Uint8Array) {
+    return dequantize_vector_q8(stored_embedding);
+  }
+  return null;
+}
+
+/**
+ * Quantizes a 384-dimensional Float32Array embedding into an 8-bit unsigned integer array (Uint8Array)
+ * serialized as a base64 string or Uint8Array.
+ * Maps normalized range [-1.0, 1.0] to [0, 255].
+ *
+ * @param {Float32Array | ArrayLike<number> | null | undefined} raw_embedding
+ * @param {boolean} [as_base64=true]
+ * @param {number} [dimensions=384]
+ * @returns {string | Uint8Array | null}
+ */
+export function quantize_vector_q8(raw_embedding, as_base64 = true, dimensions = 384) {
+  if (!raw_embedding || raw_embedding.length !== dimensions) return null;
+  const uint8_array = new Uint8Array(dimensions);
+  for (let i = 0; i < dimensions; i++) {
+    const val = Number(raw_embedding[i]);
+    const clamped = Math.max(-1.0, Math.min(1.0, val));
+    uint8_array[i] = Math.round(((clamped + 1.0) / 2.0) * 255);
+  }
+
+  if (!as_base64) return uint8_array;
+
+  let binary_string = "";
+  for (let i = 0; i < dimensions; i++) {
+    binary_string += String.fromCharCode(uint8_array[i]);
+  }
+  return typeof btoa === "function" ? btoa(binary_string) : Buffer.from(uint8_array).toString("base64");
+}
+
+/**
+ * Dequantizes an 8-bit quantized embedding (Uint8Array or base64 string) back into a normalized Float32Array.
+ *
+ * @param {string | Uint8Array | ArrayLike<number> | null | undefined} quantized_data
+ * @param {number} [dimensions=384]
+ * @returns {Float32Array | null}
+ */
+export function dequantize_vector_q8(quantized_data, dimensions = 384) {
+  if (!quantized_data) return null;
+
+  let uint8_array = null;
+  if (typeof quantized_data === "string") {
+    try {
+      const binary_string = typeof atob === "function" ? atob(quantized_data) : Buffer.from(quantized_data, "base64").toString("binary");
+      uint8_array = new Uint8Array(binary_string.length);
+      for (let i = 0; i < binary_string.length; i++) {
+        uint8_array[i] = binary_string.charCodeAt(i);
+      }
+    } catch {
+      return null;
+    }
+  } else if (quantized_data instanceof Uint8Array) {
+    uint8_array = quantized_data;
+  } else if (Array.isArray(quantized_data)) {
+    uint8_array = new Uint8Array(quantized_data);
+  }
+
+  if (!uint8_array || uint8_array.length !== dimensions) return null;
+
+  const float32_array = new Float32Array(dimensions);
+  for (let i = 0; i < dimensions; i++) {
+    const uint_val = uint8_array[i];
+    float32_array[i] = (uint_val / 255.0) * 2.0 - 1.0;
+  }
+  return float32_array;
+}
+
 // ============================================================================
 // [SECTION 3: CRYPTOGRAPHIC GENERATION & SAMPLING]
 // ============================================================================

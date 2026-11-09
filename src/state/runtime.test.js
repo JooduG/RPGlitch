@@ -10,7 +10,7 @@ const mock_checkpoint = vi.hoisted(() => ({
   clear_session_checkpoint: vi.fn(),
 }));
 
-vi.mock("@platform", async (importOriginal) => {
+vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,

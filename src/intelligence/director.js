@@ -17,7 +17,8 @@
 
 import { entities, append_ledger_entry } from "@data";
 import { extract_json_block, collapse_whitespace, state_bridge } from "@utils";
-import { llm_service, raw_stop_reason, raw_to_text } from "@platform";
+import { llm_service } from "@engine";
+import { raw_stop_reason, raw_to_text } from "@utils";
 import { compile_prompt } from "./prompts.js";
 import { extract_and_repair_json, parse_think_block, validate_and_repair_response } from "./parser.js";
 import { apply_bracket_mutation, parse_bracket_entries, strip_covert_directives } from "./veil.js";

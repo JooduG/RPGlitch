@@ -39,8 +39,29 @@ import { LATENCY_TIERS_MS, PATIENCE_POLICY } from "@config";
  */
 
 // ============================================================================
-// [SECTION 2: EXPONENTIAL BACKOFF RETRYER]
+// [SECTION 4: SIGNAL & STREAM RESILIENCE UTILITIES]
 // ============================================================================
+
+/**
+ * Merges a caller AbortSignal with a secondary (e.g. gate or timeout) AbortSignal.
+ * @param {AbortSignal | undefined | null} caller
+ * @param {AbortSignal | undefined | null} secondary
+ * @returns {AbortSignal | undefined}
+ */
+export function merge_abort_signals(caller, secondary) {
+  if (!caller) return secondary || undefined;
+  if (!secondary) return caller;
+  if (caller.aborted) return caller;
+  if (secondary.aborted) return secondary;
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.any === "function") {
+    return AbortSignal.any([caller, secondary]);
+  }
+  const controller = new AbortController();
+  const relay = (event) => controller.abort(event?.target?.reason);
+  caller.addEventListener("abort", relay, { once: true });
+  secondary.addEventListener("abort", relay, { once: true });
+  return controller.signal;
+}
 
 /**
  * Retries an asynchronous function with exponential backoff delays.

@@ -61,12 +61,6 @@
       "@media/*": [
         "src/media/*"
       ],
-      "@platform": [
-        "src/platform/index.js"
-      ],
-      "@platform/*": [
-        "src/platform/*"
-      ],
       "@state": [
         "src/state/index.js"
       ],

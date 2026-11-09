@@ -189,7 +189,7 @@ describe("Profile Domain (profile.js)", () => {
   describe("structure_profile()", () => {
     it("structures raw prose via enhance and parses JSON output", async () => {
       const { structure_profile } = await import("./profile.js");
-      const { llm_service } = await import("@platform");
+      const { llm_service } = await import("@engine");
       const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue('{"name":"Kael","appearance":"Tall and cloaked."}');
 
       const result = await structure_profile("Raw character description of Kael...", "character");

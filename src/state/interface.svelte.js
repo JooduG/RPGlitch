@@ -30,7 +30,7 @@ import { SvelteSet } from "svelte/reactivity";
 import { guarded_transition, resolve_px, stories_bridge } from "@utils";
 import { db, entities, normalize, stories } from "@data";
 import { get_signature_color, visual_engine } from "@media";
-import { embeddings_engine } from "@platform";
+import { embeddings_engine } from "@utils";
 import { runtime } from "./runtime.svelte.js";
 import { developer_log } from "./log.svelte.js";
 import { install_freeze_watchdog, simulation_state, streaming as streaming_store, ui_state } from "./status.svelte.js";

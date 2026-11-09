@@ -4,7 +4,7 @@
  */
 
 import { generate_uuid, stories_bridge } from "@utils";
-import { deserialize_embedding, serialize_embedding } from "@platform";
+import { deserialize_embedding, serialize_embedding } from "@utils";
 import { db } from "./db.js";
 import { format_premade, normalize } from "./normalizer.js";
 import { PREMADE_ENTITIES, get_premade_entity_by_id } from "../storage/presets.js";

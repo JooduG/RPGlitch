@@ -159,7 +159,7 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
 
   describe("structure_profile & birth_entity_core", () => {
     it("structures raw prose via enhance and parses JSON output", async () => {
-      const { llm_service } = await import("@platform");
+      const { llm_service } = await import("@engine");
       const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue('{"name":"Kael","appearance":"Tall and cloaked."}');
 
       const result = await structure_profile("Raw character description of Kael...", "character");
@@ -169,7 +169,7 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
     }, 15000);
 
     it("structure_profile produces output that satisfies parse_profile_json and mandatory fields", async () => {
-      const { llm_service } = await import("@platform");
+      const { llm_service } = await import("@engine");
       const mock_response = JSON.stringify({
         _thought_process: "Structuring rogue archetype with stealth abilities.",
         name: "Shadowblade",

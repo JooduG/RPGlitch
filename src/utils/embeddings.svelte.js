@@ -1,9 +1,9 @@
 /**
+ * src/utils/embeddings.svelte.js
  * ============================================================================
- * RPGlitch Platform Layer: Neural Semantic Embeddings Engine
+ * 🧠 NEURAL SEMANTIC EMBEDDINGS ENGINE
  * ============================================================================
  *
- * @file src/platform/embeddings.svelte.js
  * @description Semantic vector matching via Transformers.js & ONNX vector codec.
  *
  * Core Responsibilities:
@@ -11,20 +11,17 @@
  * - Embeds text into normalized 384-dimensional Float32Array vectors.
  * - Manages a bounded true-LRU cache for high-throughput cosine similarity scoring.
  * - Enforces single-threaded WASM and mutex serialization for Perchance iframe stability.
- * - Provides bidirectional vector serialization and deserialization codecs for Dexie.js.
  * - Tracks reactive model loading progress via Svelte 5 runes ($state).
  *
  * Dependencies & Cross-Module Invariants:
- * - `@utils` (`onnx_mutex`, `mark_ort_ready`, `cosine_similarity`): Shared ONNX runtime lock and vector math.
- * - `@media/voice.js` (`wait_ort_ready`): Audio Kokoro TTS awaits ORT initialization from this engine.
- * - Invariant: Dimension is strictly locked to `EMBEDDING_DIM = 384` (Xenova/all-MiniLM-L6-v2).
- * - Invariant: Never store raw Float32Array in JSON-persisted records; serialize to number[] for Dexie.
- *
+ * - `@utils` (`onnx_mutex`, `mark_ort_ready`, `cosine_similarity`, `deserialize_embedding`): Shared ONNX runtime lock and vector math.
+ * - `@config` (`EMBEDDING_SPECS`): Dimension is locked to `EMBEDDING_DIM = 384` (Xenova/all-MiniLM-L6-v2).
  * ============================================================================
  */
 
 import { SvelteMap } from "svelte/reactivity";
-import { onnx_mutex, mark_ort_ready, cosine_similarity } from "@utils";
+import { onnx_mutex, mark_ort_ready } from "./onnx.js";
+import { cosine_similarity, deserialize_embedding } from "./math.js";
 import { EMBEDDING_SPECS } from "@config";
 
 // ============================================================================
@@ -39,126 +36,6 @@ export const EMBEDDING_CACHE_MAX = EMBEDDING_SPECS.CACHE_CAPACITY;
 
 /** The Hugging Face model identifier for sentence transformation. */
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
-
-// ============================================================================
-// Vector Serialization & Deserialization Codecs
-// ============================================================================
-
-/**
- * Serializes an embedding into a JSON-safe form (number[]).
- * @param {ArrayBufferView | ArrayLike<number> | null | undefined} raw_embedding
- * @returns {number[] | null}
- */
-export function serialize_embedding(raw_embedding) {
-  if (!raw_embedding) return null;
-  if (Array.isArray(raw_embedding)) return raw_embedding.length ? raw_embedding.slice() : null;
-  if (raw_embedding instanceof Float32Array) return Array.from(raw_embedding);
-  if (ArrayBuffer.isView(raw_embedding)) {
-    return Array.from(new Float32Array(raw_embedding.buffer, raw_embedding.byteOffset, raw_embedding.length));
-  }
-  return null;
-}
-
-/**
- * Quantizes a 384-dimensional Float32Array embedding into an 8-bit unsigned integer array (Uint8Array)
- * serialized as a base64 string or Uint8Array.
- * Maps normalized range [-1.0, 1.0] to [0, 255].
- *
- * @param {Float32Array | ArrayLike<number> | null | undefined} raw_embedding
- * @param {boolean} [as_base64=true]
- * @returns {string | Uint8Array | null}
- */
-export function quantize_vector_q8(raw_embedding, as_base64 = true) {
-  if (!raw_embedding || raw_embedding.length !== EMBEDDING_DIM) return null;
-  const uint8_array = new Uint8Array(EMBEDDING_DIM);
-  for (let i = 0; i < EMBEDDING_DIM; i++) {
-    const val = Number(raw_embedding[i]);
-    // Clamp to [-1.0, 1.0] and map to [0, 255]
-    const clamped = Math.max(-1.0, Math.min(1.0, val));
-    uint8_array[i] = Math.round(((clamped + 1.0) / 2.0) * 255);
-  }
-
-  if (!as_base64) return uint8_array;
-
-  // Convert Uint8Array to base64 string safely across Node/browser
-  let binary_string = "";
-  for (let i = 0; i < EMBEDDING_DIM; i++) {
-    binary_string += String.fromCharCode(uint8_array[i]);
-  }
-  return typeof btoa === "function" ? btoa(binary_string) : Buffer.from(uint8_array).toString("base64");
-}
-
-/**
- * Dequantizes an 8-bit quantized embedding (Uint8Array or base64 string) back into a normalized Float32Array.
- *
- * @param {string | Uint8Array | ArrayLike<number> | null | undefined} quantized_data
- * @returns {Float32Array | null}
- */
-export function dequantize_vector_q8(quantized_data) {
-  if (!quantized_data) return null;
-
-  let uint8_array = null;
-  if (quantized_data instanceof Uint8Array && quantized_data.length === EMBEDDING_DIM) {
-    uint8_array = quantized_data;
-  } else if (typeof quantized_data === "string") {
-    try {
-      const binary_string = typeof atob === "function" ? atob(quantized_data) : Buffer.from(quantized_data, "base64").toString("binary");
-      if (binary_string.length !== EMBEDDING_DIM) return null;
-      uint8_array = new Uint8Array(EMBEDDING_DIM);
-      for (let i = 0; i < EMBEDDING_DIM; i++) {
-        uint8_array[i] = binary_string.charCodeAt(i);
-      }
-    } catch {
-      return null;
-    }
-  } else if (Array.isArray(quantized_data) && quantized_data.length === EMBEDDING_DIM) {
-    uint8_array = new Uint8Array(quantized_data);
-  }
-
-  if (!uint8_array) return null;
-
-  const float32_array = new Float32Array(EMBEDDING_DIM);
-  let norm_squared = 0;
-  for (let i = 0; i < EMBEDDING_DIM; i++) {
-    const val = (uint8_array[i] / 255.0) * 2.0 - 1.0;
-    float32_array[i] = val;
-    norm_squared += val * val;
-  }
-
-  // Renormalize to unit length to preserve cosine similarity precision
-  if (norm_squared > 0) {
-    const norm = Math.sqrt(norm_squared);
-    for (let i = 0; i < EMBEDDING_DIM; i++) {
-      float32_array[i] /= norm;
-    }
-  }
-
-  return float32_array;
-}
-
-/**
- * Deserializes a stored embedding back into a Float32Array of EMBEDDING_DIM.
- * Accepts Float32Array, number[] (the JSON-safe persisted form), or quantized base64/Uint8Array.
- * Returns null for missing/corrupt values so callers re-infer.
- * @param {unknown} stored_embedding
- * @returns {Float32Array | null}
- */
-export function deserialize_embedding(stored_embedding) {
-  if (stored_embedding instanceof Float32Array) {
-    return stored_embedding.length === EMBEDDING_DIM ? stored_embedding : null;
-  }
-  if (typeof stored_embedding === "string" || stored_embedding instanceof Uint8Array) {
-    return dequantize_vector_q8(stored_embedding);
-  }
-  if (Array.isArray(stored_embedding)) {
-    if (stored_embedding.length !== EMBEDDING_DIM) return null;
-    for (const element of stored_embedding) {
-      if (typeof element !== "number" || !Number.isFinite(element)) return null;
-    }
-    return Float32Array.from(stored_embedding);
-  }
-  return null;
-}
 
 // ============================================================================
 // Model Lifecycle & Mutex Pipeline
@@ -198,13 +75,7 @@ export async function load_model() {
   _is_loading = true;
   _loading = (async () => {
     try {
-      // Pin STABLE onnxruntime-web: the 1.22.0-dev build esm.sh resolves by default for
-      // transformers 3.5.x fails WASM init inside the Perchance iframe ("WebAssembly is
-      // not initialized yet" on every backend), silently degrading RAG to lexical-only.
-      // 1.22.0 stable inits fine; 1.21.0 lacks the _OrtGetInputName binding kokoro needs.
       const transformers = await import("https://esm.sh/@huggingface/transformers@3.5.2?deps=onnxruntime-web@1.22.0");
-      // Disable worker proxy & enforce single-threaded WASM execution inside iframe sandboxes.
-      // Cross-origin iframe worker blobs cause "WebAssembly is not initialized yet" runtime crashes on reload.
       try {
         if (transformers.env?.backends?.onnx?.wasm) {
           transformers.env.backends.onnx.wasm.proxy = false;
@@ -243,9 +114,6 @@ export async function load_model() {
     }
   })();
 
-  // Clear _loading only after the promise chain fully resolves/rejects so
-  // concurrent callers share the same in-flight load and a new call right
-  // after finally doesn't start a duplicate.
   _loading = _loading.finally(() => {
     _loading = null;
   });
@@ -304,7 +172,6 @@ export async function embed(text) {
   const hit = _embedding_cache.get(cache_key);
   if (hit) {
     _cache_hits++;
-    // Refresh LRU recency: re-insert so the Map treats this key as most-recently-used.
     _embedding_cache.delete(cache_key);
     _embedding_cache.set(cache_key, hit);
     return hit;
@@ -313,8 +180,6 @@ export async function embed(text) {
   _cache_misses++;
   try {
     const pipeline = await get_pipeline();
-    // Yield one frame before inference so the UI can repaint even when the
-    // embed runs synchronously on the main thread (worker-unavailable fallback).
     await new Promise((resolve) => setTimeout(resolve, 0));
     const output = await onnx_mutex.run(() => pipeline(text, { pooling: "mean", normalize: true }));
     const embedding = to_embedding(output);
@@ -489,13 +354,3 @@ export const embeddings_engine = {
     _is_loading = false;
   },
 };
-
-/**
- * CHANGELOG:
- * - 2026-10-16: Preserved `_debug_pipeline_fn` when resetting pipeline during inference retry to prevent ESM import collisions under Node/Vitest test suites.
- * - 2026-09-30: Added `quantize_vector_q8` and `dequantize_vector_q8` 8-bit quantization codecs with base64 and Uint8Array serialization for Phase B past-vector compaction.
- * - 2026-08-29: Applied /harmonize protocol: purged shorthand variable abbreviations (`emb` → `raw_embedding`, `v` → `vector`), aligned JSDoc annotations, and validated Svelte 5 runes reactivity.
- * - 2026-08-29: Added Universal File Architecture header block, structured section dividers, normalized `cache_stats()` snake_case nomenclature, enforced P4 zero backwards compatibility.
- * - 2026-08-27: Realigned layer boundaries: moved `embeddings.svelte.js` + vector codecs into `src/platform/` and unified `EMBEDDING_DIM = 384` validation.
- * - 2026-08-22: Added bounded true-LRU caching (`EMBEDDING_CACHE_MAX = 1500`), thread proxy disablement, and single-threaded WASM execution for Perchance iframe stability.
- */

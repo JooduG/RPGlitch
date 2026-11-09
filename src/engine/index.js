@@ -12,6 +12,8 @@
 // Authoritative simulation state class & DevMode log
 export { Kernel } from "./kernel.svelte.js";
 export { DevLog, dev_log } from "./dev.svelte.js";
+export { LLM_PRIORITY, run_llm_job, get_llm_gate_status } from "./gate.js";
+export { llm_service } from "./legacy-transport.js";
 
 // Pure headless turn orchestration
 export {
