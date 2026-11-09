@@ -23,7 +23,7 @@ import { session_driver } from "@storage";
 import { build_turn_summary } from "@engine";
 import { delete_log_entry } from "@storage";
 import { state_bridge } from "@utils";
-import { execute_greenfield_turn, execute_greenfield_continue, execute_greenfield_prologue } from "../engine/bridge.js";
+import { execute_greenfield_turn, execute_greenfield_continue, execute_greenfield_prologue } from "./bridge.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

@@ -26,8 +26,8 @@
 
 import { Audio } from "@media";
 import { WATCHDOG_POLICY } from "@config";
-import { get_llm_gate_status } from "@engine";
-import { developer_log } from "./log.svelte.js";
+import { get_llm_gate_status } from "./gate.js";
+import { developer_log } from "@storage";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

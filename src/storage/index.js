@@ -117,3 +117,6 @@ export {
 
 // 6. Session Driver & Lifecycle Manager
 export { session_driver } from "./sessions.svelte.js";
+
+// 7. Dialogue & Developer Telemetry Log Stores
+export { simulation_log, developer_log, DEVELOPER_TELEMETRY_STORAGE_KEY, SimulationLogStore, DeveloperLogStore } from "./log.svelte.js";

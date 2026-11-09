@@ -16,7 +16,8 @@
   import VisualWing from "./VisualWing.svelte";
   import { ProfileState } from "./Profile.svelte.js";
   import RelationalGraph from "./RelationalGraph.svelte";
-  import { app, runtime, simulation_state } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { runtime, simulation_state } from "@engine";
   import { resolve_display_macro_segments } from "@utils";
   import MacroText from "./MacroText.svelte";
   import { fade } from "svelte/transition";

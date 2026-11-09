@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DEVELOPER_TELEMETRY_STORAGE_KEY, DeveloperLogStore, developer_log, SimulationLogStore, simulation_log } from "./log.svelte.js";
 import { TELEMETRY_CAPS } from "@config";
-import { runtime } from "./runtime.svelte.js";
+import { runtime } from "@engine";
 import { session_driver, delete_log_entry, delete_log_attachment, edit_log_entry } from "@storage";
 import { generate_uuid } from "@utils";
 

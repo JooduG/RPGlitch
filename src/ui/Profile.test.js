@@ -12,18 +12,16 @@ vi.mock("@engine", async (importOriginal) => {
         resolveEnhanceFn = resolve;
       });
     }),
-    llm_service: {
-      enhance: vi.fn(() => {
-        return new Promise((resolve) => {
-          resolveEnhanceFn = resolve;
-        });
-      }),
+    runtime: {
+      character: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" },
+      save_entity: vi.fn(),
+      update_entity: vi.fn(),
     },
   };
 });
 
 // Mock imports
-vi.mock("@state/interface.svelte.js", () => ({
+vi.mock("./interface.svelte.js", () => ({
   app: {
     editing_entity: null,
     load_entities: vi.fn(),
@@ -31,14 +29,6 @@ vi.mock("@state/interface.svelte.js", () => ({
     fractal_list: [],
     settings: { dev_mode: false },
     claimed_entity_ids: { has: vi.fn(() => false) },
-  },
-}));
-
-vi.mock("@state/runtime.svelte.js", () => ({
-  runtime: {
-    character: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" },
-    save_entity: vi.fn(),
-    update_entity: vi.fn(),
   },
 }));
 
@@ -71,7 +61,7 @@ describe("ProfileState setImage", () => {
 
     // Assert persistence
     const { db } = await import("@storage");
-    const { runtime } = await import("@state/runtime.svelte.js");
+    const { runtime } = await import("@engine");
 
     expect(db.entities.update).toHaveBeenCalledWith("test-char", {
       profile_picture: "data:image/png;base64,trimmed123",
@@ -131,7 +121,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("blocks start_editing while the entity is claimed by an active story", async () => {
-    const { app } = await import("@state/interface.svelte.js");
+    const { app } = await import("./interface.svelte.js");
     app.settings.dev_mode = false;
     app.claimed_entity_ids.has = vi.fn(() => true);
 
@@ -144,7 +134,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("allows editing when the entity is unclaimed", async () => {
-    const { app } = await import("@state/interface.svelte.js");
+    const { app } = await import("./interface.svelte.js");
     app.settings.dev_mode = false;
     app.claimed_entity_ids.has = vi.fn(() => false);
 
@@ -156,7 +146,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("bypasses the lock when DevMode is enabled", async () => {
-    const { app } = await import("@state/interface.svelte.js");
+    const { app } = await import("./interface.svelte.js");
     app.settings.dev_mode = true;
     app.claimed_entity_ids.has = vi.fn(() => true);
 

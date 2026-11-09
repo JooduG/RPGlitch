@@ -49,12 +49,6 @@
       "@media/*": [
         "src/media/*"
       ],
-      "@state": [
-        "src/state/index.js"
-      ],
-      "@state/*": [
-        "src/state/*"
-      ],
       "@ui": [
         "src/ui/index.js"
       ],

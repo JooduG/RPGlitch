@@ -16,11 +16,12 @@ install_environment_hardening();
 ensure_theme_tokens();
 
 // 🚀 BOOTSTRAP
-// Composition root: publish the state layer's accessors and stream handlers into
-// the @utils bridges (state_bridge / stream_bridge) so non-@state modules
-// (@intelligence, @data, ...) can read state without importing @state directly —
-// that preserves the downward import rule. Must run before app_bootstrap.init().
-import { app, runtime, simulation_state, simulation_log } from "@state";
+// Composition root: publish accessors and stream handlers into
+// the @utils bridges (state_bridge / stream_bridge) so non-UI modules
+// can interact without upward imports. Must run before app_bootstrap.init().
+import { app } from "@ui";
+import { runtime, simulation_state } from "@engine";
+import { simulation_log } from "@storage";
 import { Audio, sweep_stale_ghosts, ensure_theme_tokens } from "@media";
 import { save_session_checkpoint, normalize_entity, seed_premades, session_driver, set_versionchange_quiesce } from "@storage";
 import { install_environment_hardening, sanitize_to_fragment, embeddings_engine } from "@utils";

@@ -11,7 +11,8 @@
   import { guarded_transition } from "@utils";
   import { get_signature_color } from "@media";
   import { motion } from "@media";
-  import { app, runtime } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { runtime } from "@engine";
   import MacroText from "./MacroText.svelte";
   import { flushSync } from "svelte";
   import ContextMenu from "./ContextMenu.svelte";

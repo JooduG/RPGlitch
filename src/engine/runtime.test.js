@@ -1,6 +1,7 @@
 import "fake-indexeddb/auto";
 import { runtime } from "./runtime.svelte.js";
-import { app } from "./interface.svelte.js";
+import { app } from "../ui/interface.svelte.js";
+import { register_state_accessors } from "@utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // hoisted so it's initialized before the mocked @platform module is
@@ -34,6 +35,10 @@ function base_entity(id, name, type, extra = {}) {
 }
 
 describe("State Synchronization", () => {
+  beforeEach(() => {
+    register_state_accessors({ app });
+  });
+
   it("should synchronize app-level selected entities on debug inject", () => {
     const mock_user = {
       id: "user-1",
@@ -84,10 +89,10 @@ describe("runtime.sync checkpoint restore", () => {
     mock_checkpoint.clear_session_checkpoint.mockReset();
     const Dexie = (await import("dexie")).default;
     await Dexie.delete("rpglitch");
-    vi.spyOn(console, "warn").mockImplementation(() => {});
-    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { register_state_accessors: register } = await import("@utils");
     ({ runtime } = await import("./runtime.svelte.js"));
-    ({ app } = await import("./interface.svelte.js"));
+    ({ app } = await import("../ui/interface.svelte.js"));
+    register({ app, runtime });
   }, 30000);
 
   afterEach(async () => {

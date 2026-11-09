@@ -323,7 +323,8 @@
 
 <script>
   import { Modal, Button, TextField, NumberField, Dropdown, Shimmer, Backdrop, tooltip } from "@primitives";
-  import { app, runtime } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { runtime } from "@engine";
   import { get_resolution } from "@media";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";

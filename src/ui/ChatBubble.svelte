@@ -197,7 +197,9 @@
   import { ProfilePicture, image_picker, open_picker, EntityCard } from "@ui";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
-  import { app, runtime, simulation_log, simulation_state } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { runtime, simulation_state } from "@engine";
+  import { simulation_log } from "@storage";
   import { get_resolution } from "@media";
   import Typewriter from "./Typewriter.svelte";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";

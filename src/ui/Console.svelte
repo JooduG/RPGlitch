@@ -9,7 +9,9 @@
   import { AlertDialog } from "bits-ui";
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { Audio, get_signature_color, overlay_in, overlay_out, pulse, roll, shimmy, stab } from "@media";
-  import { chrono_engine, app, runtime, simulation_log, simulation_state, force_recover_simulation } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { chrono_engine, runtime, simulation_state, force_recover_simulation } from "@engine";
+  import { simulation_log } from "@storage";
   import { execute_ghostwriter, execute_greenfield_epilogue } from "@engine";
   import { db, session_driver, stories } from "@storage";
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";

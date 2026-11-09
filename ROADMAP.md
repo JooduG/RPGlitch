@@ -129,8 +129,15 @@ flowchart TD
       - Implemented `execute_greenfield_epilogue` in `src/engine/bridge.js` and decoupled `Console.svelte` and `chrono.svelte.js` from `gamemaster`.
       - Extracted deterministic engine test fixtures into `src/engine/fixtures.test-util.js`.
       - Removed `@intelligence` alias across `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `.agents/skills/local-scripts/scripts/audit-layers.js`.
-    - **Pulse 4: Eradicate `src/state/`**:
-      - Replace reactive state facades with greenfield engine stores in `@engine` / `@ui` and delete `src/state/`.
+    - **Pulse 4: Eradicate `src/state/` (COMPLETED)**:
+      - Purged `src/state/` entirely (all 11 modules and test suites eradicated, retiring the folder completely) under P4 Zero Backwards Compatibility.
+      - Relocated application UI view state, modal coordinators, and navigation to `src/ui/interface.svelte.js` (`src/ui/interface.test.js`) and re-exported via `@ui` (`app`, `register_image_preview_handlers`).
+      - Relocated simulation runtime, entity kernel, and chronology store to `src/engine/runtime.svelte.js` (`src/engine/runtime.test.js`) and re-exported via `@engine` (`runtime`, `RuntimeEngine`).
+      - Relocated simulation status, intent lock, and streaming coordinator to `src/engine/status.svelte.js` (`src/engine/status.test.js`) and re-exported via `@engine` (`simulation_state`, `ui_state`, `streaming`, `force_recover_simulation`, `install_freeze_watchdog`).
+      - Relocated turn flow heartbeat to `src/engine/chrono.svelte.js` (`src/engine/chrono.test.js`) and re-exported via `@engine` (`chrono_engine`, `ChronoEngine`).
+      - Relocated in-memory dialogue feed and developer telemetry HUD stores to `src/storage/log.svelte.js` (`src/storage/log.test.js`) and re-exported via `@storage` (`simulation_log`, `developer_log`).
+      - Repointed all UI and root consumers across `src/App.svelte`, `src/main.js`, `src/main.test.js`, `src/ui/ChatBubble.svelte`, `src/ui/Console.svelte`, `src/ui/Console.test.js`, `src/ui/DevWing.svelte`, `src/ui/EntityCard.svelte`, `src/ui/ImagePreview.svelte`, `src/ui/Profile.svelte`, `src/ui/Profile.svelte.js`, `src/ui/Profile.test.js`, `src/ui/Storyboard.svelte`, `src/ui/Storymode.svelte`, and `src/ui/VisualWing.svelte`.
+      - Removed `@state` path alias from `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `.agents/skills/local-scripts/scripts/audit-layers.js`.
     - Collapse nested UI directories into flat Svelte 5 domain components without empty wrapper abstractions.
     - Consolidate `src/ui/Typewriter.svelte.js` action into `<script module>` in `src/ui/Typewriter.svelte` and prune wrapper file.
     - Consolidate `src/ui/profile/ProfileHeader.svelte`, `src/ui/profile/FieldHistoryModal.svelte`, and `src/ui/profile/TimelineModal.svelte` directly into `src/ui/Profile.svelte` and flatten profile components (`Profile.svelte`, `Profile.svelte.js`, `Profile.test.js`, `RelationalGraph.svelte`, `RelationalGraph.test.js`, `VisualWing.svelte`, `VisualWing.test.js`, `AudioWing.svelte`, `DevWing.svelte`, `MacroText.svelte`) to top-level `src/ui/`, retiring `src/ui/profile/` and `@profile` path aliases.

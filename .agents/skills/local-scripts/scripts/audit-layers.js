@@ -19,7 +19,6 @@ import path from "path";
 
 const LAYER_HIERARCHY = {
   "src/ui": 4,
-  "src/state": 3,
   "src/engine": 2,
   "src/storage": 2,
   "src/media": 1, // Sensory presentation & audio/visual engine (platform sibling)
@@ -29,7 +28,6 @@ const LAYER_HIERARCHY = {
 const ALIAS_LAYER_MAP = {
   "@ui": "src/ui",
   "@primitives": "src/ui",
-  "@state": "src/state",
   "@storage": "src/storage",
   "@media": "src/media",
   "@utils": "src/utils",

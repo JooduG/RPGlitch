@@ -59,3 +59,12 @@ export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, sc
 
 // Streaming transport boundary
 export { create_transport } from "./transport.js";
+
+// Simulation Runtime & Entity Chronology
+export { runtime, RuntimeEngineStore, RuntimeEngineStore as RuntimeEngine } from "./runtime.svelte.js";
+
+// Simulation Phase, UI Locks, Streaming & Stasis Recovery
+export { simulation_state, ui_state, streaming, force_recover_simulation, install_freeze_watchdog } from "./status.svelte.js";
+
+// Chrono Engine (Turn Orchestration & Physics Loop)
+export { chrono_engine, ChronoEngine } from "./chrono.svelte.js";

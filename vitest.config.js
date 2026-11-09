@@ -11,7 +11,6 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "./src"),
       "@storage": path.resolve(import.meta.dirname, "./src/storage"),
       "@engine": path.resolve(import.meta.dirname, "./src/engine"),
-      "@state": path.resolve(import.meta.dirname, "./src/state"),
       "@media": path.resolve(import.meta.dirname, "./src/media"),
       "@ui": path.resolve(import.meta.dirname, "./src/ui"),
       "@primitives": path.resolve(import.meta.dirname, "./src/ui/primitives"),

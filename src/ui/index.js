@@ -48,3 +48,4 @@ export {
   default as ImagePreview,
 } from "./ImagePreview.svelte";
 export { default as ProfilePicture } from "./ProfilePicture.svelte";
+export { app, register_image_preview_handlers } from "./interface.svelte.js";

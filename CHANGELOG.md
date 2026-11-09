@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Pulse 4 Demolition: Eradicate `src/state/` & Settle Clean Layer Boundaries**:
+  - Completely obliterated legacy directory `src/state/` (all 11 modules and test suites eradicated, retiring the directory completely) under P4 Zero Backwards Compatibility.
+  - Relocated application UI view state, modal coordinators, and navigation to `src/ui/interface.svelte.js` (`src/ui/interface.test.js`) and re-exported via `@ui` (`app`, `register_image_preview_handlers`).
+  - Relocated simulation runtime, entity kernel, and chronology store to `src/engine/runtime.svelte.js` (`src/engine/runtime.test.js`) and re-exported via `@engine` (`runtime`, `RuntimeEngine`).
+  - Relocated simulation status, intent lock, and streaming coordinator to `src/engine/status.svelte.js` (`src/engine/status.test.js`) and re-exported via `@engine` (`simulation_state`, `ui_state`, `streaming`, `force_recover_simulation`, `install_freeze_watchdog`).
+  - Relocated turn flow heartbeat to `src/engine/chrono.svelte.js` (`src/engine/chrono.test.js`) and re-exported via `@engine` (`chrono_engine`, `ChronoEngine`).
+  - Relocated in-memory dialogue feed and developer telemetry HUD stores to `src/storage/log.svelte.js` (`src/storage/log.test.js`) and re-exported via `@storage` (`simulation_log`, `developer_log`).
+  - Repointed all UI and root consumers across `src/App.svelte`, `src/main.js`, `src/main.test.js`, `src/ui/ChatBubble.svelte`, `src/ui/Console.svelte`, `src/ui/Console.test.js`, `src/ui/DevWing.svelte`, `src/ui/EntityCard.svelte`, `src/ui/ImagePreview.svelte`, `src/ui/Profile.svelte`, `src/ui/Profile.svelte.js`, `src/ui/Profile.test.js`, `src/ui/Storyboard.svelte`, `src/ui/Storymode.svelte`, and `src/ui/VisualWing.svelte`.
+  - Removed `@state` path alias from `vite.config.js`, `vitest.config.js`, `jsconfig.json`, and `.agents/skills/local-scripts/scripts/audit-layers.js`.
+  - Verified with `npm run audit:layers` (0 violations) and `npm run deploy:prepare`.
+
 - **Pulse 3 Demolition: Eradicate `src/intelligence/` & Decouple Inference into `@engine` & `@definitions`**:
   - Completely obliterated legacy directory `src/intelligence/` (all 41 modules and test suites eradicated, removing ~20,000 lines of legacy code) under P4 Zero Backwards Compatibility.
   - Separated the dynamics declarative prompt library and somatic protocols registry into `src/definitions/dynamics.js` (`PHYSICS_PROTOCOLS`, `AVAILABLE_KEYWORDS`, `DYNAMICS_RULES`, `DYNAMICS_METRIC_NAMES`, `DYNAMICS_AXES`).

@@ -31,7 +31,14 @@ import { load_session_checkpoint, clear_session_checkpoint } from "@storage";
 import { decompose_story_title } from "@utils";
 import { get_signature_color } from "@media";
 import { TELEMETRY_CAPS, DEFAULT_AI_DYNAMICS, DEFAULT_FRACTAL_DYNAMICS } from "@config";
-import { app } from "./interface.svelte.js";
+import { state_bridge } from "@utils";
+
+/**
+ * Resolves the app interface state via state_bridge without upward import from @ui.
+ */
+function get_app() {
+  return state_bridge.app;
+}
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -93,13 +100,16 @@ import { app } from "./interface.svelte.js";
  */
 function apply_story_title(story, ai = null, user = null, fractal = null) {
   if (!story?.title) return;
-  app.story_title = story.title;
-  app.story_title_parts = decompose_story_title(story.title, {
-    ai,
-    user,
-    fractal,
-    get_color: get_signature_color,
-  });
+  const target_app = get_app();
+  if (target_app) {
+    target_app.story_title = story.title;
+    target_app.story_title_parts = decompose_story_title(story.title, {
+      ai,
+      user,
+      fractal,
+      get_color: get_signature_color,
+    });
+  }
 }
 
 /**
@@ -502,9 +512,12 @@ export class RuntimeEngineStore {
       }
 
       // Sync selections to app store
-      app.selected_ai = this.active_ai;
-      app.selected_user = this.active_user;
-      app.selected_fractal = this.active_fractal;
+      const target_app = get_app();
+      if (target_app) {
+        target_app.selected_ai = this.active_ai;
+        target_app.selected_user = this.active_user;
+        target_app.selected_fractal = this.active_fractal;
+      }
 
       // Story title decomposition
       apply_story_title(story, this.active_ai, this.active_user, this.active_fractal);
@@ -538,8 +551,11 @@ export class RuntimeEngineStore {
    * Resets story title and parts on app store to prevent title bleed across stories.
    */
   reset_story_title() {
-    app.story_title = "";
-    app.story_title_parts = [];
+    const target_app = get_app();
+    if (target_app) {
+      target_app.story_title = "";
+      target_app.story_title_parts = [];
+    }
   }
 
   /**
@@ -559,7 +575,8 @@ export class RuntimeEngineStore {
         last_director_beat_round: this.last_director_beat_round,
         last_dynamics_beat_round: this.last_dynamics_beat_round,
       });
-      app.stories_version++;
+      const target_app = get_app();
+      if (target_app) target_app.stories_version++;
     } catch (err) {
       console.error("[Data] Story Save Failed:", err);
     }
@@ -602,7 +619,8 @@ export class RuntimeEngineStore {
     try {
       if (type === "story") {
         await db.stories.update(coerce_story_key(id), data);
-        app.stories_version++;
+        const target_app = get_app();
+        if (target_app) target_app.stories_version++;
         if (this.#story_id === id) {
           Object.assign(this.#story.by_id[id] || {}, data);
         }
@@ -673,17 +691,18 @@ export class RuntimeEngineStore {
    * @param {SimulationEntity} [mock_data.fractal]
    */
   _debug_inject(mock_data) {
+    const target_app = get_app();
     if (mock_data.user) {
       this.active_user = mock_data.user;
-      app.selected_user = mock_data.user;
+      if (target_app) target_app.selected_user = mock_data.user;
     }
     if (mock_data.ai) {
       this.active_ai = mock_data.ai;
-      app.selected_ai = mock_data.ai;
+      if (target_app) target_app.selected_ai = mock_data.ai;
     }
     if (mock_data.fractal) {
       this.active_fractal = mock_data.fractal;
-      app.selected_fractal = mock_data.fractal;
+      if (target_app) target_app.selected_fractal = mock_data.fractal;
     }
     if (mock_data.structural_errors !== undefined) {
       this.structural_errors = mock_data.structural_errors;

@@ -5,7 +5,8 @@
 import { db, normalize_entity as normalize } from "@storage";
 import { PROFILE_FIELD_CATALOG } from "../definitions/profile-fields.js";
 import { structure_profile } from "@engine";
-import { app, runtime } from "@state";
+import { app } from "./interface.svelte.js";
+import { runtime } from "@engine";
 import { get_value, set_value, safe_parse_pseudo_json } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 

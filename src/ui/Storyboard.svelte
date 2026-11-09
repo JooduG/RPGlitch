@@ -12,7 +12,9 @@
   import { VISUAL_STYLES } from "../media/styles.js";
   import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
   const stories = { active_entity_ids };
-  import { chrono_engine, app, simulation_log } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { chrono_engine } from "@engine";
+  import { simulation_log } from "@storage";
   import { get_signature_color, motion, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@media";
   import { parse_message } from "./Storymode.svelte";
 
@@ -293,7 +295,7 @@
   import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@storage";
   const repository = { upsert: upsert_entity };
   import { Audio, rect_of } from "@media";
-  import { runtime, simulation_state } from "@state";
+  import { runtime, simulation_state } from "@engine";
   import { birth_entity_core } from "@storage";
   import { EntityCard } from "@ui";
   import { Modal, SourceField, Toggle } from "@primitives";

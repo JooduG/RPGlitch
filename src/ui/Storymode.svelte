@@ -13,7 +13,8 @@
   import { sanitize } from "@utils";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
   import { run_image_regeneration, ProfilePicture } from "@ui";
-  import { app, runtime, simulation_state } from "@state";
+  import { app } from "./interface.svelte.js";
+  import { runtime, simulation_state } from "@engine";
 
   // --- STORYMODE SHARED STATE ---
   class StorymodeState {
@@ -331,7 +332,8 @@
   import { onDestroy, tick } from "svelte";
   import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
   import { motion, item_in, update_card_scrub, clear_card_location } from "@media";
-  import { simulation_log, chrono_engine } from "@state";
+  import { chrono_engine } from "@engine";
+  import { simulation_log } from "@storage";
   import ChatBubble from "./ChatBubble.svelte";
   import UndoToast from "./UndoToast.svelte";
 

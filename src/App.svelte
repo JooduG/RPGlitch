@@ -12,7 +12,8 @@
   import { motion, Audio } from "@media";
   import { Storyboard, Storymode, Console } from "@ui";
   import { Profile } from "@ui";
-  import { app, runtime, register_image_preview_handlers } from "@state";
+  import { app, register_image_preview_handlers } from "@ui";
+  import { runtime } from "@engine";
 
   // --- DERIVED RUNES ---
 

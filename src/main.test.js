@@ -12,12 +12,30 @@ const { _mock_app, _mock_runtime } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@state", () => ({
-  app: _mock_app,
-  runtime: _mock_runtime,
-  simulation_state: {},
-  simulation_log: {},
-}));
+vi.mock("@ui", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    app: _mock_app,
+  };
+});
+
+vi.mock("@engine", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    runtime: _mock_runtime,
+    simulation_state: {},
+  };
+});
+
+vi.mock("@storage", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    simulation_log: {},
+  };
+});
 
 const { _mock_audio } = vi.hoisted(() => ({
   _mock_audio: {
