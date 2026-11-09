@@ -38,6 +38,7 @@ flowchart TD
         R1["State-of-the-Application Review & Strategic Realignment"]
         R2["Definitions Relocation & Data Cross-Reference Audit (`src/definitions/`, `narrative-styles.js`, `narrative-styles.test.js`, `premade-entities.js`, `premade-entities.test.js`, `profile-fields.js`, `profile-fields.test.js`, `speaking-styles.js`, `speaking-styles.test.js`, `visual-styles.js`, `visual-styles.test.js`, `detox.test.js`, `styles.test.js`)"]
         R3["Repository Housekeeping & Lexical Hygiene (`src/ui/Storyboard.svelte.test.js -> src/ui/Storyboard.test.js`, `src/ui/Storyboard.test.js`, `src/engine/bridge.js`, `src/engine/bridge.test.js`, `src/intelligence/story.js`, `src/media/visual.js`, `src/platform/security.js`)"]
+        R4["Greenfield Canonization & A/B Engine Resolution (`src/data/sessions.svelte.js`, `src/engine/bridge.js`, `src/engine/bridge.test.js`, `src/engine/kernel.svelte.js`, `src/engine/prompts.js`, `src/engine/prompts.test.js`, `src/engine/turns.js`, `src/engine/turns.test.js`, `src/state/chrono.svelte.js`, `src/state/chrono.test.js`, `src/state/interface.svelte.js`, `src/ui/Console.svelte`)"]
     end
 
     ShippedCore ==> ActiveBacklog

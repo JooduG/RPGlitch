@@ -286,7 +286,11 @@ export const session_driver = {
    */
   async send(text) {
     const character_name = state_bridge.runtime?.active_user?.name || "User";
-    return await this.log_message(text, "user", character_name, { turn_type: "USER_TURN" });
+    const is_greenfield = Boolean(state_bridge.app?.settings?.use_greenfield_engine);
+    return await this.log_message(text, "user", character_name, {
+      turn_type: "USER_TURN",
+      meta: { greenfield: is_greenfield },
+    });
   },
 
   /**

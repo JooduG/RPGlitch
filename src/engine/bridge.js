@@ -14,14 +14,20 @@
  * ============================================================================
  */
 
-import { Kernel } from "./kernel.svelte.js";
-import { execute_turn_2_character, execute_turn_3_caretaker, execute_turn_visualizer, execute_turn_structuring } from "./turns.js";
+import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
+import { LLM_PRIORITY, merge_abort_signals, run_llm_job } from "../platform/llm-gate.js";
+import { append_ledger_entries, log_message } from "../storage/db.js";
 import { normalize_entity } from "../storage/entities.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
-import { append_ledger_entries, log_message } from "../storage/db.js";
 import { state_bridge } from "../utils/index.js";
-import { LLM_PRIORITY, merge_abort_signals, run_llm_job } from "../platform/llm-gate.js";
-import { resolve_image_trigger, get_image_generation_queue, spawn_image_beat } from "../media/index.js";
+import { Kernel } from "./kernel.svelte.js";
+import {
+  execute_turn_2_character,
+  execute_turn_3_caretaker,
+  execute_turn_structuring,
+  execute_turn_visualizer,
+  resolve_caretaker_target,
+} from "./turns.js";
 
 /**
  * Shared preemptive transport singleton for the active session.
@@ -208,17 +214,27 @@ export async function write_back_kernel_state(kernel, outcome, live_transport, o
   const runtime = state_bridge.runtime;
   if (!runtime) return;
 
-  // 1. Write back AI dynamics
-  if (kernel.ai?.dynamics && runtime.active_ai) {
-    runtime.active_ai.dynamics = { ...kernel.ai.dynamics };
+  // 1. Write back AI dynamics (invokes runtime.ai setter -> updates #ai_physics and active_ai.dynamics)
+  if (kernel.ai?.dynamics) {
+    if ("ai" in runtime) {
+      runtime.ai = { ...kernel.ai.dynamics };
+    }
+    if (runtime.active_ai) {
+      runtime.active_ai.dynamics = { ...kernel.ai.dynamics };
+    }
     if (runtime.ai_physics) {
       Object.assign(runtime.ai_physics, kernel.ai.dynamics);
     }
   }
 
-  // 2. Write back Fractal dynamics
-  if (kernel.fractal?.dynamics && runtime.active_fractal) {
-    runtime.active_fractal.dynamics = { ...kernel.fractal.dynamics };
+  // 2. Write back Fractal dynamics (invokes runtime.fractal setter -> updates #fractal_physics and active_fractal.dynamics)
+  if (kernel.fractal?.dynamics) {
+    if ("fractal" in runtime) {
+      runtime.fractal = { ...kernel.fractal.dynamics };
+    }
+    if (runtime.active_fractal) {
+      runtime.active_fractal.dynamics = { ...kernel.fractal.dynamics };
+    }
     if (runtime.fractal_physics) {
       Object.assign(runtime.fractal_physics, kernel.fractal.dynamics);
     }
@@ -272,6 +288,16 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
   if (!runtime) return;
 
   try {
+    const target_entity_key = resolve_caretaker_target(
+      runtime.back_shot_cursor ?? 0,
+      {
+        AI: kernel.ai,
+        USER: kernel.user,
+        FRACTAL: kernel.fractal,
+      },
+      true,
+    );
+
     const caretaker_outcome = await execute_turn_3_caretaker({
       transport,
       round: kernel.round,
@@ -281,10 +307,19 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
         FRACTAL: kernel.fractal,
       },
       history: kernel.history,
+      target_entity_key,
       signal,
     });
 
     if (!caretaker_outcome?.target) return;
+
+    if (!caretaker_outcome.parse_succeeded) {
+      state_bridge.app?.log?.(
+        `[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} — keeping cursor on target.`,
+        "warn",
+      );
+      return;
+    }
 
     const target_key = caretaker_outcome.target.toUpperCase();
     const target_entity = target_key === "USER" ? runtime.active_user : target_key === "FRACTAL" ? runtime.active_fractal : runtime.active_ai;
@@ -388,8 +423,14 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
           console.warn("[Bridge] Failed to emit caretaker telemetry card:", card_err);
         }
       }
+      // Advance completion-driven cursor only after state write-back succeeds
+      runtime.back_shot_cursor = (Number(runtime.back_shot_cursor) || 0) + 1;
+    } else {
+      // If no changes were needed, still advance cursor as target was successfully processed
+      runtime.back_shot_cursor = (Number(runtime.back_shot_cursor) || 0) + 1;
     }
   } catch (caretaker_err) {
+    state_bridge.app?.log?.(`[Caretaker] Caretaker execution warning: ${caretaker_err?.message || caretaker_err}`, "warn");
     console.warn("[Bridge] Caretaker write-back non-fatal warning:", caretaker_err);
   }
 }
@@ -416,7 +457,6 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
 
   // Resolves Gap 3: Read director_enabled dynamically from app settings rather than hardcoding true
   const director_enabled = Boolean(app?.settings?.director_enabled);
-  const directors_note_placement = app?.settings?.directors_note_in_task === false ? "think" : "task";
 
   _active_kernel = new Kernel({
     user: user_quadrant,
@@ -425,7 +465,6 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     round: Number(runtime.round || 0),
     transport: live_transport,
     director_enabled,
-    directors_note_placement,
   });
 
   // 3. Reconstruct history from existing simulation log
@@ -909,5 +948,133 @@ export async function structure_profile(raw, type = "character", signal = null) 
   } catch (err) {
     console.warn("[structure_profile] Structuring failed:", err);
     return null;
+  }
+}
+
+/**
+ * Executes a pure Greenfield Prologue and opening AI narrative beat for Turn 0.
+ *
+ * @param {string} story_id
+ * @returns {Promise<any>}
+ */
+export async function execute_greenfield_prologue(story_id) {
+  const runtime = state_bridge.runtime;
+  const app = state_bridge.app;
+  if (!runtime || !story_id) return null;
+
+  app.busy = true;
+
+  try {
+    const _ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
+    const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
+    const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
+
+    const live_transport = get_shared_transport();
+    const node_id = `prologue-${Date.now()}`;
+    const fractal_name = fractal_quadrant?.name || "Fractal Entity";
+
+    runtime.round = 0;
+    runtime.turn_type = "SYSTEM_TURN";
+    runtime.last_director_beat_round = 0;
+    runtime.last_dynamics_beat_round = 0;
+
+    // 1. Establish the empty fractal role prologue entry
+    await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
+      turn_type: "SYSTEM_TURN",
+      story_id,
+      meta: {
+        id: node_id,
+        round: 0,
+        is_prologue: true,
+        greenfield: true,
+      },
+      attachments: [],
+    });
+
+    // 2. Stream Fractal prologue scene setting via Character core (is_character: false)
+    const { compile_prompt } = await import("./prompts.js");
+    const prologue_prompt = compile_prompt({
+      core: "character",
+      round: 0,
+      entities: {
+        AI: fractal_quadrant,
+        USER: user_quadrant,
+        FRACTAL: fractal_quadrant,
+      },
+      task_options: {
+        turn_tempo: 3,
+      },
+    });
+
+    app.log("[Greenfield] Establishing prologue scene (Round 0)...", "system");
+    const raw_prologue = await live_transport.stream(prologue_prompt, {
+      startWith: "<think>\n",
+    });
+
+    const { think: prologue_think, body: prologue_body } = parse_think_block(raw_prologue);
+    const prologue_text = (prologue_body || raw_prologue || "").trim();
+
+    await state_bridge.session_driver.edit_log_entry(node_id, prologue_text, {
+      think: prologue_think,
+      greenfield: true,
+    });
+    app.log("[Greenfield] Prologue scene established.", "system");
+
+    // 3. Register deferred prologue scene image
+    const prologue_image_requested_at = Date.now();
+    await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+      src: null,
+      metadata: { mode: "story_scene", requested_at: prologue_image_requested_at },
+    });
+
+    let release_prologue_image = () => {};
+    const prologue_image_gate = new Promise((resolve) => {
+      release_prologue_image = resolve;
+    });
+
+    const { visual_engine } = await import("../media/visual.js");
+    if (visual_engine) {
+      (async () => {
+        const { mark_generation_in_flight, clear_generation_in_flight } = await import("../media/visual.js");
+        mark_generation_in_flight?.(node_id, 0);
+        await prologue_image_gate;
+        try {
+          const img_result = await visual_engine.visualize(story_id, prologue_text, "story_scene", { silent: true });
+          if (img_result?.imageUrl) {
+            await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+              src: img_result.imageUrl,
+              metadata: {
+                ...(img_result.metadata || {}),
+                prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                mode: "story_scene",
+                requested_at: prologue_image_requested_at,
+              },
+            });
+          }
+        } catch (img_err) {
+          console.warn("[Greenfield Prologue Image Error]", img_err);
+        } finally {
+          clear_generation_in_flight?.(node_id, 0);
+        }
+      })().catch(() => {});
+    }
+
+    // 4. Execute the opening AI character turn reacting directly to the prologue
+    try {
+      app.log("[Greenfield] Generating opening character turn (Round 1)...", "ai");
+      return await execute_greenfield_turn(prologue_text, { is_opening_turn: true });
+    } finally {
+      release_prologue_image();
+    }
+  } catch (e) {
+    console.error("[Greenfield] Prologue Failed:", e);
+    app.log("Error: Greenfield Prologue Failed.", "error");
+    throw e;
+  } finally {
+    app.busy = false;
+    app.end_stream();
+    if (typeof state_bridge.simulation_state !== "undefined") {
+      state_bridge.simulation_state.phase = "idle";
+    }
   }
 }

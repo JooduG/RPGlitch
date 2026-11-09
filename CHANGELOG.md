@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Canonize Inlined Director Note & Resolve Greenfield A/B Live Review Findings**:
+  - Canonized winning inlined `<think>${note}\n(` director note delivery across `src/engine/prompts.js`, `src/engine/prompts.test.js`, and `src/engine/turns.js`, seeding disciplined motive appraisal while retiring the speculative `directors_note_placement` / `DIR IN TASK` toggle from `Console.svelte`, `interface.svelte.js`, `turns.js`, `kernel.svelte.js`, and `bridge.js`.
+  - Added _"Appraise, Do Not Restate"_ directive to character thinking mode and replaced the tempting `"(inner voice: ...)"` prompt trap with `"(He's stalling—keep your hand near the latch.)"` to prevent leaking inner voice markers into visible prose.
+  - Hardened Turn 3 Caretaker maintenance with 1x JSON parse retry on malformed outputs and converted the round-robin selector to a completion-driven cursor (`runtime.back_shot_cursor`), preventing target starvation and silent skips during background consolidation.
+  - Implemented `execute_greenfield_prologue(story_id)` in `src/engine/bridge.js` called from `chrono.svelte.js:start()` when `use_greenfield_engine` is active, executing pure greenfield Fractal scene establishment and opening AI character turn while deferring prologue image generation and bypassing orphaned `gamemaster` background jobs.
+  - Fixed dynamics write-back in `src/engine/bridge.js` to update `runtime.ai` and `runtime.fractal` setters, correctly persisting updated dynamics into Dexie `db.stories` auto-save.
+  - Restored aborted composer draft text in `src/state/chrono.svelte.js` by returning `false` on abort so `Console.svelte` restores input text.
+  - Stamped user turn rows with `meta.greenfield = true` in `src/data/sessions.svelte.js`.
+  - Moved `greenfield-A-B-log.md` out of root into `.agents/skills/simulation/references/`.
+
 - **Housekeeping & Lexical Hygiene Sweep**:
   - Renamed `src/ui/Storyboard.svelte.test.js` to `src/ui/Storyboard.test.js`, resolving the sole remaining lexical debt item (`N-LANG-002`) and bringing `npm run audit:hygiene` to 0 violations across all 502 scanned assets.
   - Eliminated all 9 remaining ESLint warnings (`src/engine/bridge.js`, `src/engine/bridge.test.js`, `src/intelligence/story.js`, `src/media/visual.js`, `src/platform/security.js`), achieving 0 errors and 0 warnings on `npm run lint:js`.

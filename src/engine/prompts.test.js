@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { compile_prompt } from "./prompts.js";
-import { verify_compiled_prompt } from "./verifier.js";
+import { describe, expect, it } from "vitest";
 import { create_contract_fixtures } from "../intelligence/prompt-verification.js";
+import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
+import { verify_compiled_prompt } from "./verifier.js";
 
 describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", () => {
   const { entities, history } = create_contract_fixtures();
@@ -120,32 +120,37 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     expect(single_entity_prompt).not.toContain("<RECENT");
   });
 
-  it("compiles character core with Character Immersion thinking mode and A/B directors note placement", () => {
-    // Variant B (default: directors_note in <TASK>)
-    const prompt_task = compile_prompt({
+  it("compiles character core with Character Immersion thinking mode and inlined directors note", () => {
+    const prompt = compile_prompt({
       core: "character",
       round: 3,
       entities,
       history,
       task_options: {
         directors_note: "Keep your hand near your holster.",
-        directors_note_placement: "task",
       },
     });
 
-    expect(prompt_task).toContain('<TASK round="3">');
-    expect(prompt_task).toContain('<SYSTEM identity="character">');
-    expect(prompt_task).not.toContain('<SYSTEM round="3"');
-    expect(prompt_task).toContain("[Role Immersion Requirement]");
-    expect(prompt_task).toContain("### Stage Direction");
-    expect(prompt_task).toContain("Keep your hand near your holster.");
-    expect(prompt_task).toContain("Use first-person inner monologue in parentheses");
-    expect(prompt_task).toContain("internal friction, and masking in first person");
-    expect(prompt_task).toContain("Commit to one concrete physical tell");
-    expect(prompt_task).toContain("Never pre-draft spoken dialogue");
+    expect(prompt).toContain('<TASK round="3">');
+    expect(prompt).toContain('<SYSTEM identity="character">');
+    expect(prompt).not.toContain('<SYSTEM round="3"');
+    expect(prompt).toContain("[Role Immersion Requirement]");
+    expect(prompt).not.toContain("### Stage Direction");
+    expect(prompt).not.toContain("(inner voice: ...)");
+    expect(prompt).toContain("Write raw first-person thoughts inside parentheses");
+    expect(prompt).toContain("Appraise, Do Not Restate");
+    expect(prompt).toContain("Commit to one concrete physical tell");
+    expect(prompt).toContain("Never pre-draft spoken dialogue");
 
-    const check_task = verify_compiled_prompt(prompt_task);
-    expect(check_task.valid).toBe(true);
+    const check = verify_compiled_prompt(prompt);
+    expect(check.valid).toBe(true);
+
+    // Verify start_with seeds <think> with note verbatim
+    const start_token = PURPOSE_CORES.character.start_with({
+      is_character: true,
+      directors_note: "Keep your hand near your holster.",
+    });
+    expect(start_token).toBe("<think>Keep your hand near your holster.\n(");
 
     // Verify 3rd person POV enforces pivot rule
     const prompt_3rd = compile_prompt({
@@ -159,21 +164,6 @@ describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", (
     });
     expect(prompt_3rd).toContain("Pivot immediately to third-person perspective");
     expect(verify_compiled_prompt(prompt_3rd).valid).toBe(true);
-
-    // Variant A (directors_note in <think> prefill)
-    const prompt_think = compile_prompt({
-      core: "character",
-      round: 3,
-      entities,
-      history,
-      task_options: {
-        directors_note: "Keep your hand near your holster.",
-        directors_note_placement: "think",
-      },
-    });
-    expect(prompt_think).not.toContain("### Stage Direction");
-    const check_think = verify_compiled_prompt(prompt_think);
-    expect(check_think.valid).toBe(true);
   });
 
   it("compiles fractal world turn with Pure Analysis thinking mode", () => {

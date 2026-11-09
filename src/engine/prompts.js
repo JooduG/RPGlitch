@@ -41,8 +41,8 @@ export function render_thinking_mode({ mode = "analysis", lens = "", max_words =
 
     return `    ### Thinking Mode
     [Role Immersion Requirement] In your thinking process (inside \\<think\\> tags, under ~${max_words} words):
-    1. **Inner Monologue**: Use first-person inner monologue in parentheses, e.g. "(...)" or "(inner voice: ...)".
-    2. **Internal Feelings**: Describe raw emotional stance, internal friction, and masking in first person, such as "I feel...", "I want...", "I won't let on...".
+    1. **Inner Monologue**: Write raw first-person thoughts inside parentheses, e.g. "(He's stalling—keep your hand near the latch.)" without any label prefix.
+    2. **Appraise, Do Not Restate**: Treat any opening stage direction inside \\<think\\> as already understood—never repeat or paraphrase it. Immediately appraise the counterpart's hidden motives, internal friction, and emotional subtext in first person ("I feel...", "I suspect...", "I won't let on...").
     3. **Smallest Observable Action**: Commit to one concrete physical tell, involuntary reaction, or sensory shift that embodies your stance. Never pre-draft spoken dialogue.${pov_rule}`;
   }
 
@@ -178,15 +178,14 @@ ${thinking_block}
     start_with: (context) => {
       const is_character = context?.is_character ?? true;
       const note = context?.directors_note ? String(context.directors_note).trim() : "";
-      const placement = context?.directors_note_placement || "task";
 
       if (is_character) {
-        if (placement === "think" && note) {
+        if (note) {
           return `<think>${note}\n(`;
         }
         return "<think>\n(";
       }
-      if (placement === "think" && note) {
+      if (note) {
         return `<think>${note}\n`;
       }
       return "<think>\n";
@@ -198,11 +197,6 @@ ${thinking_block}
       const is_first_person = context?.is_character && context?.pov === "1st_person";
       const is_character = context?.is_character ?? true;
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
-      const note = context?.directors_note ? String(context.directors_note).trim() : "";
-      const placement = context?.directors_note_placement || "task";
-
-      const stage_direction_block =
-        placement === "task" && note ? `    ### Stage Direction\n    Anchor the opening beat to this directorial note:\n    - "${note}"\n\n` : "";
 
       const perspective_rule = is_first_person
         ? "Maintain strict **first-person** perspective *('I', 'me', 'my')* anchored to your own sensory experience. Never speak, script, or dictate actions for anyone else."
@@ -223,7 +217,7 @@ ${thinking_block}
           });
 
       return `  <TASK${round_attr}>
-${stage_direction_block}    ### Pacing & Posture
+    ### Pacing & Posture
     - Write in **present tense**.
     - Deliver crisp, grounded interaction calibrated to a tempo of **${tempo} beat(s)**.
     - ${perspective_rule}
@@ -367,7 +361,6 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     camera_note: task_options.camera_note || "",
     subject_kind: task_options.subject_kind || "character",
     turn_tempo: task_options.turn_tempo || 2,
-    directors_note_placement: task_options.directors_note_placement || "task",
     round,
   };
 

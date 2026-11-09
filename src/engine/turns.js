@@ -79,19 +79,22 @@ export function build_turn_summary(feed, round) {
 export const CARETAKER_ROTATION = Object.freeze(["AI", "USER", "FRACTAL"]);
 
 /**
- * Resolves which entity key is targeted for Caretaker consolidation in the current round.
+ * Resolves which entity key is targeted for Caretaker consolidation.
  * Rotates sequentially across AI -> USER -> FRACTAL (+ any active NPC).
  *
- * @param {number} round
+ * @param {number} cursor_or_round - Active cursor index or round number
  * @param {object} [entities={}]
+ * @param {boolean} [use_cursor=false] - Whether cursor_or_round is an absolute 0-indexed cursor
  * @returns {string} Target entity key (e.g., 'AI', 'USER', 'FRACTAL', 'npc')
  */
-export function resolve_caretaker_target(round, entities = {}) {
+export function resolve_caretaker_target(cursor_or_round, entities = {}, use_cursor = false) {
   const cast = [...CARETAKER_ROTATION];
   if (entities.npc && entities.npc.id) {
     cast.push("npc");
   }
-  const index = Math.abs(round - 1) % cast.length;
+  const index = use_cursor
+    ? Math.abs(Math.floor(Number(cursor_or_round) || 0)) % cast.length
+    : Math.abs(Math.floor(Number(cursor_or_round) || 1) - 1) % cast.length;
   return cast[index];
 }
 
@@ -199,7 +202,6 @@ export async function execute_turn_2_character({
   history = [],
   memories = [],
   directors_note = "",
-  directors_note_placement = "task",
   onChunk = null,
   signal = null,
 }) {
@@ -212,13 +214,12 @@ export async function execute_turn_2_character({
     entities,
     history,
     memories,
-    task_options: { directors_note, directors_note_placement, turn_tempo },
+    task_options: { directors_note, turn_tempo },
   });
 
   const start_with = PURPOSE_CORES.character.start_with({
     is_character,
     directors_note,
-    directors_note_placement,
   });
   let raw = await transport.stream(prompt, { onChunk, startWith: start_with, signal });
 
@@ -377,7 +378,6 @@ export async function execute_round({
   history = [],
   memories = [],
   director_enabled = false,
-  directors_note_placement = "task",
   onChunk = null,
   signal = null,
 }) {
@@ -400,7 +400,6 @@ export async function execute_round({
     history,
     memories,
     directors_note: director_staging?.directors_note || "",
-    directors_note_placement,
     onChunk,
     signal,
   });
@@ -438,11 +437,25 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   });
 
   const start_prefix = PURPOSE_CORES.caretaker.start_with();
-  const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
+  let raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
 
-  const { think, body } = extract_think_and_body(raw, start_prefix);
-  const parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
+  let { think, body } = extract_think_and_body(raw, start_prefix);
+  let parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
 
+  // 🛡️ 1x JSON Parse Retry: If initial background stream produced unparseable JSON, retry once
+  if (!parsed && !signal?.aborted) {
+    try {
+      raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
+      const retried = extract_think_and_body(raw, start_prefix);
+      think = retried.think;
+      body = retried.body;
+      parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
+    } catch {
+      /* If retry throws or is aborted, fall back to unparsed outcome */
+    }
+  }
+
+  const parse_succeeded = Boolean(parsed);
   const _thought_process = think || parsed?._thought_process || "";
   const eternal_physical = typeof parsed?.eternal_physical === "string" ? parsed.eternal_physical : "";
   const eternal_non_physical = typeof parsed?.eternal_non_physical === "string" ? parsed.eternal_non_physical : "";
@@ -472,6 +485,7 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   return {
     raw,
     target,
+    parse_succeeded,
     _thought_process,
     eternal,
     present,

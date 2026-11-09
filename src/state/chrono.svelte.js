@@ -24,7 +24,7 @@ import { gamemaster } from "@intelligence";
 import { build_turn_summary } from "@engine";
 import { delete_log_entry } from "@storage";
 import { state_bridge } from "@utils";
-import { execute_greenfield_turn, execute_greenfield_continue } from "../engine/bridge.js";
+import { execute_greenfield_turn, execute_greenfield_continue, execute_greenfield_prologue } from "../engine/bridge.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -95,8 +95,13 @@ export class ChronoEngine {
       // 4. Trigger Prologue Generation
       state_bridge.simulation_state.start_generation("fractal");
       try {
-        await gamemaster.execute_prologue(story_id);
-        state_bridge.app.log("Prologue generated and opening turn executed.", "system");
+        if (state_bridge.app?.settings?.use_greenfield_engine) {
+          await execute_greenfield_prologue(story_id);
+          state_bridge.app.log("Greenfield prologue generated and opening turn executed.", "system");
+        } else {
+          await gamemaster.execute_prologue(story_id);
+          state_bridge.app.log("Prologue generated and opening turn executed.", "system");
+        }
       } catch (e) {
         console.error("[Chrono] Prologue Failed:", e);
         state_bridge.app.log("Error: Prologue Failed.", "error");
@@ -140,8 +145,8 @@ export class ChronoEngine {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text?.trim()) {
       return false;
     }
-    await this.advance_turn(text);
-    return true;
+    const result = await this.advance_turn(text);
+    return result !== false;
   }
 
   /**
@@ -280,6 +285,7 @@ export class ChronoEngine {
         // 4. ANCHOR: Persist the timeline
         await state_bridge.runtime.save(state_bridge.runtime.round);
         state_bridge.simulation_state.unlock();
+        return true;
       } catch (err) {
         const error = /** @type {any} */ (err);
         const is_aborted = error.name === "AbortError" || error.message?.includes("aborted") || controller.signal.aborted;
@@ -299,6 +305,7 @@ export class ChronoEngine {
               console.warn("[Chrono] Failed to purge aborted user message:", cleanup_err);
             }
           }
+          return false;
         } else {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);

@@ -4,7 +4,7 @@ import { register_state_accessors } from "@utils";
 import { session_driver } from "@data";
 import { gamemaster } from "@intelligence";
 import { delete_log_entry } from "@storage";
-import { execute_greenfield_turn } from "../engine/bridge.js";
+import { execute_greenfield_turn, execute_greenfield_prologue } from "../engine/bridge.js";
 
 vi.mock("@storage", async (importOriginal) => {
   const actual = await importOriginal();
@@ -17,6 +17,7 @@ vi.mock("@storage", async (importOriginal) => {
 vi.mock("../engine/bridge.js", () => ({
   execute_greenfield_turn: vi.fn().mockResolvedValue({}),
   execute_greenfield_continue: vi.fn().mockResolvedValue({}),
+  execute_greenfield_prologue: vi.fn().mockResolvedValue({}),
 }));
 
 vi.mock("@data", async (importOriginal) => {
@@ -162,7 +163,7 @@ describe("ChronoEngine", () => {
       });
 
       const result = await chrono_engine.send("Aborted user message");
-      expect(result).toBe(true);
+      expect(result).toBe(false);
       expect(delete_log_entry).toHaveBeenCalledWith(42);
       expect(mock_app.log).toHaveBeenCalledWith("Generation interrupted cleanly.", "system");
     });
@@ -187,6 +188,29 @@ describe("ChronoEngine", () => {
       );
       expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
       expect(gamemaster.execute_prologue).toHaveBeenCalledWith("story-123");
+      expect(mock_app.suppress_card_transitions).toBe(false);
+    });
+
+    it("executes greenfield prologue when use_greenfield_engine is enabled", async () => {
+      mock_app.settings = { use_greenfield_engine: true };
+      const selection = {
+        ai: { id: "ai-1", name: "Iris" },
+        user: { id: "usr-1", name: "Player" },
+        fractal: { id: "fr-1", name: "Citadel", visual_style: "photo", narrative_style: "casual" },
+      };
+
+      await chrono_engine.start(selection);
+
+      expect(session_driver.create_from_selection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ai_id: "ai-1",
+          user_id: "usr-1",
+          fractal_id: "fr-1",
+        }),
+      );
+      expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
+      expect(execute_greenfield_prologue).toHaveBeenCalledWith("story-123");
+      expect(gamemaster.execute_prologue).not.toHaveBeenCalled();
       expect(mock_app.suppress_card_transitions).toBe(false);
     });
   });
