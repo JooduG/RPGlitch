@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **Definitions Relocation & Greenfield Storage Consolidation (`src/media/styles.js`, `src/storage/presets.js`)**:
+  - Relocated `src/definitions/visual-styles.js` and its test suite to `src/media/styles.js` and `src/media/styles.test.js`, bringing visual style resolution and catalog into the sovereign `@media` domain.
+  - Consolidated `src/definitions/premade-entities.js` into `src/storage/presets.js`, re-pointing all entity archetype consumers and query primitives (`PREMADE_ENTITIES`, `get_premade_entity_by_id`, `has_premade_entity`, `get_premade_characters`, `get_premade_fractals`) to `@storage`.
+  - Purged redundant `src/definitions/premade-entities.js` and `src/definitions/premade-entities.test.js`.
+  - Updated consumers across `src/media/optics.js`, `src/media/visual.js`, `src/engine/bridge.js`, `src/data/repository.js`, `src/data/index.js`, and `.agents/skills/simulation/scripts/simulation-audit.js`.
+
 - **Canonize Inlined Director Note & Resolve Greenfield A/B Live Review Findings**:
   - Canonized winning inlined `<think>${note}\n(` director note delivery across `src/engine/prompts.js`, `src/engine/prompts.test.js`, and `src/engine/turns.js`, seeding disciplined motive appraisal while retiring the speculative `directors_note_placement` / `DIR IN TASK` toggle from `Console.svelte`, `interface.svelte.js`, `turns.js`, `kernel.svelte.js`, and `bridge.js`.
   - Added _"Appraise, Do Not Restate"_ directive to character thinking mode and replaced the tempting `"(inner voice: ...)"` prompt trap with `"(He's stalling—keep your hand near the latch.)"` to prevent leaking inner voice markers into visible prose.

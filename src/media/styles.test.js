@@ -1,5 +1,5 @@
 /**
- * src/data/definitions/visual-styles.test.js
+ * src/media/styles.test.js
  * ============================================================================
  * Unit Tests for Visual Style Presets, XML Compilation & Resolution
  * ============================================================================
@@ -16,7 +16,7 @@ import {
   get_visual_style,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
-} from "./visual-styles.js";
+} from "./styles.js";
 
 // ---------------------------------------------------------------------------------------------
 // PRESET REGISTRY & XML COMPILATION TESTS

@@ -74,7 +74,7 @@ export {
   has_premade_entity,
   get_premade_characters,
   get_premade_fractals,
-} from "../definitions/premade-entities.js";
+} from "../storage/presets.js";
 
 // ============================================================================
 // Speaking Styles & Dialogue Registries
@@ -113,7 +113,7 @@ export {
   get_visual_style,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
-} from "../definitions/visual-styles.js";
+} from "../media/styles.js";
 
 // ============================================================================
 // Profile Fields & Attribute Specifications

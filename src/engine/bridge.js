@@ -829,7 +829,7 @@ export async function execute_visualizer_envision(text, type = "character", enti
   }
 
   const { get_resolution_string } = await import("../media/optics.js");
-  const { get_visual_style } = await import("../definitions/visual-styles.js");
+  const { get_visual_style } = await import("../media/styles.js");
   const runtime = state_bridge.runtime || {};
   const app = state_bridge.app || {};
 

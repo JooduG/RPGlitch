@@ -417,7 +417,7 @@ export const NARRATIVE_PRESETS = Object.freeze({
   },
 });
 
-export const ALL_PREMADES = Object.freeze([...PREMADE_CHARACTERS, ...PREMADE_FRACTALS]);
+export const ALL_PREMADES = PREMADE_ENTITIES;
 
 export function get_starter_entities(type) {
   if (type === "character") return PREMADE_CHARACTERS;

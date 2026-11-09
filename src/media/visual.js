@@ -9,7 +9,7 @@
 
 import { generate_secure_seed, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
-import { get_visual_style } from "../definitions/visual-styles.js";
+import { get_visual_style } from "./styles.js";
 
 // ============================================================================
 // Visual prompt hygiene.

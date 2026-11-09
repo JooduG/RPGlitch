@@ -7,7 +7,7 @@ import { generate_uuid, stories_bridge } from "@utils";
 import { deserialize_embedding, serialize_embedding } from "@platform";
 import { db } from "./db.js";
 import { format_premade, normalize } from "./normalizer.js";
-import { PREMADE_ENTITIES, get_premade_entity_by_id } from "../definitions/premade-entities.js";
+import { PREMADE_ENTITIES, get_premade_entity_by_id } from "../storage/presets.js";
 
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
