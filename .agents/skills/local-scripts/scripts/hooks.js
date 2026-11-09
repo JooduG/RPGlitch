@@ -521,34 +521,6 @@ export function handle_circuit_breaker(payload) {
  * @param {any} payload Hook payload from stdin.
  */
 export function handle_svelte_pre_invocation(payload) {
-  const transcript_path = payload?.transcriptPath || "";
-  let mentions_svelte = false;
-
-  if (transcript_path && fs.existsSync(transcript_path)) {
-    try {
-      const content = fs.readFileSync(transcript_path, "utf-8");
-      const lines = content.trim().split("\n");
-      const recent_lines = lines.slice(-20).join("\n");
-      if (/\.svelte\b|svelte-autofixer/i.test(recent_lines)) {
-        mentions_svelte = true;
-      }
-    } catch {
-      // Fallback
-    }
-  }
-
-  if (mentions_svelte) {
-    send_hook_response({
-      injectSteps: [
-        {
-          ephemeralMessage:
-            "Mandatory Protocol: When creating or modifying Svelte code, you MUST execute `call_mcp_tool` with ServerName: 'svelte' and ToolName: 'svelte-autofixer' before concluding your turn.",
-        },
-      ],
-    });
-    return;
-  }
-
   send_hook_response({ injectSteps: [] });
 }
 
