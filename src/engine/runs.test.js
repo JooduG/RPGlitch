@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  write_back_kernel_state,
-  dispatch_caretaker_consolidation,
-  execute_turn,
-  execute_continue,
-} from "./runs.js";
+import { write_back_kernel_state, dispatch_caretaker_consolidation, execute_turn, execute_continue } from "./runs.js";
 import { reconstruct_history_from_feed } from "./turns.js";
 import { Kernel } from "./kernel.svelte.js";
 import { register_state_accessors } from "../utils/index.js";

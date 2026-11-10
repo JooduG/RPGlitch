@@ -99,10 +99,7 @@ async function invoke_with_retry(ai_engine, instruction, gen_options, handlers) 
   } catch (err) {
     const err_msg = err?.message || "";
     const is_clone_error =
-      err_msg.includes("DataCloneError") ||
-      err_msg.includes("clone") ||
-      err_msg.includes("could not be cloned") ||
-      err_msg.includes("cross-origin");
+      err_msg.includes("DataCloneError") || err_msg.includes("clone") || err_msg.includes("could not be cloned") || err_msg.includes("cross-origin");
     if (is_clone_error) {
       return await ai_engine({ instruction, ...gen_options });
     }

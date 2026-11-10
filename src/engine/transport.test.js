@@ -1,9 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  create_live_stream_fn,
-  get_transport,
-  reset_transport,
-} from "./transport.js";
+import { create_live_stream_fn, get_transport, reset_transport } from "./transport.js";
 
 describe("src/engine/transport.js - Engine Transport Unit Tests", () => {
   beforeEach(() => {

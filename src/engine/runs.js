@@ -14,11 +14,7 @@
 
 import { normalize_entity } from "../data/entities.js";
 import { Kernel } from "./kernel.svelte.js";
-import {
-  execute_turn_3_caretaker,
-  reconstruct_history_from_feed,
-  resolve_caretaker_target,
-} from "./turns.js";
+import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
 import { append_ledger_entries, log_message } from "../data/db.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../data/parser.js";
 import { state_bridge } from "../utils/index.js";
@@ -159,11 +155,7 @@ export async function execute_turn(user_input, _options = {}) {
 
   // 1-3. Quadrants, shared transport, Kernel, and multi-role history in one session
   const live_transport = get_transport();
-  const { kernel, ai_quadrant, fractal_quadrant } = open_turn_session(
-    app,
-    runtime,
-    state_bridge.simulation_log?.feed || [],
-  );
+  const { kernel, ai_quadrant, fractal_quadrant } = open_turn_session(app, runtime, state_bridge.simulation_log?.feed || []);
 
   // 4. Begin UI streaming indicator
   const message_node_id = `msg-${Date.now()}`;
@@ -219,7 +211,6 @@ export async function execute_turn(user_input, _options = {}) {
     await write_back_kernel_state(kernel, outcome, live_transport, _options);
 
     await maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fractal_quadrant, runtime });
-
 
     return outcome;
   } finally {

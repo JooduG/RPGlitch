@@ -15,6 +15,7 @@ import { state_bridge } from "../utils/index.js";
 import { get_transport, generate_text, enhance_text } from "./transport.js";
 import { execute_turn_visualizer, execute_turn_structuring } from "./turns.js";
 import { execute_turn } from "./runs.js";
+import { parse_think_block } from "../data/parser.js";
 
 /**
  * Executes visual prompt envisioning/refinement via the visualizer purpose core.
