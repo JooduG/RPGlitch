@@ -2,14 +2,13 @@
  * @file .agents/skills/local-scripts/scripts/audit-layers.js
  * 🏛️ Strict Layer Boundary Enforcement Gate
  *
- * Verifies that imports strictly flow DOWNWARD:
- * src/ui/ -> src/state/ -> src/intelligence/ -> src/data/ -> (src/platform/, src/media/, src/utils/)
+ * Verifies that imports strictly flow DOWNWARD (lateral imports within the same rank allowed):
+ * src/ui/ (4) -> src/engine/ + src/data/ (2) -> src/media/ + src/utils/ (1)
  *
  * Upward imports are strictly prohibited:
- * - src/state/ CANNOT import from src/ui/
- * - src/intelligence/ CANNOT import from src/state/ or src/ui/
- * - src/data/ CANNOT import from src/intelligence/, src/state/, or src/ui/
- * - src/platform/, src/media/, src/utils/ CANNOT import from data, intelligence, state, or ui
+ * - src/engine/ CANNOT import from src/ui/
+ * - src/data/ CANNOT import from src/ui/
+ * - src/media/, src/utils/ CANNOT import from data, engine, or ui
  *
  * Exits with status code 1 if any upward imports or boundary violations are detected.
  */
@@ -20,7 +19,7 @@ import path from "path";
 const LAYER_HIERARCHY = {
   "src/ui": 4,
   "src/engine": 2,
-  "src/storage": 2,
+  "src/data": 2,
   "src/media": 1, // Sensory presentation & audio/visual engine (platform sibling)
   "src/utils": 1,
 };
@@ -28,7 +27,7 @@ const LAYER_HIERARCHY = {
 const ALIAS_LAYER_MAP = {
   "@ui": "src/ui",
   "@primitives": "src/ui",
-  "@storage": "src/storage",
+  "@data": "src/data",
   "@media": "src/media",
   "@utils": "src/utils",
 };

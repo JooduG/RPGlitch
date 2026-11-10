@@ -226,7 +226,7 @@ const { catalog } = build_profile_catalog(PROFILE_FIELDS);
  */
 export const PROFILE_FIELD_CATALOG = Object.freeze(catalog);
 
-// ── 2b. Flat Leaf Map & Ingestion Aliases (single home; moved from src/storage/profile-fields.js) ──
+// ── 2b. Flat Leaf Map & Ingestion Aliases (single home; moved from src/data/profile-fields.js) ──
 
 export const FLAT_LEAF_MAP = Object.freeze({
   character: Object.freeze({
@@ -277,7 +277,7 @@ export function resolve_flat_path(field_name, entity_type = "character") {
   return type_map[normalized] || null;
 }
 
-// ── 2c. Caretaker Enhancer Directives (single home; moved from src/storage/profile-fields.js) ──
+// ── 2c. Caretaker Enhancer Directives (single home; moved from src/data/profile-fields.js) ──
 
 /**
  * Directives matching PROFILE_FIELDS.enhancer tags verbatim.
@@ -372,7 +372,7 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
- * - 2026-11-10: Folded src/storage/profile-fields.js back in — FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES now live here verbatim; storage/entities.js + engine/prompts.js re-pointed, storage barrel line retired, file deleted. Removed dead leaf_map inside build_profile_catalog.
+ * - 2026-11-10: Folded src/data/profile-fields.js back in — FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES now live here verbatim; storage/entities.js + engine/prompts.js re-pointed, storage barrel line retired, file deleted. Removed dead leaf_map inside build_profile_catalog.
  * - 2026-11-10: Renamed from profile-fields.js to profile-taxonomy.js (the storage-side
  *   profile-fields.js owned ingestion at the time: FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES).
  *   Removed the unused derived leaf_map inside build_profile_catalog (computed and discarded, zero importers).

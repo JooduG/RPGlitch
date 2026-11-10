@@ -3,7 +3,7 @@
  * ⚙️ RPGlitch Sovereign System Configuration & Subsystem Domain Agreements
  *
  * Promoted configuration surface providing canonical scales, physical boundaries,
- * and cross-module subsystem agreements across @engine, @storage, @definitions,
+ * and cross-module subsystem agreements across @engine, @data, @definitions,
  * @media, @utils, and @ui.
  * Follows P4 Pre-Beta Purity: zero backwards compatibility layers, zero magic numbers.
  *

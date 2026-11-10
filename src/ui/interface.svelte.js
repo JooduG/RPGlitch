@@ -28,11 +28,11 @@
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { guarded_transition, resolve_px, stories_bridge } from "@utils";
-import { db, entities, normalize_entity as normalize, stories } from "@storage";
+import { db, entities, normalize_entity as normalize, stories } from "@data";
 import { get_signature_color, visual_engine } from "@media";
 import { embeddings_engine } from "@utils";
 import { runtime, install_freeze_watchdog, simulation_state, streaming as streaming_store, ui_state } from "@engine";
-import { developer_log } from "@storage";
+import { developer_log } from "@data";
 
 // ============================================================================
 // Bridges & JSDoc Type Definitions

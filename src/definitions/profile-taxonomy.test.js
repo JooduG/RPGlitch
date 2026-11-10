@@ -1,7 +1,7 @@
 /**
  * src/definitions/profile-taxonomy.test.js
  * Unit tests for PROFILE_FIELDS taxonomy, PROFILE_FIELD_CATALOG, and build_profile_sections.
- * (FLAT_LEAF_MAP coverage lives in src/storage/profile-fields.test.js against the live ingestion map.)
+ * (FLAT_LEAF_MAP coverage lives in src/data/profile-fields.test.js against the live ingestion map.)
  */
 
 import { describe, expect, it } from "vitest";

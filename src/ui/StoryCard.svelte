@@ -10,7 +10,7 @@
   import { format_datetime } from "@utils";
   import { tick } from "svelte";
 
-  /** @type {import('@storage').Story} Story */
+  /** @type {import('@data').Story} Story */
   /** @type {{
    *    story: Story,
    *    active?: boolean,

@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { compile_prompt } from "../../../../src/intelligence/prompts.js";
 import { make_contract_cases, CONTRACT } from "../../../../src/intelligence/prompt-verification.js";
-import { get_premade_entity_by_id } from "../../../../src/storage/presets.js";
+import { get_premade_entity_by_id } from "../../../../src/data/presets.js";
 import { resolve_stability_lock } from "../../../../src/intelligence/modules/reflex.js";
 
 // CLI Runner: When executed directly via Node (node .agents/skills/simulation/scripts/simulation-audit.js),

@@ -19,9 +19,9 @@
  * - `@utils` (`state_bridge`): Decoupled bridge to `app`, `runtime`, `simulation_state`, and `simulation_log`.
  */
 
-import { session_driver } from "@storage";
+import { session_driver } from "@data";
 import { build_turn_summary } from "@engine";
-import { delete_log_entry } from "@storage";
+import { delete_log_entry } from "@data";
 import { state_bridge } from "@utils";
 import { execute_greenfield_turn, execute_greenfield_continue, execute_greenfield_prologue } from "./bridge.js";
 

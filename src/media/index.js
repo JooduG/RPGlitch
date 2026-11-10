@@ -56,7 +56,7 @@ export {
   resolve_voice_uri,
   resolve_voice_name,
   get_cadence_rate,
-} from "./audio.js";
+} from "./audio.svelte.js";
 
 // ============================================================================
 // Visual Color Palettes & Signature Tokens
@@ -110,4 +110,4 @@ export {
   sanitize_visual_text,
   resolve_story_beat_style,
   compose_story_beat_prompt,
-} from "./visual.js";
+} from "./visual.svelte.js";

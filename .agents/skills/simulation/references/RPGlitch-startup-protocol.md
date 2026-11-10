@@ -17,7 +17,7 @@ External AI agents executing tasks on this repository operate without direct acc
    - **Sovereign Ingestion Hierarchy**: Ingest and ground your context window strictly in order before drafting or modifying code:
      `Rules (GEMINI.md)` ➔ `Specs (DESIGN.md, README.md, nuclear-plan.md, this protocol)` ➔ `Active State (ROADMAP.md, CHANGELOG.md)` ➔ `Active Target Code (src/**)` ➔ `Feedback (Tests/Logs)`.
    - **Targeted Source Ingestion**: Load the exact source files and matching test suites (`*.test.js`) required for the specific task. Avoid context flooding (>2,000 lines without line ranges) to preserve a razor-sharp signal-to-noise ratio.
-   - **Anti-Hallucination Law**: Never invent APIs, Svelte 4 legacy patterns, or assume component props. Always read the authoritative declarations in `src/engine/`, `src/storage/`, `src/media/`, `src/state/`, or `src/ui/` into context first.
+   - **Anti-Hallucination Law**: Never invent APIs, Svelte 4 legacy patterns, or assume component props. Always read the authoritative declarations in `src/engine/`, `src/data/`, `src/media/`, `src/state/`, or `src/ui/` into context first.
 
 2. 📥 **Repository & Path Sovereignty**
    - Treat the workspace `src/` as the single source of truth.
@@ -35,7 +35,7 @@ External AI agents executing tasks on this repository operate without direct acc
 
 5. 💾 **Persistence Boundary (IndexedDB Only)**
    - Usage of `localStorage` is forbidden due to Perchance iframe sandbox security boundaries.
-   - All persistence must route exclusively through **Dexie.js (IndexedDB)** via `src/storage/db.js` (greenfield) or `src/data/db.js` (legacy transitional) with schema version 2 preserving the `mutation_ledger`. Reload-safe session checkpoints fall back through `sessionStorage` → `window.name` → in-memory in `src/platform/session-storage.js`.
+   - All persistence must route exclusively through **Dexie.js (IndexedDB)** via `src/data/db.js` (greenfield) or `src/data/db.js` (legacy transitional) with schema version 2 preserving the `mutation_ledger`. Reload-safe session checkpoints fall back through `sessionStorage` → `window.name` → in-memory in `src/platform/session-storage.js`.
 
 6. 📦 **Code Modification & Handover Protocol**
    - Output complete, production-ready code with exact relative target filepaths (`src/...`).
@@ -89,7 +89,7 @@ src/
 │   ├── parser.js               # Multiline bracket parser [KEY: value | flags], delta merge & memory extraction
 │   ├── profile-fields.js       # Flat leaf taxonomy (FLAT_LEAF_MAP) & enhancer directives
 │   ├── presets.js              # 10 Premade Archetypes (7 characters + 3 fractals) & narrative presets
-│   └── index.js                # @storage barrel
+│   └── index.js                # @data barrel
 ├── media/                    # Media & Sensory Layer (Gate 3 - Shipped)
 │   ├── visual.js               # Stateless visual dispatcher (dispatch_visual_generation, VisualEngine.enhance, Perchance host hook)
 │   ├── audio.js                # Procedural Web Audio synthesizer (play_sfx, Audio singleton, Web Speech API fallback)
@@ -113,7 +113,7 @@ src/
 │   ├── streaming.svelte.js     # Generation streaming state
 │   ├── log.svelte.js           # simulation_log — telemetry & diagnostic log state
 │   └── index.js                # @state barrel
-├── data/                     # Legacy data layer (Transitional - coexists with src/storage/)
+├── data/                     # Legacy data layer (Transitional - coexists with src/data/)
 │   ├── db.js                   # Legacy Dexie schema instance
 │   ├── repository.js           # Legacy entity CRUD & seed operations
 │   ├── sessions.svelte.js      # session_driver — active session lifecycle & log storage
@@ -151,18 +151,18 @@ src/
 Strict unidirectional import rules must be respected across all modules:
 
 ```text
-src/ui ➔ src/engine & src/state ➔ src/storage & src/data ➔ src/media & src/platform ➔ src/utils
+src/ui ➔ src/engine & src/state ➔ src/data & src/data ➔ src/media & src/platform ➔ src/utils
 ```
 
 - **Downward imports only**: Upper layers may import from lower layers; lower layers **must never** import from upper layers.
 - **Allowed imports**:
   - `src/ui/` may import from any layer.
   - `src/engine/` is self-contained; imports pure math, parsers, and transport.
-  - `src/storage/` imports from Dexie, platform, and utils; never from engine, state, or ui.
+  - `src/data/` imports from Dexie, platform, and utils; never from engine, state, or ui.
   - `src/media/` and `src/platform/` import from `utils`; never from ui, state, engine, or storage.
-- **Forbidden upward imports**: Subordinate layers (`src/storage/`, `src/media/`, `src/utils/`, `src/platform/`) **MUST NEVER** import from `src/ui/` or `src/state/**`.
+- **Forbidden upward imports**: Subordinate layers (`src/data/`, `src/media/`, `src/utils/`, `src/platform/`) **MUST NEVER** import from `src/ui/` or `src/state/**`.
 - **`@utils` sovereignty**: `src/utils/` contains pure helper modules safe for any layer to import.
-- **Path aliases** (defined in `vite.config.js`): `@`, `@engine`, `@storage`, `@platform`, `@intelligence`, `@data`, `@state`, `@media`, `@ui`, `@utils`.
+- **Path aliases** (defined in `vite.config.js`): `@`, `@engine`, `@data`, `@platform`, `@intelligence`, `@data`, `@state`, `@media`, `@ui`, `@utils`.
 
 ---
 

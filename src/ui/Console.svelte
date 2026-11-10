@@ -11,9 +11,9 @@
   import { Audio, get_signature_color, overlay_in, overlay_out, pulse, roll, shimmy, stab } from "@media";
   import { app } from "./interface.svelte.js";
   import { chrono_engine, runtime, simulation_state, force_recover_simulation } from "@engine";
-  import { simulation_log } from "@storage";
-  import { execute_ghostwriter, execute_greenfield_epilogue } from "@engine";
-  import { db, session_driver, stories } from "@storage";
+  import { simulation_log } from "@data";
+  import { execute_ghostwriter, execute_greenfield_epilogue, get_shared_transport } from "@engine";
+  import { db, session_driver, stories } from "@data";
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
   import { item_in } from "@media";
   import { build_story_export_filename } from "@utils";
@@ -201,7 +201,7 @@
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    execute_ghostwriter(previous_text)
+    execute_ghostwriter(get_shared_transport(), previous_text)
       .then(async (generated_text) => {
         if (generated_text && generated_text.trim()) {
           value = generated_text;

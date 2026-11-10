@@ -21,9 +21,9 @@ ensure_theme_tokens();
 // can interact without upward imports. Must run before app_bootstrap.init().
 import { app } from "@ui";
 import { runtime, simulation_state } from "@engine";
-import { simulation_log } from "@storage";
+import { simulation_log } from "@data";
 import { Audio, sweep_stale_ghosts, ensure_theme_tokens } from "@media";
-import { save_session_checkpoint, normalize_entity, seed_premades, session_driver, set_versionchange_quiesce } from "@storage";
+import { save_session_checkpoint, normalize_entity, seed_premades, session_driver, set_versionchange_quiesce } from "@data";
 import { install_environment_hardening, sanitize_to_fragment, embeddings_engine } from "@utils";
 import { mount } from "svelte";
 import App from "@/App.svelte";

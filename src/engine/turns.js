@@ -17,8 +17,10 @@
  */
 
 import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
-import { parse_brackets, parse_think_block } from "../storage/parser.js";
+import { parse_brackets, parse_think_block } from "../data/parser.js";
 import { safe_parse_json } from "../utils/text.js";
+import { normalize_entity } from "../data/entities.js";
+import { state_bridge } from "../utils/index.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
 
 /**
@@ -605,4 +607,121 @@ export async function execute_turn_structuring({ transport, input_data = "", typ
   const parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
 
   return parsed;
+}
+
+/**
+ * Reconstructs clean Kernel dialogue history from the UI / simulation log feed.
+ *
+ * Resolves Gap 5: Preserves user, model, fractal (environmental), and system roles
+ * along with origin attribution so scene context is never lost.
+ *
+ * @param {Array<object>} feed
+ * @param {object} cast
+ * @returns {Array<object>}
+ */
+export function reconstruct_history_from_feed(feed = [], cast = {}) {
+  if (!Array.isArray(feed)) return [];
+
+  const user_name = cast.user?.name || "USER";
+  const ai_name = cast.ai?.name || "AI";
+  const fractal_name = cast.fractal?.name || "WORLD";
+
+  return feed
+    .filter((entry) => entry && entry.text && typeof entry.text === "string" && entry.text.trim())
+    .map((entry) => {
+      let role;
+      let origin = entry.character_name || entry.origin || "";
+
+      if (entry.role === "user") {
+        role = "user";
+        origin = origin || user_name;
+      } else if (entry.role === "fractal") {
+        role = "fractal";
+        origin = origin || fractal_name;
+      } else if (entry.role === "system") {
+        role = "system";
+        origin = origin || "SYSTEM";
+      } else {
+        role = "ai";
+        origin = origin || ai_name;
+      }
+
+      return {
+        role,
+        origin,
+        text: entry.text.trim(),
+        round: Number(entry.round || 1),
+      };
+    });
+}
+
+/**
+ * Executes a ghostwriting stream to draft the user's next narrative action or dialogue.
+ * Reuses execute_turn_2_character with inverted participants (AI: user, USER: ai).
+ * Suppresses thought blocks during live token streaming to the composer callback.
+ *
+ * transport-injected turn pipeline helper (moved from bridge.js per nuclear plan §3).
+ *
+ * @param {object} transport - Live streaming transport (e.g. get_shared_transport())
+ * @param {string} [input_text=""] - Context/seed text to continue or draft
+ * @param {AbortSignal} [signal=null] - Optional abort signal
+ * @param {((chunk: string, is_full_replace: boolean) => void) | null} [on_token=null] - Live token callback
+ * @returns {Promise<string>} Cleaned narrative prose
+ */
+export async function execute_ghostwriter(transport, input_text = "", signal = null, on_token = null) {
+  const runtime = state_bridge.runtime || {};
+  const app = state_bridge.app || {};
+
+  const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
+  const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
+  const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
+
+  const feed = state_bridge.simulation_log?.feed || [];
+  const history = reconstruct_history_from_feed(feed, {
+    user: user_quadrant,
+    ai: ai_quadrant,
+    fractal: fractal_quadrant,
+  });
+
+  if (input_text && input_text.trim()) {
+    history.push({
+      role: "user",
+      content: input_text.trim(),
+    });
+  }
+
+  let full_accumulated = "";
+  let is_inside_think = false;
+
+  const outcome = await execute_turn_2_character({
+    transport,
+    round: Number(runtime.round || 1),
+    entities: {
+      AI: user_quadrant,
+      USER: ai_quadrant,
+      FRACTAL: fractal_quadrant,
+    },
+    history,
+    memories: [],
+    directors_note: "",
+    signal,
+    onChunk: (chunk) => {
+      full_accumulated += chunk;
+      if (typeof on_token === "function") {
+        const lower = full_accumulated.toLowerCase();
+        if (lower.includes("<think>") || lower.startsWith("<think") || full_accumulated.trimStart() === "<") {
+          is_inside_think = !lower.includes("</think>");
+          if (!is_inside_think) {
+            const extracted = parse_think_block(full_accumulated);
+            const cleaned = (extracted.prose || "").trimStart();
+            if (cleaned) on_token(cleaned, true);
+          }
+        } else if (!is_inside_think) {
+          on_token(chunk, false);
+        }
+      }
+    },
+  });
+
+  return (outcome?.prose || "").trim();
 }

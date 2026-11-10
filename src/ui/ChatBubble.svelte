@@ -199,12 +199,12 @@
   import { claim_menu } from "./ContextMenu.svelte.js";
   import { app } from "./interface.svelte.js";
   import { runtime, simulation_state } from "@engine";
-  import { simulation_log } from "@storage";
+  import { simulation_log } from "@data";
   import { get_resolution } from "@media";
   import Typewriter from "./Typewriter.svelte";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
   import { get_percentage } from "@utils";
-  import { parse_bracket_entries, strip_bracket_engine_flags } from "@storage";
+  import { parse_bracket_entries, strip_bracket_engine_flags } from "@data";
 
   /**
    * @typedef {Object} Props

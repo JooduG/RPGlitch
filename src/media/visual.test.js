@@ -16,7 +16,7 @@ import {
   visual_engine,
   resolve_story_beat_style,
   compose_story_beat_prompt,
-} from "./visual.js";
+} from "./visual.svelte.js";
 
 describe("visual.js — Stateless Perchance Image Dispatcher", () => {
   beforeEach(() => {

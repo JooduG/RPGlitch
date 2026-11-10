@@ -7,7 +7,7 @@ import { render, act } from "@testing-library/svelte";
 
 import { app } from "./interface.svelte.js";
 import { runtime } from "@engine";
-import { session_driver } from "@storage";
+import { session_driver } from "@data";
 import Console from "./Console.svelte";
 import * as engine from "@engine";
 

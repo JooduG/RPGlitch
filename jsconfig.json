@@ -31,11 +31,11 @@
       "@config": [
         "src/config.js"
       ],
-      "@storage": [
-        "src/storage/index.js"
+      "@data": [
+        "src/data/index.js"
       ],
-      "@storage/*": [
-        "src/storage/*"
+      "@data/*": [
+        "src/data/*"
       ],
       "@engine": [
         "src/engine/index.js"

@@ -31,7 +31,7 @@
     replay_full_entity_at_round,
     upsert_entity,
     update_entity,
-  } from "@storage";
+  } from "@data";
   import { PROFILE_SECTIONS_BY_TYPE, PROFILE_FIELDS } from "../definitions/profile-taxonomy.js";
   import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
   import { VISUAL_STYLES, get_visual_style } from "../definitions/visual-styles.js";

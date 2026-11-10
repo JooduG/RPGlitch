@@ -11,7 +11,7 @@ const mock_checkpoint = vi.hoisted(() => ({
   clear_session_checkpoint: vi.fn(),
 }));
 
-vi.mock("@storage", async (importOriginal) => {
+vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -98,7 +98,7 @@ describe("runtime.sync checkpoint restore", () => {
   afterEach(async () => {
     runtime?.teardown_effects?.();
     try {
-      const { db } = await import("@storage");
+      const { db } = await import("@data");
       if (db?.isOpen()) {
         db.close();
       }
@@ -109,7 +109,7 @@ describe("runtime.sync checkpoint restore", () => {
   });
 
   async function seed_story(round = 3) {
-    const { db, init_db } = await import("@storage");
+    const { db, init_db } = await import("@data");
     await init_db();
     await db.entities.put(base_entity("user-1", "You", "character"));
     await db.entities.put(base_entity("ai-1", "Silas", "character"));
@@ -167,7 +167,7 @@ describe("runtime.sync checkpoint restore", () => {
     const { story_id } = await seed_story(3);
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
 
-    const { session_driver } = await import("@storage");
+    const { session_driver } = await import("@data");
 
     await runtime.sync();
 
@@ -193,7 +193,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
   afterEach(async () => {
     runtime?.teardown_effects?.();
     try {
-      const { db } = await import("@storage");
+      const { db } = await import("@data");
       if (db?.isOpen()) {
         db.close();
       }
@@ -204,7 +204,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
   });
 
   async function seed_story_with_npcs(npc_entities = []) {
-    const { db, init_db } = await import("@storage");
+    const { db, init_db } = await import("@data");
     await init_db();
     await db.entities.put(base_entity("user-1", "You", "character"));
     await db.entities.put(base_entity("ai-1", "Silas", "character"));

@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   create_live_stream_fn,
-  reconstruct_history_from_feed,
   write_back_kernel_state,
   dispatch_caretaker_consolidation,
   execute_greenfield_turn,
@@ -9,9 +8,10 @@ import {
   get_shared_transport,
   reset_shared_transport,
 } from "./bridge.js";
+import { reconstruct_history_from_feed } from "./turns.js";
 import { Kernel } from "./kernel.svelte.js";
 import { register_state_accessors } from "../utils/index.js";
-import * as storage_db from "../storage/db.js";
+import * as storage_db from "../data/db.js";
 import * as media_module from "../media/index.js";
 
 describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => {

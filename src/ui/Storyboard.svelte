@@ -8,13 +8,13 @@
    */
   import { SvelteSet } from "svelte/reactivity";
   import { compute_initials, pick_random } from "@utils";
-  import { active_entity_ids } from "@storage";
+  import { active_entity_ids } from "@data";
   import { VISUAL_STYLES } from "../definitions/visual-styles.js";
   import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
   const stories = { active_entity_ids };
   import { app } from "./interface.svelte.js";
   import { chrono_engine } from "@engine";
-  import { simulation_log } from "@storage";
+  import { simulation_log } from "@data";
   import { get_signature_color, motion, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@media";
   import { parse_message } from "./Storymode.svelte";
 
@@ -292,11 +292,11 @@
 <script>
   import { untrack } from "svelte";
   import { Backdrop, Button, Shimmer, tooltip } from "@primitives";
-  import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@storage";
+  import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@data";
   const repository = { upsert: upsert_entity };
   import { Audio, rect_of } from "@media";
   import { runtime, simulation_state } from "@engine";
-  import { birth_entity_core } from "@storage";
+  import { birth_entity_core } from "@data";
   import { EntityCard } from "@ui";
   import { Modal, SourceField, Toggle } from "@primitives";
 

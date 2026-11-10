@@ -17,17 +17,17 @@
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
 import { resolve_priority, run_llm_job } from "./gate.js";
 import { merge_abort_signals } from "../utils/resilience.js";
-import { append_ledger_entries, log_message } from "../storage/db.js";
-import { normalize_entity } from "../storage/entities.js";
-import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../storage/parser.js";
+import { append_ledger_entries, log_message } from "../data/db.js";
+import { normalize_entity } from "../data/entities.js";
+import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../data/parser.js";
 import { state_bridge, stream_bridge, sanitize_llm } from "../utils/index.js";
 import { Kernel } from "./kernel.svelte.js";
 import {
-  execute_turn_2_character,
   execute_turn_3_caretaker,
   execute_turn_structuring,
   execute_turn_visualizer,
   resolve_caretaker_target,
+  reconstruct_history_from_feed,
 } from "./turns.js";
 
 /**
@@ -318,52 +318,6 @@ export async function enhance_text(payload) {
  * @type {Kernel | null}
  */
 let _active_kernel = null;
-
-/**
- * Reconstructs clean Kernel dialogue history from the UI / simulation log feed.
- *
- * Resolves Gap 5: Preserves user, model, fractal (environmental), and system roles
- * along with origin attribution so scene context is never lost.
- *
- * @param {Array<object>} feed
- * @param {object} cast
- * @returns {Array<object>}
- */
-export function reconstruct_history_from_feed(feed = [], cast = {}) {
-  if (!Array.isArray(feed)) return [];
-
-  const user_name = cast.user?.name || "USER";
-  const ai_name = cast.ai?.name || "AI";
-  const fractal_name = cast.fractal?.name || "WORLD";
-
-  return feed
-    .filter((entry) => entry && entry.text && typeof entry.text === "string" && entry.text.trim())
-    .map((entry) => {
-      let role;
-      let origin = entry.character_name || entry.origin || "";
-
-      if (entry.role === "user") {
-        role = "user";
-        origin = origin || user_name;
-      } else if (entry.role === "fractal") {
-        role = "fractal";
-        origin = origin || fractal_name;
-      } else if (entry.role === "system") {
-        role = "system";
-        origin = origin || "SYSTEM";
-      } else {
-        role = "ai";
-        origin = origin || ai_name;
-      }
-
-      return {
-        role,
-        origin,
-        text: entry.text.trim(),
-        round: Number(entry.round || 1),
-      };
-    });
-}
 
 /**
  * Writes back Kernel execution outcomes into active legacy stores and IndexedDB.
@@ -914,76 +868,6 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
 }
 
 /**
- * Executes a ghostwriting stream to draft the user's next narrative action or dialogue.
- * Reuses execute_turn_2_character with inverted participants (AI: user, USER: ai).
- * Suppresses thought blocks during live token streaming to the composer callback.
- *
- * @param {string} [input_text=""] - Context/seed text to continue or draft
- * @param {AbortSignal} [signal=null] - Optional abort signal
- * @param {((chunk: string, is_full_replace: boolean) => void) | null} [on_token=null] - Live token callback
- * @returns {Promise<string>} Cleaned narrative prose
- */
-export async function execute_ghostwriter(input_text = "", signal = null, on_token = null) {
-  const runtime = state_bridge.runtime || {};
-  const app = state_bridge.app || {};
-
-  const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
-  const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
-  const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
-
-  const feed = state_bridge.simulation_log?.feed || [];
-  const history = reconstruct_history_from_feed(feed, {
-    user: user_quadrant,
-    ai: ai_quadrant,
-    fractal: fractal_quadrant,
-  });
-
-  if (input_text && input_text.trim()) {
-    history.push({
-      role: "user",
-      content: input_text.trim(),
-    });
-  }
-
-  const live_transport = get_shared_transport();
-
-  let full_accumulated = "";
-  let is_inside_think = false;
-
-  const outcome = await execute_turn_2_character({
-    transport: live_transport,
-    round: Number(runtime.round || 1),
-    entities: {
-      AI: user_quadrant,
-      USER: ai_quadrant,
-      FRACTAL: fractal_quadrant,
-    },
-    history,
-    memories: [],
-    directors_note: "",
-    signal,
-    onChunk: (chunk) => {
-      full_accumulated += chunk;
-      if (typeof on_token === "function") {
-        const lower = full_accumulated.toLowerCase();
-        if (lower.includes("<think>") || lower.startsWith("<think") || full_accumulated.trimStart() === "<") {
-          is_inside_think = !lower.includes("</think>");
-          if (!is_inside_think) {
-            const extracted = parse_think_block(full_accumulated);
-            const cleaned = (extracted.prose || "").trimStart();
-            if (cleaned) on_token(cleaned, true);
-          }
-        } else if (!is_inside_think) {
-          on_token(chunk, false);
-        }
-      }
-    },
-  });
-
-  return (outcome?.prose || "").trim();
-}
-
-/**
  * Executes visual prompt envisioning/refinement via the greenfield visualizer purpose core.
  *
  * @param {string} text - Draft description or camera note
@@ -1200,10 +1084,10 @@ export async function execute_greenfield_prologue(story_id) {
       release_prologue_image = resolve;
     });
 
-    const { visual_engine } = await import("../media/visual.js");
+    const { visual_engine } = await import("../media/visual.svelte.js");
     if (visual_engine) {
       (async () => {
-        const { mark_generation_in_flight, clear_generation_in_flight } = await import("../media/visual.js");
+        const { mark_generation_in_flight, clear_generation_in_flight } = await import("../media/visual.svelte.js");
         mark_generation_in_flight?.(node_id, 0);
         await prologue_image_gate;
         try {
@@ -1285,7 +1169,7 @@ export async function execute_greenfield_epilogue(story_id, conclusion_status = 
     node_id,
   });
 
-  const { parse_think_block } = await import("../storage/parser.js");
+  const { parse_think_block } = await import("../data/parser.js");
   const { detox_prose } = await import("../utils/detox.js");
   const cleaned_prose = detox_prose(parse_think_block(response || "").body);
 

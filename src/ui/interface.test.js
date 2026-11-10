@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeEach } from "vitest";
 import { app } from "./interface.svelte.js";
-import { developer_log } from "@storage";
+import { developer_log } from "@data";
 
 describe("InterfaceStore (app)", () => {
   beforeEach(() => {

@@ -9,7 +9,7 @@ This package encapsulates procedural Web Audio sound effect synthesis, browser W
 
 `src/media/` is built as the **sovereign sensory presentation layer** running alongside legacy consumers until Phase 4 (Gate 4) atomic cutover:
 
-- **Zero Upward Dependencies**: Imports downward strictly from `@utils`, `@config`, and `@platform`. Never imports from `@storage`, `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
+- **Zero Upward Dependencies**: Imports downward strictly from `@utils`, `@config`, and `@platform`. Never imports from `@data`, `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
 - **Procedural SFX (Zero Remote Audio Assets)**: All UI sound effects are procedurally synthesized using Web Audio oscillators, biquad filters, and noise envelopes. Zero remote `.wav` file downloads or network dependencies.
 - **Excised Kokoro Neural Stack**: The legacy 1,248-line ONNX/WebGPU Kokoro neural voice pipeline and 373-line `speech.js` have been purged to protect the 4.00 MB bundle ceiling and 50 MiB iframe memory boundary. In-browser speech synthesis is handled cleanly via the standard Web Speech API.
 - **Transitional Facade Shims**: Re-export shims [`audio.svelte.js`](./audio.svelte.js) and [`visual.svelte.js`](./visual.svelte.js) preserve parallel operation for legacy consumers (`Feed.svelte`, `Message.svelte`, `story.js`, and unit test mocks) without breaking imports.
@@ -57,7 +57,7 @@ The package exposes its public interface via [`src/media/index.js`](./index.js):
 
 ## Invariants
 
-- **Zero Upward Layer Violations**: `src/media/` must never import from `@storage`, `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
+- **Zero Upward Layer Violations**: `src/media/` must never import from `@data`, `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
 - **User Gesture Requirement**: `AudioContext` is never constructed during module evaluation. It is strictly instantiated or resumed on verified user interaction (`pointerdown`, `keydown`).
 - **Memory Leak Protection**: Every procedural SFX node explicitly detaches event handlers (`source.onended = null`) and disconnects from the audio graph upon completion.
 - **Bounded Queue**: Active background image generation queue is bounded to 5 slots (`IMAGE_GENERATION_QUEUE_CAPACITY = 5`). Overflows evict the oldest unresolved placeholder and mark it failed.

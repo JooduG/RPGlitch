@@ -12,7 +12,7 @@
 // Authoritative simulation state class
 export { Kernel } from "./kernel.svelte.js";
 export { LLM_PRIORITY, resolve_priority, run_llm_job, get_llm_gate_status } from "./gate.js";
-export { get_mock_message } from "./bridge.js";
+export { get_mock_message, get_shared_transport } from "./bridge.js";
 
 // Pure headless turn orchestration
 export {
@@ -22,6 +22,7 @@ export {
   execute_turn_1_director,
   execute_turn_2_character,
   execute_turn_2_continue,
+  execute_ghostwriter,
   execute_turn_3_caretaker,
   execute_turn_visualizer,
   execute_turn_structuring,
@@ -35,7 +36,6 @@ export {
   execute_greenfield_continue,
   execute_greenfield_prologue,
   execute_greenfield_epilogue,
-  execute_ghostwriter,
   execute_visualizer_envision,
   structure_profile,
 } from "./bridge.js";

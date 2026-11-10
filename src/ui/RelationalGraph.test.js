@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/svelte";
 import RelationalGraph from "./RelationalGraph.svelte";
 
-vi.mock("@storage", async (importOriginal) => {
+vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
   const mock_list = [
     {

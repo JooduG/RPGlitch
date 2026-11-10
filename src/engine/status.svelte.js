@@ -27,7 +27,7 @@
 import { Audio } from "@media";
 import { TIMING_MS } from "@config";
 import { get_llm_gate_status } from "./gate.js";
-import { developer_log } from "@storage";
+import { developer_log } from "@data";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

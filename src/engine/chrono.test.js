@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
-import { session_driver, delete_log_entry } from "@storage";
+import { session_driver, delete_log_entry } from "@data";
 import { execute_greenfield_turn, execute_greenfield_prologue } from "./bridge.js";
 
-vi.mock("@storage", async (importOriginal) => {
+vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,

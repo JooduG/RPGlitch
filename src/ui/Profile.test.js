@@ -32,7 +32,7 @@ vi.mock("./interface.svelte.js", () => ({
   },
 }));
 
-vi.mock("@storage", async (importOriginal) => {
+vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -60,7 +60,7 @@ describe("ProfileState setImage", () => {
     expect(state.char.profile_picture).toBe("data:image/png;base64,trimmed123");
 
     // Assert persistence
-    const { db } = await import("@storage");
+    const { db } = await import("@data");
     const { runtime } = await import("@engine");
 
     expect(db.entities.update).toHaveBeenCalledWith("test-char", {

@@ -18,7 +18,7 @@
  * ============================================================================
  */
 
-import { format_clean_brackets } from "../storage/parser.js";
+import { format_clean_brackets } from "../data/parser.js";
 import { ENHANCER_DIRECTIVES } from "../definitions/profile-taxonomy.js";
 import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
 

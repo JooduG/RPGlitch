@@ -169,7 +169,7 @@ The `design` skill maintains several scripts for token integrity:
 
 ## 7.0 RPGlitch UI Directory Conventions
 
-- **Centralized State**: Coordinate state via centralized runes (`src/state/status.svelte.js` or `src/engine/simulation.svelte.js`).
+- **Centralized State**: Coordinate state via centralized runes (`src/engine/runtime.svelte.js` for simulation state, `src/ui/interface.svelte.js` for UI session state).
 
 ---
 

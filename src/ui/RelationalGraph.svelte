@@ -13,7 +13,7 @@
 <script>
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
-  import { extract_entity_relationships, list_entities, ALL_PREMADES } from "@storage";
+  import { extract_entity_relationships, list_entities, ALL_PREMADES } from "@data";
 
   /**
    * @typedef {Object} Props
