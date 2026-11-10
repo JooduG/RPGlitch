@@ -13,7 +13,6 @@
  */
 
 import { execute_round, execute_turn_2_continue } from "./turns.js";
-import { create_transport } from "./transport.js";
 
 export class Kernel {
   user = $state(null);
@@ -31,7 +30,13 @@ export class Kernel {
     this.fractal = options.fractal || null;
     this.round = options.round || 0;
     this.director_enabled = options.director_enabled || false;
-    this.transport = options.transport || create_transport();
+    // Transport is always injected live (gate-backed adapter from bridge.js);
+    // this stub only throws a legible error if a bare Kernel ever streams.
+    this.transport = options.transport || {
+      stream() {
+        throw new Error("Kernel requires an injected transport (e.g. get_gate_stream()).");
+      },
+    };
   }
 
   /**

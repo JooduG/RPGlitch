@@ -31,13 +31,14 @@ import {
 } from "./turns.js";
 
 /**
- * Shared preemptive transport singleton for the active session.
- * Replaces per-turn create_transport instantiation so foreground turns and background
- * Caretaker consolidation share a single-slot preemptible pipeline.
+ * Shared gate-backed stream adapter for the active session.
+ * All live turns (foreground) and background work (caretaker, visualizer,
+ * structuring) serialize through the global LLM priority gate in ./gate.js,
+ * which is the single home for generation queuing and preemption.
  */
 let _shared_transport = null;
 
-export function get_shared_transport() {
+export function get_gate_stream() {
   if (!_shared_transport) {
     _shared_transport = {
       stream: (prompt, options = {}) => {
@@ -49,7 +50,7 @@ export function get_shared_transport() {
   return _shared_transport;
 }
 
-export function reset_shared_transport() {
+export function reset_gate_stream() {
   _shared_transport = null;
 }
 
@@ -576,7 +577,7 @@ export async function execute_turn(user_input, _options = {}) {
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
   // 2. Initialize or reconfigure Kernel with live streaming transport
-  const live_transport = get_shared_transport();
+  const live_transport = get_gate_stream();
 
   // Resolves Gap 3: Read director_enabled dynamically from app settings rather than hardcoding true
   const director_enabled = Boolean(app?.settings?.director_enabled);
@@ -752,7 +753,7 @@ export async function execute_continue(target_entry, _options = {}) {
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
   // 2. Reuse shared preemptive transport singleton
-  const live_transport = get_shared_transport();
+  const live_transport = get_gate_stream();
 
   const director_enabled = Boolean(app?.settings?.director_enabled);
 
@@ -1018,7 +1019,7 @@ export async function execute_prologue(story_id) {
     const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
     const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
-    const live_transport = get_shared_transport();
+    const live_transport = get_gate_stream();
     const node_id = `prologue-${Date.now()}`;
     const fractal_name = fractal_quadrant?.name || "Fractal Entity";
 

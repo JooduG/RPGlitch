@@ -12,7 +12,7 @@
 // Authoritative simulation state class
 export { Kernel } from "./kernel.svelte.js";
 export { LLM_PRIORITY, resolve_priority, run_llm_job, get_llm_gate_status } from "./gate.js";
-export { get_mock_message, get_shared_transport } from "./bridge.js";
+export { get_mock_message, get_gate_stream } from "./bridge.js";
 
 // Pure headless turn orchestration
 export {
@@ -48,9 +48,6 @@ export {
 
 // Two-Tier Sieve RAG & vector math
 export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
-
-// Streaming transport boundary
-export { create_transport } from "./transport.js";
 
 // Simulation Runtime & Entity Chronology
 export { runtime, RuntimeEngineStore, RuntimeEngineStore as RuntimeEngine } from "./runtime.svelte.js";

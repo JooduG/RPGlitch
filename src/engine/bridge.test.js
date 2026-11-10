@@ -5,8 +5,8 @@ import {
   dispatch_caretaker_consolidation,
   execute_turn,
   execute_continue,
-  get_shared_transport,
-  reset_shared_transport,
+  get_gate_stream,
+  reset_gate_stream,
 } from "./bridge.js";
 import { reconstruct_history_from_feed } from "./turns.js";
 import { Kernel } from "./kernel.svelte.js";
@@ -449,20 +449,20 @@ describe("src/engine/bridge.js - Engine Bridge Unit Tests", () => {
     });
   });
 
-  describe("B13: Shared Preemptive Transport Singleton", () => {
+  describe("B13: Shared Gate-Backed Stream Adapter", () => {
     it("returns singleton transport instance across multiple calls and resets cleanly", () => {
-      reset_shared_transport();
-      const t1 = get_shared_transport();
-      const t2 = get_shared_transport();
+      reset_gate_stream();
+      const t1 = get_gate_stream();
+      const t2 = get_gate_stream();
       expect(t1).toBe(t2);
 
-      reset_shared_transport();
-      const t3 = get_shared_transport();
+      reset_gate_stream();
+      const t3 = get_gate_stream();
       expect(t3).not.toBe(t1);
     });
 
     it("foreground preempts background job through the shared gate without killing other queued background work", async () => {
-      reset_shared_transport();
+      reset_gate_stream();
       const original_gen = window.generate_text;
 
       window.generate_text = vi.fn(({ instruction, signal }) => {
@@ -482,7 +482,7 @@ describe("src/engine/bridge.js - Engine Bridge Unit Tests", () => {
       });
 
       try {
-        const transport = get_shared_transport();
+        const transport = get_gate_stream();
 
         // 1. Launch background job
         const background_promise = transport.stream("background-job-1", { priority: "background" });
@@ -500,7 +500,7 @@ describe("src/engine/bridge.js - Engine Bridge Unit Tests", () => {
         expect(foreground_result).toContain("foreground-job-1");
       } finally {
         window.generate_text = original_gen;
-        reset_shared_transport();
+        reset_gate_stream();
       }
     });
   });
