@@ -297,7 +297,7 @@ export class VoiceEngine {
   enabled = true;
   selected_voice = "default";
   rate = 1.0;
-  volume = 1.0;
+  volume = $state(1.0);
   is_speaking = false;
   active_message_id = null;
 
@@ -400,7 +400,7 @@ export class VoiceEngine {
 
 export class AudioEngine {
   voice = new VoiceEngine();
-  notifications_enabled = true;
+  notifications_enabled = $state(true);
 
   get volume() {
     return this.voice.volume;
