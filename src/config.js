@@ -208,6 +208,7 @@ export const FIELD_FLOORS = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: Removed same-name view re-exports — text.js (CANONICAL/NARRATIVE), story-export.js (NARRATOR), detox.js (VALID), speaking-styles.js (SPEAKING_STYLES/VALID), palette.js (SIGNATURE_COLORS/PALETTE/VARS); consumers read @config / ./tokens.js directly. story-export.js CANONICAL_ROLES now from @config, optics.js PALETTE from ./tokens.js.
  * - 2026-11-10: Rest of the codebase to KEY.field_names.value — PURPOSE_CORES keys UPPER (DIRECTOR/CHARACTER/CARETAKER/VISUALIZER; prompts/turns/bridge re-pointed, identity labels stay lowercase), caretaker NPC target key UPPER, gate resolve_priority() single-homes the background/foreground string boundary (bridge twin deleted), math.js option keys UPPER (BAND_HIGH/BAND_LOW/DISPLACEMENT_THRESHOLD/DEFAULT_TIER — fixes dead wiring where optics passed UPPER keys the reader never saw).
  * - 2026-11-10: Keys UPPER, values lowercase — IMAGE_POLICY keys (DISPLACEMENT_THRESHOLD/COOLDOWN_ROUNDS/DEFAULT_TIER/MAX_PENDING_IMAGES; optics/visual re-pointed), DYNAMICS.DELTA keys (STANDARD/EXTREME/CLIP; prompts.js re-pointed). CANONICAL_ROLES values lowercase (user/ai/npc/fractal/system); ai/model duality unified to ai (db writes as-is, all model readers re-pointed; transport wire role untouched).
  * - 2026-11-10: Gate fallback release reads TIMING_MS.INTERACTION (was local 4000, now 5000 — user-approved); PREEMPT key removed.

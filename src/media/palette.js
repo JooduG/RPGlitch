@@ -17,8 +17,6 @@
 
 import { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./tokens.js";
 
-export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES };
-
 // ============================================================================
 // [SECTION 1: HASHING & COLOR RESOLUTION UTILITIES]
 // ============================================================================

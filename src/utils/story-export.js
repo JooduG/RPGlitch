@@ -17,10 +17,8 @@
  * - `src/ui/console/Console.svelte` (Dev console story export).
  */
 
-import { format_datetime, filter_narrative_messages, normalize_history_beat, CANONICAL_ROLES } from "./text.js";
-import { NARRATOR_ROLES } from "@config";
-
-export { NARRATOR_ROLES }; // view over config — the single home
+import { format_datetime, filter_narrative_messages, normalize_history_beat } from "./text.js";
+import { CANONICAL_ROLES, NARRATOR_ROLES } from "@config";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & NARRATOR ROLES]

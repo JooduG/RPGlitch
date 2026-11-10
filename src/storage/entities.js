@@ -11,7 +11,7 @@
 
 import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets } from "./parser.js";
-import { FLAT_LEAF_MAP } from "./profile-fields.js";
+import { FLAT_LEAF_MAP } from "../definitions/profile-taxonomy.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
 import { DYNAMICS } from "../config.js";
 import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";

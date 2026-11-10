@@ -7,7 +7,7 @@ import {
   resolve_active_style_key,
   extract_style_dna,
 } from "./narrative-styles.js";
-import { VALID_SPEAKING_STYLES } from "./speaking-styles.js";
+import { VALID_SPEAKING_STYLES } from "../config.js";
 
 describe("NARRATIVE_STYLES Preset Catalog", () => {
   it("exports all expected author, director, and genre presets", () => {

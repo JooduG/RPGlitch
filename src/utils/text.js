@@ -20,8 +20,6 @@
 import { CLOTHING_KEYS, escape_xml, prompt_escape } from "./xml.js";
 import { CHARS_PER_TOKEN, CANONICAL_ROLES, NARRATIVE_ROLES } from "@config";
 
-export { CANONICAL_ROLES, NARRATIVE_ROLES }; // views over config — the single home (barrel + story-export keep working)
-
 // ============================================================================
 // [SECTION 1: CONSTANTS & TOKEN SETS]
 // ============================================================================
@@ -293,12 +291,6 @@ export function truncate_at_boundary(text, limit = 200, options = {}) {
 
   return truncate_at_word(text, limit, options);
 }
-
-/**
- * Calibrated character-to-token ratio based on Perchance BPE tokenization
- * across structured XML tags, pseudo-JSON brackets, and narrative prose.
- */
-export { CHARS_PER_TOKEN };
 
 /**
  * Heuristic token estimator for prompt budgeting (Track 2.2: 6k cliff guard).

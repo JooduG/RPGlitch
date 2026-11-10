@@ -6,6 +6,8 @@
  * - Canonical Field Taxonomy & Enhancer Roles (PROFILE_FIELDS)
  * - Field Catalog & Flat Metadata Registry (PROFILE_FIELD_CATALOG)
  * - Profile Studio UI Layout Sections (PROFILE_SECTIONS_BY_TYPE)
+ * - Flat Leaf Map & Ingestion Aliases (FLAT_LEAF_MAP + resolve_flat_path)
+ * - Caretaker Enhancer Directives (ENHANCER_DIRECTIVES)
  *
  * Dependencies:
  * - format_key_as_label from @utils
@@ -170,24 +172,13 @@ export const PROFILE_FIELDS = {
  */
 
 /**
- * Traverses PROFILE_FIELDS once to build both the flat polymorphic catalog and leaf key map.
+ * Traverses PROFILE_FIELDS once to build the flat polymorphic catalog.
  * @param {Record<string, any>} fields
- * @returns {{ catalog: Record<string, CatalogEntry>, leaf_map: Record<string, string> }}
+ * @returns {{ catalog: Record<string, CatalogEntry> }}
  */
 function build_profile_catalog(fields) {
   /** @type {Record<string, CatalogEntry>} */
   const catalog = {};
-  /** @type {Record<string, string>} */
-  const leaf_map = {
-    appearance: "eternal.physical",
-    personality: "eternal.non_physical",
-    current_look: "present.physical",
-    state_of_mind: "present.non_physical",
-    environment: "eternal.physical",
-    active_atmosphere: "present.physical",
-    current_state: "present.non_physical",
-    metaphysical_truths: "eternal.non_physical",
-  };
   const entity_types = ["character", "fractal"];
 
   entity_types.forEach((entity_type) => {
@@ -208,11 +199,6 @@ function build_profile_catalog(fields) {
           section_label,
           layer_key: layer_uppercase,
         };
-        leaf_map[layer_key] = layer_key;
-        if (layer_val.label) {
-          leaf_map[layer_val.label.toLowerCase().replace(/\s+/g, "_")] = layer_key;
-          leaf_map[tag.toLowerCase()] = layer_key;
-        }
       } else {
         Object.entries(layer_val).forEach(([sub_key, leaf]) => {
           const path = `${layer_key}.${sub_key}`;
@@ -225,17 +211,12 @@ function build_profile_catalog(fields) {
             section_label,
             layer_key: layer_uppercase,
           };
-          if (leaf.label) {
-            leaf_map[leaf.label.toLowerCase().replace(/\s+/g, "_")] = path;
-            leaf_map[tag.toLowerCase()] = path;
-          }
-          leaf_map[sub_key] = path;
         });
       }
     });
   });
 
-  return { catalog, leaf_map };
+  return { catalog };
 }
 
 const { catalog } = build_profile_catalog(PROFILE_FIELDS);
@@ -244,6 +225,89 @@ const { catalog } = build_profile_catalog(PROFILE_FIELDS);
  * Flat registry of all entity fields, keyed by dot-notation ID.
  */
 export const PROFILE_FIELD_CATALOG = Object.freeze(catalog);
+
+// ── 2b. Flat Leaf Map & Ingestion Aliases (single home; moved from src/storage/profile-fields.js) ──
+
+export const FLAT_LEAF_MAP = Object.freeze({
+  character: Object.freeze({
+    appearance: "eternal.physical",
+    "eternal.physical": "eternal.physical",
+    personality: "eternal.non_physical",
+    "eternal.non_physical": "eternal.non_physical",
+    current_look: "present.physical",
+    "present.physical": "present.physical",
+    state_of_mind: "present.non_physical",
+    "present.non_physical": "present.non_physical",
+    future: "future",
+    agenda: "future",
+    past: "past",
+    memories: "past",
+  }),
+  fractal: Object.freeze({
+    environment: "eternal.physical",
+    "eternal.physical": "eternal.physical",
+    permanent_truths: "eternal.non_physical",
+    metaphysical_truths: "eternal.non_physical",
+    "eternal.non_physical": "eternal.non_physical",
+    atmosphere: "present.physical",
+    active_atmosphere: "present.physical",
+    "present.physical": "present.physical",
+    current_state: "present.non_physical",
+    "present.non_physical": "present.non_physical",
+    future: "future",
+    trajectory: "future",
+    past: "past",
+    history: "past",
+  }),
+});
+
+/**
+ * Resolves a flat leaf or alias key into a canonical dot-notation path.
+ *
+ * @param {string} field_name
+ * @param {"character" | "fractal"} [entity_type="character"]
+ * @returns {string | null}
+ */
+export function resolve_flat_path(field_name, entity_type = "character") {
+  if (!field_name || typeof field_name !== "string") return null;
+  const type_map = FLAT_LEAF_MAP[entity_type];
+  if (!type_map) return null;
+
+  const normalized = field_name.trim().toLowerCase().replace(/\s+/g, "_");
+  return type_map[normalized] || null;
+}
+
+// ── 2c. Caretaker Enhancer Directives (single home; moved from src/storage/profile-fields.js) ──
+
+/**
+ * Directives matching PROFILE_FIELDS.enhancer tags verbatim.
+ * Exported for Caretaker Core in prompts and Profile Studio.
+ */
+export const ENHANCER_DIRECTIVES = Object.freeze({
+  BIOMETRIC_RENDERER:
+    "[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits.",
+  COGNITIVE_ARCHITECT:
+    "[KEY: value] core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Bracketed traits only.",
+  SOMATIC_TRACKER:
+    "[KEY: value] current appearance (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.",
+  TACTICAL_ANALYZER: "[KEY: value] immediate emotional pressure, active mental focus, and present behavioral drivers. Bracketed conditions only.",
+  TRAJECTORY_SIMULATOR:
+    "[KEY: value] active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. Bracketed items only; no story scenes or dialogue.",
+  PAST_COMPILER:
+    "Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.",
+  SPATIAL_RENDERER:
+    "[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore.",
+  METAPHYSICAL_ARCHITECT:
+    "[KEY: value] metaphysical substrate: governing laws, constant environmental forces, and physical constants. Bracketed truths only.",
+  ATMOSPHERIC_TRACKER:
+    "[KEY: value] current atmospheric state (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.",
+  ECOSYSTEM_ANALYZER:
+    "[KEY: value] current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. Bracketed state only.",
+  ECOSYSTEM_SIMULATOR:
+    "[KEY: value] environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change. Bracketed items only.",
+  HISTORIAN:
+    "Settled historical cataclysm, founding myth, or defining epoch: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.",
+});
 
 // ── 3. Profile Section Layout Model ──────────────────────────────────────────
 
@@ -308,10 +372,10 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: Folded src/storage/profile-fields.js back in — FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES now live here verbatim; storage/entities.js + engine/prompts.js re-pointed, storage barrel line retired, file deleted. Removed dead leaf_map inside build_profile_catalog.
  * - 2026-11-10: Renamed from profile-fields.js to profile-taxonomy.js (the storage-side
- *   profile-fields.js owns ingestion: FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES).
- *   Removed the unused derived FLAT_LEAF_MAP export (zero importers; live ingestion map lives
- *   in src/storage/profile-fields.js and differs in coverage) — single home, no behavior change.
+ *   profile-fields.js owned ingestion at the time: FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES).
+ *   Removed the unused derived leaf_map inside build_profile_catalog (computed and discarded, zero importers).
  * - 2026-10-18: Phase V Sub-item 5.4 — Enriched character and fractal 4-quadrant field descriptions with educational lorebook guidance, establishing each quadrant as an active vector slice of the world lorebook without keyword dumps.
  * - 2026-10-14: Phase IV Sub-item 4.2 — Formally registered canonical top-level pov metadata field in PROFILE_FIELDS taxonomy.
  * - 2026-10-04: Stripped per-field tense clauses from the temporal layer directives (tense now stated once via TASK_LIBRARY.TEMPORAL.TENSE); field text is pure content guidance.

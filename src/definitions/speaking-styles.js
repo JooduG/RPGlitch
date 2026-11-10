@@ -28,9 +28,7 @@
  */
 
 import { register_speaking_rules, register_anti_ai_rules, register_cluster_words, match_case } from "@utils";
-import { SPEAKING_STYLES, VALID_SPEAKING_STYLES } from "@config";
-
-export { SPEAKING_STYLES, VALID_SPEAKING_STYLES }; // views over config — the single home
+import { VALID_SPEAKING_STYLES } from "@config";
 
 // ============================================================================
 // 1. Declarative Rule Builder Primitive

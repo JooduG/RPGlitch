@@ -6,7 +6,8 @@
 import { DYNAMICS, IMAGE_RESOLUTIONS, IMAGE_POLICY } from "@config";
 import { evaluate_image_trigger, normalize_comma_spacing, CLOTHING_KEYS, CLEAR_TOKENS, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
 import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "../definitions/visual-styles.js";
-import { get_signature_label, PALETTE } from "./palette.js";
+import { get_signature_label } from "./palette.js";
+import { PALETTE } from "./tokens.js";
 
 // ============================================================================
 // [SECTION 1: TAXONOMY CONSTANTS & RESOLUTION SPECS]

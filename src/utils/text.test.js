@@ -27,7 +27,6 @@ import {
   merge_prose_into_field,
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
-  NARRATIVE_ROLES,
   parse_relational_vector,
   role_display_label,
   safe_parse_json,
@@ -41,8 +40,8 @@ import {
   truncate_at_boundary,
   VISUAL_EXCLUDED_KEYS,
   estimate_tokens,
-  CHARS_PER_TOKEN,
 } from "./text.js";
+import { NARRATIVE_ROLES, CHARS_PER_TOKEN } from "../config.js";
 
 describe("safe_parse_json", () => {
   it("extracts embedded JSON object from surrounding text", () => {

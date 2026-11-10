@@ -19,7 +19,7 @@
  */
 
 import { format_clean_brackets } from "../storage/parser.js";
-import { ENHANCER_DIRECTIVES } from "../storage/profile-fields.js";
+import { ENHANCER_DIRECTIVES } from "../definitions/profile-taxonomy.js";
 import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
 
 /**

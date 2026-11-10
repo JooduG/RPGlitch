@@ -31,7 +31,7 @@ export {
 } from "./parser.js";
 
 // 2. Profile Fields, Leaf Mapping & Enhancers
-export { FLAT_LEAF_MAP, resolve_flat_path, ENHANCER_DIRECTIVES } from "./profile-fields.js";
+// (retired — single home is now ../definitions/profile-taxonomy.js; import from there)
 
 // 3. Premades & Author Narrative Presets
 export {

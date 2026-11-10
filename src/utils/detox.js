@@ -2,8 +2,6 @@ import { match_case } from "./text.js";
 import { stable_pick } from "./math.js";
 import { VALID_SPEAKING_STYLES } from "@config";
 
-export { VALID_SPEAKING_STYLES }; // view over config — the single home (styles.js reads it via the @utils barrel)
-
 // ============================================================================
 // [SECTION 1: CONSTANTS & SPEAKING STYLES]
 // ============================================================================

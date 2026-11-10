@@ -7,8 +7,6 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  SPEAKING_STYLES,
-  VALID_SPEAKING_STYLES,
   is_valid_speaking_style,
   SPEAKING_STYLE_RULES,
   VOCAL_RULES,
@@ -17,6 +15,7 @@ import {
   METAPHOR_RULES,
   COMMUNITY_RULES,
 } from "./speaking-styles.js";
+import { SPEAKING_STYLES, VALID_SPEAKING_STYLES } from "../config.js";
 
 describe("speaking-styles taxonomy", () => {
   it("exports canonical SPEAKING_STYLES containing the 4 balanced quartets", () => {
