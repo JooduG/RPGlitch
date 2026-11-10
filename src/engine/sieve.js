@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { FIELD_FLOORS, CHARS_PER_TOKEN, ORIGIN_SCORE_MULTIPLIER } from "../config.js";
+import { FIELD_FLOORS, CHARS_PER_TOKEN, ORIGIN_SCORE_MULTIPLIER, EMBEDDING_SPECS } from "../config.js";
 
 /** Total guaranteed character floor across all 6 profile fields (sum: 1700 chars) */
 export const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce((sum, floor) => sum + floor, 0);
@@ -76,8 +76,6 @@ export function cosine_similarity(vecA, vecB) {
  *
  * @returns {{ get: (id: string) => Promise<Float32Array | null>, set: (id: string, vector: Float32Array) => Promise<void>, clear: () => Promise<void> }}
  */
-export const MAX_EPHEMERAL_VECTORS = 200;
-
 export function create_ephemeral_vector_cache() {
   const store = new Map();
 
@@ -86,7 +84,7 @@ export function create_ephemeral_vector_cache() {
       return store.get(id) || null;
     },
     async set(id, vector) {
-      if (store.size >= MAX_EPHEMERAL_VECTORS) {
+      if (store.size >= EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS) {
         // Evict oldest entry (FIFO) to enforce memory ceiling
         const first_key = store.keys().next().value;
         if (first_key !== undefined) {

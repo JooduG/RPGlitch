@@ -6,8 +6,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import "fake-indexeddb/auto";
 import Dexie from "dexie";
-import { db, init_db } from "./db.js";
-import { session_driver, SESSION_ID_KEY } from "./sessions.svelte.js";
+import { db, init_db, SESSION_ID_KEY } from "./db.js";
+import { session_driver } from "./sessions.svelte.js";
 
 describe("sessions.svelte.js session_driver", () => {
   beforeEach(async () => {

@@ -10,6 +10,7 @@
 import { generate_secure_seed, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
 import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 import { get_visual_style } from "../definitions/visual-styles.js";
+import { IMAGE_TRIGGER, TIMING_MS } from "../config.js";
 
 // ============================================================================
 // Visual prompt hygiene.
@@ -315,11 +316,6 @@ export async function dispatch_visual_generation(payload, options = {}) {
 export const _in_flight_image_generations = new Set();
 export const _image_generation_queue = [];
 
-export const IMAGE_GENERATION_QUEUE_CAPACITY = 5;
-export const IMAGE_PLACEHOLDER_HARD_CAP = 5;
-export const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
-export const IMAGE_GHOST_MAX_AGE_MS = 2 * 60 * 1000;
-
 export function mark_generation_in_flight(id, attachment_index = 0) {
   if (id == null) return;
   _in_flight_image_generations.add(`${id}:${attachment_index}`);
@@ -433,7 +429,7 @@ export async function sweep_stale_ghosts() {
           if (is_generation_in_flight(entry.id, attachment_index)) continue;
           const is_failed = attachment.metadata?.failed === true || attachment.metadata?.image_ghost_swept === true;
           const requested_at = Number(attachment.metadata?.requested_at) || entry.created_at || 0;
-          const is_stale = now - requested_at > IMAGE_GHOST_MAX_AGE_MS;
+          const is_stale = now - requested_at > TIMING_MS.CEILING;
           const is_empty_text = !entry.text || !entry.text.trim();
 
           if (is_empty_text && (is_failed || is_stale)) {
@@ -580,9 +576,9 @@ export async function spawn_image_beat(tier, options = {}) {
     await sweep_stale_ghosts();
     const pending_ghosts = await count_pending_ghosts();
 
-    if (pending_ghosts >= IMAGE_PLACEHOLDER_HARD_CAP) {
+    if (pending_ghosts >= IMAGE_TRIGGER.max_pending_images) {
       state_bridge.app?.log(
-        `[Image Trigger] Skipped ${tier} — ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_PLACEHOLDER_HARD_CAP}).`,
+        `[Image Trigger] Skipped ${tier} — ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_TRIGGER.max_pending_images}).`,
         "warn",
       );
       return;
@@ -596,7 +592,7 @@ export async function spawn_image_beat(tier, options = {}) {
     if (!placeholder_entry?.id) return;
 
     _image_generation_queue.push({ id: placeholder_entry.id, tier, source, metadata: placeholder_metadata });
-    if (_image_generation_queue.length > IMAGE_GENERATION_QUEUE_CAPACITY) {
+    if (_image_generation_queue.length > IMAGE_TRIGGER.max_pending_images) {
       const evicted = _image_generation_queue.shift();
       if (evicted?.id) {
         await mark_placeholder_failed(evicted.id, evicted.metadata);
@@ -618,7 +614,7 @@ export async function spawn_image_beat(tier, options = {}) {
         if (active_engine?.visualize) {
           result = await Promise.race([
             active_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true, visual_staging }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING)),
           ]);
         } else {
           const fallback_style = resolve_story_beat_style({});
@@ -628,7 +624,7 @@ export async function spawn_image_beat(tier, options = {}) {
           );
           const dispatched = await Promise.race([
             dispatch_visual_generation({ prompt: fallback_composed.prompt, negative_prompt: fallback_composed.negative_prompt }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING)),
           ]);
           result = {
             imageUrl: dispatched.image_url,

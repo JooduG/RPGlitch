@@ -19,10 +19,7 @@
  */
 
 import { state_bridge, stories_bridge, has_bracket_bond } from "@utils";
-import { db, append_ledger_entries } from "./db.js";
-
-/** Durable IndexedDB key for the active-session pointer (kv_settings). */
-export const SESSION_ID_KEY = "active_session_id";
+import { db, append_ledger_entries, SESSION_ID_KEY } from "./db.js";
 
 /**
  * Resolves a log speaker to its canonical entity id at creation (Track 1.2):

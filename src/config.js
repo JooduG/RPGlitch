@@ -100,6 +100,7 @@ export const IMAGE_RESOLUTIONS = Object.freeze({
 export const EMBEDDING_SPECS = Object.freeze({
   DIMENSIONS: 384, // Tensor dimensionality (384-d) for all-MiniLM-L6-v2 semantic sentence embeddings
   CACHE_CAPACITY: 1500, // Maximum number of 384-d tensor vectors held in the in-memory LRU cache
+  MAX_EPHEMERAL_VECTORS: 200, // Maximum ephemeral vectors held in the in-memory FIFO cache before eviction
   QUANTIZE_MAX: 255, // 8-bit unsigned integer scalar ceiling (0-255) for quantized vector storage
 });
 
@@ -134,8 +135,8 @@ export const TELEMETRY_CAPS = Object.freeze({
 export const IMAGE_TRIGGER = Object.freeze({
   displacement_threshold: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
   cooldown_rounds: 3, // Unified cooldown (rounds) between automatic scene image generations
-  default_tier: "story_scene",
-  tiers: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
+  default_tier: "story_scene", // Fallback tier for auto-triggered beats (canonical tiers live in optics IMAGE_TIERS)
+  max_pending_images: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
 });
 
 // ── 4. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
@@ -155,6 +156,8 @@ export const FIELD_FLOORS = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: IMAGE_TRIGGER slimmed — resolve_timeout_ms/ghost_max_age_ms deleted (visual.js reads TIMING_MS.CEILING directly, same 120000); queue_capacity + placeholder_hard_cap merged into max_pending_images: 5 (both guards shared the value/pool).
+ * - 2026-11-10: Centralized tunables — EMBEDDING_SPECS gains MAX_EPHEMERAL_VECTORS (sieve.js re-pointed); IMAGE_TRIGGER gains queue_capacity/placeholder_hard_cap/resolve_timeout_ms/ghost_max_age_ms (visual.js re-pointed, 4 module consts deleted) and keeps default_tier (optics DEFAULT_IMAGE_TIER deleted as dead dup); config `tiers` copy deleted — optics trigger validation uses IMAGE_TIERS directly (same 4 strings); SESSION_ID_KEY single-sourced in db.js (sessions.svelte.js dup deleted). No value changes.
  * - 2026-11-10: Cosmetic, no moves: removed §3.1 tombstone (§3 renumbered 1-4), fixed §2.2
  *   header (floors left earlier), §3 banner now admits the homeless literals. No value changes.
  * - 2026-11-10: Renamed LATENCY_TIERS_MS→TIMING_MS (status.svelte.js + resilience.js re-pointed),

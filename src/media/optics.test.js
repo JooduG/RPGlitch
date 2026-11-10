@@ -5,7 +5,6 @@
 
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_IMAGE_TIER,
   IMAGE_TIERS,
   get_resolution,
   get_resolution_string,
@@ -15,6 +14,7 @@ import {
   render_optics_fallback,
   extract_aesthetic_traits,
 } from "./optics.js";
+import { IMAGE_TRIGGER } from "../config.js";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
 describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
@@ -23,8 +23,8 @@ describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
       expect(IMAGE_TIERS).toEqual(["story_entities", "story_character", "solo_entity", "story_scene"]);
     });
 
-    it("defines DEFAULT_IMAGE_TIER as story_scene", () => {
-      expect(DEFAULT_IMAGE_TIER).toBe("story_scene");
+    it("defines IMAGE_TRIGGER.default_tier as story_scene", () => {
+      expect(IMAGE_TRIGGER.default_tier).toBe("story_scene");
     });
   });
 

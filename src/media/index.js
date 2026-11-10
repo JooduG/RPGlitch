@@ -71,7 +71,6 @@ export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./toke
 
 export {
   IMAGE_TIERS,
-  DEFAULT_IMAGE_TIER,
   ORDERED_VISUAL_STYLE_KEYS,
   build_aesthetic_map,
   flatten_aesthetic_map,
@@ -111,8 +110,4 @@ export {
   sanitize_visual_text,
   resolve_story_beat_style,
   compose_story_beat_prompt,
-  IMAGE_GENERATION_QUEUE_CAPACITY,
-  IMAGE_PLACEHOLDER_HARD_CAP,
-  IMAGE_RESOLVE_TIMEOUT_MS,
-  IMAGE_GHOST_MAX_AGE_MS,
 } from "./visual.js";

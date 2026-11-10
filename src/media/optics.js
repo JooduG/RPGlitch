@@ -19,12 +19,6 @@ import { get_signature_label, PALETTE } from "./palette.js";
 export const IMAGE_TIERS = Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]);
 
 /**
- * Default fallback tier for auto-triggered environmental beats.
- * @type {"story_scene"}
- */
-export const DEFAULT_IMAGE_TIER = "story_scene";
-
-/**
  * Resolution dimensions mapped by canonical tier identifier.
  * @type {Readonly<Record<string, { width: number, height: number }>>}
  */
@@ -122,9 +116,9 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
 
   // 1. Evaluate Director Explicit Beat (Priority 1)
   const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
-  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
+  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TIERS.includes(raw_trigger) ? raw_trigger : null;
   const tier_from_preference =
-    typeof director_data?.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
+    typeof director_data?.image_tier === "string" && IMAGE_TIERS.includes(director_data.image_tier) ? director_data.image_tier : null;
   const raw_staging = typeof director_data?.visual_staging === "string" ? director_data.visual_staging.trim() : "";
   const has_visual_staging = Boolean(raw_staging);
   const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null || has_visual_staging;
