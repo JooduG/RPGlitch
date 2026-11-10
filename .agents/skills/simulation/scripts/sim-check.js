@@ -118,7 +118,9 @@ export function check_core_markers(systems) {
   expect("DIRECTOR", "dynamics_deltas");
   expect("DIRECTOR", '<OUTPUT_FORMAT mode="json">');
   expect("CHARACTER", "Pacing & Posture");
-  expect("CHARACTER", "<think>");
+  // NOTE: render_thinking_mode escapes think tags for verifier safety (see
+  // prompts.js docblock), so pin the directive prose, not the literal tag.
+  expect("CHARACTER", "thinking process");
   expect("CARETAKER", "Bracket Mutation Rules");
   expect("CARETAKER", "eternal_physical");
   expect("VISUALIZER", "Prompt Synthesis");
