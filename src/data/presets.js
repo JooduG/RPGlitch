@@ -262,12 +262,12 @@ export const PREMADE_FRACTALS = Object.freeze([
 /**
  * All premade entities (characters and fractals) consolidated in a frozen array.
  */
-export const PREMADE_ENTITIES = Object.freeze([...PREMADE_CHARACTERS, ...PREMADE_FRACTALS]);
+export const ALL_PREMADES = Object.freeze([...PREMADE_CHARACTERS, ...PREMADE_FRACTALS]);
 
 /**
  * Map indexing all premade blueprints by their unique entity ID.
  */
-export const PREMADE_ENTITY_MAP = new Map(PREMADE_ENTITIES.map((blueprint) => [blueprint.id, blueprint]));
+export const PREMADE_ENTITY_MAP = new Map(ALL_PREMADES.map((blueprint) => [blueprint.id, blueprint]));
 
 // ============================================================================
 // 4. Query Primitives & Selectors
@@ -333,7 +333,7 @@ export function get_premade_fractals() {
  * - 2026-09-24: Purged legacy `premade` object wrapper under P4 Zero Backwards Compatibility.
  * - 2026-08-29: Harmonized module via `/harmonize`. Renamed `premades.js` -> `premade-entities.js`.
  *   Enforced Universal File Architecture, Anti-Abbreviation nomenclature, frozen constants
- *   (`PREMADE_CHARACTERS`, `PREMADE_FRACTALS`, `PREMADE_ENTITIES`, `PREMADE_ENTITY_MAP`),
+ *   (`PREMADE_CHARACTERS`, `PREMADE_FRACTALS`, `ALL_PREMADES`, `PREMADE_ENTITY_MAP`),
  *   and added dedicated query helpers (`get_premade_entity_by_id`, `has_premade_entity`).
  * - 2026-09-05: Full optimization pass against PROFILE_FIELDS directives.
  *   Trimmed redundancy, sharpened voices and wounds, strengthened futures,
@@ -416,8 +416,6 @@ export const NARRATIVE_PRESETS = Object.freeze({
 </NARRATIVE_STYLE>`,
   },
 });
-
-export const ALL_PREMADES = PREMADE_ENTITIES;
 
 export function get_starter_entities(type) {
   if (type === "character") return PREMADE_CHARACTERS;

@@ -142,12 +142,6 @@ export const security = {
   install_environment_hardening,
 };
 
-/** Default maximum permissible image upload size in bytes (view over config IMAGE_POLICY.UPLOAD — the single home). */
-export const DEFAULT_MAX_IMAGE_SIZE_BYTES = IMAGE_POLICY.UPLOAD.MAX_IMAGE_SIZE_BYTES;
-
-/** Default allowed image MIME types (view over config IMAGE_POLICY.UPLOAD — the single home). */
-export const DEFAULT_ALLOWED_IMAGE_MIME_TYPES = IMAGE_POLICY.UPLOAD.ALLOWED_IMAGE_MIME_TYPES;
-
 /**
  * Binary magic number / header signature validators for supported image formats.
  * @type {Record<string, (header: Uint8Array) => boolean>}
@@ -183,8 +177,8 @@ export const IMAGE_SIGNATURE_VALIDATORS = {
 export async function validate_image(file, options = {}) {
   if (!file) throw new Error("No file provided");
 
-  const max_size = options.max_size ?? DEFAULT_MAX_IMAGE_SIZE_BYTES;
-  const allowed_types = options.allowed_types ?? DEFAULT_ALLOWED_IMAGE_MIME_TYPES;
+  const max_size = options.max_size ?? IMAGE_POLICY.UPLOAD.MAX_IMAGE_SIZE_BYTES;
+  const allowed_types = options.allowed_types ?? IMAGE_POLICY.UPLOAD.ALLOWED_IMAGE_MIME_TYPES;
 
   // 1. File size verification
   if (file.size > max_size) {
@@ -351,7 +345,7 @@ export function validate_url(raw_url, options = {}) {
  */
 export async function fetch_web(raw_url, options = {}) {
   const url = validate_url(raw_url, options);
-  const budget = options.max_chars || (options.type === "fractal" || options.type === "world" ? INGESTION_LORE_LIMIT : INGESTION_CHAR_LIMIT);
+  const budget = options.max_chars || LENGTH_THRESHOLDS.INGESTION;
 
   const engine = get_super_fetch_engine();
 
@@ -409,16 +403,6 @@ export async function fetch_web(raw_url, options = {}) {
 // ============================================================================
 // [SECTION 1: CONSTANTS & INGESTION BUDGETS]
 // ============================================================================
-
-/**
- * Character budget applied to fetched web text for character profile imports.
- */
-export const INGESTION_CHAR_LIMIT = LENGTH_THRESHOLDS.INGESTION;
-
-/**
- * Character budget applied to fetched web text for fractal / world-lore imports.
- */
-export const INGESTION_LORE_LIMIT = LENGTH_THRESHOLDS.INGESTION;
 
 /**
  * Element tags treated as block boundaries when extracting text from HTML.
@@ -633,11 +617,11 @@ export function html_to_plain_text(html, options = {}) {
  * Clips text at a natural word boundary near `max_chars`, appending an ellipsis.
  * Trims trailing punctuation before the ellipsis to maintain prose fluency.
  * @param {string} text - Source text to clip.
- * @param {number} [max_chars=INGESTION_CHAR_LIMIT] - Maximum character limit.
+ * @param {number} [max_chars=LENGTH_THRESHOLDS.INGESTION] - Maximum character limit.
  * @param {string} [ellipsis="…"] - Trailing ellipsis string.
  * @returns {string}
  */
-export function truncate_readable(text, max_chars = INGESTION_CHAR_LIMIT, ellipsis = "…") {
+export function truncate_readable(text, max_chars = LENGTH_THRESHOLDS.INGESTION, ellipsis = "…") {
   if (typeof text !== "string" || !text) return "";
   return truncate_at_word(text, max_chars, {
     ellipsis,

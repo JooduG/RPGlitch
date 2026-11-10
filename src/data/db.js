@@ -289,13 +289,11 @@ export async function delete_story(id) {
  */
 let _is_seeding_active = false;
 
-export const seed_premades = seed_starter_entities;
-
 /**
  * Seeds starter entities into IndexedDB idempotently by ID.
  * @returns {Promise<void>}
  */
-export async function seed_starter_entities() {
+export async function seed_premades() {
   if (_is_seeding_active) return;
   _is_seeding_active = true;
 

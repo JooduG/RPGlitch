@@ -39,7 +39,6 @@ export {
 
 export {
   Audio,
-  audio_engine,
   AudioEngine,
   VoiceEngine,
   get_audio_context,
@@ -50,7 +49,6 @@ export {
   set_master_volume,
   toggle_mute,
   play_sfx,
-  CADENCE_RATES,
   VOICE_CADENCES,
   normalize_role,
   resolve_voice_uri,

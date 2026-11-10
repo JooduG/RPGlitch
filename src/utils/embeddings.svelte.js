@@ -15,7 +15,7 @@
  *
  * Dependencies & Cross-Module Invariants:
  * - `@utils` (`onnx_mutex`, `mark_ort_ready`, `cosine_similarity`, `deserialize_embedding`): Shared ONNX runtime lock and vector math.
- * - `@config` (`EMBEDDING_SPECS`): Dimension is locked to `EMBEDDING_DIM = 384` (Xenova/all-MiniLM-L6-v2).
+ * - `@config` (`EMBEDDING_SPECS`): Dimension is locked to `EMBEDDING_SPECS.DIMENSIONS` (384, Xenova/all-MiniLM-L6-v2).
  * ============================================================================
  */
 
@@ -27,12 +27,6 @@ import { EMBEDDING_SPECS } from "@config";
 // ============================================================================
 // Constants & Configurations
 // ============================================================================
-
-/** The canonical embedding dimension produced by the model and enforced on persisted vectors. */
-export const EMBEDDING_DIM = EMBEDDING_SPECS.DIMENSIONS;
-
-/** The default maximum capacity for the in-memory LRU embedding cache. */
-export const EMBEDDING_CACHE_MAX = EMBEDDING_SPECS.CACHE_CAPACITY;
 
 /** The Hugging Face model identifier for sentence transformation. */
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
@@ -136,21 +130,21 @@ async function get_pipeline() {
 /** @type {SvelteMap<string, Float32Array>} */
 const _embedding_cache = new SvelteMap();
 /** @type {number} */
-let _max_cache = EMBEDDING_CACHE_MAX;
+let _max_cache = EMBEDDING_SPECS.CACHE_CAPACITY;
 let _cache_hits = 0;
 let _cache_misses = 0;
 
 /**
  * Validates the model's raw output tensor and converts it to a Float32Array.
- * Refuses vectors whose dimension differs from EMBEDDING_DIM so a swapped
+ * Refuses vectors whose dimension differs from EMBEDDING_SPECS.DIMENSIONS so a swapped
  * model can never silently poison the persistence layer's dimension guard.
  * @param {{ data: ArrayLike<number> }} output
  * @returns {Float32Array | null}
  */
 function to_embedding(output) {
   const embedding = new Float32Array(output?.data);
-  if (embedding.length !== EMBEDDING_DIM) {
-    console.warn(`[Embeddings] Model output dimension ${embedding.length} != expected ${EMBEDDING_DIM} — refusing embedding.`);
+  if (embedding.length !== EMBEDDING_SPECS.DIMENSIONS) {
+    console.warn(`[Embeddings] Model output dimension ${embedding.length} != expected ${EMBEDDING_SPECS.DIMENSIONS} — refusing embedding.`);
     return null;
   }
   return embedding;
@@ -339,7 +333,7 @@ export const embeddings_engine = {
     return { size: _embedding_cache.size, hits: _cache_hits, misses: _cache_misses, max: _max_cache };
   },
   /** @private TEST ONLY: clears the cache and overrides the capacity. */
-  _debug_reset_cache(capacity = EMBEDDING_CACHE_MAX) {
+  _debug_reset_cache(capacity = EMBEDDING_SPECS.CACHE_CAPACITY) {
     _embedding_cache.clear();
     _cache_hits = 0;
     _cache_misses = 0;

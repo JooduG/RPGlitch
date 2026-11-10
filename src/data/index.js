@@ -37,7 +37,6 @@ export {
 export {
   PREMADE_CHARACTERS,
   PREMADE_FRACTALS,
-  PREMADE_ENTITIES,
   ALL_PREMADES,
   NARRATIVE_PRESETS,
   get_starter_entities,
@@ -84,7 +83,6 @@ export {
   active_entity_ids,
   conclude_story,
   delete_story,
-  seed_starter_entities,
   seed_premades,
   set_versionchange_quiesce,
   list_entities,
