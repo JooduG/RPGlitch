@@ -9,7 +9,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { compute_initials, pick_random } from "@utils";
   import { active_entity_ids } from "@storage";
-  import { VISUAL_STYLES } from "../media/styles.js";
+  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
   import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
   const stories = { active_entity_ids };
   import { app } from "./interface.svelte.js";

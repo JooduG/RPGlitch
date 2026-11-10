@@ -34,7 +34,7 @@
   } from "@storage";
   import { PROFILE_SECTIONS_BY_TYPE, PROFILE_FIELDS } from "../definitions/profile-taxonomy.js";
   import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
-  import { VISUAL_STYLES, get_visual_style } from "../media/styles.js";
+  import { VISUAL_STYLES, get_visual_style } from "../definitions/visual-styles.js";
   const entities = { upsert: upsert_entity, update: update_entity };
 
   /** @type {{ entity_type?: "character" | "fractal" }} */

@@ -5,7 +5,7 @@
 
 import { DYNAMICS_SCALE, IMAGE_RESOLUTIONS, IMAGE_TRIGGER } from "@config";
 import { evaluate_image_trigger, normalize_comma_spacing, CLOTHING_KEYS, CLEAR_TOKENS, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
-import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "./styles.js";
+import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "../definitions/visual-styles.js";
 import { get_signature_label, PALETTE } from "./palette.js";
 
 // ============================================================================

@@ -15,7 +15,7 @@
   import { tooltip } from "@primitives";
   import { get_signature_color } from "@media";
   import { NARRATIVE_STYLES } from "../../definitions/narrative-styles.js";
-  import { VISUAL_STYLES } from "../../media/styles.js";
+  import { VISUAL_STYLES } from "../../definitions/visual-styles.js";
   import { get_style_initials } from "@utils";
 
   /**

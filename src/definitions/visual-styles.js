@@ -1,5 +1,5 @@
 /**
- * src/data/definitions/visual-styles.js
+ * src/definitions/visual-styles.js
  * ============================================================================
  * 🎨 VISUAL STYLE SYSTEM — Aesthetic Engine Presets for Image Generation
  * ============================================================================
@@ -602,6 +602,8 @@ export function resolve_story_visual_style_key(fractal = null, fallback_fractal 
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-11-10: Moved back to src/definitions/visual-styles.js (was src/media/styles.js
+ *   since the 96193bb consolidation). No content changes; re-pointed 7 importers.
  * - 2026-09-06: Modernized visual-styles.js: (1) Uppercased XML prompt tags (<MEDIUM>, <PALETTE>,
  *   <CAMERA>/<COMPOSITION>, <TEXTURE>); (2) Reworked "polaroid" into "vintage" ("Vintage Film") with
  *   negative exclusions against polaroid borders; (3) Pruned unused `category` property across catalog;

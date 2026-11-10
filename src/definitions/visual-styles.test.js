@@ -1,5 +1,5 @@
 /**
- * src/media/styles.test.js
+ * src/definitions/visual-styles.test.js
  * ============================================================================
  * Unit Tests for Visual Style Presets, XML Compilation & Resolution
  * ============================================================================
@@ -16,7 +16,7 @@ import {
   get_visual_style,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
-} from "./styles.js";
+} from "./visual-styles.js";
 
 // ---------------------------------------------------------------------------------------------
 // PRESET REGISTRY & XML COMPILATION TESTS
@@ -145,6 +145,8 @@ describe("VISUAL_STYLES Preset Registry", () => {
 /**
  * CHANGELOG
  * ============================================================================
+ * - 2026-11-10: Moved with src/media/styles.js back to src/definitions/visual-styles.js
+ *   (import re-pointed, header path updated). No assertion changes.
  * - 2026-09-06: Added unit tests for uppercase XML tags (<MEDIUM>, <PALETTE>, <CAMERA>/<COMPOSITION>, <TEXTURE>),
  *   vintage preset attributes and border exclusions, category pruning assertions, and frozen registry helpers.
  * - 2026-08-29: Initial visual style system test suite validating presets, engines, and fallback resolution.

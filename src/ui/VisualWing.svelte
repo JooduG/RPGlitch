@@ -8,7 +8,7 @@
   import { Button, SourceField, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
   import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS, sanitize_visual_text, extract_aesthetic_traits } from "@media";
   import { app } from "./interface.svelte.js";
-  import { VISUAL_STYLES } from "../media/styles.js";
+  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
 
   /**
    * @typedef {Object} Props
