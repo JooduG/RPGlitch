@@ -28,6 +28,9 @@
  */
 
 import { register_speaking_rules, register_anti_ai_rules, register_cluster_words, match_case } from "@utils";
+import { SPEAKING_STYLES, VALID_SPEAKING_STYLES } from "@config";
+
+export { SPEAKING_STYLES, VALID_SPEAKING_STYLES }; // views over config — the single home
 
 // ============================================================================
 // 1. Declarative Rule Builder Primitive
@@ -1175,11 +1178,8 @@ export const TIER_2_CLUSTER_WORDS = Object.freeze([
 register_cluster_words(TIER_2_CLUSTER_WORDS);
 
 // ============================================================================
-// 9. Canonical Taxonomy & Validation
+// 9. Canonical Taxonomy & Validation (style ids live in config — views re-exported above)
 // ============================================================================
-
-export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "clinical"]);
-export const VALID_SPEAKING_STYLES = Object.freeze(new Set(SPEAKING_STYLES));
 
 /**
  * Validates whether a given candidate string is a supported speaking style.

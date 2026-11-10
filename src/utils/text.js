@@ -18,7 +18,9 @@
  */
 
 import { CLOTHING_KEYS, escape_xml, prompt_escape } from "./xml.js";
-import { CHARS_PER_TOKEN } from "@config";
+import { CHARS_PER_TOKEN, CANONICAL_ROLES, NARRATIVE_ROLES } from "@config";
+
+export { CANONICAL_ROLES, NARRATIVE_ROLES }; // views over config — the single home (barrel + story-export keep working)
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & TOKEN SETS]
@@ -891,19 +893,6 @@ export function role_display_label(role) {
 }
 
 /**
- * Sovereign canonical entity roles. Generic LLM roles (e.g. assistant, narrator)
- * are mapped to these canonical forms.
- * @type {Readonly<{ USER: "USER", AI: "AI", NPC: "NPC", FRACTAL: "FRACTAL", SYSTEM: "SYSTEM" }>}
- */
-export const CANONICAL_ROLES = Object.freeze({
-  USER: "USER",
-  AI: "AI",
-  NPC: "NPC",
-  FRACTAL: "FRACTAL",
-  SYSTEM: "SYSTEM",
-});
-
-/**
  * Resolves any raw role string to its canonical Sovereign RPGlitch role.
  *
  * @param {string|null|undefined} role
@@ -1019,12 +1008,6 @@ export function normalize_history_beat(entry, options = {}) {
     raw_entry: entry,
   });
 }
-
-/**
- * Roles that carry narrative dialogue/history (as opposed to `system` telemetry).
- * @type {ReadonlySet<string>}
- */
-export const NARRATIVE_ROLES = Object.freeze(new Set(["ai", "fractal", "user", "npc"]));
 
 /**
  * @param {string | null | undefined} role

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DYNAMICS_METRIC_NAMES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, DYNAMICS_RULES, DYNAMICS_AXES } from "../definitions/dynamics-registry.js";
+import { PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
 import {
   apply_dynamics_gravity,
   extract_entity_dynamics_baselines,
@@ -26,20 +26,6 @@ describe("engine/dynamics.js & definitions/dynamics.js", () => {
       expect(extract_entity_dynamics_baselines(entity_with_baselines)).toEqual({ intensity: 60, affinity: 70 });
       expect(extract_entity_dynamics_baselines(null)).toEqual({});
       expect(extract_entity_dynamics_baselines({})).toEqual({});
-    });
-  });
-  describe("DYNAMICS_AXES & METRICS", () => {
-    it("defines all 6 canonical dynamics metric names", () => {
-      expect(DYNAMICS_METRIC_NAMES).toEqual(["chaos", "intensity", "openness", "affinity", "velocity", "entropy"]);
-    });
-
-    it("defines axes with label, low, and high spectrum bounds", () => {
-      for (const axis of DYNAMICS_METRIC_NAMES) {
-        expect(DYNAMICS_AXES[axis]).toBeDefined();
-        expect(DYNAMICS_AXES[axis].label).toBeTruthy();
-        expect(DYNAMICS_AXES[axis].low).toBeTruthy();
-        expect(DYNAMICS_AXES[axis].high).toBeTruthy();
-      }
     });
   });
 

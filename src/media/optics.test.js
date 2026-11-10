@@ -14,7 +14,7 @@ import {
   render_optics_fallback,
   extract_aesthetic_traits,
 } from "./optics.js";
-import { IMAGE_TRIGGER } from "../config.js";
+import { IMAGE_POLICY } from "../config.js";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
 describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
@@ -24,7 +24,7 @@ describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
     });
 
     it("defines IMAGE_TRIGGER.default_tier as story_scene", () => {
-      expect(IMAGE_TRIGGER.default_tier).toBe("story_scene");
+      expect(IMAGE_POLICY.default_tier).toBe("story_scene");
     });
   });
 

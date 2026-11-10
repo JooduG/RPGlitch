@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Accordion, Button, Meter, tooltip } from "@primitives";
-  import { DYNAMICS_AXES } from "@config";
+  import { DYNAMICS } from "@config";
   import { format_datetime } from "@utils";
   import { runtime } from "@engine";
 
@@ -32,8 +32,8 @@
         list.push({
           source: "dynamics",
           key: key,
-          label: DYNAMICS_AXES[key]?.label || key.charAt(0).toUpperCase() + key.slice(1),
-          desc: DYNAMICS_AXES[key]?.desc || "Metric",
+          label: DYNAMICS[key.toUpperCase()]?.label || key.charAt(0).toUpperCase() + key.slice(1),
+          desc: DYNAMICS[key.toUpperCase()]?.desc || "Metric",
         });
       }
     }

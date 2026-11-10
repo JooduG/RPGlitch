@@ -12,6 +12,8 @@
  * ============================================================================
  */
 
+import { TIMING_MS } from "@config";
+
 export const LLM_PRIORITY = Object.freeze({
   FOREGROUND: 10,
   BACKGROUND: 1,
@@ -27,7 +29,6 @@ let active_priority = 0;
 const waiting = [];
 /** @type {number} */
 let sequence = 0;
-const PREEMPT_FALLBACK_MS = 4000;
 
 function release_slot(job) {
   if (active_job !== job) return;
@@ -50,7 +51,7 @@ function preempt_active() {
     if (active_job === job && active_controller === controller) {
       release_slot(job);
     }
-  }, PREEMPT_FALLBACK_MS);
+  }, TIMING_MS.INTERACTION);
 }
 
 function pump() {

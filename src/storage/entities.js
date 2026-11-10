@@ -13,7 +13,7 @@ import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets } from "./parser.js";
 import { FLAT_LEAF_MAP } from "./profile-fields.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
-import { DYNAMICS_SCALE } from "../config.js";
+import { DYNAMICS } from "../config.js";
 import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
 
 /**
@@ -23,10 +23,10 @@ import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js"
  * @param {number} fallback
  * @returns {number}
  */
-function clamp_dynamic(value, fallback = DYNAMICS_SCALE.MID) {
+function clamp_dynamic(value, fallback = DYNAMICS.SCALE.MID) {
   const num = Number(value);
   if (!Number.isFinite(num) || isNaN(num)) return fallback;
-  return Math.max(DYNAMICS_SCALE.MIN, Math.min(DYNAMICS_SCALE.MAX, Math.round(num)));
+  return Math.max(DYNAMICS.SCALE.MIN, Math.min(DYNAMICS.SCALE.MAX, Math.round(num)));
 }
 
 /**

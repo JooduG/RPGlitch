@@ -7,6 +7,7 @@
  */
 
 import { strip_cognition_blocks } from "@utils";
+import { VOICE_CADENCE } from "@config";
 
 // ============================================================================
 // [SECTION 1: HARDWARE AUDIOCONTEXT & MASTER GAIN]
@@ -249,21 +250,13 @@ export function play_sfx(type, options = {}) {
 // [SECTION 3: VOICE HELPERS & CADENCES]
 // ============================================================================
 
-export const CADENCE_RATES = Object.freeze({
-  drawl: 0.85,
-  measured: 0.95,
-  standard: 1.0,
-  brisk: 1.1,
-  rapid: 1.2,
-});
+/** Speech-rate multipliers by cadence (view over config VOICE_CADENCE.RATES — the single home) */
+export const CADENCE_RATES = VOICE_CADENCE.RATES;
 
-export const VOICE_CADENCES = Object.freeze([
-  { id: "drawl", label: "Drawl", rate: 0.85 },
-  { id: "measured", label: "Measured", rate: 0.95 },
-  { id: "standard", label: "Standard", rate: 1.0 },
-  { id: "brisk", label: "Brisk", rate: 1.1 },
-  { id: "rapid", label: "Rapid", rate: 1.2 },
-]);
+/** Labeled cadence picker list (view over VOICE_CADENCE.RATES) */
+export const VOICE_CADENCES = Object.freeze(
+  Object.entries(VOICE_CADENCE.RATES).map(([id, rate]) => Object.freeze({ id, label: id.charAt(0).toUpperCase() + id.slice(1), rate })),
+);
 
 export function normalize_role(role, options = {}) {
   if (!role) return null;
@@ -292,8 +285,8 @@ export function get_cadence_rate(cadence, dynamics_value = 50) {
     return base_rate;
   }
   const sanitized_dynamics = Math.max(0, Math.min(100, Number(dynamics_value)));
-  const offset = (sanitized_dynamics - 50) * 0.001;
-  return Math.max(0.5, Math.min(2.0, base_rate + offset));
+  const offset = (sanitized_dynamics - 50) * VOICE_CADENCE.SHAPING.DYNAMICS_OFFSET;
+  return Math.max(VOICE_CADENCE.SHAPING.MIN_RATE, Math.min(VOICE_CADENCE.SHAPING.MAX_RATE, base_rate + offset));
 }
 
 // ============================================================================

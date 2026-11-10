@@ -1,15 +1,12 @@
 import { match_case } from "./text.js";
 import { stable_pick } from "./math.js";
+import { VALID_SPEAKING_STYLES } from "@config";
+
+export { VALID_SPEAKING_STYLES }; // view over config — the single home (styles.js reads it via the @utils barrel)
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & SPEAKING STYLES]
 // ============================================================================
-
-/**
- * Valid canonical speaking style identifiers.
- * @type {ReadonlySet<string>}
- */
-export const VALID_SPEAKING_STYLES = Object.freeze(new Set(["casual", "lyrical", "primal", "clinical"]));
 
 /**
  * @typedef {"casual" | "lyrical" | "primal" | "clinical"} SpeakingStyleId

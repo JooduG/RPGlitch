@@ -18,16 +18,13 @@
  */
 
 import { format_datetime, filter_narrative_messages, normalize_history_beat, CANONICAL_ROLES } from "./text.js";
+import { NARRATOR_ROLES } from "@config";
+
+export { NARRATOR_ROLES }; // view over config — the single home
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & NARRATOR ROLES]
 // ============================================================================
-
-/**
- * Roles rendered as narrator blockquotes (world/scene-setting prose).
- * @type {ReadonlySet<string>}
- */
-export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "narrator", "epilogue"]));
 
 /**
  * @typedef {Object} StoryExportOptions

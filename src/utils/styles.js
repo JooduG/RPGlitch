@@ -18,8 +18,7 @@
  */
 
 import { state_bridge } from "./bridges.js";
-import { VALID_SPEAKING_STYLES } from "./detox.js";
-import { SOMATIC_MARKER_CAP } from "@config";
+import { VALID_SPEAKING_STYLES } from "@config";
 
 // ============================================================================
 // [SECTION 1: NARRATIVE SLOP LINTER (Track 3.1)]
@@ -64,7 +63,8 @@ export const SLOP_PATTERNS = Object.freeze({
   ]),
 });
 
-export { SOMATIC_MARKER_CAP };
+/** Maximum physical cliché reaction markers permitted per turn before stripping (single consumer — lives here, not on the dashboard) */
+const SOMATIC_MARKER_CAP = 1;
 
 /**
  * Lints a prose reply for narrative slop: cliché hits plus cliché somatic

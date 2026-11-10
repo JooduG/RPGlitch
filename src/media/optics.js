@@ -3,7 +3,7 @@
  * 👁️ SENSORY CORTEX — VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
  */
 
-import { DYNAMICS_SCALE, IMAGE_RESOLUTIONS, IMAGE_TRIGGER } from "@config";
+import { DYNAMICS, IMAGE_RESOLUTIONS, IMAGE_POLICY } from "@config";
 import { evaluate_image_trigger, normalize_comma_spacing, CLOTHING_KEYS, CLEAR_TOKENS, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
 import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "../definitions/visual-styles.js";
 import { get_signature_label, PALETTE } from "./palette.js";
@@ -80,7 +80,7 @@ export function get_resolution_string(mode) {
  * @returns {number}
  */
 export function get_tier_guidance_scale(mode) {
-  return normalize_image_tier(mode) === "story_scene" ? 7 : 9;
+  return normalize_image_tier(mode) === "story_scene" ? IMAGE_POLICY.guidance.SCENE : IMAGE_POLICY.guidance.CHARACTER;
 }
 
 // ============================================================================
@@ -110,7 +110,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const director_last_round = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
   const dynamics_last_round = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
 
-  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_TRIGGER.cooldown_rounds;
+  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_POLICY.cooldown_rounds;
   const director_cooldown_elapsed = is_cooldown_elapsed(director_last_round);
   const dynamics_cooldown_elapsed = is_cooldown_elapsed(dynamics_last_round);
 
@@ -128,8 +128,8 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   // Check if visual_staging indicates character intimacy/confrontation or if dynamics show extreme intensity/affinity.
   // Environmental/panoramic staging cues explicitly preserve scene tier over character bias.
   const ai_dynamics = snapshot?.ai?.dynamics || {};
-  const current_intensity = Number(ai_dynamics.intensity ?? DYNAMICS_SCALE.MID);
-  const current_affinity = Number(ai_dynamics.affinity ?? DYNAMICS_SCALE.MID);
+  const current_intensity = Number(ai_dynamics.intensity ?? DYNAMICS.SCALE.MID);
+  const current_affinity = Number(ai_dynamics.affinity ?? DYNAMICS.SCALE.MID);
   const staging_has_scene_focus =
     has_visual_staging &&
     /\b(?:wide|panoramic|landscape|establishing|environment|aerial|distant|overview|scenery|room|corridor|cityscape|horizon)\b/i.test(raw_staging);
@@ -139,15 +139,15 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
       raw_staging,
     );
   const dynamics_have_character_focus =
-    !staging_has_scene_focus && (current_intensity >= DYNAMICS_SCALE.HIGH || current_affinity >= DYNAMICS_SCALE.HIGH);
+    !staging_has_scene_focus && (current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH);
   const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
   const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
-    band_high: DYNAMICS_SCALE.EXTREME_HIGH,
-    band_low: DYNAMICS_SCALE.EXTREME_LOW,
-    displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
-    default_tier: IMAGE_TRIGGER.default_tier,
+    band_high: DYNAMICS.SCALE.EXTREME_HIGH,
+    band_low: DYNAMICS.SCALE.EXTREME_LOW,
+    displacement_threshold: IMAGE_POLICY.displacement_threshold,
+    default_tier: IMAGE_POLICY.default_tier,
   });
   const dynamics_qualifies = image_trigger_evaluation.triggered && dynamics_cooldown_elapsed;
 
@@ -161,12 +161,12 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   if (director_qualifies) {
     active = true;
     source = "director";
-    tier = tier_from_string || tier_from_preference || biased_character_tier || IMAGE_TRIGGER.default_tier;
+    tier = tier_from_string || tier_from_preference || biased_character_tier || IMAGE_POLICY.default_tier;
     next_director_round = turn_round;
   } else if (dynamics_qualifies) {
     active = true;
     source = "dynamics";
-    tier = image_trigger_evaluation.tier || biased_character_tier || IMAGE_TRIGGER.default_tier;
+    tier = image_trigger_evaluation.tier || biased_character_tier || IMAGE_POLICY.default_tier;
     next_dynamics_round = turn_round;
   }
 

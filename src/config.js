@@ -7,7 +7,7 @@
  * @media, @utils, and @ui.
  * Follows P4 Pre-Beta Purity: zero backwards compatibility layers, zero magic numbers.
  *
- * Layout rule: §1 and §2 own every number (no cross-references between homes).
+ * Layout rule: §1 and §2 own every number and shared vocabulary (no cross-references between homes).
  * §3 contains only references to §1/§2 plus a few homeless policy literals.
  * Nothing in §3 may be referenced by §1/§2 (evaluation order depends on it).
  */
@@ -39,42 +39,42 @@ export const PATIENCE_POLICY = Object.freeze({
 });
 
 // =============================================================================
-// [SECTION 2: CANONICAL DOMAIN HOMES — every number lives here exactly once]
+// [SECTION 2: CANONICAL DOMAIN HOMES — every number and shared vocabulary lives here exactly once]
 // =============================================================================
 
 // ── 1. Directorial Staging & Dynamic Equilibrium ─────────────────────────────
-/** Universal narrative tension and dramatic scale (1-100) with calibrated operational boundaries. */
-export const DYNAMICS_SCALE = Object.freeze({
-  MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
-  EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
-  LOW: 25,
-  MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
-  HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
-  EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
-  MAX: 100, // Absolute ceiling on the 1-100 narrative tension and significance scale
-  GRAVITY: 0.08, // Natural per-turn pull of unprovoked tension meters back toward MID
-  VARIANCE: 0.05, // Random atmospheric variance factor applied during turn dynamics progression
-
-  DELTA_STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
-  DELTA_EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
-  BOUNDARY_CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
-});
-
 /**
- * Dynamics axis definitions and metadata: somatic (character) and fractal (environmental) axes,
- * plus explicit `low` and `high` spectrum bounds.
- * @type {Record<string, { label: string, low: string, high: string, scope: "somatic" | "fractal" }>}
+ * The dynamics domain (single home): SCALE = range + trigger bands, PHYSICS = drift math,
+ * DELTA = prompt-doc strings, CHAOS…ENTROPY = the six axis definitions.
+ * Axis children are UPPER (config convention); runtime axis ids are lowercase, so readers
+ * index DYNAMICS[axis.toUpperCase()] — the `?.` guards degrade gracefully on mismatch.
  */
-export const DYNAMICS_AXES = Object.freeze({
-  // Character (Somatic) axes
-  chaos: { label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" },
-  intensity: { label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" },
-  openness: { label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" },
-  affinity: { label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" },
-
-  // Fractal (Environmental) axes
-  velocity: { label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" },
-  entropy: { label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" },
+export const DYNAMICS = Object.freeze({
+  SCALE: Object.freeze({
+    MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
+    EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
+    LOW: 25, // Low band marker (ladder completeness; no live reader yet)
+    MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
+    HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
+    EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
+    MAX: 100, // Absolute ceiling on the 1-100 narrative tension and significance scale
+  }),
+  PHYSICS: Object.freeze({
+    GRAVITY: 0.08, // Natural per-turn pull of unprovoked tension meters back toward MID
+    VARIANCE: 0.05, // Random atmospheric variance factor applied during turn dynamics progression
+  }),
+  DELTA: Object.freeze({
+    standard: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
+    extreme: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
+    clip: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
+  }),
+  // Axes
+  CHAOS: Object.freeze({ label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" }),
+  INTENSITY: Object.freeze({ label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" }),
+  OPENNESS: Object.freeze({ label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" }),
+  AFFINITY: Object.freeze({ label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" }),
+  VELOCITY: Object.freeze({ label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" }),
+  ENTROPY: Object.freeze({ label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" }),
 });
 
 // ── 2. Canonical Length Thresholds ───────────────────────────────────────────
@@ -113,33 +113,84 @@ export const TEMPO_ROUNDS = Object.freeze({
 // ── 6. Tokenizer Calibration ─────────────────────────────────────────────────
 export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
 
-// ── 7. Sieve & Retrieval Scoring ─────────────────────────────────────────────
-/** Origin protection multiplier boosting author canon and immutable memories */
-export const ORIGIN_SCORE_MULTIPLIER = 1.5;
+// ── 7. Image Policy ──────────────────────────────────────────────────────────
+/**
+ * Single home for image tuning, both directions:
+ * - Generation (optics/visual pipeline): trigger cadence (WHEN a beat earns an image)
+ *   + diffusion guidance (HOW strongly).
+ * - Intake (html.js upload validation): upload size/type bounds.
+ * NOT here: tier resolutions (IMAGE_RESOLUTIONS §2.3 — structural, stable).
+ */
+export const IMAGE_POLICY = Object.freeze({
+  displacement_threshold: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
+  cooldown_rounds: 3, // Unified cooldown (rounds) between automatic scene image generations
+  default_tier: "story_scene", // Fallback tier for auto-triggered beats (canonical tiers live in optics IMAGE_TIERS)
+  max_pending_images: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
+  guidance: Object.freeze({
+    SCENE: 7, // story_scene tier baseline (environmental shots drift)
+    CHARACTER: 9, // solo_entity / story_character / story_entities baseline (portraits hold tighter)
+  }),
+  upload: Object.freeze({
+    MAX_IMAGE_SIZE_BYTES: 25 * 1024 * 1024, // 25 MB default maximum permissible image upload size
+    ALLOWED_IMAGE_MIME_TYPES: Object.freeze(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]),
+  }),
+});
+
+// ── 8. Voice Cadence ─────────────────────────────────────────────────────────
+/**
+ * Voice cadence model (single home; audio.js CADENCE_RATES/VOICE_CADENCES are views over RATES):
+ * base speech-rate multipliers by cadence id + how far entity dynamics bend the base rate.
+ */
+export const VOICE_CADENCE = Object.freeze({
+  RATES: Object.freeze({
+    drawl: 0.85,
+    measured: 0.95,
+    standard: 1.0,
+    brisk: 1.1,
+    rapid: 1.2,
+  }),
+  SHAPING: Object.freeze({
+    DYNAMICS_OFFSET: 0.001, // Per-point rate bend per dynamics unit away from neutral 50
+    MIN_RATE: 0.5, // Hard floor on the shaped speech rate
+    MAX_RATE: 2.0, // Hard ceiling on the shaped speech rate
+  }),
+});
+
+// ── 9. Canonical Entity Roles ───────────────────────────────────────────────
+/**
+ * Three role vocabularies — similar names, different jobs:
+ * - CANONICAL_ROLES: normalized UPPERCASE role map. Every log row's `role` holds one of these five;
+ *   raw model roles (assistant/narrator/prologue…) fold into them via canonicalize_role (text.js).
+ * - NARRATIVE_ROLES: lowercase participant set — roles carrying story dialogue/history (all but system telemetry).
+ * - NARRATOR_ROLES: lowercase export set — raw_role values marking narrator-voiced beats for the story exporter.
+ */
+export const CANONICAL_ROLES = Object.freeze({
+  USER: "USER",
+  AI: "AI",
+  NPC: "NPC",
+  FRACTAL: "FRACTAL",
+  SYSTEM: "SYSTEM",
+});
+export const NARRATIVE_ROLES = Object.freeze(new Set(["ai", "fractal", "user", "npc"]));
+export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "narrator", "epilogue"]));
+
+// ── 10. Speaking Styles ──────────────────────────────────────────────────────
+/** Canonical speaking style ids (single home; the detox hardcoded twin and the registry derived twin are both gone) */
+export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "clinical"]);
+export const VALID_SPEAKING_STYLES = Object.freeze(new Set(SPEAKING_STYLES));
 
 // =============================================================================
 // [SECTION 3: DERIVED VIEWS & SINGLE-KEY POLICY — references §1/§2, plus a few homeless literals]
 // =============================================================================
 
-// ── 1. Somatic Markers ───────────────────────────────────────────────────────
-export const SOMATIC_MARKER_CAP = 1; // Maximum physical cliché reaction markers permitted per turn before stripping
-
-// ── 2. Telemetry ─────────────────────────────────────────────────────────────
+// ── 1. Telemetry ─────────────────────────────────────────────────────────────
 /** Telemetry and diagnostic ring buffer capacity caps */
 export const TELEMETRY_CAPS = Object.freeze({
   DIRECTOR_LATENCY_POOL: 50, // Rolling window size for director execution latency tracking
   DEVELOPER_LOG_ENTRIES: 500, // Maximum developer log buffer capacity before FIFO truncation
 });
 
-// ── 3. Image Trigger (image cadence policy; bands live on DYNAMICS_SCALE) ────
-export const IMAGE_TRIGGER = Object.freeze({
-  displacement_threshold: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
-  cooldown_rounds: 3, // Unified cooldown (rounds) between automatic scene image generations
-  default_tier: "story_scene", // Fallback tier for auto-triggered beats (canonical tiers live in optics IMAGE_TIERS)
-  max_pending_images: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
-});
-
-// ── 4. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
+// ── 2. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
 /**
  * Lean Floors per field (in string character length).
  * In Tier 1, every field reserves this minimum floor so core identity is never crowded out.
@@ -156,6 +207,13 @@ export const FIELD_FLOORS = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: Gate fallback release reads TIMING_MS.INTERACTION (was local 4000, now 5000 — user-approved); PREEMPT key removed.
+ * - 2026-11-10: Merged IMAGE_TRIGGER + IMAGE_TIER_GUIDANCE into IMAGE_POLICY §2.7 (optics/visual re-pointed; IMAGE_RESOLUTIONS stays separate per user); merged VOICE_CADENCE_RATES + VOICE_CADENCE_SHAPING into VOICE_CADENCE §2.8 (audio.js re-pointed). Values unchanged.
+ * - 2026-11-10: DYNAMICS nests SCALE (range + bands) / PHYSICS / DELTA (standard/extreme/clip) / six UPPER axis definitions; DYNAMICS_SCALE + DYNAMICS_AXES exports gone (all 6 consumers re-pointed; lowercase runtime ids index via .toUpperCase()). Values unchanged.
+ * - 2026-11-10: Merged MEDIA_UPLOAD into IMAGE_POLICY.upload §2.7 (html.js views re-pointed; MEDIA_UPLOAD export gone); §2 renumbered 7-10. Values unchanged.
+ * - 2026-11-10: Single-homed shared vocabularies — CANONICAL_ROLES/NARRATIVE_ROLES/NARRATOR_ROLES (§2.10, with role-set disambiguation) + SPEAKING_STYLES/VALID_SPEAKING_STYLES (§2.11); text/detox/story-export/speaking-styles keep same-named view exports, styles.js reads config directly. Kills the detox/registry VALID twin. Values unchanged.
+ * - 2026-11-10: New §2 homes for scattered tuning knobs (values unchanged): IMAGE_TIER_GUIDANCE SCENE 7 / CHARACTER 9 (optics.js re-pointed), VOICE_CADENCE_RATES (audio.js CADENCE_RATES is now a view, VOICE_CADENCES derived from it), MEDIA_UPLOAD (html.js DEFAULT_* names are now views). Unused keys (TIMING_MS.INTERACTION/STALL, TEMPO_ROUNDS.SLOW, EMBEDDING_SPECS.QUANTIZE_MAX) intentionally RETAINED as reserved for future work per user — zero runtime readers today.
+ * - 2026-11-10: Inlined ORIGIN_SCORE_MULTIPLIER (sieve.js local 1.5) + SOMATIC_MARKER_CAP (styles.js local 1); §2.7 + §3.1 deleted (§3 renumbered 1-3). Neither was reused; knobs live with their mechanism now.
  * - 2026-11-10: IMAGE_TRIGGER slimmed — resolve_timeout_ms/ghost_max_age_ms deleted (visual.js reads TIMING_MS.CEILING directly, same 120000); queue_capacity + placeholder_hard_cap merged into max_pending_images: 5 (both guards shared the value/pool).
  * - 2026-11-10: Centralized tunables — EMBEDDING_SPECS gains MAX_EPHEMERAL_VECTORS (sieve.js re-pointed); IMAGE_TRIGGER gains queue_capacity/placeholder_hard_cap/resolve_timeout_ms/ghost_max_age_ms (visual.js re-pointed, 4 module consts deleted) and keeps default_tier (optics DEFAULT_IMAGE_TIER deleted as dead dup); config `tiers` copy deleted — optics trigger validation uses IMAGE_TIERS directly (same 4 strings); SESSION_ID_KEY single-sourced in db.js (sessions.svelte.js dup deleted). No value changes.
  * - 2026-11-10: Cosmetic, no moves: removed §3.1 tombstone (§3 renumbered 1-4), fixed §2.2

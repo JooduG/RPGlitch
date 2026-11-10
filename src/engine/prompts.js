@@ -20,7 +20,7 @@
 
 import { format_clean_brackets } from "../storage/parser.js";
 import { ENHANCER_DIRECTIVES } from "../storage/profile-fields.js";
-import { DYNAMICS_SCALE, TEMPO_ROUNDS } from "../config.js";
+import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
 
 /**
  * Renders the thinking mode requirements block (Character Immersion vs. Pure Analysis).
@@ -80,9 +80,9 @@ export const PURPOSE_CORES = Object.freeze({
 ${thinking_block}
 
     ### Dynamics deltas *(\`dynamics_deltas\`)*
-    - Signed integer adjustments *(base meters live on ${DYNAMICS_SCALE.MIN}-${DYNAMICS_SCALE.MAX}, clipped to ${DYNAMICS_SCALE.BOUNDARY_CLIP})*.
-    - Standard turn shift: **${DYNAMICS_SCALE.DELTA_STANDARD}**
-    - Dramatic turn shift: **${DYNAMICS_SCALE.DELTA_EXTREME}**
+    - Signed integer adjustments *(base meters live on ${DYNAMICS.SCALE.MIN}-${DYNAMICS.SCALE.MAX}, clipped to ${DYNAMICS.DELTA.clip})*.
+    - Standard turn shift: **${DYNAMICS.DELTA.standard}**
+    - Dramatic turn shift: **${DYNAMICS.DELTA.extreme}**
     - Calibrate integer deltas for narrative tension; avoid extreme swings.
 
     ### Next Action *(\`next_action\`)*

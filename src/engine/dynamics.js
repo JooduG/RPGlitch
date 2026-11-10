@@ -14,8 +14,8 @@
  */
 
 import { clamp } from "../utils/math.js";
-import { DYNAMICS_SCALE } from "../config.js";
-import { DYNAMICS_AXES, DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
+import { DYNAMICS } from "../config.js";
+import { DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
 
 /**
  * Pure functional dynamics reducer: applies caller-supplied deltas to a
@@ -32,7 +32,7 @@ import { DYNAMICS_AXES, DYNAMICS_RULES } from "../definitions/dynamics-registry.
 export function reduce_dynamics(current = {}, baselines = {}, entropy = 50, deltas = {}) {
   const next = {};
   const axes = new Set([...Object.keys(current || {}), ...Object.keys(deltas || {}), ...Object.keys(baselines || {})]);
-  const rate = DYNAMICS_SCALE.GRAVITY * (1 - clamp(Number(entropy ?? 50), 0, 100) / 200);
+  const rate = DYNAMICS.PHYSICS.GRAVITY * (1 - clamp(Number(entropy ?? 50), 0, 100) / 200);
   for (const axis of axes) {
     const start = Number(current?.[axis] ?? 50) + Number(deltas?.[axis] ?? 0);
     const target = Number(baselines?.[axis] ?? 50);
@@ -51,10 +51,10 @@ export function reduce_dynamics(current = {}, baselines = {}, entropy = 50, delt
  * @param {number} [base_gravity=0.08] - Base rate of gravity pull toward baselines
  * @param {Set<string>|null} [skip_axes=null] - Set of axis keys that should not settle
  */
-export function apply_dynamics_gravity(dynamics, baselines = {}, active_entropy = 50, base_gravity = DYNAMICS_SCALE.GRAVITY, skip_axes = null) {
+export function apply_dynamics_gravity(dynamics, baselines = {}, active_entropy = 50, base_gravity = DYNAMICS.PHYSICS.GRAVITY, skip_axes = null) {
   if (!dynamics || typeof dynamics !== "object") return;
 
-  const variance = (active_entropy / 100) * DYNAMICS_SCALE.VARIANCE;
+  const variance = (active_entropy / 100) * DYNAMICS.PHYSICS.VARIANCE;
 
   for (const axis of Object.keys(dynamics)) {
     if (skip_axes && skip_axes.has(axis)) continue;
@@ -91,12 +91,12 @@ export function compute_dynamics_deltas(target, dynamics, runtime_target) {
   const expected_scope = target === "fractal" ? "fractal" : "somatic";
 
   for (const [axis, val] of Object.entries(dynamics || {})) {
-    if (DYNAMICS_AXES[axis]?.scope !== expected_scope) continue;
+    if (DYNAMICS[axis.toUpperCase()]?.scope !== expected_scope) continue;
     const old_value = /** @type {any} */ (runtime_target)?.[axis] ?? 50;
     const diff = val - old_value;
     if (diff !== 0) {
       deltas.push({ axis, target, old_value, new_value: val, diff });
-      const axis_label = DYNAMICS_AXES[axis]?.label || axis.charAt(0).toUpperCase() + axis.slice(1);
+      const axis_label = DYNAMICS[axis.toUpperCase()]?.label || axis.charAt(0).toUpperCase() + axis.slice(1);
       log_strings.push(`${axis_label} ${diff > 0 ? "+" : ""}${diff}`);
     }
   }

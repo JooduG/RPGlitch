@@ -13,21 +13,19 @@
  * ============================================================================
  */
 
-import { DYNAMICS_AXES, DYNAMICS_SCALE } from "@config";
-
-export { DYNAMICS_AXES };
+import { DYNAMICS } from "@config";
 
 /**
  * Builds a fresh neutral-equilibrium dynamics snapshot for one scope.
  * Single-sources the "all meters start at MID" default: axis membership comes
- * from DYNAMICS_AXES scopes, values from DYNAMICS_SCALE.MID.
+ * from DYNAMICS axis scopes, values from DYNAMICS.SCALE.MID.
  * @param {"somatic" | "fractal"} scope
  * @returns {Record<string, number>}
  */
 export function default_dynamics_for_scope(scope) {
   const out = {};
-  for (const axis of Object.keys(DYNAMICS_AXES)) {
-    if (DYNAMICS_AXES[axis]?.scope === scope) out[axis] = DYNAMICS_SCALE.MID;
+  for (const axis of DYNAMICS_METRIC_NAMES) {
+    if (DYNAMICS[axis.toUpperCase()]?.scope === scope) out[axis] = DYNAMICS.SCALE.MID;
   }
   return out;
 }
