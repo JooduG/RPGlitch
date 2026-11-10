@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
 import { session_driver, delete_log_entry } from "@data";
-import { execute_turn, execute_prologue } from "./bridge.js";
+import { execute_turn } from "./runs.js";
+import { execute_prologue } from "./lifecycle.js";
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
@@ -20,9 +21,12 @@ vi.mock("@data", async (importOriginal) => {
   };
 });
 
-vi.mock("./bridge.js", () => ({
+vi.mock("./runs.js", () => ({
   execute_turn: vi.fn().mockResolvedValue({}),
   execute_continue: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock("./lifecycle.js", () => ({
   execute_prologue: vi.fn().mockResolvedValue({}),
 }));
 
