@@ -21,7 +21,6 @@
 
 import { session_driver } from "@data";
 import { build_turn_summary } from "@engine";
-import { delete_log_entry } from "@data";
 import { state_bridge } from "@utils";
 import { execute_turn, execute_continue } from "./runs.js";
 import { execute_prologue } from "./lifecycle.js";
@@ -282,7 +281,9 @@ export class ChronoEngine {
               const latest_log = await session_driver.load_log(story_id);
               const last_message = latest_log[latest_log.length - 1];
               if (last_message?.role === "user" && last_message.id != null) {
-                await delete_log_entry(last_message.id);
+                // Store-level delete: removes the DB row AND the in-memory feed entry
+                // (bare delete_log_entry left a ghost in the feed until refresh).
+                await state_bridge.simulation_log.delete_entry(last_message.id);
               }
             } catch (cleanup_err) {
               console.warn("[Chrono] Failed to purge aborted user message:", cleanup_err);

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
-import { session_driver, delete_log_entry } from "@data";
+import { session_driver } from "@data";
 import { execute_turn } from "./runs.js";
 import { execute_prologue } from "./lifecycle.js";
 
@@ -9,7 +9,6 @@ vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    delete_log_entry: vi.fn().mockResolvedValue(undefined),
     session_driver: {
       create_from_selection: vi.fn().mockResolvedValue("story-123"),
       send: vi.fn().mockResolvedValue({}),
@@ -86,6 +85,7 @@ describe("ChronoEngine", () => {
     mock_simulation_log = {
       feed: [],
       add: vi.fn(),
+      delete_entry: vi.fn().mockResolvedValue(undefined),
     };
 
     register_state_accessors({
@@ -148,7 +148,7 @@ describe("ChronoEngine", () => {
 
       const result = await chrono_engine.send("Aborted user message");
       expect(result).toBe(false);
-      expect(delete_log_entry).toHaveBeenCalledWith(42);
+      expect(mock_simulation_log.delete_entry).toHaveBeenCalledWith(42);
       expect(mock_app.log).toHaveBeenCalledWith("Generation interrupted cleanly.", "system");
     });
   });
