@@ -65,7 +65,7 @@ export {
   serialize_rpglitch_entity,
 } from "./card-conversion.js";
 
-// 5. Greenfield Dexie Persistence Engine
+// 5. Dexie Persistence Engine
 export {
   db,
   init_db,

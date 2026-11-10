@@ -2,7 +2,7 @@
  * @file src/media/audio.svelte.js
  * 🔊 SENSORY CORTEX — PROCEDURAL AUDIO SYNTHESIZER & SPEECH ENGINE
  *
- * Greenfield pure Web Audio procedural SFX synthesizer, lazy AudioContext management,
+ * pure Web Audio procedural SFX synthesizer, lazy AudioContext management,
  * and Web Speech API fallback speech engine.
  */
 

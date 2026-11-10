@@ -31,14 +31,7 @@ export {
 } from "./turns.js";
 
 // Bridge affordances
-export {
-  execute_greenfield_turn,
-  execute_greenfield_continue,
-  execute_greenfield_prologue,
-  execute_greenfield_epilogue,
-  execute_visualizer_envision,
-  structure_profile,
-} from "./bridge.js";
+export { execute_turn, execute_continue, execute_prologue, execute_epilogue, execute_visualizer_envision, structure_profile } from "./bridge.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
 export { compile_prompt, PURPOSE_CORES } from "./prompts.js";

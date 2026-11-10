@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
 import { session_driver, delete_log_entry } from "@data";
-import { execute_greenfield_turn, execute_greenfield_prologue } from "./bridge.js";
+import { execute_turn, execute_prologue } from "./bridge.js";
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
@@ -21,9 +21,9 @@ vi.mock("@data", async (importOriginal) => {
 });
 
 vi.mock("./bridge.js", () => ({
-  execute_greenfield_turn: vi.fn().mockResolvedValue({}),
-  execute_greenfield_continue: vi.fn().mockResolvedValue({}),
-  execute_greenfield_prologue: vi.fn().mockResolvedValue({}),
+  execute_turn: vi.fn().mockResolvedValue({}),
+  execute_continue: vi.fn().mockResolvedValue({}),
+  execute_prologue: vi.fn().mockResolvedValue({}),
 }));
 
 describe("ChronoEngine", () => {
@@ -117,29 +117,26 @@ describe("ChronoEngine", () => {
       expect(session_driver.send).not.toHaveBeenCalled();
     });
 
-    it("accepts valid text and dispatches execute_greenfield_turn", async () => {
+    it("accepts valid text and dispatches execute_turn", async () => {
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");
-      expect(execute_greenfield_turn).toHaveBeenCalled();
+      expect(execute_turn).toHaveBeenCalled();
     });
 
-    it("persists a user-role row when greenfield engine is on and dispatches execute_greenfield_turn", async () => {
-      mock_app.settings = { use_greenfield_engine: true };
-      const result = await chrono_engine.send("Look around greenfield");
+    it("persists a user-role row when engine is on and dispatches execute_turn", async () => {
+      mock_app.settings = {};
+      const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
-      expect(session_driver.send).toHaveBeenCalledWith("Look around greenfield");
-      expect(execute_greenfield_turn).toHaveBeenCalledWith(
-        "Look around greenfield",
-        expect.objectContaining({ is_retry: undefined, is_continue: undefined }),
-      );
+      expect(session_driver.send).toHaveBeenCalledWith("Look around");
+      expect(execute_turn).toHaveBeenCalledWith("Look around", expect.objectContaining({ is_retry: undefined, is_continue: undefined }));
     });
 
-    it("purges orphaned user turn row from IndexedDB when a greenfield turn is aborted", async () => {
-      mock_app.settings = { use_greenfield_engine: true };
+    it("purges orphaned user turn row from IndexedDB when a turn is aborted", async () => {
+      mock_app.settings = {};
       mock_runtime.story_id = "story-123";
       session_driver.load_log.mockResolvedValueOnce([{ id: 42, role: "user", text: "Aborted user message" }]);
-      execute_greenfield_turn.mockImplementationOnce(() => {
+      execute_turn.mockImplementationOnce(() => {
         const err = new Error("Generation interrupted");
         err.name = "AbortError";
         throw err;
@@ -170,7 +167,7 @@ describe("ChronoEngine", () => {
         }),
       );
       expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
-      expect(execute_greenfield_prologue).toHaveBeenCalledWith("story-123");
+      expect(execute_prologue).toHaveBeenCalledWith("story-123");
       expect(mock_app.suppress_card_transitions).toBe(false);
     });
   });
@@ -179,13 +176,13 @@ describe("ChronoEngine", () => {
     it("calls session_driver.regenerate on retry and advances turn", async () => {
       await chrono_engine.retry();
       expect(session_driver.regenerate).toHaveBeenCalled();
-      expect(execute_greenfield_turn).toHaveBeenCalled();
+      expect(execute_turn).toHaveBeenCalled();
     });
 
     it("advances turn on continue without incrementing round again if continue option is set", async () => {
       const initial_round = mock_runtime.round;
       await chrono_engine.continue();
-      expect(execute_greenfield_turn).toHaveBeenCalledWith("", expect.objectContaining({ is_continue: true }));
+      expect(execute_turn).toHaveBeenCalledWith("", expect.objectContaining({ is_continue: true }));
       expect(mock_runtime.round).toBe(initial_round);
     });
   });

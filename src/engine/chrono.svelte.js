@@ -23,7 +23,7 @@ import { session_driver } from "@data";
 import { build_turn_summary } from "@engine";
 import { delete_log_entry } from "@data";
 import { state_bridge } from "@utils";
-import { execute_greenfield_turn, execute_greenfield_continue, execute_greenfield_prologue } from "./bridge.js";
+import { execute_turn, execute_continue, execute_prologue } from "./bridge.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -94,7 +94,7 @@ export class ChronoEngine {
       // 4. Trigger Prologue Generation
       state_bridge.simulation_state.start_generation("fractal");
       try {
-        await execute_greenfield_prologue(story_id);
+        await execute_prologue(story_id);
         state_bridge.app.log("Prologue generated and opening turn executed.", "system");
       } catch (e) {
         console.error("[Chrono] Prologue Failed:", e);
@@ -169,8 +169,8 @@ export class ChronoEngine {
         await state_bridge.simulation_log.refresh();
       }
 
-      // If target_id specified and greenfield engine active, run surgical continue-in-place
-      if (state_bridge.app?.settings?.use_greenfield_engine && target_id) {
+      // If target_id specified, run surgical continue-in-place
+      if (target_id) {
         const feed = state_bridge.simulation_log?.feed || [];
         const target_entry = feed.find((e) => String(e.id) === String(target_id));
         if (target_entry) {
@@ -181,7 +181,7 @@ export class ChronoEngine {
           state_bridge.app.streaming.active = true;
 
           try {
-            await execute_greenfield_continue(target_entry, { signal: controller.signal });
+            await execute_continue(target_entry, { signal: controller.signal });
             state_bridge.app.log("Continuation complete.", "system");
           } finally {
             state_bridge.simulation_state.set_intent_active(false);
@@ -218,12 +218,7 @@ export class ChronoEngine {
     const previous_round = Number(state_bridge.runtime.round || 0);
     const final_input = input;
 
-    // 2. SYNTHESIS: Generate Narrative
-    if (!options.is_retry && !options.is_continue) {
-      if (!state_bridge.app?.settings?.use_greenfield_engine) {
-        state_bridge.runtime.round = previous_round + 1;
-      }
-    }
+    // 2. SYNTHESIS: Generate Narrative (round is owned by the Kernel)
     state_bridge.app.log(`LLM synthesizing turn ${state_bridge.runtime.round}...`, "ai");
     const controller = new AbortController();
     state_bridge.app.streaming.abort_controller = controller;
@@ -243,8 +238,8 @@ export class ChronoEngine {
         state_bridge.simulation_state.start_director_stage();
 
         try {
-          state_bridge.app.log("Executing turn via Sovereign Greenfield Engine (Kernel)...", "system");
-          await execute_greenfield_turn(final_input || "", {
+          state_bridge.app.log("Executing turn via Sovereign Engine (Kernel)...", "system");
+          await execute_turn(final_input || "", {
             signal: controller.signal,
             is_retry: options.is_retry,
             is_continue: options.is_continue,
@@ -317,7 +312,7 @@ export class ChronoEngine {
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");
-                    await execute_greenfield_turn(final_input, { signal: controller.signal });
+                    await execute_turn(final_input, { signal: controller.signal });
                     retry_landed = true;
                     state_bridge.app.log("Orphaned turn recovered.", "system");
                   }

@@ -35,7 +35,7 @@ External AI agents executing tasks on this repository operate without direct acc
 
 5. 💾 **Persistence Boundary (IndexedDB Only)**
    - Usage of `localStorage` is forbidden due to Perchance iframe sandbox security boundaries.
-   - All persistence must route exclusively through **Dexie.js (IndexedDB)** via `src/data/db.js` (greenfield) or `src/data/db.js` (legacy transitional) with schema version 2 preserving the `mutation_ledger`. Reload-safe session checkpoints fall back through `sessionStorage` → `window.name` → in-memory in `src/platform/session-storage.js`.
+   - All persistence must route exclusively through **Dexie.js (IndexedDB)** via canonical `src/data/db.js` with schema version 2 preserving the `mutation_ledger`. Reload-safe session checkpoints fall back through `sessionStorage` → `window.name` → in-memory in `src/platform/session-storage.js`.
 
 6. 📦 **Code Modification & Handover Protocol**
    - Output complete, production-ready code with exact relative target filepaths (`src/...`).
@@ -72,7 +72,7 @@ src/
 ├── App.svelte                # Root Svelte 5 container component & persistent layout hoist
 ├── index.html                # Vite HTML host template (vite root = src, output = dist/index.html)
 ├── main.pjs   # Perchance iframe left-panel integration script
-├── engine/                   # Greenfield Simulation Engine (Gate 1 - Shipped)
+├── engine/                   # Simulation Engine (Gate 1 - Shipped)
 │   ├── kernel.svelte.js        # Sovereign simulation Kernel ($state runes)
 │   ├── turns.js                # Headless turn orchestration (Turn 1 Director, Turn 2 Actor, Turn 3 Caretaker)
 │   ├── prompts.js              # Prompt pipeline & 4 Purpose Cores (character, director, caretaker, visualizer)
@@ -80,10 +80,10 @@ src/
 │   ├── verifier.js             # Structural XML tag sequence, balance, and order contract validator
 │   ├── parser.js               # Clean bracket tokenization & <think> extraction
 │   ├── transport.js            # Streaming transport boundary & token deduplication
-│   ├── bridge.js               # Greenfield-to-Legacy bridge & dynamics write-back sync
+│   ├── bridge.js               # Engine bridge & dynamics write-back sync
 │   ├── dev.svelte.js           # Reactive developer debug log
 │   └── index.js                # @engine barrel
-├── storage/                  # Greenfield Persistence Layer (Gate 2 - Shipped)
+├── data/                     # Persistence Layer (Gate 2 - Shipped)
 │   ├── db.js                   # Dexie.js database instance (db.version(2), mutation_ledger)
 │   ├── entities.js             # 4-quadrant entity normalizer, creator & Epistemic Wall filter
 │   ├── parser.js               # Multiline bracket parser [KEY: value | flags], delta merge & memory extraction
@@ -136,7 +136,7 @@ src/
     ├── Layout.svelte           # Persistent app shell frame
     ├── Storymode.svelte        # Storymode chat & feed view
     ├── Storyboard.svelte       # Storyboard scene deck view
-    ├── console/                # Console module (Console, ControlPanel, DevControls with GREENFIELD toggle)
+    ├── console/                # Console module (Console, ControlPanel, DevControls)
     ├── message/                # Message feed, headers, attachments & telemetry cards
     ├── entity/                 # Entity cards, CardHand & ContextMenu
     ├── profile/                # Profile Studio, Wings (VisualWing, AudioWing, DevWing) & RelationalGraph
@@ -214,7 +214,7 @@ Visibility across the Epistemic Wall is evaluated through `filter_entity_epistem
 - **`see_hidden: "all"` (`director` & `caretaker` cores)**: Retains all hidden brackets across all entities for omniscient evaluation and memory synthesis. Keeps `<APPEARANCE>` and `<CURRENT_LOOK>` un-merged for clean 1:1 state mapping.
 - **`see_hidden: "none"` (`visualizer` core)**: Strips `| hide` and inventory items from all entities for camera-only diffusion prompts.
 
-### 6.3 Greenfield 3-Turn Round Architecture (`src/engine/turns.js`)
+### 6.3 3-Turn Round Architecture (`src/engine/turns.js`)
 
 1. **Turn 1: Director Turn (Quick Shot)**
    - Staging pass (`phase = "generating"`). Evaluates narrative rules, updates numerical dynamics, delegates actor (`ai`, `fractal`, `npc`), conditionally triggers image beats (`trigger_image`), and supplies Director's Notes or branching staging options (`{Option A | Option B}`).

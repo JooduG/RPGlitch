@@ -1,7 +1,7 @@
 /**
  * src/data/db.js
  * ============================================================================
- * 🗄️ GREENFIELD PERSISTENCE ENGINE (Dexie.js)
+ * 🗄️ PERSISTENCE ENGINE (Dexie.js)
  * ============================================================================
  *
  * Single source of truth for pure Promise-based persistence across:
@@ -24,7 +24,7 @@ import { ALL_PREMADES } from "./presets.js";
 export const SESSION_ID_KEY = "active_session_id";
 
 /**
- * Greenfield Dexie database instance.
+ * Dexie database instance.
  */
 export const db = /** @type {any} */ (new Dexie("rpglitch"));
 

@@ -2,7 +2,7 @@
  * @file src/media/visual.svelte.js
  * 👁️ SENSORY CORTEX — STATELESS PERCHANCE IMAGE DISPATCHER
  *
- * Greenfield stateless visual generation dispatcher.
+ * stateless visual generation dispatcher.
  * Handles host engine discovery across window/iframe boundaries, exponential backoff,
  * circuit breaking, cancellation via AbortSignal, and queue / in-flight bookkeeping.
  */
@@ -217,7 +217,7 @@ function create_offline_svg(prompt, width, height) {
 }
 
 /**
- * Greenfield stateless visual generation dispatcher.
+ * stateless visual generation dispatcher.
  * @param {Object} payload
  * @param {string} payload.prompt
  * @param {string} [payload.negative_prompt]
@@ -537,7 +537,7 @@ export class VisualEngine {
   }
 
   /**
-   * Refines draft prompt text via the greenfield Visualizer Purpose Core.
+   * Refines draft prompt text via the Visualizer Purpose Core.
    * If style has `llm_refine === false`, bypasses the LLM and returns the prompt untouched.
    *
    * Style Precedence:

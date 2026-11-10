@@ -11,7 +11,7 @@ This package encapsulates the complete 3-turn narrative heartbeat (Director Shot
 
 - **Zero Legacy Dependency**: The engine does not import from legacy stores (`src/state/runtime.svelte.js`, `src/state/status.svelte.js`, `src/intelligence/director.js`).
 - **Data Layer Integration**: When Gate 2 consolidates the data layer (`src/data/db.js`), `Kernel` will read and write to the shared Dexie database schema. Existing user profiles, saved entities, and stories remain preserved.
-- **Preview Coexistence**: During Gate 3, a toggle/query parameter in the root shell mounts the greenfield UI alongside legacy.
+- **Preview Coexistence**: During Gate 3, a toggle/query parameter in the root shell mounted the engine UI alongside the legacy UI.
 - **Wholesale Cutover**: At Gate 4, the top-level application root switches from the legacy controller to `Kernel`, and deprecated files in `src/intelligence/` and `src/state/` are pruned.
 
 ## Interface

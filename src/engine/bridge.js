@@ -1,12 +1,12 @@
 /**
  * src/engine/bridge.js
  * ============================================================================
- * 🌉 GREENFIELD-TO-LEGACY COEXISTENCE BRIDGE
+ * 🌉 ENGINE BRIDGE
  * ============================================================================
  *
- * Provides a clean adapter that connects the Greenfield Kernel (src/engine/)
+ * Provides a clean adapter that connects the Kernel (src/engine/)
  * to the currently mounted Svelte UI and active story session:
- * - Adapts active legacy entities (AI, User, Fractal) into 4-quadrant format
+ * - Adapts active entities (AI, User, Fractal) into 4-quadrant format
  * - Directs streaming tokens into the reactive Svelte streaming_store
  * - Synchronizes generated assistant prose into IndexedDB and UI timeline
  * - Writes back updated entity dynamics and Caretaker changes to state and persistence
@@ -67,7 +67,7 @@ export function create_live_stream_fn() {
     if (!ai_engine || typeof ai_engine !== "function") {
       // Dev mock response if running in Vite dev server without Perchance plugin
       const prompt_str = typeof prompt === "function" ? prompt() : String(prompt || "");
-      const mock_text = `*Nods thoughtfully.* The greenfield engine receives your message: "${prompt_str.slice(0, 30)}..."`;
+      const mock_text = `*Nods thoughtfully.* The engine receives your message: "${prompt_str.slice(0, 30)}..."`;
       if (options.onChunk) {
         for (const char of mock_text) {
           options.onChunk(char);
@@ -320,7 +320,7 @@ export async function enhance_text(payload) {
 let _active_kernel = null;
 
 /**
- * Writes back Kernel execution outcomes into active legacy stores and IndexedDB.
+ * Writes back Kernel execution outcomes into active stores and IndexedDB.
  *
  * Resolves Gap 4:
  * 1. Synchronizes updated AI dynamics into runtime.active_ai and runtime.ai_physics.
@@ -537,7 +537,6 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
               future: caretaker_outcome.future_text || "",
               past: caretaker_outcome.past_text || "",
               thought_process: caretaker_outcome._thought_process || "",
-              greenfield: true,
             },
           });
           if (logged_continuum && state_bridge.simulation_log?.add) {
@@ -560,18 +559,18 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
 }
 
 /**
- * Executes a simulation turn via the greenfield Kernel.
+ * Executes a simulation turn via the Kernel.
  *
  * @param {string} user_input - The submitted user message text.
  * @param {object} options
  * @param {AbortSignal} [options.signal]
  * @returns {Promise<object>} Outcome containing character_turn, director_staging, etc.
  */
-export async function execute_greenfield_turn(user_input, _options = {}) {
+export async function execute_turn(user_input, _options = {}) {
   const runtime = state_bridge.runtime;
   const app = state_bridge.app;
 
-  // 1. Adapt active entities from legacy runtime to greenfield 4-quadrant format
+  // 1. Adapt active entities from runtime to 4-quadrant format
   const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
   const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
@@ -649,14 +648,13 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
         meta: {
           think,
           director_staging: outcome.director_staging,
-          greenfield: true,
         },
       });
       if (logged_entry && state_bridge.simulation_log?.add) {
         state_bridge.simulation_log.add(logged_entry);
       }
 
-      // Emit a DYNAMICS_DELTA system entry so Quick Shot TelemetryCard stays live on greenfield turns
+      // Emit a DYNAMICS_DELTA system entry so Quick Shot TelemetryCard stays live on turns
       if (outcome.director_staging?.dynamics_deltas) {
         const logged_delta = await log_message("", "system", "Director", {
           turn_type: "SYSTEM_TURN",
@@ -668,7 +666,6 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
             director_note: outcome.director_staging.directors_note,
             camera_note: outcome.director_staging.camera_note,
             thoughts: outcome.director_staging._thought_process || "",
-            greenfield: true,
           },
         });
         if (logged_delta && state_bridge.simulation_log?.add) {
@@ -680,7 +677,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas
     await write_back_kernel_state(_active_kernel, outcome, live_transport, _options);
 
-    // B19: Wire automatic visual synthesis into greenfield turn (fire-and-forget, non-blocking)
+    // B19: Wire automatic visual synthesis into turn (fire-and-forget, non-blocking)
     if (prose && runtime.story_id) {
       try {
         const turn_round = Number(_active_kernel.round || 0);
@@ -733,7 +730,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
 }
 
 /**
- * Continues an existing message using the Sovereign Greenfield Engine Kernel.
+ * Continues an existing message using the Sovereign Engine Kernel.
  * Formulates startWith from the target message's think-block and prose, streams
  * the continuation, and fuses the result directly onto the target message.
  *
@@ -742,7 +739,7 @@ export async function execute_greenfield_turn(user_input, _options = {}) {
  * @param {AbortSignal} [_options.signal]
  * @returns {Promise<object>} The continuation outcome
  */
-export async function execute_greenfield_continue(target_entry, _options = {}) {
+export async function execute_continue(target_entry, _options = {}) {
   const { app, runtime } = state_bridge;
 
   if (!target_entry || !target_entry.id) {
@@ -868,7 +865,7 @@ export async function execute_greenfield_continue(target_entry, _options = {}) {
 }
 
 /**
- * Executes visual prompt envisioning/refinement via the greenfield visualizer purpose core.
+ * Executes visual prompt envisioning/refinement via the visualizer purpose core.
  *
  * @param {string} text - Draft description or camera note
  * @param {string} [type="character"] - Generation mode or kind ("character", "fractal", "story_scene", etc.)
@@ -969,7 +966,7 @@ export async function execute_visualizer_envision(text, type = "character", enti
 }
 
 /**
- * Executes raw prose structuring via the greenfield Caretaker purpose core.
+ * Executes raw prose structuring via the Caretaker purpose core.
  *
  * @param {string} raw - Raw bio, concept, or character prose
  * @param {"character" | "fractal"} [type="character"]
@@ -1004,12 +1001,12 @@ export async function structure_profile(raw, type = "character", signal = null) 
 }
 
 /**
- * Executes a pure Greenfield Prologue and opening AI narrative beat for Turn 0.
+ * Executes a pure Prologue and opening AI narrative beat for Turn 0.
  *
  * @param {string} story_id
  * @returns {Promise<any>}
  */
-export async function execute_greenfield_prologue(story_id) {
+export async function execute_prologue(story_id) {
   const runtime = state_bridge.runtime;
   const app = state_bridge.app;
   if (!runtime || !story_id) return null;
@@ -1038,7 +1035,6 @@ export async function execute_greenfield_prologue(story_id) {
         id: node_id,
         round: 0,
         is_prologue: true,
-        greenfield: true,
       },
       attachments: [],
     });
@@ -1058,7 +1054,7 @@ export async function execute_greenfield_prologue(story_id) {
       },
     });
 
-    app.log("[Greenfield] Establishing prologue scene (Round 0)...", "system");
+    app.log("Establishing prologue scene (Round 0)...", "system");
     const raw_prologue = await live_transport.stream(prologue_prompt, {
       startWith: "<think>\n",
     });
@@ -1068,9 +1064,8 @@ export async function execute_greenfield_prologue(story_id) {
 
     await state_bridge.session_driver.edit_log_entry(node_id, prologue_text, {
       think: prologue_think,
-      greenfield: true,
     });
-    app.log("[Greenfield] Prologue scene established.", "system");
+    app.log("Prologue scene established.", "system");
 
     // 3. Register deferred prologue scene image
     const prologue_image_requested_at = Date.now();
@@ -1104,7 +1099,7 @@ export async function execute_greenfield_prologue(story_id) {
             });
           }
         } catch (img_err) {
-          console.warn("[Greenfield Prologue Image Error]", img_err);
+          console.warn("[Prologue Image Error]", img_err);
         } finally {
           clear_generation_in_flight?.(node_id, 0);
         }
@@ -1113,14 +1108,14 @@ export async function execute_greenfield_prologue(story_id) {
 
     // 4. Execute the opening AI character turn reacting directly to the prologue
     try {
-      app.log("[Greenfield] Generating opening character turn (Round 1)...", "ai");
-      return await execute_greenfield_turn(prologue_text, { is_opening_turn: true });
+      app.log("Generating opening character turn (Round 1)...", "ai");
+      return await execute_turn(prologue_text, { is_opening_turn: true });
     } finally {
       release_prologue_image();
     }
   } catch (e) {
-    console.error("[Greenfield] Prologue Failed:", e);
-    app.log("Error: Greenfield Prologue Failed.", "error");
+    console.error("Prologue Failed:", e);
+    app.log("Error: Prologue Failed.", "error");
     throw e;
   } finally {
     app.busy = false;
@@ -1138,11 +1133,11 @@ export async function execute_greenfield_prologue(story_id) {
  * @param {"CONCLUDED" | "COLLAPSED"} [conclusion_status="CONCLUDED"]
  * @returns {Promise<string | null>}
  */
-export async function execute_greenfield_epilogue(story_id, conclusion_status = "CONCLUDED") {
+export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED") {
   const runtime = state_bridge.runtime;
   const app = state_bridge.app;
 
-  app.log(`[Greenfield] Generating epilogue (${conclusion_status})...`, "system");
+  app.log(`Generating epilogue (${conclusion_status})...`, "system");
   const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
   const fractal_name = runtime?.active_fractal?.name || "Fractal Entity";
 

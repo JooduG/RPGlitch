@@ -228,7 +228,7 @@ export function serialize_entity_for_export(entity) {
 
 /**
  * Runs the LLM ingestion sorter over raw prose and returns the structured profile.
- * Delegates to the greenfield Caretaker purpose core via @engine.
+ * Delegates to the Caretaker purpose core via @engine.
  *
  * @param {string} raw
  * @param {'character' | 'fractal'} type

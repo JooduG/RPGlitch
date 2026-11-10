@@ -63,7 +63,7 @@ The package exposes its public interface via [`src/media/index.js`](./index.js):
 - **Bounded Queue**: Active background image generation queue is bounded to 5 slots (`IMAGE_GENERATION_QUEUE_CAPACITY = 5`). Overflows evict the oldest unresolved placeholder and mark it failed.
 - **Ghost Card Limit**: Unresolved placeholders older than 2 minutes (`IMAGE_GHOST_MAX_AGE_MS = 120000`) are swept as stale. Hard cap of 5 pending ghosts (`IMAGE_PLACEHOLDER_HARD_CAP = 5`) halts new triggers.
 - **Calibrated Guidance Scales**: Diffusion CFG guidance scales are strictly preserved at 7 for environmental scenes and 9 for character portraits.
-- **Stateless Dispatch**: Greenfield generation calls are stateless functions taking payloads and options; no UI progress state is held at Rank 1.
+- **Stateless Dispatch**: Generation calls are stateless functions taking payloads and options; no UI progress state is held at Rank 1.
 
 ## Side Effects
 

@@ -12,7 +12,7 @@
   import { app } from "./interface.svelte.js";
   import { chrono_engine, runtime, simulation_state, force_recover_simulation } from "@engine";
   import { simulation_log } from "@data";
-  import { execute_ghostwriter, execute_greenfield_epilogue, get_shared_transport } from "@engine";
+  import { execute_ghostwriter, execute_epilogue, get_shared_transport } from "@engine";
   import { db, session_driver, stories } from "@data";
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
   import { item_in } from "@media";
@@ -375,7 +375,7 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      await execute_greenfield_epilogue(runtime.story_id);
+      await execute_epilogue(runtime.story_id);
       if (runtime.story_id) {
         await stories.conclude(runtime.story_id);
         await app.load_entities();
@@ -718,7 +718,6 @@
               />
 
               <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
-              <Toggle label="GREENFIELD" bind:value={app.settings.use_greenfield_engine} onchange={() => app.save_settings()} />
               <Toggle label="DIRECTOR" bind:value={app.settings.director_enabled} onchange={() => app.save_settings()} />
               <Toggle label="GRID" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
               <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">

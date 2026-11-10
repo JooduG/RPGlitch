@@ -3,8 +3,8 @@ import {
   create_live_stream_fn,
   write_back_kernel_state,
   dispatch_caretaker_consolidation,
-  execute_greenfield_turn,
-  execute_greenfield_continue,
+  execute_turn,
+  execute_continue,
   get_shared_transport,
   reset_shared_transport,
 } from "./bridge.js";
@@ -14,7 +14,7 @@ import { register_state_accessors } from "../utils/index.js";
 import * as storage_db from "../data/db.js";
 import * as media_module from "../media/index.js";
 
-describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => {
+describe("src/engine/bridge.js - Engine Bridge Unit Tests", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
@@ -180,7 +180,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
 
       vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
 
-      const outcome = await execute_greenfield_turn("Move forward");
+      const outcome = await execute_turn("Move forward");
 
       // With director_enabled = false, 1-shot mode runs and director_staging is null
       expect(outcome.director_staging).toBeNull();
@@ -189,7 +189,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
   });
 
   describe("B03: Turn stage transitions on Director and Speaker", () => {
-    it("invokes set_delegated_speaker and start_stream_stage during execute_greenfield_turn", async () => {
+    it("invokes set_delegated_speaker and start_stream_stage during execute_turn", async () => {
       const mock_app = {
         settings: { director_enabled: false },
         start_stream: vi.fn(),
@@ -218,7 +218,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
 
       vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
 
-      await execute_greenfield_turn("Step into the light");
+      await execute_turn("Step into the light");
 
       expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({
         type: "ai",
@@ -342,7 +342,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
     });
   });
 
-  describe("execute_greenfield_continue streaming deduplication", () => {
+  describe("execute_continue streaming deduplication", () => {
     it("does not duplicate target_prose in update_stream when ai-text-plugin echoes startWith chunk", async () => {
       const original_gen = window.generate_text;
       const streamed_chunks = [];
@@ -387,7 +387,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       });
 
       try {
-        const outcome = await execute_greenfield_continue(target_entry);
+        const outcome = await execute_continue(target_entry);
         expect(streamed_chunks.join("")).toBe("Initial paragraph.\n\nNext paragraph beat.");
         expect(outcome.prose).toBe("Initial paragraph.\n\nNext paragraph beat.");
         expect(edit_entry).toHaveBeenCalledWith("msg-42", "Initial paragraph.\n\nNext paragraph beat.");
@@ -396,7 +396,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       }
     });
 
-    it("B03 coverage: execute_greenfield_continue transitions stages via set_delegated_speaker and start_stream_stage", async () => {
+    it("B03 coverage: execute_continue transitions stages via set_delegated_speaker and start_stream_stage", async () => {
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async () => "Extended paragraph.");
 
@@ -435,7 +435,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       });
 
       try {
-        await execute_greenfield_continue(target_entry);
+        await execute_continue(target_entry);
         expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({
           type: "ai",
           name: "Lyra",
@@ -561,7 +561,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       });
 
       try {
-        const outcome = await execute_greenfield_turn("Enter the observatory.");
+        const outcome = await execute_turn("Enter the observatory.");
         expect(outcome.character_turn.prose).toBe("The dust hangs frozen in the air.");
 
         // Queue checked and spawn_image_beat dispatched
@@ -630,7 +630,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
       window.generate_text = vi.fn(async () => "<think>Thinking</think>Safe prose.");
 
       try {
-        const outcome = await execute_greenfield_turn("Walk forward.");
+        const outcome = await execute_turn("Walk forward.");
         expect(outcome.character_turn.prose).toBe("Safe prose.");
       } finally {
         window.generate_text = original_gen;
