@@ -1,3 +1,8 @@
+# Summarization Template (pointer — canonical copy moved)
+
+> **Re-homed (2026-11-10):** canonical copy now lives at `src/engine/caretaker-compaction-template.md`,
+> next to the Turn 3 caretaker core (`execute_turn_3_caretaker` in `src/engine/turns.js`). This references copy stays as a pointer.
+
 # Summarization Template
 
 ```markdown

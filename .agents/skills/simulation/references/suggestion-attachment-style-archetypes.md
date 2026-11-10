@@ -1,5 +1,7 @@
 # Suggestion: Attachment Style Archetypes & Relational Trajectories
 
+> **Status:** Backlog Proposal — KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.
+
 > **Status:** Backlog Proposal  
 > **Domain:** Entity Schemas, Relational Epistemology & Interpersonal Dynamics  
 > **Scope:** 4 Attachment Schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), Threat Reactions, Defense Mechanisms, Recovery Curves  

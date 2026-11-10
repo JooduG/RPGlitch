@@ -1,6 +1,6 @@
 /**
- * @file tests/setup.js
- * 🧪 TEST SETUP  —  Browser Environment Mocking
+ * @file .agents/skills/simulation/scripts/test-setup.js
+ * 🧪 TEST SETUP — Browser Environment Mocking (vitest setupFiles entry).
  *
  * This file configures the global test environment. It provides mocks for
  * browser-native APIs like `window.generate_text` that are present on Perchance but

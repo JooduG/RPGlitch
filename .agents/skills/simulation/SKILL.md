@@ -29,7 +29,7 @@ In traditional interactive fiction, the language model is asked to be everything
 
 ## 2.0 SIMULATION LIFECYCLE & CHRONOS EXECUTION PIPELINE
 
-Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal lifecycle managed by [`ChronoEngine`](../../../src/state/chrono.svelte.js).
+Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal lifecycle (session pipeline in `src/engine/runs.js`, jobs in `src/engine/lifecycle.js`, Kernel in `src/engine/kernel.svelte.js`).
 
 ```mermaid
 flowchart TD
@@ -172,38 +172,20 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 When implementing changes, consult the canonical source files rather than duplicating schemas here:
 
-| Domain                           | Canonical Source File                                                              | Primary Responsibility                                                                  |
-| :------------------------------- | :--------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------- |
-| **Simulation Lifecycle**         | [`src/state/chrono.svelte.js`](../../../src/state/chrono.svelte.js)                | Round counter, Stasis lock, atomic turn dispatch (`send`, `retry`, `continue`).         |
-| **Turn Pipeline (Orchestrator)** | [`src/intelligence/story.js`](../../../src/intelligence/story.js)                  | Turn orchestration, Stage 1 execution, dynamics settlement, Stage 2 streaming.          |
-| **Director & Story Prompts**     | [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js)              | Master prompt manifest, Stage 1 & Stage 2 blueprints, schemas, speaker routing rules.   |
-| **Dynamics & Settlement**        | [`src/intelligence/dynamics.js`](../../../src/intelligence/dynamics.js)            | 0-100 slider math, baseline gravity, entropy velocity calculations.                     |
-| **Temporal Memory & Compaction** | [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)            | Vector scoring, cosine deduplication, Memory consolidation, past/future sync.           |
-| **Universal XML & Compaction**   | [`src/utils/xml.js`](../../../src/utils/xml.js)                                    | `render_atom_xml` universal compiler, `render_profile_field_block` attribute compactor. |
-| **Prompt Complexity Triage**     | [`.agents/skills/simulation/scripts/triage-prompt.js`](./scripts/triage-prompt.js) | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning.    |
+| Domain | Canonical Source File | Primary Responsibility |
+| :----- | :-------------------- | :--------------------- |
+| **Simulation Lifecycle** | `src/engine/runs.js` + `src/engine/lifecycle.js` (Kernel in `src/engine/kernel.svelte.js`) | Round counter, stasis lock, atomic turn dispatch (`send`, `retry`, `continue`), prologue/epilogue. |
+| **Turn Pipeline (Orchestrator)** | `src/engine/turns.js` | Pure turn orchestration: Turn 1 Director, Turn 2 Character/Continue, Turn 3 Caretaker, Visualizer, Structuring. |
+| **Director & Story Prompts** | `src/engine/prompts.js` | Unified 11-block Spatial Spine + 4 live Purpose Cores (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER). |
+| **Dynamics & Settlement** | `src/engine/dynamics.js` (physics) + `src/definitions/dynamics-registry.js` (registries) | 0-100 slider math, gravity, entropy, write-back. |
+| **Temporal Memory & Compaction** | `src/engine/sieve.js` (Two-Tier Sieve RAG) + caretaker core in `src/engine/turns.js` | Vector scoring, origin protection, tier floors, past/future sync. |
+| **Universal XML & Compaction** | `src/utils/xml.js` | `render_atom_xml` universal compiler, `render_profile_field_block` attribute compactor. |
+| **Prompt Complexity Triage** | `.agents/skills/simulation/scripts/lib/triage.js` | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning. |
+| **Engine-Native Check** | `.agents/skills/simulation/scripts/sim-check.js` (`npm run audit:simulation`) | Turn smoke + live-core prompt contract + sieve memory stress. |
 
----
-
-### 6.1 Prompt Library Catalog Schema & Compiler Standards
-
-All simulation prompt libraries (`src/intelligence/modules/` — `protocols.js`, `reflex.js`, `constitution.js`, `system.js`, `task.js`) adhere to an authoritative unified architecture:
-
-1. **Strict Object Schema**:
-   - Every prompt catalog entry in `*_LIBRARY` MUST be a frozen object with `{ tag: string, body: string, attrs?: Record<string, any>, inline?: boolean }`.
-   - Naked or raw strings in prompt catalogs are strictly forbidden under P4 Pre-Beta Purity.
-
-2. **Universal Atom Compiler (`render_atom_xml`)**:
-   - All prompt atom compiling MUST route through `render_atom_xml(atom_or_catalog, key_or_options, values_or_options, options)` from `@utils`.
-   - Hand-rolled string interpolation and ad-hoc tag wrappers are prohibited.
-   - Dual-Mode Invocations:
-     - _Direct Atom_: `render_atom_xml(atom, { indent, inline, body_only, attrs, tag })`
-     - _Catalog Key Lookup_: `render_atom_xml(catalog, "DOTTED.KEY", { token_values }, { body_only, indent })`
-   - Use `{ body_only: true }` when nesting unadorned text inside multi-atom envelopes like `<DIRECTIVES>`.
-
-3. **Biometric Attribute Compaction Invariant**:
-   - `render_profile_field_block(tag, rows)` in `@utils/xml.js` serializes profile fields (`APPEARANCE`, `CURRENT_LOOK`, `PERSONALITY`, `STATE`, `AGENDA`, `MEMORIES`).
-   - Scalar values $\le 40$ characters without newlines/quotes compact into parent XML attributes (e.g., `build="tall and athletic"`).
-   - **Relational Invariant**: Relational brackets (`[@TARGET: ...]`) and targets matching registered entity slugs ALWAYS emit `<RELATION target="...">` child elements and are strictly immune to attribute compaction.
+> Historical note: earlier revisions of this table cited `src/state/chrono.svelte.js`
+> and `src/intelligence/*` — the pre-demolition tree. Those paths are intentionally
+> absent above. The live verification suite is `sim-check.js`, not the retired scripts.
 
 ---
 
@@ -211,12 +193,13 @@ All simulation prompt libraries (`src/intelligence/modules/` — `protocols.js`,
 
 The `.agents/skills/simulation/references/` directory serves as the local idea incubator for uncommitted proposals and exploratory mechanics:
 
-1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), threat responses, defense curves.
-2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck.
-3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds.
-4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips.
-5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing.
-6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) — Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour.
+1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas, threat responses, defense curves. *(Status: KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.)*
+2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck. *(Status: KEEP as-is.)*
+3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds. *(Status: IMPLEMENTABLE as `src/utils/dice.js` when promoted — pure, dependency-free.)*
+4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips. *(Status: KEEP, re-point at `src/engine/runs.js` + `Console.svelte` when promoted.)*
+5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing. *(Status: KEEP, needs an owner — no live counterpart yet.)*
+6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) — Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour. *(Status: KEEP as docs task alongside `FEATURES.md`.)*
+7. **Mystery Mode:** [`mystery-mode-suggestion.md`](./references/mystery-mode-suggestion.md) — *(Status: KEEP, re-point at the live engine cores in `src/engine/prompts.js` when promoted.)*
 
 > [!TIP]
 > **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.

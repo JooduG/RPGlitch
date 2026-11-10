@@ -1,5 +1,8 @@
 # RPGlitch — Live Greenfield Simulation Forensics & Integrity Test Protocol
 
+> **HISTORICAL (2026-11-10):** spent — the A/B decision was canonized in ROADMAP R4
+> (think-seed wins; placement logic removed). Kept for forensics, not as a live protocol.
+
 > **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)  
 > **Protocol Focus**: Live Interactive Roleplay Stress Test, Early-Story A/B Comparative Forensics, and State Audit for Greenfield Nuclear Architecture  
 > **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/data/`, and modernized `src/media/` per `nuclear-plan.md`). Features a dedicated **10-Round A/B Comparative Director Note Trial** (Inlined `<think>` Seed vs. Non-Inlined `<TASK>` Stage Direction), alongside Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.

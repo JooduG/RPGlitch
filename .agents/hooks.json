@@ -27,7 +27,6 @@
       }
     ]
   },
-
   "mcp-argument-normalizer": {
     "PreToolUse": [
       {
@@ -39,25 +38,6 @@
             "timeout": 10
           }
         ]
-      }
-    ]
-  },
-
-  "svelte-autofixer-reminder": {
-    "PreInvocation": [
-      {
-        "type": "command",
-        "command": "node skills/local-scripts/scripts/hooks.js svelte-pre-invocation",
-        "timeout": 10
-      }
-    ]
-  },
-  "svelte-autofixer-gate": {
-    "Stop": [
-      {
-        "type": "command",
-        "command": "node skills/local-scripts/scripts/hooks.js svelte-stop-gate",
-        "timeout": 15
       }
     ]
   },

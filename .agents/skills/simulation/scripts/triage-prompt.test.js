@@ -21,7 +21,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { triage_prompt, resolve_tier } from "./triage-prompt.js";
+import { triage_prompt, resolve_tier } from "./lib/triage.js";
 
 describe("calculate_complexity_score()", () => {
   it("evaluates degenerate input of 3 words or fewer", () => {

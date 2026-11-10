@@ -1,5 +1,8 @@
 # Suggestion: D20 Micro-Resolution & Stat Check Engine
 
+> **Status:** Backlog Proposal — IMPLEMENTABLE as `src/utils/dice.js` (pure, dependency-free) when promoted.
+> **Re-home note (2026-11-10):** paths citing `src/intelligence/*` are pre-demolition; the live engine is `src/engine/*`.
+
 > **Status:** Backlog Proposal  
 > **Domain:** Mechanical Resolution, Action Stakes & Skill Checks  
 > **Scope:** `evaluate_stat_check` Engine, Difficulty Class (DC) Ladder, Partial Success (Success-with-a-Cost)  

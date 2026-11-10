@@ -21,6 +21,7 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { GATE_TABLE, is_high_risk_file } from "./gates.js";
 
 // =================================================================================================
 // 0. SHARED LIFECYCLE IO & PATH UTILITIES
@@ -259,11 +260,7 @@ export function handle_sequential_thinking_gate(payload) {
     return;
   }
 
-  const is_high_risk_engine_file =
-    relative_target.startsWith("src/intelligence/") ||
-    relative_target === "src/state/chrono.svelte.js" ||
-    relative_target === "src/state/status.svelte.js" ||
-    relative_target === "src/data/repository.js";
+  const is_high_risk_engine_file = is_high_risk_file(relative_target);
 
   if (is_high_risk_engine_file) {
     send_hook_response({
@@ -694,7 +691,7 @@ export function handle_stop_hygiene(payload) {
 // 3. MAIN ROUTER DISPATCHER
 // =================================================================================================
 
-const HOOK_DISPATCH_TABLE = Object.freeze({
+const ALL_HANDLERS = {
   "command-guard": handle_command_guard,
   "guard-commands": handle_command_guard,
   "sequential-thinking-gate": handle_sequential_thinking_gate,
@@ -708,7 +705,16 @@ const HOOK_DISPATCH_TABLE = Object.freeze({
   "planning-handoff": handle_planning_handoff,
   "stop-hygiene": handle_stop_hygiene,
   "workspace-hygiene": handle_stop_hygiene,
-});
+};
+
+const REGISTERED_SUBCOMMANDS = new Set(GATE_TABLE.map((gate) => gate.subcommand));
+
+// NOTE: svelte-pre-invocation / svelte-stop-gate and the waldzell-router /
+// guard-commands / workspace-hygiene aliases stay dispatchable for backward
+// compatibility but are no longer registered gates (see gates.js).
+const HOOK_DISPATCH_TABLE = Object.freeze(
+  Object.fromEntries(Object.entries(ALL_HANDLERS).filter(([subcommand]) => REGISTERED_SUBCOMMANDS.has(subcommand))),
+);
 
 /**
  * Executes router logic by reading stdin and calling the matched handler.
@@ -751,6 +757,9 @@ run();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-11-10: Dispatch table + high-risk policy now driven by gates.js GATE_TABLE (single source;
+ *   hooks.json regenerated via `node gates.js --dump`). Retired svelte-autofixer pair + aliases
+ *   from the registered set (handlers kept for backward compatibility).
  * 2026-10-19: Registered `mcp-argument-normalizer` under PreToolUse in `.agents/hooks.json`, inspected `payload.error` in `handle_circuit_breaker` for standard PostToolUse failure detection, and synchronized local-scripts documentation with ROADMAP.md.
  * 2026-09-30: Hardened `resolve_repo_root` to verify `fs.existsSync(payload.workspacePaths[0])` so non-existent test or cross-platform mock paths fall back safely to current workspace root.
  * 2026-09-25: Hardened porcelain git status path extraction regex in `handle_planning_handoff` (`/^..?\s+/`) to robustly handle both single-letter and two-letter status code prefixes.

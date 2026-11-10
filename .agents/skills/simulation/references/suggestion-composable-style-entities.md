@@ -1,5 +1,7 @@
 # Suggestion: Composable Style Entities (Dexie.js Style Cards)
 
+> **Status:** Backlog Proposal — KEEP as-is.
+
 > **Status:** Backlog Proposal  
 > **Domain:** State Architecture, Persistence Layer & Storyboard UI  
 > **Scope:** Dexie `styles` Store, `StyleCard` Schema, Hot-Swappable Storyboard Deck  

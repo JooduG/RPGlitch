@@ -24,20 +24,24 @@ In RPGlitch, operational tasks fall into two categories:
 
 Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 
-| Command                              | Script Target          | Operational Purpose                                                                                                  |
-| :----------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------- |
-| `npm run audit:hygiene`              | `workspace.js hygiene` | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). |
-| `npm run sync:ignores`               | `workspace.js sync`    | Workspace Synchronizer: reconciles `ignores.master.json` into all 9 configuration layers.                            |
-| `node .../workspace.js all`          | `workspace.js all`     | Unified Master Pass: runs `sync` followed by complete `hygiene` audit.                                               |
-| `npm run test:hooks`                 | `hooks.test.js`        | End-to-end automated contract suite testing all 10 Antigravity lifecycle hooks in `hooks.js`.                        |
-| `npx vitest run .../bridges.test.js` | `bridges.test.js`      | Unit test suite verifying `bridges.js` CLI proxying, fallbacks, and DeepWiki MCP integration.                        |
-| `npm run audit`                      | (Parallel Suite)       | Concurrently runs backlog, design, google-design, hygiene, simulation, and svelte audits.                            |
+| Command | Script Target | Operational Purpose |
+| :------ | :------------ | :------------------ |
+| `npm run audit:hygiene` | `audit.js hygiene` | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). Rules in `scripts/rules/hygiene.js`, I/O in `scripts/lib/io.js`. |
+| `npm run audit:layers` | `audit.js layers` | Strict Layer Boundary Gate: imports must flow downward (`rules/layers.js`). |
+| `npm run sync:ignores` | `sync-ignores.js sync` | Workspace Synchronizer: diff-then-write fan-out of `ignores.master.json` (zero phantom diffs). |
+| `npm run sync:gates` | `gates.js --dump` | Regenerates `.agents/hooks.json` from GATE_TABLE (generated artifact — do not hand-edit). |
+| `node .../audit.js all` | `audit.js all` | Unified pass: `sync` + complete `hygiene` + `layers` audit. |
+| `npm run test:hooks` | `scripts/tests/` | Per-gate contract suite: one vitest file per registered gate in `GATE_TABLE`. |
+| `npx vitest run .../proxy.test.js` | `proxy.test.js` | Unit tests for `proxy.js` global-tool fan-out and CI fallbacks. DeepWiki bridge is archived (zero callers). |
+| `npm run audit` | (Parallel Suite) | Concurrently runs backlog, design, google-design, hygiene, layers, simulation, and svelte audits. |
 
 ---
 
 ## 3.0 ANTIGRAVITY RUNTIME LIFECYCLE HOOKS
 
-RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](../../hooks.json). These hooks intercept agent actions in real time to guarantee constitutional compliance:
+RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](../../hooks.json).
+That file is a GENERATED artifact — the single source of truth is
+`scripts/gates.js` GATE_TABLE (`npm run sync:gates` regenerates it).
 
 ```mermaid
 flowchart TD
@@ -78,19 +82,16 @@ flowchart TD
    - _Target_: All tools (`.*`).
    - _Behavior_: Tracks consecutive tool failures in `tmp/.tool-failures.json`. When failures reach 3 consecutive strikes, it triggers an immediate mandate for self-audit via `mcp-sequentialthinking-tools`.
 
-### 3.3 PreInvocation Hooks (Context Injection)
-
-1. **`svelte-autofixer-reminder`** (`hooks.js svelte-pre-invocation`):
-   - _Behavior_: Injects an ephemeral reminder whenever `.svelte` files or Svelte workflows are detected in the active context, reminding the agent to run `svelte-autofixer`.
-
-### 3.4 Stop Hooks (Session Completion Gatekeepers)
+### 3.3 Stop Hooks (Session Completion Gatekeepers)
 
 1. **`planning-handoff-gate`** (`hooks.js planning-handoff`):
    - _Behavior_: Validates spec-to-code alignment against the active blueprint in `ROADMAP.md` and checks `git status --porcelain`: if substantive changes were made to `src/` without recording them in `CHANGELOG.md` or `ROADMAP.md`, it blocks turn completion.
 2. **`workspace-hygiene-gate`** (`hooks.js stop-hygiene`):
    - _Behavior_: Inspects repository root. Blocks completion if transient files (`.tmp`, `.log`, `scratch_*`, `temp_*`) were generated outside of `tmp/`.
-3. **`svelte-autofixer-gate`** (`hooks.js svelte-stop-gate`):
-   - _Behavior_: Inspects invocation transcript. If `.svelte` components were modified without running `call_mcp_tool` for `svelte:svelte-autofixer`, it blocks session stop.
+
+> Retired: the ceremonial `svelte-autofixer` PreInvocation reminder + Stop gate pair
+> (CI pins via `svelte-check` + `lint:svelte`) and the `active-track-gate` ghost
+> (no handler ever existed). See `scripts/gates.js` CHANGELOG.
 
 ---
 

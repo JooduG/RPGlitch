@@ -1,5 +1,8 @@
 # Greenfield A/B Forensics — live run log (2026-11-08, Perchance iframe preview, vault bundle)
 
+> **HISTORICAL (2026-11-10):** spent — Track 1 (think-seed) won and was canonized in
+> ROADMAP R4. Kept as the empirical record, not as a live protocol.
+
 ## Setup (Track 1 story, id=1)
 
 - Entities: AI=Orion the Pink Protector (character), USER=Glitch (character, 1st person), FRACTAL=Nova City (fractal). Premades from IDB (10 entities present, clean DB: stories/simlog/sessions/ledger all empty at start).
