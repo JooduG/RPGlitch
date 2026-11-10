@@ -259,6 +259,11 @@
   let is_ai = $derived(sender === "ai");
   let is_npc = $derived(sender === "npc");
   let is_fractal = $derived(sender === "fractal");
+
+  /** Voice-flag role for this message (npc speech is covered by the ai flag). */
+  let speak_role = $derived(is_user ? "user" : is_fractal ? "fractal" : "ai");
+  /** Effective audibility: master switch AND per-role flag. Reactive — menu labels and the Read button follow toggles. */
+  let voice_audible = $derived(Audio.is_role_enabled(speak_role));
   let is_telemetry = $derived(
     sender === "system" &&
       (meta?.type === "DYNAMICS_DELTA" ||
@@ -366,6 +371,10 @@
 
   function handle_speak() {
     if (!clean_markdown) return;
+    if (!Audio.is_role_enabled(speak_role)) {
+      app.log(`${entity_display_name || "This voice"} is muted — enable it from the message menu to hear it read aloud.`, "warn");
+      return;
+    }
     Audio.voice.active_message_id = id;
 
     if (entity && entity.voice) {
@@ -408,8 +417,8 @@
       }
 
       items.push({
-        label: Audio.entity_voice.ai ? "Disable AI Voice" : "Enable AI Voice",
-        active: Audio.entity_voice.ai,
+        label: Audio.is_role_enabled("ai") ? "Disable AI Voice" : "Enable AI Voice",
+        active: Audio.is_role_enabled("ai"),
         onSelect: () => Audio.toggle_entity_voice("ai"),
       });
 
@@ -695,7 +704,7 @@
               aria-label="Read Message"
               actions={[tooltip]}
               onclick={handle_speak}
-              disabled={!clean_markdown}
+              disabled={!clean_markdown || !voice_audible}
               class="text-white/85 transition-colors hover:text-white disabled:opacity-30"
             >
               <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">

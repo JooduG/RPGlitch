@@ -152,12 +152,12 @@
     app.log(`[VisualWing] Painting... Prompt: ${prompt_value}`, "system");
 
     try {
-      // Profile pictures route through the `solo_entity` tier: an isolated portrait
-      // rendered in the ENTITY'S OWN visual style, independent of the active story/fractal.
-      // Curated user prompt text is preserved verbatim — no LLM re-translation here
-      // (the Envision button in this wing is the only path that runs the LLM).
+      // Profile pictures follow the entity's nature: fractals are scenes
+      // (landscape tier), characters are portraits (solo tier). A hardcoded
+      // solo_entity tier rendered every fractal profile at portrait ratio.
+      const mode = profile_state.char?.type === "fractal" ? "story_scene" : "solo_entity";
       const payload = await app.visual.generate(prompt_value, {
-        mode: "solo_entity",
+        mode,
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:
           profile_state.char.modifiers.profile_picture_seed !== null &&

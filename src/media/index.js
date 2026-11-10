@@ -51,6 +51,7 @@ export {
   play_sfx,
   VOICE_CADENCES,
   normalize_role,
+  voice_role_key,
   resolve_voice_uri,
   resolve_voice_name,
   get_cadence_rate,

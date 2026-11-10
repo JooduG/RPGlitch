@@ -379,6 +379,12 @@ export class StreamingStore {
         console.error("[StreamingStore] Failed to abort streaming:", err);
       }
     }
+    // An interrupted turn must not keep talking: drop any queued speech.
+    try {
+      Audio.voice?.stop?.();
+    } catch {
+      /* voice teardown is best-effort */
+    }
   }
 }
 

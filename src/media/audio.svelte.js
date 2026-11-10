@@ -258,6 +258,18 @@ export const VOICE_CADENCES = Object.freeze(
   Object.entries(VOICE_CADENCE.RATES).map(([id, rate]) => Object.freeze({ id, label: id.charAt(0).toUpperCase() + id.slice(1), rate })),
 );
 
+/**
+ * Maps a speaker role onto a voice-flag key. Unlike normalize_role (which
+ * collapses user/fractal into ai for prompt addressing), voice switches are
+ * per-role: user and fractal keep their own flags, npc falls back to ai.
+ */
+export function voice_role_key(role) {
+  const norm = normalize_role(role, { preserve_npc: true });
+  if (!norm) return null;
+  if (norm === "npc") return "ai";
+  return norm;
+}
+
 export function normalize_role(role, options = {}) {
   if (!role) return null;
   const normalized_string = String(role).trim().toLowerCase();
@@ -294,22 +306,77 @@ export function get_cadence_rate(cadence, dynamics_value = 50) {
 // ============================================================================
 
 export class VoiceEngine {
-  enabled = true;
+  enabled = $state(true);
   selected_voice = "default";
   rate = 1.0;
   volume = $state(1.0);
-  is_speaking = false;
-  active_message_id = null;
+  is_speaking = $state(false);
+  active_message_id = $state(null);
 
-  entity_voice = {
+  // Per-role TTS switches. $state so context-menu labels re-render on toggle
+  // (a plain object froze the label at its initial value forever).
+  entity_voice = $state({
     ai: true,
     user: true,
     fractal: true,
-  };
+  });
+
+  // Browser speech-synthesis voices, loaded async (empty until the engine
+  // publishes them). $state so the AudioWing dropdown populates when ready.
+  voices = $state([]);
+
+  // Streaming TTS buffer: sentences already spoken, keyed off role+message.
+  _stream_role = null;
+  _stream_emitted_length = 0;
 
   #speech_synth = typeof window !== "undefined" && "speechSynthesis" in window ? window.speechSynthesis : null;
 
-  constructor() {}
+  constructor() {
+    this.load_voices();
+  }
+
+  /**
+   * (Re)loads the browser voice list. getVoices() is often empty on first
+   * call, so this also arms the voiceschanged event for the late arrival.
+   */
+  load_voices() {
+    const synth = this.#speech_synth;
+    if (!synth || typeof synth.getVoices !== "function") return [];
+    try {
+      const list = synth.getVoices() || [];
+      if (list.length > 0 && this.voices.length === 0) {
+        this.voices = list.map((v) => ({ name: v.name, uri: v.voiceURI || v.name, lang: v.lang || "", local: !!v.localService }));
+      }
+    } catch {
+      /* voice listing is best-effort */
+    }
+    try {
+      if (typeof synth.addEventListener === "function" && !synth.__rpglitch_voices_armed) {
+        synth.__rpglitch_voices_armed = true;
+        synth.addEventListener("voiceschanged", () => this.load_voices());
+      }
+    } catch {
+      /* older engines without addEventListener */
+    }
+    return this.voices;
+  }
+
+  /**
+   * Speaks a short sample line with the given voice (AudioWing preview).
+   * Bypasses role gates — the user explicitly asked to hear this voice.
+   */
+  preview(name_or_uri, rate = 1.0) {
+    const previous = this.selected_voice;
+    const previous_rate = this.rate;
+    this.selected_voice = resolve_voice_uri(name_or_uri) || previous;
+    this.rate = Number(rate) || previous_rate;
+    try {
+      this.speak("The glitch remembers your voice.", true, true);
+    } finally {
+      this.selected_voice = previous;
+      this.rate = previous_rate;
+    }
+  }
 
   async resume_context() {
     await init_audio_on_gesture();
@@ -347,6 +414,8 @@ export class VoiceEngine {
     const utterance = new SpeechSynthesisUtterance(clean_text);
     utterance.volume = this.volume;
     utterance.rate = this.rate;
+    const voice = this.#pick_voice(this.selected_voice);
+    if (voice) utterance.voice = voice;
 
     utterance.onstart = () => {
       this.is_speaking = true;
@@ -366,6 +435,7 @@ export class VoiceEngine {
       this.#speech_synth.cancel();
     }
     this.is_speaking = false;
+    this.reset_stream();
   }
 
   pause() {
@@ -391,6 +461,68 @@ export class VoiceEngine {
 
   destroy() {
     this.stop();
+  }
+
+  /**
+   * Matches a stored voice id (name or uri) against the loaded browser list.
+   * @param {string} name_or_uri
+   * @returns {SpeechSynthesisVoice|null} Private method — no test seam needed.
+   */
+  #pick_voice(name_or_uri) {
+    const voices = this.voices || [];
+    if (!name_or_uri || name_or_uri === "default" || voices.length === 0) return null;
+    const key = String(name_or_uri).trim().toLowerCase();
+    return voices.find((v) => (v.name || "").toLowerCase() === key || (v.uri || "").toLowerCase() === key) || null;
+  }
+
+  /**
+   * Streaming TTS: arms the sentence buffer for a live generation. Called by
+   * the streaming store when a turn starts speaking.
+   */
+  apply_stream_role(role, id = null) {
+    this._stream_role = role || null;
+    this._stream_emitted_length = 0;
+    this.active_message_id = id;
+  }
+
+  /**
+   * Streaming TTS: speaks newly completed sentences from the growing content.
+   * Partial trailing sentences stay buffered until they (or flush) complete.
+   */
+  queue_stream_sentence(content) {
+    if (!content || typeof content !== "string") return;
+    if (!this.is_role_enabled(this._stream_role)) return;
+    const fresh = content.slice(this._stream_emitted_length);
+    const sentences = fresh.match(/[^.!?]+[.!?]+["']?/g);
+    if (!sentences || sentences.length === 0) return;
+    const last = sentences[sentences.length - 1];
+    this._stream_emitted_length += fresh.indexOf(last) + last.length;
+    const spoken = sentences.join(" ");
+    if (spoken.trim()) {
+      this.speak(spoken, false, false);
+    }
+  }
+
+  /**
+   * Streaming TTS: speaks whatever trailing fragment remains at turn end.
+   */
+  flush_stream_remainder(content) {
+    if (!content || typeof content !== "string") return;
+    if (!this.is_role_enabled(this._stream_role)) {
+      this.reset_stream();
+      return;
+    }
+    const tail = content.slice(this._stream_emitted_length).trim();
+    this.reset_stream();
+    if (tail) {
+      this.speak(tail, false, false);
+    }
+  }
+
+  /** Streaming TTS: clears the sentence buffer without speaking. */
+  reset_stream() {
+    this._stream_role = null;
+    this._stream_emitted_length = 0;
   }
 }
 
@@ -434,13 +566,13 @@ export class AudioEngine {
   }
 
   is_role_enabled(role) {
-    const norm = normalize_role(role);
+    const norm = voice_role_key(role);
     if (!norm) return false;
     return this.voice_enabled && Boolean(this.voice.entity_voice[norm]);
   }
 
   set_entity_voice(role, is_enabled) {
-    const norm = normalize_role(role);
+    const norm = voice_role_key(role);
     if (!norm) return;
     const bool = Boolean(is_enabled);
     if (bool) {
@@ -450,7 +582,7 @@ export class AudioEngine {
   }
 
   toggle_entity_voice(role) {
-    const norm = normalize_role(role);
+    const norm = voice_role_key(role);
     if (!norm) return false;
     const next = !this.voice.entity_voice[norm];
     this.set_entity_voice(norm, next);

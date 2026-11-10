@@ -98,9 +98,9 @@ export async function execute_visualizer_envision(text, type = "character", enti
       transport: live_transport,
       round: Number(runtime.round || 1),
       entities: {
-        AI: type !== "fractal" ? normalize_entity(target_entity) : null,
+        AI: type !== "fractal" ? normalize_entity(target_entity || {}) : null,
         USER: null,
-        FRACTAL: type === "fractal" ? normalize_entity(target_entity) : normalize_entity(runtime.active_fractal),
+        FRACTAL: type === "fractal" ? normalize_entity(target_entity || {}) : normalize_entity(runtime.active_fractal || {}),
       },
       camera_note,
       subject_kind,

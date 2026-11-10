@@ -113,26 +113,40 @@ function normalize_relational_brackets(text) {
  * @returns {object} canonical entity
  */
 export function normalize_entity(raw = {}) {
-  const entity_type = raw.type === "fractal" ? "fractal" : "character";
+  const src = raw && typeof raw === "object" ? raw : {};
+  const entity_type = src.type === "fractal" ? "fractal" : "character";
 
-  const eternal = raw.eternal || {};
-  const present = raw.present || {};
+  const eternal = src.eternal || {};
+  const present = src.present || {};
+
+  // Visual modifiers (image prompt draft, mirror flag, generation seeds) are
+  // user data, not derived state: preserve them through normalize so profile
+  // saves, reads, and the VisualWing never see them vanish. Missing pieces
+  // get safe defaults so `char.modifiers.prompt` is always readable.
+  const raw_modifiers = src.modifiers && typeof src.modifiers === "object" ? src.modifiers : {};
 
   return {
-    id: raw.id || generate_uuid(),
-    name: typeof raw.name === "string" ? raw.name.trim() : "Unnamed",
+    id: src.id || generate_uuid(),
+    name: typeof src.name === "string" ? src.name.trim() : "Unnamed",
     type: entity_type,
-    description: typeof raw.description === "string" ? raw.description.trim() : "",
-    profile_picture: typeof raw.profile_picture === "string" ? raw.profile_picture.trim() : "",
-    signature_color: typeof raw.signature_color === "string" ? raw.signature_color.trim() : "",
-    visual_style: typeof raw.visual_style === "string" ? raw.visual_style.trim() : "none",
-    pov: raw.pov === "1st_person" ? "1st_person" : "3rd_person",
-    speaking_style: typeof raw.speaking_style === "string" ? raw.speaking_style.trim() : "casual",
-    narrative_style: typeof raw.narrative_style === "string" ? raw.narrative_style.trim() : "cormac_mccarthy",
-    tags: Array.isArray(raw.tags) ? raw.tags.map((t) => String(t).trim()).filter(Boolean) : [],
-    voice: typeof raw.voice === "object" && raw.voice !== null ? { ...raw.voice } : { name: "", cadence: "standard" },
-    created_at: Number(raw.created_at) || Date.now(),
-    updated_at: Number(raw.updated_at) || Date.now(),
+    description: typeof src.description === "string" ? src.description.trim() : "",
+    profile_picture: typeof src.profile_picture === "string" ? src.profile_picture.trim() : "",
+    signature_color: typeof src.signature_color === "string" ? src.signature_color.trim() : "",
+    visual_style: typeof src.visual_style === "string" ? src.visual_style.trim() : "none",
+    pov: src.pov === "1st_person" ? "1st_person" : "3rd_person",
+    speaking_style: typeof src.speaking_style === "string" ? src.speaking_style.trim() : "casual",
+    narrative_style: typeof src.narrative_style === "string" ? src.narrative_style.trim() : "cormac_mccarthy",
+    tags: Array.isArray(src.tags) ? src.tags.map((t) => String(t).trim()).filter(Boolean) : [],
+    voice: typeof src.voice === "object" && src.voice !== null ? { ...src.voice } : { name: "", cadence: "standard" },
+    modifiers: {
+      prompt: typeof raw_modifiers.prompt === "string" ? raw_modifiers.prompt : "",
+      negative_prompt: typeof raw_modifiers.negative_prompt === "string" ? raw_modifiers.negative_prompt : "",
+      flipped: Boolean(raw_modifiers.flipped),
+      profile_picture_seed: raw_modifiers.profile_picture_seed ?? null,
+      last_generated_seed: raw_modifiers.last_generated_seed ?? null,
+    },
+    created_at: Number(src.created_at) || Date.now(),
+    updated_at: Number(src.updated_at) || Date.now(),
 
     // 4-Quadrant Temporal Model (with canonical uppercase [@TARGET: ...] relations)
     eternal: {
@@ -143,11 +157,11 @@ export function normalize_entity(raw = {}) {
       physical: normalize_relational_brackets(typeof present.physical === "string" ? present.physical.trim() : ""),
       non_physical: normalize_relational_brackets(typeof present.non_physical === "string" ? present.non_physical.trim() : ""),
     },
-    future: normalize_relational_brackets(normalize_future_to_brackets(raw.future)),
-    past: normalize_relational_brackets(normalize_past_to_brackets(raw.past)),
+    future: normalize_relational_brackets(normalize_future_to_brackets(src.future)),
+    past: normalize_relational_brackets(normalize_past_to_brackets(src.past)),
 
     // Dynamics Sliders (1-100)
-    dynamics: normalize_dynamics(raw.dynamics, entity_type),
+    dynamics: normalize_dynamics(src.dynamics, entity_type),
   };
 }
 

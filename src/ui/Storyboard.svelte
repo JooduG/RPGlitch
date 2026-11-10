@@ -473,11 +473,13 @@
     }
 
     if (type === "ai" || type === "fractal") {
-      const voice_label = Audio.entity_voice.ai ? "Disable AI Voice" : "Enable AI Voice";
+      const voice_role = type === "fractal" ? "fractal" : "ai";
+      const voice_noun = type === "fractal" ? "Fractal Voice" : "AI Voice";
+      const voice_label = Audio.is_role_enabled(voice_role) ? `Disable ${voice_noun}` : `Enable ${voice_noun}`;
       items.push({
         label: voice_label,
-        active: Audio.entity_voice.ai,
-        onSelect: () => Audio.toggle_entity_voice("ai"),
+        active: Audio.is_role_enabled(voice_role),
+        onSelect: () => Audio.toggle_entity_voice(voice_role),
       });
     }
 
