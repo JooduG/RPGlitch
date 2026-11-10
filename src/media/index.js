@@ -105,8 +105,6 @@ export {
   mark_placeholder_failed,
   sweep_stale_ghosts,
   spawn_image_beat,
-  register_default_visual_engine,
-  get_default_visual_engine,
   VisualEngine,
   visual_engine,
   rescue_visual_prose,

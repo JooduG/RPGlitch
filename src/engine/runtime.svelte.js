@@ -140,8 +140,6 @@ export class RuntimeEngineStore {
   #active_npcs = $state({});
   /** @type {string[]} @deprecated Presence enum owns staging; kept as a derived mirror. */
   #in_scene_npc_ids = $state([]);
-  /** @type {string | null} */
-  streaming_entity_id = $state(null);
 
   // --- Chronology & Session State ---
   is_ready = $state(false);

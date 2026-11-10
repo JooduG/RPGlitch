@@ -568,16 +568,6 @@ export class VisualEngine {
 
 export const visual_engine = new VisualEngine();
 
-let _default_visual_engine = visual_engine;
-
-export function register_default_visual_engine(engine) {
-  _default_visual_engine = engine;
-}
-
-export function get_default_visual_engine() {
-  return _default_visual_engine;
-}
-
 export async function spawn_image_beat(tier, options = {}) {
   const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
   if (!tier || !IMAGE_TIERS.includes(tier)) return;
@@ -616,12 +606,12 @@ export async function spawn_image_beat(tier, options = {}) {
     mark_generation_in_flight(placeholder_entry.id, 0);
     const resolve_placeholder = async () => {
       try {
-        let active_engine = engine || _default_visual_engine;
+        let active_engine = engine || visual_engine;
         try {
           const media_barrel = await import("./index.js");
           if (media_barrel?.visual_engine) active_engine = engine || media_barrel.visual_engine;
         } catch {
-          /* fallback to _default_visual_engine */
+          /* fallback to visual_engine */
         }
 
         let result;
