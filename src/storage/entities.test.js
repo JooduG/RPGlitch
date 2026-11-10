@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   normalize_entity,
   create_entity,
@@ -9,6 +9,12 @@ import {
 } from "./entities.js";
 
 describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", () => {
+  afterEach(() => {
+    delete window.generate_text;
+    delete window.generateText;
+    vi.restoreAllMocks();
+  });
+
   describe("create_entity", () => {
     it("creates a valid fresh character entity with defaults and random UUID", () => {
       const character = create_entity("character", { name: "Aria" });
@@ -159,17 +165,15 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
 
   describe("structure_profile & birth_entity_core", () => {
     it("structures raw prose via enhance and parses JSON output", async () => {
-      const { llm_service } = await import("@engine");
-      const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue('{"name":"Kael","appearance":"Tall and cloaked."}');
+      const engine_mock = vi.fn().mockResolvedValue('{"name":"Kael","appearance":"Tall and cloaked."}');
+      window.generate_text = engine_mock;
 
       const result = await structure_profile("Raw character description of Kael...", "character");
-      expect(spy).toHaveBeenCalled();
+      expect(engine_mock).toHaveBeenCalled();
       expect(result).toEqual({ name: "Kael", appearance: "Tall and cloaked." });
-      spy.mockRestore();
     }, 15000);
 
     it("structure_profile produces output that satisfies parse_profile_json and mandatory fields", async () => {
-      const { llm_service } = await import("@engine");
       const mock_response = JSON.stringify({
         _thought_process: "Structuring rogue archetype with stealth abilities.",
         name: "Shadowblade",
@@ -181,9 +185,11 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
         past: "[ORIGIN: born in underground guild | is_origin | w: 9]",
       });
 
-      const spy = vi.spyOn(llm_service, "enhance").mockResolvedValue(mock_response);
+      const engine_mock = vi.fn().mockResolvedValue(mock_response);
+      window.generate_text = engine_mock;
 
       const structured = await structure_profile("Raw notes for Shadowblade...", "character");
+      expect(engine_mock).toHaveBeenCalled();
       expect(structured).not.toBeNull();
       expect(typeof structured._thought_process).toBe("string");
       expect(structured.name).toBe("Shadowblade");
@@ -193,8 +199,6 @@ describe("src/storage/entities.js — 4-Quadrant Entity Model & Adapt-on-Read", 
       expect(structured.present_non_physical).toContain("[MOOD: watchful]");
       expect(structured.future).toContain("[AGENDA: infiltrate the high citadel]");
       expect(structured.past).toContain("[ORIGIN: born in underground guild");
-
-      spy.mockRestore();
     });
 
     it("birth_entity_core persists entity and registers NPC cast via update_cast", async () => {
