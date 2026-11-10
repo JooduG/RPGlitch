@@ -8,13 +8,7 @@
 
 import fs from "fs";
 import path from "path";
-import {
-  ROOT_DIRECTORY,
-  PROJECT_ROOT_DIRECTORY,
-  SKILLS_DIRECTORY,
-  TEMPLATES_DIRECTORY,
-  safe_stat_sync,
-} from "../lib/io.js";
+import { ROOT_DIRECTORY, PROJECT_ROOT_DIRECTORY, SKILLS_DIRECTORY, TEMPLATES_DIRECTORY, safe_stat_sync } from "../lib/io.js";
 
 // --- Group A: Code & Structural Hygiene Rules ---
 export const code_hygiene_rules = [

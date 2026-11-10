@@ -11,7 +11,9 @@ import { start_deepwiki_bridge } from "./deepwiki-bridge.js";
 const command_line_arguments = process.argv.slice(2);
 
 if (command_line_arguments.length === 0) {
-  console.error("Usage: node bridges.js <deepwiki | summarize | knowledge | ingest-web | sync-backlog | forge-skill> [args...] (deprecated — use proxy.js / deepwiki-bridge.js)");
+  console.error(
+    "Usage: node bridges.js <deepwiki | summarize | knowledge | ingest-web | sync-backlog | forge-skill> [args...] (deprecated — use proxy.js / deepwiki-bridge.js)",
+  );
   process.exit(1);
 }
 

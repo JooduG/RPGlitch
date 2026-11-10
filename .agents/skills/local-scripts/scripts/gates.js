@@ -123,9 +123,7 @@ const HIGH_RISK_SUFFIXES = Object.freeze([
  */
 export function is_high_risk_file(relative_path) {
   const normalized = String(relative_path || "").replace(/\\/g, "/");
-  return HIGH_RISK_SUFFIXES.some(
-    (suffix) => normalized === suffix || normalized.endsWith(`/${suffix}`),
-  );
+  return HIGH_RISK_SUFFIXES.some((suffix) => normalized === suffix || normalized.endsWith(`/${suffix}`));
 }
 
 // ============================================================================
@@ -171,8 +169,7 @@ export function render_hooks_json() {
   return document;
 }
 
-const is_main_execution =
-  process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+const is_main_execution = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 
 if (is_main_execution) {
   const flag = process.argv[2];

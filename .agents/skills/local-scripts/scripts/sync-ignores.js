@@ -49,7 +49,10 @@ export function sync_workspace(root_directory = ROOT_DIRECTORY) {
 
   let written = 0;
   let skipped = 0;
-  const tally = (did_write) => { if (did_write) written += 1; else skipped += 1; };
+  const tally = (did_write) => {
+    if (did_write) written += 1;
+    else skipped += 1;
+  };
 
   const master_ignores_path = path.join(root_directory, "ignores.master.json");
   if (!fs.existsSync(master_ignores_path)) {

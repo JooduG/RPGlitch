@@ -104,7 +104,9 @@ export async function proxy_global_tool(tool_name, tool_arguments) {
 const command_line_arguments = process.argv.slice(2);
 
 if (command_line_arguments.length === 0) {
-  console.error("Usage: node proxy.js <summarize | knowledge | ingest-web | sync-backlog | forge-skill | audit-svelte | svelte-autofix | forge-svelte> [args...]");
+  console.error(
+    "Usage: node proxy.js <summarize | knowledge | ingest-web | sync-backlog | forge-skill | audit-svelte | svelte-autofix | forge-svelte> [args...]",
+  );
   process.exit(1);
 }
 

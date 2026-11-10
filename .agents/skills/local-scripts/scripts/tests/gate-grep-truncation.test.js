@@ -8,8 +8,15 @@ import { handle_grep_truncation } from "../hooks.js";
 
 function capture(fn, payload) {
   let out = "";
-  const spy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => { out += String(chunk); return true; });
-  try { fn(payload); } finally { spy.mockRestore(); }
+  const spy = vi.spyOn(process.stdout, "write").mockImplementation((chunk) => {
+    out += String(chunk);
+    return true;
+  });
+  try {
+    fn(payload);
+  } finally {
+    spy.mockRestore();
+  }
   return JSON.parse(out.trim());
 }
 

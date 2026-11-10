@@ -29,12 +29,7 @@ import {
   execute_turn_structuring,
   resolve_caretaker_target,
 } from "../../../../src/engine/turns.js";
-import {
-  cosine_similarity,
-  score_and_rank_memories,
-  two_tier_sieve_rag,
-  count_text_tokens,
-} from "../../../../src/engine/sieve.js";
+import { cosine_similarity, score_and_rank_memories, two_tier_sieve_rag, count_text_tokens } from "../../../../src/engine/sieve.js";
 
 export const LIVE_CORES = Object.freeze(["DIRECTOR", "CHARACTER", "CARETAKER", "VISUALIZER"]);
 
@@ -89,8 +84,7 @@ export function compile_live_cores() {
           round: 1,
           entities: MINIMAL_ENTITIES,
           history,
-          task_options:
-            core === "CARETAKER" ? { target_entity_key: "AI" } : core === "CHARACTER" ? { directors_note: "Hold the line." } : {},
+          task_options: core === "CARETAKER" ? { target_entity_key: "AI" } : core === "CHARACTER" ? { directors_note: "Hold the line." } : {},
         }),
       );
     } catch (error) {
@@ -176,7 +170,11 @@ export async function run_turn_smoke() {
   });
   const caretaker = await execute_turn_3_caretaker({ transport, round: 1, entities, history });
   const visual = await execute_turn_visualizer({ transport, round: 1, entities, camera_note: director.camera_note });
-  const structuring_transport = { async stream() { return CANNED.STRUCTURING; } };
+  const structuring_transport = {
+    async stream() {
+      return CANNED.STRUCTURING;
+    },
+  };
   const structuring = await execute_turn_structuring({ transport: structuring_transport, input_data: "wary scout", type: "character" });
   return { director, character, caretaker, visual, structuring };
 }

@@ -10,14 +10,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  LIVE_CORES,
-  compile_live_cores,
-  check_core_markers,
-  run_turn_smoke,
-  run_memory_stress,
-  run_sim_check,
-} from "./sim-check.js";
+import { LIVE_CORES, compile_live_cores, check_core_markers, run_turn_smoke, run_memory_stress, run_sim_check } from "./sim-check.js";
 
 describe("sim-check: live-core prompt contract", () => {
   it("compiles all 4 live cores with zero envelope problems", () => {

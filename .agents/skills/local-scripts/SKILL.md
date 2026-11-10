@@ -24,16 +24,16 @@ In RPGlitch, operational tasks fall into two categories:
 
 Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 
-| Command | Script Target | Operational Purpose |
-| :------ | :------------ | :------------------ |
-| `npm run audit:hygiene` | `audit.js hygiene` | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). Rules in `scripts/rules/hygiene.js`, I/O in `scripts/lib/io.js`. |
-| `npm run audit:layers` | `audit.js layers` | Strict Layer Boundary Gate: imports must flow downward (`rules/layers.js`). |
-| `npm run sync:ignores` | `sync-ignores.js sync` | Workspace Synchronizer: diff-then-write fan-out of `ignores.master.json` (zero phantom diffs). |
-| `npm run sync:gates` | `gates.js --dump` | Regenerates `.agents/hooks.json` from GATE_TABLE (generated artifact — do not hand-edit). |
-| `node .../audit.js all` | `audit.js all` | Unified pass: `sync` + complete `hygiene` + `layers` audit. |
-| `npm run test:hooks` | `scripts/tests/` | Per-gate contract suite: one vitest file per registered gate in `GATE_TABLE`. |
-| `npx vitest run .../proxy.test.js` | `proxy.test.js` | Unit tests for `proxy.js` global-tool fan-out and CI fallbacks. DeepWiki bridge is archived (zero callers). |
-| `npm run audit` | (Parallel Suite) | Concurrently runs backlog, design, google-design, hygiene, layers, simulation, and svelte audits. |
+| Command                            | Script Target          | Operational Purpose                                                                                                                                                                   |
+| :--------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run audit:hygiene`            | `audit.js hygiene`     | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). Rules in `scripts/rules/hygiene.js`, I/O in `scripts/lib/io.js`. |
+| `npm run audit:layers`             | `audit.js layers`      | Strict Layer Boundary Gate: imports must flow downward (`rules/layers.js`).                                                                                                           |
+| `npm run sync:ignores`             | `sync-ignores.js sync` | Workspace Synchronizer: diff-then-write fan-out of `ignores.master.json` (zero phantom diffs).                                                                                        |
+| `npm run sync:gates`               | `gates.js --dump`      | Regenerates `.agents/hooks.json` from GATE_TABLE (generated artifact — do not hand-edit).                                                                                             |
+| `node .../audit.js all`            | `audit.js all`         | Unified pass: `sync` + complete `hygiene` + `layers` audit.                                                                                                                           |
+| `npm run test:hooks`               | `scripts/tests/`       | Per-gate contract suite: one vitest file per registered gate in `GATE_TABLE`.                                                                                                         |
+| `npx vitest run .../proxy.test.js` | `proxy.test.js`        | Unit tests for `proxy.js` global-tool fan-out and CI fallbacks. DeepWiki bridge is archived (zero callers).                                                                           |
+| `npm run audit`                    | (Parallel Suite)       | Concurrently runs backlog, design, google-design, hygiene, layers, simulation, and svelte audits.                                                                                     |
 
 ---
 
