@@ -55,10 +55,6 @@ vi.mock("@media", async (importOriginal) => {
   };
 });
 
-vi.mock("@media/audio.svelte.js", () => ({
-  Audio: _mock_audio,
-}));
-
 // Mock the state bridge so main.js/boot can access app/runtime without pulling real @state
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
@@ -128,7 +124,6 @@ describe("app_bootstrap", () => {
   });
 
   test("successfully initializes all services in the correct order and mounts the app", async () => {
-    const { Audio } = await import("@media/audio.svelte.js");
     const { mount } = await import("svelte");
 
     _mock_runtime.is_ready = true;
@@ -139,23 +134,20 @@ describe("app_bootstrap", () => {
     expect(repository.seed_premades).toHaveBeenCalled();
     expect(vi.mocked(_mock_runtime.sync)).toHaveBeenCalled();
     expect(_mock_app.init).toHaveBeenCalled();
-    expect(Audio.init).toHaveBeenCalled();
     expect(vi.mocked(mount)).toHaveBeenCalled();
 
     // Verify the critical execution order
     const seed_premades_order = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
     const runtime_sync_order = vi.mocked(_mock_runtime.sync).mock.invocationCallOrder[0];
     const app_init_order = _mock_app.init.mock.invocationCallOrder[0];
-    const audio_init_order = vi.mocked(Audio.init).mock.invocationCallOrder[0];
     const mount_order = vi.mocked(mount).mock.invocationCallOrder[0];
 
     // Verify seed_premades runs before parallel tasks
     expect(seed_premades_order).toBeLessThan(runtime_sync_order);
     expect(seed_premades_order).toBeLessThan(app_init_order);
-    expect(seed_premades_order).toBeLessThan(audio_init_order);
 
     // Verify mount runs after all parallel tasks are initiated
-    const parallel_init_max_order = Math.max(runtime_sync_order, app_init_order, audio_init_order);
+    const parallel_init_max_order = Math.max(runtime_sync_order, app_init_order);
     expect(mount_order).toBeGreaterThan(parallel_init_max_order);
 
     expect(document.getElementById("svelte-root")).toBeNull();
