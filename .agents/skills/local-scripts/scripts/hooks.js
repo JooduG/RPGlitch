@@ -21,6 +21,7 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { fileURLToPath } from "url";
 import { GATE_TABLE, is_high_risk_file } from "./gates.js";
 
 // =================================================================================================
@@ -752,7 +753,11 @@ function run() {
   send_hook_response({ decision: "allow" });
 }
 
-run();
+const is_main_execution = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (is_main_execution) {
+  run();
+}
 
 /**
  * CHANGELOG
