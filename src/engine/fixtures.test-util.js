@@ -59,7 +59,7 @@ export function create_contract_fixtures() {
   const snapshot = { ai: { dynamics: entities.AI.dynamics }, fractal: { dynamics: entities.FRACTAL.dynamics }, flags: {} };
   const history = [
     { role: "user", text: "We move at dawn." },
-    { role: "model", text: "Alice nods." },
+    { role: "ai", text: "Alice nods." },
   ];
 
   return { entities, npc, snapshot, history };

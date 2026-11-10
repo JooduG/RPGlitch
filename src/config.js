@@ -64,15 +64,16 @@ export const DYNAMICS = Object.freeze({
     VARIANCE: 0.05, // Random atmospheric variance factor applied during turn dynamics progression
   }),
   DELTA: Object.freeze({
-    standard: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
-    extreme: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
-    clip: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
+    STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
+    EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
+    CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
   }),
-  // Axes
+  // Character (Somatic) axes
   CHAOS: Object.freeze({ label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" }),
   INTENSITY: Object.freeze({ label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" }),
   OPENNESS: Object.freeze({ label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" }),
   AFFINITY: Object.freeze({ label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" }),
+  // Fractal (Environmental) axes
   VELOCITY: Object.freeze({ label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" }),
   ENTROPY: Object.freeze({ label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" }),
 });
@@ -122,15 +123,15 @@ export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/
  * NOT here: tier resolutions (IMAGE_RESOLUTIONS §2.3 — structural, stable).
  */
 export const IMAGE_POLICY = Object.freeze({
-  displacement_threshold: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
-  cooldown_rounds: 3, // Unified cooldown (rounds) between automatic scene image generations
-  default_tier: "story_scene", // Fallback tier for auto-triggered beats (canonical tiers live in optics IMAGE_TIERS)
-  max_pending_images: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
-  guidance: Object.freeze({
+  DISPLACEMENT_THRESHOLD: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
+  COOLDOWN_ROUNDS: 3, // Unified cooldown (rounds) between automatic scene image generations
+  DEFAULT_TIER: "story_scene", // Fallback tier for auto-triggered beats (canonical tiers live in optics IMAGE_TIERS)
+  MAX_PENDING_IMAGES: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
+  GUIDANCE: Object.freeze({
     SCENE: 7, // story_scene tier baseline (environmental shots drift)
     CHARACTER: 9, // solo_entity / story_character / story_entities baseline (portraits hold tighter)
   }),
-  upload: Object.freeze({
+  UPLOAD: Object.freeze({
     MAX_IMAGE_SIZE_BYTES: 25 * 1024 * 1024, // 25 MB default maximum permissible image upload size
     ALLOWED_IMAGE_MIME_TYPES: Object.freeze(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]),
   }),
@@ -159,17 +160,17 @@ export const VOICE_CADENCE = Object.freeze({
 // ── 9. Canonical Entity Roles ───────────────────────────────────────────────
 /**
  * Three role vocabularies — similar names, different jobs:
- * - CANONICAL_ROLES: normalized UPPERCASE role map. Every log row's `role` holds one of these five;
+ * - CANONICAL_ROLES: normalized lowercase role map. Every log row's `role` holds one of these five;
  *   raw model roles (assistant/narrator/prologue…) fold into them via canonicalize_role (text.js).
  * - NARRATIVE_ROLES: lowercase participant set — roles carrying story dialogue/history (all but system telemetry).
  * - NARRATOR_ROLES: lowercase export set — raw_role values marking narrator-voiced beats for the story exporter.
  */
 export const CANONICAL_ROLES = Object.freeze({
-  USER: "USER",
-  AI: "AI",
-  NPC: "NPC",
-  FRACTAL: "FRACTAL",
-  SYSTEM: "SYSTEM",
+  USER: "user",
+  AI: "ai",
+  NPC: "npc",
+  FRACTAL: "fractal",
+  SYSTEM: "system",
 });
 export const NARRATIVE_ROLES = Object.freeze(new Set(["ai", "fractal", "user", "npc"]));
 export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "narrator", "epilogue"]));
@@ -207,6 +208,8 @@ export const FIELD_FLOORS = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: Rest of the codebase to KEY.field_names.value — PURPOSE_CORES keys UPPER (DIRECTOR/CHARACTER/CARETAKER/VISUALIZER; prompts/turns/bridge re-pointed, identity labels stay lowercase), caretaker NPC target key UPPER, gate resolve_priority() single-homes the background/foreground string boundary (bridge twin deleted), math.js option keys UPPER (BAND_HIGH/BAND_LOW/DISPLACEMENT_THRESHOLD/DEFAULT_TIER — fixes dead wiring where optics passed UPPER keys the reader never saw).
+ * - 2026-11-10: Keys UPPER, values lowercase — IMAGE_POLICY keys (DISPLACEMENT_THRESHOLD/COOLDOWN_ROUNDS/DEFAULT_TIER/MAX_PENDING_IMAGES; optics/visual re-pointed), DYNAMICS.DELTA keys (STANDARD/EXTREME/CLIP; prompts.js re-pointed). CANONICAL_ROLES values lowercase (user/ai/npc/fractal/system); ai/model duality unified to ai (db writes as-is, all model readers re-pointed; transport wire role untouched).
  * - 2026-11-10: Gate fallback release reads TIMING_MS.INTERACTION (was local 4000, now 5000 — user-approved); PREEMPT key removed.
  * - 2026-11-10: Merged IMAGE_TRIGGER + IMAGE_TIER_GUIDANCE into IMAGE_POLICY §2.7 (optics/visual re-pointed; IMAGE_RESOLUTIONS stays separate per user); merged VOICE_CADENCE_RATES + VOICE_CADENCE_SHAPING into VOICE_CADENCE §2.8 (audio.js re-pointed). Values unchanged.
  * - 2026-11-10: DYNAMICS nests SCALE (range + bands) / PHYSICS / DELTA (standard/extreme/clip) / six UPPER axis definitions; DYNAMICS_SCALE + DYNAMICS_AXES exports gone (all 6 consumers re-pointed; lowercase runtime ids index via .toUpperCase()). Values unchanged.

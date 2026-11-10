@@ -142,11 +142,11 @@ export const security = {
   install_environment_hardening,
 };
 
-/** Default maximum permissible image upload size in bytes (view over config IMAGE_POLICY.upload — the single home). */
-export const DEFAULT_MAX_IMAGE_SIZE_BYTES = IMAGE_POLICY.upload.MAX_IMAGE_SIZE_BYTES;
+/** Default maximum permissible image upload size in bytes (view over config IMAGE_POLICY.UPLOAD — the single home). */
+export const DEFAULT_MAX_IMAGE_SIZE_BYTES = IMAGE_POLICY.UPLOAD.MAX_IMAGE_SIZE_BYTES;
 
-/** Default allowed image MIME types (view over config IMAGE_POLICY.upload — the single home). */
-export const DEFAULT_ALLOWED_IMAGE_MIME_TYPES = IMAGE_POLICY.upload.ALLOWED_IMAGE_MIME_TYPES;
+/** Default allowed image MIME types (view over config IMAGE_POLICY.UPLOAD — the single home). */
+export const DEFAULT_ALLOWED_IMAGE_MIME_TYPES = IMAGE_POLICY.UPLOAD.ALLOWED_IMAGE_MIME_TYPES;
 
 /**
  * Binary magic number / header signature validators for supported image formats.

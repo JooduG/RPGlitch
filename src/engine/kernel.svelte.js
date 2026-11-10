@@ -70,7 +70,7 @@ export class Kernel {
     if (options.is_retry) {
       while (
         this.history.length > 0 &&
-        this.history[this.history.length - 1].role === "model" &&
+        this.history[this.history.length - 1].role === "ai" &&
         this.history[this.history.length - 1].round === this.round
       ) {
         this.history.pop();
@@ -132,7 +132,7 @@ export class Kernel {
 
       // Append assistant turn to history
       this.history.push({
-        role: "model",
+        role: "ai",
         text: outcome.character_turn.prose,
         think: outcome.character_turn.think,
         round: this.round,

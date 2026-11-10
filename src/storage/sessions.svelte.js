@@ -42,7 +42,7 @@ function resolve_log_entity_id(role, character_name) {
       if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
     }
   }
-  const trio = role === "user" ? snap.USER : role === "fractal" ? snap.FRACTAL : role === "model" ? snap.AI : null;
+  const trio = role === "user" ? snap.USER : role === "fractal" ? snap.FRACTAL : role === "ai" ? snap.AI : null;
   return trio?.id ? String(trio.id) : null;
 }
 

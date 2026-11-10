@@ -68,7 +68,7 @@ export function build_turn_summary(feed, round) {
   const counts = {};
   for (const m of tail) {
     if (!m || m.role === "system") continue;
-    const role = m.role === "model" ? "ai" : m.role;
+    const role = m.role;
     counts[role] = (counts[role] || 0) + 1;
   }
   const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
@@ -85,12 +85,12 @@ export const CARETAKER_ROTATION = Object.freeze(["AI", "USER", "FRACTAL"]);
  * @param {number} cursor_or_round - Active cursor index or round number
  * @param {object} [entities={}]
  * @param {boolean} [use_cursor=false] - Whether cursor_or_round is an absolute 0-indexed cursor
- * @returns {string} Target entity key (e.g., 'AI', 'USER', 'FRACTAL', 'npc')
+ * @returns {string} Target entity key (e.g., 'AI', 'USER', 'FRACTAL', 'NPC')
  */
 export function resolve_caretaker_target(cursor_or_round, entities = {}, use_cursor = false) {
   const cast = [...CARETAKER_ROTATION];
-  if (entities.npc && entities.npc.id) {
-    cast.push("npc");
+  if (entities.NPC && entities.NPC.id) {
+    cast.push("NPC");
   }
   const index = use_cursor
     ? Math.abs(Math.floor(Number(cursor_or_round) || 0)) % cast.length
@@ -136,13 +136,13 @@ export function calculate_turn_tempo(history = []) {
  */
 export async function execute_turn_1_director({ transport, round = 1, entities = {}, history = [], signal = null }) {
   const prompt = compile_prompt({
-    core: "director",
+    core: "DIRECTOR",
     round,
     entities,
     history,
   });
 
-  const start_prefix = PURPOSE_CORES.director.start_with();
+  const start_prefix = PURPOSE_CORES.DIRECTOR.start_with();
   let raw_output = await transport.stream(prompt, { startWith: start_prefix, signal });
 
   const { think, body } = extract_think_and_body(raw_output, start_prefix);
@@ -209,7 +209,7 @@ export async function execute_turn_2_character({
   const is_character = Boolean(entities.AI && entities.AI.type !== "fractal");
 
   const prompt = compile_prompt({
-    core: "character",
+    core: "CHARACTER",
     round,
     entities,
     history,
@@ -217,7 +217,7 @@ export async function execute_turn_2_character({
     task_options: { directors_note, turn_tempo },
   });
 
-  const start_with = PURPOSE_CORES.character.start_with({
+  const start_with = PURPOSE_CORES.CHARACTER.start_with({
     is_character,
     directors_note,
   });
@@ -264,7 +264,7 @@ export async function execute_turn_2_continue({
   const turn_tempo = 3;
 
   const prompt = compile_prompt({
-    core: "character",
+    core: "CHARACTER",
     round,
     entities,
     history,
@@ -314,9 +314,9 @@ export async function execute_turn_2_continue({
   // and the model emits 0 new tokens (EOS), move existing target_prose into history context and
   // stream from a fresh cognitive anchor so continuation never stalls.
   if (!continuation_prose.trim() && clean_prose && !signal?.aborted) {
-    const fallback_history = [...(Array.isArray(history) ? history : []), { role: "model", text: clean_prose, round }];
+    const fallback_history = [...(Array.isArray(history) ? history : []), { role: "ai", text: clean_prose, round }];
     const fallback_prompt = compile_prompt({
-      core: "character",
+      core: "CHARACTER",
       round,
       entities,
       history: fallback_history,
@@ -429,14 +429,14 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   const target = target_entity_key || resolve_caretaker_target(round, entities);
 
   const prompt = compile_prompt({
-    core: "caretaker",
+    core: "CARETAKER",
     round,
     entities,
     history,
     task_options: { target_entity_key: target },
   });
 
-  const start_prefix = PURPOSE_CORES.caretaker.start_with();
+  const start_prefix = PURPOSE_CORES.CARETAKER.start_with();
   let raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
 
   let { think, body } = extract_think_and_body(raw, start_prefix);
@@ -519,7 +519,7 @@ export async function execute_turn_visualizer({ transport, round = 1, entities =
   }
 
   const prompt = compile_prompt({
-    core: "visualizer",
+    core: "VISUALIZER",
     round,
     entities,
     task_options: {
@@ -528,7 +528,7 @@ export async function execute_turn_visualizer({ transport, round = 1, entities =
     },
   });
 
-  const start_prefix = PURPOSE_CORES.visualizer.start_with();
+  const start_prefix = PURPOSE_CORES.VISUALIZER.start_with();
   const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
   const { think, body } = extract_think_and_body(raw, start_prefix);
   let parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });
@@ -589,7 +589,7 @@ export async function execute_turn_structuring({ transport, input_data = "", typ
   }
 
   const prompt = compile_prompt({
-    core: "caretaker",
+    core: "CARETAKER",
     round: 1,
     entities: {},
     task_options: {
@@ -599,7 +599,7 @@ export async function execute_turn_structuring({ transport, input_data = "", typ
     },
   });
 
-  const start_prefix = PURPOSE_CORES.caretaker.start_with();
+  const start_prefix = PURPOSE_CORES.CARETAKER.start_with();
   const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
   const { body } = extract_think_and_body(raw, start_prefix);
   const parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });

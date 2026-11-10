@@ -57,11 +57,11 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     kernel.round = 3;
     kernel.history = [
       { role: "user", text: "Turn 1", round: 1 },
-      { role: "model", text: "Reply 1", round: 1 },
+      { role: "ai", text: "Reply 1", round: 1 },
       { role: "user", text: "Turn 2", round: 2 },
-      { role: "model", text: "Reply 2", round: 2 },
+      { role: "ai", text: "Reply 2", round: 2 },
       { role: "user", text: "Turn 3", round: 3 },
-      { role: "model", text: "Reply 3", round: 3 },
+      { role: "ai", text: "Reply 3", round: 3 },
     ];
 
     kernel.rewind_to_round(1);
@@ -91,7 +91,7 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     kernel.round = 1;
     kernel.history = [
       { role: "user", text: "Look at me.", round: 1 },
-      { role: "model", text: "She looks over", think: "Feel gentle", round: 1 },
+      { role: "ai", text: "She looks over", think: "Feel gentle", round: 1 },
     ];
 
     const outcome = await kernel.continue_turn({
@@ -126,17 +126,17 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
 
     await kernel.submit_turn("Look around.");
 
-    // Exactly 1 user entry and 1 model entry, no duplicate user entry at tail
+    // Exactly 1 user entry and 1 ai entry, no duplicate user entry at tail
     expect(kernel.history).toHaveLength(2);
     expect(kernel.history[0]).toEqual({
       role: "user",
       text: "Look around.",
       round: 1,
     });
-    expect(kernel.history[1].role).toBe("model");
+    expect(kernel.history[1].role).toBe("ai");
   });
 
-  it("B02 regression: retry-after-AI-turn produces an outcome without aborting with null and replaces model entry", async () => {
+  it("B02 regression: retry-after-AI-turn produces an outcome without aborting with null and replaces ai entry", async () => {
     const mock_transport = {
       async stream() {
         return `<think>Retry thought.</think>Regenerated reply.`;
@@ -153,7 +153,7 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
 
     kernel.history = [
       { role: "user", text: "First prompt", round: 1 },
-      { role: "model", text: "First reply", round: 1 },
+      { role: "ai", text: "First reply", round: 1 },
     ];
 
     const outcome = await kernel.retry();
@@ -164,8 +164,8 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     expect(kernel.round).toBe(1);
     expect(kernel.phase).toBe("idle");
 
-    // Retry history hygiene: exactly one model entry for the round replacing the previous reply
-    const round_1_model_entries = kernel.history.filter((h) => h.round === 1 && h.role === "model");
+    // Retry history hygiene: exactly one ai entry for the round replacing the previous reply
+    const round_1_model_entries = kernel.history.filter((h) => h.round === 1 && h.role === "ai");
     expect(round_1_model_entries).toHaveLength(1);
     expect(round_1_model_entries[0].text).toBe("Regenerated reply.");
     expect(kernel.history).toHaveLength(2);
@@ -189,7 +189,7 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
 
     kernel.history = [
       { role: "user", text: "First prompt", round: 1 },
-      { role: "model", text: "First reply", round: 1 },
+      { role: "ai", text: "First reply", round: 1 },
     ];
 
     const outcome = await kernel.continue();

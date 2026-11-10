@@ -23,8 +23,8 @@ describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
       expect(IMAGE_TIERS).toEqual(["story_entities", "story_character", "solo_entity", "story_scene"]);
     });
 
-    it("defines IMAGE_TRIGGER.default_tier as story_scene", () => {
-      expect(IMAGE_POLICY.default_tier).toBe("story_scene");
+    it("defines IMAGE_POLICY.DEFAULT_TIER as story_scene", () => {
+      expect(IMAGE_POLICY.DEFAULT_TIER).toBe("story_scene");
     });
   });
 

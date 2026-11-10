@@ -365,8 +365,8 @@ describe("collapse_history", () => {
     ];
     const collapsed = collapse_history(messages);
     expect(collapsed).toEqual([
-      { role: "USER_PERSONA", name: "Orion", content: "Hello\nAre you there?" },
-      { role: "AI_CHARACTER", name: "Glitch", content: "I am here." },
+      { role: "user_persona", name: "Orion", content: "Hello\nAre you there?" },
+      { role: "ai_character", name: "Glitch", content: "I am here." },
     ]);
   });
 
@@ -375,7 +375,7 @@ describe("collapse_history", () => {
       { role: "system", text: "Telemetry delta" },
       { role: "assistant", text: "Welcome.", character_name: "Glitch" },
     ];
-    expect(collapse_history(messages)).toEqual([{ role: "AI_CHARACTER", name: "Glitch", content: "Welcome." }]);
+    expect(collapse_history(messages)).toEqual([{ role: "ai_character", name: "Glitch", content: "Welcome." }]);
   });
 });
 

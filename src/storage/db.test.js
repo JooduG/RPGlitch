@@ -213,7 +213,7 @@ describe("src/storage/db.js — Dexie Persistence & CRUD Engine", () => {
   describe("Simulation Log CRUD", () => {
     it("appends and retrieves simulation log entries ordered by ID", async () => {
       const entry1 = await append_log_entry({ story_id: 1, role: "user", text: "Action 1" });
-      const entry2 = await append_log_entry({ story_id: 1, role: "model", text: "Reaction 1" });
+      const entry2 = await append_log_entry({ story_id: 1, role: "ai", text: "Reaction 1" });
 
       expect(entry1).toBeDefined();
       expect(entry2).toBeDefined();

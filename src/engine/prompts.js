@@ -61,7 +61,7 @@ export function render_thinking_mode({ mode = "analysis", lens = "", max_words =
  * Each core bundles its identity, Epistemic Wall visibility, startWith token, opening line, and task block.
  */
 export const PURPOSE_CORES = Object.freeze({
-  director: {
+  DIRECTOR: {
     identity: "director",
     see_hidden: "all",
     start_with: () => "<think>\n",
@@ -80,9 +80,9 @@ export const PURPOSE_CORES = Object.freeze({
 ${thinking_block}
 
     ### Dynamics deltas *(\`dynamics_deltas\`)*
-    - Signed integer adjustments *(base meters live on ${DYNAMICS.SCALE.MIN}-${DYNAMICS.SCALE.MAX}, clipped to ${DYNAMICS.DELTA.clip})*.
-    - Standard turn shift: **${DYNAMICS.DELTA.standard}**
-    - Dramatic turn shift: **${DYNAMICS.DELTA.extreme}**
+    - Signed integer adjustments *(base meters live on ${DYNAMICS.SCALE.MIN}-${DYNAMICS.SCALE.MAX}, clipped to ${DYNAMICS.DELTA.CLIP})*.
+    - Standard turn shift: **${DYNAMICS.DELTA.STANDARD}**
+    - Dramatic turn shift: **${DYNAMICS.DELTA.EXTREME}**
     - Calibrate integer deltas for narrative tension; avoid extreme swings.
 
     ### Next Action *(\`next_action\`)*
@@ -107,7 +107,7 @@ ${thinking_block}
     },
   },
 
-  caretaker: {
+  CARETAKER: {
     identity: "caretaker",
     see_hidden: "all",
     start_with: () => "<think>\n",
@@ -172,7 +172,7 @@ ${thinking_block}
     },
   },
 
-  character: {
+  CHARACTER: {
     identity: "character",
     see_hidden: "own",
     start_with: (context) => {
@@ -227,7 +227,7 @@ ${thinking_block}
     },
   },
 
-  visualizer: {
+  VISUALIZER: {
     identity: "visualizer",
     see_hidden: "none",
     start_with: () => "<think>\n",
@@ -341,10 +341,10 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const target_type =
     task_options.target_type ||
     target_entity?.type ||
-    (core === "caretaker" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
+    (core === "CARETAKER" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
 
   // Resolve active purpose core definition
-  const purpose_core = PURPOSE_CORES[core] || PURPOSE_CORES.character;
+  const purpose_core = PURPOSE_CORES[core] || PURPOSE_CORES.CHARACTER;
   const see_hidden = purpose_core.see_hidden;
   const identity = purpose_core.identity;
 

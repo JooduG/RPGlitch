@@ -99,7 +99,7 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
   });
 
   describe("Gap 5: reconstruct_history_from_feed role and origin preservation", () => {
-    it("preserves fractal, system, user, and model roles with proper origin attribution", () => {
+    it("preserves fractal, system, user, and ai roles with proper origin attribution", () => {
       const mock_feed = [
         { role: "system", text: "The air smells of ozone.", origin: "SYSTEM" },
         { role: "user", text: "I open the rusty airlock.", character_name: "John" },
@@ -136,13 +136,13 @@ describe("src/engine/bridge.js - Greenfield-to-Legacy Bridge Unit Tests", () => 
         round: 1,
       });
       expect(history[3]).toEqual({
-        role: "model",
+        role: "ai",
         origin: "Viper",
         text: "Stay behind me.",
         round: 1,
       });
       expect(history[4]).toEqual({
-        role: "model",
+        role: "ai",
         origin: "Viper",
         text: "Echo in the dark.",
         round: 1,

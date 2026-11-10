@@ -178,7 +178,7 @@ export const NAME_PREFIX_STEMS = Object.freeze(new Set(NAME_PREFIXES.map((prefix
 
 /**
  * @typedef {Object} CollapsedHistoryEntry
- * @property {string} role - Standardized role ("USER_PERSONA" | "FRACTAL" | "AI_CHARACTER").
+ * @property {string} role - Standardized role ("user_persona" | "fractal" | "ai_character").
  * @property {string} name - Entity display name.
  * @property {string} content - Collapsed message content.
  */
@@ -896,7 +896,7 @@ export function role_display_label(role) {
  * Resolves any raw role string to its canonical Sovereign RPGlitch role.
  *
  * @param {string|null|undefined} role
- * @returns {"USER" | "AI" | "NPC" | "FRACTAL" | "SYSTEM" | string}
+ * @returns {"user" | "ai" | "npc" | "fractal" | "system" | string}
  */
 export function canonicalize_role(role) {
   const normalized = String(role || "")
@@ -917,7 +917,7 @@ export function canonicalize_role(role) {
   if (normalized === "system" || normalized === "telemetry") {
     return CANONICAL_ROLES.SYSTEM;
   }
-  return role ? String(role).toUpperCase().trim() : CANONICAL_ROLES.AI;
+  return role ? String(role).toLowerCase().trim() : CANONICAL_ROLES.AI;
 }
 
 /**
@@ -1033,10 +1033,10 @@ export function collapse_history(messages, options = {}) {
     if (m.role === "system") continue;
     const lower_role = (m.role || "").toLowerCase();
     const role = ["user", "user_persona"].includes(lower_role)
-      ? "USER_PERSONA"
+      ? "user_persona"
       : ["prologue", "fractal"].includes(lower_role)
-        ? "FRACTAL"
-        : "AI_CHARACTER";
+        ? "fractal"
+        : "ai_character";
     const name = m.character_name || "";
     let content = strip_cognition_blocks(m.content || m.text || "");
     if (stripBoldQuotes) {

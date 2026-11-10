@@ -101,6 +101,16 @@ export function run_llm_job(run, priority = LLM_PRIORITY.FOREGROUND) {
 }
 
 /**
+ * Maps a transport priority name to its gate constant (single home for the
+ * foreground/background string boundary; model/transport layers speak lowercase).
+ * @param {string} [priority_name] - "background" for background work, anything else foreground.
+ * @returns {number} LLM_PRIORITY member.
+ */
+export function resolve_priority(priority_name) {
+  return priority_name === "background" ? LLM_PRIORITY.BACKGROUND : LLM_PRIORITY.FOREGROUND;
+}
+
+/**
  * Reports gate telemetry for diagnostics and the freeze watchdog.
  * @returns {{ active: boolean, active_priority: number, queued: number, foreground_queued: number }}
  */

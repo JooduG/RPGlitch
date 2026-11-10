@@ -280,10 +280,10 @@ export function stable_pick(list, seed = "", offset = 0) {
  * @returns {{ triggered: boolean, signals: any, tier: string, deltas: any[] }}
  */
 export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
-  const band_high = options.band_high ?? 85;
-  const band_low = options.band_low ?? 15;
-  const displacement_threshold = options.displacement_threshold ?? 50;
-  const default_tier = options.default_tier ?? "story_scene";
+  const band_high = options.BAND_HIGH ?? 85;
+  const band_low = options.BAND_LOW ?? 15;
+  const displacement_threshold = options.DISPLACEMENT_THRESHOLD ?? 50;
+  const default_tier = options.DEFAULT_TIER ?? "story_scene";
 
   const entities_set = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
   const axis_names = new Set();

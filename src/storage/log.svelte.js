@@ -58,7 +58,7 @@ export function resolve_entity_id_by_name(name) {
 /**
  * @typedef {Object} LogEntry
  * @property {string | number} [id] - Unique message identifier or database primary key.
- * @property {'user' | 'model' | 'fractal' | 'system' | 'narrator' | string} role - Message sender role.
+ * @property {'user' | 'ai' | 'fractal' | 'system' | 'narrator' | string} role - Message sender role.
  * @property {string} [type] - Message category or system event type.
  * @property {string} text - Message body or dialogue prose.
  * @property {string} [turn_type] - Temporal turn category.

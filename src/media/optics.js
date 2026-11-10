@@ -80,7 +80,7 @@ export function get_resolution_string(mode) {
  * @returns {number}
  */
 export function get_tier_guidance_scale(mode) {
-  return normalize_image_tier(mode) === "story_scene" ? IMAGE_POLICY.guidance.SCENE : IMAGE_POLICY.guidance.CHARACTER;
+  return normalize_image_tier(mode) === "story_scene" ? IMAGE_POLICY.GUIDANCE.SCENE : IMAGE_POLICY.GUIDANCE.CHARACTER;
 }
 
 // ============================================================================
@@ -110,7 +110,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const director_last_round = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
   const dynamics_last_round = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
 
-  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_POLICY.cooldown_rounds;
+  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_POLICY.COOLDOWN_ROUNDS;
   const director_cooldown_elapsed = is_cooldown_elapsed(director_last_round);
   const dynamics_cooldown_elapsed = is_cooldown_elapsed(dynamics_last_round);
 
@@ -144,10 +144,10 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
   const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
-    band_high: DYNAMICS.SCALE.EXTREME_HIGH,
-    band_low: DYNAMICS.SCALE.EXTREME_LOW,
-    displacement_threshold: IMAGE_POLICY.displacement_threshold,
-    default_tier: IMAGE_POLICY.default_tier,
+    BAND_HIGH: DYNAMICS.SCALE.EXTREME_HIGH,
+    BAND_LOW: DYNAMICS.SCALE.EXTREME_LOW,
+    DISPLACEMENT_THRESHOLD: IMAGE_POLICY.DISPLACEMENT_THRESHOLD,
+    DEFAULT_TIER: IMAGE_POLICY.DEFAULT_TIER,
   });
   const dynamics_qualifies = image_trigger_evaluation.triggered && dynamics_cooldown_elapsed;
 
@@ -161,12 +161,12 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   if (director_qualifies) {
     active = true;
     source = "director";
-    tier = tier_from_string || tier_from_preference || biased_character_tier || IMAGE_POLICY.default_tier;
+    tier = tier_from_string || tier_from_preference || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER;
     next_director_round = turn_round;
   } else if (dynamics_qualifies) {
     active = true;
     source = "dynamics";
-    tier = image_trigger_evaluation.tier || biased_character_tier || IMAGE_POLICY.default_tier;
+    tier = image_trigger_evaluation.tier || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER;
     next_dynamics_round = turn_round;
   }
 

@@ -576,9 +576,9 @@ export async function spawn_image_beat(tier, options = {}) {
     await sweep_stale_ghosts();
     const pending_ghosts = await count_pending_ghosts();
 
-    if (pending_ghosts >= IMAGE_POLICY.max_pending_images) {
+    if (pending_ghosts >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
       state_bridge.app?.log(
-        `[Image Trigger] Skipped ${tier} — ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.max_pending_images}).`,
+        `[Image Trigger] Skipped ${tier} — ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.MAX_PENDING_IMAGES}).`,
         "warn",
       );
       return;
@@ -592,7 +592,7 @@ export async function spawn_image_beat(tier, options = {}) {
     if (!placeholder_entry?.id) return;
 
     _image_generation_queue.push({ id: placeholder_entry.id, tier, source, metadata: placeholder_metadata });
-    if (_image_generation_queue.length > IMAGE_POLICY.max_pending_images) {
+    if (_image_generation_queue.length > IMAGE_POLICY.MAX_PENDING_IMAGES) {
       const evicted = _image_generation_queue.shift();
       if (evicted?.id) {
         await mark_placeholder_failed(evicted.id, evicted.metadata);

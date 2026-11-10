@@ -15,7 +15,7 @@
  */
 
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
-import { LLM_PRIORITY, run_llm_job } from "./gate.js";
+import { resolve_priority, run_llm_job } from "./gate.js";
 import { merge_abort_signals } from "../utils/resilience.js";
 import { append_ledger_entries, log_message } from "../storage/db.js";
 import { normalize_entity } from "../storage/entities.js";
@@ -77,7 +77,7 @@ export function create_live_stream_fn() {
       return mock_text;
     }
 
-    const priority = options.priority === "background" ? LLM_PRIORITY.BACKGROUND : LLM_PRIORITY.FOREGROUND;
+    const priority = resolve_priority(options.priority);
 
     return run_llm_job(
       (gate_signal) =>
@@ -304,7 +304,7 @@ export async function generate_text(payload, options = {}) {
     throw new Error(msg);
   }
 
-  const priority = options.priority === "background" ? LLM_PRIORITY.BACKGROUND : LLM_PRIORITY.FOREGROUND;
+  const priority = resolve_priority(options.priority);
   return run_llm_job((gate_signal) => _execute_generation(ai_engine, payload, options, gate_signal), priority);
 }
 
@@ -352,7 +352,7 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
         role = "system";
         origin = origin || "SYSTEM";
       } else {
-        role = "model";
+        role = "ai";
         origin = origin || ai_name;
       }
 
@@ -1162,7 +1162,7 @@ export async function execute_greenfield_prologue(story_id) {
     // 2. Stream Fractal prologue scene setting via Character core (is_character: false)
     const { compile_prompt } = await import("./prompts.js");
     const prologue_prompt = compile_prompt({
-      core: "character",
+      core: "CHARACTER",
       round: 0,
       entities: {
         AI: fractal_quadrant,
@@ -1265,7 +1265,7 @@ export async function execute_greenfield_epilogue(story_id, conclusion_status = 
   const { compile_prompt } = await import("./prompts.js");
 
   const prompt = compile_prompt({
-    core: "character",
+    core: "CHARACTER",
     round: (Number(runtime?.round) || 1) + 1,
     entities: {
       FRACTAL: runtime?.active_fractal || {},

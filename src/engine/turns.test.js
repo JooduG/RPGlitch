@@ -279,7 +279,7 @@ Routing: Present physical gets lockpick, mood vigilant.
     it("formats summary of turn with role counts", () => {
       const feed = [
         { role: "user", text: "Hello" },
-        { role: "model", text: "Greetings." },
+        { role: "ai", text: "Greetings." },
         { role: "fractal", text: "Wind howls." },
         { role: "system", text: "System marker" },
       ];

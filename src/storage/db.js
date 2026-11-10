@@ -417,7 +417,7 @@ export async function _find_log_entry(id) {
 export async function append_log_entry(entry) {
   const payload = {
     story_id: entry.story_id != null ? coerce_story_key(entry.story_id) : null,
-    role: entry.role || "model",
+    role: entry.role || "ai",
     type: entry.type || "prose",
     character_name: entry.character_name || "",
     text: entry.text || "",
@@ -578,7 +578,7 @@ export async function require_active() {
  * (e.g. DYNAMICS_DELTA, STORY_START, VECTOR_RESOLUTION, CONTINUUM_FORMATION, MEMORY_FORMATION) are present.
  *
  * @param {string} text - Message text or prose.
- * @param {string} role - Message author role ('user', 'model', 'ai', 'system', 'fractal').
+ * @param {string} role - Message author role ('user', 'ai', 'system', 'fractal').
  * @param {string} character_name - Name of the speaker.
  * @param {object} [options={}]
  * @param {string} [options.turn_type="USER_TURN"]
@@ -626,7 +626,7 @@ export async function log_message(
 
   const entry = {
     story_id: effective_story_id,
-    role: role === "ai" ? "model" : role,
+    role,
     type: "text",
     text,
     character_name,

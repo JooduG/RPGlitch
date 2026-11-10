@@ -11,7 +11,7 @@
 
 // Authoritative simulation state class
 export { Kernel } from "./kernel.svelte.js";
-export { LLM_PRIORITY, run_llm_job, get_llm_gate_status } from "./gate.js";
+export { LLM_PRIORITY, resolve_priority, run_llm_job, get_llm_gate_status } from "./gate.js";
 export { get_mock_message } from "./bridge.js";
 
 // Pure headless turn orchestration

@@ -312,9 +312,7 @@ export class ChronoEngine {
                 const last = tail[tail.length - 1];
 
                 if (last?.role === "user" && last.created_at) {
-                  const has_reply_after = tail.some(
-                    (m) => (m.role === "model" || m.role === "fractal") && (m.created_at ?? 0) > (last.created_at ?? 0),
-                  );
+                  const has_reply_after = tail.some((m) => (m.role === "ai" || m.role === "fractal") && (m.created_at ?? 0) > (last.created_at ?? 0));
 
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
