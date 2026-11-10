@@ -14,7 +14,6 @@
 
 import { execute_round, execute_turn_2_continue } from "./turns.js";
 import { create_transport } from "./transport.js";
-import { dev_log } from "./dev.svelte.js";
 
 export class Kernel {
   user = $state(null);
@@ -112,7 +111,6 @@ export class Kernel {
       // Apply director deltas to active entity dynamics with [5, 95] clamping
       if (outcome.director_staging?.dynamics_deltas) {
         const deltas = outcome.director_staging.dynamics_deltas;
-        dev_log.record("DYNAMICS_DELTA", deltas);
 
         if (this.ai && typeof this.ai.dynamics === "object") {
           for (const key of ["chaos", "intensity", "openness", "affinity"]) {
@@ -131,8 +129,6 @@ export class Kernel {
           }
         }
       }
-
-      dev_log.record("TURN_TEMPO", { tempo: outcome.character_turn.turn_tempo });
 
       // Append assistant turn to history
       this.history.push({
@@ -157,7 +153,6 @@ export class Kernel {
         Object.assign(this.user.dynamics, previous_user_dynamics);
       }
       this.error = err.message || String(err);
-      dev_log.record("ERROR", { message: this.error, round: this.round });
       throw err;
     } finally {
       this.phase = "idle";
@@ -211,8 +206,6 @@ export class Kernel {
         signal: options.signal,
       });
 
-      dev_log.record("TURN_TEMPO", { tempo: outcome.turn_tempo });
-
       // If updating the latest model turn in history, fuse the prose
       if (typeof target_history_index === "number" && target_history_index >= 0 && this.history[target_history_index]) {
         this.history[target_history_index].text = outcome.prose;
@@ -224,7 +217,6 @@ export class Kernel {
       return outcome;
     } catch (err) {
       this.error = err.message || String(err);
-      dev_log.record("ERROR", { message: this.error, round: this.round });
       throw err;
     } finally {
       this.phase = "idle";

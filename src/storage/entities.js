@@ -1,18 +1,11 @@
 /**
  * src/storage/entities.js
  * ============================================================================
- * 🧬 4-QUADRANT ENTITY MODEL & ADAPT-ON-READ ENGINE
+ * 🧬 4-QUADRANT ENTITY MODEL
  * ============================================================================
  *
- * Enforces the canonical 4-quadrant schema across both Characters and Fractals:
- * - eternal: { physical: string, non_physical: string } (multiline [KEY: VALUE])
- * - present: { physical: string, non_physical: string } (multiline [KEY: VALUE])
- * - future:  string (multiline [KEY: VALUE | flags])
- * - past:    string (multiline [KEY: VALUE | flags])
- *
- * Adapt-on-Read: Converts legacy entity rows (array-form memories or legacy
- * object lists) into pure multiline bracket strings in memory without writing
- * uncommitted changes to disk.
+ * Enforces the canonical 4-quadrant bracket-string schema for Characters
+ * and Fractals (eternal / present / future / past).
  * ============================================================================
  */
 
@@ -63,13 +56,15 @@ function normalize_dynamics(raw_dynamics, entity_type) {
 }
 
 /**
- * Adapts legacy array-form memories or objects into a canonical multiline bracket string.
+ * Coerces a past-timeline value into a canonical multiline bracket string.
+ * Non-string inputs (arrays, objects, null) yield "" — there is exactly one
+ * writer of entity rows and it always stores bracket strings, so anything
+ * else is corrupt input, not a shape to support.
  *
  * @param {any} raw_past
- * @param {any} [raw_memories]
  * @returns {string}
  */
-function normalize_past_to_brackets(raw_past, raw_memories) {
+function normalize_past_to_brackets(raw_past) {
   // If already a non-empty string, ensure it has brackets
   if (typeof raw_past === "string" && raw_past.trim().length > 0) {
     const trimmed = raw_past.trim();
@@ -80,40 +75,7 @@ function normalize_past_to_brackets(raw_past, raw_memories) {
     return `[MEMORY: ${trimmed}]`;
   }
 
-  // Check array inputs (either past or legacy memories property)
-  const items = Array.isArray(raw_past) ? raw_past : Array.isArray(raw_memories) ? raw_memories : [];
-  if (items.length === 0) return "";
-
-  const lines = [];
-
-  for (const item of items) {
-    if (!item) continue;
-    if (typeof item === "string") {
-      const trimmed = item.trim();
-      if (!trimmed) continue;
-      lines.push(trimmed.startsWith("[") ? trimmed : `[MEMORY: ${trimmed}]`);
-      continue;
-    }
-
-    if (typeof item === "object") {
-      const key = item.key ? String(item.key).trim().toUpperCase() : "MEMORY";
-      const text = item.text || item.summary || item.value || "";
-      if (!text) continue;
-
-      const flags = [];
-      if (item.hide) flags.push("hide");
-      if (item.show) flags.push("show");
-      if (item.is_origin || item.origin) flags.push("is_origin");
-      if (typeof item.weight === "number" && !isNaN(item.weight)) {
-        flags.push(`w: ${Math.min(10, Math.max(1, Math.round(item.weight)))}`);
-      }
-
-      const flag_str = flags.length > 0 ? ` | ${flags.join(" | ")}` : "";
-      lines.push(`[${key}: ${text}${flag_str}]`);
-    }
-  }
-
-  return lines.join(", ");
+  return "";
 }
 
 /**
@@ -146,9 +108,8 @@ function normalize_relational_brackets(text) {
 
 /**
  * Enforces pure 4-quadrant multiline bracket strings across all fields.
- * Adapts legacy rows in-memory.
  *
- * @param {object} raw - entity row (greenfield or legacy)
+ * @param {object} raw - entity row
  * @returns {object} canonical entity
  */
 export function normalize_entity(raw = {}) {
@@ -183,7 +144,7 @@ export function normalize_entity(raw = {}) {
       non_physical: normalize_relational_brackets(typeof present.non_physical === "string" ? present.non_physical.trim() : ""),
     },
     future: normalize_relational_brackets(normalize_future_to_brackets(raw.future)),
-    past: normalize_relational_brackets(normalize_past_to_brackets(raw.past, raw.memories)),
+    past: normalize_relational_brackets(normalize_past_to_brackets(raw.past)),
 
     // Dynamics Sliders (1-100)
     dynamics: normalize_dynamics(raw.dynamics, entity_type),

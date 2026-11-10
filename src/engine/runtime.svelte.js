@@ -126,10 +126,6 @@ export class RuntimeEngineStore {
   // --- Active Entities State ---
   /** @type {SimulationEntity | null} */
   active_user = $state(null);
-  /** Legacy mirror for active_user */
-  get character() {
-    return this.active_user;
-  }
   /** @type {SimulationEntity | null} */
   active_ai = $state(null);
   /** @type {SimulationEntity | null} */
@@ -138,8 +134,6 @@ export class RuntimeEngineStore {
   // --- NPC World Cast & Stage Spotlight (Track 1.3: presence enum owns staging) ---
   /** @type {Record<string, any>} */
   #active_npcs = $state({});
-  /** @type {string[]} @deprecated Presence enum owns staging; kept as a derived mirror. */
-  #in_scene_npc_ids = $state([]);
 
   // --- Chronology & Session State ---
   is_ready = $state(false);
@@ -251,13 +245,6 @@ export class RuntimeEngineStore {
     return Object.fromEntries(Object.entries(this.#active_npcs).map(([id, e]) => [id, $state.snapshot(e)]));
   }
 
-  /** Non-reactive snapshot of on-stage NPC IDs (derived from the presence enum). */
-  get snapshot_in_scene_npc_ids() {
-    return Object.values(this.#active_npcs)
-      .filter((e) => e?.presence === "active")
-      .map((e) => String(e.id));
-  }
-
   // --------------------------------------------------------------------------
   // NPC World Cast Accessors
   // --------------------------------------------------------------------------
@@ -267,29 +254,6 @@ export class RuntimeEngineStore {
   }
   set active_npcs(val) {
     this.#active_npcs = val || {};
-    this.#sync_presence_mirror();
-  }
-
-  /**
-   * Re-derives the legacy in-scene id mirror from the presence enum.
-   * All writers must go through presence; this setter only accepts the
-   * mirror for backward-compatible call sites being migrated.
-   */
-  #sync_presence_mirror() {
-    this.#in_scene_npc_ids = Object.values(this.#active_npcs)
-      .filter((e) => e?.presence === "active")
-      .map((e) => String(e.id));
-  }
-
-  get in_scene_npc_ids() {
-    return this.#in_scene_npc_ids;
-  }
-  set in_scene_npc_ids(val) {
-    const ids = new SvelteSet((Array.isArray(val) ? val : []).map((x) => String(x)));
-    for (const npc of Object.values(this.#active_npcs)) {
-      if (npc) npc.presence = ids.has(String(npc.id)) ? "active" : npc.presence === "active" ? "nearby" : (npc.presence ?? "nearby");
-    }
-    this.#in_scene_npc_ids = [...ids].filter((id) => this.#active_npcs[id]);
   }
 
   // --------------------------------------------------------------------------
@@ -498,16 +462,9 @@ export class RuntimeEngineStore {
       const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
       if (npc_ids.length) {
         const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
-        const staged = new SvelteSet(
-          (Array.isArray(story.in_scene_npc_ids) ? story.in_scene_npc_ids : npc_list.map((n) => String(n.id))).map(String),
-        );
-        this.#active_npcs = Object.fromEntries(
-          npc_list.map((n) => [String(n.id), { ...n, presence: staged.has(String(n.id)) ? "active" : "nearby" }]),
-        );
-        this.#sync_presence_mirror();
+        this.#active_npcs = Object.fromEntries(npc_list.map((n) => [String(n.id), { ...n, presence: "active" }]));
       } else {
         this.#active_npcs = {};
-        this.#in_scene_npc_ids = [];
       }
 
       // Sync selections to app store
@@ -632,7 +589,7 @@ export class RuntimeEngineStore {
         }
         const payload = { ...unproxied_data, updated_at: Date.now() };
         await entities.update(type, String(id), payload);
-        const targets = [...new SvelteSet([this.character, this.active_user, this.active_ai, this.active_fractal])];
+        const targets = [...new SvelteSet([this.active_user, this.active_ai, this.active_fractal])];
         targets.forEach((t) => {
           if (t && t.id === id) Object.assign(t, payload);
         });
@@ -674,7 +631,6 @@ export class RuntimeEngineStore {
         const next_npcs = { ...this.#active_npcs };
         delete next_npcs[id];
         this.#active_npcs = next_npcs;
-        this.#sync_presence_mirror();
       }
     } catch (err) {
       console.error("[Data] Entity Delete Failed:", err);

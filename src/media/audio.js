@@ -3,7 +3,7 @@
  * 🔊 SENSORY CORTEX — PROCEDURAL AUDIO SYNTHESIZER & SPEECH ENGINE
  *
  * Greenfield pure Web Audio procedural SFX synthesizer, lazy AudioContext management,
- * and Web Speech API fallback engine keeping the legacy voice interface intact.
+ * and Web Speech API fallback speech engine.
  */
 
 import { strip_cognition_blocks } from "@utils";
@@ -331,7 +331,7 @@ export class VoiceEngine {
   }
 
   /**
-   * Positional speak signature matching legacy: speak(text, should_clear_queue = true, force = false).
+   * Positional speak signature: speak(text, should_clear_queue = true, force = false).
    */
   speak(text, should_clear_queue = true, force = false) {
     if (!text) return;

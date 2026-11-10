@@ -13,7 +13,7 @@ vi.mock("@engine", async (importOriginal) => {
       });
     }),
     runtime: {
-      character: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" },
+      active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" },
       save_entity: vi.fn(),
       update_entity: vi.fn(),
     },

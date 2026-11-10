@@ -187,7 +187,6 @@ export async function update_cast(id, npc_ids) {
 
 /**
  * Resolves the entity ids currently claimed by active (non-concluded) stories.
- * Matches legacy repository active claims resolver semantics without importing @data.
  *
  * @returns {Promise<string[]>}
  */

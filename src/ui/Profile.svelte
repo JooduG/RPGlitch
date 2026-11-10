@@ -241,7 +241,7 @@
   $effect(() => {
     // Keeps the Profile modal Dev Wing synced with live background engine changes
     if (app.settings.dev_mode && profile_state.char?.id) {
-      const live_entity = [runtime.character, runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profile_state.char.id);
+      const live_entity = [runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profile_state.char.id);
       if (live_entity?.dynamics && profile_state.char.dynamics) {
         Object.assign(profile_state.char.dynamics, live_entity.dynamics);
       }

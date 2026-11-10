@@ -50,7 +50,7 @@ export class ProfileState {
   pending_swap_confirm = $state(false);
 
   constructor() {
-    this.char = normalize(app.editing_entity || runtime.character);
+    this.char = normalize(app.editing_entity || runtime.active_user);
   }
 
   /**
@@ -183,7 +183,7 @@ export class ProfileState {
    */
   cancel() {
     this.is_editing = false;
-    this.char = normalize(app.editing_entity || runtime.character);
+    this.char = normalize(app.editing_entity || runtime.active_user);
     this._user_mutated = false;
     this.reset_active_field();
   }

@@ -81,7 +81,7 @@ export function serialize_embedding(raw_embedding) {
 
 /**
  * Deserializes a stored embedding into a Float32Array.
- * Supports legacy number[], Float32Array, and quantized base64/Uint8Array shapes.
+ * Accepts plain number arrays, Float32Array, and quantized base64/Uint8Array shapes.
  * Rejects wrong-dimension and non-finite payloads (same guards as the pre-demolition codec).
  * @param {string | number[] | Float32Array | Uint8Array | null | undefined} stored_embedding
  * @param {number} [dimensions=384]

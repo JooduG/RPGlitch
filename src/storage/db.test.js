@@ -131,21 +131,21 @@ describe("src/storage/db.js — Dexie Persistence & CRUD Engine", () => {
       expect(await get_entity("to_delete")).toBeNull();
     });
 
-    it("normalizes legacy rows on read via get_entity and list_entities", async () => {
-      // Direct raw write of legacy row
+    it("normalizes rows on read via get_entity and list_entities", async () => {
+      // Direct raw write of a canonical row
       await db.entities.put({
-        id: "legacy_user",
-        name: "Legacy Row",
+        id: "canon_user",
+        name: "Canon Row",
         type: "character",
-        memories: [{ text: "first memory", is_origin: true }],
+        past: "[MEMORY: first memory | is_origin]",
       });
 
-      const fetched = await get_entity("legacy_user");
-      expect(fetched?.past).toContain("[MEMORY: first memory | is_origin]");
+      const fetched = await get_entity("canon_user");
+      expect(fetched?.past).toBe("[MEMORY: first memory | is_origin]");
 
       const list = await list_entities("character");
-      const found = list.find((e) => e.id === "legacy_user");
-      expect(found?.past).toContain("[MEMORY: first memory | is_origin]");
+      const found = list.find((e) => e.id === "canon_user");
+      expect(found?.past).toBe("[MEMORY: first memory | is_origin]");
     });
   });
 

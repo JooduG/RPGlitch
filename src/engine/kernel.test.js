@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { Kernel } from "./kernel.svelte.js";
-import { dev_log } from "./dev.svelte.js";
 import { create_contract_fixtures } from "./fixtures.test-util.js";
 
 describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
@@ -46,10 +45,6 @@ describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
     expect(kernel.history[1].text).toBe("Alice moves forward through the fog.");
     expect(kernel.history[1].think).toBe("Stay vigilant.");
     expect(outcome.character_turn.prose).toBe("Alice moves forward through the fog.");
-
-    // Check DevMode log recording
-    const tempoEvents = dev_log.get_by_type("TURN_TEMPO");
-    expect(tempoEvents.length).toBeGreaterThan(0);
   });
 
   it("rewinds simulation to a previous round", async () => {

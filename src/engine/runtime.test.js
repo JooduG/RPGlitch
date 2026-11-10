@@ -242,25 +242,20 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     expect(runtime.active_npcs["npc-elias"].name).toBe("Elias");
     expect(runtime.snapshot_npcs["npc-mira"].name).toBe("Mira");
     expect(runtime.active_npcs["npc-elias"].presence).toBe("active");
-    expect(runtime.in_scene_npc_ids).toEqual(expect.arrayContaining(["npc-elias", "npc-mira"]));
-    expect([...runtime.snapshot_in_scene_npc_ids].sort()).toEqual(["npc-elias", "npc-mira"]);
+    expect(Object.values(runtime.active_npcs).every((e) => e.presence === "active")).toBe(true);
   });
 
-  it("respects explicit story.in_scene_npc_ids when specified", async () => {
-    const { story_id, db } = await seed_story_with_npcs([
+  it("defaults every hydrated NPC to active presence", async () => {
+    const { story_id } = await seed_story_with_npcs([
       { id: "npc-elias", name: "Elias" },
       { id: "npc-mira", name: "Mira" },
     ]);
-    await db.stories.update(story_id, { in_scene_npc_ids: ["npc-mira"] });
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
 
     await runtime.sync();
 
     expect(Object.keys(runtime.active_npcs).sort()).toEqual(["npc-elias", "npc-mira"]);
-    expect(runtime.active_npcs["npc-elias"].presence).toBe("nearby");
-    expect(runtime.active_npcs["npc-mira"].presence).toBe("active");
-    expect(runtime.in_scene_npc_ids).toEqual(["npc-mira"]);
-    expect(runtime.snapshot_in_scene_npc_ids).toEqual(["npc-mira"]);
+    expect(Object.values(runtime.active_npcs).map((e) => e.presence)).toEqual(["active", "active"]);
   });
 
   it("clears the cast when the story has no npc_ids", async () => {
@@ -270,7 +265,6 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     await runtime.sync();
 
     expect(runtime.active_npcs).toEqual({});
-    expect(runtime.in_scene_npc_ids).toEqual([]);
   });
 
   it("keeps the world cast consistent across update/save/delete of an NPC", async () => {
@@ -286,10 +280,9 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
 
     await runtime.delete_entity("character", "npc-elias");
     expect(runtime.active_npcs["npc-elias"]).toBeUndefined();
-    expect(runtime.in_scene_npc_ids).not.toContain("npc-elias");
   });
 
-  it("persists stage moves through the presence enum with the id mirror derived (Stage Spotlight)", async () => {
+  it("treats the presence enum as the staging source of truth", async () => {
     const { story_id } = await seed_story_with_npcs([
       { id: "npc-elias", name: "Elias" },
       { id: "npc-mira", name: "Mira" },
@@ -297,14 +290,10 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
     await runtime.sync();
 
-    runtime.in_scene_npc_ids = ["npc-mira"];
-    expect(runtime.active_npcs["npc-mira"].presence).toBe("active");
-    expect(runtime.active_npcs["npc-elias"].presence).toBe("nearby");
-    expect(runtime.in_scene_npc_ids).toEqual(["npc-mira"]);
-    expect(runtime.snapshot_in_scene_npc_ids).toEqual(["npc-mira"]);
-
-    runtime.in_scene_npc_ids = ["npc-mira", "npc-mira", "npc-elias"];
-    expect(runtime.in_scene_npc_ids).toEqual(["npc-mira", "npc-elias"]);
+    runtime.active_npcs["npc-mira"].presence = "nearby";
+    expect(runtime.active_npcs["npc-mira"].presence).toBe("nearby");
+    expect(runtime.snapshot_npcs["npc-mira"].presence).toBe("nearby");
+    expect(runtime.active_npcs["npc-elias"].presence).toBe("active");
   });
 
   describe("Director Quick Shot Telemetry & Generation Mutex", () => {
