@@ -1,11 +1,10 @@
 /**
- * src/data/definitions/profile-fields.js
- * 📋 PROFILE FIELDS & TAXONOMY — Single Source of Truth for Entity Fields.
+ * src/definitions/profile-taxonomy.js
+ * 📋 PROFILE TAXONOMY — Single Source of Truth for Entity Fields.
  *
  * Defines the canonical schema for all character and fractal fields across the simulation:
  * - Canonical Field Taxonomy & Enhancer Roles (PROFILE_FIELDS)
  * - Field Catalog & Flat Metadata Registry (PROFILE_FIELD_CATALOG)
- * - Dynamic Flat Leaf Map for Ingestion (FLAT_LEAF_MAP)
  * - Profile Studio UI Layout Sections (PROFILE_SECTIONS_BY_TYPE)
  *
  * Dependencies:
@@ -239,17 +238,12 @@ function build_profile_catalog(fields) {
   return { catalog, leaf_map };
 }
 
-const { catalog, leaf_map } = build_profile_catalog(PROFILE_FIELDS);
+const { catalog } = build_profile_catalog(PROFILE_FIELDS);
 
 /**
  * Flat registry of all entity fields, keyed by dot-notation ID.
  */
 export const PROFILE_FIELD_CATALOG = Object.freeze(catalog);
-
-/**
- * Dynamic flat LLM / card ingestion keys to nested Twin-Cylinder schema paths.
- */
-export const FLAT_LEAF_MAP = Object.freeze(leaf_map);
 
 // ── 3. Profile Section Layout Model ──────────────────────────────────────────
 
@@ -314,6 +308,10 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: Renamed from profile-fields.js to profile-taxonomy.js (the storage-side
+ *   profile-fields.js owns ingestion: FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES).
+ *   Removed the unused derived FLAT_LEAF_MAP export (zero importers; live ingestion map lives
+ *   in src/storage/profile-fields.js and differs in coverage) — single home, no behavior change.
  * - 2026-10-18: Phase V Sub-item 5.4 — Enriched character and fractal 4-quadrant field descriptions with educational lorebook guidance, establishing each quadrant as an active vector slice of the world lorebook without keyword dumps.
  * - 2026-10-14: Phase IV Sub-item 4.2 — Formally registered canonical top-level pov metadata field in PROFILE_FIELDS taxonomy.
  * - 2026-10-04: Stripped per-field tense clauses from the temporal layer directives (tense now stated once via TASK_LIBRARY.TEMPORAL.TENSE); field text is pure content guidance.

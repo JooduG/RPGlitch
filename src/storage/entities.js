@@ -14,7 +14,7 @@ import { format_clean_brackets } from "./parser.js";
 import { FLAT_LEAF_MAP } from "./profile-fields.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
 import { DYNAMICS_SCALE } from "../config.js";
-import { default_dynamics_for_scope } from "../definitions/dynamics.js";
+import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
 
 /**
  * Clamps a dynamics number to an integer between 1 and 100.

@@ -3,7 +3,7 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize_entity as normalize } from "@storage";
-import { PROFILE_FIELD_CATALOG } from "../definitions/profile-fields.js";
+import { PROFILE_FIELD_CATALOG } from "../definitions/profile-taxonomy.js";
 import { structure_profile } from "@engine";
 import { app } from "./interface.svelte.js";
 import { runtime } from "@engine";

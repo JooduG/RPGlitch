@@ -31,7 +31,7 @@ import { load_session_checkpoint, clear_session_checkpoint } from "@storage";
 import { decompose_story_title } from "@utils";
 import { get_signature_color } from "@media";
 import { TELEMETRY_CAPS } from "@config";
-import { default_dynamics_for_scope } from "../definitions/dynamics.js";
+import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
 import { state_bridge } from "@utils";
 
 /**

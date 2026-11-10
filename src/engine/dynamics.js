@@ -5,7 +5,7 @@
  * ============================================================================
  *
  * Owns mathematical physics, delta calculation, and somatic protocol evaluation.
- * Decoupled from declarative registries (which live in src/definitions/dynamics.js):
+ * Decoupled from declarative registries (which live in src/definitions/dynamics-registry.js):
  * 1. Pure Dynamics Reducer & Baseline Settlement (reduce_dynamics, apply_dynamics_gravity)
  * 2. Dynamics Baseline Extraction (extract_entity_dynamics_baselines)
  * 3. Delta Computation for Telemetry (compute_dynamics_deltas)
@@ -15,7 +15,7 @@
 
 import { clamp } from "../utils/math.js";
 import { DYNAMICS_SCALE } from "../config.js";
-import { DYNAMICS_AXES, DYNAMICS_RULES } from "../definitions/dynamics.js";
+import { DYNAMICS_AXES, DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
 
 /**
  * Pure functional dynamics reducer: applies caller-supplied deltas to a

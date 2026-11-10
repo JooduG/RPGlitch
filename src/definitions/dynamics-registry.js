@@ -1,5 +1,5 @@
 /**
- * src/definitions/dynamics.js
+ * src/definitions/dynamics-registry.js
  * ============================================================================
  * 📊 DYNAMICS DEFINITIONS & SOMATIC PROTOCOLS REGISTRY
  * ============================================================================

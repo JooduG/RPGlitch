@@ -1,12 +1,13 @@
 /**
- * src/data/definitions/profile-fields.test.js
- * Unit tests for PROFILE_FIELDS taxonomy, FLAT_LEAF_MAP, and build_profile_sections.
+ * src/definitions/profile-taxonomy.test.js
+ * Unit tests for PROFILE_FIELDS taxonomy, PROFILE_FIELD_CATALOG, and build_profile_sections.
+ * (FLAT_LEAF_MAP coverage lives in src/storage/profile-fields.test.js against the live ingestion map.)
  */
 
 import { describe, expect, it } from "vitest";
-import { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE, FLAT_LEAF_MAP, build_profile_sections } from "./profile-fields.js";
+import { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE, build_profile_sections } from "./profile-taxonomy.js";
 
-describe("profile-fields.js schema invariants", () => {
+describe("profile-taxonomy.js schema invariants", () => {
   it("defines top-level taxonomy sections and entity root schemas", () => {
     expect(PROFILE_FIELDS.name).toBeDefined();
     expect(PROFILE_FIELDS.description).toBeDefined();
@@ -20,15 +21,6 @@ describe("profile-fields.js schema invariants", () => {
     expect(PROFILE_FIELDS.fractal.present).toBeDefined();
     expect(PROFILE_FIELDS.fractal.past).toBeDefined();
     expect(PROFILE_FIELDS.fractal.future).toBeDefined();
-  });
-
-  it("ensures every leaf in FLAT_LEAF_MAP maps to a valid schema path", () => {
-    expect(Object.keys(FLAT_LEAF_MAP).length).toBeGreaterThan(0);
-    for (const [flat_key, path] of Object.entries(FLAT_LEAF_MAP)) {
-      expect(typeof flat_key).toBe("string");
-      expect(typeof path).toBe("string");
-      expect(path.length).toBeGreaterThan(0);
-    }
   });
 
   it("ensures PROFILE_FIELD_CATALOG contains valid directives and enhancers", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DYNAMICS_METRIC_NAMES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, DYNAMICS_RULES, DYNAMICS_AXES } from "../definitions/dynamics.js";
+import { DYNAMICS_METRIC_NAMES, PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, DYNAMICS_RULES, DYNAMICS_AXES } from "../definitions/dynamics-registry.js";
 import {
   apply_dynamics_gravity,
   extract_entity_dynamics_baselines,
