@@ -729,9 +729,7 @@ export async function append_ledger_entry(entry) {
  */
 export async function append_ledger_entries(entries) {
   if (!Array.isArray(entries) || entries.length === 0) return;
-  const filtered_entries = entries.filter(
-    (entry) => entry && entry.entity_id && entry.field && !is_identical_mutation(entry),
-  );
+  const filtered_entries = entries.filter((entry) => entry && entry.entity_id && entry.field && !is_identical_mutation(entry));
   if (filtered_entries.length === 0) return;
   const payloads = filtered_entries.map((entry) => ({
     story_id: entry.story_id != null ? coerce_story_key(entry.story_id) : null,
