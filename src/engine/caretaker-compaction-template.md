@@ -1,7 +1,7 @@
+# Summarization Template
+
 > **Re-homed (2026-11-10):** moved here from `.agents/skills/simulation/references/compaction-template.md`
 > (now a pointer), next to its consumer `execute_turn_3_caretaker` in `src/engine/turns.js`.
-
-# Summarization Template
 
 ```markdown
 <player_name>
