@@ -1,7 +1,5 @@
-# Caretaker Compaction Template (canonical)
-
-> **Re-homed (2026-11-10):** canonical copy now lives at `src/engine/caretaker-compaction-template.md`,
-> next to the Turn 3 caretaker core (`execute_turn_3_caretaker` in `src/engine/turns.js`). This references copy stays as a pointer.
+> **Re-homed (2026-11-10):** moved here from `.agents/skills/simulation/references/compaction-template.md`
+> (now a pointer), next to its consumer `execute_turn_3_caretaker` in `src/engine/turns.js`.
 
 # Summarization Template
 
