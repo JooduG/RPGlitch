@@ -12,7 +12,7 @@
 // Authoritative simulation state class
 export { Kernel } from "./kernel.svelte.js";
 export { LLM_PRIORITY, resolve_priority, run_llm_job, get_llm_gate_status } from "./gate.js";
-export { get_mock_message, get_gate_stream } from "./bridge.js";
+export { get_mock_message, get_transport } from "./transport.js";
 
 // Pure headless turn orchestration
 export {
@@ -31,7 +31,8 @@ export {
 } from "./turns.js";
 
 // Bridge affordances
-export { execute_turn, execute_continue, execute_prologue, execute_epilogue, execute_visualizer_envision, structure_profile } from "./bridge.js";
+export { execute_turn, execute_continue } from "./runs.js";
+export { execute_prologue, execute_epilogue, execute_visualizer_envision, structure_profile } from "./lifecycle.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
 export { compile_prompt, PURPOSE_CORES } from "./prompts.js";

@@ -5,12 +5,12 @@ import {
   register_stream_handlers,
   stream_bridge,
   stories_bridge,
-  reset_bridges_for_testing,
-} from "./bridges.js";
+  reset_registries_for_testing,
+} from "./registries.js";
 
-describe("bridges.js (Cross-Layer Decoupling Bridges)", () => {
+describe("registries.js (Cross-Layer Decoupling Registries)", () => {
   beforeEach(() => {
-    reset_bridges_for_testing();
+    reset_registries_for_testing();
   });
 
   describe("state_bridge", () => {
@@ -89,6 +89,28 @@ describe("bridges.js (Cross-Layer Decoupling Bridges)", () => {
 
       stories_bridge.bump();
       expect(mock_bump).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("prompt token snapshot recorder", () => {
+    it("routes snapshots to the registered recorder", () => {
+      const recorder = vi.fn();
+      register_state_accessors({ runtime: {}, record_prompt_token_snapshot: recorder });
+
+      const snapshot = { total: 10, round: 1, mode: "foreground" };
+      state_bridge.record_prompt_token_snapshot(snapshot);
+
+      expect(recorder).toHaveBeenCalledWith(snapshot);
+    });
+
+    it("reset clears the snapshot recorder", () => {
+      const recorder = vi.fn();
+      register_state_accessors({ runtime: {}, record_prompt_token_snapshot: recorder });
+
+      reset_registries_for_testing();
+
+      state_bridge.record_prompt_token_snapshot({ total: 1, round: 0 });
+      expect(recorder).not.toHaveBeenCalled();
     });
   });
 });

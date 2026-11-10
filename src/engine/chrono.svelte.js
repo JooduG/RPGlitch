@@ -23,7 +23,8 @@ import { session_driver } from "@data";
 import { build_turn_summary } from "@engine";
 import { delete_log_entry } from "@data";
 import { state_bridge } from "@utils";
-import { execute_turn, execute_continue, execute_prologue } from "./bridge.js";
+import { execute_turn, execute_continue } from "./runs.js";
+import { execute_prologue } from "./lifecycle.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

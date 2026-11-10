@@ -71,7 +71,7 @@ export * from "./xml.js";
 // Cross-Layer State & Streaming Bridges
 // ============================================================================
 
-export * from "./bridges.js";
+export * from "./registries.js";
 
 // ============================================================================
 // Text, Cognition Stripping & Relational Graph Codecs

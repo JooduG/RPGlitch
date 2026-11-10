@@ -662,7 +662,7 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
  *
  * transport-injected turn pipeline helper (moved from bridge.js per nuclear plan §3).
  *
- * @param {object} transport - Live streaming transport (e.g. get_gate_stream())
+ * @param {object} transport - Live streaming transport (e.g. get_transport())
  * @param {string} [input_text=""] - Context/seed text to continue or draft
  * @param {AbortSignal} [signal=null] - Optional abort signal
  * @param {((chunk: string, is_full_replace: boolean) => void) | null} [on_token=null] - Live token callback

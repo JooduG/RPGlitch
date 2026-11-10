@@ -12,7 +12,7 @@
   import { app } from "./interface.svelte.js";
   import { chrono_engine, runtime, simulation_state, force_recover_simulation } from "@engine";
   import { simulation_log } from "@data";
-  import { execute_ghostwriter, execute_epilogue, get_gate_stream } from "@engine";
+  import { execute_ghostwriter, execute_epilogue, get_transport } from "@engine";
   import { db, session_driver, stories } from "@data";
   import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
   import { item_in } from "@media";
@@ -201,7 +201,7 @@
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    execute_ghostwriter(get_gate_stream(), previous_text)
+    execute_ghostwriter(get_transport(), previous_text)
       .then(async (generated_text) => {
         if (generated_text && generated_text.trim()) {
           value = generated_text;

@@ -30,11 +30,11 @@ export class Kernel {
     this.fractal = options.fractal || null;
     this.round = options.round || 0;
     this.director_enabled = options.director_enabled || false;
-    // Transport is always injected live (gate-backed adapter from bridge.js);
+    // Transport is always injected live (gate-backed adapter from transport.js);
     // this stub only throws a legible error if a bare Kernel ever streams.
     this.transport = options.transport || {
       stream() {
-        throw new Error("Kernel requires an injected transport (e.g. get_gate_stream()).");
+        throw new Error("Kernel requires an injected transport (e.g. get_transport()).");
       },
     };
   }

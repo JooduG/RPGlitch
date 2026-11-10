@@ -17,7 +17,7 @@
  * - `src/media/visual.svelte.js` (Visual style resolution for image generation).
  */
 
-import { state_bridge } from "./bridges.js";
+import { state_bridge } from "./registries.js";
 import { SPEAKING_STYLES } from "@config";
 
 // ============================================================================
