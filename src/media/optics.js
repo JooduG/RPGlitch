@@ -3,7 +3,7 @@
  * 👁️ SENSORY CORTEX — VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
  */
 
-import { IMAGE_TRIGGER_COOLDOWN_ROUNDS, DYNAMICS_SCALE, IMAGE_RESOLUTIONS, IMAGE_TRIGGER } from "@config";
+import { DYNAMICS_SCALE, IMAGE_RESOLUTIONS, IMAGE_TRIGGER } from "@config";
 import { evaluate_image_trigger, normalize_comma_spacing, CLOTHING_KEYS, CLEAR_TOKENS, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
 import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "./styles.js";
 import { get_signature_label, PALETTE } from "./palette.js";
@@ -116,7 +116,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   const director_last_round = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
   const dynamics_last_round = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
 
-  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_TRIGGER_COOLDOWN_ROUNDS;
+  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_TRIGGER.cooldown_rounds;
   const director_cooldown_elapsed = is_cooldown_elapsed(director_last_round);
   const dynamics_cooldown_elapsed = is_cooldown_elapsed(dynamics_last_round);
 
@@ -150,8 +150,8 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
   const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
-    band_high: IMAGE_TRIGGER.band_high,
-    band_low: IMAGE_TRIGGER.band_low,
+    band_high: DYNAMICS_SCALE.EXTREME_HIGH,
+    band_low: DYNAMICS_SCALE.EXTREME_LOW,
     displacement_threshold: IMAGE_TRIGGER.displacement_threshold,
     default_tier: IMAGE_TRIGGER.default_tier,
   });

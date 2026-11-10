@@ -1110,7 +1110,7 @@
                     {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
                   </span>
                 {/if}
-                {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
+                {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 50)}
                   <span class="font-mono text-[10px] text-slate-400">
                     · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
                   </span>

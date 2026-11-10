@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { FIELD_FLOORS, HARD_LIMITS, CANONICAL_ORIGIN_SCORE_MULTIPLIER } from "../config.js";
+import { FIELD_FLOORS, CHARS_PER_TOKEN, ORIGIN_SCORE_MULTIPLIER } from "../config.js";
 
 /** Total guaranteed character floor across all 6 profile fields (sum: 1700 chars) */
 export const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce((sum, floor) => sum + floor, 0);
@@ -38,7 +38,7 @@ export function count_text_tokens(text) {
       // Fallback to offline ratio
     }
   }
-  return Math.ceil(text.length / HARD_LIMITS.CHARACTERS_PER_TOKEN);
+  return Math.ceil(text.length / CHARS_PER_TOKEN);
 }
 
 /**
@@ -125,7 +125,7 @@ export function score_and_rank_memories(candidates, queryVector) {
     }
 
     // Origin protection: author canonical facts receive a multiplier boost
-    const origin_multiplier = item.is_origin ? CANONICAL_ORIGIN_SCORE_MULTIPLIER : 1.0;
+    const origin_multiplier = item.is_origin ? ORIGIN_SCORE_MULTIPLIER : 1.0;
 
     const final_score = similarity * origin_multiplier;
     const length = (item.text || "").length;

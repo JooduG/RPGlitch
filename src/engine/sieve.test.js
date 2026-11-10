@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
-import { HARD_LIMITS } from "../config.js";
+import { EMBEDDING_SPECS } from "../config.js";
 
 describe("src/engine/sieve.js — Two-Tier Sieve RAG & Vector Retrieval Engine", () => {
   it("computes cosine similarity accurately", () => {
-    const vecA = new Float32Array(HARD_LIMITS.VECTOR_DIMENSIONS).fill(1);
-    const vecB = new Float32Array(HARD_LIMITS.VECTOR_DIMENSIONS).fill(1);
-    const vecC = new Float32Array(HARD_LIMITS.VECTOR_DIMENSIONS).fill(-1);
+    const vecA = new Float32Array(EMBEDDING_SPECS.QUANTIZE_MAX).fill(1);
+    const vecB = new Float32Array(EMBEDDING_SPECS.QUANTIZE_MAX).fill(1);
+    const vecC = new Float32Array(EMBEDDING_SPECS.QUANTIZE_MAX).fill(-1);
 
     expect(cosine_similarity(vecA, vecB)).toBeCloseTo(1.0, 5);
     expect(cosine_similarity(vecA, vecC)).toBeCloseTo(-1.0, 5);

@@ -3,40 +3,23 @@
  * ⚙️ RPGlitch Sovereign System Configuration & Subsystem Domain Agreements
  *
  * Promoted configuration surface providing canonical scales, physical boundaries,
- * and cross-module subsystem agreements across @intelligence, @state, @media, and @ui.
+ * and cross-module subsystem agreements across @engine, @storage, @definitions,
+ * @media, @utils, and @ui.
  * Follows P4 Pre-Beta Purity: zero backwards compatibility layers, zero magic numbers.
+ *
+ * Layout rule: §1 and §2 own every number (no cross-references between homes).
+ * §3 contains only references to §1/§2 plus a few homeless policy literals.
+ * Nothing in §3 may be referenced by §1/§2 (evaluation order depends on it).
  */
 
 // =============================================================================
-// [SECTION 1: SCOPED SCALES — PROSE/IDENT SHARED UNITS + PLATFORM PRIMITIVES]
+// [SECTION 1: PLATFORM TIME & PATIENCE — no dependencies]
 // =============================================================================
-
-/**
- * Prose scale: the shared unit of story text. Dialogue turns, director notes,
- * advisories and cluster summaries are all "one chunk of prose" by design, so
- * they tune together. Nothing outside the prose family may reference these.
- */
-export const PROSE = Object.freeze({
-  SNIPPET: 250, // A story beat: past bracket entry, prompt chapter summary, visual snippet
-  PARAGRAPH: 500, // A narrative paragraph: present layer, dialogue turn, director note, agenda, cluster summary
-  PAGE: 1500, // A full page: eternal identity facts, generation headroom
-});
-
-/**
- * Identifier scale: short machine-facing strings. Names, titles, slugs.
- */
-export const IDENT = Object.freeze({
-  SLUG: 40, // An identifier: chapter slug, truncation floor, terse input threshold
-  LABEL: 80, // A title: entity name, chapter title
-});
-
-/** Hard platform prompt envelope in characters (~6,000 tokens @ 3.35). */
-export const PROMPT_CHAR_ENVELOPE = 20000;
 
 /**
  * Standard latency tiers (ms) for network probes, timeouts, and watchdog evaluation.
  */
-export const LATENCY_TIERS_MS = Object.freeze({
+export const TIMING_MS = Object.freeze({
   TICK: 1000, // 1,000ms (1s): Initial retry backoff delay for network requests and diffusion generation
   INTERACTION: 5000, // 5,000ms (5s): UI undo-delete toast window and background task preemption wait
   DELAY: 10000, // 10,000ms (10s): Maximum upper delay cap for exponential backoff retries
@@ -55,297 +38,11 @@ export const PATIENCE_POLICY = Object.freeze({
   HARD_LIMIT: 3, // 3 strikes/attempts: max retry attempts, failure trip threshold, max concurrent probes
 });
 
-export const DYNAMICS_CALIBRATION = Object.freeze({
-  DELTA_STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
-  DELTA_EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
-  BOUNDARY_CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
-});
-
-/** Natural rate per turn at which unprovoked tension meters drift back toward MID 50 */
-export const GRAVITY_RATE = 0.08;
-
-/** Cumulative displacement delta across all axes required to trigger an automated visual beat */
-export const SEISMIC_SHIFT_DISPLACEMENT = 50; // 50: Displacement trip point aligned to neutral dynamics baseline
-
-/** Random atmospheric variance factor applied during turn dynamics progression */
-export const ENTROPY_VARIANCE = 0.05;
-
 // =============================================================================
-// [SECTION 2: SUBSYSTEM DOMAIN AGREEMENTS]
+// [SECTION 2: CANONICAL DOMAIN HOMES — every number lives here exactly once]
 // =============================================================================
 
-// ── 1. Prompt Context Budgets & Compiler Handoff ──────────────────────────────
-export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
-export const CONTEXT_TOKEN_CLIFF = 6000; // 6,000 tokens: Hard inference ceiling past which server middle-truncation occurs
-export const DEFAULT_PROMPT_CEILING = CONTEXT_TOKEN_CLIFF;
-
-/**
- * Resolves token allocation ceilings for major prompt partitions.
- * @param {number} [ceiling=6000]
- * @returns {{ ceiling: number, entities_max_tokens: number, history_max_tokens: number }}
- */
-export function resolve_prompt_budget_allocation(ceiling = DEFAULT_PROMPT_CEILING) {
-  return {
-    ceiling,
-    entities_max_tokens: 2000,
-    history_max_tokens: 1600,
-  };
-}
-
-// ── 2. Temporal Continuum, Compaction & Retrieval ──────────────────────────────
-export const PAST_ENTRIES = Object.freeze({
-  SESSION_CAP: 20, // Max 20 session bracket entries before background consolidation
-  TOTAL_CAP: 180, // Max 180 total lifetime entries (45,000 chars / ARCHIVE tier)
-  ENTRY_MAX_CHARS: PROSE.SNIPPET, // 250 chars per bracket entry
-});
-
-export const COMPACTION = Object.freeze({
-  FANOUT: 8, // 8 child entries clustered per node
-  MAX_HEIGHT: 5, // Max tree depth 5
-  SUMMARY_MAX_CHARS: PROSE.PARAGRAPH, // 500 chars per cluster summary
-});
-
-export const FRAGMENTATION = Object.freeze({
-  THRESHOLD: 75, // 75: Somatic fragmentation fires when chaos/entropy exceeds HIGH tension threshold (DYNAMICS_SCALE.HIGH)
-  WEIGHT_CUTOFF: 6, // Past vectors at weight <= 6 degrade under fragmentation; >= 7 stay canon
-});
-
-export const TEMPORAL_SCORING = Object.freeze({
-  SEMANTIC_GAIN: 3, // Multiplier scaling vector cosine similarity in hybrid past scoring formula
-  RECENCY_FLOOR: 0.5, // Baseline recency weight floor preventing older vital entries from zeroing out
-  DECAY_SOFTEN: 0.5, // Damping factor softening exponential time decay of historical entries
-  IN_SCENE_SALIENCE_BOOST: 1.3, // 1.3x multiplier boosting entries involving entities co-present in active scene
-});
-
-export const HYBRID_WEIGHTS = Object.freeze({
-  ENTITY_OVERLAP: 3.0, // Weight for matching entities mentioned in the active round
-  LEXICAL_FREQUENCY: 1.0, // Weight for exact keyword matches between query and entry text
-  EMOTIONAL_SALIENCE: 0.4, // Weight factoring the entry's original emotional weight score
-  RECENCY: 1.2, // Weight factoring round distance and temporal decay
-});
-
-/**
- * Universal RAG Strategy B Quadrant Gravity & Domain Modifiers.
- * Centralized registry for calibrating token floors, quadrant gravity, and domain penalties.
- */
-export const RAG_MULTIPLIERS = Object.freeze({
-  // Quadrant gravity multipliers in common overflow pool
-  ETERNAL_GRAVITY: 1.4, // 1.4x: Baseline identity traits heavily favored
-  PRESENT_GRAVITY: 1.2, // 1.2x: Active physical/somatic condition favored
-  FUTURE_GRAVITY: 1.1, // 1.1x: Impending standing agendas favored
-  PAST_GRAVITY: 1.0, // 1.0x: Baseline episodic memory stream
-
-  // Domain & Task-specific modifiers
-  PHYSICAL_PROSE_PENALTY: 0.5, // 0.5x: Damps clothing/appearance in PROSE_CORE to prioritize narrative/emotion
-  OPTICS_PHYSICAL_BOOST: 15.0, // 15.0x: Massive boost in OPTICS_CORE ensuring mandatory physical visual inclusion
-  PHYSICAL_QUERY_RELEVANCE_THRESHOLD: 0.8, // Cosine similarity threshold bypassing the prose physical penalty
-
-  // Strategy B Guaranteed token floors (character budget reservation)
-  FLOOR_ETERNAL_TOKENS: 150, // Guaranteed minimum token budget reserved for eternal identity traits
-  FLOOR_PRESENT_TOKENS: 100, // Guaranteed minimum token budget reserved for active present condition
-});
-
-// ── 3. Narrative Feed, Pacing & Story Chronology ──────────────────────────────
-export const DIALOGUE_WINDOW = Object.freeze({
-  ROUNDS: 8, // 8 rounds of active conversational dialogue sliced into prompt context (~16 feed turns)
-  MAX_CHARS: PROSE.PARAGRAPH, // 500 chars per turn ceiling
-});
-
-export const VISUAL_FEED_WINDOW = Object.freeze({
-  ROUNDS: 1, // 1 round of immediate action context fed into visual prompt extraction (~2 feed turns)
-  MAX_CHARS: PROSE.SNIPPET, // 250 chars per beat snippet ceiling
-});
-
-export const SIMULATION_LOG_ROUNDS = 5; // 5 rounds of recent story history sliced for simulation logs (~10 feed turns)
-
-export const CHAPTER = Object.freeze({
-  ARCHIVE_CAPACITY: 12, // Max closed chapters preserved in persistent DB history before pruning
-  PROMPT_HISTORY_LIMIT: 6, // Max closed chapters rendered into prompt <CHAPTER_HISTORY> block
-});
-
-export const ENTITY_SCHEMA = Object.freeze({
-  NAME_MAX_CHARS: IDENT.LABEL, // 80 chars: Maximum name string length
-  SUMMARY_MAX_CHARS: 100, // 100 chars: Word-boundary truncation limit for compact cast summaries
-});
-
-/**
- * Lean base character quotas guaranteed per entity role before dynamic RAG overflow allocation.
- * Quadrant keys strictly follow universal nomenclature:
- * ETERNAL_NON_PHYSICAL, ETERNAL_PHYSICAL, PRESENT_NON_PHYSICAL, PRESENT_PHYSICAL, FUTURE.
- * PAST has zero static guarantee (100% dynamic RAG).
- */
-export const ENTITY_GUARANTEES = Object.freeze({
-  ASYMMETRIC: Object.freeze({
-    SPEAKER: Object.freeze({
-      ETERNAL_NON_PHYSICAL: 500,
-      ETERNAL_PHYSICAL: 200,
-      PRESENT_NON_PHYSICAL: 300,
-      PRESENT_PHYSICAL: 200,
-      FUTURE: 200,
-    }),
-    LISTENER: Object.freeze({
-      ETERNAL_NON_PHYSICAL: 250,
-      ETERNAL_PHYSICAL: 150,
-      PRESENT_NON_PHYSICAL: 200,
-      PRESENT_PHYSICAL: 150,
-      FUTURE: 0,
-    }),
-    FRACTAL: Object.freeze({
-      ETERNAL_NON_PHYSICAL: 200,
-      ETERNAL_PHYSICAL: 150,
-      PRESENT_NON_PHYSICAL: 150,
-      PRESENT_PHYSICAL: 150,
-      FUTURE: 0,
-    }),
-  }),
-  SYMMETRICAL: Object.freeze({
-    AI: Object.freeze({
-      ETERNAL_NON_PHYSICAL: 350,
-      ETERNAL_PHYSICAL: 200,
-      PRESENT_NON_PHYSICAL: 250,
-      PRESENT_PHYSICAL: 200,
-      FUTURE: 150,
-    }),
-    USER: Object.freeze({
-      ETERNAL_NON_PHYSICAL: 350,
-      ETERNAL_PHYSICAL: 200,
-      PRESENT_NON_PHYSICAL: 250,
-      PRESENT_PHYSICAL: 200,
-      FUTURE: 150,
-    }),
-    FRACTAL: Object.freeze({
-      ETERNAL_NON_PHYSICAL: 250,
-      ETERNAL_PHYSICAL: 150,
-      PRESENT_NON_PHYSICAL: 200,
-      PRESENT_PHYSICAL: 150,
-      FUTURE: 0,
-    }),
-  }),
-});
-
-export const STAGNATION = Object.freeze({
-  SOFT_PERMIT_ROUNDS: 8, // 8 stagnant rounds: lifts anti-staging constraints, allowing proactive entity movement
-  HARD_MANDATE_ROUNDS: 16, // 16 stagnant rounds: forces external event, scene transit, or unexpected NPC arrival
-  DRIFT_CUTOFF: 0.15, // Semantic vector drift < 0.15 indicates conversation looping / narrative stall
-});
-
-export const SPENT_ROUNDS = 5; // Number of recent rounds scanned for repetitive prose and mannerisms
-export const MAX_SPENT_ITEMS = 8; // Max unique repetitive phrases injected into negative prompt constraints
-export const OPENING_CLAUSE_MIN_CHARS = 15; // Minimum length to flag a repetitive opening clause (no tier: detector tuning, not prose)
-export const SOMATIC_MARKER_CAP = 1; // Maximum physical cliché reaction markers permitted per turn before stripping
-
-/**
- * User input pacing thresholds mapping character lengths to beat generation.
- */
-export const INPUT_PACING = Object.freeze({
-  TERSE: IDENT.SLUG, // <= 40 chars -> clipped 1-beat response
-  STANDARD: PROSE.SNIPPET, // 41-250 chars -> standard 2-3 beats
-  EXPANSIVE: PROSE.PARAGRAPH, // > 250 chars -> expansive multi-beat response
-});
-
-/**
- * Unified cooldown threshold (3 rounds) between automatic scene image generations.
- */
-export const IMAGE_TRIGGER_COOLDOWN_ROUNDS = 3;
-
-// ── 4. Web Ingestion & Story Import ───────────────────────────────────────────
-export const INGESTION = Object.freeze({
-  WEB_CHARS: 8000, // Max characters parsed from external web bio pages (no tier: intake policy, not prose)
-  LORE_CHARS: 10000, // Max characters parsed from external web lore/wiki pages (no tier: intake policy, not prose)
-});
-
-// ── 5. Engine Dynamics & Director Staging ────────────────────────────────────
-export const DIRECTOR_OUTPUT = Object.freeze({
-  NOTE_LINES: 5, // Maximum number of lines permitted in the Director's staging guidance note
-  NOTE_CHARS: PROSE.PARAGRAPH, // 500 chars hard character ceiling for Director note
-  KEYWORDS_MAX: 5, // Maximum number of thematic staging keywords extracted per turn
-});
-
-/** Default 4-axis somatic dynamics baseline at neutral equilibrium (MID 50) */
-export const DEFAULT_AI_DYNAMICS = Object.freeze({
-  chaos: 50,
-  intensity: 50,
-  openness: 50,
-  affinity: 50,
-});
-
-/** Default 2-axis environmental dynamics baseline at neutral equilibrium (MID 50) */
-export const DEFAULT_FRACTAL_DYNAMICS = Object.freeze({
-  velocity: 50,
-  entropy: 50,
-});
-
-// ── 6. Hardware Tensors, Concurrency & UI Subsystems ─────────────────────────
-export const EMBEDDING_SPECS = Object.freeze({
-  DIMENSIONS: 384, // Tensor dimensionality (384-d) for all-MiniLM-L6-v2 semantic sentence embeddings
-  CACHE_CAPACITY: 1500, // Maximum number of 384-d tensor vectors held in the in-memory LRU cache
-  QUANTIZE_MAX: 255, // 8-bit unsigned integer scalar ceiling (0-255) for quantized vector storage
-});
-
-/** Calibrated watchdog timing and grace thresholds preventing engine hangs */
-export const WATCHDOG_POLICY = Object.freeze({
-  INTERVAL_MS: LATENCY_TIERS_MS.HEARTBEAT, // 15,000ms (15s): Watchdog probe heartbeat
-  IDLE_GRACE_MS: 90000, // 90,000ms (90s): Maximum idle stasis permitted before recovery
-  CHUNK_STALL_MS: 90000, // 90,000ms (90s): Maximum time without stream chunks before timeout
-  MAX_MS: 5 * 60 * 1000, // 300,000ms (5m): Hard maximum generation runtime
-  CONSOLIDATE_GRACE_MS: LATENCY_TIERS_MS.LIFETIME, // 240,000ms (4m): Max background continuum-consolidation grace
-});
-
-/** Telemetry and diagnostic ring buffer capacity caps */
-export const TELEMETRY_CAPS = Object.freeze({
-  DIRECTOR_LATENCY_POOL: 50, // Rolling window size for director execution latency tracking
-  DEVELOPER_LOG_ENTRIES: 500, // Maximum developer log buffer capacity before FIFO truncation
-});
-
-// =============================================================================
-// [SECTION 7: SOVEREIGN POST-APOCALYPSE CANONICAL CONFIGURATION]
-// Clean, unabbreviated, honest literals for src/engine/ and flat UI.
-// =============================================================================
-
-// ── 1. Hard Software & Platform Limits ───────────────────────────────────────
-export const HARD_LIMITS = Object.freeze({
-  PROMPT_MAX_CHARACTERS: 20000 /** Hard prompt character ceiling (~6,000 tokens / idealMaxContextTokens) */,
-  CHARACTERS_PER_TOKEN: 3.35 /** Real empirical tokenizer ratio (characters per token) */,
-  BUNDLE_MAX_BYTES: 4194304 /** Hard 4.00 MB production bundle ceiling for single-file portable HTML */,
-  STREAM_TIMEOUT_MILLISECONDS: 60000 /** Hard timeout ceiling for Perchance LLM streaming generation */,
-  VECTOR_DIMENSIONS: 384 /** Standard sentence embedding tensor width (Xenova/all-MiniLM-L6-v2) */,
-});
-
-// ── 2. Unified Temporal Tempo (4 -> 8 -> 16 Rounds) ──────────────────────────
-export const TEMPO_ROUNDS = Object.freeze({
-  FAST: 4, // 4 rounds: Image generation cooldown & spent openings scan
-  STANDARD: 8, // 8 rounds: Working memory transcript window & soft stagnation permit
-  SLOW: 16, // 16 rounds: Critical hard stagnation disruption mandate
-});
-
-// ── 3. Memory & Two-Tier Sieve RAG ───────────────────────────────────────────
-/** Origin protection multiplier boosting author canon and immutable memories */
-export const CANONICAL_ORIGIN_SCORE_MULTIPLIER = 1.5;
-
-// ── 4. Canonical Length Thresholds & Field Floors ────────────────────────────
-export const LENGTH_THRESHOLDS = Object.freeze({
-  TINY: 25, // < 25 characters -> 1 snappy beat
-  SMALL: 150, // < 150 characters -> 1-2 beats
-  COMPACT: 200, // Physical & agenda baseline floor
-  MEDIUM: 300, // Psychological & past memory floor
-  EXPANSIVE: 500, // Core personality floor & expansive input cadence (>= 500)
-});
-
-/**
- * Lean Floors per field (in string character length).
- * In Tier 1, every field reserves this minimum floor so core identity is never crowded out.
- * Any content beyond this floor spills into Tier 2 where it competes via RAG relevance.
- */
-export const FIELD_FLOORS = Object.freeze({
-  ETERNAL_PHYSICAL: LENGTH_THRESHOLDS.COMPACT, // 200
-  ETERNAL_NON_PHYSICAL: LENGTH_THRESHOLDS.EXPANSIVE, // 500
-  PRESENT_PHYSICAL: LENGTH_THRESHOLDS.COMPACT, // 200
-  PRESENT_NON_PHYSICAL: LENGTH_THRESHOLDS.MEDIUM, // 300
-  FUTURE: LENGTH_THRESHOLDS.COMPACT, // 200
-  PAST: LENGTH_THRESHOLDS.MEDIUM, // 300
-});
-
-// ── 5. Directorial Staging & Dynamic Equilibrium ─────────────────────────────
+// ── 1. Directorial Staging & Dynamic Equilibrium ─────────────────────────────
 /** Universal narrative tension and dramatic scale (1-100) with calibrated operational boundaries. */
 export const DYNAMICS_SCALE = Object.freeze({
   MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
@@ -355,6 +52,8 @@ export const DYNAMICS_SCALE = Object.freeze({
   HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
   EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
   MAX: 100, // Absolute ceiling on the 1-100 narrative tension and significance scale
+  GRAVITY: 0.08, // Natural per-turn pull of unprovoked tension meters back toward MID
+  VARIANCE: 0.05, // Random atmospheric variance factor applied during turn dynamics progression
 
   DELTA_STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
   DELTA_EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
@@ -378,10 +77,18 @@ export const DYNAMICS_AXES = Object.freeze({
   entropy: { label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" },
 });
 
-/** Emotional salience scale for past entries and veil flags */
-export const EMOTIONAL_WEIGHT_SCALE = Object.freeze({ MIN: 1, MAX: 10, DEFAULT: 5 });
+// ── 2. Canonical Length Thresholds ───────────────────────────────────────────
+export const LENGTH_THRESHOLDS = Object.freeze({
+  TINY: 25, // < 25 characters -> 1 snappy beat
+  SMALL: 150, // < 150 characters -> 1-2 beats
+  COMPACT: 200, // Physical & agenda baseline floor
+  MEDIUM: 300, // Psychological & past memory floor
+  EXPANSIVE: 500, // Core personality floor & expansive input cadence (>= 500)
+  INGESTATION: 8000, // Web bio + lore intake budget (single home; html.js caps reference this)
+  PROMPT_MAX: 20000, // Hard prompt character ceiling (policy; currently unenforced)
+});
 
-// ── 6. Visual Media & Sensory Cortex ─────────────────────────────────────────
+// ── 3. Visual Media Resolutions ──────────────────────────────────────────────
 export const IMAGE_RESOLUTIONS = Object.freeze({
   PORTRAIT: Object.freeze({ width: 512, height: 768 }),
   LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
@@ -389,19 +96,118 @@ export const IMAGE_RESOLUTIONS = Object.freeze({
   SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
 });
 
+// ── 4. Hardware Tensors ──────────────────────────────────────────────────────
+export const EMBEDDING_SPECS = Object.freeze({
+  DIMENSIONS: 384, // Tensor dimensionality (384-d) for all-MiniLM-L6-v2 semantic sentence embeddings
+  CACHE_CAPACITY: 1500, // Maximum number of 384-d tensor vectors held in the in-memory LRU cache
+  QUANTIZE_MAX: 255, // 8-bit unsigned integer scalar ceiling (0-255) for quantized vector storage
+});
+
+// ── 5. Unified Temporal Tempo ──────────────────────────────────────────────────
+export const TEMPO_ROUNDS = Object.freeze({
+  STANDARD: 8, // 8 rounds: Working memory transcript window & soft stagnation permit
+  SLOW: 16, // 16 rounds: Critical hard stagnation disruption mandate
+});
+
+// ── 6. Tokenizer Calibration ─────────────────────────────────────────────────
+export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
+
+// ── 7. Sieve & Retrieval Scoring ─────────────────────────────────────────────
+/** Origin protection multiplier boosting author canon and immutable memories */
+export const ORIGIN_SCORE_MULTIPLIER = 1.5;
+
+// =============================================================================
+// [SECTION 3: DERIVED VIEWS & SINGLE-KEY POLICY — references §1/§2, plus a few homeless literals]
+// =============================================================================
+
+// ── 1. Somatic Markers ───────────────────────────────────────────────────────
+export const SOMATIC_MARKER_CAP = 1; // Maximum physical cliché reaction markers permitted per turn before stripping
+
+// ── 2. Telemetry ─────────────────────────────────────────────────────────────
+/** Telemetry and diagnostic ring buffer capacity caps */
+export const TELEMETRY_CAPS = Object.freeze({
+  DIRECTOR_LATENCY_POOL: 50, // Rolling window size for director execution latency tracking
+  DEVELOPER_LOG_ENTRIES: 500, // Maximum developer log buffer capacity before FIFO truncation
+});
+
+// ── 3. Image Trigger (image cadence policy; bands live on DYNAMICS_SCALE) ────
 export const IMAGE_TRIGGER = Object.freeze({
-  band_high: DYNAMICS_SCALE.EXTREME_HIGH,
-  band_low: DYNAMICS_SCALE.EXTREME_LOW,
-  displacement_threshold: SEISMIC_SHIFT_DISPLACEMENT,
-  cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
-  director_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
-  dynamics_cooldown_rounds: IMAGE_TRIGGER_COOLDOWN_ROUNDS,
+  displacement_threshold: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
+  cooldown_rounds: 3, // Unified cooldown (rounds) between automatic scene image generations
   default_tier: "story_scene",
   tiers: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
 });
 
+// ── 4. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
+/**
+ * Lean Floors per field (in string character length).
+ * In Tier 1, every field reserves this minimum floor so core identity is never crowded out.
+ * Any content beyond this floor spills into Tier 2 where it competes via RAG relevance.
+ */
+export const FIELD_FLOORS = Object.freeze({
+  ETERNAL_PHYSICAL: LENGTH_THRESHOLDS.COMPACT, // 200
+  ETERNAL_NON_PHYSICAL: LENGTH_THRESHOLDS.EXPANSIVE, // 500
+  PRESENT_PHYSICAL: LENGTH_THRESHOLDS.COMPACT, // 200
+  PRESENT_NON_PHYSICAL: LENGTH_THRESHOLDS.MEDIUM, // 300
+  FUTURE: LENGTH_THRESHOLDS.COMPACT, // 200
+  PAST: LENGTH_THRESHOLDS.MEDIUM, // 300
+});
+
 /**
  * CHANGELOG:
+ * - 2026-11-10: Cosmetic, no moves: removed §3.1 tombstone (§3 renumbered 1-4), fixed §2.2
+ *   header (floors left earlier), §3 banner now admits the homeless literals. No value changes.
+ * - 2026-11-10: Renamed LATENCY_TIERS_MS→TIMING_MS (status.svelte.js + resilience.js re-pointed),
+ *   moved FIELD_FLOORS to new §3.5 (pure LENGTH_THRESHOLDS view; sieve.js unaffected), renamed
+ *   CANONICAL_ORIGIN_SCORE_MULTIPLIER→ORIGIN_SCORE_MULTIPLIER (sieve.js re-pointed). No value changes.
+ * - 2026-11-10: Cut IMAGE_TRIGGER.band_high/band_low middlemen — optics reads
+ *   DYNAMICS_SCALE.EXTREME_HIGH/EXTREME_LOW directly; header no longer claims a SCALE view.
+ * - 2026-11-10: Deleted HARD_LIMITS — sieve.js reads CHARS_PER_TOKEN directly; the other
+ *   four keys had no runtime consumers (VECTOR_DIMENSIONS survives in EMBEDDING_SPECS).
+ *   §3.4 (Hard Limits) removed, Image Trigger now §3.4. PROMPT_MAX comment updated.
+ * - 2026-11-10: Deleted INGESTION — html.js caps (web + lore) read LENGTH_THRESHOLDS.INGESTION
+ *   directly. Behavior change: lore cap 10000->8000, web cap unchanged. §3 renumbered (Telemetry 3,
+ *   Hard Limits 4, Image Trigger 5).
+ * - 2026-11-10: Deleted WATCHDOG_POLICY — status.svelte.js reads LATENCY_TIERS_MS directly
+ *   (interval HEARTBEAT, idle/stall graces CEILING 2m, hard max + consolidate LIFETIME 4m).
+ *   Behavior change: idle/stall tolerance 90s->120s, hard max 300s->240s. §3.4 is now Telemetry only.
+ * - 2026-11-10: Added §2.6 Tokenizer Calibration (CHARS_PER_TOKEN) + §2.7 Sieve & Retrieval
+ *   Scoring (CANONICAL_ORIGIN_SCORE_MULTIPLIER) as new canonical homes; §3.2 narrowed to Somatic
+ *   Markers, old §3.4 removed, §3.4-§3.6 renumbered. No value changes.
+ * - 2026-11-10: Moved TEMPO_ROUNDS to §2.5 (Unified Temporal Tempo) — dependency-free
+ *   literal block, values unchanged; §3.4 renamed to Origin & Sieve (keeps CANONICAL multiplier).
+ * - 2026-11-10: Reordered so homes precede views (§1 time/patience, §2 domain homes, §3 derived views).
+ * - 2026-11-10: Folded GRAVITY_RATE/ENTROPY_VARIANCE into DYNAMICS_SCALE.GRAVITY/VARIANCE —
+ *   engine/dynamics.js reads the scale directly; the two aliases are deleted. Net -2 exports.
+ * - 2026-11-10: Inlined SEISMIC_SHIFT_DISPLACEMENT (sole consumer was IMAGE_TRIGGER) as a
+ *   50 literal with its meaning in the comment; export deleted. Net -1 export.
+ *   DYNAMICS_SCALE owns GRAVITY/VARIANCE (read directly; the old aliases are folded away below);
+ *   LENGTH_THRESHOLDS owns INGESTATION/PROMPT_MAX (INGESTION.WEB_CHARS and HARD_LIMITS.PROMPT_MAX_CHARACTERS
+ *   alias them). No value changes; evaluation order verified by live module import.
+ * - 2026-11-10: Repair user edit — reverted three forward references that threw at module load
+ *   (GRAVITY_RATE/ENTROPY_VARIANCE→DYNAMICS_SCALE, INGESTION→LENGTH_THRESHOLDS, HARD_LIMITS→LENGTH_THRESHOLDS:
+ *   all TDZ ReferenceErrors since targets are declared later), fixed LATENCY_TIERS_MS.CIELING typo
+ *   (undefined — would have silently disabled watchdog idle/stall recovery; restored test-pinned 90000s),
+ *   reverted STREAM_TIMEOUT→STALL alias (wrong domain) and displacement delinking. Kept the good ideas in
+ *   order-safe form: LENGTH_THRESHOLDS.INGESTATION/PROMPT_MAX now alias the earlier INGESTION/HARD_LIMITS
+ *   consts (same module order allows it); scale-owned GRAVITY/VARIANCE dropped (file order can't support it —
+ *   Section-1 primitives stay the single home).
+ * - 2026-11-10: HARD_LIMITS twin values folded into aliases — CHARACTERS_PER_TOKEN and
+ *   VECTOR_DIMENSIONS now reference CHARS_PER_TOKEN / EMBEDDING_SPECS.DIMENSIONS (single value each;
+ *   keys kept: sieve.test.js pins HARD_LIMITS.VECTOR_DIMENSIONS). No value changes.
+ * - 2026-11-10: DEFAULT_AI/FRACTAL_DYNAMICS deleted — replaced by default_dynamics_for_scope(scope) in
+ *   src/definitions/dynamics.js (axis membership from DYNAMICS_AXES scopes, values from DYNAMICS_SCALE.MID),
+ *   consumed by storage/entities.js birth + engine/runtime.svelte.js setters. Net -2 exports.
+ * - 2026-11-10: Post-nuclear prune — deleted 27 dead exports (PROSE/IDENT scales, PROMPT_CHAR_ENVELOPE,
+ *   DYNAMICS_CALIBRATION, CONTEXT_TOKEN_CLIFF/DEFAULT_PROMPT_CEILING/resolve_prompt_budget_allocation,
+ *   PAST_ENTRIES/COMPACTION/FRAGMENTATION/TEMPORAL_SCORING/HYBRID_WEIGHTS/RAG_MULTIPLIERS,
+ *   DIALOGUE_WINDOW/VISUAL_FEED_WINDOW/SIMULATION_LOG_ROUNDS/CHAPTER/ENTITY_SCHEMA/ENTITY_GUARANTEES,
+ *   STAGNATION/SPENT_ROUNDS/MAX_SPENT_ITEMS/OPENING_CLAUSE_MIN_CHARS/INPUT_PACING,
+ *   IMAGE_TRIGGER_COOLDOWN_ROUNDS const, DIRECTOR_OUTPUT, EMOTIONAL_WEIGHT_SCALE) — all zero
+ *   runtime + zero test references. Folded the triplicate IMAGE_TRIGGER cooldown keys into one
+ *   cooldown_rounds: 3; dropped TEMPO_ROUNDS.FAST (stale comment, value contradicted live cooldown).
+ *   GRAVITY_RATE/ENTROPY_VARIANCE now single-sourced into engine/dynamics.js; IMAGE_TRIGGER.cooldown_rounds
+ *   single-sourced into media/optics.js. Renumbered sections 1/2/3. No value changes to any live number.
  * - 2026-10-19: Added ENTITY_GUARANTEES (ASYMMETRIC and SYMMETRICAL topologies) establishing lean character floors per quadrant for dynamic entity RAG allocation.
  * - 2026-10-19: Scoped tier scales — replaced 13-rung TEXT_TIERS_CHARS with PROSE/IDENT
  *   scales + PROMPT_CHAR_ENVELOPE; non-prose values back to honest literals. Zero value

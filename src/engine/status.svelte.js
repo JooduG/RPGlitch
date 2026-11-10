@@ -25,7 +25,7 @@
  */
 
 import { Audio } from "@media";
-import { WATCHDOG_POLICY } from "@config";
+import { TIMING_MS } from "@config";
 import { get_llm_gate_status } from "./gate.js";
 import { developer_log } from "@storage";
 
@@ -486,21 +486,21 @@ export function install_freeze_watchdog() {
 
     if (generating || locked) {
       // Tier 1: Generating/Locked with NO stream after idle grace
-      if (!streaming_active && elapsed >= WATCHDOG_POLICY.IDLE_GRACE_MS) {
+      if (!streaming_active && elapsed >= TIMING_MS.CEILING) {
         force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
         stuck_since = 0;
         return;
       }
 
       // Tier 2a: Active stream stalled with no chunks
-      if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= WATCHDOG_POLICY.CHUNK_STALL_MS) {
+      if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= TIMING_MS.CEILING) {
         force_recover_simulation(`Stream produced no chunks for ${Math.round((Date.now() - last_chunk_ts) / 1000)}s`);
         stuck_since = 0;
         return;
       }
 
       // Tier 2: Broad max timeout without content progression
-      if (elapsed >= WATCHDOG_POLICY.MAX_MS && !stream_grew) {
+      if (elapsed >= TIMING_MS.LIFETIME && !stream_grew) {
         force_recover_simulation(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
         stuck_since = 0;
         return;
@@ -509,7 +509,7 @@ export function install_freeze_watchdog() {
     }
 
     // Tier 3: Continuum consolidation overrun grace
-    if (elapsed >= WATCHDOG_POLICY.CONSOLIDATE_GRACE_MS) {
+    if (elapsed >= TIMING_MS.LIFETIME) {
       console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, { phase, intent_active });
       developer_log.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, "warn");
 
@@ -520,7 +520,7 @@ export function install_freeze_watchdog() {
       }
       stuck_since = 0;
     }
-  }, WATCHDOG_POLICY.INTERVAL_MS);
+  }, TIMING_MS.HEARTBEAT);
 
   return timer_id;
 }

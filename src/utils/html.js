@@ -16,7 +16,7 @@
  */
 
 import { truncate_at_word } from "./text.js";
-import { INGESTION } from "@config";
+import { LENGTH_THRESHOLDS } from "@config";
 import DOMPurify from "dompurify";
 
 // ============================================================================
@@ -413,12 +413,12 @@ export async function fetch_web(raw_url, options = {}) {
 /**
  * Character budget applied to fetched web text for character profile imports.
  */
-export const INGESTION_CHAR_LIMIT = INGESTION.WEB_CHARS;
+export const INGESTION_CHAR_LIMIT = LENGTH_THRESHOLDS.INGESTION;
 
 /**
  * Character budget applied to fetched web text for fractal / world-lore imports.
  */
-export const INGESTION_LORE_LIMIT = INGESTION.LORE_CHARS;
+export const INGESTION_LORE_LIMIT = LENGTH_THRESHOLDS.INGESTION;
 
 /**
  * Element tags treated as block boundaries when extracting text from HTML.

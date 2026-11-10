@@ -30,7 +30,8 @@ import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "
 import { load_session_checkpoint, clear_session_checkpoint } from "@storage";
 import { decompose_story_title } from "@utils";
 import { get_signature_color } from "@media";
-import { TELEMETRY_CAPS, DEFAULT_AI_DYNAMICS, DEFAULT_FRACTAL_DYNAMICS } from "@config";
+import { TELEMETRY_CAPS } from "@config";
+import { default_dynamics_for_scope } from "../definitions/dynamics.js";
 import { state_bridge } from "@utils";
 
 /**
@@ -301,7 +302,7 @@ export class RuntimeEngineStore {
     return this.#ai_physics;
   }
   set ai(val) {
-    const fallback = { ...DEFAULT_AI_DYNAMICS };
+    const fallback = default_dynamics_for_scope("somatic");
     this.#ai_physics = val || fallback;
     if (this.active_ai) {
       this.active_ai.dynamics = val || fallback;
@@ -312,7 +313,7 @@ export class RuntimeEngineStore {
     return this.#fractal_physics;
   }
   set fractal(val) {
-    const fallback = { ...DEFAULT_FRACTAL_DYNAMICS };
+    const fallback = default_dynamics_for_scope("fractal");
     this.#fractal_physics = val || fallback;
     if (this.active_fractal) {
       this.active_fractal.dynamics = val || fallback;

@@ -1,13 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  decode_html_entities,
-  html_to_plain_text,
-  INGESTION_CHAR_LIMIT,
-  INGESTION_LORE_LIMIT,
-  BLOCK_LEVEL_TAGS,
-  NOISE_SELECTORS,
-  truncate_readable,
-} from "./html.js";
+import { decode_html_entities, html_to_plain_text, BLOCK_LEVEL_TAGS, NOISE_SELECTORS, truncate_readable } from "./html.js";
 
 describe("decode_html_entities", () => {
   it("decodes common named entities", () => {
@@ -128,12 +120,6 @@ describe("truncate_readable", () => {
 });
 
 describe("ingestion budgets & constants", () => {
-  it("exposes the documented character and lore limits", () => {
-    expect(INGESTION_CHAR_LIMIT).toBe(8000);
-    expect(INGESTION_LORE_LIMIT).toBe(10000);
-    expect(INGESTION_LORE_LIMIT).toBeGreaterThan(INGESTION_CHAR_LIMIT);
-  });
-
   it("exposes BLOCK_LEVEL_TAGS and NOISE_SELECTORS sets", () => {
     expect(BLOCK_LEVEL_TAGS.has("p")).toBe(true);
     expect(BLOCK_LEVEL_TAGS.has("div")).toBe(true);

@@ -20,9 +20,8 @@ import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets } from "./parser.js";
 import { FLAT_LEAF_MAP } from "./profile-fields.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
-import { DEFAULT_AI_DYNAMICS, DEFAULT_FRACTAL_DYNAMICS, DYNAMICS_SCALE } from "../config.js";
-
-const DEFAULT_CHARACTER_DYNAMICS = DEFAULT_AI_DYNAMICS;
+import { DYNAMICS_SCALE } from "../config.js";
+import { default_dynamics_for_scope } from "../definitions/dynamics.js";
 
 /**
  * Clamps a dynamics number to an integer between 1 and 100.
@@ -221,7 +220,7 @@ export function create_entity(type = "character", overrides = {}) {
     present: { physical: "", non_physical: "" },
     future: "",
     past: "",
-    dynamics: entity_type === "character" ? { ...DEFAULT_CHARACTER_DYNAMICS } : { ...DEFAULT_FRACTAL_DYNAMICS },
+    dynamics: entity_type === "character" ? default_dynamics_for_scope("somatic") : default_dynamics_for_scope("fractal"),
   };
 
   return normalize_entity({ ...base, ...overrides });

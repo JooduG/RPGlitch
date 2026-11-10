@@ -14,6 +14,7 @@
  */
 
 import { clamp } from "../utils/math.js";
+import { DYNAMICS_SCALE } from "../config.js";
 import { DYNAMICS_AXES, DYNAMICS_RULES } from "../definitions/dynamics.js";
 
 /**
@@ -31,7 +32,7 @@ import { DYNAMICS_AXES, DYNAMICS_RULES } from "../definitions/dynamics.js";
 export function reduce_dynamics(current = {}, baselines = {}, entropy = 50, deltas = {}) {
   const next = {};
   const axes = new Set([...Object.keys(current || {}), ...Object.keys(deltas || {}), ...Object.keys(baselines || {})]);
-  const rate = 0.08 * (1 - clamp(Number(entropy ?? 50), 0, 100) / 200);
+  const rate = DYNAMICS_SCALE.GRAVITY * (1 - clamp(Number(entropy ?? 50), 0, 100) / 200);
   for (const axis of axes) {
     const start = Number(current?.[axis] ?? 50) + Number(deltas?.[axis] ?? 0);
     const target = Number(baselines?.[axis] ?? 50);
@@ -50,10 +51,10 @@ export function reduce_dynamics(current = {}, baselines = {}, entropy = 50, delt
  * @param {number} [base_gravity=0.08] - Base rate of gravity pull toward baselines
  * @param {Set<string>|null} [skip_axes=null] - Set of axis keys that should not settle
  */
-export function apply_dynamics_gravity(dynamics, baselines = {}, active_entropy = 50, base_gravity = 0.08, skip_axes = null) {
+export function apply_dynamics_gravity(dynamics, baselines = {}, active_entropy = 50, base_gravity = DYNAMICS_SCALE.GRAVITY, skip_axes = null) {
   if (!dynamics || typeof dynamics !== "object") return;
 
-  const variance = (active_entropy / 100) * 0.05;
+  const variance = (active_entropy / 100) * DYNAMICS_SCALE.VARIANCE;
 
   for (const axis of Object.keys(dynamics)) {
     if (skip_axes && skip_axes.has(axis)) continue;
