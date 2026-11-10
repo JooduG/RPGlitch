@@ -82,15 +82,25 @@ export function serialize_embedding(raw_embedding) {
 /**
  * Deserializes a stored embedding into a Float32Array.
  * Supports legacy number[], Float32Array, and quantized base64/Uint8Array shapes.
+ * Rejects wrong-dimension and non-finite payloads (same guards as the pre-demolition codec).
  * @param {string | number[] | Float32Array | Uint8Array | null | undefined} stored_embedding
+ * @param {number} [dimensions=384]
  * @returns {Float32Array | null}
  */
-export function deserialize_embedding(stored_embedding) {
+export function deserialize_embedding(stored_embedding, dimensions = 384) {
   if (!stored_embedding) return null;
-  if (stored_embedding instanceof Float32Array) return stored_embedding;
-  if (Array.isArray(stored_embedding)) return new Float32Array(stored_embedding);
+  if (stored_embedding instanceof Float32Array) {
+    return stored_embedding.length === dimensions ? stored_embedding : null;
+  }
+  if (Array.isArray(stored_embedding)) {
+    if (stored_embedding.length !== dimensions) return null;
+    for (const element of stored_embedding) {
+      if (typeof element !== "number" || !Number.isFinite(element)) return null;
+    }
+    return new Float32Array(stored_embedding);
+  }
   if (typeof stored_embedding === "string" || stored_embedding instanceof Uint8Array) {
-    return dequantize_vector_q8(stored_embedding);
+    return dequantize_vector_q8(stored_embedding, dimensions);
   }
   return null;
 }
