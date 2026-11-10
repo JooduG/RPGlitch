@@ -1059,7 +1059,7 @@ export async function execute_prologue(story_id) {
       startWith: "<think>\n",
     });
 
-    const { think: prologue_think, body: prologue_body } = parse_think_block(raw_prologue);
+    const { think: prologue_think, prose: prologue_body } = parse_think_block(raw_prologue);
     const prologue_text = (prologue_body || raw_prologue || "").trim();
 
     await state_bridge.session_driver.edit_log_entry(node_id, prologue_text, {
@@ -1166,7 +1166,7 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
 
   const { parse_think_block } = await import("../data/parser.js");
   const { detox_prose } = await import("../utils/detox.js");
-  const cleaned_prose = detox_prose(parse_think_block(response || "").body);
+  const cleaned_prose = detox_prose(parse_think_block(response || "").prose);
 
   if (state_bridge.session_driver?.log_message) {
     await state_bridge.session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
