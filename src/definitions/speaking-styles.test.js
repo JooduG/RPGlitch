@@ -15,7 +15,7 @@ import {
   METAPHOR_RULES,
   COMMUNITY_RULES,
 } from "./speaking-styles.js";
-import { SPEAKING_STYLES, VALID_SPEAKING_STYLES } from "../config.js";
+import { SPEAKING_STYLES } from "../config.js";
 
 describe("speaking-styles taxonomy", () => {
   it("exports canonical SPEAKING_STYLES containing the 4 balanced quartets", () => {
@@ -23,10 +23,10 @@ describe("speaking-styles taxonomy", () => {
     expect(Object.isFrozen(SPEAKING_STYLES)).toBe(true);
   });
 
-  it("exports a fast lookup Set VALID_SPEAKING_STYLES matching the list", () => {
-    expect(VALID_SPEAKING_STYLES.size).toBe(4);
+  it("resolves every canonical style through is_valid_speaking_style", () => {
+    expect(SPEAKING_STYLES.length).toBe(4);
     for (const style of SPEAKING_STYLES) {
-      expect(VALID_SPEAKING_STYLES.has(style)).toBe(true);
+      expect(is_valid_speaking_style(style)).toBe(true);
     }
   });
 

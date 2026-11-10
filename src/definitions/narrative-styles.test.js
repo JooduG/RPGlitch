@@ -7,7 +7,7 @@ import {
   resolve_active_style_key,
   extract_style_dna,
 } from "./narrative-styles.js";
-import { VALID_SPEAKING_STYLES } from "../config.js";
+import { SPEAKING_STYLES } from "../config.js";
 
 describe("NARRATIVE_STYLES Preset Catalog", () => {
   it("exports all expected author, director, and genre presets", () => {
@@ -28,7 +28,7 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
       expect(style.name.length).toBeGreaterThan(0);
       expect(typeof style.description).toBe("string");
       expect(Array.isArray(style.motif_keys)).toBe(true);
-      expect(VALID_SPEAKING_STYLES).toContain(style.speaking_style);
+      expect(SPEAKING_STYLES).toContain(style.speaking_style);
       expect(Array.isArray(style.triggers)).toBe(true);
     }
   });

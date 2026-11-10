@@ -18,7 +18,7 @@
  */
 
 import { CLOTHING_KEYS, escape_xml, prompt_escape } from "./xml.js";
-import { CHARS_PER_TOKEN, CANONICAL_ROLES, NARRATIVE_ROLES } from "@config";
+import { CHARS_PER_TOKEN, CANONICAL_ROLES } from "@config";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & TOKEN SETS]
@@ -1006,7 +1006,8 @@ export function normalize_history_beat(entry, options = {}) {
  * @returns {boolean} Whether a role is a narrative participant.
  */
 export function is_narrative_role(role) {
-  return NARRATIVE_ROLES.has(String(role || "").toLowerCase());
+  if (role == null) return false;
+  return String(role).toLowerCase() !== CANONICAL_ROLES.SYSTEM;
 }
 
 /**
@@ -1061,7 +1062,7 @@ export function filter_narrative_messages(messages, options = {}) {
   const { exclude_consolidated = false, keep_resolved_image_rows = false } = options;
 
   return messages.filter((message) => {
-    if (!message || message.role === "system") return false;
+    if (!message || message.role === CANONICAL_ROLES.SYSTEM) return false;
     if (exclude_consolidated && message.meta?.consolidated) return false;
     const text = String(message.content ?? message.text ?? "").trim();
     if (!text && !message.meta?.is_prologue && !message.meta?.is_epilogue) {

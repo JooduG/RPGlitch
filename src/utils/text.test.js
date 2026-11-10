@@ -41,7 +41,7 @@ import {
   VISUAL_EXCLUDED_KEYS,
   estimate_tokens,
 } from "./text.js";
-import { NARRATIVE_ROLES, CHARS_PER_TOKEN } from "../config.js";
+import { CHARS_PER_TOKEN } from "../config.js";
 
 describe("safe_parse_json", () => {
   it("extracts embedded JSON object from surrounding text", () => {
@@ -305,7 +305,6 @@ describe("role_display_label & is_narrative_role", () => {
     expect(is_narrative_role("npc")).toBe(true);
     expect(is_narrative_role("system")).toBe(false);
     expect(is_narrative_role(null)).toBe(false);
-    expect(NARRATIVE_ROLES.size).toBe(4);
   });
 });
 

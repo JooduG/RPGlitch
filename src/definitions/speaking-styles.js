@@ -28,7 +28,7 @@
  */
 
 import { register_speaking_rules, register_anti_ai_rules, register_cluster_words, match_case } from "@utils";
-import { VALID_SPEAKING_STYLES } from "@config";
+import { SPEAKING_STYLES } from "@config";
 
 // ============================================================================
 // 1. Declarative Rule Builder Primitive
@@ -1186,7 +1186,7 @@ register_cluster_words(TIER_2_CLUSTER_WORDS);
  * @returns {boolean} True if the value is one of the 4 canonical speaking styles.
  */
 export function is_valid_speaking_style(candidate_style) {
-  return typeof candidate_style === "string" && VALID_SPEAKING_STYLES.has(candidate_style);
+  return typeof candidate_style === "string" && SPEAKING_STYLES.includes(candidate_style);
 }
 
 /**

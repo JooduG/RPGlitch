@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { resolve_speaking_style, resolve_style, lint_narrative_slop, cap_somatic_markers, audit_macro_shape } from "./styles.js";
-import { VALID_SPEAKING_STYLES } from "../config.js";
+import { SPEAKING_STYLES } from "../config.js";
 import "../definitions/speaking-styles.js";
 import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
 
@@ -84,13 +84,11 @@ describe("cap_somatic_markers()", () => {
     expect(cap_somatic_markers("")).toBe("");
   });
 });
-describe("VALID_SPEAKING_STYLES", () => {
-  it("exposes canonical speaking styles in a frozen Set", () => {
-    expect(VALID_SPEAKING_STYLES.has("casual")).toBe(true);
-    expect(VALID_SPEAKING_STYLES.has("lyrical")).toBe(true);
-    expect(VALID_SPEAKING_STYLES.has("primal")).toBe(true);
-    expect(VALID_SPEAKING_STYLES.has("clinical")).toBe(true);
-    expect(VALID_SPEAKING_STYLES.size).toBe(4);
+describe("SPEAKING_STYLES", () => {
+  it("exposes canonical speaking styles as a frozen list", () => {
+    expect(SPEAKING_STYLES).toEqual(["casual", "lyrical", "primal", "clinical"]);
+    expect(Object.isFrozen(SPEAKING_STYLES)).toBe(true);
+    expect(SPEAKING_STYLES.length).toBe(4);
   });
 });
 

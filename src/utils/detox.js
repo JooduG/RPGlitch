@@ -1,6 +1,6 @@
 import { match_case } from "./text.js";
 import { stable_pick } from "./math.js";
-import { VALID_SPEAKING_STYLES } from "@config";
+import { SPEAKING_STYLES } from "@config";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & SPEAKING STYLES]
@@ -116,7 +116,7 @@ export function register_anti_ai_rules(rules) {
 export function detox_prose(raw_text, speaking_style = "casual", custom_rules = null) {
   if (!raw_text || typeof raw_text !== "string") return "";
 
-  const exact_voice = VALID_SPEAKING_STYLES.has(speaking_style) ? speaking_style : "casual";
+  const exact_voice = SPEAKING_STYLES.includes(speaking_style) ? speaking_style : "casual";
   const fallback_voice = exact_voice === "lyrical" ? "lyrical" : "casual";
 
   const rules_to_run = custom_rules || _cached_speaking_rules || [];

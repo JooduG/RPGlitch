@@ -159,10 +159,10 @@ export const VOICE_CADENCE = Object.freeze({
 
 // ── 9. Canonical Entity Roles ───────────────────────────────────────────────
 /**
- * Three role vocabularies — similar names, different jobs:
+ * Two role vocabularies — similar names, different jobs:
  * - CANONICAL_ROLES: normalized lowercase role map. Every log row's `role` holds one of these five;
  *   raw model roles (assistant/narrator/prologue…) fold into them via canonicalize_role (text.js).
- * - NARRATIVE_ROLES: lowercase participant set — roles carrying story dialogue/history (all but system telemetry).
+ *   Narrative participants are everything but SYSTEM (see is_narrative_role in text.js).
  * - NARRATOR_ROLES: lowercase export set — raw_role values marking narrator-voiced beats for the story exporter.
  */
 export const CANONICAL_ROLES = Object.freeze({
@@ -172,13 +172,11 @@ export const CANONICAL_ROLES = Object.freeze({
   FRACTAL: "fractal",
   SYSTEM: "system",
 });
-export const NARRATIVE_ROLES = Object.freeze(new Set(["ai", "fractal", "user", "npc"]));
 export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "narrator", "epilogue"]));
 
 // ── 10. Speaking Styles ──────────────────────────────────────────────────────
-/** Canonical speaking style ids (single home; the detox hardcoded twin and the registry derived twin are both gone) */
+/** Canonical speaking style ids (single home; the detox hardcoded twin, the registry derived twin, and the VALID Set twin are all gone — lookups use .includes()) */
 export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "clinical"]);
-export const VALID_SPEAKING_STYLES = Object.freeze(new Set(SPEAKING_STYLES));
 
 // =============================================================================
 // [SECTION 3: DERIVED VIEWS & SINGLE-KEY POLICY — references §1/§2, plus a few homeless literals]
@@ -208,6 +206,7 @@ export const FIELD_FLOORS = Object.freeze({
 
 /**
  * CHANGELOG:
+ * - 2026-11-10: Merged NARRATIVE_ROLES into CANONICAL_ROLES (it held the four minus SYSTEM; is_narrative_role in text.js now reads CANONICAL_ROLES.SYSTEM directly) + removed VALID_SPEAKING_STYLES (pure new-Set twin; styles/detox/speaking-styles use SPEAKING_STYLES.includes()). NARRATOR_ROLES untouched (raw_role vocabulary, not canonical). Tests re-pointed (text/styles/speaking-styles/narrative-styles). No value changes.
  * - 2026-11-10: Removed same-name view re-exports — text.js (CANONICAL/NARRATIVE), story-export.js (NARRATOR), detox.js (VALID), speaking-styles.js (SPEAKING_STYLES/VALID), palette.js (SIGNATURE_COLORS/PALETTE/VARS); consumers read @config / ./tokens.js directly. story-export.js CANONICAL_ROLES now from @config, optics.js PALETTE from ./tokens.js.
  * - 2026-11-10: Rest of the codebase to KEY.field_names.value — PURPOSE_CORES keys UPPER (DIRECTOR/CHARACTER/CARETAKER/VISUALIZER; prompts/turns/bridge re-pointed, identity labels stay lowercase), caretaker NPC target key UPPER, gate resolve_priority() single-homes the background/foreground string boundary (bridge twin deleted), math.js option keys UPPER (BAND_HIGH/BAND_LOW/DISPLACEMENT_THRESHOLD/DEFAULT_TIER — fixes dead wiring where optics passed UPPER keys the reader never saw).
  * - 2026-11-10: Keys UPPER, values lowercase — IMAGE_POLICY keys (DISPLACEMENT_THRESHOLD/COOLDOWN_ROUNDS/DEFAULT_TIER/MAX_PENDING_IMAGES; optics/visual re-pointed), DYNAMICS.DELTA keys (STANDARD/EXTREME/CLIP; prompts.js re-pointed). CANONICAL_ROLES values lowercase (user/ai/npc/fractal/system); ai/model duality unified to ai (db writes as-is, all model readers re-pointed; transport wire role untouched).

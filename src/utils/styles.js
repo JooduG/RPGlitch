@@ -4,7 +4,7 @@
  *
  * Core Responsibilities:
  * - Cross-layer resolution of active styles (visual, narrative, speaking) across entity overrides and app settings.
- *   (Prose detox lives in ./detox.js; this module re-exports its VALID_SPEAKING_STYLES.)
+ *   (Prose detox lives in ./detox.js.)
  * - Speaking Style Hierarchy Resolution: Entity Speaking Style > Narrative Style Preset > "casual" default.
  * - AI Prose Detoxification (`detox_prose`): Intercepts and scrubs purple prose clichés, overused sensory crutches,
  *   and formulaic LLM sentence structures (denial-then-affirmation, self-answering dialogue, binary comparisons).
@@ -18,7 +18,7 @@
  */
 
 import { state_bridge } from "./bridges.js";
-import { VALID_SPEAKING_STYLES } from "@config";
+import { SPEAKING_STYLES } from "@config";
 
 // ============================================================================
 // [SECTION 1: NARRATIVE SLOP LINTER (Track 3.1)]
@@ -148,13 +148,13 @@ export function resolve_style(explicit_style, app_setting_key, registry = {}, fa
  */
 export function resolve_speaking_style(entity = null, narrative_style = null) {
   const entity_style = entity?.speaking_style;
-  if (entity_style && VALID_SPEAKING_STYLES.has(entity_style)) {
+  if (entity_style && SPEAKING_STYLES.includes(entity_style)) {
     return /** @type {SpeakingStyleId} */ (entity_style);
   }
 
   const style_speaking = typeof narrative_style === "object" && narrative_style !== null ? narrative_style.speaking_style : null;
 
-  if (style_speaking && VALID_SPEAKING_STYLES.has(style_speaking)) {
+  if (style_speaking && SPEAKING_STYLES.includes(style_speaking)) {
     return /** @type {SpeakingStyleId} */ (style_speaking);
   }
 
