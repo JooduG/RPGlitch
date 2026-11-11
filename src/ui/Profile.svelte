@@ -48,7 +48,7 @@
   let footer_h = $state(0);
   /** @type {HTMLElement | undefined} */
   let info_container_el = $state();
-  /** Native scrollbar lane width (px) — the footer stops short of it. */
+  /** Native scrollbar lane width (px) — preserves spacing so buttons clear the scrollbar track. */
   let scrollbar_lane = $state(0);
   /** True while the info scroller actually overflows. */
   let info_needs_scroll = $state(false);
@@ -183,7 +183,10 @@
       if (runtime.active_user?.id === profile_state.char.id) runtime.active_user = updated_entity;
       if (runtime.active_fractal?.id === profile_state.char.id) runtime.active_fractal = updated_entity;
 
-      profile_state.char = normalize(profile_state.char);
+      const normalized = normalize(updated_entity);
+      profile_state.char = normalized;
+      if (app.editing_entity?.id === normalized.id) app.editing_entity = normalized;
+
       show_timeline_modal = false;
     } catch (err) {
       console.error("[Profile:Timeline] Failed to revert entity state:", err);
@@ -245,7 +248,6 @@
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
-    // Keeps the Profile modal Dev Wing synced with live background engine changes
     if (app.settings.dev_mode && profile_state.char?.id) {
       const live_entity = [runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profile_state.char.id);
       if (live_entity?.dynamics && profile_state.char.dynamics) {
@@ -254,17 +256,7 @@
     }
   });
 
-  // --- REACTIVE SYNC FOR ENTITY SWAPS ---
-  $effect(() => {
-    if (app.editing_entity && profile_state.char?.id !== app.editing_entity.id) {
-      profile_state.sync();
-    }
-  });
-
   // --- FROSTED FOOTER OVERLAY GEOMETRY ---
-  // The footer floats over the bottom of the info scroller so content slides
-  // under the frost, while the native scrollbar keeps its own reserved lane
-  // (the footer stops short of it) so the thumb never rides over the buttons.
   function measure_footer_geometry() {
     const scroller = info_container_el;
     const footer = footer_el;
@@ -297,7 +289,7 @@
     };
   });
 
-  // Re-measure after content/mode swaps (edit toggle, viewport, entity) settle.
+  // Re-measure after content/mode swaps settle.
   $effect(() => {
     profile_state.is_editing;
     app.viewport.mobile;
@@ -347,37 +339,32 @@
   const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
 
   // --- WING CHOREOGRAPHY GATE ---
-  // CSS *animations* of transform-like properties freeze at time 0 in this
-  // environment (opacity animations and CSS transitions are unaffected), and
-  // the profile card/wings are captured by the open/close view-transition. So
-  // the wings-open/close choreography is driven with CSS *transitions* (FLIP),
-  // and ONLY when `has_wings` toggles after the profile has settled: never
-  // during a flip, never on the initial open (the flip is the open), never on
-  // mobile (no wings layout there).
   let card_ref = $state(undefined);
   let wings_ref = $state(undefined);
   let _prev_has_wings = null;
 
   /** Slides `el` from one translateX to another via a CSS transition (FLIP). */
   function slide_x(el, from_x, to_x, ease = "var(--motion-elastic)") {
+    if (el._slide_timer) clearTimeout(el._slide_timer);
     el.style.transition = "none";
     el.style.transform = `translateX(${from_x})`;
-    // Stage the "to" pose on the next frame so the transition actually fires
-    // (an immediate same-task restyle does not start a transition here).
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         el.style.transition = `transform ${ease}`;
         el.style.transform = `translateX(${to_x})`;
       });
     });
-    setTimeout(() => {
+    el._slide_timer = setTimeout(() => {
       el.style.transition = "";
       el.style.transform = "";
+      el._slide_timer = null;
     }, 1000);
   }
 
   /** Briefly dips the info column opacity to mask the instant edit/readonly content swap. */
   function dip_content(el) {
+    if (el._dip_timer_1) clearTimeout(el._dip_timer_1);
+    if (el._dip_timer_2) clearTimeout(el._dip_timer_2);
     el.style.transition = "none";
     el.style.opacity = "1";
     requestAnimationFrame(() => {
@@ -386,26 +373,29 @@
         el.style.opacity = "0";
       });
     });
-    setTimeout(() => {
+    el._dip_timer_1 = setTimeout(() => {
       el.style.transition = "opacity 220ms ease-out";
       el.style.opacity = "1";
     }, 120);
-    setTimeout(() => {
+    el._dip_timer_2 = setTimeout(() => {
       el.style.transition = "";
       el.style.opacity = "";
+      el._dip_timer_1 = null;
+      el._dip_timer_2 = null;
     }, 400);
   }
 
   $effect(() => {
     const hw = has_wings;
     if (app.transitioning_profile) {
-      // Page is being captured by the flip — disarm and clear the choreography.
       _prev_has_wings = null;
       if (card_ref) {
+        if (card_ref._slide_timer) clearTimeout(card_ref._slide_timer);
         card_ref.style.transition = "";
         card_ref.style.transform = "";
       }
       if (wings_ref) {
+        if (wings_ref._slide_timer) clearTimeout(wings_ref._slide_timer);
         wings_ref.style.transition = "";
         wings_ref.style.transform = "";
         wings_ref.style.opacity = "";
@@ -423,12 +413,9 @@
     if (_prev_has_wings !== hw) {
       _prev_has_wings = hw;
       if (hw) {
-        // Entering edit — wings sweep in from behind, card glides left.
         if (card_ref) slide_x(card_ref, "33.33%", "0", "var(--motion-elastic)");
         if (wings_ref) slide_x(wings_ref, "-165%", "0", "var(--motion-elastic)");
       } else {
-        // Exiting edit — card glides back to center, wings sweep back out to
-        // the left behind the card (mirror of their entrance).
         if (card_ref) slide_x(card_ref, "-33.33%", "0", "300ms ease-out");
         if (wings_ref) slide_x(wings_ref, "0", "-165%", "var(--motion-elastic)");
       }
@@ -462,8 +449,6 @@
     else if (app.selected_fractal?.id === profile_state.char.id) type = "fractal";
 
     if (!type) return undefined;
-    // Unified flip source: the armed entity card's root carries "card-slot-<type>"
-    // in every view (storyboard slot, storymode panel, or prologue message card).
     return "card-slot-" + type;
   });
 
@@ -494,13 +479,13 @@
   );
 
   const info_container_class = $derived(
-    "flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent",
+    "flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent [&::-webkit-scrollbar-track]:mb-(--footer-h)",
   );
 
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
+    "absolute right-0 bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
@@ -537,7 +522,6 @@
 
   /**
    * Recursively parses string payloads to detect inline Perchance dynamic variable loops.
-   * Supports arbitrary N-flat options like {A|B|C} and nested options like {A|B|{C1|C2}}.
    * @param {string} str
    * @returns {Array<{is_var: boolean, text?: string, choices?: Array<any>}>}
    */
@@ -685,10 +669,19 @@
 
 <svelte:window
   onkeydown={(e) => {
-    if (!profile_state.char || profile_state.show_delete_confirm) return;
+    if (
+      !profile_state.char ||
+      profile_state.show_delete_confirm ||
+      profile_state.pending_swap_confirm ||
+      show_export_modal ||
+      show_field_history_modal ||
+      show_timeline_modal
+    )
+      return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
-      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable || target.closest("[data-wings-container]"))
+        return;
       e.preventDefault();
       if (profile_state.is_editing) {
         footer_el?.focus();
@@ -867,6 +860,7 @@
           <div
             class={info_container_class}
             bind:this={info_container_el}
+            style:--footer-h={`${footer_h}px`}
             style:padding-bottom={`${footer_h + 16}px`}
             style:scrollbar-gutter={info_needs_scroll ? "stable" : "auto"}
           >
@@ -1114,7 +1108,7 @@
             bind:this={footer_el}
             tabindex="-1"
             class={footer_layout_class}
-            style:right={`${scrollbar_lane}px`}
+            style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
             style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 50%); backdrop-filter: var(--blur-mist);"
           >
             {#if profile_state.is_editing}
@@ -1366,7 +1360,9 @@
             <div class="flex flex-col gap-3 py-1">
               <div class="flex flex-col gap-1">
                 <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
-                <div class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs leading-relaxed break-words text-cyan-200">
+                <div
+                  class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
+                >
                   {reconstructed_brackets || "(empty state)"}
                 </div>
               </div>
@@ -1840,8 +1836,6 @@
         {/each}
       </div>
     {/each}
-
-    <!-- RADIAL RELATIONAL CONSTELLATION GRAPH (Vertical Rotated Headline Grid) -->
   </div>
 {/snippet}
 
@@ -1880,28 +1874,3 @@
 {#snippet inline_macro_text(text)}
   <MacroText {text} owner={profile_state.char} entities={display_entities} />
 {/snippet}
-
-<!--
-CHANGELOG:
-- 2026-10-18: Phase V Sub-item 5.4 — Embedded educational Lorebook Guidance info icons with field tooltips into parsed pseudo-JSON and TextField header bars.
-- 2026-10-04: Safeguarded raw profile field parsing to extract content from any legacy vector objects or arrays, preventing [object Object] leaks and standardizing past as bracket strings.
-- 2026-10-04: Grayed out hidden/private pseudo-JSON cards (dashed border, dimmed background, muted text) and stripped raw engine flags (| show, | hide, | w:N) from card values.
-- 2026-10-03: Added Field History Inspector launcher button to parsed pseudo-JSON bracket field headers so timeline inspection is available regardless of bracket existence.
-- 2026-10-03: Added Field History Inspector launcher to TextField header actions and mounted FieldHistoryModal for timeline auditing.
-- 2026-10-01: Universal Predicates Migration — decoupled RelationalGraph mutation from `profile_state.char.relationships`, driving relationships purely through universal bracket predicates in `present.non_physical`.
-- 2026-10-01: Added Nordic bracket tip banner below temporal fields in edit mode when dense single-paragraph text (>=120 chars without linebreaks/brackets) is detected.
--->
-
-<style>
-  @keyframes slide-in-left {
-    0% {
-      opacity: var(--opacity-none);
-      transform: translateX(calc(var(--spacing-unit) * 5));
-    }
-
-    100% {
-      opacity: var(--opacity-solid);
-      transform: translateX(0);
-    }
-  }
-</style>

@@ -7,16 +7,15 @@ import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_t
 import { structure_profile } from "@engine";
 import { app } from "./interface.svelte.js";
 import { runtime } from "@engine";
-import { get_value, set_value, safe_parse_pseudo_json } from "@utils";
+import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
-// Canonical quadrant paths, in brief/OUTPUT_FORMAT order. enhance_profile
-// iterates this instead of repeating the six paths three times.
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
 
 /** Identity rule: IDs are 2-20 chars of A-Z, 0-9, _ or -. */
 const ID_PATTERN = /^[A-Z0-9_-]{2,20}$/;
+
 export class ProfileState {
   is_editing = $state(false);
   is_saving = $state(false);
@@ -32,15 +31,20 @@ export class ProfileState {
   /** @type {any} */
   char = $state(null);
 
-  /** * Operational gate tracking real human input or array alterations.
+  /**
+   * Operational gate tracking real human input or array alterations.
    * @type {boolean}
    */
   _user_mutated = $state(false);
 
   /**
-   * Draft ID/Name inputs. The live `char` is only updated on commit-on-valid,
-   * so an in-progress (or emptied) field can never unmount the modal or
-   * corrupt id-keyed lookups mid-keystroke.
+   * Tracks entity ID at edit session start for primary key migrations.
+   * @type {string | null}
+   */
+  _original_id = null;
+
+  /**
+   * Draft ID/Name inputs.
    * @type {string | null}
    */
   draft_id = $state(null);
@@ -51,12 +55,12 @@ export class ProfileState {
 
   /** @returns {boolean} */
   get id_valid() {
-    return !!this.char && ID_PATTERN.test(String(this.char.id || ""));
+    return !this.char && ID_PATTERN.test(String(this.char.id || ""));
   }
 
   /** @returns {boolean} */
   get name_valid() {
-    return !!this.char && String(this.char.name || "").trim().length > 0;
+    return !this.char && String(this.char.name || "").trim().length > 0;
   }
 
   /** @returns {boolean} */
@@ -66,6 +70,7 @@ export class ProfileState {
 
   /** Snapshot drafts from `char` when entering edit mode. */
   sync_identity_drafts() {
+    this._original_id = this.char ? String(this.char.id || "") : null;
     this.draft_id = this.char ? String(this.char.id || "") : "";
     this.draft_name = this.char ? String(this.char.name || "") : "";
     this.identity_error = "";
@@ -73,6 +78,7 @@ export class ProfileState {
 
   /** Discard drafts (after cancel / swap / successful save). */
   clear_identity_drafts() {
+    this._original_id = null;
     this.draft_id = null;
     this.draft_name = null;
     this.identity_error = "";
@@ -119,11 +125,7 @@ export class ProfileState {
   }
 
   /**
-   * Marks the workspace as dirtied by the user. The write is deferred out of the
-   * current (possibly reactive) pass: `change`/`input` events that the browser
-   * dispatches synchronously while Svelte tears down DOM (e.g. removing a focused
-   * field when the profile closes) would otherwise trigger Svelte's
-   * `state_unsafe_mutation` check.
+   * Marks the workspace as dirtied by the user.
    */
   mark_mutated() {
     queueMicrotask(() => {
@@ -131,9 +133,9 @@ export class ProfileState {
     });
   }
 
-  /** * Pending entity-swap held back by the dirty guard (see sync()). */
+  /** Pending entity-swap held back by the dirty guard. */
   _pending_swap = null;
-  /** * True while the user is asked whether to discard in-flight edits. */
+  /** True while the user is asked whether to discard in-flight edits. */
   pending_swap_confirm = $state(false);
 
   constructor() {
@@ -150,9 +152,6 @@ export class ProfileState {
 
   /**
    * Whether profile editing is permitted for the active entity.
-   * Locked while the entity is claimed by an active (non-concluded) story,
-   * unless DevMode is explicitly enabled. The profile modal still opens in
-   * read-only mode — only mutation is blocked.
    * @type {boolean}
    */
   get can_edit() {
@@ -171,7 +170,6 @@ export class ProfileState {
 
   /**
    * Initiates the editing state transition and resets interaction tracking.
-   * No-op while the entity is locked by an active story.
    */
   start_editing() {
     if (!this.can_edit) return;
@@ -185,8 +183,6 @@ export class ProfileState {
    */
   sync() {
     if (app.editing_entity && app.editing_entity.id !== this.char?.id) {
-      // Mid-edit entity swap: never silently discard in-flight edits. Hold the
-      // swap behind a confirm dialog so the user decides what happens to them.
       if (this.is_dirty) {
         this._pending_swap = app.editing_entity;
         this.pending_swap_confirm = true;
@@ -215,8 +211,7 @@ export class ProfileState {
   }
 
   /**
-   * User cancelled the swap: keep editing the current entity and restore
-   * app.editing_entity so the app still targets the entity on screen.
+   * User cancelled the swap: keep editing the current entity and restore app.editing_entity.
    */
   reject_swap() {
     this._pending_swap = null;
@@ -263,7 +258,7 @@ export class ProfileState {
       setTimeout(() => {
         this.is_packing_up = false;
         app.toggle_profile(false);
-      }, 500); // 500ms matches --duration-slow / motion-elastic
+      }, 500);
     } else {
       app.toggle_profile(false);
     }
@@ -317,25 +312,34 @@ export class ProfileState {
       for (const key of ["past"]) {
         if (Array.isArray(this.char[key])) {
           this.char[key] = this.char[key].filter((v) =>
-            typeof v === "object" && v !== null ? !!(v.content || v.directive)?.trim() : !!String(v).trim(),
+            typeof v === "object" && v !== null ? !(v.content || v.directive)?.trim() : !String(v).trim(),
           );
         }
       }
+
+      const prev_id = this._original_id;
+      const next_id = this.char.id;
+
       await runtime.save_entity(entity_type, this.char);
-      await app.load_entities(); // Refresh lists
 
-      const list = entity_type === "character" ? app.ai_list : app.fractal_list;
-      const updated = Array.isArray(list) ? list.find((e) => e.id === this.char.id) : null;
-
-      if (entity_type === "character") {
-        if (app.selected_ai?.id === this.char.id) app.selected_ai = updated;
-        if (app.selected_user?.id === this.char.id) app.selected_user = updated;
-      } else {
-        if (app.selected_fractal?.id === this.char.id) app.selected_fractal = updated;
+      // Clean up stale database record if the primary key was renamed
+      if (prev_id && prev_id !== next_id) {
+        await runtime.delete_entity(entity_type, prev_id);
       }
 
-      // Sync app.editing_entity so the Profile modal picks up the saved data
-      // (prevents stale display when reopening the profile without a refresh)
+      await app.load_entities();
+
+      const list = entity_type === "character" ? app.ai_list : app.fractal_list;
+      const updated = Array.isArray(list) ? list.find((e) => e.id === next_id) : null;
+
+      const match_id = prev_id || next_id;
+      if (entity_type === "character") {
+        if (app.selected_ai?.id === match_id) app.selected_ai = updated;
+        if (app.selected_user?.id === match_id) app.selected_user = updated;
+      } else {
+        if (app.selected_fractal?.id === match_id) app.selected_fractal = updated;
+      }
+
       if (updated) app.editing_entity = updated;
       this.clear_identity_drafts();
       return true;
@@ -356,7 +360,6 @@ export class ProfileState {
     try {
       await runtime.delete_entity(entity_type, this.char.id);
 
-      // Clear selected entity references if the deleted entity was selected
       if (entity_type === "character") {
         if (app.selected_ai?.id === this.char.id) app.selected_ai = null;
         if (app.selected_user?.id === this.char.id) app.selected_user = null;
@@ -364,9 +367,7 @@ export class ProfileState {
         if (app.selected_fractal?.id === this.char.id) app.selected_fractal = null;
       }
 
-      // Refresh entity lists so CardHand and storyboard slots update immediately
       await app.load_entities();
-
       app.toggle_profile(false);
     } catch (err) {
       console.error("Failed to delete entity:", err);
@@ -375,8 +376,6 @@ export class ProfileState {
 
   /**
    * AI-enhanced text generation for a field.
-   * Only catalog fields are enhancable — name, description, and any
-   * non-catalog field are excluded by design.
    * @param {string} key
    * @param {string} value
    */
@@ -403,8 +402,6 @@ export class ProfileState {
         type,
       );
       if (structured) {
-        // Structured output keys are canonical dot-paths with "." -> "_"
-        // (taxonomy output_key_for_path); unknown keys keep the old value.
         const output_key = output_key_for_path(canonicalize_field_key(key, type));
         const field_val = output_key ? structured[output_key] || "" : "";
 
@@ -421,40 +418,13 @@ export class ProfileState {
   }
 
   /**
-   * Validates and canonicalizes an enhanced physical-state value into bracket
-   * syntax ([KEY: value] one per line). Returns null when the result is
-   * unparsable or drops a mandatory key — the caller then keeps the old value.
-   * @param {string} key
-   * @param {string} result
-   * @param {string} type
-   * @returns {string | null}
-   */
-  _normalize_physical_enhancement(key, result, type) {
-    const parsed = safe_parse_pseudo_json(result);
-    if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) return null;
-
-    const entries = Object.entries(parsed);
-    if (entries.length > 15) return null;
-
-    if (key === "eternal.physical" && type === "character") {
-      const present = new SvelteSet(entries.map(([k]) => String(k).toUpperCase().replace(/\s+/g, "_")));
-      for (const mandatory of ["GENDER", "AGE", "ETHNICITY"]) {
-        if (!present.has(mandatory)) return null;
-      }
-    }
-
-    return entries.map(([k, v]) => `[${String(k).toUpperCase().replace(/\s+/g, "_")}: ${Array.isArray(v) ? v.join(", ") : String(v)}]`).join(" ");
-  }
-
-  /**
    * AI-enhanced text generation for the entire profile.
    * @param {"character" | "fractal"} entity_type
    */
   async enhance_profile(entity_type) {
     if (this.is_saving) return;
-    this.is_saving = true; // Use is_saving flag to prevent double clicks and lock UI
+    this.is_saving = true;
 
-    // Temporarily mark all fields as busy for visual feedback
     for (const path of QUADRANT_PATHS) this.busy_fields.add(path);
     this.busy_fields.add("description");
 
@@ -478,7 +448,6 @@ export class ProfileState {
 
   /**
    * Sets the character's profile picture and triggers immediate persistence.
-   * Includes metadata strip edge-case guard by trimming whitespace/newlines.
    * @param {string} data_url
    */
   async setImage(data_url) {
@@ -495,12 +464,3 @@ export class ProfileState {
     }
   }
 }
-
-/**
- * CHANGELOG
- * - 2026-11-11: Taxonomy authority consumers. enhance()/enhance_field_inner() gate on
- *   atom_for() and map keys via canonicalize_field_key/output_key_for_path (if/else
- *   chains deleted); enhance_profile() iterates QUADRANT_PATHS; all three user->character
- *   copies replaced with resolve_entity_type().
- * - 2026-09-19: Fixed E1: explicitly passed catalog_meta (enhancer, label, directive, layer_key, is_array_field) in enhance_field_inner and enhance_vector_item when compiling enhancement prompts.
- */
