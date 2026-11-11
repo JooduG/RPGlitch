@@ -1057,7 +1057,7 @@
             bind:this={footer_el}
             tabindex="-1"
             class={footer_layout_class}
-            style="background-color: color-mix(in srgb, var(--signature-color) 6%, var(--color-glass-sunken) 76%); backdrop-filter: var(--blur-mist);"
+            style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 50%); backdrop-filter: var(--blur-mist);"
           >
             {#if profile_state.is_editing}
               <Button
