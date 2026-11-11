@@ -44,8 +44,14 @@
   const profile_state = new ProfileState();
   /** @type {HTMLElement | undefined} */
   let footer_el = $state();
+  /** Footer height (px) — reserves scroll padding so end content clears the frost overlay. */
+  let footer_h = $state(0);
   /** @type {HTMLElement | undefined} */
   let info_container_el = $state();
+  /** Native scrollbar lane width (px) — the footer stops short of it. */
+  let scrollbar_lane = $state(0);
+  /** True while the info scroller actually overflows. */
+  let info_needs_scroll = $state(false);
   let previous_scroll_top = $state(0);
   /** Export chooser (edit-mode footer) — picks V2 Card or native RPGlitch JSON. */
   let show_export_modal = $state(false);
@@ -255,6 +261,52 @@
     }
   });
 
+  // --- FROSTED FOOTER OVERLAY GEOMETRY ---
+  // The footer floats over the bottom of the info scroller so content slides
+  // under the frost, while the native scrollbar keeps its own reserved lane
+  // (the footer stops short of it) so the thumb never rides over the buttons.
+  function measure_footer_geometry() {
+    const scroller = info_container_el;
+    const footer = footer_el;
+    if (!scroller || !footer) return;
+    const lane = Math.max(0, scroller.offsetWidth - scroller.clientWidth);
+    const needs = scroller.scrollHeight > scroller.clientHeight + 1;
+    const h = footer.offsetHeight || 0;
+    if (lane !== scrollbar_lane) scrollbar_lane = lane;
+    if (needs !== info_needs_scroll) info_needs_scroll = needs;
+    if (h !== footer_h) footer_h = h;
+  }
+
+  $effect(() => {
+    if (!info_container_el || !footer_el) return;
+    measure_footer_geometry();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => measure_footer_geometry()) : null;
+    if (ro) {
+      ro.observe(info_container_el);
+      ro.observe(footer_el);
+    }
+    const mo = typeof MutationObserver !== "undefined" ? new MutationObserver(() => measure_footer_geometry()) : null;
+    if (mo && info_container_el) {
+      mo.observe(info_container_el, { childList: true, subtree: true, characterData: true, attributes: true });
+    }
+    window.addEventListener("resize", measure_footer_geometry);
+    return () => {
+      if (ro) ro.disconnect();
+      if (mo) mo.disconnect();
+      window.removeEventListener("resize", measure_footer_geometry);
+    };
+  });
+
+  // Re-measure after content/mode swaps (edit toggle, viewport, entity) settle.
+  $effect(() => {
+    profile_state.is_editing;
+    app.viewport.mobile;
+    entity_type;
+    if (!info_container_el || !footer_el) return;
+    const t = setTimeout(measure_footer_geometry, 0);
+    return () => clearTimeout(t);
+  });
+
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profile_state.char, "var(--color-gunmetal)"));
 
@@ -442,13 +494,13 @@
   );
 
   const info_container_class = $derived(
-    "flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent",
+    "flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent",
   );
 
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "flex w-full shrink-0 gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
+    "absolute bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
@@ -811,8 +863,13 @@
           {/if}
         </div>
 
-        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <div class={info_container_class} bind:this={info_container_el}>
+        <div class="relative flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div
+            class={info_container_class}
+            bind:this={info_container_el}
+            style:padding-bottom={`${footer_h + 16}px`}
+            style:scrollbar-gutter={info_needs_scroll ? "stable" : "auto"}
+          >
             <!-- Inlined ProfileHeader snippet -->
             <div
               class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-2 {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
@@ -1057,6 +1114,7 @@
             bind:this={footer_el}
             tabindex="-1"
             class={footer_layout_class}
+            style:right={`${scrollbar_lane}px`}
             style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 50%); backdrop-filter: var(--blur-mist);"
           >
             {#if profile_state.is_editing}
