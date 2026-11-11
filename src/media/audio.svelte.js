@@ -325,9 +325,26 @@ export class VoiceEngine {
   // publishes them). $state so the AudioWing dropdown populates when ready.
   voices = $state([]);
 
+  // Native SpeechSynthesisVoice objects parallel to `voices` (same order).
+  // utterance.voice REQUIRES a native voice — the mapped plain objects in
+  // `voices` throw "Failed to convert value to 'SpeechSynthesisVoice'".
+  #native_voices = [];
+
   // Streaming TTS buffer: sentences already spoken, keyed off role+message.
   _stream_role = null;
   _stream_emitted_length = 0;
+
+  /**
+   * Per-role TTS gate (mirrors AudioEngine.is_role_enabled over this
+   * engine's own switches). Lives here because the streaming methods run
+   * on the VoiceEngine instance — AudioEngine.is_role_enabled is not in
+   * scope as `this` on this class.
+   */
+  is_role_enabled(role) {
+    const norm = voice_role_key(role);
+    if (!norm) return false;
+    return this.enabled && Boolean(this.entity_voice[norm]);
+  }
 
   #speech_synth = typeof window !== "undefined" && "speechSynthesis" in window ? window.speechSynthesis : null;
 
@@ -345,6 +362,7 @@ export class VoiceEngine {
     try {
       const list = synth.getVoices() || [];
       if (list.length > 0 && this.voices.length === 0) {
+        this.#native_voices = list;
         this.voices = list.map((v) => ({ name: v.name, uri: v.voiceURI || v.name, lang: v.lang || "", local: !!v.localService }));
       }
     } catch {
@@ -469,10 +487,9 @@ export class VoiceEngine {
    * @returns {SpeechSynthesisVoice|null} Private method — no test seam needed.
    */
   #pick_voice(name_or_uri) {
-    const voices = this.voices || [];
-    if (!name_or_uri || name_or_uri === "default" || voices.length === 0) return null;
+    if (!name_or_uri || name_or_uri === "default" || this.#native_voices.length === 0) return null;
     const key = String(name_or_uri).trim().toLowerCase();
-    return voices.find((v) => (v.name || "").toLowerCase() === key || (v.uri || "").toLowerCase() === key) || null;
+    return this.#native_voices.find((v) => (v.name || "").toLowerCase() === key || (v.voiceURI || "").toLowerCase() === key) || null;
   }
 
   /**
