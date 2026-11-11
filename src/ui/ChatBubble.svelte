@@ -40,14 +40,14 @@
    * @param {{ active_ai?: any, active_user?: any, active_fractal?: any, active_npcs?: Record<string, any> }} [runtime]
    * @returns {string}
    */
-  export function get_telemetry_label(meta, runtime) {
+  export function get_telemetry_label(meta) {
     if (meta?.type === "STORY_START") {
       return "Simulation initiated";
     }
     if (meta?.type === "MEMORY_FORMATION" || meta?.type === "CONTINUUM_FORMATION") {
-      const name = resolve_entity_name(meta.target, runtime);
+      const raw = String(meta.target ?? "ENTITY").toUpperCase();
       const turns = meta.turns_count ? ` from ${meta.turns_count} turns` : "";
-      return `${name} — Caretaker turn${turns}`;
+      return `Caretaker turn: ${raw}${turns}`;
     }
     if (meta?.type === "VECTOR_RESOLUTION") {
       return "Vector resolution";
@@ -207,7 +207,7 @@
   import Typewriter from "./Typewriter.svelte";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
   import { get_percentage } from "@utils";
-  import { parse_bracket_entries, strip_bracket_engine_flags } from "@data";
+  import { parse_bracket_entries, parse_think_block, strip_bracket_engine_flags } from "@data";
 
   /**
    * @typedef {Object} Props
@@ -301,6 +301,50 @@
   let parsed = $derived(parse_message(active_text, speaking_style));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think || meta?.think || null);
+  // Director seed split: Turn 1 `directors_note` is passed as Turn 2 `startWith`
+  // (`<think>${note}\n(`), so the AI Thoughts block opens with the exact
+  // director text. Highlight that prefix cyan-blue to separate director staging
+  // from model-generated cognition.
+  let director_seed_raw = $derived((meta?.director_staging?.directors_note || meta?.director_staging?.director_note || "").trim());
+  let raw_think_plain = $derived.by(() => {
+    try {
+      const from_text = parse_think_block(active_text || "")?.think || "";
+      if (from_text && from_text.trim()) return from_text;
+    } catch {
+      /* fall through to meta.think */
+    }
+    return meta?.think || "";
+  });
+  let director_seed_active = $derived.by(() => {
+    if (!director_seed_raw) return "";
+    const plain = String(raw_think_plain || "").trimStart();
+    if (plain.startsWith(director_seed_raw)) return director_seed_raw;
+    return "";
+  });
+  let think_remainder_raw = $derived.by(() => {
+    if (!director_seed_active) return "";
+    const plain = String(raw_think_plain || "").trimStart();
+    return plain.slice(director_seed_active.length).replace(/^\n+/, "");
+  });
+  let director_think_html = $derived.by(() => {
+    if (!director_seed_active) return null;
+    try {
+      return parse_message(`<think>${director_seed_active}</think>`, speaking_style)?.think || null;
+    } catch {
+      return null;
+    }
+  });
+  let remainder_think_html = $derived.by(() => {
+    if (!director_seed_active) return null;
+    const rem = String(think_remainder_raw || "").trim();
+    if (!rem) return null;
+    try {
+      return parse_message(`<think>${rem}</think>`, speaking_style)?.think || null;
+    } catch {
+      return null;
+    }
+  });
+  let show_director_split = $derived(!!(director_seed_active && director_think_html));
   let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));
 
   // Track stream targeting
@@ -793,11 +837,24 @@
   {#if app.settings.dev_mode && think_block}
     <div class="mb-4">
       <Accordion label="Thoughts">
-        <div
-          class="terminal-box max-h-75 overflow-y-auto p-4 text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
-        >
-          <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
-        </div>
+        {#if show_director_split}
+          <div
+            class="terminal-box max-h-75 overflow-y-auto p-4 text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+          >
+            <div class="mb-2 border-l-2 border-cyan-400 bg-cyan-400/10 px-2 py-1 text-cyan-200">
+              <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
+            </div>
+            {#if remainder_think_html}
+              <div class="think-block-container" style="display: contents" use:safe_html={remainder_think_html}></div>
+            {/if}
+          </div>
+        {:else}
+          <div
+            class="terminal-box max-h-75 overflow-y-auto p-4 text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+          >
+            <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
+          </div>
+        {/if}
       </Accordion>
     </div>
   {/if}
@@ -1076,7 +1133,7 @@
     .filter((it) => clean_text_debris(it.value))}
   {#if chip_items.length > 0}
     <div
-      class="flex gap-4 rounded-xl border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
+      class="flex gap-4 rounded border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
         ? 'border-l-slate-500 bg-black/20'
         : 'border-l-(--color-dev-accent) bg-black/40'}"
     >
@@ -1084,7 +1141,7 @@
       <div class="flex flex-1 flex-wrap gap-2 {isMuted ? 'text-slate-300' : 'text-slate-200'}">
         {#each chip_items as item, i (i)}
           {#if item.key}
-            <span class="inline-flex max-w-full items-baseline gap-2 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1">
+            <span class="inline-flex max-w-full items-baseline gap-2 rounded border border-white/10 bg-white/5 px-2.5 py-1">
               <span class="shrink-0 text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">{item.key}</span>
               <span class="min-w-0 text-slate-100" use:safe_html={render_telemetry_text(item.value)}></span>
             </span>
@@ -1108,7 +1165,7 @@
       min-w-0
       flex-col
       overflow-hidden
-      rounded-2xl
+      rounded
       border
       border-transparent
       bg-[color-mix(in_srgb,var(--signature-color)_5%,rgba(15,15,15,0.7))]
@@ -1141,12 +1198,12 @@
         {:else}
           <!-- 1. IMAGE TRIGGER INDICATOR -->
           {#if meta.trigger_image === true || meta.image_trigger === true}
-            <div class="flex flex-wrap items-center gap-2 rounded-xl border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+            <div class="flex flex-wrap items-center gap-2 rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
               <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
               <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
               {#if meta.image_tier}
                 <span
-                  class="rounded-xl bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+                  class="rounded bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
                 >
                   {meta.image_tier}
                 </span>
@@ -1192,14 +1249,9 @@
             </div>
           {/if}
 
-          {#if meta.director_note}
-            <div class="flex gap-4 rounded-xl border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
-              <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Director</span>
-              <span class="flex-1 text-slate-200">{meta.director_note}</span>
-            </div>
-          {/if}
+          <!-- Director note intentionally omitted here: Turn 1 `directors_note` is the Turn 2 `startWith` prefix, so it already opens the AI Thoughts block (highlighted cyan-blue there). -->
           {#if meta.camera_note}
-            <div class="flex gap-4 rounded-xl border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+            <div class="flex gap-4 rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
               <span class="flex-1 text-slate-200">{meta.camera_note}</span>
             </div>
@@ -1302,6 +1354,9 @@
 
           <!-- 4. CARETAKER TURN: CONTINUUM -->
           {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
+            <p class="font-mono text-[11px] leading-relaxed text-slate-400">
+              Updated brackets merged into {get_entity_name(meta.target) || String(meta.target || "target entity")}’s profile fields.
+            </p>
             <div class="flex flex-col gap-1.5 pt-1">
               {@render temporal_quadrant("ETERNAL", extract_bracket_items(meta.eternal))}
               {@render temporal_quadrant("PRESENT", extract_bracket_items(meta.present))}
@@ -1323,7 +1378,7 @@
                 {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
               {/if}
               {#if meta.resolution}
-                <div class="flex gap-4 rounded-xl border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                <div class="flex gap-4 rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
                   <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
                   <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
                 </div>

@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 
 import {
+  clean_text_debris,
   get_telemetry_label,
+  parse_relationship_edge,
   process_entity_blocks,
   resolve_entity_name,
   vector_label,
-  parse_relationship_edge,
-  clean_text_debris,
 } from "./ChatBubble.svelte";
 
 describe("TelemetryCard Telemetry Logic", () => {
@@ -261,11 +261,11 @@ describe("TelemetryCard Telemetry Logic", () => {
 
     // Caretaker turn with turn count
     expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "AI_CHARACTER", turns_count: 2 }, runtime)).toBe(
-      "Lord Benedict Silvers — Caretaker turn from 2 turns",
+      "Caretaker turn: AI_CHARACTER from 2 turns",
     );
 
     // Caretaker turn without turn count
-    expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "user" }, runtime)).toBe("Glitch — Caretaker turn");
+    expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "user" }, runtime)).toBe("Caretaker turn: USER");
 
     // Default simulation update / Director turn
     expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Director turn");
