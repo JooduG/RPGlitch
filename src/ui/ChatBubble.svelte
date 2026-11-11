@@ -1185,7 +1185,7 @@
   >
     {#if telemetry_card_label}
       <header
-        class="flex h-8 items-center gap-2 border-b border-white/10 px-4 font-mono text-[11px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+        class="flex min-h-11 items-center gap-3 border-b border-white/10 px-5 py-2.5 font-mono text-xs font-bold tracking-[0.22em] text-(--color-dev-accent) uppercase"
       >
         <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
         <span class="truncate">{telemetry_card_label}</span>
@@ -1249,7 +1249,13 @@
             </div>
           {/if}
 
-          <!-- Director note intentionally omitted here: Turn 1 `directors_note` is the Turn 2 `startWith` prefix, so it already opens the AI Thoughts block (highlighted cyan-blue there). -->
+          <!-- Director `directors_note` intentionally omitted here: it is the Turn 2 `startWith` prefix, so it already opens the AI Thoughts block (highlighted cyan-blue there). The director's own reasoning (`thoughts`) is shown below instead. -->
+          {#if meta.thoughts}
+            <div class="flex gap-4 rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+              <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Director</span>
+              <span class="flex-1 text-slate-200">{meta.thoughts}</span>
+            </div>
+          {/if}
           {#if meta.camera_note}
             <div class="flex gap-4 rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
