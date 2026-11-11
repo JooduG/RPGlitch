@@ -1112,15 +1112,18 @@
             style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
             style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}
           >
-            <!-- Phase 1: Ambient Photographic Blur & Frosted Scrim Layer -->
-            <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none">
+            <!-- Phase 1: Mirrored photographic tiling — same bottom-anchored portrait slice, alternately flipped, so every joint is seamless by construction -->
+            <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 flex overflow-hidden select-none">
               {#if profile_state.char?.profile_picture}
-                <img
-                  src={profile_state.char.profile_picture}
-                  alt=""
-                  draggable={false}
-                  class="h-full w-full scale-125 object-cover object-bottom opacity-70 blur-lg saturate-200"
-                />
+                {#each [0, 1, 2, 3, 4, 5, 6, 7] as tile, i (i)}
+                  <img
+                    src={profile_state.char.profile_picture}
+                    alt=""
+                    draggable={false}
+                    class={"h-full min-w-0 flex-1 object-cover object-bottom blur-lg saturate-200 " +
+                      (tile % 2 === 0 ? "scale-125 opacity-70" : "scale-[-1.25_1.25] opacity-70")}
+                  />
+                {/each}
               {/if}
               <!-- Neutral contrast scrim: signature-free glass over the photo bleed (no live blur — blurred text haze is what turned it muddy) -->
               <div class="absolute inset-0" style="background-color: color-mix(in srgb, var(--color-glass-sunken) 55%, transparent);"></div>
