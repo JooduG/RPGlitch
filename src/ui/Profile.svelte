@@ -1121,16 +1121,16 @@
                     alt=""
                     draggable={false}
                     class={"h-full min-w-0 flex-1 object-cover object-bottom blur-2xl saturate-200 " +
-                      (tile % 2 === 0 ? "scale-125 opacity-70" : "scale-[-1.25_1.25] opacity-70")}
+                      (tile % 2 === 0 ? "scale-125 opacity-60" : "scale-[-1.25_1.25] opacity-60")}
                   />
                 {/each}
               {/if}
-              <!-- Directional veil: transparent at the portrait edge so the strip melts into the band, full neutral glass across the content/buttons (desktop character layout only; flat veil on mobile/fractal) -->
+              <!-- Directional veil: transparent at the portrait edge where it melts into the band, ramping to deep neutral glass under the text/buttons to bury ghost text (desktop character layout only; denser flat veil on mobile/fractal) -->
               <div
                 class="absolute inset-0"
                 style:background={entity_type !== "fractal" && !app.viewport.mobile
-                  ? "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--color-glass-sunken) 55%, transparent) 40%, color-mix(in srgb, var(--color-glass-sunken) 55%, transparent) 100%)"
-                  : "color-mix(in srgb, var(--color-glass-sunken) 55%, transparent)"}
+                  ? "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--color-glass-sunken) 55%, transparent) 30%, color-mix(in srgb, var(--color-glass-sunken) 80%, transparent) 100%)"
+                  : "color-mix(in srgb, var(--color-glass-sunken) 65%, transparent)"}
               ></div>
             </div>
 
