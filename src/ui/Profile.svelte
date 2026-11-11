@@ -6,7 +6,7 @@
    */
   import { auto_resize, click_outside, format_datetime, generate_uuid } from "@utils";
   import { download_json_file, safe_parse_pseudo_json } from "@utils";
-  import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
+  import { Button, Modal, TextField, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
   import { Shimmer } from "@primitives";
   import { ProfilePicture } from "@ui";
   import { get_signature_color } from "@media";
@@ -818,8 +818,8 @@
             role="banner"
           >
             {#if profile_state.is_editing}
-              <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80">
-                <span class="text-slate-400">@ID:</span>
+              <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80" style="color: {signature_color};">
+                <span aria-hidden="true">@</span>
                 <input
                   type="text"
                   bind:value={profile_state.char.id}
@@ -833,17 +833,34 @@
                       .toUpperCase()
                       .replace(/[^A-Z0-9_-]/g, "")
                       .slice(0, 20);
+                    profile_state.mark_mutated();
                   }}
-                  onfocus={() => profile_state.set_active_field("id", "Entity Handle (@ID)")}
+                  onfocus={() => profile_state.set_active_field("id", "Entity Handle")}
                   onblur={() => profile_state.set_active_field("", "")}
                 />
+                {#if entity_type !== "fractal"}
+                  <span class="text-slate-400" aria-hidden="true">·</span>
+                  <button
+                    type="button"
+                    class="cursor-pointer tracking-wider uppercase transition-colors outline-none hover:opacity-100"
+                    onclick={() => {
+                      profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
+                      profile_state.mark_mutated();
+                    }}
+                    onfocus={() => profile_state.set_active_field("pov", "Perspective")}
+                    onblur={() => profile_state.set_active_field("", "")}
+                  >
+                    {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
+                  </button>
+                {/if}
               </div>
             {:else if profile_state.char.id}
               <div
                 class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
                 style="color: {signature_color};"
               >
-                @{profile_state.char.id.toUpperCase()}
+                @{profile_state.char.id.toUpperCase()}{#if entity_type !== "fractal"}
+                  · {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}{/if}
               </div>
             {/if}
 
@@ -1432,6 +1449,38 @@
 
 {#snippet EntityBody()}
   <div class={entity_body_class} style:grid-template-columns={entity_body_grid_cols} data-testid="profile-fragments">
+    <!-- Profile order: Name → Description → ID+POV strip (header) → Relationships → quadrant sections -->
+    <div
+      class={get_section_class()}
+      style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
+      data-section="relationships"
+      role="presentation"
+    >
+      <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
+        <h6
+          class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
+          style="color: var(--signature-color); text-shadow: none;"
+        >
+          <span
+            class={get_label_span_class()}
+            style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
+            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span
+          >
+        </h6>
+      </div>
+    </div>
+
+    <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch">
+      <RelationalGraph
+        entity={profile_state.char}
+        on_select_entity={(selected) => {
+          if (selected) {
+            app.open_profile(selected);
+          }
+        }}
+      />
+    </div>
+
     {#each active_sections as section (section.id)}
       <div
         class={get_section_class()}
@@ -1697,88 +1746,6 @@
     {/each}
 
     <!-- RADIAL RELATIONAL CONSTELLATION GRAPH (Vertical Rotated Headline Grid) -->
-    <div
-      class={get_section_class()}
-      style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
-      data-section="relationships"
-      role="presentation"
-    >
-      <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
-        <h6
-          class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
-          style="color: var(--signature-color); text-shadow: none;"
-        >
-          <span
-            class={get_label_span_class()}
-            style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
-            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span
-          >
-        </h6>
-      </div>
-    </div>
-
-    <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch">
-      <RelationalGraph
-        entity={profile_state.char}
-        on_select_entity={(selected) => {
-          if (selected) {
-            app.open_profile(selected);
-          }
-        }}
-      />
-    </div>
-
-    {#if entity_type !== "fractal"}
-      <div class="col-start-2 mt-0 flex w-full flex-col items-center gap-2 py-1">
-        <Label for="perspective-toggle" class="justify-center" disabled={!profile_state.is_editing}>Perspective</Label>
-        <div class="flex w-full items-center justify-center gap-2">
-          <Button
-            variant="bare"
-            class="{profile_state.is_editing ? 'cursor-pointer' : 'cursor-default'} text-xs font-medium transition-colors select-none {profile_state
-              .char.pov === '1st_person'
-              ? 'font-semibold text-slate-100'
-              : 'text-slate-400 hover:text-slate-200'}"
-            disabled={!profile_state.is_editing}
-            onclick={() => {
-              if (profile_state.is_editing) {
-                profile_state.char.pov = "1st_person";
-                profile_state.mark_mutated();
-              }
-            }}
-          >
-            1st Person
-          </Button>
-          <Toggle
-            id="perspective-toggle"
-            aria-label="Perspective"
-            value={profile_state.char.pov === "3rd_person"}
-            disabled={!profile_state.is_editing}
-            always_signature={true}
-            style="--signature-color: {signature_color};"
-            onchange={() => {
-              profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
-              profile_state.mark_mutated();
-            }}
-          />
-          <Button
-            variant="bare"
-            class="{profile_state.is_editing ? 'cursor-pointer' : 'cursor-default'} text-xs font-medium transition-colors select-none {profile_state
-              .char.pov === '3rd_person'
-              ? 'font-semibold text-slate-100'
-              : 'text-slate-400 hover:text-slate-200'}"
-            disabled={!profile_state.is_editing}
-            onclick={() => {
-              if (profile_state.is_editing) {
-                profile_state.char.pov = "3rd_person";
-                profile_state.mark_mutated();
-              }
-            }}
-          >
-            3rd Person
-          </Button>
-        </div>
-      </div>
-    {/if}
   </div>
 {/snippet}
 
