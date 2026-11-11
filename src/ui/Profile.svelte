@@ -485,7 +485,7 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute right-0 bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none [&>*]:relative [&>*]:z-10 " +
+    "absolute right-0 bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none overflow-hidden " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
@@ -522,6 +522,7 @@
 
   /**
    * Recursively parses string payloads to detect inline Perchance dynamic variable loops.
+   * Supports arbitrary N-flat options like {A|B|C} and nested options like {A|B|{C1|C2}}.
    * @param {string} str
    * @returns {Array<{is_var: boolean, text?: string, choices?: Array<any>}>}
    */
@@ -1104,91 +1105,93 @@
             </main>
           </div>
 
-          <footer
-            bind:this={footer_el}
-            tabindex="-1"
-            class={footer_layout_class}
-            style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
-            style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 50%); backdrop-filter: var(--blur-mist);"
-          >
-            {#if profile_state.char?.profile_picture}
-              <!-- Photographic footer bleed: same portrait, heavily blurred from the bottom, under the buttons -->
-              <div class="pointer-events-none overflow-hidden" style="position: absolute; inset: 0; z-index: 0;" aria-hidden="true">
+          <footer bind:this={footer_el} tabindex="-1" class={footer_layout_class} style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}>
+            <!-- Phase 1: Ambient Photographic Blur & Frosted Scrim Layer -->
+            <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none">
+              {#if profile_state.char?.profile_picture}
                 <img
                   src={profile_state.char.profile_picture}
                   alt=""
-                  class="block h-full w-full scale-125 object-cover object-bottom opacity-50 blur-2xl saturate-150 select-none"
+                  class="h-full w-full scale-125 object-cover object-bottom opacity-45 blur-lg saturate-200"
                 />
-              </div>
-            {/if}
-            {#if profile_state.is_editing}
-              <Button
-                variant="primary"
-                actions={[tooltip]}
-                aria-label="Warning: Overwrites all fields using AI enhancement. Existing macros are preserved."
-                disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
-                onclick={() => {
-                  profile_state.enhance_profile(entity_type);
-                }}
-                class="touch-target-coarse"
-              >
-                {#if Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt")}
-                  <span class="animate-pulse">ENHANCING...</span>
-                {:else}
-                  Enhance Profile
-                {/if}
-              </Button>
-              <Button
-                variant="primary"
-                actions={[tooltip]}
-                aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
-                disabled={profile_state.is_saving}
-                onclick={() => (show_export_modal = true)}
-                class="touch-target-coarse"
-              >
-                Export {entity_type === "fractal" ? "Fractal" : "Character"}
-              </Button>
-              <Button
-                variant="secondary"
-                class="touch-target-coarse"
-                aria-label="Discard unsaved edits and exit editing"
-                disabled={profile_state.is_saving}
-                onclick={() => {
-                  profile_state.cancel();
-                }}>Revert</Button
-              >
-              <Button
-                variant="danger"
-                class="touch-target-coarse"
-                onclick={() => {
-                  profile_state.show_delete_confirm = true;
-                }}>Delete</Button
-              >
-            {:else}
-              <Button
-                variant="secondary"
-                class="touch-target-coarse"
-                aria-label="Inspect historical rounds and branch or revert entity state"
-                actions={[tooltip]}
-                onclick={() => (show_timeline_modal = true)}
-              >
-                Timeline
-              </Button>
-              <Button
-                variant="secondary"
-                class="touch-target-coarse"
-                disabled={simulation_state.busy || !profile_state.can_edit}
-                aria-label={!profile_state.can_edit ? "Edit locked — entity is in an active story. Enable DevMode to override." : "Edit"}
-                onclick={() => {
-                  if (!profile_state.can_edit) return;
-                  previous_scroll_top = info_container_el?.scrollTop || 0;
-                  profile_state.start_editing();
-                  setTimeout(() => {
-                    if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
-                  }, 0);
-                }}>{profile_state.can_edit ? "Edit" : "Locked"}</Button
-              >
-            {/if}
+              {/if}
+              <!-- Contrast scrim ensuring button WCAG compliance and background glass-blurring -->
+              <div
+                class="absolute inset-0"
+                style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 55%); backdrop-filter: var(--blur-mist);"
+              ></div>
+            </div>
+
+            <div class="relative z-10 flex items-center gap-4">
+              {#if profile_state.is_editing}
+                <Button
+                  variant="primary"
+                  actions={[tooltip]}
+                  aria-label="Warning: Overwrites all fields using AI enhancement. Existing macros are preserved."
+                  disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
+                  onclick={() => {
+                    profile_state.enhance_profile(entity_type);
+                  }}
+                  class="touch-target-coarse"
+                >
+                  {#if Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt")}
+                    <span class="animate-pulse">ENHANCING...</span>
+                  {:else}
+                    Enhance Profile
+                  {/if}
+                </Button>
+                <Button
+                  variant="primary"
+                  actions={[tooltip]}
+                  aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
+                  disabled={profile_state.is_saving}
+                  onclick={() => (show_export_modal = true)}
+                  class="touch-target-coarse"
+                >
+                  Export {entity_type === "fractal" ? "Fractal" : "Character"}
+                </Button>
+                <Button
+                  variant="secondary"
+                  class="touch-target-coarse"
+                  aria-label="Discard unsaved edits and exit editing"
+                  disabled={profile_state.is_saving}
+                  onclick={() => {
+                    profile_state.cancel();
+                  }}>Revert</Button
+                >
+                <Button
+                  variant="danger"
+                  class="touch-target-coarse"
+                  onclick={() => {
+                    profile_state.show_delete_confirm = true;
+                  }}>Delete</Button
+                >
+              {:else}
+                <Button
+                  variant="secondary"
+                  class="touch-target-coarse"
+                  aria-label="Inspect historical rounds and branch or revert entity state"
+                  actions={[tooltip]}
+                  onclick={() => (show_timeline_modal = true)}
+                >
+                  Timeline
+                </Button>
+                <Button
+                  variant="secondary"
+                  class="touch-target-coarse"
+                  disabled={simulation_state.busy || !profile_state.can_edit}
+                  aria-label={!profile_state.can_edit ? "Edit locked — entity is in an active story. Enable DevMode to override." : "Edit"}
+                  onclick={() => {
+                    if (!profile_state.can_edit) return;
+                    previous_scroll_top = info_container_el?.scrollTop || 0;
+                    profile_state.start_editing();
+                    setTimeout(() => {
+                      if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
+                    }, 0);
+                  }}>{profile_state.can_edit ? "Edit" : "Locked"}</Button
+                >
+              {/if}
+            </div>
           </footer>
         </div>
       </div>
@@ -1475,7 +1478,7 @@
                 <!-- Past Quadrant -->
                 <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
                   <span class="font-mono text-xs font-bold text-cyan-300">PAST</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-xs text-slate-300">
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-slate-300">
                     {reconstructed_timeline_state.past || "<empty>"}
                   </div>
                 </div>
@@ -1483,7 +1486,7 @@
                 <!-- Future / Standing Trajectory -->
                 <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
                   <span class="font-mono text-xs font-bold text-cyan-300">FUTURE (STANDING AGENDA)</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-xs text-slate-300">
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-slate-300">
                     {reconstructed_timeline_state.future || "<empty>"}
                   </div>
                 </div>
