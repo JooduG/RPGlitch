@@ -485,7 +485,7 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute right-0 bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none overflow-hidden " +
+    "absolute right-0 bottom-0 left-0 z-30 flex gap-4 px-4 pt-3 pb-4 outline-none overflow-hidden " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
@@ -1105,24 +1105,31 @@
             </main>
           </div>
 
-          <footer bind:this={footer_el} tabindex="-1" class={footer_layout_class} style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}>
+          <footer
+            bind:this={footer_el}
+            tabindex="-1"
+            class={footer_layout_class}
+            style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
+            style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}
+          >
             <!-- Phase 1: Ambient Photographic Blur & Frosted Scrim Layer -->
             <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none">
               {#if profile_state.char?.profile_picture}
                 <img
                   src={profile_state.char.profile_picture}
                   alt=""
+                  draggable={false}
                   class="h-full w-full scale-125 object-cover object-bottom opacity-45 blur-lg saturate-200"
                 />
               {/if}
-              <!-- Contrast scrim ensuring button WCAG compliance and background glass-blurring -->
+              <!-- Neutral contrast scrim: signature-free glass + mist blur over the photo bleed -->
               <div
                 class="absolute inset-0"
-                style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 55%); backdrop-filter: var(--blur-mist);"
+                style="background-color: color-mix(in srgb, var(--color-glass-sunken) 68%, transparent); backdrop-filter: var(--blur-mist);"
               ></div>
             </div>
 
-            <div class="relative z-10 flex items-center gap-4">
+            <div class={"relative z-10 flex gap-4 " + (app.viewport.mobile ? "flex-col items-stretch" : "flex-row items-center")}>
               {#if profile_state.is_editing}
                 <Button
                   variant="primary"

@@ -134,7 +134,7 @@
             block
             h-full
             w-full
-            scale-110
+            scale-125
             object-cover
             opacity-45
             blur-lg
