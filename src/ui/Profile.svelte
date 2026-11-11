@@ -448,8 +448,8 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "sticky bottom-0 z-10 mt-auto -ml-4 -mr-9 flex shrink-0 gap-4 border-t border-solid border-white/10 pr-9 pl-4 pt-3 pb-4 outline-none " +
-      (app.viewport.mobile ? "w-full flex-col items-stretch" : "justify-end"),
+    "flex w-full shrink-0 gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
+      (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
   const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-4" : "grid items-center gap-x-2 gap-y-4"));
@@ -811,78 +811,79 @@
           {/if}
         </div>
 
-        <div class={info_container_class} bind:this={info_container_el}>
-          <!-- Inlined ProfileHeader snippet -->
-          <div
-            class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-2 {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
-            data-testid="profile-header"
-            role="banner"
-          >
-            {#if profile_state.is_editing}
-              <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80" style="color: {signature_color};">
-                <span aria-hidden="true">@</span>
-                <input
-                  type="text"
-                  value={profile_state.draft_id ?? profile_state.char.id ?? ""}
-                  placeholder="SLUG"
-                  pattern={"^[A-Za-z0-9_-]{2,20}$"}
-                  maxlength="20"
-                  class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
-                  style="color: {signature_color};"
-                  oninput={(event) => {
-                    profile_state.draft_id = event.currentTarget.value
-                      .toUpperCase()
-                      .replace(/[^A-Z0-9_-]/g, "")
-                      .slice(0, 20);
-                    profile_state.identity_error = "";
-                    profile_state.mark_mutated();
-                  }}
-                  onblur={() => {
-                    if (!profile_state.commit_draft_id()) {
-                      profile_state.identity_error = "ID must be 2–20 chars (A–Z, 0–9, _ or -).";
-                    }
-                    profile_state.set_active_field("", "");
-                  }}
-                  onfocus={() => profile_state.set_active_field("id", "Entity Handle")}
-                />
-                {#if entity_type !== "fractal"}
-                  <span class="text-slate-400" aria-hidden="true">·</span>
-                  <button
-                    type="button"
-                    class="cursor-pointer tracking-wider uppercase transition-colors outline-none hover:opacity-100"
-                    onclick={() => {
-                      profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
+        <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <div class={info_container_class} bind:this={info_container_el}>
+            <!-- Inlined ProfileHeader snippet -->
+            <div
+              class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-2 {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
+              data-testid="profile-header"
+              role="banner"
+            >
+              {#if profile_state.is_editing}
+                <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80" style="color: {signature_color};">
+                  <span aria-hidden="true">@</span>
+                  <input
+                    type="text"
+                    value={profile_state.draft_id ?? profile_state.char.id ?? ""}
+                    placeholder="SLUG"
+                    pattern={"^[A-Za-z0-9_-]{2,20}$"}
+                    maxlength="20"
+                    class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
+                    style="color: {signature_color};"
+                    oninput={(event) => {
+                      profile_state.draft_id = event.currentTarget.value
+                        .toUpperCase()
+                        .replace(/[^A-Z0-9_-]/g, "")
+                        .slice(0, 20);
+                      profile_state.identity_error = "";
                       profile_state.mark_mutated();
                     }}
-                    onfocus={() => profile_state.set_active_field("pov", "Perspective")}
-                    onblur={() => profile_state.set_active_field("", "")}
-                  >
-                    {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
-                  </button>
+                    onblur={() => {
+                      if (!profile_state.commit_draft_id()) {
+                        profile_state.identity_error = "ID must be 2–20 chars (A–Z, 0–9, _ or -).";
+                      }
+                      profile_state.set_active_field("", "");
+                    }}
+                    onfocus={() => profile_state.set_active_field("id", "Entity Handle")}
+                  />
+                  {#if entity_type !== "fractal"}
+                    <span class="text-slate-400" aria-hidden="true">·</span>
+                    <button
+                      type="button"
+                      class="cursor-pointer tracking-wider uppercase transition-colors outline-none hover:opacity-100"
+                      onclick={() => {
+                        profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
+                        profile_state.mark_mutated();
+                      }}
+                      onfocus={() => profile_state.set_active_field("pov", "Perspective")}
+                      onblur={() => profile_state.set_active_field("", "")}
+                    >
+                      {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
+                    </button>
+                  {/if}
+                </div>
+                {#if profile_state.is_editing && profile_state.identity_error}
+                  <div role="alert" class="mb-1 font-mono text-[11px] tracking-wide text-red-300/90">
+                    {profile_state.identity_error}
+                  </div>
                 {/if}
-              </div>
-              {#if profile_state.is_editing && profile_state.identity_error}
-                <div role="alert" class="mb-1 font-mono text-[11px] tracking-wide text-red-300/90">
-                  {profile_state.identity_error}
+              {:else if profile_state.char.id}
+                <div
+                  class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
+                  style="color: {signature_color};"
+                >
+                  @{profile_state.char.id.toUpperCase()}{#if entity_type !== "fractal"}
+                    · {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}{/if}
                 </div>
               {/if}
-            {:else if profile_state.char.id}
-              <div
-                class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
-                style="color: {signature_color};"
-              >
-                @{profile_state.char.id.toUpperCase()}{#if entity_type !== "fractal"}
-                  · {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}{/if}
-              </div>
-            {/if}
 
-            <div class="w-full min-w-0 shrink-0">
-              {#if profile_state.is_editing}
-                <div class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
-                  <input
-                    bind:this={name_input}
-                    value={profile_state.draft_name ?? profile_state.char.name ?? ""}
-                    class="
+              <div class="w-full min-w-0 shrink-0">
+                {#if profile_state.is_editing}
+                  <div class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
+                    <input
+                      bind:this={name_input}
+                      value={profile_state.draft_name ?? profile_state.char.name ?? ""}
+                      class="
                       z-20
                       box-border
                       w-full
@@ -899,24 +900,24 @@
                       sm:text-5xl
                       md:text-6xl
                     "
-                    style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem) !important;"
-                    oninput={(event) => {
-                      profile_state.draft_name = event.currentTarget.value;
-                      profile_state.identity_error = "";
-                      profile_state.mark_mutated();
-                    }}
-                    onfocus={() => profile_state.set_active_field("name", "Entity Name")}
-                    onblur={() => {
-                      if (!profile_state.commit_draft_name()) {
-                        profile_state.identity_error = "Name is required.";
-                      }
-                      profile_state.set_active_field("", "");
-                    }}
-                  />
-                </div>
-              {:else}
-                <h1
-                  class="
+                      style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem) !important;"
+                      oninput={(event) => {
+                        profile_state.draft_name = event.currentTarget.value;
+                        profile_state.identity_error = "";
+                        profile_state.mark_mutated();
+                      }}
+                      onfocus={() => profile_state.set_active_field("name", "Entity Name")}
+                      onblur={() => {
+                        if (!profile_state.commit_draft_name()) {
+                          profile_state.identity_error = "Name is required.";
+                        }
+                        profile_state.set_active_field("", "");
+                      }}
+                    />
+                  </div>
+                {:else}
+                  <h1
+                    class="
                     m-0
                     block
                     {entity_type === 'fractal' ? 'text-left' : 'text-right'}
@@ -928,21 +929,21 @@
                     md:text-8xl
                     lg:text-[5.5rem]
                   "
-                  style="margin: 0 !important; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem) !important; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
-                >
-                  {format_header_name(profile_state.char.name)}
-                </h1>
-              {/if}
-            </div>
+                    style="margin: 0 !important; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem) !important; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
+                  >
+                    {format_header_name(profile_state.char.name)}
+                  </h1>
+                {/if}
+              </div>
 
-            {#if profile_state.is_editing}
-              <div
-                class="glass-input"
-                data-expanded={profile_state.active_field?.key === "description"}
-                style="--signature-color: {signature_color};"
-              >
-                <textarea
-                  class="
+              {#if profile_state.is_editing}
+                <div
+                  class="glass-input"
+                  data-expanded={profile_state.active_field?.key === "description"}
+                  style="--signature-color: {signature_color};"
+                >
+                  <textarea
+                    class="
                     z-20
                     m-0
                     max-h-[calc(var(--spacing-row-unit)*4)]
@@ -970,15 +971,15 @@
                     hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
                     [&::-webkit-scrollbar-track]:bg-transparent
                   "
-                  placeholder={PROFILE_FIELDS.description?.description || "Description"}
-                  bind:value={profile_state.char.description}
-                  use:auto_resize
-                  onfocus={() => profile_state.set_active_field("description", "Description")}
-                  onblur={() => profile_state.set_active_field("", "")}></textarea>
-              </div>
-            {:else if profile_state.char.description}
-              <p
-                class="
+                    placeholder={PROFILE_FIELDS.description?.description || "Description"}
+                    bind:value={profile_state.char.description}
+                    use:auto_resize
+                    onfocus={() => profile_state.set_active_field("description", "Description")}
+                    onblur={() => profile_state.set_active_field("", "")}></textarea>
+                </div>
+              {:else if profile_state.char.description}
+                <p
+                  class="
                   m-0
                   rounded-md
                   {entity_type === 'fractal' ? 'text-left' : 'text-right'}
@@ -990,66 +991,67 @@
                   text-slate-200
                   opacity-75
                 "
-              >
-                {profile_state.char.description}
-              </p>
+                >
+                  {profile_state.char.description}
+                </p>
+              {/if}
+            </div>
+
+            {#if entity_type === "fractal" && app.viewport.mobile}
+              {@const active_style = get_narrative_style(profile_state.char.narrative_style)}
+              {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
+              {#if profile_state.is_editing || !is_default_style}
+                <div class="mt-2 flex w-full flex-col gap-2">
+                  <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
+                  {#if profile_state.is_editing}
+                    <div class="relative flex w-full max-w-sm rounded-md">
+                      <Dropdown
+                        bind:value={profile_state.char.narrative_style}
+                        items={author_options}
+                        label="Select Narrative Style"
+                        uppercase={false}
+                        matchWidth={false}
+                      />
+                    </div>
+                  {:else}
+                    <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
+                      {active_style.name}
+                    </span>
+                  {/if}
+                </div>
+              {/if}
             {/if}
+
+            {#if entity_type === "fractal" && app.viewport.mobile}
+              {@const active_vstyle = get_visual_style(profile_state.char.visual_style)}
+              {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
+              {#if profile_state.is_editing || !is_default_vstyle}
+                <div class="mt-2 flex w-full flex-col gap-2">
+                  <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
+                  {#if profile_state.is_editing}
+                    <div class="relative flex w-full max-w-sm rounded-md">
+                      <Dropdown
+                        bind:value={profile_state.char.visual_style}
+                        items={visual_style_options}
+                        label="Select Visual Style"
+                        uppercase={false}
+                        matchWidth={true}
+                        onchange={() => profile_state.mark_mutated()}
+                      />
+                    </div>
+                  {:else}
+                    <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_vstyle.name}: ${active_vstyle.description}`}>
+                      {active_vstyle.name}
+                    </span>
+                  {/if}
+                </div>
+              {/if}
+            {/if}
+
+            <main class={main_layout_class}>
+              {@render EntityBody()}
+            </main>
           </div>
-
-          {#if entity_type === "fractal" && app.viewport.mobile}
-            {@const active_style = get_narrative_style(profile_state.char.narrative_style)}
-            {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
-            {#if profile_state.is_editing || !is_default_style}
-              <div class="mt-2 flex w-full flex-col gap-2">
-                <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
-                {#if profile_state.is_editing}
-                  <div class="relative flex w-full max-w-sm rounded-md">
-                    <Dropdown
-                      bind:value={profile_state.char.narrative_style}
-                      items={author_options}
-                      label="Select Narrative Style"
-                      uppercase={false}
-                      matchWidth={false}
-                    />
-                  </div>
-                {:else}
-                  <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
-                    {active_style.name}
-                  </span>
-                {/if}
-              </div>
-            {/if}
-          {/if}
-
-          {#if entity_type === "fractal" && app.viewport.mobile}
-            {@const active_vstyle = get_visual_style(profile_state.char.visual_style)}
-            {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
-            {#if profile_state.is_editing || !is_default_vstyle}
-              <div class="mt-2 flex w-full flex-col gap-2">
-                <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
-                {#if profile_state.is_editing}
-                  <div class="relative flex w-full max-w-sm rounded-md">
-                    <Dropdown
-                      bind:value={profile_state.char.visual_style}
-                      items={visual_style_options}
-                      label="Select Visual Style"
-                      uppercase={false}
-                      matchWidth={true}
-                      onchange={() => profile_state.mark_mutated()}
-                    />
-                  </div>
-                {:else}
-                  <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_vstyle.name}: ${active_vstyle.description}`}>
-                    {active_vstyle.name}
-                  </span>
-                {/if}
-              </div>
-            {/if}
-          {/if}
-
-          <main class={main_layout_class}>
-            {@render EntityBody()}
-          </main>
 
           <footer
             bind:this={footer_el}
