@@ -1189,6 +1189,7 @@
       >
         <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
         <span class="min-w-0 truncate">{telemetry_card_label}</span>
+        <span class="ml-auto shrink-0 text-[10px] font-normal tracking-widest text-white/40">{time_label}</span>
       </header>
     {/if}
     <div class="p-4">
