@@ -756,7 +756,8 @@
   on_confirm={execute_delete}
 />
 
-<section class="relative z-10 flex min-h-0 flex-col justify-center {stage_class}">
+<!-- display:flex inline: unlayered normalize.css v3 resets section to block, defeating Tailwind's layered flex utility -->
+<section style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {stage_class}">
   <div class="relative flex h-full w-full flex-col overflow-hidden">
     {#if !app.entities_loaded}
       {@render card_skeleton()}

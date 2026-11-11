@@ -107,7 +107,8 @@
       <Storymode />
     {/if}
 
-    <footer class="pointer-events-none relative z-40 flex justify-center {footer_class}">
+    <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
+    <footer style="display: flex;" class="pointer-events-none relative z-40 flex justify-center {footer_class}">
       {#if app.entities_loaded}
         <Console />
       {/if}

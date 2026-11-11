@@ -138,7 +138,8 @@
                     />
                   {/if}
 
-                  <footer class="flex w-full justify-end gap-gap-standard outline-none">
+                  <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
+                  <footer style="display: flex;" class="flex w-full justify-end gap-gap-standard outline-none">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
                         <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />

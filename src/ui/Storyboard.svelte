@@ -848,7 +848,8 @@
 
 <!-- STORYBOARD TITLE HEADER -->
 {#if app.entities_loaded}
-  <header class="pointer-events-none z-30 flex justify-center {header_class}">
+  <!-- display:flex inline: unlayered normalize.css v3 resets semantic elements to block, defeating Tailwind's layered flex utility -->
+  <header style="display: flex;" class="pointer-events-none z-30 flex justify-center {header_class}">
     <div class="flex w-full justify-center">
       <h2
         class="
@@ -921,7 +922,7 @@
 {/if}
 
 <!-- LEFT SLOT: AI CHARACTER -->
-<aside class="relative z-10 flex min-h-0 flex-col justify-center {left_class}">
+<aside style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {left_class}">
   {#if !app.entities_loaded}
     {@render card_skeleton()}
   {:else}
@@ -946,7 +947,7 @@
 </aside>
 
 <!-- CENTER SLOT: FRACTAL -->
-<section class="pointer-events-none relative z-10 flex min-h-0 flex-col justify-center {center_class}">
+<section style="display: flex;" class="pointer-events-none relative z-10 flex min-h-0 flex-col justify-center {center_class}">
   {#if !app.entities_loaded}
     {@render card_skeleton()}
   {:else}
@@ -971,7 +972,7 @@
 </section>
 
 <!-- RIGHT SLOT: USER PERSONA -->
-<aside class="relative z-10 flex min-h-0 flex-col justify-center {right_class}">
+<aside style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {right_class}">
   {#if !app.entities_loaded}
     {@render card_skeleton()}
   {:else}

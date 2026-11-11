@@ -1184,7 +1184,9 @@
     style="--signature-color: var(--color-dev-accent);"
   >
     {#if telemetry_card_label}
+      <!-- display:flex inline: unlayered normalize.css v3 resets header to block, defeating Tailwind's layered flex utility -->
       <header
+        style="display: flex;"
         class="flex min-h-10 items-center gap-2.5 border-b border-white/10 px-4 py-2 font-mono text-xs leading-none font-bold tracking-[0.18em] text-(--color-dev-accent) uppercase"
       >
         <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
