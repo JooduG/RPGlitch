@@ -295,6 +295,10 @@ export const session_driver = {
   async regenerate() {
     const story_id = session_driver.require_active();
     const logs = await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
+    // Round-bounded prune: capture the tail round first so a Continue-then-Regenerate
+    // (rounds without a preceding user message) can't cross into the prior round.
+    const tail = logs.length > 0 ? logs[logs.length - 1] : null;
+    const target_round = tail?.round ?? null;
     let found_user_turn = false;
 
     for (let index = logs.length - 1; index >= 0; index--) {
@@ -306,11 +310,23 @@ export const session_driver = {
         entry.meta?.type === "CONTINUUM_FORMATION" ||
         entry.meta?.type === "MEMORY_FORMATION" ||
         Boolean(entry.meta?.is_telemetry);
+      const is_protected_init = entry.meta?.type === "STORY_START" || entry.meta?.is_prologue || entry.meta?.is_epilogue;
+      // Never walk past the round being regenerated once a target is known.
+      if (target_round != null && entry.round != null && entry.round < target_round) break;
 
       if (!found_user_turn) {
         if (entry.role === "user") {
           found_user_turn = true;
           continue;
+        }
+        // Delete trailing same-round turn telemetry (director/caretaker cards) so a
+        // retry replaces the round instead of stacking a duplicate card per attempt.
+        if (is_telemetry_meta && !is_protected_init) {
+          if (target_round == null || entry.round === target_round) {
+            await db.simulation_log.delete(entry.id);
+            state_bridge.simulation_log?.remove?.(entry.id);
+            continue;
+          }
         }
         // Preserve prior telemetry entries even if placed near trailing turns
         if (is_telemetry_meta) {

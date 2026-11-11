@@ -783,6 +783,7 @@
               </div>
             {:else}
               <div
+                data-entry-id={entry.id}
                 class="w-full shrink-0 {entry.meta?.is_prologue ? 'message--prologue' : ''}"
                 class:prologue-awaiting-flight={entry.meta?.is_prologue && app.begin_story_pending && !motion.is_reduced}
                 in:item_in={{ duration: entry.meta?.is_prologue ? 0 : 300 }}
@@ -846,7 +847,6 @@
                 aspect-3/4
                 w-column-unit
                 transform-[translateZ(0)]
-                animate-pulse
                 overflow-hidden
                 rounded-xl
                 border
@@ -887,57 +887,41 @@
                     class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30"
                     style="background-color: var(--signature-color); mix-blend-mode: color;"
                   ></div>
-                  <Shimmer
-                    color={simulation_state.speaker_thinking || simulation_state.media_generating
-                      ? simulation_state.generating_entity_color || "var(--color-electric-cyan)"
-                      : "var(--color-frozen)"}
-                  />
                 </div>
               </div>
 
-              <!-- Pending Bubble: Pure Visual Shimmer Pulse -->
+              <!-- Pending turn pill: single-line 5-col glass, no bounce -->
               <div
                 class="
               relative
               flex
               h-10
-              w-24
+              w-[calc(var(--spacing-column-unit)*5)]
+              max-w-full
               items-center
-              justify-center
+              gap-3
               overflow-hidden
               rounded-2xl
               border
               border-solid
               border-white/10
-              bg-slate-900/60
-              backdrop-blur-md
+              bg-[color-mix(in_srgb,var(--color-dev-accent)_5%,rgba(15,15,15,0.7))]
+              px-4
+              [backdrop-filter:var(--blur-mist)]
             "
               >
                 <Shimmer
                   color={simulation_state.speaker_thinking || simulation_state.media_generating
                     ? simulation_state.generating_entity_color || "var(--color-electric-cyan)"
-                    : "var(--color-frozen)"}
+                    : "var(--color-dev-accent)"}
                 />
-                <div class="flex items-center gap-1.5">
-                  <span
-                    class="size-1.5 animate-bounce rounded-full"
-                    style="background-color: {simulation_state.speaker_thinking || simulation_state.media_generating
-                      ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
-                      : 'var(--color-frozen)'}; animation-delay: 0ms;"
-                  ></span>
-                  <span
-                    class="size-1.5 animate-bounce rounded-full"
-                    style="background-color: {simulation_state.speaker_thinking || simulation_state.media_generating
-                      ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
-                      : 'var(--color-frozen)'}; animation-delay: 150ms;"
-                  ></span>
-                  <span
-                    class="size-1.5 animate-bounce rounded-full"
-                    style="background-color: {simulation_state.speaker_thinking || simulation_state.media_generating
-                      ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
-                      : 'var(--color-frozen)'}; animation-delay: 300ms;"
-                  ></span>
-                </div>
+                <span class="truncate font-mono text-[11px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                  {simulation_state.generating_entity_name
+                    ? `Synthesizing ${simulation_state.generating_entity_name}`
+                    : active_turn_name
+                      ? `Synthesizing ${active_turn_name}`
+                      : "Synthesizing director turn"}
+                </span>
               </div>
             </div>
           {/if}

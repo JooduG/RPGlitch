@@ -1,17 +1,17 @@
 /**
  * src/engine/turns.js
  * ============================================================================
- * 📜 PURE FUNCTIONAL TURN ORCHESTRATOR (SHOT 1, 2 & 3)
+ * 📜 PURE FUNCTIONAL TURN ORCHESTRATOR (TURNS 1, 2 & 3)
  * ============================================================================
  *
  * Coordinates execution of sequential turns within a macro round:
- * - Turn 1 (Director Turn / Quick Shot): JSON staging, dynamics deltas, beat budgets.
- * - Turn 2 (Character Turn / Narrative Shot): In-character prose streaming + <think> cognition.
- * - Turn 3 (User Turn / Head Shot & Caretaker): Background memory diffs.
+ * - Turn 1 (Director turn): JSON staging, dynamics deltas, beat budgets.
+ * - Turn 2 (Character turn): In-character prose streaming + <think> cognition.
+ * - Turn 3 (Caretaker turn): Background memory diffs.
  *
  * Operational Posture:
- * - Fast 1-Shot Default: Direct User -> Character prose streaming.
- * - 2-Shot Ready: director_enabled flag triggers Turn 1 staging before Turn 2.
+ * - Fast single-turn default: Direct User -> Character prose streaming.
+ * - Two-turn ready: director_enabled flag triggers Turn 1 staging before Turn 2.
  * - Pure headless design: 100% testable in Vitest with mocked transport.
  * ============================================================================
  */
@@ -126,7 +126,7 @@ export function calculate_turn_tempo(history = []) {
 }
 
 /**
- * Executes Turn 1: Director Quick Shot (Staging inference).
+ * Executes Turn 1: Director turn (staging inference).
  *
  * @param {object} params
  * @param {object} params.transport - Transport interface with .stream()
@@ -184,7 +184,7 @@ export async function execute_turn_1_director({ transport, round = 1, entities =
 }
 
 /**
- * Executes Turn 2: Character Narrative Shot.
+ * Executes Turn 2: Character turn.
  *
  * @param {object} params
  * @param {object} params.transport - Transport interface with .stream()

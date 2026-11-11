@@ -252,25 +252,25 @@ describe("TelemetryCard Telemetry Logic", () => {
     ]);
   });
 
-  test("computes dynamic telemetry card titles (Back Shot and Quick Shot)", () => {
+  test("computes dynamic telemetry card titles (Caretaker turn and Director turn)", () => {
     const runtime = {
       active_ai: { name: "Lord Benedict Silvers" },
       active_user: { name: "Glitch" },
       active_fractal: { name: "Project Tartarus" },
     };
 
-    // Back shot with turn count
+    // Caretaker turn with turn count
     expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "AI_CHARACTER", turns_count: 2 }, runtime)).toBe(
-      "Lord Benedict Silvers — Back Shot from 2 turns",
+      "Lord Benedict Silvers — Caretaker turn from 2 turns",
     );
 
-    // Back shot without turn count
-    expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "user" }, runtime)).toBe("Glitch — Back Shot");
+    // Caretaker turn without turn count
+    expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "user" }, runtime)).toBe("Glitch — Caretaker turn");
 
-    // Default simulation update / Quick Shot
-    expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Quick Shot");
+    // Default simulation update / Director turn
+    expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Director turn");
 
-    expect(get_telemetry_label({}, runtime)).toBe("Quick Shot");
+    expect(get_telemetry_label({}, runtime)).toBe("Director turn");
   });
 
   test("parses directed relationship edge strings into structured objects", () => {

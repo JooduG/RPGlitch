@@ -10,7 +10,7 @@
  *   - Live Physics & Dynamics: `ai_physics`, `fractal_physics`, and per-entity dynamic baselines.
  *   - Macro Chronology: `story_id`, `round`, `turn_type`, and `is_ready` flags.
  *   - Generation Concurrency Mutex: `is_foreground_generating` vs `is_background_generating`.
- *   - Telemetry Ring Buffer: Director Quick Shot latency tracking (`last_director_ms`, `p50`, `p95`).
+ *   - Telemetry Ring Buffer: Director turn latency tracking (`last_director_ms`, `p50`, `p95`).
  * - Manages bi-directional synchronization with IndexedDB persistence via `@data` repositories.
  * - Manages reactive auto-save effect root (`init_effects`, `teardown_effects`).
  *
@@ -152,12 +152,12 @@ export class RuntimeEngineStore {
   last_director_beat_round = $state(-1);
   last_dynamics_beat_round = $state(-1);
 
-  // --- Director Quick Shot Telemetry ---
+  // --- Director turn telemetry ---
   last_director_ms = $state(0);
   /** @type {number[]} */
   director_ms_pool = $state([]);
 
-  // --- Simulation Stability & Back-Shot Telemetry ---
+  // --- Simulation Stability & Caretaker-turn telemetry ---
   /** @type {number} */
   structural_errors = $state(0);
   /** @type {number} */

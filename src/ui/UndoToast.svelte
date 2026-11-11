@@ -1,4 +1,5 @@
 <script>
+  import { Button } from "./primitives/index.js";
   /**
    * @typedef {Object} Props
    * @property {number} undo_window_ms
@@ -21,8 +22,8 @@
     overflow-hidden
     rounded-2xl
     border
-    border-white/10
-    bg-[color-mix(in_srgb,var(--color-slate-900)_85%,transparent)]
+    border-transparent
+    bg-[color-mix(in_srgb,var(--color-dev-accent)_5%,rgba(15,15,15,0.7))]
     px-5
     py-3.5
     text-xs
@@ -32,33 +33,13 @@
   "
 >
   <div class="flex items-center gap-2">
-    <span class="h-2 w-2 animate-pulse rounded-full bg-rose-400 shadow-[0_0_8px_rgba(244,63,94,0.6)]"></span>
-    <span class="font-mono text-xs tracking-wide text-slate-300">Message deleted</span>
+    <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
+    <span class="font-mono text-xs tracking-wide text-slate-300">Entry removed</span>
   </div>
-  <button
-    class="
-      cursor-pointer
-      rounded-lg
-      bg-(--color-dev-accent)
-      px-4
-      py-1.5
-      font-mono
-      text-xs
-      font-bold
-      tracking-wider
-      text-slate-950
-      uppercase
-      transition-all
-      hover:brightness-110
-      active:scale-95
-    "
-    onclick={on_undo}
-  >
-    Undo
-  </button>
+  <Button variant="secondary" size="small" onclick={on_undo}>Undo</Button>
   <span
     aria-hidden="true"
-    class="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-(--color-dev-accent)"
+    class="absolute inset-x-0 bottom-0 h-px origin-left bg-(--color-dev-accent)"
     style="animation: undo-countdown-shrink {undo_window_ms}ms linear forwards;"
   ></span>
 </div>

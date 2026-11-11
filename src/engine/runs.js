@@ -15,7 +15,7 @@
 import { normalize_entity } from "../data/entities.js";
 import { Kernel } from "./kernel.svelte.js";
 import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
-import { append_ledger_entries, log_message } from "../data/db.js";
+import { append_ledger_entries, db, log_message } from "../data/db.js";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../data/parser.js";
 import { state_bridge } from "../utils/index.js";
 import { get_transport } from "./transport.js";
@@ -50,11 +50,39 @@ export function open_turn_session(app, runtime, feed = []) {
 }
 
 /**
- * Commits a finished turn to persistence and the reactive feed: the AI row,
- * then the DYNAMICS_DELTA system row when the director moved meters.
+ * Commits a finished turn to persistence and the reactive feed: the director-turn
+ * row first, then the character-turn AI row (chronological cause-before-effect).
+ * Caretaker consolidation still appends last via dispatch_caretaker_consolidation.
  */
-async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, round }) {
+async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, round, kernel }) {
   if (!prose || !story_id) return;
+
+  // A2: snapshot post-clamp axis levels alongside signed deltas so gauges render
+  // true 0..100 fullness + (±delta) badges. Legacy rows without `levels` fall back
+  // to delta-magnitude bars in ChatBubble.
+  const levels =
+    kernel && (kernel.ai?.dynamics || kernel.fractal?.dynamics) ? { ...(kernel.ai?.dynamics || {}), ...(kernel.fractal?.dynamics || {}) } : undefined;
+
+  // Director turn first (C1: chronology over stability — accepted devmode jump on commit).
+  let logged_delta = null;
+  if (outcome.director_staging?.dynamics_deltas) {
+    logged_delta = await log_message("", "system", "Director", {
+      turn_type: "SYSTEM_TURN",
+      round,
+      story_id,
+      meta: {
+        type: "DYNAMICS_DELTA",
+        deltas: outcome.director_staging.dynamics_deltas,
+        ...(levels ? { levels } : {}),
+        director_note: outcome.director_staging.directors_note,
+        camera_note: outcome.director_staging.camera_note,
+        thoughts: outcome.director_staging._thought_process || "",
+      },
+    });
+    if (logged_delta && state_bridge.simulation_log?.add) {
+      state_bridge.simulation_log.add(logged_delta);
+    }
+  }
 
   const logged_entry = await log_message(prose, "ai", ai_name, {
     turn_type: "AI_TURN",
@@ -69,22 +97,16 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
     state_bridge.simulation_log.add(logged_entry);
   }
 
-  // Emit a DYNAMICS_DELTA system entry so telemetry stays live on turns
-  if (outcome.director_staging?.dynamics_deltas) {
-    const logged_delta = await log_message("", "system", "Director", {
-      turn_type: "SYSTEM_TURN",
-      round,
-      story_id,
-      meta: {
-        type: "DYNAMICS_DELTA",
-        deltas: outcome.director_staging.dynamics_deltas,
-        director_note: outcome.director_staging.directors_note,
-        camera_note: outcome.director_staging.camera_note,
-        thoughts: outcome.director_staging._thought_process || "",
-      },
-    });
-    if (logged_delta && state_bridge.simulation_log?.add) {
-      state_bridge.simulation_log.add(logged_delta);
+  // Force explicit ordering so same-ms Date.now() ties can't flip on reload
+  // (load_log sorts by created_at; live feed already appended delta-first).
+  if (logged_delta && logged_entry && logged_delta.created_at >= logged_entry.created_at) {
+    try {
+      const fixed = logged_entry.created_at - 1;
+      await db.simulation_log.update(logged_delta.id, { created_at: fixed });
+      logged_delta.created_at = fixed;
+      state_bridge.simulation_log?.update?.(logged_delta.id, { created_at: fixed });
+    } catch {
+      // Ordering is best-effort; insertion order already holds live.
     }
   }
 }
@@ -205,6 +227,7 @@ export async function execute_turn(user_input, _options = {}) {
       ai_name: ai_quadrant.name || "AI",
       story_id: runtime.story_id,
       round: kernel.round,
+      kernel,
     });
 
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas

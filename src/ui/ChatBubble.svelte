@@ -41,15 +41,18 @@
    * @returns {string}
    */
   export function get_telemetry_label(meta, runtime) {
+    if (meta?.type === "STORY_START") {
+      return "Simulation initiated";
+    }
     if (meta?.type === "MEMORY_FORMATION" || meta?.type === "CONTINUUM_FORMATION") {
       const name = resolve_entity_name(meta.target, runtime);
       const turns = meta.turns_count ? ` from ${meta.turns_count} turns` : "";
-      return `${name} — Back Shot${turns}`;
+      return `${name} — Caretaker turn${turns}`;
     }
     if (meta?.type === "VECTOR_RESOLUTION") {
-      return "Past Vector Resolved";
+      return "Vector resolution";
     }
-    return "Quick Shot";
+    return "Director turn";
   }
 
   export function vector_label(type, fallback = "past") {
@@ -539,6 +542,20 @@
 
   let telemetry_card_label = $derived(meta ? get_telemetry_label(meta, runtime) : "");
 
+  // Director turn (A2): signed per-turn deltas + post-clamp absolute levels.
+  const DIRECTOR_AXES = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];
+  let director_deltas = $derived(meta?.deltas && typeof meta.deltas === "object" ? meta.deltas : null);
+  let director_levels = $derived(meta?.levels && typeof meta.levels === "object" ? meta.levels : null);
+  let director_rows = $derived.by(() => {
+    if (!director_deltas) return [];
+    return DIRECTOR_AXES.filter((axis) => director_deltas[axis] !== undefined).map((axis) => {
+      const delta = Number(director_deltas[axis]) || 0;
+      const level = director_levels?.[axis] !== undefined ? Number(director_levels[axis]) : null;
+      const fill = level != null && Number.isFinite(level) ? get_percentage(level) : Math.min(100, Math.abs(delta) * 10);
+      return { axis, delta, level, fill };
+    });
+  });
+
   const get_entity_name = (key) => {
     return resolve_entity_name(key, runtime);
   };
@@ -549,9 +566,11 @@
   };
 
   /**
-   * Extracts individual bracket lines or sentences from a quadrant text payload.
+   * Parses a quadrant bracket payload into per-item chip objects (B2, renderer-side).
+   * Filters `| hide` internals so they never leak into the card. Weight is parsed
+   * but visual emphasis is deferred per user call — chips render neutral for now.
    * @param {any} text_or_obj
-   * @returns {string[]}
+   * @returns {Array<{key:string,value:string}>}
    */
   function extract_bracket_items(text_or_obj) {
     if (!text_or_obj) return [];
@@ -559,9 +578,16 @@
     if (!raw) return [];
     const entries = parse_bracket_entries(raw);
     if (entries.length > 0) {
-      return entries.map((e) => e.raw).filter(Boolean);
+      return entries
+        .filter((e) => {
+          const vis = e.visibility || (e.flags?.hide ? "hide" : null);
+          if (vis === "hide" || e.flags?.hide || e.hide) return false;
+          return true;
+        })
+        .map((e) => ({ key: String(e.key || "").toUpperCase(), value: String(e.value ?? "").trim() }))
+        .filter((it) => it.key || it.value);
     }
-    return [raw];
+    return [{ key: "", value: raw }];
   }
 </script>
 
@@ -776,16 +802,6 @@
     </div>
   {/if}
 
-  {#if !should_use_typewriter}
-    {#if app.settings.dev_mode}
-      {#if meta && (meta.dynamics || meta.vectors || meta.deltas || meta.updates)}
-        <div class="mb-4">
-          {@render telemetry_content()}
-        </div>
-      {/if}
-    {/if}
-  {/if}
-
   {#if is_editing}
     <TextField bind:value={local_text} is_edit={true} {signature_color} variant="bare" placeholder="Edit message..." />
   {:else if has_display_text || (busy && attachments.length === 0)}
@@ -918,13 +934,13 @@
         {@const preview_options = build_preview_options(attachment, id, attach_idx, signature_color)}
         {@const is_failed = typeof attachment === "object" && attachment !== null && Boolean(attachment?.metadata?.failed)}
         {#if image_picker.hasError(regenerate_key)}
-          <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4" style={container_style}>
+          <div class="flex flex-col items-center justify-center gap-2 rounded-xl bg-red-900/20 p-4" style={container_style}>
             <p class="text-center text-sm text-red-400">{image_picker.error}</p>
           </div>
         {:else if image_picker.isReady(regenerate_key)}
           <Button
             variant="bare"
-            class="group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
+            class="group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
             style={container_style}
             onclick={() => open_picker()}
             aria-label="Select image from candidates"
@@ -960,14 +976,14 @@
           </Button>
         {:else if image_picker.isRegenerating(regenerate_key)}
           <div
-            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
             style={container_style}
           >
             <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
           </div>
         {:else if is_failed}
           <div
-            class="relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-lg border border-red-900/50 bg-red-950/25 p-4"
+            class="relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-4"
             style={container_style}
           >
             <svg
@@ -1010,7 +1026,7 @@
               block
               w-fit
               overflow-hidden
-              rounded-lg
+              rounded-xl
               border
               border-(--signature-color,slate-600)/30
               bg-neutral-900/50
@@ -1030,14 +1046,14 @@
                 w-auto
                 max-w-full
                 cursor-zoom-in
-                rounded-lg
+                rounded-xl
                 object-contain
               "
             />
           </Button>
         {:else}
           <div
-            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
             style={container_style}
           >
             <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
@@ -1049,22 +1065,34 @@
 {/snippet}
 
 {#snippet temporal_quadrant(label, items, isMuted = false)}
-  {@const clean_items = (Array.isArray(items) ? items : [items])
+  {@const list = Array.isArray(items) ? items : [items]}
+  {@const chip_items = list
     .filter(Boolean)
-    .filter((it) => clean_text_debris(typeof it === "string" ? it : it?.content || it?.directive || ""))}
-  {#if clean_items.length > 0}
+    .map((it) => {
+      if (typeof it === "string") return { key: "", value: it };
+      if (it.key !== undefined || it.value !== undefined) return { key: it.key || "", value: it.value ?? "" };
+      return { key: "", value: it.content || it.directive || "" };
+    })
+    .filter((it) => clean_text_debris(it.value))}
+  {#if chip_items.length > 0}
     <div
-      class="flex gap-4 rounded-sm border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
+      class="flex gap-4 rounded-xl border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
         ? 'border-l-slate-500 bg-black/20'
         : 'border-l-(--color-dev-accent) bg-black/40'}"
     >
       <span class="w-28 shrink-0 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">{label}</span>
-      <div class="flex flex-1 flex-col gap-1.5 {isMuted ? 'text-slate-300' : 'text-slate-200'}">
-        {#each clean_items as item, i (i)}
-          {@const text = typeof item === "string" ? item : item.content || item.directive}
-          <div>
-            <span use:safe_html={render_telemetry_text(text)}></span>
-          </div>
+      <div class="flex flex-1 flex-wrap gap-2 {isMuted ? 'text-slate-300' : 'text-slate-200'}">
+        {#each chip_items as item, i (i)}
+          {#if item.key}
+            <span class="inline-flex max-w-full items-baseline gap-2 rounded-xl border border-white/10 bg-white/5 px-2.5 py-1">
+              <span class="shrink-0 text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">{item.key}</span>
+              <span class="min-w-0 text-slate-100" use:safe_html={render_telemetry_text(item.value)}></span>
+            </span>
+          {:else}
+            <div class="w-full">
+              <span use:safe_html={render_telemetry_text(item.value)}></span>
+            </div>
+          {/if}
         {/each}
       </div>
     </div>
@@ -1072,197 +1100,246 @@
 {/snippet}
 
 {#snippet telemetry_content()}
-  <div class="w-full">
-    {#if meta.type === "STORY_START"}
-      <div class="rounded-sm border border-(--color-dev-accent)/20 bg-(--color-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
-        <div class="flex items-center gap-2">
-          <div class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></div>
-          <span class="text-sm font-bold tracking-widest text-(--color-dev-accent) uppercase">Simulation Initiated</span>
-        </div>
-        <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
-      </div>
-    {:else}
-      <div
-        class="terminal-box overflow-hidden {meta.type === 'CONTINUUM_FORMATION' ||
-        meta.type === 'MEMORY_FORMATION' ||
-        meta.type === 'VECTOR_RESOLUTION'
-          ? 'animate-[pulse-resonance_1.5s_cubic-bezier(0.4,0,0.2,1)_2] border-(--color-dev-accent)'
-          : ''}"
+  <div
+    class="
+      group
+      relative
+      flex w-full
+      min-w-0
+      flex-col
+      overflow-hidden
+      rounded-2xl
+      border
+      border-transparent
+      bg-[color-mix(in_srgb,var(--signature-color)_5%,rgba(15,15,15,0.7))]
+      shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+      [backdrop-filter:var(--blur-mist)]
+      before:pointer-events-none
+      before:absolute
+      before:inset-0
+      before:rounded-[inherit]
+      before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
+      before:mask-border-solid
+      before:p-px
+      before:opacity-30
+      before:content-['']!
+    "
+    style="--signature-color: var(--color-dev-accent);"
+  >
+    {#if telemetry_card_label}
+      <header
+        class="flex h-8 items-center gap-2 border-b border-white/10 px-4 font-mono text-[11px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
       >
-        {#if telemetry_card_label}
-          <header
-            class="border-b border-solid border-electric-cyan/20 bg-electric-cyan/5 px-4 py-3 text-xs font-extrabold tracking-wider text-[#f2f7fa] uppercase"
-          >
-            {telemetry_card_label}
-          </header>
-        {/if}
-        <div class="p-4">
-          <div class="flex flex-col gap-4">
-            <!-- 1. IMAGE TRIGGER INDICATOR -->
-            {#if meta.trigger_image === true || meta.image_trigger === true}
-              <div class="flex flex-wrap items-center gap-2 rounded-sm border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
-                <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
-                <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
-                {#if meta.image_tier}
-                  <span
-                    class="rounded-sm bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
-                  >
-                    {meta.image_tier}
-                  </span>
-                {/if}
-                {#if meta.image_source}
-                  <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
-                {/if}
-                {#if meta.image_signals?.band_entry}
-                  <span class="font-mono text-[10px] text-slate-400">
-                    · Band: {meta.image_signals.band_entry.axis}
-                    {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
-                  </span>
-                {/if}
-                {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 50)}
-                  <span class="font-mono text-[10px] text-slate-400">
-                    · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
-                  </span>
-                {/if}
-              </div>
-            {/if}
+        <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+        <span class="truncate">{telemetry_card_label}</span>
+      </header>
+    {/if}
+    <div class="p-4">
+      <div class="flex flex-col gap-4">
+        {#if meta.type === "STORY_START"}
+          <p class="font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
+        {:else}
+          <!-- 1. IMAGE TRIGGER INDICATOR -->
+          {#if meta.trigger_image === true || meta.image_trigger === true}
+            <div class="flex flex-wrap items-center gap-2 rounded-xl border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+              <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+              <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+              {#if meta.image_tier}
+                <span
+                  class="rounded-xl bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+                >
+                  {meta.image_tier}
+                </span>
+              {/if}
+              {#if meta.image_source}
+                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
+              {/if}
+              {#if meta.image_signals?.band_entry}
+                <span class="font-mono text-[10px] text-slate-400">
+                  · Band: {meta.image_signals.band_entry.axis}
+                  {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
+                </span>
+              {/if}
+              {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 50)}
+                <span class="font-mono text-[10px] text-slate-400">
+                  · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
+                </span>
+              {/if}
+            </div>
+          {/if}
 
-            <!-- 2. QUICK SHOT: PER-ENTITY STATE CHANGES -->
-            {#if entity_blocks.length > 0}
-              <div class="flex flex-col gap-4">
-                {#each entity_blocks as block (block.key)}
-                  <div class="flex flex-col gap-2">
-                    <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
-                      {block.name || get_entity_name(block.key)}
-                    </header>
+          <!-- 2. DIRECTOR TURN: AXIS GAUGES (A2 levels + signed deltas) -->
+          {#if director_rows.length > 0}
+            <div class="grid grid-cols-2 gap-4">
+              {#each director_rows as row (row.axis)}
+                <div class="flex items-center justify-between gap-4">
+                  <span class="min-w-20 text-xs text-slate-400 lowercase">{row.axis}</span>
+                  <div class="flex flex-1 items-center gap-4">
+                    <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+                      <div class="absolute h-full" style="left: 0%; width: {row.fill}%; background: var(--color-dev-accent);"></div>
+                    </div>
+                    <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
+                      <span class="text-slate-50">{row.level != null ? get_percentage(row.level) : `${row.delta > 0 ? "+" : ""}${row.delta}`}</span>
+                      {#if row.level != null}
+                        <span class={row.delta > 0 ? "text-(--color-dev-accent)" : row.delta < 0 ? "text-slate-500" : "text-slate-500"}>
+                          ({row.delta > 0 ? "+" : ""}{row.delta})
+                        </span>
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          {/if}
 
-                    <!-- DYNAMICS BAR GAUGES -->
-                    {#if block.dynamics.length > 0}
-                      <div class="grid grid-cols-2 gap-4">
-                        {#each block.dynamics as delta (delta.axis)}
-                          {@const fill_width = delta.has_delta
-                            ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
-                            : get_percentage(delta.value)}
-                          {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
-                          <div class="flex items-center justify-between gap-4">
-                            <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
-                            <div class="flex flex-1 items-center gap-4">
-                              <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+          {#if meta.director_note}
+            <div class="flex gap-4 rounded-xl border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+              <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Director</span>
+              <span class="flex-1 text-slate-200">{meta.director_note}</span>
+            </div>
+          {/if}
+          {#if meta.camera_note}
+            <div class="flex gap-4 rounded-xl border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+              <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
+              <span class="flex-1 text-slate-200">{meta.camera_note}</span>
+            </div>
+          {/if}
+
+          <!-- 3. LEGACY UPDATES BRANCH (fallback for old stored rows) -->
+          {#if entity_blocks.length > 0}
+            <div class="flex flex-col gap-4">
+              {#each entity_blocks as block (block.key)}
+                <div class="flex flex-col gap-2">
+                  <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                    {block.name || get_entity_name(block.key)}
+                  </header>
+
+                  <!-- DYNAMICS BAR GAUGES -->
+                  {#if block.dynamics.length > 0}
+                    <div class="grid grid-cols-2 gap-4">
+                      {#each block.dynamics as delta (delta.axis)}
+                        {@const fill_width = delta.has_delta
+                          ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
+                          : get_percentage(delta.value)}
+                        {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
+                        <div class="flex items-center justify-between gap-4">
+                          <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
+                          <div class="flex flex-1 items-center gap-4">
+                            <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
+                              <div
+                                class="absolute h-full transition-all duration-300"
+                                style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
+                              ></div>
+                              {#if delta.has_delta}
                                 <div
-                                  class="absolute h-full transition-all duration-300"
-                                  style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
+                                  class="absolute z-10 h-full opacity-40 transition-all duration-300"
+                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
                                 ></div>
+                              {/if}
+                            </div>
+                            <div class="flex flex-col items-end gap-0.5">
+                              <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
+                                <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
                                 {#if delta.has_delta}
-                                  <div
-                                    class="absolute z-10 h-full opacity-40 transition-all duration-300"
-                                    style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
-                                  ></div>
+                                  <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
+                                    ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                                  </span>
                                 {/if}
-                              </div>
-                              <div class="flex flex-col items-end gap-0.5">
-                                <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
-                                  <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
-                                  {#if delta.has_delta}
-                                    <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
-                                      ({delta.diff > 0 ? "+" : ""}{delta.diff})
-                                    </span>
-                                  {/if}
-                                </div>
                               </div>
                             </div>
                           </div>
+                        </div>
+                      {/each}
+                    </div>
+                  {/if}
+
+                  <!-- TEMPORAL ROWS -->
+                  {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
+                    <div class="flex flex-col gap-1.5 pt-1">
+                      {@render temporal_quadrant(
+                        "ETERNAL",
+                        extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`),
+                      )}
+                      {@render temporal_quadrant("PRESENT", extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`))}
+
+                      {#if block.new_vectors.length > 0}
+                        {@render temporal_quadrant(
+                          "PAST",
+                          block.new_vectors.map((nv) => nv.content),
+                        )}
+                      {/if}
+
+                      {#if block.retrieval?.length > 0}
+                        {@render temporal_quadrant(
+                          "PAST (RETRIEVAL)",
+                          block.retrieval.map((rv) => rv.content),
+                          true,
+                        )}
+                      {/if}
+                    </div>
+                  {/if}
+
+                  <!-- RELATIONAL MUTATIONS -->
+                  {#if block.relationships?.length > 0}
+                    <div class="flex flex-col gap-1.5 pt-1">
+                      <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                        RELATIONAL MUTATIONS
+                      </header>
+                      <div class="flex flex-col gap-1">
+                        {#each block.relationships as rel, i (i)}
+                          <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
+                            <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
+                            <span class="text-slate-100">{rel.dynamic}</span>
+                          </div>
                         {/each}
                       </div>
-                    {/if}
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          {/if}
 
-                    <!-- TEMPORAL ROWS -->
-                    {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
-                      <div class="flex flex-col gap-1.5 pt-1">
-                        {@render temporal_quadrant(
-                          "ETERNAL",
-                          extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`),
-                        )}
-                        {@render temporal_quadrant("PRESENT", extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`))}
+          <!-- 4. CARETAKER TURN: CONTINUUM -->
+          {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
+            <div class="flex flex-col gap-1.5 pt-1">
+              {@render temporal_quadrant("ETERNAL", extract_bracket_items(meta.eternal))}
+              {@render temporal_quadrant("PRESENT", extract_bracket_items(meta.present))}
+              {@render temporal_quadrant("FUTURE", extract_bracket_items(meta.future))}
 
-                        {#if block.new_vectors.length > 0}
-                          {@render temporal_quadrant(
-                            "PAST",
-                            block.new_vectors.map((nv) => nv.content),
-                          )}
-                        {/if}
+              {#if consolidated_vectors.length > 0}
+                {@render temporal_quadrant(
+                  "PAST",
+                  consolidated_vectors.map((v) => v.content || v.directive),
+                )}
+              {/if}
+            </div>
+          {/if}
 
-                        {#if block.retrieval?.length > 0}
-                          {@render temporal_quadrant(
-                            "PAST (RETRIEVAL)",
-                            block.retrieval.map((rv) => rv.content),
-                            true,
-                          )}
-                        {/if}
-                      </div>
-                    {/if}
+          <!-- 5. VECTOR RESOLUTION -->
+          {#if meta.type === "VECTOR_RESOLUTION"}
+            <div class="flex flex-col gap-1.5 pt-1">
+              {#if meta.vector}
+                {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
+              {/if}
+              {#if meta.resolution}
+                <div class="flex gap-4 rounded-xl border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                  <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
+                  <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
+                </div>
+              {/if}
+            </div>
+          {/if}
 
-                    <!-- RELATIONAL MUTATIONS -->
-                    {#if block.relationships?.length > 0}
-                      <div class="flex flex-col gap-1.5 pt-1">
-                        <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
-                          RELATIONAL MUTATIONS
-                        </header>
-                        <div class="flex flex-col gap-1">
-                          {#each block.relationships as rel, i (i)}
-                            <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
-                              <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
-                              <span class="text-slate-100">{rel.dynamic}</span>
-                            </div>
-                          {/each}
-                        </div>
-                      </div>
-                    {/if}
-                  </div>
-                {/each}
-              </div>
-            {/if}
-
-            <!-- 3. BACK SHOT: MEMORY FORMATION -->
-            {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
-              <div class="flex flex-col gap-1.5 pt-1">
-                {@render temporal_quadrant("ETERNAL", extract_bracket_items(meta.eternal))}
-                {@render temporal_quadrant("PRESENT", extract_bracket_items(meta.present))}
-                {@render temporal_quadrant("FUTURE", extract_bracket_items(meta.future))}
-
-                {#if consolidated_vectors.length > 0}
-                  {@render temporal_quadrant(
-                    "PAST",
-                    consolidated_vectors.map((v) => v.content || v.directive),
-                  )}
-                {/if}
-              </div>
-            {/if}
-
-            <!-- 4. VECTOR RESOLUTION -->
-            {#if meta.type === "VECTOR_RESOLUTION"}
-              <div class="flex flex-col gap-1.5 pt-1">
-                {#if meta.vector}
-                  {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
-                {/if}
-                {#if meta.resolution}
-                  <div class="flex gap-4 rounded-sm border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
-                    <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
-                    <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
-                  </div>
-                {/if}
-              </div>
-            {/if}
-
-            <!-- 5. RAW DATA ACCORDION -->
-            <Accordion label="View Raw Data">
-              <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-4 text-sm">
-                <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(meta, null, 2)}</pre>
-              </div>
-            </Accordion>
-          </div>
-        </div>
+          <!-- 6. RAW DATA ACCORDION -->
+          <Accordion label="View Raw Data">
+            <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-4 text-sm">
+              <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(meta, null, 2)}</pre>
+            </div>
+          </Accordion>
+        {/if}
       </div>
-    {/if}
+    </div>
   </div>
 {/snippet}
 
