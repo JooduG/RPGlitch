@@ -1119,14 +1119,11 @@
                   src={profile_state.char.profile_picture}
                   alt=""
                   draggable={false}
-                  class="h-full w-full scale-125 object-cover object-bottom opacity-45 blur-lg saturate-200"
+                  class="h-full w-full scale-125 object-cover object-bottom opacity-70 blur-lg saturate-200"
                 />
               {/if}
-              <!-- Neutral contrast scrim: signature-free glass + mist blur over the photo bleed -->
-              <div
-                class="absolute inset-0"
-                style="background-color: color-mix(in srgb, var(--color-glass-sunken) 68%, transparent); backdrop-filter: var(--blur-mist);"
-              ></div>
+              <!-- Neutral contrast scrim: signature-free glass over the photo bleed (no live blur — blurred text haze is what turned it muddy) -->
+              <div class="absolute inset-0" style="background-color: color-mix(in srgb, var(--color-glass-sunken) 55%, transparent);"></div>
             </div>
 
             <div class={"relative z-10 flex gap-4 " + (app.viewport.mobile ? "flex-col items-stretch" : "flex-row items-center")}>
