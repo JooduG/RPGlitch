@@ -448,7 +448,8 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile ? "w-full flex-col items-stretch" : "justify-end"),
+    "sticky bottom-0 z-10 -mx-4 mt-auto flex shrink-0 gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
+      (app.viewport.mobile ? "w-full flex-col items-stretch" : "justify-end"),
   );
 
   const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-4" : "grid items-center gap-x-2 gap-y-4"));
@@ -1050,7 +1051,12 @@
             {@render EntityBody()}
           </main>
 
-          <footer bind:this={footer_el} tabindex="-1" class={footer_layout_class}>
+          <footer
+            bind:this={footer_el}
+            tabindex="-1"
+            class={footer_layout_class}
+            style="background-color: color-mix(in srgb, var(--signature-color) 6%, var(--color-glass-sunken));"
+          >
             {#if profile_state.is_editing}
               <Button
                 variant="primary"
