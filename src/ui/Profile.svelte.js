@@ -14,6 +14,9 @@ const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 // Canonical quadrant paths, in brief/OUTPUT_FORMAT order. enhance_profile
 // iterates this instead of repeating the six paths three times.
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
+
+/** Identity rule: IDs are 2-20 chars of A-Z, 0-9, _ or -. */
+const ID_PATTERN = /^[A-Z0-9_-]{2,20}$/;
 export class ProfileState {
   is_editing = $state(false);
   is_saving = $state(false);
@@ -33,6 +36,87 @@ export class ProfileState {
    * @type {boolean}
    */
   _user_mutated = $state(false);
+
+  /**
+   * Draft ID/Name inputs. The live `char` is only updated on commit-on-valid,
+   * so an in-progress (or emptied) field can never unmount the modal or
+   * corrupt id-keyed lookups mid-keystroke.
+   * @type {string | null}
+   */
+  draft_id = $state(null);
+  /** @type {string | null} */
+  draft_name = $state(null);
+  /** @type {string} */
+  identity_error = $state("");
+
+  /** @returns {boolean} */
+  get id_valid() {
+    return !!this.char && ID_PATTERN.test(String(this.char.id || ""));
+  }
+
+  /** @returns {boolean} */
+  get name_valid() {
+    return !!this.char && String(this.char.name || "").trim().length > 0;
+  }
+
+  /** @returns {boolean} */
+  get identity_valid() {
+    return this.id_valid && this.name_valid;
+  }
+
+  /** Snapshot drafts from `char` when entering edit mode. */
+  sync_identity_drafts() {
+    this.draft_id = this.char ? String(this.char.id || "") : "";
+    this.draft_name = this.char ? String(this.char.name || "") : "";
+    this.identity_error = "";
+  }
+
+  /** Discard drafts (after cancel / swap / successful save). */
+  clear_identity_drafts() {
+    this.draft_id = null;
+    this.draft_name = null;
+    this.identity_error = "";
+  }
+
+  /**
+   * Commit the ID draft to `char` if it satisfies the pattern.
+   * @returns {boolean} true when the draft is valid (or absent).
+   */
+  commit_draft_id() {
+    if (this.draft_id === null || this.draft_id === undefined) return true;
+    const cleaned = String(this.draft_id)
+      .toUpperCase()
+      .replace(/[^A-Z0-9_-]/g, "")
+      .slice(0, 20);
+    if (cleaned !== this.draft_id) this.draft_id = cleaned;
+    if (!ID_PATTERN.test(cleaned)) return false;
+    if (this.char && this.char.id !== cleaned) {
+      this.char.id = cleaned;
+      this._user_mutated = true;
+    }
+    return true;
+  }
+
+  /**
+   * Commit the Name draft to `char` if it is non-blank.
+   * @returns {boolean} true when the draft is valid (or absent).
+   */
+  commit_draft_name() {
+    if (this.draft_name === null || this.draft_name === undefined) return true;
+    if (!String(this.draft_name).trim()) return false;
+    if (this.char && this.char.name !== this.draft_name) {
+      this.char.name = this.draft_name;
+      this._user_mutated = true;
+    }
+    return true;
+  }
+
+  /** Commit both drafts. Valid halves apply even when the other half fails. */
+  commit_identity_drafts() {
+    const id_ok = this.commit_draft_id();
+    const name_ok = this.commit_draft_name();
+    return id_ok && name_ok;
+  }
 
   /**
    * Marks the workspace as dirtied by the user. The write is deferred out of the
@@ -93,6 +177,7 @@ export class ProfileState {
     if (!this.can_edit) return;
     this._user_mutated = false;
     this.is_editing = true;
+    this.sync_identity_drafts();
   }
 
   /**
@@ -109,6 +194,7 @@ export class ProfileState {
       }
       this.char = normalize(app.editing_entity);
       this.reset_active_field();
+      this.clear_identity_drafts();
     }
   }
 
@@ -124,6 +210,7 @@ export class ProfileState {
       this._user_mutated = false;
       this.char = normalize(next);
       this.reset_active_field();
+      this.clear_identity_drafts();
     }
   }
 
@@ -166,7 +253,8 @@ export class ProfileState {
    */
   async handle_close(entity_type = "character") {
     if (this.is_editing && this._user_mutated) {
-      await this.save(entity_type);
+      const ok = await this.save(entity_type);
+      if (!ok) return false;
     }
     this.is_editing = false;
     const active_wings = app.settings.dev_mode;
@@ -179,6 +267,7 @@ export class ProfileState {
     } else {
       app.toggle_profile(false);
     }
+    return true;
   }
 
   /**
@@ -189,6 +278,7 @@ export class ProfileState {
     this.char = normalize(app.editing_entity || runtime.active_user);
     this._user_mutated = false;
     this.reset_active_field();
+    this.clear_identity_drafts();
   }
 
   /**
@@ -212,6 +302,14 @@ export class ProfileState {
    * @param {"character" | "fractal"} entity_type
    */
   async save(entity_type) {
+    this.commit_identity_drafts();
+    if (!this.identity_valid) {
+      this.identity_error = !this.id_valid ? "ID must be 2–20 chars (A–Z, 0–9, _ or -)." : "Name is required.";
+      this.is_editing = true;
+      this.is_saving = false;
+      return false;
+    }
+    this.identity_error = "";
     this.is_editing = false;
     this._user_mutated = false;
     this.is_saving = true;
@@ -239,9 +337,12 @@ export class ProfileState {
       // Sync app.editing_entity so the Profile modal picks up the saved data
       // (prevents stale display when reopening the profile without a refresh)
       if (updated) app.editing_entity = updated;
+      this.clear_identity_drafts();
+      return true;
     } catch (err) {
       console.error("Failed to save profile:", err);
       this.is_editing = true;
+      return false;
     } finally {
       this.is_saving = false;
     }

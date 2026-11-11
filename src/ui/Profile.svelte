@@ -632,7 +632,7 @@
 
 <svelte:window
   onkeydown={(e) => {
-    if (!profile_state.char?.id || profile_state.show_delete_confirm) return;
+    if (!profile_state.char || profile_state.show_delete_confirm) return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
       if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
@@ -648,7 +648,7 @@
   }}
 />
 
-{#if profile_state.char?.id}
+{#if profile_state.char}
   <Dialog
     type="confirm"
     bind:open={profile_state.pending_swap_confirm}
@@ -822,21 +822,27 @@
                 <span aria-hidden="true">@</span>
                 <input
                   type="text"
-                  bind:value={profile_state.char.id}
+                  value={profile_state.draft_id ?? profile_state.char.id ?? ""}
                   placeholder="SLUG"
                   pattern={"^[A-Za-z0-9_-]{2,20}$"}
                   maxlength="20"
                   class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
                   style="color: {signature_color};"
                   oninput={(event) => {
-                    profile_state.char.id = event.currentTarget.value
+                    profile_state.draft_id = event.currentTarget.value
                       .toUpperCase()
                       .replace(/[^A-Z0-9_-]/g, "")
                       .slice(0, 20);
+                    profile_state.identity_error = "";
                     profile_state.mark_mutated();
                   }}
+                  onblur={() => {
+                    if (!profile_state.commit_draft_id()) {
+                      profile_state.identity_error = "ID must be 2–20 chars (A–Z, 0–9, _ or -).";
+                    }
+                    profile_state.set_active_field("", "");
+                  }}
                   onfocus={() => profile_state.set_active_field("id", "Entity Handle")}
-                  onblur={() => profile_state.set_active_field("", "")}
                 />
                 {#if entity_type !== "fractal"}
                   <span class="text-slate-400" aria-hidden="true">·</span>
@@ -854,6 +860,11 @@
                   </button>
                 {/if}
               </div>
+              {#if profile_state.is_editing && profile_state.identity_error}
+                <div role="alert" class="mb-1 font-mono text-[11px] tracking-wide text-red-300/90">
+                  {profile_state.identity_error}
+                </div>
+              {/if}
             {:else if profile_state.char.id}
               <div
                 class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
@@ -869,7 +880,7 @@
                 <div class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
                   <input
                     bind:this={name_input}
-                    bind:value={profile_state.char.name}
+                    value={profile_state.draft_name ?? profile_state.char.name ?? ""}
                     class="
                       z-20
                       box-border
@@ -888,8 +899,18 @@
                       md:text-6xl
                     "
                     style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem) !important;"
+                    oninput={(event) => {
+                      profile_state.draft_name = event.currentTarget.value;
+                      profile_state.identity_error = "";
+                      profile_state.mark_mutated();
+                    }}
                     onfocus={() => profile_state.set_active_field("name", "Entity Name")}
-                    onblur={() => profile_state.set_active_field("", "")}
+                    onblur={() => {
+                      if (!profile_state.commit_draft_name()) {
+                        profile_state.identity_error = "Name is required.";
+                      }
+                      profile_state.set_active_field("", "");
+                    }}
                   />
                 </div>
               {:else}
@@ -1057,6 +1078,15 @@
               >
                 Export {entity_type === "fractal" ? "Fractal" : "Character"}
               </Button>
+              <Button
+                variant="secondary"
+                class="touch-target-coarse"
+                aria-label="Discard unsaved edits and exit editing"
+                disabled={profile_state.is_saving}
+                onclick={() => {
+                  profile_state.cancel();
+                }}>Revert</Button
+              >
               <Button
                 variant="danger"
                 class="touch-target-coarse"
