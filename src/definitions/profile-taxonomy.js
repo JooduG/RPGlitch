@@ -3,17 +3,20 @@
  * 📋 PROFILE TAXONOMY — Single Source of Truth for Entity Fields.
  *
  * Defines the canonical schema for all character and fractal fields across the simulation:
- * - Canonical Field Taxonomy & Enhancer Roles (PROFILE_FIELDS)
- * - Field Catalog & Flat Metadata Registry (PROFILE_FIELD_CATALOG)
+ * - Canonical Field Taxonomy (PROFILE_FIELDS — the single home of all words)
+ * - Field Atoms & routing/assembly authority (FIELD_ATOMS, canonicalize_field_key,
+ *   resolve_entity_type, atom_for, output_key_for_path, caretaker_brief)
+ * - Field Catalog (PROFILE_FIELD_CATALOG — derived from atoms, same shape as ever)
  * - Profile Studio UI Layout Sections (PROFILE_SECTIONS_BY_TYPE)
- * - Flat Leaf Map & Ingestion Aliases (FLAT_LEAF_MAP + resolve_flat_path)
- * - Caretaker Enhancer Directives (ENHANCER_DIRECTIVES)
+ * - Flat Leaf Map & Ingestion Aliases (FLAT_LEAF_MAP — the alias table)
+ * - Caretaker Enhancer Directives (ENHANCER_DIRECTIVES — derived from atoms)
  *
  * Dependencies:
  * - format_key_as_label from @utils
  *
  * Rules:
  * - Pure data definition and layout mapping. No UI or state mutations.
+ * - Words live in PROFILE_FIELDS leaves exactly once; everything else derives.
  * - Always maintain symmetrical field structures for character and fractal entity models.
  */
 
@@ -136,7 +139,10 @@ export const PROFILE_FIELDS = {
   },
 };
 
-// ── 2. Derived Metadata, Catalog & Leaf Models ────────────────────────────────
+// ── 2. Field Atoms (schema authority) ─────────────────────────────────────────
+// PROFILE_FIELDS above is the content home. Everything below derives from it:
+// the flat atom list, the catalog, the enhancer directives, and the
+// routing/assembly helpers consumers call. No words are duplicated below.
 
 /**
  * @typedef {Object} CatalogEntry
@@ -172,54 +178,94 @@ export const PROFILE_FIELDS = {
  */
 
 /**
- * Traverses PROFILE_FIELDS once to build the flat polymorphic catalog.
- * @param {Record<string, any>} fields
- * @returns {{ catalog: Record<string, CatalogEntry> }}
+ * @typedef {Object} FieldAtom
+ * @property {string} id - Polymorphic ID, e.g. "character.eternal.non_physical"
+ * @property {string} type - Owning entity type ("character" | "fractal")
+ * @property {string} path - Dot-notation path within the type, e.g. "eternal.non_physical"
+ * @property {string} label - Canonical display label
+ * @property {string} description - Human-readable description / tooltip text
+ * @property {string} directive - AI instruction (single home of the words)
+ * @property {string} enhancer - Semantic enhancer role identifier
+ * @property {"replace" | "append"} merge - Write semantics: past appends, everything else replaces
  */
-function build_profile_catalog(fields) {
-  /** @type {Record<string, CatalogEntry>} */
-  const catalog = {};
-  const entity_types = ["character", "fractal"];
 
-  entity_types.forEach((entity_type) => {
+/**
+ * Walks PROFILE_FIELDS once and returns the 12 quadrant leaves as flat atoms.
+ * Generic over the composite/single distinction: layers with physical/
+ * non_physical children yield two atoms, other layers yield one atom per
+ * layer. Top-level metadata (name/description/signature_color/pov) are
+ * intentionally NOT atoms — not enhanceable, same as before.
+ * @param {Record<string, any>} fields
+ * @returns {FieldAtom[]}
+ */
+function build_field_atoms(fields) {
+  /** @type {FieldAtom[]} */
+  const atoms = [];
+
+  for (const entity_type of ["character", "fractal"]) {
     const entity_schema = fields[entity_type];
-    if (!entity_schema) return;
+    if (!entity_schema) continue;
 
-    Object.entries(entity_schema).forEach(([layer_key, layer_val]) => {
-      const section_label = format_key_as_label(layer_key);
-      const layer_uppercase = layer_key.toUpperCase();
-
-      if (layer_val.type === "array" || layer_val.directive) {
-        const tag = layer_val.label ? layer_val.label.toUpperCase().replace(/\s+/g, "_") : layer_key.toUpperCase();
-        catalog[`${entity_type}.${layer_key}`] = {
-          ...layer_val,
-          id: `${entity_type}.${layer_key}`,
-          path: layer_key,
-          tag,
-          section_label,
-          layer_key: layer_uppercase,
-        };
-      } else {
-        Object.entries(layer_val).forEach(([sub_key, leaf]) => {
-          const path = `${layer_key}.${sub_key}`;
-          const tag = leaf.label ? leaf.label.toUpperCase().replace(/\s+/g, "_") : sub_key.toUpperCase();
-          catalog[`${entity_type}.${path}`] = {
-            ...leaf,
-            id: `${entity_type}.${path}`,
-            path,
-            tag,
-            section_label,
-            layer_key: layer_uppercase,
-          };
+    for (const [layer_key, layer_val] of Object.entries(entity_schema)) {
+      const is_composite = Boolean(layer_val && (layer_val.physical || layer_val.non_physical));
+      const sub_keys = is_composite ? ["physical", "non_physical"].filter((k) => layer_val[k]) : [null];
+      for (const sub_key of sub_keys) {
+        const leaf = sub_key ? layer_val[sub_key] : layer_val;
+        if (!leaf) continue;
+        const path = sub_key ? `${layer_key}.${sub_key}` : layer_key;
+        atoms.push({
+          id: `${entity_type}.${path}`,
+          type: entity_type,
+          path,
+          merge: layer_key === "past" ? "append" : "replace",
+          label: leaf.label || "",
+          description: leaf.description || "",
+          directive: leaf.directive || "",
+          enhancer: leaf.enhancer || "",
         });
       }
-    });
-  });
+    }
+  }
+
+  return atoms;
+}
+
+export const FIELD_ATOMS = Object.freeze(build_field_atoms(PROFILE_FIELDS));
+
+/** @type {Record<string, FieldAtom>} */
+export const ATOM_BY_ID = Object.freeze(Object.fromEntries(FIELD_ATOMS.map((atom) => [atom.id, atom])));
+
+/**
+ * Builds the flat polymorphic catalog from atoms. Entry shape is identical to
+ * the historical hand-walked catalog (leaf fields + id/path/tag/section_label/
+ * layer_key) so existing readers see zero difference.
+ * @param {FieldAtom[]} atoms
+ * @returns {{ catalog: Record<string, CatalogEntry> }}
+ */
+function build_profile_catalog(atoms) {
+  /** @type {Record<string, CatalogEntry>} */
+  const catalog = {};
+
+  for (const atom of atoms) {
+    const layer_key = atom.path.split(".")[0];
+    const sub_key = atom.path.includes(".") ? atom.path.split(".")[1] : null;
+    catalog[atom.id] = {
+      label: atom.label,
+      description: atom.description,
+      directive: atom.directive,
+      enhancer: atom.enhancer,
+      id: atom.id,
+      path: atom.path,
+      tag: atom.label ? atom.label.toUpperCase().replace(/\s+/g, "_") : sub_key ? sub_key.toUpperCase() : layer_key.toUpperCase(),
+      section_label: format_key_as_label(layer_key),
+      layer_key: layer_key.toUpperCase(),
+    };
+  }
 
   return { catalog };
 }
 
-const { catalog } = build_profile_catalog(PROFILE_FIELDS);
+const { catalog } = build_profile_catalog(FIELD_ATOMS);
 
 /**
  * Flat registry of all entity fields, keyed by dot-notation ID.
@@ -262,52 +308,119 @@ export const FLAT_LEAF_MAP = Object.freeze({
 });
 
 /**
+ * Single home for entity-type normalization: "user" (and "ai", undefined,
+ * anything else) addresses the character schema; only "fractal" is fractal.
+ * Replaces the copies that lived in build_profile_sections, Profile.svelte.js
+ * and normalize_entity — same mapping, one definition.
+ * @param {string} [type]
+ * @returns {"character" | "fractal"}
+ */
+export function resolve_entity_type(type) {
+  return type === "fractal" ? "fractal" : "character";
+}
+
+/**
  * Resolves a flat leaf or alias key into a canonical dot-notation path.
- *
+ * Lookup order preserves the historical behavior exactly: the entity type's
+ * own map first, then the character map as fallback (so fractal ingestion
+ * keeps its tolerance for character-shaped aliases). Exact alias hits first,
+ * then a separator-insensitive compact fallback so human-shaped input
+ * ("Eternal Physical", "eternalPhysical") and structuring underscore keys
+ * ("eternal_physical") route to the nested schema instead of resolving null
+ * (the old direct-index gap in apply_profile_to_entity, which stored such
+ * keys as flat junk props that normalize_entity later dropped).
+ * @param {string} field_name
+ * @param {"character" | "fractal"} [entity_type="character"]
+ * @returns {string | null}
+ */
+export function canonicalize_field_key(field_name, entity_type = "character") {
+  if (!field_name || typeof field_name !== "string") return null;
+  const type = resolve_entity_type(entity_type);
+  const maps = type === "fractal" ? [FLAT_LEAF_MAP.fractal, FLAT_LEAF_MAP.character] : [FLAT_LEAF_MAP.character];
+
+  const normalized = field_name.trim().toLowerCase().replace(/\s+/g, "_");
+  for (const type_map of maps) {
+    const hit = type_map && type_map[normalized];
+    if (hit) return hit;
+  }
+
+  const compact = normalized.replace(/[^a-z0-9]/g, "");
+  if (!compact) return null;
+  for (const type_map of maps) {
+    if (!type_map) continue;
+    for (const [alias, path] of Object.entries(type_map)) {
+      if (alias.replace(/[^a-z0-9]/g, "") === compact) return path;
+    }
+  }
+  return null;
+}
+
+/**
+ * Historical entry point, kept for compatibility. Delegates to
+ * canonicalize_field_key (superset: exotic-but-valid keys now resolve).
  * @param {string} field_name
  * @param {"character" | "fractal"} [entity_type="character"]
  * @returns {string | null}
  */
 export function resolve_flat_path(field_name, entity_type = "character") {
-  if (!field_name || typeof field_name !== "string") return null;
-  const type_map = FLAT_LEAF_MAP[entity_type];
-  if (!type_map) return null;
-
-  const normalized = field_name.trim().toLowerCase().replace(/\s+/g, "_");
-  return type_map[normalized] || null;
+  return canonicalize_field_key(field_name, entity_type);
 }
 
-// ── 2c. Caretaker Enhancer Directives (single home; moved from src/data/profile-fields.js) ──
+/**
+ * Returns the field atom for a (possibly alias, possibly human-shaped) key,
+ * or null when the key addresses nothing enhanceable.
+ * @param {string} entity_type
+ * @param {string} key
+ * @returns {FieldAtom | null}
+ */
+export function atom_for(entity_type, key) {
+  const type = resolve_entity_type(entity_type);
+  const path = canonicalize_field_key(key, type);
+  if (!path) return null;
+  return ATOM_BY_ID[`${type}.${path}`] || null;
+}
 
 /**
- * Directives matching PROFILE_FIELDS.enhancer tags verbatim.
- * Exported for Caretaker Core in prompts and Profile Studio.
+ * Maps a canonical dot-path to its Caretaker structured-output key:
+ * "eternal.physical" -> "eternal_physical", "future" -> "future".
+ * @param {string} path
+ * @returns {string | null}
  */
-export const ENHANCER_DIRECTIVES = Object.freeze({
-  BIOMETRIC_RENDERER:
-    "[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits.",
-  COGNITIVE_ARCHITECT:
-    "[KEY: value] core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Bracketed traits only.",
-  SOMATIC_TRACKER:
-    "[KEY: value] current appearance (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.",
-  TACTICAL_ANALYZER: "[KEY: value] immediate emotional pressure, active mental focus, and present behavioral drivers. Bracketed conditions only.",
-  TRAJECTORY_SIMULATOR:
-    "[KEY: value] active trajectory or standing agenda: clear intent, building pressure, or impending event driving this entity toward its next state change. Bracketed items only; no story scenes or dialogue.",
-  PAST_COMPILER:
-    "Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.",
-  SPATIAL_RENDERER:
-    "[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore.",
-  METAPHYSICAL_ARCHITECT:
-    "[KEY: value] metaphysical substrate: governing laws, constant environmental forces, and physical constants. Bracketed truths only.",
-  ATMOSPHERIC_TRACKER:
-    "[KEY: value] current atmospheric state (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables. Momentary sensory elements only.",
-  ECOSYSTEM_ANALYZER:
-    "[KEY: value] current environmental state: active anomaly, immediate pressure, momentary shifts in physics or atmosphere. Bracketed state only.",
-  ECOSYSTEM_SIMULATOR:
-    "[KEY: value] environmental trajectory, building atmospheric pressure, impending environmental event, or anomaly apex driving this world toward its next state change. Bracketed items only.",
-  HISTORIAN:
-    "Settled historical cataclysm, founding myth, or defining epoch: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude active weather or temporary conditions.",
-});
+export function output_key_for_path(path) {
+  if (!path || typeof path !== "string") return null;
+  return path.replace(/\./g, "_");
+}
+
+/**
+ * Assembles the six Caretaker quadrant directives for an entity type.
+ * Single home of the brief assembly prompts.js used to hand-roll with
+ * per-type ternaries (whose missing fractal branch left ECOSYSTEM_SIMULATOR
+ * and HISTORIAN dead). Fractal briefs now carry the fractal words.
+ * @param {string} [entity_type="character"]
+ * @returns {{ eternal_physical: string, eternal_non_physical: string, present_physical: string, present_non_physical: string, future: string, past: string }}
+ */
+export function caretaker_brief(entity_type = "character") {
+  const type = resolve_entity_type(entity_type);
+  const directive_for = (path) => ATOM_BY_ID[`${type}.${path}`]?.directive || "";
+  return {
+    eternal_physical: directive_for("eternal.physical"),
+    eternal_non_physical: directive_for("eternal.non_physical"),
+    present_physical: directive_for("present.physical"),
+    present_non_physical: directive_for("present.non_physical"),
+    future: directive_for("future"),
+    past: directive_for("past"),
+  };
+}
+
+// ── 2c. Caretaker Enhancer Directives (derived — single home is the leaves) ──
+
+/**
+ * Directives keyed by enhancer role, derived from FIELD_ATOMS so the words
+ * exist in exactly one place (PROFILE_FIELDS leaves). Same 12 keys, same
+ * strings, same order as the historical literal. Exported for Caretaker Core
+ * in prompts and Profile Studio.
+ */
+export const ENHANCER_DIRECTIVES = Object.freeze(Object.fromEntries(FIELD_ATOMS.map((atom) => [atom.enhancer, atom.directive])));
 
 // ── 3. Profile Section Layout Model ──────────────────────────────────────────
 
@@ -372,6 +485,15 @@ export function build_profile_sections(entity_type = "character") {
 
 /**
  * CHANGELOG:
+ * - 2026-11-11: Schema-authority rework. PROFILE_FIELDS leaves are now the single home of
+ *   all words: FIELD_ATOMS (12 quadrant atoms with per-leaf merge semantics) derive from
+ *   them; PROFILE_FIELD_CATALOG and ENHANCER_DIRECTIVES are derived (same shapes/strings,
+ *   zero duplication). New authority helpers: resolve_entity_type (single home of the
+ *   user->character mapping), canonicalize_field_key (alias + separator-insensitive routing;
+ *   resolve_flat_path now delegates), atom_for, output_key_for_path, caretaker_brief
+ *   (single home of Caretaker brief assembly — wires the fractal future/past directives
+ *   that prompts.js never sent). No exports removed; orphans (name/description/
+ *   signature_color/pov) and tag derivation kept as-is.
  * - 2026-11-10: Folded src/data/profile-fields.js back in — FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES now live here verbatim; storage/entities.js + engine/prompts.js re-pointed, storage barrel line retired, file deleted. Removed dead leaf_map inside build_profile_catalog.
  * - 2026-11-10: Renamed from profile-fields.js to profile-taxonomy.js (the storage-side
  *   profile-fields.js owned ingestion at the time: FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES).

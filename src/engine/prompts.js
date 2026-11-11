@@ -19,7 +19,7 @@
  */
 
 import { format_clean_brackets } from "../data/parser.js";
-import { ENHANCER_DIRECTIVES } from "../definitions/profile-taxonomy.js";
+import { caretaker_brief } from "../definitions/profile-taxonomy.js";
 import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
 
 /**
@@ -114,11 +114,10 @@ ${thinking_block}
     resolve_identity_text: (context) =>
       `You are the Continuum Caretaker for target entity "${context.target_name}". Organize temporal state into canonical profile brackets.`,
     task_block: (context) => {
-      const is_fractal = context?.target_type === "fractal";
-      const phys_dir = is_fractal ? ENHANCER_DIRECTIVES.SPATIAL_RENDERER : ENHANCER_DIRECTIVES.BIOMETRIC_RENDERER;
-      const non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.METAPHYSICAL_ARCHITECT : ENHANCER_DIRECTIVES.COGNITIVE_ARCHITECT;
-      const pres_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ATMOSPHERIC_TRACKER : ENHANCER_DIRECTIVES.SOMATIC_TRACKER;
-      const pres_non_phys_dir = is_fractal ? ENHANCER_DIRECTIVES.ECOSYSTEM_ANALYZER : ENHANCER_DIRECTIVES.TACTICAL_ANALYZER;
+      // Quadrant directives come from the taxonomy authority: one call, no
+      // per-type branches. (A missing fractal branch here once left the
+      // fractal future/past directives dead — now structurally impossible.)
+      const brief = caretaker_brief(context?.target_type);
 
       const input_block = context?.input_data ? `\n  <INPUT kind="ingestion">\n${context.input_data}\n  </INPUT>\n` : "";
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
@@ -136,14 +135,14 @@ ${thinking_block}
 
     ### Directives
     - **Eternal Baseline (\`eternal_physical\`, \`eternal_non_physical\`)**:
-      - Physical: ${phys_dir}
-      - Non-Physical: ${non_phys_dir}
+      - Physical: ${brief.eternal_physical}
+      - Non-Physical: ${brief.eternal_non_physical}
       - Leave empty \`""\` unless establishing baseline lore or an irreversible transformation occurred.
     - **Present State (\`present_physical\`, \`present_non_physical\`)**:
-      - Physical: ${pres_phys_dir}
-      - Non-Physical: ${pres_non_phys_dir}
-    - **Future Agenda (\`future\`)**: ${ENHANCER_DIRECTIVES.TRAJECTORY_SIMULATOR}
-    - **Past Memories (\`past\`)**: ${ENHANCER_DIRECTIVES.PAST_COMPILER}
+      - Physical: ${brief.present_physical}
+      - Non-Physical: ${brief.present_non_physical}
+    - **Future Agenda (\`future\`)**: ${brief.future}
+    - **Past Memories (\`past\`)**: ${brief.past}
     - **Delta-Only Principle**: Emit ONLY non-empty \`"[KEY: value]"\` strings for fields being established, updated, or polished; leave all other fields empty \`""\`.
 
     ### Bracket Mutation Rules

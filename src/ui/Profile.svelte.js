@@ -3,7 +3,7 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize_entity as normalize } from "@data";
-import { PROFILE_FIELD_CATALOG } from "../definitions/profile-taxonomy.js";
+import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "../definitions/profile-taxonomy.js";
 import { structure_profile } from "@engine";
 import { app } from "./interface.svelte.js";
 import { runtime } from "@engine";
@@ -11,6 +11,9 @@ import { get_value, set_value, safe_parse_pseudo_json } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
+// Canonical quadrant paths, in brief/OUTPUT_FORMAT order. enhance_profile
+// iterates this instead of repeating the six paths three times.
+const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
 export class ProfileState {
   is_editing = $state(false);
   is_saving = $state(false);
@@ -278,9 +281,9 @@ export class ProfileState {
    */
   async enhance(key, value) {
     if (!value || this.busy_fields.has(key)) return;
-    const type = this.char?.type === "user" ? "character" : this.char?.type || "character";
-    const catalog_meta = PROFILE_FIELD_CATALOG[`${type}.${key}`];
-    if (!catalog_meta) return;
+    const type = resolve_entity_type(this.char?.type);
+    const atom = atom_for(type, key);
+    if (!atom || !atom.directive) return;
     this.enhance_field_inner(key, value);
   }
 
@@ -293,19 +296,16 @@ export class ProfileState {
   async enhance_field_inner(key, value) {
     this.busy_fields.add(key);
     try {
-      const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      const type = resolve_entity_type(this.char?.type);
       const structured = await structure_profile(
         `Field: "${key}"\nCurrent Value: "${value || ""}"\nEntity: ${this.char.name || "Entity"} (${type})`,
         type,
       );
       if (structured) {
-        let field_val = "";
-        if (key === "eternal.physical") field_val = structured.eternal_physical || "";
-        else if (key === "eternal.non_physical") field_val = structured.eternal_non_physical || "";
-        else if (key === "present.physical") field_val = structured.present_physical || "";
-        else if (key === "present.non_physical") field_val = structured.present_non_physical || "";
-        else if (key === "future") field_val = structured.future || "";
-        else if (key === "past") field_val = structured.past || "";
+        // Structured output keys are canonical dot-paths with "." -> "_"
+        // (taxonomy output_key_for_path); unknown keys keep the old value.
+        const output_key = output_key_for_path(canonicalize_field_key(key, type));
+        const field_val = output_key ? structured[output_key] || "" : "";
 
         if (field_val) {
           set_value(this.char, key, field_val.trim());
@@ -354,34 +354,22 @@ export class ProfileState {
     this.is_saving = true; // Use is_saving flag to prevent double clicks and lock UI
 
     // Temporarily mark all fields as busy for visual feedback
-    this.busy_fields.add("eternal.physical");
-    this.busy_fields.add("eternal.non_physical");
-    this.busy_fields.add("present.physical");
-    this.busy_fields.add("present.non_physical");
-    this.busy_fields.add("past");
-    this.busy_fields.add("future");
+    for (const path of QUADRANT_PATHS) this.busy_fields.add(path);
     this.busy_fields.add("description");
 
     try {
       const structured = await structure_profile(this.char, entity_type);
       if (structured) {
-        if (structured.eternal_physical) set_value(this.char, "eternal.physical", structured.eternal_physical);
-        if (structured.eternal_non_physical) set_value(this.char, "eternal.non_physical", structured.eternal_non_physical);
-        if (structured.present_physical) set_value(this.char, "present.physical", structured.present_physical);
-        if (structured.present_non_physical) set_value(this.char, "present.non_physical", structured.present_non_physical);
-        if (structured.future) set_value(this.char, "future", structured.future);
-        if (structured.past) set_value(this.char, "past", structured.past);
+        for (const path of QUADRANT_PATHS) {
+          const output_key = output_key_for_path(path);
+          if (structured[output_key]) set_value(this.char, path, structured[output_key]);
+        }
         this._user_mutated = true;
       }
     } catch (err) {
       console.error("Enhance profile failed:", err);
     } finally {
-      this.busy_fields.delete("eternal.physical");
-      this.busy_fields.delete("eternal.non_physical");
-      this.busy_fields.delete("present.physical");
-      this.busy_fields.delete("present.non_physical");
-      this.busy_fields.delete("past");
-      this.busy_fields.delete("future");
+      for (const path of QUADRANT_PATHS) this.busy_fields.delete(path);
       this.busy_fields.delete("description");
       this.is_saving = false;
     }
@@ -399,7 +387,7 @@ export class ProfileState {
 
     const id = this.char.id;
     if (id) {
-      const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      const type = resolve_entity_type(this.char?.type);
       await db.entities.update(id, { profile_picture: clean_url, updated_at: Date.now() });
       await runtime.update_entity(type, id, { profile_picture: clean_url });
       this._user_mutated = true;
@@ -409,5 +397,9 @@ export class ProfileState {
 
 /**
  * CHANGELOG
+ * - 2026-11-11: Taxonomy authority consumers. enhance()/enhance_field_inner() gate on
+ *   atom_for() and map keys via canonicalize_field_key/output_key_for_path (if/else
+ *   chains deleted); enhance_profile() iterates QUADRANT_PATHS; all three user->character
+ *   copies replaced with resolve_entity_type().
  * - 2026-09-19: Fixed E1: explicitly passed catalog_meta (enhancer, label, directive, layer_key, is_array_field) in enhance_field_inner and enhance_vector_item when compiling enhancement prompts.
  */

@@ -11,7 +11,7 @@
 
 import { generate_uuid, state_bridge } from "@utils";
 import { format_clean_brackets } from "./parser.js";
-import { FLAT_LEAF_MAP } from "../definitions/profile-taxonomy.js";
+import { canonicalize_field_key } from "../definitions/profile-taxonomy.js";
 import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
 import { DYNAMICS } from "../config.js";
 import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
@@ -264,8 +264,10 @@ export async function structure_profile(raw, type = "character") {
 export function apply_profile_to_entity(entity, profile) {
   if (!profile || typeof profile !== "object") return entity;
 
-  const leaf_map = FLAT_LEAF_MAP[entity.type] || FLAT_LEAF_MAP.character || {};
-
+  // Flat keys route through the taxonomy authority (alias + human-shaped keys
+  // included). Past-append semantics are recorded on the atoms (merge:"append")
+  // and implemented by the dedicated branch above; future/tags/name keep their
+  // historical behavior below.
   for (const [key, value] of Object.entries(profile)) {
     // Identity/asset keys are set by the orchestrator, never by the profile.
     if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
@@ -303,7 +305,7 @@ export function apply_profile_to_entity(entity, profile) {
       }
     } else if (typeof value === "string") {
       // Flat LLM keys -> nested DB schema; everything else lands verbatim.
-      const mapped_path = leaf_map[key] || FLAT_LEAF_MAP.character?.[key];
+      const mapped_path = canonicalize_field_key(key, entity.type);
       if (mapped_path) {
         const [main_key, sub_key] = mapped_path.split(".");
         if (!entity[main_key]) entity[main_key] = {};
