@@ -1125,8 +1125,13 @@
                   />
                 {/each}
               {/if}
-              <!-- Neutral contrast scrim: signature-free glass over the photo bleed (no live blur — blurred text haze is what turned it muddy) -->
-              <div class="absolute inset-0" style="background-color: color-mix(in srgb, var(--color-glass-sunken) 55%, transparent);"></div>
+              <!-- Directional veil: transparent at the portrait edge so the strip melts into the band, full neutral glass across the content/buttons (desktop character layout only; flat veil on mobile/fractal) -->
+              <div
+                class="absolute inset-0"
+                style:background={entity_type !== "fractal" && !app.viewport.mobile
+                  ? "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--color-glass-sunken) 55%, transparent) 40%, color-mix(in srgb, var(--color-glass-sunken) 55%, transparent) 100%)"
+                  : "color-mix(in srgb, var(--color-glass-sunken) 55%, transparent)"}
+              ></div>
             </div>
 
             <div class={"relative z-10 flex gap-4 " + (app.viewport.mobile ? "flex-col items-stretch" : "flex-row items-center")}>
