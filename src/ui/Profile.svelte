@@ -472,7 +472,7 @@
     "overflow-hidden border-solid transition-all duration-300 " +
       (entity_type === "fractal"
         ? "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
-        : "h-full w-full border-0 border-r " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
+        : "h-full w-full border-0 " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
       (app.viewport.mobile
         ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-(--spacing-pixel) rounded-md"
         : ""),
@@ -1115,12 +1115,12 @@
             <!-- Phase 1: Mirrored photographic tiling — same bottom-anchored portrait slice, alternately flipped, so every joint is seamless by construction -->
             <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 flex overflow-hidden select-none">
               {#if profile_state.char?.profile_picture}
-                {#each [0, 1, 2, 3, 4, 5, 6, 7] as tile, i (i)}
+                {#each [0, 1, 2, 3, 4, 5] as tile, i (i)}
                   <img
                     src={profile_state.char.profile_picture}
                     alt=""
                     draggable={false}
-                    class={"h-full min-w-0 flex-1 object-cover object-bottom blur-lg saturate-200 " +
+                    class={"h-full min-w-0 flex-1 object-cover object-bottom blur-2xl saturate-200 " +
                       (tile % 2 === 0 ? "scale-125 opacity-70" : "scale-[-1.25_1.25] opacity-70")}
                   />
                 {/each}
