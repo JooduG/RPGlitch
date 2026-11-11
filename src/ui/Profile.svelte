@@ -448,7 +448,7 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "sticky bottom-0 z-10 -mx-4 mt-auto flex shrink-0 gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
+    "sticky bottom-0 z-10 mt-auto -ml-4 -mr-9 flex shrink-0 gap-4 border-t border-solid border-white/10 pr-9 pl-4 pt-3 pb-4 outline-none " +
       (app.viewport.mobile ? "w-full flex-col items-stretch" : "justify-end"),
   );
 
@@ -1055,7 +1055,7 @@
             bind:this={footer_el}
             tabindex="-1"
             class={footer_layout_class}
-            style="background-color: color-mix(in srgb, var(--signature-color) 6%, var(--color-glass-sunken));"
+            style="background-color: color-mix(in srgb, var(--signature-color) 6%, var(--color-glass-sunken) 76%); backdrop-filter: var(--blur-mist);"
           >
             {#if profile_state.is_editing}
               <Button
