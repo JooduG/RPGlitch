@@ -485,7 +485,7 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute right-0 bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none " +
+    "absolute right-0 bottom-0 left-0 z-10 flex gap-4 border-t border-solid border-white/10 px-4 pt-3 pb-4 outline-none [&>*]:relative [&>*]:z-10 " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
@@ -1111,6 +1111,16 @@
             style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
             style="background-color: color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken) 50%); backdrop-filter: var(--blur-mist);"
           >
+            {#if profile_state.char?.profile_picture}
+              <!-- Photographic footer bleed: same portrait, heavily blurred from the bottom, under the buttons -->
+              <div class="pointer-events-none overflow-hidden" style="position: absolute; inset: 0; z-index: 0;" aria-hidden="true">
+                <img
+                  src={profile_state.char.profile_picture}
+                  alt=""
+                  class="block h-full w-full scale-125 object-cover object-bottom opacity-50 blur-2xl saturate-150 select-none"
+                />
+              </div>
+            {/if}
             {#if profile_state.is_editing}
               <Button
                 variant="primary"
