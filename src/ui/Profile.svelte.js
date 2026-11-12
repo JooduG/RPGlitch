@@ -138,11 +138,7 @@ export class ProfileState {
     try {
       const snap = JSON.parse(JSON.stringify(this.char));
       if (snap) {
-        if (typeof snap.id === "string")
-          snap.id = snap.id
-            .toUpperCase()
-            .replace(/[^A-Z0-9_-]/g, "")
-            .slice(0, 20);
+        if (typeof snap.id === "string") snap.id = snap.id.toUpperCase().replace(/[^A-Z0-9_-]/g, "").slice(0, 20);
         const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
         if (v) {
           const vkey = v.name || v.uri || "Cinematic Narrator";
