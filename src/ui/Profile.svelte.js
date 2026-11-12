@@ -55,12 +55,12 @@ export class ProfileState {
 
   /** @returns {boolean} */
   get id_valid() {
-    return !this.char && ID_PATTERN.test(String(this.char.id || ""));
+    return !!this.char && ID_PATTERN.test(String(this.char.id || ""));
   }
 
   /** @returns {boolean} */
   get name_valid() {
-    return !this.char && String(this.char.name || "").trim().length > 0;
+    return !!this.char && String(this.char.name || "").trim().length > 0;
   }
 
   /** @returns {boolean} */
