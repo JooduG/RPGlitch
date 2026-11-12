@@ -1149,7 +1149,7 @@
             >
               {#if profile_state.is_editing}
                 <Button
-                  variant="invisible"
+                  variant="primary"
                   square={true}
                   actions={[tooltip]}
                   aria-label="Enhance Profile with AI — overwrites all fields (macros preserved)"
@@ -1157,7 +1157,7 @@
                   onclick={() => {
                     profile_state.enhance_profile(entity_type);
                   }}
-                  class="touch-target-coarse text-white/85 hover:text-white"
+                  class="touch-target-coarse"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -1169,13 +1169,13 @@
                   </svg>
                 </Button>
                 <Button
-                  variant="invisible"
+                  variant="primary"
                   square={true}
                   actions={[tooltip]}
                   aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
                   disabled={profile_state.is_saving}
                   onclick={() => (show_export_modal = true)}
-                  class="touch-target-coarse text-white/85 hover:text-white"
+                  class="touch-target-coarse"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -1188,7 +1188,7 @@
                   </svg>
                 </Button>
                 <Button
-                  variant="invisible"
+                  variant="secondary"
                   square={true}
                   actions={[tooltip]}
                   aria-label="Discard unsaved edits and exit editing"
@@ -1196,7 +1196,7 @@
                   onclick={() => {
                     profile_state.cancel();
                   }}
-                  class="touch-target-coarse text-white/85 hover:text-white"
+                  class="touch-target-coarse"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -1208,14 +1208,14 @@
                   </svg>
                 </Button>
                 <Button
-                  variant="invisible"
+                  variant="danger"
                   square={true}
                   actions={[tooltip]}
                   aria-label="Delete this entity"
                   onclick={() => {
                     profile_state.show_delete_confirm = true;
                   }}
-                  class="touch-target-coarse text-white/85 hover:text-red-300"
+                  class="touch-target-coarse"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -1228,12 +1228,12 @@
                 </Button>
               {:else}
                 <Button
-                  variant="invisible"
+                  variant="secondary"
                   square={true}
                   actions={[tooltip]}
                   aria-label="Inspect historical rounds and branch or revert entity state"
                   onclick={() => (show_timeline_modal = true)}
-                  class="touch-target-coarse text-white/85 hover:text-white"
+                  class="touch-target-coarse"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -1245,7 +1245,7 @@
                   </svg>
                 </Button>
                 <Button
-                  variant="invisible"
+                  variant="secondary"
                   square={true}
                   actions={[tooltip]}
                   disabled={simulation_state.busy || !profile_state.can_edit}
@@ -1258,7 +1258,7 @@
                       if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
                     }, 0);
                   }}
-                  class="touch-target-coarse text-white/85 hover:text-white"
+                  class="touch-target-coarse"
                 >
                   <svg
                     viewBox="0 0 24 24"
