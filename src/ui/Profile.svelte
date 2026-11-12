@@ -1141,71 +1141,113 @@
             </div>
 
             <div
-              class={"relative z-10 flex max-w-full gap-4 " +
-                (app.viewport.mobile
-                  ? "flex-col items-stretch"
-                  : "flex-row flex-wrap items-center justify-end" +
-                    // Footer frost is full-bleed (pulled under the portrait by -2 column units),
-                    // but the buttons must stay in the info column: the sticky avatar (z-20)
-                    // would otherwise paint over + eat clicks on anything under it.
-                    (entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : ""))}
+              class={"relative z-10 flex max-w-full flex-row items-center justify-end gap-2" +
+                // Footer frost is full-bleed (pulled under the portrait by -2 column units),
+                // but the buttons must stay in the info column: the sticky avatar (z-20)
+                // would otherwise paint over + eat clicks on anything under it.
+                (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}
             >
               {#if profile_state.is_editing}
                 <Button
-                  variant="primary"
+                  variant="invisible"
+                  square={true}
                   actions={[tooltip]}
-                  aria-label="Warning: Overwrites all fields using AI enhancement. Existing macros are preserved."
+                  aria-label="Enhance Profile with AI — overwrites all fields (macros preserved)"
                   disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
                   onclick={() => {
                     profile_state.enhance_profile(entity_type);
                   }}
-                  class="touch-target-coarse"
+                  class="touch-target-coarse text-white/85 hover:text-white"
                 >
-                  {#if Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt")}
-                    <span class="animate-pulse">ENHANCING...</span>
-                  {:else}
-                    Enhance Profile
-                  {/if}
+                  <svg
+                    viewBox="0 0 24 24"
+                    class={(Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt") ? "animate-pulse " : "") +
+                      "h-5 w-5 fill-none stroke-current"}
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
+                  >
+                    <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
+                  </svg>
                 </Button>
                 <Button
-                  variant="primary"
+                  variant="invisible"
+                  square={true}
                   actions={[tooltip]}
                   aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
                   disabled={profile_state.is_saving}
                   onclick={() => (show_export_modal = true)}
-                  class="touch-target-coarse"
+                  class="touch-target-coarse text-white/85 hover:text-white"
                 >
-                  Export {entity_type === "fractal" ? "Fractal" : "Character"}
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5 fill-none stroke-current"
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
                 </Button>
                 <Button
-                  variant="secondary"
-                  class="touch-target-coarse"
+                  variant="invisible"
+                  square={true}
+                  actions={[tooltip]}
                   aria-label="Discard unsaved edits and exit editing"
                   disabled={profile_state.is_saving}
                   onclick={() => {
                     profile_state.cancel();
-                  }}>Revert</Button
+                  }}
+                  class="touch-target-coarse text-white/85 hover:text-white"
                 >
-                <Button
-                  variant="danger"
-                  class="touch-target-coarse"
-                  onclick={() => {
-                    profile_state.show_delete_confirm = true;
-                  }}>Delete</Button
-                >
-              {:else}
-                <Button
-                  variant="secondary"
-                  class="touch-target-coarse"
-                  aria-label="Inspect historical rounds and branch or revert entity state"
-                  actions={[tooltip]}
-                  onclick={() => (show_timeline_modal = true)}
-                >
-                  Timeline
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5 fill-none stroke-current"
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
+                  >
+                    <polyline points="1 4 1 10 7 10"></polyline>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                  </svg>
                 </Button>
                 <Button
-                  variant="secondary"
-                  class="touch-target-coarse"
+                  variant="invisible"
+                  square={true}
+                  actions={[tooltip]}
+                  aria-label="Delete this entity"
+                  onclick={() => {
+                    profile_state.show_delete_confirm = true;
+                  }}
+                  class="touch-target-coarse text-white/85 hover:text-red-300"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5 fill-none stroke-current"
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
+                  >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </Button>
+              {:else}
+                <Button
+                  variant="invisible"
+                  square={true}
+                  actions={[tooltip]}
+                  aria-label="Inspect historical rounds and branch or revert entity state"
+                  onclick={() => (show_timeline_modal = true)}
+                  class="touch-target-coarse text-white/85 hover:text-white"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5 fill-none stroke-current"
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
+                  >
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </Button>
+                <Button
+                  variant="invisible"
+                  square={true}
+                  actions={[tooltip]}
                   disabled={simulation_state.busy || !profile_state.can_edit}
                   aria-label={!profile_state.can_edit ? "Edit locked — entity is in an active story. Enable DevMode to override." : "Edit"}
                   onclick={() => {
@@ -1215,8 +1257,18 @@
                     setTimeout(() => {
                       if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
                     }, 0);
-                  }}>{profile_state.can_edit ? "Edit" : "Locked"}</Button
+                  }}
+                  class="touch-target-coarse text-white/85 hover:text-white"
                 >
+                  <svg
+                    viewBox="0 0 24 24"
+                    class="h-5 w-5 fill-none stroke-current"
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </Button>
               {/if}
             </div>
           </footer>
