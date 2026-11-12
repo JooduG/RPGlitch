@@ -1142,7 +1142,13 @@
 
             <div
               class={"relative z-10 flex max-w-full gap-4 " +
-                (app.viewport.mobile ? "flex-col items-stretch" : "flex-row flex-wrap items-center justify-end")}
+                (app.viewport.mobile
+                  ? "flex-col items-stretch"
+                  : "flex-row flex-wrap items-center justify-end" +
+                    // Footer frost is full-bleed (pulled under the portrait by -2 column units),
+                    // but the buttons must stay in the info column: the sticky avatar (z-20)
+                    // would otherwise paint over + eat clicks on anything under it.
+                    (entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : ""))}
             >
               {#if profile_state.is_editing}
                 <Button
