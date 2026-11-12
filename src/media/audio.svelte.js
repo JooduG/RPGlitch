@@ -18,7 +18,8 @@ let shared_audio_context = null;
 /** @type {GainNode | null} */
 let master_gain_node = null;
 let current_master_volume = 1.0;
-let is_muted = false;
+// Silent boot: SFX stay off until the user unmutes (Console mute toggle clears this).
+let is_muted = true;
 
 /**
  * Lazily initializes and returns the shared hardware AudioContext.
@@ -306,7 +307,8 @@ export function get_cadence_rate(cadence, dynamics_value = 50) {
 // ============================================================================
 
 export class VoiceEngine {
-  enabled = $state(true);
+  // Silent boot: master TTS gate off until the user enables a voice.
+  enabled = $state(false);
   selected_voice = "default";
   rate = 1.0;
   volume = $state(1.0);
@@ -315,10 +317,12 @@ export class VoiceEngine {
 
   // Per-role TTS switches. $state so context-menu labels re-render on toggle
   // (a plain object froze the label at its initial value forever).
+  // Per-role TTS switches, all off at boot (opt-in per role; enabling any
+  // role flips the master gate on via set_entity_voice).
   entity_voice = $state({
-    ai: true,
-    user: true,
-    fractal: true,
+    ai: false,
+    user: false,
+    fractal: false,
   });
 
   // Browser speech-synthesis voices, loaded async (empty until the engine
@@ -549,7 +553,7 @@ export class VoiceEngine {
 
 export class AudioEngine {
   voice = new VoiceEngine();
-  notifications_enabled = $state(true);
+  notifications_enabled = $state(false);
 
   get volume() {
     return this.voice.volume;

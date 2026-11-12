@@ -46,9 +46,9 @@
   let has_active_story = $derived(Boolean(runtime.story_id));
   let ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
 
-  // Audio controls state
+  // Audio controls state (silent boot: muted until the user opts in)
   let previous_volume = $state(1.0);
-  let explicitly_muted = $state(false);
+  let explicitly_muted = $state(true);
   let is_muted = $derived(Audio.volume === 0 || explicitly_muted);
 
   // Modals & operations
@@ -303,10 +303,12 @@
     if (explicitly_muted || Audio.volume === 0) {
       explicitly_muted = false;
       Audio.volume = previous_volume || 1.0;
+      Audio.is_muted = false;
     } else {
       previous_volume = Audio.volume;
       explicitly_muted = true;
       Audio.volume = 0;
+      Audio.is_muted = true;
       Audio.voice.stop();
     }
   }
@@ -644,6 +646,7 @@
                       bind:value={Audio.volume}
                       oninput={() => {
                         explicitly_muted = false;
+                        Audio.is_muted = false;
                       }}
                     />
                   </div>
