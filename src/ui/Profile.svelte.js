@@ -8,6 +8,7 @@ import { structure_profile } from "@engine";
 import { app } from "./interface.svelte.js";
 import { runtime } from "@engine";
 import { get_value, set_value } from "@utils";
+import { resolve_voice_name, resolve_voice_uri } from "../media/audio.svelte.js";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
@@ -37,11 +38,10 @@ export class ProfileState {
    */
   _user_mutated = $state(false);
 
-  /**
-   * Tracks entity ID at edit session start for primary key migrations.
-   * @type {string | null}
-   */
+  /** Tracks entity ID at edit session start for primary key migrations. */
   _original_id = null;
+  /** Tracks entity name at edit session start (currently informational). */
+  _synced_name = null;
 
   /**
    * Draft ID/Name inputs.
@@ -71,6 +71,7 @@ export class ProfileState {
   /** Snapshot drafts from `char` when entering edit mode. */
   sync_identity_drafts() {
     this._original_id = this.char ? String(this.char.id || "") : null;
+    this._synced_name = this.char ? String(this.char.name || "") : null;
     this.draft_id = this.char ? String(this.char.id || "") : "";
     this.draft_name = this.char ? String(this.char.name || "") : "";
     this.identity_error = "";
@@ -90,6 +91,7 @@ export class ProfileState {
    */
   commit_draft_id() {
     if (this.draft_id === null || this.draft_id === undefined) return true;
+    const user_edited = this.draft_id !== this._original_id;
     const cleaned = String(this.draft_id)
       .toUpperCase()
       .replace(/[^A-Z0-9_-]/g, "")
@@ -98,7 +100,9 @@ export class ProfileState {
     if (!ID_PATTERN.test(cleaned)) return false;
     if (this.char && this.char.id !== cleaned) {
       this.char.id = cleaned;
-      this._user_mutated = true;
+      // Pristine drafts only carry system canonicalization (e.g. lowercase
+      // premade ids): apply it, but don't read it as a user edit.
+      if (user_edited) this._user_mutated = true;
     }
     return true;
   }
@@ -217,7 +221,25 @@ export class ProfileState {
     this.is_editing = true;
     this.sync_identity_drafts();
     try {
-      this._edit_snapshot = JSON.parse(JSON.stringify(this.char));
+      const snap = JSON.parse(JSON.stringify(this.char));
+      // Canonicalize the snapshot the same way the system canonicalizes on
+      // touch, so mount fills and pristine commits don't read as user edits.
+      // Uses the real resolvers (not a copy) so this can't drift from AudioWing.
+      if (snap) {
+        if (typeof snap.id === "string")
+          snap.id = snap.id
+            .toUpperCase()
+            .replace(/[^A-Z0-9_-]/g, "")
+            .slice(0, 20);
+        const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
+        if (v) {
+          const vkey = v.name || v.uri || "Cinematic Narrator";
+          v.name = resolve_voice_name(vkey);
+          v.uri = resolve_voice_uri(vkey);
+          if (v.cadence == null) v.cadence = "standard";
+        }
+      }
+      this._edit_snapshot = snap;
     } catch {
       this._edit_snapshot = null;
     }
