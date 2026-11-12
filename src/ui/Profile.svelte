@@ -1140,7 +1140,10 @@
               ></div>
             </div>
 
-            <div class={"relative z-10 flex max-w-full gap-4 " + (app.viewport.mobile ? "flex-col items-stretch" : "flex-row flex-wrap items-center justify-end")}>
+            <div
+              class={"relative z-10 flex max-w-full gap-4 " +
+                (app.viewport.mobile ? "flex-col items-stretch" : "flex-row flex-wrap items-center justify-end")}
+            >
               {#if profile_state.is_editing}
                 <Button
                   variant="primary"
