@@ -125,6 +125,42 @@ export class ProfileState {
   }
 
   /**
+   * Human-readable summary of what changed since edit-entry (discard-dialog diagnostic).
+   */
+  describe_dirty() {
+    try {
+      if (!this._edit_snapshot || !this.char) return "Changed: (snapshot unavailable)";
+      const paths = this.collect_changed_paths(this._edit_snapshot, this.char, "", [], 0);
+      if (!paths.length) return "Flag set, but no content differences found.";
+      return "Changed: " + paths.join(", ");
+    } catch {
+      return "Changed: (diff failed)";
+    }
+  }
+
+  collect_changed_paths(a, b, base, out, depth) {
+    if (out.length >= 12 || depth > 6) return out;
+    if (typeof a === "function" || typeof b === "function") return out;
+    if (Object.is(a, b)) return out;
+    const ao = a !== null && typeof a === "object";
+    const bo = b !== null && typeof b === "object";
+    if (!ao || !bo) {
+      out.push(base || "(root)");
+      return out;
+    }
+    if (Array.isArray(a) || Array.isArray(b)) {
+      if (JSON.stringify(a) !== JSON.stringify(b)) out.push(base || "(root)");
+      return out;
+    }
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) {
+      if (out.length >= 12) break;
+      this.collect_changed_paths(a[k], b[k], base ? base + "." + k : k, out, depth + 1);
+    }
+    return out;
+  }
+
+  /**
    * Marks the workspace as dirtied by the user.
    */
   mark_mutated() {
@@ -137,6 +173,10 @@ export class ProfileState {
   _pending_swap = null;
   /** True while the user is asked whether to discard in-flight edits. */
   pending_swap_confirm = $state(false);
+  /** Deep copy of char taken at edit-entry, for the discard-dialog diagnostic. */
+  _edit_snapshot = null;
+  /** Human-readable changed-paths summary, shown in the discard dialog. */
+  pending_swap_detail = $state("");
 
   constructor() {
     this.char = normalize(app.editing_entity || runtime.active_user);
@@ -176,6 +216,12 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_editing = true;
     this.sync_identity_drafts();
+    try {
+      this._edit_snapshot = JSON.parse(JSON.stringify(this.char));
+    } catch {
+      this._edit_snapshot = null;
+    }
+    this.pending_swap_detail = "";
   }
 
   /**
@@ -186,6 +232,7 @@ export class ProfileState {
       if (this.is_dirty) {
         this._pending_swap = app.editing_entity;
         this.pending_swap_confirm = true;
+        this.pending_swap_detail = this.describe_dirty();
         return;
       }
       this.char = normalize(app.editing_entity);
@@ -201,6 +248,8 @@ export class ProfileState {
     const next = this._pending_swap;
     this._pending_swap = null;
     this.pending_swap_confirm = false;
+    this._edit_snapshot = null;
+    this.pending_swap_detail = "";
     if (next) {
       this.is_editing = false;
       this._user_mutated = false;
@@ -216,6 +265,8 @@ export class ProfileState {
   reject_swap() {
     this._pending_swap = null;
     this.pending_swap_confirm = false;
+    this._edit_snapshot = null;
+    this.pending_swap_detail = "";
     if (app.editing_entity && app.editing_entity.id !== this.char?.id) {
       app.editing_entity = this.char;
     }
@@ -272,6 +323,8 @@ export class ProfileState {
     this.is_editing = false;
     this.char = normalize(app.editing_entity || runtime.active_user);
     this._user_mutated = false;
+    this._edit_snapshot = null;
+    this.pending_swap_detail = "";
     this.reset_active_field();
     this.clear_identity_drafts();
   }
