@@ -260,7 +260,10 @@
             cover={true}
             aria-label={name}
             actions={[tooltip]}
-            onclick={() => (profile_state.char.signature_color = name)}
+            onclick={() => {
+              profile_state.char.signature_color = name;
+              profile_state.mark_mutated();
+            }}
             disabled={!profile_state.is_editing}
             variant="invisible"
           ></Button>

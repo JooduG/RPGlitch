@@ -59,6 +59,7 @@
     if (profile_state.char?.voice && typeof new_name === "string") {
       profile_state.char.voice.name = resolve_voice_name(new_name);
       profile_state.char.voice.uri = resolve_voice_uri(new_name);
+      profile_state.mark_mutated();
     }
   }
 
@@ -69,6 +70,7 @@
     const idx = Number(e.currentTarget.value);
     if (!isNaN(idx) && VOICE_CADENCES[idx]) {
       profile_state.char.voice.cadence = VOICE_CADENCES[idx].id;
+      profile_state.mark_mutated();
     }
   }
 </script>

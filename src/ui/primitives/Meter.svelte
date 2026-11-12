@@ -38,16 +38,19 @@
   let percentage = $derived(clamp(value, 0, 100));
 
   // --- ACTIONS ---
+  // All three route through set_field_value so the edit marks the workspace
+  // dirty (the wings live outside the profile card, beyond the card-scoped
+  // input/change listener, and the +/- buttons fire no DOM event at all).
   function decrease() {
     if (!profile_state?.char?.[dynamic.source]) return;
     const current = Number(profile_state.char[dynamic.source][dynamic.key]) || 0;
-    profile_state.char[dynamic.source][dynamic.key] = clamp(current - 1, 0, 100);
+    profile_state.set_field_value(`${dynamic.source}.${dynamic.key}`, clamp(current - 1, 0, 100));
   }
 
   function increase() {
     if (!profile_state?.char?.[dynamic.source]) return;
     const current = Number(profile_state.char[dynamic.source][dynamic.key]) || 0;
-    profile_state.char[dynamic.source][dynamic.key] = clamp(current + 1, 0, 100);
+    profile_state.set_field_value(`${dynamic.source}.${dynamic.key}`, clamp(current + 1, 0, 100));
   }
 
   /** @param {Event & { currentTarget: HTMLInputElement }} e */
@@ -55,7 +58,7 @@
     if (!profile_state?.char?.[dynamic.source]) return;
     const val = Number(e.currentTarget.value);
     if (!isNaN(val)) {
-      profile_state.char[dynamic.source][dynamic.key] = clamp(val, 0, 100);
+      profile_state.set_field_value(`${dynamic.source}.${dynamic.key}`, clamp(val, 0, 100));
     }
   }
 </script>

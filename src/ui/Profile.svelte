@@ -584,20 +584,26 @@
   // --- EFFECTS ---
   $effect(() => profile_state.sync());
 
-  // Operational catchment tracking user DOM actions
+  // Operational catchment tracking user DOM actions.
+  // Scoped to the profile card: the modal is pass-through, so background UI
+  // (composer, storyboard title, portals) stays interactive while it is open —
+  // input/change events from out there must never dirty this profile.
+  // (Wing controls mark via direct calls; the description textarea, which uses
+  // bind:value with no direct marker, is inside the card and still covered.)
   $effect(() => {
-    if (profile_state.is_editing) {
-      const mark_mutated = () => {
-        profile_state.mark_mutated();
-      };
-      window.addEventListener("input", mark_mutated, { capture: true });
-      window.addEventListener("change", mark_mutated, { capture: true });
+    if (!profile_state.is_editing) return;
+    const root = card_ref;
+    if (!root) return;
+    const mark_mutated = () => {
+      profile_state.mark_mutated();
+    };
+    root.addEventListener("input", mark_mutated, { capture: true });
+    root.addEventListener("change", mark_mutated, { capture: true });
 
-      return () => {
-        window.removeEventListener("input", mark_mutated, { capture: true });
-        window.removeEventListener("change", mark_mutated, { capture: true });
-      };
-    }
+    return () => {
+      root.removeEventListener("input", mark_mutated, { capture: true });
+      root.removeEventListener("change", mark_mutated, { capture: true });
+    };
   });
 
   /** @type {(event: MouseEvent) => void} */
