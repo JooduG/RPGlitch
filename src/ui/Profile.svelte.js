@@ -129,6 +129,36 @@ export class ProfileState {
   }
 
   /**
+   * (Re)baselines the discard-dialog snapshot, canonicalized the same way the
+   * system canonicalizes on touch, so mount fills and pristine commits don't
+   * read as user edits. Uses the real resolvers (not a copy) so this can't
+   * drift from AudioWing.
+   */
+  take_edit_snapshot() {
+    try {
+      const snap = JSON.parse(JSON.stringify(this.char));
+      if (snap) {
+        if (typeof snap.id === "string")
+          snap.id = snap.id
+            .toUpperCase()
+            .replace(/[^A-Z0-9_-]/g, "")
+            .slice(0, 20);
+        const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
+        if (v) {
+          const vkey = v.name || v.uri || "Cinematic Narrator";
+          v.name = resolve_voice_name(vkey);
+          v.uri = resolve_voice_uri(vkey);
+          if (v.cadence == null) v.cadence = "standard";
+        }
+      }
+      this._edit_snapshot = snap;
+    } catch {
+      this._edit_snapshot = null;
+    }
+    this.pending_swap_detail = "";
+  }
+
+  /**
    * Human-readable summary of what changed since edit-entry (discard-dialog diagnostic).
    */
   describe_dirty() {
@@ -220,30 +250,7 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_editing = true;
     this.sync_identity_drafts();
-    try {
-      const snap = JSON.parse(JSON.stringify(this.char));
-      // Canonicalize the snapshot the same way the system canonicalizes on
-      // touch, so mount fills and pristine commits don't read as user edits.
-      // Uses the real resolvers (not a copy) so this can't drift from AudioWing.
-      if (snap) {
-        if (typeof snap.id === "string")
-          snap.id = snap.id
-            .toUpperCase()
-            .replace(/[^A-Z0-9_-]/g, "")
-            .slice(0, 20);
-        const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
-        if (v) {
-          const vkey = v.name || v.uri || "Cinematic Narrator";
-          v.name = resolve_voice_name(vkey);
-          v.uri = resolve_voice_uri(vkey);
-          if (v.cadence == null) v.cadence = "standard";
-        }
-      }
-      this._edit_snapshot = snap;
-    } catch {
-      this._edit_snapshot = null;
-    }
-    this.pending_swap_detail = "";
+    this.take_edit_snapshot();
   }
 
   /**
@@ -260,6 +267,10 @@ export class ProfileState {
       this.char = normalize(app.editing_entity);
       this.reset_active_field();
       this.clear_identity_drafts();
+      // A silent swap while editing would otherwise keep a stale snapshot, so
+      // later diffs would blame the new entity for the old one. Re-baseline.
+      this._user_mutated = false;
+      this.take_edit_snapshot();
     }
   }
 
