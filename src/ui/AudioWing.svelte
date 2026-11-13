@@ -5,8 +5,8 @@
    * Manages character voice selection and parameters.
    * Part of the RPGlitch UI.
    */
-  import { Button, Dropdown, Slider, tooltip, Label } from "@primitives";
   import { Audio, VOICE_CADENCES, get_cadence_rate, resolve_voice_name, resolve_voice_uri } from "@media";
+  import { Button, Dropdown, Label, Slider, tooltip } from "@primitives";
 
   /**
    * @typedef {Object} Props
@@ -77,13 +77,13 @@
 
 <section
   class="
+    gap-standard
+    p-standard
+    rounded-standard
+    bg-glass-elevated
     flex
     w-full
     flex-col
-    gap-gap-standard
-    rounded-standard
-    bg-glass-elevated
-    p-padding-standard
     [backdrop-filter:var(--blur-mist)]
   "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"

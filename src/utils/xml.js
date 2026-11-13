@@ -38,7 +38,7 @@ export function interpolate_tokens(template, values = {}) {
 // ============================================================================
 
 /**
- * Canonical clothing tag keys — shared across the engine for clothing overrides,
+ * Canonical clothing tag keys - shared across the engine for clothing overrides,
  * visual strip filters, and state mutations.
  * @type {ReadonlyArray<string>}
  */
@@ -98,10 +98,10 @@ export const escape_xml = (str) => {
  * Only XML-significant `<` and `>` are escaped, keeping field values from injecting
  * fake tags into the prompt's XML structure. Brackets, ampersands, and quotes pass
  * through verbatim so pseudo-JSON state tags (`[KEY: value]`) and dialogue stay
- * natural — the transport layer passes instructions as a function, so perchance
+ * natural - the transport layer passes instructions as a function, so perchance
  * does not pjs-evaluate `[...]`/`{...}` (see `transport.js`).
  *
- * NOTE: Do NOT use inside XML attribute values (e.g. `name="..."`) — use `escape_xml` instead.
+ * NOTE: Do NOT use inside XML attribute values (e.g. `name="..."`) - use `escape_xml` instead.
  *
  * @param {string | null | undefined} str - Raw prompt text.
  * @returns {string} Prompt-safe escaped string.
@@ -232,7 +232,7 @@ export function clean_xml(xml) {
  * lines, then removes the common leading whitespace shared by every non-blank line.
  * Relative indentation inside the block is preserved, so a pre-indented fragment can be
  * re-embedded at any depth without its first line losing (or its later lines keeping) an
- * accidental offset — the bug that left open tags at column 0 and their closing tags at
+ * accidental offset - the bug that left open tags at column 0 and their closing tags at
  * column 2.
  *
  * @param {string | null | undefined} text
@@ -296,7 +296,7 @@ export function wrap_tag(tag, inner, indent) {
 }
 
 /**
- * Universal XML block composer — the single primitive every module builds tags from.
+ * Universal XML block composer - the single primitive every module builds tags from.
  * Escapes attribute values with `escape_xml`, drops null/blank children, and joins
  * them with `separator`. With no children and `closed: false` it emits only the open
  * tag (used for streaming envelopes the transport closes later).
@@ -340,7 +340,7 @@ export function render_xml_tag({
 }
 
 /**
- * Universal Atom Compiler — resolves and compiles any prompt library atom into XML.
+ * Universal Atom Compiler - resolves and compiles any prompt library atom into XML.
  * Supports dual-mode invocation:
  * 1. Direct Atom: `render_atom_xml(atom, options)`
  * 2. Catalog Lookup: `render_atom_xml(catalog, key, values, options)`

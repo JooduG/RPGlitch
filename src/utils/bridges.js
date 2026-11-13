@@ -156,7 +156,7 @@ export const stream_bridge = {
 let _bump_stories_version = null;
 
 /**
- * Story-version bridge — allows persistence and repository layers to notify
+ * Story-version bridge - allows persistence and repository layers to notify
  * reactive UI views that the story archive was modified.
  */
 export const stories_bridge = {

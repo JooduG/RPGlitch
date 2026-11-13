@@ -11,13 +11,13 @@
  *   `document.startViewTransition()`, with synchronous fallback when transitions are active or unsupported.
  *
  * Exports:
- * - `resolve_px(value, fallback?, context?)` — Resolves CSS value → pixel number.
- * - `resolve_ms(value, fallback?, context?)` — Resolves CSS duration → millisecond number.
- * - `resolve_number(value, fallback?, context?)` — Resolves CSS unitless value → number.
- * - `resolve_string(value, fallback?, context?)` — Resolves CSS variable → raw string.
- * - `download_text_file(filename, text, mime?)` — Downloads a text blob.
- * - `download_json_file(filename, value)` — Downloads a JSON blob.
- * - `guarded_transition(callback, options?)` — Single-flight view transition wrapper.
+ * - `resolve_px(value, fallback?, context?)` - Resolves CSS value → pixel number.
+ * - `resolve_ms(value, fallback?, context?)` - Resolves CSS duration → millisecond number.
+ * - `resolve_number(value, fallback?, context?)` - Resolves CSS unitless value → number.
+ * - `resolve_string(value, fallback?, context?)` - Resolves CSS variable → raw string.
+ * - `download_text_file(filename, text, mime?)` - Downloads a text blob.
+ * - `download_json_file(filename, value)` - Downloads a JSON blob.
+ * - `guarded_transition(callback, options?)` - Single-flight view transition wrapper.
  *
  * Consumed by:
  * - `src/state/interface.svelte.js` (View transition navigation & layout measuring).
@@ -148,7 +148,7 @@ export function resolve_px(value, fallback = 0, context = null) {
 
 /**
  * Resolves a CSS duration value (`ms` / `s` string, or CSS variable) to milliseconds.
- * Rejects unitless non-zero numbers as ambiguous — only `0`, `Nms`, or `Ns` are valid.
+ * Rejects unitless non-zero numbers as ambiguous - only `0`, `Nms`, or `Ns` are valid.
  *
  * @param {string | number | undefined} value - The CSS duration, variable name, or `var(--name)`.
  * @param {number} [fallback=0] - Fallback value if resolution fails.
@@ -206,7 +206,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
 
 /**
  * Resolves a CSS value (unitless number or CSS variable) to a plain number.
- * Rejects values with units — use `resolve_px` or `resolve_ms` for those.
+ * Rejects values with units - use `resolve_px` or `resolve_ms` for those.
  *
  * @param {string | number | undefined} value - The CSS unitless value, variable name, or `var(--name)`.
  * @param {number} [fallback=0] - Fallback value if resolution fails.
@@ -398,7 +398,7 @@ export function guarded_transition(callback, options = {}) {
 
 /**
  * CHANGELOG:
- * - 2026-09-24 (rev 2): Restored resolve_ms, resolve_number, resolve_string — they are live consumers
+ * - 2026-09-24 (rev 2): Restored resolve_ms, resolve_number, resolve_string - they are live consumers
  *   in kinetic.svelte.js (WAAPI timing) and Dialog.svelte (transition duration). Extracted private
  *   _resolve_css_var helper so the DOM traversal loop is defined once and shared by all four typed resolvers.
  * - 2026-09-24 (rev 1): Pruned heavy invisible measurement element harness. Simplified resolve_px to

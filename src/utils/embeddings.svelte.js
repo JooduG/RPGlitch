@@ -19,10 +19,10 @@
  * ============================================================================
  */
 
-import { SvelteMap } from "svelte/reactivity";
-import { onnx_mutex, mark_ort_ready } from "./onnx.js";
-import { cosine_similarity, deserialize_embedding } from "./math.js";
 import { EMBEDDING_SPECS } from "@config";
+import { SvelteMap } from "svelte/reactivity";
+import { cosine_similarity, deserialize_embedding } from "./math.js";
+import { mark_ort_ready, onnx_mutex } from "./onnx.js";
 
 // ============================================================================
 // Constants & Configurations
@@ -144,7 +144,7 @@ let _cache_misses = 0;
 function to_embedding(output) {
   const embedding = new Float32Array(output?.data);
   if (embedding.length !== EMBEDDING_SPECS.DIMENSIONS) {
-    console.warn(`[Embeddings] Model output dimension ${embedding.length} != expected ${EMBEDDING_SPECS.DIMENSIONS} — refusing embedding.`);
+    console.warn(`[Embeddings] Model output dimension ${embedding.length} != expected ${EMBEDDING_SPECS.DIMENSIONS} - refusing embedding.`);
     return null;
   }
   return embedding;

@@ -1,10 +1,10 @@
-# RPGlitch — Live Greenfield Simulation Forensics & Integrity Test Protocol
+# RPGlitch - Live Greenfield Simulation Forensics & Integrity Test Protocol
 
-> **HISTORICAL (2026-11-10):** spent — the A/B decision was canonized in ROADMAP R4
+> **HISTORICAL (2026-11-10):** spent - the A/B decision was canonized in ROADMAP R4
 > (think-seed wins; placement logic removed). Kept for forensics, not as a live protocol.
 
-> **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)  
-> **Protocol Focus**: Live Interactive Roleplay Stress Test, Early-Story A/B Comparative Forensics, and State Audit for Greenfield Nuclear Architecture  
+> **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)
+> **Protocol Focus**: Live Interactive Roleplay Stress Test, Early-Story A/B Comparative Forensics, and State Audit for Greenfield Nuclear Architecture
 > **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/data/`, and modernized `src/media/` per `nuclear-plan.md`). Features a dedicated **10-Round A/B Comparative Director Note Trial** (Inlined `<think>` Seed vs. Non-Inlined `<TASK>` Stage Direction), alongside Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
 
 ---
@@ -67,26 +67,26 @@ To provide the empirical material needed for an upcoming architectural decision 
 
 Both tracks must be stimulated with the exact same sequence of player messages to isolate the downstream effects of note placement:
 
-- **Round 1 (Opening Anchor)**:  
+- **Round 1 (Opening Anchor)**:
   `"Check your harness, Orion. Nova City power grid is surging, and the neon along 4th Avenue just blinked out."`
-- **Round 2 (Commitment & Trade)**:  
-  `"Here — take the Silvers courier key. We use it at the rooftop relay mast before the security drone sweeps."`
-- **Round 3 (Environmental Hazard)**:  
-  `"The storm sirens across Sector 4 just went dead. That's not a blackout, Orion — someone severed the conduits."`
-- **Round 4 (Micro-Pacing Probe — < 25 Chars)**:  
+- **Round 2 (Commitment & Trade)**:
+  `"Here - take the Silvers courier key. We use it at the rooftop relay mast before the security drone sweeps."`
+- **Round 3 (Environmental Hazard)**:
+  `"The storm sirens across Sector 4 just went dead. That's not a blackout, Orion - someone severed the conduits."`
+- **Round 4 (Micro-Pacing Probe - < 25 Chars)**:
   `"Keep low."`
-- **Round 5 (Secret Plant & Tension)**:  
-  _(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)_  
+- **Round 5 (Secret Plant & Tension)**:
+  _(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)_
   `"If we split up at the catwalk, do not look back. Just get to the upper transformer."`
-- **Round 6 (Expansive Narrative Probe — > 500 Chars)**:  
+- **Round 6 (Expansive Narrative Probe - > 500 Chars)**:
   `"I pull my thermal hood tight against the freezing mist rising off the exhaust vents. Below us, the entire undercity grid looks like exposed veins of dead copper. I've spent three years mapping the bypass conduits behind the megacorp signboards, but tonight the pressure gauges are redlining in reverse. Listen to me, Orion: when that substation blows, the blast wave will travel upward through the elevator shafts. We have ninety seconds to anchor the bypass clamp or the whole district goes dark permanently."`
-- **Round 7 (Direct Sensory Challenge)**:  
+- **Round 7 (Direct Sensory Challenge)**:
   `"Your pink light is blinding in this rain. Can you dim the glow, or are you trying to announce us to the perimeter scouts?"`
-- **Round 8 (Climactic Pivot)**:  
-  `"The relay hatch is jammed with melted solder. Give me your shoulder — force the lever while I ground the terminal!"`
-- **Round 9 (High-Stakes Action)**:  
+- **Round 8 (Climactic Pivot)**:
+  `"The relay hatch is jammed with melted solder. Give me your shoulder - force the lever while I ground the terminal!"`
+- **Round 9 (High-Stakes Action)**:
   `"Look out! Spark shower from the feeder line!"`
-- **Round 10 (Scene Resolution / Cliffhanger)**:  
+- **Round 10 (Scene Resolution / Cliffhanger)**:
   `"Grid stabilized... but the signature on the terminal isn't syndicate code. Orion, look at this crest. Who really gave you this assignment?"`
 
 ---
@@ -146,22 +146,22 @@ At the conclusion of the 10-round comparison, synthesize the findings across the
 
 Once the 10-round A/B trial is logged, continue the winning track through Turns 11–20 to audit long-term engine stability:
 
-- **Turn 11 — Context Cliff Sliding Window (Turn 8+ Check)**:
+- **Turn 11 - Context Cliff Sliding Window (Turn 8+ Check)**:
   - Verify dialogue history is sliced to the canonical `TEMPO_ROUNDS.STANDARD = 8` working-memory window.
   - Confirm compiled prompt length remains safely below host truncation thresholds (~20–22k chars, ~6k tokens), with zero middle-out truncation warnings.
-- **Turn 12 — Visual Optics Enhancement Pass (`VisualEngine.enhance`)**:
+- **Turn 12 - Visual Optics Enhancement Pass (`VisualEngine.enhance`)**:
   - Right-click Orion's EntityCard and select **"Generate AI Character Image"**.
   - Verify the `visualizer` purpose core compiles and executes an LLM refinement pass (`{ prompt, negative_prompt }`) situating Orion within Nova City.
-- **Turn 13 — Visual Style Raw Bypass (`llm_refine: false`)**:
+- **Turn 13 - Visual Style Raw Bypass (`llm_refine: false`)**:
   - Switch visual style to `none` (or a style configured with `llm_refine: false`). Trigger image generation.
   - Verify `VisualEngine.enhance()` returns draft prompt untouched without calling the LLM.
-- **Turn 14 — Profile Picture Generation & Persistence**:
+- **Turn 14 - Profile Picture Generation & Persistence**:
   - Open `VisualWing.svelte` in Profile Studio and generate a new portrait. Verify payload URL updates and persists to entity state in IndexedDB.
-- **Turns 15–18 — Origin Attribution & Multi-Role History**:
+- **Turns 15–18 - Origin Attribution & Multi-Role History**:
   - Roleplay across scene shifts involving environmental announcements and system events. Verify `<ROUND origin="...">` tags preserve accurate speaker roles (`user`, `ai`, `fractal`, `system`).
-- **Turn 19 — Abort & Transactional Rollback Audit**:
+- **Turn 19 - Abort & Transactional Rollback Audit**:
   - Send a message, then click **Stop** mid-stream. Verify simulation returns to `"idle"`, round counter rolls back, and no orphan messages persist in IndexedDB.
-- **Turn 20 — Procedural Web Audio & Speech Fallback**:
+- **Turn 20 - Procedural Web Audio & Speech Fallback**:
   - Interact with UI controls and verify procedural Web Audio sound effects (`play_sfx`) execute safely without audio context errors.
 
 ---

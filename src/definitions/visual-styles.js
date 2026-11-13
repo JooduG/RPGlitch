@@ -1,7 +1,7 @@
 /**
  * src/definitions/visual-styles.js
  * ============================================================================
- * 🎨 VISUAL STYLE SYSTEM — Aesthetic Engine Presets for Image Generation
+ * 🎨 VISUAL STYLE SYSTEM - Aesthetic Engine Presets for Image Generation
  * ============================================================================
  *
  * Provides curated visual style presets optimized for FLUX.1 (Rectified Flow)

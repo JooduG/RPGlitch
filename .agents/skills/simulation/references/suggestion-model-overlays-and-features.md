@@ -1,10 +1,10 @@
 # Suggestion: Reply Model Overlays, Presets Shelf & Feature Catalog (MoeChat Inspiration)
 
-> **Status:** Backlog Proposal — KEEP as docs task alongside `FEATURES.md`.
+> **Status:** Backlog Proposal - KEEP as docs task alongside `FEATURES.md`.
 
-> **Status:** Backlog Proposal & Conceptual Reference  
-> **Domain:** Prompt Pipeline, Narrative Styles, Memory Tiering & Product Documentation  
-> **Scope:** `src/data/definitions/narrative-styles.js`, `src/intelligence/prompts.js`, `README.md` / `FEATURES.md`  
+> **Status:** Backlog Proposal & Conceptual Reference
+> **Domain:** Prompt Pipeline, Narrative Styles, Memory Tiering & Product Documentation
+> **Scope:** `src/data/definitions/narrative-styles.js`, `src/intelligence/prompts.js`, `README.md` / `FEATURES.md`
 
 ---
 

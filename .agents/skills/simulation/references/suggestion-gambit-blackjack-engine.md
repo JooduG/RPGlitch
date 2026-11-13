@@ -1,10 +1,10 @@
 # Suggestion: Gambit Push-Your-Luck Macro Engine (Target 21)
 
-> **Status:** Backlog Proposal — KEEP, needs an owner; no live counterpart yet.
+> **Status:** Backlog Proposal - KEEP, needs an owner; no live counterpart yet.
 
-> **Status:** Backlog Proposal  
-> **Domain:** Mechanical Resolution, Scene State Machines & Extended Encounters  
-> **Scope:** Gambit 21 State Machine, Card Draw Lifecycle, Performance Tiers & Color Palettes  
+> **Status:** Backlog Proposal
+> **Domain:** Mechanical Resolution, Scene State Machines & Extended Encounters
+> **Scope:** Gambit 21 State Machine, Card Draw Lifecycle, Performance Tiers & Color Palettes
 
 ---
 

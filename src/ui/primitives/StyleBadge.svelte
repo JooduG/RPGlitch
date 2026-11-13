@@ -2,21 +2,21 @@
   /**
    * @file src/ui/primitives/StyleBadge.svelte
    * Narrative & visual style indicator squares. Rendered underneath/over the fractal
-   * card in storymode/storyboard layouts, as prologue message tiles, and — in
-   * `layout="profile"` — as the selectable style tiles inside the fractal profile
+   * card in storymode/storyboard layouts, as prologue message tiles, and - in
+   * `layout="profile"` - as the selectable style tiles inside the fractal profile
    * modal's dropdown triggers.
    *
    * Portraits render with a subtle tint: a `color`-blend layer painted with the
-   * entity's signature color sits over the portrait — it recolors toward the
+   * entity's signature color sits over the portrait - it recolors toward the
    * signature hue while preserving each pixel's exact brightness, so the image
    * never darkens. Hovering fades the wash (300ms), revealing the original
    * portrait.
    */
-  import { tooltip } from "@primitives";
   import { get_signature_color } from "@media";
+  import { tooltip } from "@primitives";
+  import { get_style_initials } from "@utils";
   import { NARRATIVE_STYLES } from "../../definitions/narrative-styles.js";
   import { VISUAL_STYLES } from "../../definitions/visual-styles.js";
-  import { get_style_initials } from "@utils";
 
   /**
    * `layout` controls badge sizing & interaction:
@@ -25,7 +25,7 @@
    *   size class is used (Tailwind's !important on arbitrary classes would
    *   override the inline style). Includes the entity-card-style hover overlay
    *   (name in signature color on dark gradient) + zoom. No tooltip in this mode.
-   * - `"prologue"`: badges are flex-filled — each takes half the parent row's
+   * - `"prologue"`: badges are flex-filled - each takes half the parent row's
    *   width (minus the gap) at a perfect 1:1 ratio, so the row height derives
    *   from the container width on the spot. Same hover overlay + zoom as storymode.
    * - `"profile"`: one fixed-size tile that fills its parent (the profile modal
@@ -59,7 +59,7 @@
   // flex-shrink: 0 prevents the flex container from compressing the width.
   let badge_size_style = $derived(
     is_storymode
-      ? "height: calc((var(--spacing-character-card-width) - var(--spacing-gap-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;"
+      ? "height: calc((var(--spacing-character-card-width) - var(--spacing-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;"
       : is_prologue
         ? "flex: 1 1 0%; aspect-ratio: 1 / 1; min-width: 0;"
         : "",
@@ -67,7 +67,7 @@
 
   let opacity_class = "opacity-100";
 
-  // Storymode/prologue hover zoom — same utilities the entity cards use
+  // Storymode/prologue hover zoom - same utilities the entity cards use
   let hover_zoom_class = $derived(is_storymode || is_prologue ? "hover:scale-lift hover:brightness-glow" : "");
 
   let badge_radius_class = $derived(is_profile ? "rounded-xl" : "rounded-[clamp(0.5rem,9cqi,1rem)]");
@@ -114,11 +114,11 @@
   >
     <span
       class="
+        font-heading
         [display:-webkit-box]
         w-full
         overflow-hidden
         text-center
-        font-heading
         text-[clamp(0.45rem,4.5cqi,0.65rem)]
         leading-tight
         font-bold
@@ -167,7 +167,7 @@
         "
       >
         <div
-          class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading {initials_class} font-bold text-white uppercase select-none"
+          class="font-heading absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] {initials_class} font-bold text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
           {#if dportrait}
@@ -232,7 +232,7 @@
         "
       >
         <div
-          class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
+          class="font-heading absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
           {#if vportrait}

@@ -15,9 +15,9 @@
  * ============================================================================
  */
 
-import { FIELD_FLOORS, CHARS_PER_TOKEN, EMBEDDING_SPECS } from "../config.js";
+import { CHARS_PER_TOKEN, EMBEDDING_SPECS, FIELD_FLOORS } from "../config.js";
 
-/** Origin protection multiplier boosting author canon and immutable memories (single consumer — lives here, not on the dashboard) */
+/** Origin protection multiplier boosting author canon and immutable memories (single consumer - lives here, not on the dashboard) */
 const ORIGIN_SCORE_MULTIPLIER = 1.5;
 
 /** Total guaranteed character floor across all 6 profile fields (sum: 1700 chars) */

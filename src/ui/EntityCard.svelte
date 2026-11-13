@@ -6,17 +6,16 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { StyleBadge } from "@primitives";
-  import ProfilePicture from "./ProfilePicture.svelte";
-  import { guarded_transition } from "@utils";
-  import { get_signature_color } from "@media";
-  import { motion } from "@media";
-  import { app } from "./interface.svelte.js";
   import { runtime } from "@engine";
-  import MacroText from "./MacroText.svelte";
+  import { get_signature_color, motion } from "@media";
+  import { StyleBadge } from "@primitives";
+  import { guarded_transition } from "@utils";
   import { flushSync } from "svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
+  import { app } from "./interface.svelte.js";
+  import MacroText from "./MacroText.svelte";
+  import ProfilePicture from "./ProfilePicture.svelte";
 
   const display_entities = $derived({
     AI: runtime.active_ai || app.selected_ai,
@@ -111,14 +110,14 @@
     }
 
     // 0b. Suppress during the begin-story flip so the cards don't morph into
-    // the side panels — they fly into the prologue message instead.
+    // the side panels - they fly into the prologue message instead.
     if (app.suppress_card_transitions) {
       return undefined;
     }
 
     // 1. If actively transitioning profile, only the ARMED source card carries
     // the transition name (the card whose context menu opened last). This lets
-    // any card — storyboard slot, storymode panel, or prologue message card —
+    // any card - storyboard slot, storymode panel, or prologue message card -
     // flip into the profile, while the same entity shown elsewhere (message row
     // + side panel) never duplicates a view-transition-name.
     if (app.transitioning_profile) {
@@ -239,6 +238,10 @@
   data-card-root
   class="
     group group/card
+    hover:scale-lift
+    hover:brightness-glow
+    active:scale-sink
+    active:brightness-dim
     @container
     relative
     cursor-pointer
@@ -254,21 +257,17 @@
     outline-none
     select-none
     after:pointer-events-none
+
     after:absolute
     after:inset-0
     after:z-10
     after:rounded-[inherit]
-
     after:border
     after:border-transparent
     after:shadow-[inset_0_0_0_1px_transparent]
     after:transition-all
     after:duration-300
     after:ease-in-out
-    hover:scale-lift
-    hover:brightness-glow
-    active:scale-sink
-    active:brightness-dim
     md:rounded-2xl
 
     {disabled
@@ -468,11 +467,11 @@
     <span
       data-card-text
       class="
+        font-heading
         [display:-webkit-box]
         w-full
         overflow-hidden
         text-center
-        font-heading
         font-bold
         wrap-break-word
         text-(--signature-color,var(--color-slate-50))

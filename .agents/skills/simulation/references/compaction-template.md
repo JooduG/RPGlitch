@@ -74,7 +74,7 @@ Time span / setting: Earliest–latest supported in-world timestamps covered by 
 
 Plot: Chronological developments with their consequences.
 
-Core Memory: Specific event — lasting emotional or relational significance. Repeat this label only for distinct qualifying memories.
+Core Memory: Specific event - lasting emotional or relational significance. Repeat this label only for distinct qualifying memories.
 
 Characters/agendas (as of this interval’s end):
 
@@ -83,7 +83,7 @@ Characters/agendas (as of this interval’s end):
 
 Secrets/knowledge: Information and its knowledge boundaries.
 Open threads: Unresolved matter, involved characters, and its last established status.
-Motifs: Reference — established significance.
+Motifs: Reference - established significance.
 
 COMPRESSION RULES
 

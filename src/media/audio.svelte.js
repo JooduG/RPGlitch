@@ -1,13 +1,13 @@
 /**
  * @file src/media/audio.svelte.js
- * 🔊 SENSORY CORTEX — PROCEDURAL AUDIO SYNTHESIZER & SPEECH ENGINE
+ * 🔊 SENSORY CORTEX - PROCEDURAL AUDIO SYNTHESIZER & SPEECH ENGINE
  *
  * pure Web Audio procedural SFX synthesizer, lazy AudioContext management,
  * and Web Speech API fallback speech engine.
  */
 
-import { strip_cognition_blocks } from "@utils";
 import { VOICE_CADENCE } from "@config";
+import { strip_cognition_blocks } from "@utils";
 
 // ============================================================================
 // [SECTION 1: HARDWARE AUDIOCONTEXT & MASTER GAIN]
@@ -251,7 +251,7 @@ export function play_sfx(type, options = {}) {
 // [SECTION 3: VOICE HELPERS & CADENCES]
 // ============================================================================
 
-/** Speech-rate multipliers by cadence (view over config VOICE_CADENCE.RATES — the single home) */
+/** Speech-rate multipliers by cadence (view over config VOICE_CADENCE.RATES - the single home) */
 export const CADENCE_RATES = VOICE_CADENCE.RATES;
 
 /** Labeled cadence picker list (view over VOICE_CADENCE.RATES) */
@@ -330,7 +330,7 @@ export class VoiceEngine {
   voices = $state([]);
 
   // Native SpeechSynthesisVoice objects parallel to `voices` (same order).
-  // utterance.voice REQUIRES a native voice — the mapped plain objects in
+  // utterance.voice REQUIRES a native voice - the mapped plain objects in
   // `voices` throw "Failed to convert value to 'SpeechSynthesisVoice'".
   #native_voices = [];
 
@@ -341,7 +341,7 @@ export class VoiceEngine {
   /**
    * Per-role TTS gate (mirrors AudioEngine.is_role_enabled over this
    * engine's own switches). Lives here because the streaming methods run
-   * on the VoiceEngine instance — AudioEngine.is_role_enabled is not in
+   * on the VoiceEngine instance - AudioEngine.is_role_enabled is not in
    * scope as `this` on this class.
    */
   is_role_enabled(role) {
@@ -385,7 +385,7 @@ export class VoiceEngine {
 
   /**
    * Speaks a short sample line with the given voice (AudioWing preview).
-   * Bypasses role gates — the user explicitly asked to hear this voice.
+   * Bypasses role gates - the user explicitly asked to hear this voice.
    */
   preview(name_or_uri, rate = 1.0) {
     const previous = this.selected_voice;
@@ -488,7 +488,7 @@ export class VoiceEngine {
   /**
    * Matches a stored voice id (name or uri) against the loaded browser list.
    * @param {string} name_or_uri
-   * @returns {SpeechSynthesisVoice|null} Private method — no test seam needed.
+   * @returns {SpeechSynthesisVoice|null} Private method - no test seam needed.
    */
   #pick_voice(name_or_uri) {
     if (!name_or_uri || name_or_uri === "default" || this.#native_voices.length === 0) return null;

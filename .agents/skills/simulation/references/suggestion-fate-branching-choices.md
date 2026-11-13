@@ -1,10 +1,10 @@
 # Suggestion: Climax Fate Branching & Choice Chip Payloads (`<choices>`)
 
-> **Status:** Backlog Proposal — KEEP, re-point at `src/engine/runs.js` + `Console.svelte` when promoted.
+> **Status:** Backlog Proposal - KEEP, re-point at `src/engine/runs.js` + `Console.svelte` when promoted.
 
-> **Status:** Backlog Proposal  
-> **Domain:** Narrative Direction, Climax Branching & Interactive UI  
-> **Scope:** Triad of Fate Paths (High / Middle / Low), Director `<choices>` XML Payload, Action Chip UI  
+> **Status:** Backlog Proposal
+> **Domain:** Narrative Direction, Climax Branching & Interactive UI
+> **Scope:** Triad of Fate Paths (High / Middle / Low), Director `<choices>` XML Payload, Action Chip UI
 
 ---
 

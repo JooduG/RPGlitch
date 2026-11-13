@@ -37,7 +37,7 @@
    * using Svelte's CSS transition API so the blur increases gradually in sync
    * with the card flip (rather than snapping from a View Transition snapshot).
    *
-   * View Transition snapshots are pixel images — any backdrop-filter on a
+   * View Transition snapshots are pixel images - any backdrop-filter on a
    * ::view-transition-new pseudo-element has nothing to filter, so the blur
    * was already 100% baked into the captured image from frame 1.
    * @param {HTMLElement} _node

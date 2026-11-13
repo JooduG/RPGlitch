@@ -66,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Canonize Inlined Director Note & Resolve Greenfield A/B Live Review Findings**:
   - Canonized winning inlined `<think>${note}\n(` director note delivery across `src/engine/prompts.js`, `src/engine/prompts.test.js`, and `src/engine/turns.js`, seeding disciplined motive appraisal while retiring the speculative `directors_note_placement` / `DIR IN TASK` toggle from `Console.svelte`, `interface.svelte.js`, `turns.js`, `kernel.svelte.js`, and `bridge.js`.
-  - Added _"Appraise, Do Not Restate"_ directive to character thinking mode and replaced the tempting `"(inner voice: ...)"` prompt trap with `"(He's stalling—keep your hand near the latch.)"` to prevent leaking inner voice markers into visible prose.
+  - Added _"Appraise, Do Not Restate"_ directive to character thinking mode and replaced the tempting `"(inner voice: ...)"` prompt trap with `"(He's stalling-keep your hand near the latch.)"` to prevent leaking inner voice markers into visible prose.
   - Hardened Turn 3 Caretaker maintenance with 1x JSON parse retry on malformed outputs and converted the round-robin selector to a completion-driven cursor (`runtime.back_shot_cursor`), preventing target starvation and silent skips during background consolidation.
   - Implemented `execute_greenfield_prologue(story_id)` in `src/engine/bridge.js` called from `chrono.svelte.js:start()` when `use_greenfield_engine` is active, executing pure greenfield Fractal scene establishment and opening AI character turn while deferring prologue image generation and bypassing orphaned `gamemaster` background jobs.
   - Fixed dynamics write-back in `src/engine/bridge.js` to update `runtime.ai` and `runtime.fractal` setters, correctly persisting updated dynamics into Dexie `db.stories` auto-save.
@@ -331,7 +331,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Completed Documents Archival**: Archived completed `gate-3-media-consolidation-design.md` and historical `ENGINE_AUDIT.md` into `tmp/archive/` to preserve a zero-clutter root.
   - **Baton Refresh (`scribbles.md`)**: Swept resolved exploratory scratchpad notes and aligned focus on Gate 4 Flat UI Domain Components & Atomic Cutover.
 
-- **Sovereign Nuclear Architecture — Gate 3 (Media & Sensory Subsystems Consolidation) (`src/media/`, `src/config.js`, `src/utils/math.js`, `src/intelligence/dynamics.js`, `src/intelligence/modules/style.js`, `src/intelligence/index.js`, `src/ui/profile/VisualWing.svelte`)**:
+- **Sovereign Nuclear Architecture - Gate 3 (Media & Sensory Subsystems Consolidation) (`src/media/`, `src/config.js`, `src/utils/math.js`, `src/intelligence/dynamics.js`, `src/intelligence/modules/style.js`, `src/intelligence/index.js`, `src/ui/profile/VisualWing.svelte`)**:
   - **Sensory Taxonomy & Optics Invariants (`src/media/optics.js`, `src/config.js`, `src/utils/math.js`, `src/intelligence/modules/style.js`, `src/ui/profile/VisualWing.svelte`)**: Promoted `IMAGE_TRIGGER` thresholds and cooldown definitions into `@config` and established `evaluate_image_trigger` as a pure evaluator in `@utils/math.js`. Eliminated all upward imports from `src/media/optics.js` into `@intelligence` or `@data`. Relocated `extract_aesthetic_traits` to `src/intelligence/modules/style.js` and updated `VisualWing.svelte` to import from `@intelligence`. Kept image tier taxonomy (`IMAGE_TIERS`, `normalize_image_tier`, `get_resolution`, `get_tier_guidance_scale`) cleanly isolated.
   - **Stateless Perchance Visual Dispatcher (`src/media/visual.js`)**: Created greenfield stateless functional generator `dispatch_visual_generation` supporting host Perchance discovery (`window.pluginGenerateImage` / `window.generate_image`), exponential backoff (2500ms initial for 429/503), circuit breaker failure insulation, AbortSignal cancellation, and offline SVG data URI generation for testing. Preserved bounded image generation queue and in-flight tracking.
   - **Procedural Web Audio & Speech Engine (`src/media/audio.js`, `src/media/index.js`)**: Replaced 1,248-line heavyweight audio engine and neural Kokoro ONNX model with pure procedural Web Audio synthesizer (`play_sfx`) for UI sound effects (`click`, `pop`, `glitch`, `alert`, `subtle_hum`) and a lightweight Web Speech API fallback maintaining the positional `speak(text, should_clear_queue, force)` signature, top-level standalone functional wrappers (`set_master_volume`, `toggle_mute`), and full Audio facade surface (`Audio.voice`, `Audio.entity_voice`, `toggle_entity_voice`).
@@ -339,7 +339,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Purged Neural Speech Stack (`src/media/speech.js`)**: Purged 373-line `speech.js` and excised Kokoro-82M neural model dependencies per P4 Zero Backwards Compatibility.
   - **Verification**: Full `npm run deploy:prepare` passing 100% green across all 83 test suites (1,468/1,468 tests), zero ESLint/Stylelint/Markdownlint errors, and production bundle built (`1,509.06 kB`).
 
-- **Sovereign Nuclear Architecture — Gate 2 (Storage & Persistence Consolidation) (`src/storage/`, `src/engine/`, `vite.config.js`, `jsconfig.json`, `package.json`, `.agents/skills/local-scripts/scripts/audit-layers.js`)**:
+- **Sovereign Nuclear Architecture - Gate 2 (Storage & Persistence Consolidation) (`src/storage/`, `src/engine/`, `vite.config.js`, `jsconfig.json`, `package.json`, `.agents/skills/local-scripts/scripts/audit-layers.js`)**:
   - **Canonical Bracket Tokenizer & Epistemic Wall (`src/storage/parser.js`)**: Single source of truth for bracket tokenization, metadata flag parsing (`hide`, `show`, `is_origin`, `w: 1-10`), Epistemic Wall filtering (`format_clean_brackets` with `is_counterpart` and diffusion stripping), bracket delta merging (`apply_bracket_deltas` with single-value overwrite, `none`/`cleared` key deletion, and multi-entry appending for `INVENTORY` and `STASH`), and memory candidate extraction (`extract_memory_candidates` for Sieve RAG).
   - **Profile Fields, Leaf Mapping & Enhancers (`src/storage/profile-fields.js`)**: Established `FLAT_LEAF_MAP`, `resolve_flat_path`, and `ENHANCER_DIRECTIVES` for Caretaker prompt integration and ingestion.
   - **10 Premade Archetypes & Inlined Author Narrative Presets (`src/storage/presets.js`)**: Preserved all 10 starter entities (`orion`, `glitch`, `silvers`, `hank`, `elias`, `julien`, `beast`, `nova`, `ashenweald`, `tartarus`) in pure 4-quadrant bracket schema. Inlined real author narrative styles (`cormac_mccarthy`, `william_gibson`, `anais_nin`, `david_lynch`, `arthur_morgan`) with safe fallback to `"cormac_mccarthy"` via `get_narrative_preset()`.
@@ -393,7 +393,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Cognition Anchor Prefill (`src/engine/turns.js`)**: Wired `{ startWith: "<think>" }` into transport stream options during `execute_turn_2_character` to anchor internal cognition and eliminate streaming monologue bleed.
   - **Greenfield Engine Verification**: All 8 test suites in `src/engine/` passing 100% green (36/36 tests).
 
-- **Sovereign Nuclear Architecture — Gate 1 Foundation (`src/engine/`, `src/config.js`, `package.json`)**:
+- **Sovereign Nuclear Architecture - Gate 1 Foundation (`src/engine/`, `src/config.js`, `package.json`)**:
   - **Foundational Scaffolding in Parallel (`src/engine/`)**: Implemented the complete greenfield engine alongside legacy code without breaking any of the existing 70 test suites.
   - **Structural Tag-Inventory Verifier Anchor (`src/engine/verifier.js`)**: Created lean (~120 lines) verification gate enforcing envelope closures (`<SYSTEM>...</SYSTEM>`), tag balance, ordered layer appearance, and prompt hygiene.
   - **Pure Bracket & Stream Parser (`src/engine/parser.js`)**: Implemented canonical single-string bracket parser (`[KEY: value | flags]`) with strict flag/pipe isolation inside `{Option A | Option B}` alternation scopes, `<think>` extraction, and Epistemic Wall visibility filtering.
@@ -693,7 +693,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Updated frozen `CONTRACT` inventories to reflect native `<RELATION>` tags, `<AUTHORIAL_VOICE>` + `<SOVEREIGNTY>`, and Director `<PREVIOUS_TURN>` / `<CURRENT_TURN>` inputs.
     - Enhanced `.agents/skills/simulation/scripts/simulation-audit.js` CLI runner to intercept direct node execution and delegate to Vitest, resolving `@data` path alias imports cleanly.
 
-- **Bugs & Debt Remediation — Phase C: Narrative Architecture, Perspectives & Budgeting**:
+- **Bugs & Debt Remediation - Phase C: Narrative Architecture, Perspectives & Budgeting**:
   - **Phase III 3.9 LLM Epistemic Dispositions (`sheets.js`, `sheets.test.js`, `prompt-verification.js`)**:
     - Implemented `render_dispositions` to render relational dynamics from `present.non_physical` into character envelopes as `<DISPOSITION target="...">` for authorized observers across the Epistemic Wall.
     - Added `owner_state: true` to `SHEET_SPECS.USER_PERSONA` so user persona state correctly participates in owner veil filtering.
@@ -706,7 +706,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Exported `ENTITIES_MAX_TOKENS = 2000` and `ENTITIES_MAX_CHARS = 8000` in `entities.js`.
     - Wired `calculate_physical_salience` and `whole_vector_slice` from `temporal.js` to score and prune candidate cast and nearby secondary entities when `<ENTITIES>` block approaches budget limits, ensuring Director and Storyteller prompts remain strictly beneath the 6,000-token cliff by construction.
 
-- **Bugs & Debt Remediation — Phase B: Simulation Physics & Memory Integrity**:
+- **Bugs & Debt Remediation - Phase B: Simulation Physics & Memory Integrity**:
   - **M1 Case-Variant Deduplication (`text.js`, `temporal.js`, `text.test.js`, `temporal.test.js`)**:
     - Implemented line-level case-folded deduplication in `merge_prose_into_field`, eliminating turn-over-turn duplication of identical physical states with differing casing ("Gash across chest" vs "gash across chest").
     - Added case-folded deduplication for `AGGREGATE_KEYS` (`INVENTORY`, `STASH`) and unstructured prose appending to `CONDITION`.
@@ -720,7 +720,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Forwarded the relational context tuple through `sheets_args` into `render_entity_sheets`, `render_actor_sheets`, `resolve_sheet_snapshot`, and `parse_physical_rows`.
     - Resolved `@SPEAKER`, `@LISTENER`, `@TARGET`, `@ME`, and `@YOU` dynamically against live scene dialogue participants during prompt compilation and character sheet serialization.
 
-- **Bugs & Debt Remediation — Phase A: Dead Code Purges & Level 1 Fixes**:
+- **Bugs & Debt Remediation - Phase A: Dead Code Purges & Level 1 Fixes**:
   - **Syntax & Quantifier Correction (`ProfileHeader.svelte`)**: Corrected malformed regex quantifier `pattern="^[A-Za-z0-9_-]{(2, 20)}$"` to `pattern="^[A-Za-z0-9_-]{2,20}$"`, restoring HTML5 input validation for custom entity handle editing.
   - **Inert `alternative_branches` Purge (`story.js`, `output.js`)**: Eliminated dead `[ALT-BRANCH]` console logging loop and meta-assignment in `story.js`; pruned lingering schema field in `output.js:56`.
   - **Dead `has_candidates` Purge (`task.js`, `builder.js`)**: Removed unread `values.has_candidates` assignment in `task.js` and discontinued its calculation in `builder.js`.
@@ -869,7 +869,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Delivered epistemic hardening (`strip_covert_directives` in `veil.js`), non-preempting concurrent audio streams in `speech.js`, and Director alternative branches in `director.js`.
     - Hardened P1 User Agency with hard-negative anti-hijacking directives in `task.js` and `protocols.js`.
 
-- **Modules Ground Refactor — Phases 1 to 4 (One Compiler Core, Domain Re-Cut & Universal Prompt Plan)**:
+- **Modules Ground Refactor - Phases 1 to 4 (One Compiler Core, Domain Re-Cut & Universal Prompt Plan)**:
   - **Shared Catalog Engine (`src/utils/catalog.js`, `src/utils/index.js`)**: Created centralized dotted-catalog compiler with byte-exact `{token}` interpolation (`interpolate_tokens`), dotted-path traversal with non-leaf guards returning `""` instead of `"[object Object]"`, default spreads, and fallback key policies (`resolve_catalog_atom`). Added unit test suite `catalog.test.js`.
   - **Harmonized Atom Resolvers (`src/intelligence/modules/{system,task,reflex,protocols}.js`)**: Delegated dotted resolution across all intelligence modules to `resolve_catalog_atom`. Preserved `ROLE_DEFAULTS` and `INTERACTION` fallback in `system.js`, record-driven `{tag, body}` enveloped wrapping and `REFLEX.` prefix stripping in `reflex.js`, and unified `STATIC_REGISTRY` with `{ uppercase: true }` in `protocols.js`.
   - **Constitution Plan/Render Split (`src/intelligence/modules/constitution.js`)**: Exported canonical `CONSTITUTION_ORDER` and implemented `resolve_constitution_plan({ laws })` returning a frozen `{ tag: "AXIOMATIC_CONSTITUTION", laws, dropped }` plan. `render_constitution` delegates cleanly through `render_constitution_plan`. Added unit tests in `constitution.test.js`.

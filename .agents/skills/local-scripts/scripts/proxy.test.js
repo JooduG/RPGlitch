@@ -1,6 +1,6 @@
 /**
  * .agents/skills/local-scripts/scripts/proxy.test.js
- * 🧪 PROXY UNIT TEST SUITE (split from bridges.test.js — deepwiki half archived).
+ * 🧪 PROXY UNIT TEST SUITE (split from bridges.test.js - deepwiki half archived).
  *
  * Validates CLI routing of proxy.js:
  *   - Missing arguments handling
@@ -9,10 +9,10 @@
  *   - CI skip behavior when global tool is missing
  */
 
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { spawnSync } from "child_process";
-import path from "path";
 import fs from "fs";
+import path from "path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const PROXY_PATH = path.resolve(__dirname, "./proxy.js");
 const TEST_DIRECTORY = path.resolve(__dirname, "../../../../tmp/test-home");
@@ -72,5 +72,5 @@ describe("proxy.js CLI", () => {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Split from bridges.test.js — proxy half. DeepWiki bridge archived (no callers, no test).
+ * 2026-11-10: Split from bridges.test.js - proxy half. DeepWiki bridge archived (no callers, no test).
  */

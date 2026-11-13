@@ -285,7 +285,7 @@ describe("TelemetryCard Telemetry Logic", () => {
       target: "Viper",
       dynamic: "cautious trust",
     });
-    expect(parse_relationship_edge("Void —> Viper: looming danger")).toEqual({
+    expect(parse_relationship_edge("Void -> Viper: looming danger")).toEqual({
       source: "Void",
       target: "Viper",
       dynamic: "looming danger",

@@ -1,7 +1,7 @@
 /**
  * src/engine/runs.js
  * ============================================================================
- * 🏃 ENGINE RUNS — SESSION TURN PIPELINE
+ * 🏃 ENGINE RUNS - SESSION TURN PIPELINE
  * ============================================================================
  *
  * Session-aware wrappers around the Kernel: opens a turn session (quadrants,
@@ -12,15 +12,15 @@
  * stay pure (parameters in, outcomes out).
  */
 
-import { normalize_entity } from "../data/entities.js";
-import { Kernel } from "./kernel.svelte.js";
-import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
-import { append_ledger_entries, db, log_message } from "../data/db.js";
-import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../data/parser.js";
-import { state_bridge } from "../utils/index.js";
-import { get_transport } from "./transport.js";
-import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
 import { IMAGE_POLICY } from "../config.js";
+import { append_ledger_entries, db, log_message } from "../data/db.js";
+import { normalize_entity } from "../data/entities.js";
+import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../data/parser.js";
+import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
+import { state_bridge } from "../utils/index.js";
+import { Kernel } from "./kernel.svelte.js";
+import { get_transport } from "./transport.js";
+import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
 
 /**
  * Opens a turn session: adapts active entities to quadrants, builds a Kernel
@@ -63,7 +63,7 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
   const levels =
     kernel && (kernel.ai?.dynamics || kernel.fractal?.dynamics) ? { ...(kernel.ai?.dynamics || {}), ...(kernel.fractal?.dynamics || {}) } : undefined;
 
-  // Director turn first (C1: chronology over stability — accepted devmode jump on commit).
+  // Director turn first (C1: chronology over stability - accepted devmode jump on commit).
   let logged_delta = null;
   if (outcome.director_staging?.dynamics_deltas) {
     logged_delta = await log_message("", "system", "Director", {
@@ -457,7 +457,7 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
 
     if (!caretaker_outcome.parse_succeeded) {
       state_bridge.app?.log?.(
-        `[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} — keeping cursor on target.`,
+        `[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} - keeping cursor on target.`,
         "warn",
       );
       return;

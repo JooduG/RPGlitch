@@ -1,9 +1,9 @@
 # Suggestion: Scoped Mystery & Paranoia Mode (`FAIRPLAY_FUZZ` + `INSIGHT_SYNC`)
 
-> **Status:** Backlog Proposal — KEEP, re-point at the live cores in `src/engine/prompts.js` when promoted.
+> **Status:** Backlog Proposal - KEEP, re-point at the live cores in `src/engine/prompts.js` when promoted.
 
-**Status:** PROPOSED / SUGGESTION  
-**Scope:** Specific Mystery/Paranoia Fractals & Scenarios (Not global)  
+**Status:** PROPOSED / SUGGESTION
+**Scope:** Specific Mystery/Paranoia Fractals & Scenarios (Not global)
 **Origin:** Synthesis of `scrobbles.md` (`BLACKBOX_NPC`, `PLOT_MYSTERY`) and `tjofs.md` (Atom #4)
 
 ---

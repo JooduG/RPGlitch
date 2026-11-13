@@ -49,4 +49,4 @@ Two failure modes, and the first is worse:
 
 ## Reference Catalog
 
-- [Worst-Case Catalog](./worst-case-catalog.md) — Dictionary of realistic breaking strings across names, identifiers, copy, and numbers.
+- [Worst-Case Catalog](./worst-case-catalog.md) - Dictionary of realistic breaking strings across names, identifiers, copy, and numbers.

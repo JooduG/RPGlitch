@@ -1,6 +1,6 @@
 /**
  * .agents/skills/simulation/scripts/sim-check.js
- * ✅ ENGINE-NATIVE SIMULATION CHECK — turn smoke + prompt contract + memory stress.
+ * ✅ ENGINE-NATIVE SIMULATION CHECK - turn smoke + prompt contract + memory stress.
  *
  * Replaces simulation-audit.js, prompt-contract.test.js, and
  * consolidation-stress.test.js, which pinned the eradicated src/intelligence/*
@@ -16,20 +16,20 @@
  *   from src/engine/sieve.js (the real Two-Tier Sieve).
  *
  * No byte pins: prompt bytes are environment truth (generated tokens.js, DESIGN
- * churn) and re-pin on every intentional prompt change — the contract asserts
+ * churn) and re-pin on every intentional prompt change - the contract asserts
  * SHAPE (close tags, single TASK, core markers), not bytes.
  */
 
 import { compile_prompt } from "../../../../src/engine/prompts.js";
+import { cosine_similarity, count_text_tokens, score_and_rank_memories, two_tier_sieve_rag } from "../../../../src/engine/sieve.js";
 import {
   execute_turn_1_director,
   execute_turn_2_character,
   execute_turn_3_caretaker,
-  execute_turn_visualizer,
   execute_turn_structuring,
+  execute_turn_visualizer,
   resolve_caretaker_target,
 } from "../../../../src/engine/turns.js";
-import { cosine_similarity, score_and_rank_memories, two_tier_sieve_rag, count_text_tokens } from "../../../../src/engine/sieve.js";
 
 export const LIVE_CORES = Object.freeze(["DIRECTOR", "CHARACTER", "CARETAKER", "VISUALIZER"]);
 
@@ -143,7 +143,7 @@ export function mock_transport_for(canned) {
 export const CANNED = Object.freeze({
   DIRECTOR:
     '<think>{"staging": true}</think>\n{"dynamics_deltas": {"chaos": 999, "intensity": 3, "openness": 0, "affinity": 1, "velocity": -5, "entropy": 2}, "next_action": "MAIN_CHARACTER", "directors_note": "Hold the line.", "camera_note": "Low angle."}',
-  CHARACTER: "<think>(He is stalling — keep a hand near the latch.)</think>\nOrion plants his boots and grins.",
+  CHARACTER: "<think>(He is stalling - keep a hand near the latch.)</think>\nOrion plants his boots and grins.",
   CARETAKER:
     '<think>{"delta": true}</think>\n{"eternal_physical": "", "eternal_non_physical": "", "present_physical": "[POSTURE: braced]", "present_non_physical": "", "future": "[GOAL: hold the plaza]", "past": ""}',
   VISUALIZER: '<think>{"stage": true}</think>\n{"prompt": "Neon plaza at dusk, braced hero", "negative_prompt": "blurry, low quality"}',
@@ -251,7 +251,7 @@ if (process.argv[1] && String(process.argv[1]).endsWith("sim-check.js")) {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Created — replaces simulation-audit.js (eradicated intelligence/* imports), the
+ * 2026-11-10: Created - replaces simulation-audit.js (eradicated intelligence/* imports), the
  *   prompt-contract byte pins (environment truth, not contract), and consolidation-stress
  *   (deleted config keys). Asserts live shape + behavior only.
  */

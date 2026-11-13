@@ -322,12 +322,12 @@
 </script>
 
 <script>
-  import { Modal, Button, TextField, NumberField, Dropdown, Shimmer, Backdrop, tooltip } from "@primitives";
-  import { app } from "./interface.svelte.js";
   import { runtime } from "@engine";
   import { get_resolution } from "@media";
+  import { Backdrop, Button, Dropdown, Modal, NumberField, Shimmer, TextField, tooltip } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
+  import { app } from "./interface.svelte.js";
 
   // --- CANDIDATE PICKER STATE & LOGIC ---
   let is_picker_regenerating = $state(false);
@@ -439,7 +439,7 @@
     return null;
   };
 
-  /** Dropdown options — labeled with each entity's actual name. */
+  /** Dropdown options - labeled with each entity's actual name. */
   const profile_options = $derived([
     { value: "ai", label: get_profile_target("ai")?.name?.trim() || "AI Character", disabled: !get_profile_target("ai") },
     { value: "user", label: get_profile_target("user")?.name?.trim() || "User Persona", disabled: !get_profile_target("user") },
@@ -511,10 +511,10 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
-      class="pointer-events-auto flex h-fit max-h-[95vh] w-full shrink-0 flex-col gap-gap-standard self-center overflow-hidden rounded-standard bg-glass-elevated p-padding-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-[calc(var(--spacing-column-unit)*3)]"
+      class="gap-standard p-standard rounded-standard bg-glass-elevated pointer-events-auto flex h-fit max-h-[95vh] w-full shrink-0 flex-col self-center overflow-hidden [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-[calc(var(--spacing-column-unit)*3)]"
       onclick={(e) => e.stopPropagation()}
     >
-      <div class="flex scrollbar-none flex-col gap-gap-standard overflow-y-auto [&::-webkit-scrollbar]:hidden">
+      <div class="gap-standard flex scrollbar-none flex-col overflow-y-auto [&::-webkit-scrollbar]:hidden">
         {#if preview_state.metadata.prompt}
           <div class="flex flex-col gap-2 text-left">
             <TextField value={preview_state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">

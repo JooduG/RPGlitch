@@ -159,7 +159,7 @@ export function create_job_queue(options = {}) {
 
 /**
  * CHANGELOG:
- * - 2026-10-19: P4 Purge — removed unused advance() lifecycle gate, is_stale(), and STALE_RESULT;
+ * - 2026-10-19: P4 Purge - removed unused advance() lifecycle gate, is_stale(), and STALE_RESULT;
  *   streamlined job queue to lean, zero-bloat concurrency worker pool.
  * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
  *   structured section dividers, defined JobQueue JSDoc typedefs, exported frozen settlement

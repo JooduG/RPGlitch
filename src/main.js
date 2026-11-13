@@ -19,15 +19,20 @@ ensure_theme_tokens();
 // Composition root: publish accessors and stream handlers into
 // the @utils bridges (state_bridge / stream_bridge) so non-UI modules
 // can interact without upward imports. Must run before app_bootstrap.init().
-import { app } from "@ui";
-import { runtime, simulation_state } from "@engine";
-import { simulation_log } from "@data";
-import { Audio, sweep_stale_ghosts, ensure_theme_tokens } from "@media";
-import { save_session_checkpoint, normalize_entity, seed_premades, session_driver, set_versionchange_quiesce } from "@data";
-import { install_environment_hardening, sanitize_to_fragment, embeddings_engine } from "@utils";
-import { mount } from "svelte";
 import App from "@/App.svelte";
-import { register_state_accessors, register_stream_handlers, state_bridge } from "@utils";
+import { normalize_entity, save_session_checkpoint, seed_premades, session_driver, set_versionchange_quiesce, simulation_log } from "@data";
+import { runtime, simulation_state } from "@engine";
+import { Audio, ensure_theme_tokens, sweep_stale_ghosts } from "@media";
+import { app } from "@ui";
+import {
+  embeddings_engine,
+  install_environment_hardening,
+  register_state_accessors,
+  register_stream_handlers,
+  sanitize_to_fragment,
+  state_bridge,
+} from "@utils";
+import { mount } from "svelte";
 
 register_state_accessors({ app, runtime, simulation_state, simulation_log, session_driver });
 register_stream_handlers({
@@ -50,7 +55,7 @@ let has_initialized = false;
 // IndexedDB is unavailable here, so stash a reload-safe checkpoint of the active
 // session pointer before the forced reload. runtime.sync() restores it on boot.
 // Guarded against environments where the persistence layer hasn't exposed the
-// hook (e.g. partial @data mocks in unit tests) — a boot hook registration must
+// hook (e.g. partial @data mocks in unit tests) - a boot hook registration must
 // never be able to take down module evaluation.
 if (typeof set_versionchange_quiesce === "function") {
   set_versionchange_quiesce(() => {

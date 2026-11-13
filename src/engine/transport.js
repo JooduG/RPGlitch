@@ -20,9 +20,9 @@
  * generate_text keeps mock-or-throw policy and AbortError-to-"" mapping.
  */
 
-import { resolve_priority, run_llm_job } from "./gate.js";
+import { sanitize_llm, stream_bridge } from "../utils/index.js";
 import { merge_abort_signals } from "../utils/resilience.js";
-import { stream_bridge, sanitize_llm } from "../utils/index.js";
+import { resolve_priority, run_llm_job } from "./gate.js";
 
 export function get_mock_message() {
   return `<think>Evaluating physical variables and drafting response vector.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
@@ -120,7 +120,7 @@ function normalize_direct_result(res) {
 /**
  * Foreground streaming completion: accumulates chunks, guards against
  * onToken/onChunk double-delivery, merges abort signals, wires .stop().
- * Never touches the stream bridge — callers forward chunks themselves.
+ * Never touches the stream bridge - callers forward chunks themselves.
  */
 function transport_completion(ai_engine, prompt, options, gate_signal) {
   return new Promise((resolve, reject) => {

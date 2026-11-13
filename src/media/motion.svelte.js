@@ -9,8 +9,8 @@
  */
 
 import { clamp, resolve_ms, resolve_number, resolve_string } from "@utils";
-import { Spring } from "svelte/motion";
 import { quartOut } from "svelte/easing";
+import { Spring } from "svelte/motion";
 
 // =============================================================================
 // [SECTION 1: GLOBAL MOTION STATE & ACCESSIBILITY]
@@ -512,7 +512,7 @@ export function fly_card_out(source_el, to_rect, options = {}) {
 /**
  * Cover-style card flight: carries a clone from one rect to another by lerping
  * its left/top/width/height directly (rAF-driven). Because the card's art is
- * object-cover, the box grows/shrinks and the image crops — it never stretches
+ * object-cover, the box grows/shrinks and the image crops - it never stretches
  * like a non-uniform transform scale would.
  * @param {HTMLElement} source_el
  * @param {Rect} from_rect

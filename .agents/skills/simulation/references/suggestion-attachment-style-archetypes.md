@@ -1,16 +1,16 @@
 # Suggestion: Attachment Style Archetypes & Relational Trajectories
 
-> **Status:** Backlog Proposal — KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.
+> **Status:** Backlog Proposal - KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.
 
-> **Status:** Backlog Proposal  
-> **Domain:** Entity Schemas, Relational Epistemology & Interpersonal Dynamics  
-> **Scope:** 4 Attachment Schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), Threat Reactions, Defense Mechanisms, Recovery Curves  
+> **Status:** Backlog Proposal
+> **Domain:** Entity Schemas, Relational Epistemology & Interpersonal Dynamics
+> **Scope:** 4 Attachment Schemas (`secure`, `anxious`, `dismissive`, `fearful_avoidant`), Threat Reactions, Defense Mechanisms, Recovery Curves
 
 ---
 
 ## 1. Core Thesis
 
-While RPGlitch evaluates momentary physical tells via `evaluate_automatic_somatics`, entities lack an explicit model for processing interpersonal threat and emotional recovery over multi-turn scenes. 
+While RPGlitch evaluates momentary physical tells via `evaluate_automatic_somatics`, entities lack an explicit model for processing interpersonal threat and emotional recovery over multi-turn scenes.
 
 Adding an explicit `attachment_style` to character entities establishes predictable emotional gravity, authentic friction, and calibrated relationship trajectories.
 

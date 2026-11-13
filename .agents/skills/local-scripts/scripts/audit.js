@@ -12,8 +12,8 @@
  */
 
 import path from "path";
-import { ROOT_DIRECTORY, COLORS, run_audit } from "./lib/io.js";
-import { code_hygiene_rules, lexical_hygiene_rules, legislative_debt_rules } from "./rules/hygiene.js";
+import { COLORS, ROOT_DIRECTORY, run_audit } from "./lib/io.js";
+import { code_hygiene_rules, legislative_debt_rules, lexical_hygiene_rules } from "./rules/hygiene.js";
 import { audit_layers } from "./rules/layers.js";
 import { sync_workspace } from "./sync-ignores.js";
 
@@ -146,6 +146,6 @@ if (is_main_execution) {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Created — merges workspace.js Pipeline 2 + audit-layers.js behind one runner.
+ * 2026-11-10: Created - merges workspace.js Pipeline 2 + audit-layers.js behind one runner.
  *   Rules live in rules/hygiene.js + rules/layers.js; sync lives in sync-ignores.js.
  */

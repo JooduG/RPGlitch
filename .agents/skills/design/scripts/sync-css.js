@@ -1,6 +1,6 @@
 import fs from "fs";
-import path from "path";
 import yaml from "js-yaml";
+import path from "path";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,7 +25,7 @@ export const AUTHORITATIVE_CATEGORIES = ["colors", "typography", "rounded", "spa
 function generatedHeader(rel_path) {
   return `/* ============================================================================
  * [GENERATED] ${rel_path}
- * DO NOT EDIT DIRECTLY — this file is generated from DESIGN.md by
+ * DO NOT EDIT DIRECTLY - this file is generated from DESIGN.md by
  * .agents/skills/design/scripts/sync-css.js (npm run sync:css).
  * Hand edits are overwritten on the next sync. Edit DESIGN.md instead.
  * ============================================================================ */`;
@@ -96,7 +96,7 @@ function flattenFrontmatter(data) {
 
 /**
  * Serializes DESIGN.md into src/media/tokens.js (TOKENS, PALETTE, SIGNATURE_COLORS).
- * Written in full — there is no hand-maintained section anymore.
+ * Written in full - there is no hand-maintained section anymore.
  * @param {Record<string, Record<string, string> | string[]>} flat_data - Per-category token map.
  */
 function buildJsBridge(flat_data) {

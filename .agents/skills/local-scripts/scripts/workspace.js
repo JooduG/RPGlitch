@@ -1,6 +1,6 @@
 /**
  * .agents/skills/local-scripts/scripts/workspace.js
- * 🌐 WORKSPACE ENTRY SHIM (deprecated) — use audit.js + sync-ignores.js directly.
+ * 🌐 WORKSPACE ENTRY SHIM (deprecated) - use audit.js + sync-ignores.js directly.
  *
  * Preserved so existing muscle memory (`node workspace.js [sync|hygiene|all]`)
  * and external references keep working. All logic lives in audit.js,
@@ -8,10 +8,9 @@
  */
 
 export { audit_hygiene, audit_layer_boundaries, sync_workspace } from "./audit.js";
-export { code_hygiene_rules, lexical_hygiene_rules, legislative_debt_rules } from "./rules/hygiene.js";
-export { run_audit, scan_directory, create_ignore_filter, safe_stat_sync, COLORS } from "./lib/io.js";
-import { audit_hygiene, sync_workspace } from "./audit.js";
-import { audit_layer_boundaries } from "./audit.js";
+export { COLORS, create_ignore_filter, run_audit, safe_stat_sync, scan_directory } from "./lib/io.js";
+export { code_hygiene_rules, legislative_debt_rules, lexical_hygiene_rules } from "./rules/hygiene.js";
+import { audit_hygiene, audit_layer_boundaries, sync_workspace } from "./audit.js";
 
 const requested_subcommand = process.argv[2];
 
@@ -52,6 +51,6 @@ switch (requested_subcommand) {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Slimmed to a compatibility shim — logic moved to audit.js / sync-ignores.js /
+ * 2026-11-10: Slimmed to a compatibility shim - logic moved to audit.js / sync-ignores.js /
  *   lib/io.js / rules/*. Purged under P4 Pre-Beta Purity (2026-09-05) stays purged.
  */

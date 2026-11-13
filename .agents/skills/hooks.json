@@ -1,0 +1,104 @@
+{
+  "destructive-command-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js command-guard",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "sequential-thinking-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js sequential-thinking-gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "mcp-argument-normalizer": {
+    "PreToolUse": [
+      {
+        "matcher": "call_mcp_tool",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js mcp-argument-normalizer",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "file-architecture-gate": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js file-architecture-gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "grep-truncation-breaker": {
+    "PostToolUse": [
+      {
+        "matcher": "grep_search",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js grep-truncation",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "strike-circuit-breaker": {
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node skills/local-scripts/scripts/hooks.js circuit-breaker",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "planning-handoff-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node skills/local-scripts/scripts/hooks.js planning-handoff",
+        "timeout": 15
+      }
+    ]
+  },
+  "workspace-hygiene-gate": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "node skills/local-scripts/scripts/hooks.js stop-hygiene",
+        "timeout": 15
+      }
+    ]
+  }
+}

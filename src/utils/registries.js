@@ -197,7 +197,7 @@ export const stream_bridge = {
 const _stories_bump = create_cell("stories bump handler");
 
 /**
- * Story-version bridge — allows persistence and repository layers to notify
+ * Story-version bridge - allows persistence and repository layers to notify
  * reactive UI views that the story archive was modified.
  */
 export const stories_bridge = {

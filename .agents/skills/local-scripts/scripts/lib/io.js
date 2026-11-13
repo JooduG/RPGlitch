@@ -1,14 +1,14 @@
 /**
  * .agents/skills/local-scripts/scripts/lib/io.js
- * 📦 SHARED AUDIT IO — paths, colors, ignore-aware scanning, audit runner.
+ * 📦 SHARED AUDIT IO - paths, colors, ignore-aware scanning, audit runner.
  *
  * Extracted from workspace.js §1–§2 (single home for all audit I/O).
  * Rule packs in ../rules/* import from here; audit.js orchestrates.
  */
 
 import fs from "fs";
-import path from "path";
 import ignore from "ignore";
+import path from "path";
 import { fileURLToPath } from "url";
 
 const CURRENT_FILE_PATH = fileURLToPath(import.meta.url);

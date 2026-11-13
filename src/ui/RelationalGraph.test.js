@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/svelte";
+import { fireEvent, render, screen } from "@testing-library/svelte";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import RelationalGraph from "./RelationalGraph.svelte";
 
 vi.mock("@data", async (importOriginal) => {
@@ -149,13 +149,13 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 /**
  * CHANGELOG
  * ============================================================================
- * - 2026-10-14: Atom 3.5 — Added unit tests for 360° Relational Dossier card,
+ * - 2026-10-14: Atom 3.5 - Added unit tests for 360° Relational Dossier card,
  *   4-quadrant state inspection, Omniscient Observer Mode epistemic lock, and
  *   card dismiss/open-profile interactions.
- * - 2026-10-04: Graph-only split — removed edge-deletion test with the retired
+ * - 2026-10-04: Graph-only split - removed edge-deletion test with the retired
  *   bond-card editor; suite covers constellation rendering, bracket harvesting,
  *   and satellite-node selection.
- * - 2026-10-01: Universal Predicates Migration — updated test suite to drive
+ * - 2026-10-01: Universal Predicates Migration - updated test suite to drive
  *   constellation nodes 100% through universal bracket predicates.
  * - 2026-09-29: Added unit test verifying universal bracket relationship harvesting into constellation satellite nodes.
  * ============================================================================

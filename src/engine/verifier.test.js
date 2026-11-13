@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   extract_tag_sequence,
-  verify_tag_balance,
-  verify_system_envelope,
-  verify_tag_order,
-  verify_prompt_hygiene,
   verify_compiled_prompt,
+  verify_prompt_hygiene,
+  verify_system_envelope,
+  verify_tag_balance,
+  verify_tag_order,
 } from "./verifier.js";
 
-describe("src/engine/verifier.js — Tag Inventory & Structural Anchor", () => {
+describe("src/engine/verifier.js - Tag Inventory & Structural Anchor", () => {
   it("extracts XML tags and attributes accurately", () => {
     const prompt = `<SYSTEM round="1"><MAIN_CHARACTER id="ALICE"><PERSONALITY>Brave</PERSONALITY></MAIN_CHARACTER></SYSTEM>`;
     const tags = extract_tag_sequence(prompt);

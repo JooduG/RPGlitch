@@ -25,14 +25,12 @@
  * ============================================================================
  */
 
+import { db, developer_log, entities, normalize_entity as normalize, stories } from "@data";
+import { install_freeze_watchdog, runtime, simulation_state, streaming as streaming_store, ui_state } from "@engine";
+import { get_signature_color, visual_engine } from "@media";
+import { embeddings_engine, guarded_transition, resolve_px, stories_bridge } from "@utils";
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { guarded_transition, resolve_px, stories_bridge } from "@utils";
-import { db, entities, normalize_entity as normalize, stories } from "@data";
-import { get_signature_color, visual_engine } from "@media";
-import { embeddings_engine } from "@utils";
-import { runtime, install_freeze_watchdog, simulation_state, streaming as streaming_store, ui_state } from "@engine";
-import { developer_log } from "@data";
 
 // ============================================================================
 // Bridges & JSDoc Type Definitions
@@ -576,7 +574,7 @@ export class InterfaceStore {
     this.save_settings();
   };
 
-  // STREAMING CONTROL — delegates to status.svelte.js (StreamingStore)
+  // STREAMING CONTROL - delegates to status.svelte.js (StreamingStore)
   start_stream = (id, role = "ai") => streaming_store.start_stream(id, role);
   update_stream = (chunk) => streaming_store.update_stream(chunk);
   end_stream = () => streaming_store.end_stream();

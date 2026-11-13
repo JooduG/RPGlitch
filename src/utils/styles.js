@@ -17,8 +17,8 @@
  * - `src/media/visual.svelte.js` (Visual style resolution for image generation).
  */
 
-import { state_bridge } from "./registries.js";
 import { SPEAKING_STYLES } from "@config";
+import { state_bridge } from "./registries.js";
 
 // ============================================================================
 // [SECTION 1: NARRATIVE SLOP LINTER (Track 3.1)]
@@ -27,7 +27,7 @@ import { SPEAKING_STYLES } from "@config";
 /**
  * Frozen slop catalog: repetitive narrative clichés the detox pass does not
  * structurally rewrite, plus the cliché somatic-marker set capped at one
- * occurrence per reply. Data-only — detection and enforcement below walk it.
+ * occurrence per reply. Data-only - detection and enforcement below walk it.
  */
 export const SLOP_PATTERNS = Object.freeze({
   CLICHES: Object.freeze([
@@ -63,7 +63,7 @@ export const SLOP_PATTERNS = Object.freeze({
   ]),
 });
 
-/** Maximum physical cliché reaction markers permitted per turn before stripping (single consumer — lives here, not on the dashboard) */
+/** Maximum physical cliché reaction markers permitted per turn before stripping (single consumer - lives here, not on the dashboard) */
 const SOMATIC_MARKER_CAP = 1;
 
 /**
@@ -93,7 +93,7 @@ export function lint_narrative_slop(text) {
 /**
  * Enforces the somatic-marker cap: keeps the first marker occurrence intact and
  * strips the matched marker phrase from every later occurrence, collapsing the
- * leftover whitespace. Pure text surgery — sentence structure is preserved.
+ * leftover whitespace. Pure text surgery - sentence structure is preserved.
  * @param {string|null|undefined} text
  * @returns {string}
  */

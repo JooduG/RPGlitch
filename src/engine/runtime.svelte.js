@@ -6,7 +6,7 @@
  * - Owns the reactive Svelte 5 Runes representing active simulation state:
  *   - Active Entities: `character` (User Persona), `active_user`, `active_ai`, `active_fractal`.
  *   - NPC World Cast: `active_npcs` (hydrated records; each carries
- *     `presence: 'active' | 'nearby' | 'dormant'` — the Stage Spotlight).
+ *     `presence: 'active' | 'nearby' | 'dormant'` - the Stage Spotlight).
  *   - Live Physics & Dynamics: `ai_physics`, `fractal_physics`, and per-entity dynamic baselines.
  *   - Macro Chronology: `story_id`, `round`, `turn_type`, and `is_ready` flags.
  *   - Generation Concurrency Mutex: `is_foreground_generating` vs `is_background_generating`.
@@ -25,14 +25,12 @@
  * ============================================================================
  */
 
-import { SvelteSet } from "svelte/reactivity";
-import { db, entities, coerce_story_key, session_driver, SESSION_ID_KEY } from "@data";
-import { load_session_checkpoint, clear_session_checkpoint } from "@data";
-import { decompose_story_title } from "@utils";
-import { get_signature_color } from "@media";
 import { TELEMETRY_CAPS } from "@config";
+import { clear_session_checkpoint, coerce_story_key, db, entities, load_session_checkpoint, session_driver, SESSION_ID_KEY } from "@data";
+import { get_signature_color } from "@media";
+import { decompose_story_title, state_bridge } from "@utils";
+import { SvelteSet } from "svelte/reactivity";
 import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
-import { state_bridge } from "@utils";
 
 /**
  * Resolves the app interface state via state_bridge without upward import from @ui.
@@ -494,7 +492,7 @@ export class RuntimeEngineStore {
    * Re-asserts the active story's title into the shared app store.
    * The storyboard owns `app.story_title` while it is mounted (it previews the
    * draft title from the current slot selections), so entering storymode must
-   * restore the authoritative story title — otherwise a transient storyboard
+   * restore the authoritative story title - otherwise a transient storyboard
    * mount during boot leaves the lobby placeholder as the prologue header.
    */
   restore_story_title() {

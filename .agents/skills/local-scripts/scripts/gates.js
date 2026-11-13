@@ -1,9 +1,9 @@
 /**
  * .agents/skills/local-scripts/scripts/gates.js
- * � gate registry — single source of truth for Antigravity lifecycle hooks.
+ * � gate registry - single source of truth for Antigravity lifecycle hooks.
  *
  * GATE_TABLE drives everything: `node gates.js --dump` regenerates
- * `.agents/hooks.json` (which is a GENERATED artifact — do not hand-edit it),
+ * `.agents/hooks.json` (which is a GENERATED artifact - do not hand-edit it),
  * and `hooks.js` imports this table for its dispatch map.
  *
  * Retired (see CHANGELOG): the ceremonial `svelte-autofixer` PreInvocation

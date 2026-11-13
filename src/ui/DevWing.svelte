@@ -5,10 +5,10 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.
    */
-  import { Accordion, Button, Meter, tooltip } from "@primitives";
   import { DYNAMICS } from "@config";
-  import { format_datetime } from "@utils";
   import { runtime } from "@engine";
+  import { Accordion, Button, Meter, tooltip } from "@primitives";
+  import { format_datetime } from "@utils";
 
   /**
    * @typedef {Object} Props
@@ -55,13 +55,13 @@
 
 <section
   class="
+    gap-standard
+    p-standard
+    rounded-standard
+    bg-glass-elevated
     flex
     w-full
     flex-col
-    gap-gap-standard
-    rounded-standard
-    bg-glass-elevated
-    p-padding-standard
     [backdrop-filter:var(--blur-mist)]
   "
 >
@@ -220,6 +220,6 @@
 
 <!--
 CHANGELOG:
-- 2026-10-18: Phase V Sub-item 5.5 — Added Token Budget HUD badge and collapsible slot/entity breakdown popover in DevWing.
+- 2026-10-18: Phase V Sub-item 5.5 - Added Token Budget HUD badge and collapsible slot/entity breakdown popover in DevWing.
 - 2026-10-03: Added Mutation Ledger history inspector trigger and embedded `FieldHistoryModal` in DevWing.
 -->

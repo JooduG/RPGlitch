@@ -139,7 +139,7 @@ describe("VisualWing Stability (Hotfix)", () => {
     let negative = refine_result.negative_prompt || "";
 
     if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
-      app_mock.log("Enhancement returned no usable prose — draft kept", "warn");
+      app_mock.log("Enhancement returned no usable prose - draft kept", "warn");
     } else {
       char.modifiers.prompt = positive.trim();
       if (negative) char.modifiers.negative_prompt = negative.trim();
@@ -147,6 +147,6 @@ describe("VisualWing Stability (Hotfix)", () => {
 
     expect(char.modifiers.prompt).toBe("Hero draft concept");
     expect(char.modifiers.prompt).not.toContain("_thought_process");
-    expect(logged).toEqual([{ msg: "Enhancement returned no usable prose — draft kept", type: "warn" }]);
+    expect(logged).toEqual([{ msg: "Enhancement returned no usable prose - draft kept", type: "warn" }]);
   });
 });

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
+import { describe, expect, it } from "vitest";
 import { EMBEDDING_SPECS } from "../config.js";
+import { cosine_similarity, count_text_tokens, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
 
-describe("src/engine/sieve.js — Two-Tier Sieve RAG & Vector Retrieval Engine", () => {
+describe("src/engine/sieve.js - Two-Tier Sieve RAG & Vector Retrieval Engine", () => {
   it("computes cosine similarity accurately", () => {
     const vecA = new Float32Array(EMBEDDING_SPECS.QUANTIZE_MAX).fill(1);
     const vecB = new Float32Array(EMBEDDING_SPECS.QUANTIZE_MAX).fill(1);

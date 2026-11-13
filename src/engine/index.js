@@ -1,7 +1,7 @@
 /**
  * src/engine/index.js
  * ============================================================================
- * 📜 SOVEREIGN NUCLEAR ENGINE — BARREL EXPORTS
+ * 📜 SOVEREIGN NUCLEAR ENGINE - BARREL EXPORTS
  * ============================================================================
  *
  * Public interface for the RPGlitch simulation engine.
@@ -10,51 +10,51 @@
  */
 
 // Authoritative simulation state class
+export { LLM_PRIORITY, get_llm_gate_status, resolve_priority, run_llm_job } from "./gate.js";
 export { Kernel } from "./kernel.svelte.js";
-export { LLM_PRIORITY, resolve_priority, run_llm_job, get_llm_gate_status } from "./gate.js";
 export { get_mock_message, get_transport } from "./transport.js";
 
 // Pure headless turn orchestration
 export {
-  calculate_turn_tempo,
   CARETAKER_ROTATION,
-  resolve_caretaker_target,
+  build_turn_summary,
+  calculate_turn_tempo,
+  execute_ghostwriter,
+  execute_round,
   execute_turn_1_director,
   execute_turn_2_character,
   execute_turn_2_continue,
-  execute_ghostwriter,
   execute_turn_3_caretaker,
-  execute_turn_visualizer,
   execute_turn_structuring,
-  execute_round,
-  build_turn_summary,
+  execute_turn_visualizer,
+  resolve_caretaker_target,
 } from "./turns.js";
 
 // Bridge affordances
-export { execute_turn, execute_continue } from "./runs.js";
-export { execute_prologue, execute_epilogue, execute_visualizer_envision, structure_profile } from "./lifecycle.js";
+export { execute_epilogue, execute_prologue, execute_visualizer_envision, structure_profile } from "./lifecycle.js";
+export { execute_continue, execute_turn } from "./runs.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
-export { compile_prompt, PURPOSE_CORES } from "./prompts.js";
+export { PURPOSE_CORES, compile_prompt } from "./prompts.js";
 
 // Structural verification anchor
 export {
   extract_tag_sequence,
-  verify_tag_balance,
-  verify_system_envelope,
-  verify_tag_order,
-  verify_prompt_hygiene,
   verify_compiled_prompt,
+  verify_prompt_hygiene,
+  verify_system_envelope,
+  verify_tag_balance,
+  verify_tag_order,
 } from "./verifier.js";
 
 // Two-Tier Sieve RAG & vector math
-export { count_text_tokens, cosine_similarity, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
+export { cosine_similarity, count_text_tokens, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
 
 // Simulation Runtime & Entity Chronology
-export { runtime, RuntimeEngineStore, RuntimeEngineStore as RuntimeEngine } from "./runtime.svelte.js";
+export { RuntimeEngineStore as RuntimeEngine, RuntimeEngineStore, runtime } from "./runtime.svelte.js";
 
 // Simulation Phase, UI Locks, Streaming & Stasis Recovery
-export { simulation_state, ui_state, streaming, force_recover_simulation, install_freeze_watchdog } from "./status.svelte.js";
+export { force_recover_simulation, install_freeze_watchdog, simulation_state, streaming, ui_state } from "./status.svelte.js";
 
 // Chrono Engine (Turn Orchestration & Physics Loop)
-export { chrono_engine, ChronoEngine } from "./chrono.svelte.js";
+export { ChronoEngine, chrono_engine } from "./chrono.svelte.js";

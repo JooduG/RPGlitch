@@ -1,6 +1,6 @@
 # RPGlitch Technical Roadmap
 
-_AUTHORITATIVE SPECIFICATION (2026-10-14) — Unified, code-grounded engineering backlog synthesized from the Sovereign Engine Architecture, the Prompt Pipeline Audit, and the Entity Referencing Master Plan. Code reality pins: workspace `src/` @1827b58 / f1d8d645 (226/226 in sync). Evidence anchors: sim/dossier.md finding IDs (F1–F7, E2, M1, L1–L35), audit_report.md (Round 1 Gothic Baseline), and identified-issues.md (Issues 1–12, 13–22)._
+_AUTHORITATIVE SPECIFICATION (2026-10-14) - Unified, code-grounded engineering backlog synthesized from the Sovereign Engine Architecture, the Prompt Pipeline Audit, and the Entity Referencing Master Plan. Code reality pins: workspace `src/` @1827b58 / f1d8d645 (226/226 in sync). Evidence anchors: sim/dossier.md finding IDs (F1–F7, E2, M1, L1–L35), audit_report.md (Round 1 Gothic Baseline), and identified-issues.md (Issues 1–12, 13–22)._
 
 This roadmap defines the authoritative technical backlog, active engineering sprints, and target architectural blueprints for **RPGlitch**.
 
@@ -47,7 +47,7 @@ flowchart TD
 ### 🛡️ Release Engineering & Execution Invariants
 
 - **Sovereign Nuclear Architecture & Simplification Protocol (`nuclear-plan.md`)**:
-  - **Gate 1: Foundational Scaffolding (`src/engine/`)** — **COMPLETED**:
+  - **Gate 1: Foundational Scaffolding (`src/engine/`)** - **COMPLETED**:
     - Parallel greenfield engine constructed in `src/engine/` (`verifier.js`, `parser.js`, `sieve.js`, `prompts.js`, `transport.js`, `turns.js`, `kernel.svelte.js`, `dev.svelte.js`, `bridge.js`, `index.js`).
     - Complete test suite coverage across engine units (`verifier.test.js`, `parser.test.js`, `sieve.test.js`, `prompts.test.js`, `transport.test.js`, `turns.test.js`, `kernel.test.js`, `differential.test.js`, `bridge.test.js`) with 42/42 tests passing green.
     - Closed the 5 bridge gaps in `src/engine/bridge.js`: function/string prompt normalization, stream token deduplication, dynamic `director_enabled` app setting toggle, write-back synchronization of entity dynamics (including active user persona dynamics and quadrants), macro round, and full 4-quadrant Caretaker memory diffs (present physical/non-physical, future, and past) dispatched in the background without UI latency, and full history reconstruction with origin attribution in `src/engine/prompts.js` preserving system/fractal roles.
@@ -101,14 +101,14 @@ flowchart TD
       - Preserved the single persistent mount in `src/App.svelte` and zero cross-view unmount transitions.
       - Relocated test to `src/ui/Console.test.js` and purged `@console` path alias from `vite.config.js` and `audit-layers.js`.
     - Audited and hardened via adversarial EGM Goldfish review (`egm-codebase-details`): JSON escaping in prefill streams, Caretaker 4-quadrant bracket parsing, dynamics delta integer clamping, and clean history-driven turn tempo.
-  - **Gate 2: Storage & Persistence Consolidation (`src/storage/`)** — **COMPLETED**:
+  - **Gate 2: Storage & Persistence Consolidation (`src/storage/`)** - **COMPLETED**:
     - Parallel persistence layer established in `src/storage/` (`parser.js`, `profile-fields.js`, `presets.js`, `entities.js`, `db.js`, `index.js`).
     - Canonical bracket tokenizer, Epistemic Wall filtering, delta merging, and Sieve RAG memory candidate extraction.
     - Strictly preserved IndexedDB schema at `db.version(2)` (`mutation_ledger` included, no vector_cache table) to prevent `versionchange` page collisions.
     - Adapt-on-read legacy row conversion ensuring all 4 quadrants (`eternal`, `present`, `future`, `past`) are pure multiline bracket strings.
     - All 10 premades preserved and author narrative styles inlined with fallback to `"cormac_mccarthy"`.
     - Greenfield persistence test suite (`src/storage/`) passing 100% green (52/52 tests) and engine suites verified at 36/36 tests.
-  - **Gate 3: Media & Sensory Subsystems (`src/media/`)** — **COMPLETED**:
+  - **Gate 3: Media & Sensory Subsystems (`src/media/`)** - **COMPLETED**:
     - Greenfield stateless functional generator `dispatch_visual_generation` in `src/media/visual.js` supporting host Perchance discovery, exponential backoff (2500ms initial for 429/503), circuit breaker failure insulation, AbortSignal cancellation, and offline SVG data URI generation for testing.
     - Pure procedural Web Audio synthesizer (`play_sfx`) in `src/media/audio.js` for UI sound effects (`click`, `pop`, `glitch`, `alert`, `subtle_hum`), standalone functions `set_master_volume` and `toggle_mute`, and lightweight Web Speech API fallback preserving positional `speak()` and `Audio.voice` / `Audio.entity_voice` facade surface.
     - Promoted Section 7 nuclear constants added to `src/config.js` and `evaluate_image_trigger` to `@utils/math.js`. Eliminated all upward imports from `src/media/optics.js` into `@intelligence` or `@data`.
@@ -117,7 +117,7 @@ flowchart TD
     - Purged legacy 1,248-line `audio.svelte.js`, 978-line `visual.svelte.js`, and 373-line Kokoro `speech.js` stack.
     - Updated test suites across sensory cortex: created `src/media/visual.test.js`, purged retired `src/media/visual.svelte.test.js`, updated `src/media/tokens.test.js` and `src/media/optics.test.js`, and migrated `src/ui/profile/VisualWing.svelte` to `extract_aesthetic_traits` from `@intelligence/modules/style.js` (`src/intelligence/index.js`) following `aesthetic_resolver` extraction.
     - All 4 media test suites passing 100% green (65/65 tests).
-  - **Gate 4: Demolition Execution & Legacy Folder Annihilation (`nuclear-plan.md`)** — **IN PROGRESS**:
+  - **Gate 4: Demolition Execution & Legacy Folder Annihilation (`nuclear-plan.md`)** - **IN PROGRESS**:
     - **Pulse 1: Eradicate `src/platform/` (COMPLETED)**:
       - Purged `src/platform/` entirely (10 files deleted), consolidated zero-trust sandbox and web fetch into `src/utils/html.js`, vector codecs into `src/utils/math.js`, embeddings into `src/utils/embeddings.svelte.js`, signal resilience into `src/utils/resilience.js`, text sanitization into `src/utils/text.js`, and priority gate into `src/engine/gate.js`. Removed `@platform` alias.
     - **Pulse 2: Eradicate `src/data/` (COMPLETED)**:

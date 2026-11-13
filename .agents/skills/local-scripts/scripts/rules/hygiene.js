@@ -1,6 +1,6 @@
 /**
  * .agents/skills/local-scripts/scripts/rules/hygiene.js
- * 🧹 HYGIENE RULE PACK — code/structural, lexical, legislative + backlog-debt rules.
+ * 🧹 HYGIENE RULE PACK - code/structural, lexical, legislative + backlog-debt rules.
  *
  * Moved verbatim from workspace.js §4 (single rule home for audit.js).
  * Only change: path constants + safe_stat_sync import from ../lib/io.js.
@@ -8,7 +8,7 @@
 
 import fs from "fs";
 import path from "path";
-import { ROOT_DIRECTORY, PROJECT_ROOT_DIRECTORY, SKILLS_DIRECTORY, TEMPLATES_DIRECTORY, safe_stat_sync } from "../lib/io.js";
+import { PROJECT_ROOT_DIRECTORY, ROOT_DIRECTORY, SKILLS_DIRECTORY, TEMPLATES_DIRECTORY, safe_stat_sync } from "../lib/io.js";
 
 // --- Group A: Code & Structural Hygiene Rules ---
 export const code_hygiene_rules = [

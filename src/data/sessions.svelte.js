@@ -18,8 +18,8 @@
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { state_bridge, stories_bridge, has_bracket_bond } from "@utils";
-import { db, append_ledger_entries, SESSION_ID_KEY } from "./db.js";
+import { has_bracket_bond, state_bridge, stories_bridge } from "@utils";
+import { append_ledger_entries, db, SESSION_ID_KEY } from "./db.js";
 
 /**
  * Resolves a log speaker to its canonical entity id at creation (Track 1.2):
@@ -443,7 +443,7 @@ export const session_driver = {
         effective_story_id = session_driver.require_active();
       } catch {
         // Sessionless write (story wiped/ended while a fire-and-forget
-        // background job — image beat, caretaker, telemetry — was in flight):
+        // background job - image beat, caretaker, telemetry - was in flight):
         // degrade to a no-op sentinel instead of throwing an unhandled
         // rejection at the user. Foreground flows should check active_id first.
         return { id: meta?.id || `skip-${Date.now()}`, story_id: null, role, text: "", character_name, turn_type, meta };

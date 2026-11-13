@@ -6,13 +6,12 @@
    * markdown/dialogue rendering pipeline, streaming typewriter follow,
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
-  import MarkdownIt from "markdown-it";
-  import { clean_image_prompts, parse_think_block, filter_epistemic_brackets, strip_covert_directives, session_driver } from "@data";
-  import { detox_prose } from "@utils";
-  import { runtime, simulation_state, get_mock_message } from "@engine";
-  import { sanitize } from "@utils";
+  import { clean_image_prompts, filter_epistemic_brackets, parse_think_block, session_driver, strip_covert_directives } from "@data";
+  import { get_mock_message, runtime, simulation_state } from "@engine";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
-  import { run_image_regeneration, ProfilePicture } from "@ui";
+  import { ProfilePicture, run_image_regeneration } from "@ui";
+  import { detox_prose, sanitize } from "@utils";
+  import MarkdownIt from "markdown-it";
   import { app } from "./interface.svelte.js";
 
   // --- STORYMODE SHARED STATE ---
@@ -113,7 +112,7 @@
   // --- STORYMODE ACTION DISPATCHERS ---
 
   /**
-   * Portrait generation helper — logs a placeholder message immediately, then fills in the image.
+   * Portrait generation helper - logs a placeholder message immediately, then fills in the image.
    * @param {string} subject
    * @param {string} prompt
    * @param {string} [kind]
@@ -201,7 +200,7 @@
   }
 
   /**
-   * Group shot helper — logs placeholder immediately, then fills in the image.
+   * Group shot helper - logs placeholder immediately, then fills in the image.
    */
   export async function take_group_photo() {
     if (simulation_state.busy) return;
@@ -253,7 +252,7 @@
   }
 
   /**
-   * Regenerate orchestration — generates 3 candidates in the background.
+   * Regenerate orchestration - generates 3 candidates in the background.
    * @param {{ prompt: string, negative_prompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
    */
   export async function regenerate_image(ctx) {
@@ -279,7 +278,7 @@
   }
 
   /**
-   * Ghostwriter trigger — fires a signal the Console watches.
+   * Ghostwriter trigger - fires a signal the Console watches.
    */
   export function ghostwrite() {
     if (simulation_state.busy) return;
@@ -287,7 +286,7 @@
   }
 
   /**
-   * Mock message — streams a placeholder message for the given entity role (devmode only).
+   * Mock message - streams a placeholder message for the given entity role (devmode only).
    * @param {string} role
    */
   export async function run_mock(role) {
@@ -328,11 +327,11 @@
 </script>
 
 <script>
-  import { onDestroy, tick } from "svelte";
-  import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
-  import { motion, item_in, update_card_scrub, clear_card_location } from "@media";
-  import { chrono_engine } from "@engine";
   import { simulation_log } from "@data";
+  import { chrono_engine } from "@engine";
+  import { clear_card_location, item_in, motion, update_card_scrub } from "@media";
+  import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
+  import { onDestroy, tick } from "svelte";
   import ChatBubble from "./ChatBubble.svelte";
   import UndoToast from "./UndoToast.svelte";
 
@@ -774,7 +773,7 @@
               p-4
               transition-all
               duration-200
-              {entry.role === 'user' ? 'justify-end pr-column-unit' : 'justify-start pl-column-unit'}
+              {entry.role === 'user' ? 'pr-column-unit justify-end' : 'pl-column-unit justify-start'}
             "
                 in:item_in={{ duration: 200 }}
               >
@@ -823,12 +822,12 @@
               <!-- Left-Gutter Portrait / Lens Anchor Slot -->
               <div
                 class="
+              w-column-unit
               absolute
               top-1/2
               left-[calc(var(--spacing-column-unit)*0.5)]
               m-0
               flex
-              w-column-unit
               -translate-y-1/2
               items-center
               justify-center
@@ -842,11 +841,11 @@
                 <div
                   class="
                 group/badge
+                w-column-unit
                 relative
                 isolate
                 m-0
                 aspect-3/4
-                w-column-unit
                 transform-[translateZ(0)]
                 overflow-hidden
                 rounded-xl
@@ -878,7 +877,7 @@
                   {:else}
                     <!-- Director Abstract Evaluation Rune / Lens -->
                     <div class="flex h-full w-full items-center justify-center bg-slate-950/80">
-                      <svg viewBox="0 0 24 24" class="size-5 animate-spin text-frozen opacity-80" style="animation-duration: 3s;">
+                      <svg viewBox="0 0 24 24" class="text-frozen size-5 animate-spin opacity-80" style="animation-duration: 3s;">
                         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="14 10" />
                       </svg>
                     </div>

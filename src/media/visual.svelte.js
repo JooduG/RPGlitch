@@ -1,16 +1,16 @@
 /**
  * @file src/media/visual.svelte.js
- * 👁️ SENSORY CORTEX — STATELESS PERCHANCE IMAGE DISPATCHER
+ * 👁️ SENSORY CORTEX - STATELESS PERCHANCE IMAGE DISPATCHER
  *
  * stateless visual generation dispatcher.
  * Handles host engine discovery across window/iframe boundaries, exponential backoff,
  * circuit breaking, cancellation via AbortSignal, and queue / in-flight bookkeeping.
  */
 
-import { generate_secure_seed, CircuitBreaker, ExponentialBackoffRetryer, state_bridge } from "@utils";
-import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
-import { get_visual_style } from "../definitions/visual-styles.js";
+import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, state_bridge } from "@utils";
 import { IMAGE_POLICY, TIMING_MS } from "../config.js";
+import { get_visual_style } from "../definitions/visual-styles.js";
+import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
 
 // ============================================================================
 // Visual prompt hygiene.
@@ -40,7 +40,7 @@ function looks_like_visual_json(text) {
 
 /**
  * Rescues image prose out of a persisted raw-JSON blob (or a fragment of one
- * whose opener was stripped upstream — prose then runs up to the negative
+ * whose opener was stripped upstream - prose then runs up to the negative
  * key). Returns the input unchanged when it is already prose.
  */
 export function rescue_visual_prose(text) {
@@ -80,7 +80,7 @@ export function sanitize_visual_text(text) {
  * Precedence mirrors envision(): explicit option > app-level choice >
  * active fractal (which carries the story-level override, else its own) >
  * caller-asserted subject entity > "none".
- * NOTE: entity flavor is deliberately last — story-level coherence wins for
+ * NOTE: entity flavor is deliberately last - story-level coherence wins for
  * beats (a story-wide monochrome stays monochrome); per-entity styles still
  * govern profile pictures via envision().
  */
@@ -99,7 +99,7 @@ export function resolve_story_beat_style(options = {}) {
 /**
  * Composes the final story-beat image prompt: prose + staging directive +
  * style engine tokens, with the style negative over the baseline floor.
- * Story beats never inherit the solo-portrait "empty background" guard —
+ * Story beats never inherit the solo-portrait "empty background" guard -
  * characters belong in scenes here.
  */
 export function compose_story_beat_prompt(prompt_text, style_key, base_negative = "") {
@@ -487,7 +487,7 @@ export class VisualEngine {
     const base_prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
     const tier_resolution = get_resolution_string(tier);
     // Story beats previously dispatched raw model prose with no style tokens
-    // and no negative — and dropped visual_staging entirely. Compose everything
+    // and no negative - and dropped visual_staging entirely. Compose everything
     // here so all callers (beats, prologue/finale scenes, manual photos) are covered.
     const staged = [base_prompt, options.visual_staging].filter((part) => part && String(part).trim()).join(" ");
     const style_key = resolve_story_beat_style(options);
@@ -578,7 +578,7 @@ export async function spawn_image_beat(tier, options = {}) {
 
     if (pending_ghosts >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
       state_bridge.app?.log(
-        `[Image Trigger] Skipped ${tier} — ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.MAX_PENDING_IMAGES}).`,
+        `[Image Trigger] Skipped ${tier} - ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.MAX_PENDING_IMAGES}).`,
         "warn",
       );
       return;

@@ -3,7 +3,7 @@ import { create_contract_fixtures } from "./fixtures.test-util.js";
 import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 import { verify_compiled_prompt } from "./verifier.js";
 
-describe("src/engine/prompts.js — 11-Block Spatial Spine & 4 Purpose Cores", () => {
+describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () => {
   const { entities, history } = create_contract_fixtures();
 
   it("compiles character prompt matching invariant 11-block spine", () => {

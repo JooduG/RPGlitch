@@ -15,9 +15,9 @@
  * - External entity and world-lore card importers.
  */
 
-import { truncate_at_word } from "./text.js";
-import { LENGTH_THRESHOLDS, IMAGE_POLICY } from "@config";
+import { IMAGE_POLICY, LENGTH_THRESHOLDS } from "@config";
 import DOMPurify from "dompurify";
+import { truncate_at_word } from "./text.js";
 
 // ============================================================================
 // [SECTION 0: HTML SANITIZATION & ESCAPING]
@@ -481,7 +481,7 @@ const NAMED_ENTITIES = Object.freeze({
   "&quot;": '"',
   "&apos;": "'",
   "&hellip;": "…",
-  "&mdash;": "—",
+  "&mdash;": "-",
   "&ndash;": "–",
 });
 

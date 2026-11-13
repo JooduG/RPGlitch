@@ -3,7 +3,7 @@
    * @file SourceField.svelte
    * ⬇️ UNIFIED INGESTION FIELD
    * One field that accepts every entity source: dropped files (.json / .png cards,
-   * images), pasted URLs, and raw prose — no tabs, no modes. Auto-detection decides
+   * images), pasted URLs, and raw prose - no tabs, no modes. Auto-detection decides
    * the path; everything funnels into `value` (the text) + `image_data` (the avatar).
    *
    * `mode="image"` narrows it to portraits: every source is treated as an image
@@ -14,9 +14,9 @@
    * card decoding through @data/cards.js, file/image reading through the shared
    * @platform blob_to_data_url. This component only routes sources.
    */
+  import { extract_card_from_png } from "@data";
   import { Button, TextField, tooltip } from "@primitives";
   import { blob_to_data_url, fetch_web, validate_image } from "@utils";
-  import { extract_card_from_png } from "@data";
 
   let {
     value = $bindable(""),

@@ -1,16 +1,16 @@
 # Suggestion: Composable Style Entities (Dexie.js Style Cards)
 
-> **Status:** Backlog Proposal — KEEP as-is.
+> **Status:** Backlog Proposal - KEEP as-is.
 
-> **Status:** Backlog Proposal  
-> **Domain:** State Architecture, Persistence Layer & Storyboard UI  
-> **Scope:** Dexie `styles` Store, `StyleCard` Schema, Hot-Swappable Storyboard Deck  
+> **Status:** Backlog Proposal
+> **Domain:** State Architecture, Persistence Layer & Storyboard UI
+> **Scope:** Dexie `styles` Store, `StyleCard` Schema, Hot-Swappable Storyboard Deck
 
 ---
 
 ## 1. Core Thesis
 
-Narrative prose presets (`NARRATIVE_STYLES`) and visual diffusion optics (`VISUAL_STYLES`) currently exist as hardcoded, static JavaScript dictionaries. 
+Narrative prose presets (`NARRATIVE_STYLES`) and visual diffusion optics (`VISUAL_STYLES`) currently exist as hardcoded, static JavaScript dictionaries.
 
 Promoting styles to first-class, user-editable `StyleCard` entities stored in IndexedDB (Dexie.js) enables players to create custom aesthetics, fine-tune diffusion tokens, and hot-swap visual/narrative genres dynamically from the Storyboard deck without mutating character definitions.
 

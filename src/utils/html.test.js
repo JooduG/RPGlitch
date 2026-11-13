@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decode_html_entities, html_to_plain_text, BLOCK_LEVEL_TAGS, NOISE_SELECTORS, truncate_readable } from "./html.js";
+import { BLOCK_LEVEL_TAGS, decode_html_entities, html_to_plain_text, NOISE_SELECTORS, truncate_readable } from "./html.js";
 
 describe("decode_html_entities", () => {
   it("decodes common named entities", () => {
@@ -11,7 +11,7 @@ describe("decode_html_entities", () => {
   });
 
   it("decodes typographic entities", () => {
-    expect(decode_html_entities("a&nbsp;b &mdash; c &hellip; d &ndash; e")).toBe("a b — c … d – e");
+    expect(decode_html_entities("a&nbsp;b &mdash; c &hellip; d &ndash; e")).toBe("a b - c … d – e");
   });
 
   it("leaves plain text untouched", () => {

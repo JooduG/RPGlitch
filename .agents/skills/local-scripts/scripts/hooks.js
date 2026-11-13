@@ -18,9 +18,9 @@
  *   - stop-hygiene:             Stop gate preventing transient debris in repository root.
  */
 
+import { execSync } from "child_process";
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 import { GATE_TABLE, is_high_risk_file } from "./gates.js";
 
@@ -772,6 +772,6 @@ if (is_main_execution) {
  * 2026-09-12: Added is_workshop_mode helper and bypass in handle_sequential_thinking_gate to allow zero-friction prototyping when WORKSHOP_MODE is set or tmp/.workshop_mode exists.
  * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.
  * 2026-09-05: Fixed circuit breaker false positives (exempted read-only tools, dynamically resolved tmp/.tool-failures.json), optimized transcript parsing (sliced last 60 lines), softened sequential thinking gate on multi-file/repeat edits to ask, and added deep structural equality comparison in handle_waldzell_router.
- * 2026-09-05: A5 clarification — reverted file-architecture-gate to write_to_file only in hooks.json. The handler enforces header/changelog law at file creation time; replace_file_content/multi_replace_file_content operate on existing files in targeted patches and cannot meaningfully enforce full structural blocks.
+ * 2026-09-05: A5 clarification - reverted file-architecture-gate to write_to_file only in hooks.json. The handler enforces header/changelog law at file creation time; replace_file_content/multi_replace_file_content operate on existing files in targeted patches and cannot meaningfully enforce full structural blocks.
  * 2026-09-05: Added active-track-gate PreToolUse handler and enhanced handle_planning_handoff Stop gate: guarantees exactly one track in tasks/future/ is status: active, automatically reconciles tasks/PRESENT.md frontmatter active_track, link, and ## 🚀 Future queued list from tasks/future/*.md blueprints.
  */

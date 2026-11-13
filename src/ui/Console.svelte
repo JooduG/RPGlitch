@@ -5,26 +5,22 @@
    * Polymorphic command control system merging persistent glass pill chassis,
    * storyboard controls, storymode input composer, settings control panel, and conclusion modals.
    */
-  import { tick } from "svelte";
-  import { AlertDialog } from "bits-ui";
+  import { db, session_driver, simulation_log, stories } from "@data";
+  import { chrono_engine, execute_epilogue, execute_ghostwriter, force_recover_simulation, get_transport, runtime, simulation_state } from "@engine";
+  import { Audio, get_signature_color, item_in, overlay_in, overlay_out, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
-  import { Audio, get_signature_color, overlay_in, overlay_out, pulse, roll, shimmy, stab } from "@media";
+  import { install_begin_flight_effect, storyboard } from "@ui";
+  import { build_story_export_filename, click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
+  import { AlertDialog } from "bits-ui";
+  import { tick } from "svelte";
   import { app } from "./interface.svelte.js";
-  import { chrono_engine, runtime, simulation_state, force_recover_simulation } from "@engine";
-  import { simulation_log } from "@data";
-  import { execute_ghostwriter, execute_epilogue, get_transport } from "@engine";
-  import { db, session_driver, stories } from "@data";
-  import { click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
-  import { item_in } from "@media";
-  import { build_story_export_filename } from "@utils";
   import StoryCard from "./StoryCard.svelte";
-  import { storyboard, install_begin_flight_effect } from "@ui";
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---
   let value = $state("");
   let has_text = $derived(value.length > 0);
   let is_ghostwriting = $state(false);
-  /** Messages typed while composer is busy — sent the moment it's free */
+  /** Messages typed while composer is busy - sent the moment it's free */
   let pending = $state([]);
 
   /** @type {HTMLTextAreaElement | undefined} */
@@ -436,7 +432,7 @@
 {#snippet settings_gear(variant = "invisible")}
   <Button flank={true} {variant} aria-label="Settings" onclick={app.toggle_control_panel} actions={[roll, tooltip]} class="touch-target-coarse">
     <svg
-      class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
+      class="size-icon-medium block {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
       viewBox="0 0 24 24"
     >
       <path
@@ -487,7 +483,7 @@
     class="touch-target-coarse shrink-0"
     disabled={storyboard.is_shuffling || app.simulation.loading || app.control_panel_open}
   >
-    <svg class="block size-icon-medium" viewBox="0 0 24 24">
+    <svg class="size-icon-medium block" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"
@@ -503,6 +499,7 @@
   <textarea
     bind:this={textarea}
     class="
+      p-standard
       m-0
       box-border
       max-h-60
@@ -510,7 +507,6 @@
       resize-none
       border-none
       bg-transparent
-      p-padding-standard
       font-sans
       text-base
       leading-normal
@@ -549,7 +545,7 @@
       actions={[tooltip]}
       class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
     >
-      <svg class="block size-icon-medium" viewBox="0 0 24 24">
+      <svg class="size-icon-medium block" viewBox="0 0 24 24">
         <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
       </svg>
     </Button>
@@ -561,7 +557,7 @@
       actions={[tooltip]}
       class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!"
     >
-      <svg class="block size-icon-medium" viewBox="0 0 24 24">
+      <svg class="size-icon-medium block" viewBox="0 0 24 24">
         <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
       </svg>
     </Button>
@@ -574,7 +570,7 @@
       actions={[stab, tooltip]}
       class="touch-target-coarse"
     >
-      <svg class="block size-icon-medium" viewBox="0 0 24 24">
+      <svg class="size-icon-medium block" viewBox="0 0 24 24">
         <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
     </Button>
@@ -725,7 +721,7 @@
               <Toggle label="GRID" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
               <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
                 <svg
-                  class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                  class="-translate-y-kinetic-shimmy-y size-3.5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
                   viewBox="0 0 24 24"
                 >
                   <path d="M3 6h18" />
@@ -866,19 +862,19 @@
                 <div
                   {contentProps}
                   class="
+                    gap-standard
+                    p-standard
+                    z-max
+                    rounded-standard
+                    bg-glass-elevated
                     pointer-events-auto
                     relative
-                    z-max
                     flex
                     w-(--dialog-width)
                     cursor-default
                     flex-col
                     justify-between
-                    gap-gap-standard
                     overflow-hidden
-                    rounded-standard
-                    bg-glass-elevated
-                    p-padding-standard
                     duration-300
 
                     before:pointer-events-none
@@ -906,7 +902,7 @@
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
-                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
+                    <p class="text-frisk m-0 text-left text-base leading-relaxed whitespace-pre-wrap">
                       Would you like to author a final epilogue before concluding, or conclude immediately?
                     </p>
                   </AlertDialog.Description>
@@ -981,7 +977,7 @@
 />
 
 <style>
-  /* Shuffle deal reveal — flying clones are art-only (strip_card_text); the
+  /* Shuffle deal reveal - flying clones are art-only (strip_card_text); the
      landed cards fade their text/badges back in after arrival.
      Scoped with specificity to override component inline styles cleanly without !important. */
   :global(.deal-reveal [data-card-text]),

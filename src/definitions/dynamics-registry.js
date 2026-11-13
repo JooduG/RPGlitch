@@ -70,7 +70,7 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
 
   // ── 1.2 Dynamics Triggers & Somatic Pacing Directives ───────────────────────
   ADRENALINE:
-    "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats — micro-expressions, split-second thoughts, and immediate sensory physics.",
+    "High-adrenaline pacing. Slow narrative time: expand detail in decisive beats - micro-expressions, split-second thoughts, and immediate sensory physics.",
   SLOW_MOTION: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
   GLITCH: "Reality glitching. Fragmented recall. Non-linear time perception.",
   RECOVERY: "High clarity. Sharp recall. Stable environment.",
@@ -86,7 +86,7 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
     "Pathetic fallacy: The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
   STABILITY: "Structural stability. Safe, predictable physics.",
   SUSPICION:
-    "Acute suspicion and estrangement. Guarded deflection and physical boundary defense — actively test the user's motives, question inconsistencies, and maintain vigilant distance.",
+    "Acute suspicion and estrangement. Guarded deflection and physical boundary defense - actively test the user's motives, question inconsistencies, and maintain vigilant distance.",
   CATACLYSM:
     "Accelerated environmental upheaval. Physical structures decaying and tearing apart at breakneck speed with cascading reality glitches and rapid hazards.",
   CONFESSION:

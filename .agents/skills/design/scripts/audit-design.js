@@ -47,7 +47,7 @@ const themeRules = [
   {
     id: "EM_DASH_VIOLATION",
     severity: "ADVICE",
-    regex: /[—–]/,
+    regex: /[-–]/,
     message: "❌ Typographic slop detected: Raw em-dash or en-dash in UI file. Use clean punctuation or hyphens.",
   },
   {

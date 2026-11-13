@@ -1,6 +1,6 @@
 /**
  * .agents/skills/local-scripts/scripts/rules/layers.js
- * 🏛️ LAYER RULE PACK — Strict Layer Boundary Enforcement Gate.
+ * 🏛️ LAYER RULE PACK - Strict Layer Boundary Enforcement Gate.
  *
  * Moved from audit-layers.js (logic unchanged, now importable).
  * Verifies imports flow DOWNWARD (lateral imports within the same rank allowed):

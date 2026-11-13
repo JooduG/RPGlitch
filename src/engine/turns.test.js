@@ -1,17 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import { create_contract_fixtures } from "./fixtures.test-util.js";
 import {
+  build_turn_summary,
   calculate_turn_tempo,
-  resolve_caretaker_target,
+  execute_round,
   execute_turn_1_director,
   execute_turn_2_character,
   execute_turn_2_continue,
   execute_turn_3_caretaker,
-  execute_round,
-  build_turn_summary,
+  resolve_caretaker_target,
 } from "./turns.js";
-import { create_contract_fixtures } from "./fixtures.test-util.js";
 
-describe("src/engine/turns.js — Pure Functional Turn Orchestrator", () => {
+describe("src/engine/turns.js - Pure Functional Turn Orchestrator", () => {
   const { entities, history } = create_contract_fixtures();
 
   it("calculates dynamic turn tempo based on history length", () => {
@@ -284,12 +284,12 @@ Routing: Present physical gets lockpick, mood vigilant.
         { role: "system", text: "System marker" },
       ];
       const summary = build_turn_summary(feed, 3);
-      expect(summary).toBe("Turn 3 complete — user×1, ai×1, fractal×1.");
+      expect(summary).toBe("Turn 3 complete - user×1, ai×1, fractal×1.");
     });
 
     it("handles empty feed gracefully", () => {
-      expect(build_turn_summary([], 1)).toBe("Turn 1 complete — no messages recorded.");
-      expect(build_turn_summary(null, 2)).toBe("Turn 2 complete — no messages recorded.");
+      expect(build_turn_summary([], 1)).toBe("Turn 1 complete - no messages recorded.");
+      expect(build_turn_summary(null, 2)).toBe("Turn 2 complete - no messages recorded.");
     });
   });
 });

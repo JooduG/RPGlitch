@@ -18,9 +18,9 @@
  * ============================================================================
  */
 
+import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
 import { format_clean_brackets } from "../data/parser.js";
 import { caretaker_brief } from "../definitions/profile-taxonomy.js";
-import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
 
 /**
  * Renders the thinking mode requirements block (Character Immersion vs. Pure Analysis).
@@ -41,8 +41,8 @@ export function render_thinking_mode({ mode = "analysis", lens = "", max_words =
 
     return `    ### Thinking Mode
     [Role Immersion Requirement] In your thinking process (inside \\<think\\> tags, under ~${max_words} words):
-    1. **Inner Monologue**: Write raw first-person thoughts inside parentheses, e.g. "(He's stalling—keep your hand near the latch.)" without any label prefix.
-    2. **Appraise, Do Not Restate**: Treat any opening stage direction inside \\<think\\> as already understood—never repeat or paraphrase it. Immediately appraise the counterpart's hidden motives, internal friction, and emotional subtext in first person ("I feel...", "I suspect...", "I won't let on...").
+    1. **Inner Monologue**: Write raw first-person thoughts inside parentheses, e.g. "(He's stalling-keep your hand near the latch.)" without any label prefix.
+    2. **Appraise, Do Not Restate**: Treat any opening stage direction inside \\<think\\> as already understood-never repeat or paraphrase it. Immediately appraise the counterpart's hidden motives, internal friction, and emotional subtext in first person ("I feel...", "I suspect...", "I won't let on...").
     3. **Smallest Observable Action**: Commit to one concrete physical tell, involuntary reaction, or sensory shift that embodies your stance. Never pre-draft spoken dialogue.${pov_rule}`;
   }
 
@@ -116,7 +116,7 @@ ${thinking_block}
     task_block: (context) => {
       // Quadrant directives come from the taxonomy authority: one call, no
       // per-type branches. (A missing fractal branch here once left the
-      // fractal future/past directives dead — now structurally impossible.)
+      // fractal future/past directives dead - now structurally impossible.)
       const brief = caretaker_brief(context?.target_type);
 
       const input_block = context?.input_data ? `\n  <INPUT kind="ingestion">\n${context.input_data}\n  </INPUT>\n` : "";

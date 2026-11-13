@@ -1,10 +1,10 @@
 /**
  * @file src/media/optics.js
- * 👁️ SENSORY CORTEX — VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
+ * 👁️ SENSORY CORTEX - VISUAL OPTICS COMPILER, TAXONOMY & TRIGGER ARBITRATION
  */
 
-import { DYNAMICS, IMAGE_RESOLUTIONS, IMAGE_POLICY } from "@config";
-import { evaluate_image_trigger, normalize_comma_spacing, CLOTHING_KEYS, CLEAR_TOKENS, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
+import { DYNAMICS, IMAGE_POLICY, IMAGE_RESOLUTIONS } from "@config";
+import { CLEAR_TOKENS, CLOTHING_KEYS, evaluate_image_trigger, normalize_comma_spacing, safe_parse_pseudo_json, VISUAL_EXCLUDED_KEYS } from "@utils";
 import { resolve_portrait_visual_style_key, VISUAL_STYLES } from "../definitions/visual-styles.js";
 import { get_signature_label } from "./palette.js";
 import { PALETTE } from "./tokens.js";

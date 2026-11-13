@@ -1,7 +1,7 @@
 /**
  * src/engine/lifecycle.js
  * ============================================================================
- * 🌱 ENGINE LIFECYCLE — NON-TURN JOBS
+ * 🌱 ENGINE LIFECYCLE - NON-TURN JOBS
  * ============================================================================
  *
  * Story-lifecycle work that is not a turn: prologue, epilogue, visual
@@ -11,11 +11,11 @@
  */
 
 import { normalize_entity } from "../data/entities.js";
-import { state_bridge } from "../utils/index.js";
-import { get_transport, generate_text, enhance_text } from "./transport.js";
-import { execute_turn_visualizer, execute_turn_structuring } from "./turns.js";
-import { execute_turn } from "./runs.js";
 import { parse_think_block } from "../data/parser.js";
+import { state_bridge } from "../utils/index.js";
+import { execute_turn } from "./runs.js";
+import { enhance_text, generate_text, get_transport } from "./transport.js";
+import { execute_turn_structuring, execute_turn_visualizer } from "./turns.js";
 
 /**
  * Executes visual prompt envisioning/refinement via the visualizer purpose core.

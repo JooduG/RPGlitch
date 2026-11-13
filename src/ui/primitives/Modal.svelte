@@ -5,8 +5,8 @@
    * A generic glassmorphic modal wrapper.
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
-  import { Backdrop } from "@primitives";
   import { overlay_in, overlay_out } from "@media";
+  import { Backdrop } from "@primitives";
   import { use_actions } from "@utils";
   import { Dialog } from "bits-ui";
 
@@ -35,7 +35,7 @@
     ...rest
   } = $props();
 
-  // Determine active busy state. Defaults to false — modals stay interactive
+  // Determine active busy state. Defaults to false - modals stay interactive
   // during generation so the user can browse/view. Individual action buttons
   // inside already auto-disable via simulation_state.intent_active. Only pass
   // busy={true} explicitly when whole-modal graying is desired (e.g. local loading).
@@ -118,6 +118,7 @@
                           max-h-screen
                           min-h-48
                           ${variant === "lightbox" ? "w-[clamp(20rem,95vw,80rem)] max-w-[95vw]" : "w-[clamp(16rem,90vw,28rem)]"}
+                          bg-glass-elevated
                           cursor-default
                           scrollbar-none
                           flex-col
@@ -126,7 +127,6 @@
                           overflow-x-hidden
                           overflow-y-auto
                           rounded-xl
-                          bg-glass-elevated
                           transition-[filter]
                           duration-300
                           before:pointer-events-none

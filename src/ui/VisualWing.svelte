@@ -5,10 +5,10 @@
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch UI.
    */
-  import { Button, SourceField, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@primitives";
-  import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS, sanitize_visual_text, extract_aesthetic_traits } from "@media";
-  import { app } from "./interface.svelte.js";
+  import { extract_aesthetic_traits, get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, sanitize_visual_text, SIGNATURE_COLORS } from "@media";
+  import { Button, Dropdown, Label, NumberField, SourceField, TextField, Toggle, tooltip } from "@primitives";
   import { VISUAL_STYLES } from "../definitions/visual-styles.js";
+  import { app } from "./interface.svelte.js";
 
   /**
    * @typedef {Object} Props
@@ -118,14 +118,14 @@
         const result = await app.visual.envision(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
         if (result) {
           // Rescue prose out of any JSON-shaped leftovers (older builds could
-          // persist raw blobs) and strip template-significant braces — the
+          // persist raw blobs) and strip template-significant braces - the
           // image plugin evaluates `{...}` / `[...]` as Perchance syntax.
           const positive = sanitize_visual_text(result.prompt || "").trim();
           const negative = sanitize_visual_text(result.negative_prompt || "").trim();
 
           // Guard against persisting prefill or internal thought markers as prompt
           if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
-            app.log("Envision returned no usable prose — draft kept", "warn");
+            app.log("Envision returned no usable prose - draft kept", "warn");
           } else {
             profile_state.char.modifiers.prompt = positive;
             if (negative) profile_state.char.modifiers.negative_prompt = negative;
@@ -204,12 +204,12 @@
 
 <section
   class="
-  flex w-full
+  p-standard rounded-standard
+  bg-glass-elevated
+  flex
+  w-full
   flex-col
   gap-2
-  rounded-standard
-  bg-glass-elevated
-  p-padding-standard
   [backdrop-filter:var(--blur-mist)]
 "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
@@ -219,25 +219,25 @@
 
     <div
       class="
-      grid
+      gap-gap-tight
+    grid
     grid-cols-5
-    gap-gap-tight
   "
     >
       {#each SPECTRUM_COLORS as [name, hex] (name)}
         {@const color = PALETTE_CSS_VARIABLES[/** @type {keyof typeof PALETTE_CSS_VARIABLES} */ (hex)] || hex}
         <div
           class="
+          shadow-ghost
+          has-not-disabled:hover:shadow-standard
           relative
           aspect-square
           w-full
           rounded-xl
-          shadow-ghost
           transition-all
           duration-(--duration-fast)
           ease-(--motion-dissolve)
           has-not-disabled:hover:z-20
-          has-not-disabled:hover:shadow-standard
           has-not-disabled:hover:brightness-125
           has-not-disabled:active:scale-[0.96]
           {current_label === name

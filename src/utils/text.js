@@ -17,15 +17,15 @@
  * Consumed across the engine by UI, State, Media, and Intelligence layers.
  */
 
+import { CANONICAL_ROLES, CHARS_PER_TOKEN } from "@config";
 import { CLOTHING_KEYS, escape_xml, prompt_escape } from "./xml.js";
-import { CHARS_PER_TOKEN, CANONICAL_ROLES } from "@config";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & TOKEN SETS]
 // ============================================================================
 
 /**
- * Universal atomic-clearing tokens — emitting `[KEY: one of these]` deletes KEY
+ * Universal atomic-clearing tokens - emitting `[KEY: one of these]` deletes KEY
  * from the present-state dictionary (e.g. `[HELD: none]`, `[INJURY: healed]`,
  * `[STATUS: normal]`, `[SECRET: cleared]`).
  * @type {ReadonlySet<string>}
@@ -229,7 +229,7 @@ export function collapse_whitespace(text) {
 }
 
 /**
- * The single word-boundary truncator every layer shares — `clean_text`,
+ * The single word-boundary truncator every layer shares - `clean_text`,
  * `derive_vector_title` (this module) and `truncate_readable` (html.js) all
  * delegate here, so clipping behaviour is defined once.
  *
@@ -397,7 +397,7 @@ export const safe_parse_pseudo_json = (raw) => {
     if (Object.keys(unbracketed_extracted).length > 0) return unbracketed_extracted;
   }
 
-  // Tier 3: No structured keys found — preserve raw prose sentinel.
+  // Tier 3: No structured keys found - preserve raw prose sentinel.
   return { __raw_prose__: clean_raw };
 };
 
@@ -652,7 +652,7 @@ export function strip_visual_excluded(raw_parameter_string) {
 
 /**
  * Indents every line after the first (the caller supplies the leading-line
- * prefix) — the continuation-indent counterpart to `indent_all`.
+ * prefix) - the continuation-indent counterpart to `indent_all`.
  * @param {string | null | undefined} text
  * @param {number} spaces - Number of leading spaces to apply per continuation line.
  * @returns {string}
@@ -1205,11 +1205,11 @@ export function decompose_story_title(title, entities = {}) {
 export const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
 
 // ============================================================================
-// [SECTION 6: ALTERNATION MACROS — SELECTABLE OPTIONS & DICE RESOLUTION]
+// [SECTION 6: ALTERNATION MACROS - SELECTABLE OPTIONS & DICE RESOLUTION]
 // ============================================================================
 
 /**
- * Matches Perchance alternation groups `{Option A|Option B}` — the "macro leak"
+ * Matches Perchance alternation groups `{Option A|Option B}` - the "macro leak"
  * syntax. Group 1 is the pipe-separated body.
  * @type {RegExp}
  */
@@ -1273,7 +1273,7 @@ export function resolve_alternations(text, opts = {}) {
 /**
  * Detects which alternation option a resolved string committed to.
  * Used on the text path: the LLM reads the braced options in its input and
- * writes a resolved value into state — this diff identifies the pick so it can
+ * writes a resolved value into state - this diff identifies the pick so it can
  * be logged as `[ALT] FIELD → option N "..." (narrative)`.
  * @param {string | null | undefined} source - Braced source text (what the LLM saw).
  * @param {string | null | undefined} resolved - Committed value (what the LLM wrote back).
@@ -1363,7 +1363,7 @@ export function match_keyword_pattern(pattern, haystack) {
     try {
       if (new RegExp(glob, "i").test(text)) return Object.freeze({ hit: true, pass: "glob" });
     } catch {
-      /* unreachable — escaped construction cannot throw */
+      /* unreachable - escaped construction cannot throw */
     }
     return Object.freeze({ hit: false, pass: "none" });
   }

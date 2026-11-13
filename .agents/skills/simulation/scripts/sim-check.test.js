@@ -9,8 +9,8 @@
  * and deleted config keys).
  */
 
-import { describe, it, expect } from "vitest";
-import { LIVE_CORES, compile_live_cores, check_core_markers, run_turn_smoke, run_memory_stress, run_sim_check } from "./sim-check.js";
+import { describe, expect, it } from "vitest";
+import { LIVE_CORES, check_core_markers, compile_live_cores, run_memory_stress, run_sim_check, run_turn_smoke } from "./sim-check.js";
 
 describe("sim-check: live-core prompt contract", () => {
   it("compiles all 4 live cores with zero envelope problems", () => {
@@ -60,5 +60,5 @@ describe("sim-check: full headless gate", () => {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Created — engine-native coverage replacing the three eradicated intelligence suites.
+ * 2026-11-10: Created - engine-native coverage replacing the three eradicated intelligence suites.
  */

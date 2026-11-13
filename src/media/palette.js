@@ -1,6 +1,6 @@
 /**
  * @file src/media/palette.js
- * 🎨 SENSORY CORTEX — SIGNATURE PALETTE & TOKEN BRIDGES
+ * 🎨 SENSORY CORTEX - SIGNATURE PALETTE & TOKEN BRIDGES
  *
  * Core Responsibilities:
  * 1. Palette Token Derivation:
@@ -15,7 +15,7 @@
  * Purity: 100% pure utility functions & frozen lookups. Zero Svelte runes, safe browser DOM guards.
  */
 
-import { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./tokens.js";
+import { PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS, TOKENS } from "./tokens.js";
 
 // ============================================================================
 // [SECTION 1: HASHING & COLOR RESOLUTION UTILITIES]

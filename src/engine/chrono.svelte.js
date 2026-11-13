@@ -22,8 +22,8 @@
 import { session_driver } from "@data";
 import { build_turn_summary } from "@engine";
 import { state_bridge } from "@utils";
-import { execute_turn, execute_continue } from "./runs.js";
 import { execute_prologue } from "./lifecycle.js";
+import { execute_continue, execute_turn } from "./runs.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -312,7 +312,7 @@ export class ChronoEngine {
                   const has_reply_after = tail.some((m) => (m.role === "ai" || m.role === "fractal") && (m.created_at ?? 0) > (last.created_at ?? 0));
 
                   if (!has_reply_after) {
-                    state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
+                    state_bridge.app.log("Detected orphaned turn - retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");
                     await execute_turn(final_input, { signal: controller.signal });
                     retry_landed = true;
@@ -334,7 +334,7 @@ export class ChronoEngine {
           try {
             await session_driver.log_system_entry(
               `A turn failed after the message was recorded${
-                retry_landed ? " (recovered by automatic retry)" : " — no reply was generated"
+                retry_landed ? " (recovered by automatic retry)" : " - no reply was generated"
               }. Round ${round_after_failure}. (${error.message || "Unknown error"})`,
               "system",
               { type: "TURN_ORPHANED", round: round_after_failure, recovered: retry_landed },

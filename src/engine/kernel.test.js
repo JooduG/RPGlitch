@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { Kernel } from "./kernel.svelte.js";
+import { describe, expect, it } from "vitest";
 import { create_contract_fixtures } from "./fixtures.test-util.js";
+import { Kernel } from "./kernel.svelte.js";
 
-describe("src/engine/kernel.svelte.js — Sovereign Simulation Kernel", () => {
+describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
   const { entities } = create_contract_fixtures();
 
   it("initializes with default state values", () => {

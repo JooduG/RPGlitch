@@ -6,8 +6,8 @@
  * AI, User, and Fractal perspectives, concrete ID matches, and display segments.
  */
 
-import { describe, it, expect } from "vitest";
-import { parse_macros, resolve_display_macro_segments, create_relational_context } from "./macros.js";
+import { describe, expect, it } from "vitest";
+import { create_relational_context, parse_macros, resolve_display_macro_segments } from "./macros.js";
 
 // ============================================================================
 // [SECTION 1: TEST SUITE]
@@ -101,7 +101,7 @@ describe("Universal @ENTITY Macro Engine", () => {
 /**
  * CHANGELOG
  * ============================================================================
- * - 2026-10-14: Atom 3.2 — Added RelationalContext tests, purged {me}/{you} curly syntax tests, and tested diegetic fallbacks.
+ * - 2026-10-14: Atom 3.2 - Added RelationalContext tests, purged {me}/{you} curly syntax tests, and tested diegetic fallbacks.
  * - 2026-10-01: Initial test suite for universal @ENTITY macro engine and role tokens.
  * ============================================================================
  */

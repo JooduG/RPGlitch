@@ -17,7 +17,7 @@ This skill serves as the operational engineering runbook for simulation physics,
 
 ## 1.0 THE CORE MENTAL FRAMEWORK: PHYSICS VS. PROSE
 
-In traditional interactive fiction, the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**—characters magically know secrets, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
+In traditional interactive fiction, the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**-characters magically know secrets, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
 
 **RPGlitch breaks this illusion into strict mechanical physics and subjective prose:**
 
@@ -93,7 +93,7 @@ Once staging is established, the active speaker generates in-character prose. Th
   1. _Visceral Impact_: Immediate physical reaction to sensory stimuli.
   2. _Secret Agenda_: How their private `future` standing agenda steers their reaction toward friction or intrigue.
   3. _Somatic Manifestation_: Involuntary bodily signals (pulse, pupil dilation, muscle tension) derived from the dynamics engine.
-- **Affirmative Physicality & Momentum**: Non-physical entities describe presence, never absence (what _is_, rather than what _is not_). Every response must end on an active physical beat, tension, or unanswered hook—never a conversational dead-end.
+- **Affirmative Physicality & Momentum**: Non-physical entities describe presence, never absence (what _is_, rather than what _is not_). Every response must end on an active physical beat, tension, or unanswered hook-never a conversational dead-end.
 
 ### Stage 3: Asynchronous Context Consolidation (Memory Forge)
 
@@ -127,8 +127,8 @@ Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a p
 When instructing models to output structured JSON (e.g., Director Quick Shot, Memory Forge):
 
 - **Separate Intent from Contract**:
-  - **Protocols & Task Prose**: Define the "Why" and "How"—causality laws, domain rules, and reasoning criteria.
-  - **Schema Contract**: Defines the "What"—keys, types, concise pipe enums (`'AI_CHARACTER' | 'FRACTAL'`), and compact format/length constraints.
+  - **Protocols & Task Prose**: Define the "Why" and "How"-causality laws, domain rules, and reasoning criteria.
+  - **Schema Contract**: Defines the "What"-keys, types, concise pipe enums (`'AI_CHARACTER' | 'FRACTAL'`), and compact format/length constraints.
 - **Zero Duplication**: Never recite multi-sentence behavioral instructions inside JSON placeholder strings if they are already declared in the protocols.
 - **Lean Placeholders**: Keep placeholder values purely structural (e.g., `"directors_note": "<1-3 lines of unseen acting/staging directives, or empty string>"`).
 - **Last-Mile Placement**: Place the schema at the bottom of the `<TASK>` prompt directly before generation to leverage recency attention.
@@ -184,7 +184,7 @@ When implementing changes, consult the canonical source files rather than duplic
 | **Engine-Native Check**          | `.agents/skills/simulation/scripts/sim-check.js` (`npm run audit:simulation`)              | Turn smoke + live-core prompt contract + sieve memory stress.                                                   |
 
 > Historical note: earlier revisions of this table cited `src/state/chrono.svelte.js`
-> and `src/intelligence/*` — the pre-demolition tree. Those paths are intentionally
+> and `src/intelligence/*` - the pre-demolition tree. Those paths are intentionally
 > absent above. The live verification suite is `sim-check.js`, not the retired scripts.
 
 ---
@@ -193,13 +193,13 @@ When implementing changes, consult the canonical source files rather than duplic
 
 The `.agents/skills/simulation/references/` directory serves as the local idea incubator for uncommitted proposals and exploratory mechanics:
 
-1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) — 4 attachment schemas, threat responses, defense curves. _(Status: KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.)_
-2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) — First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck. _(Status: KEEP as-is.)_
-3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) — Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds. _(Status: IMPLEMENTABLE as `src/utils/dice.js` when promoted — pure, dependency-free.)_
-4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) — Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips. _(Status: KEEP, re-point at `src/engine/runs.js` + `Console.svelte` when promoted.)_
-5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) — Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing. _(Status: KEEP, needs an owner — no live counterpart yet.)_
-6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) — Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour. _(Status: KEEP as docs task alongside `FEATURES.md`.)_
-7. **Mystery Mode:** [`mystery-mode-suggestion.md`](./references/mystery-mode-suggestion.md) — _(Status: KEEP, re-point at the live engine cores in `src/engine/prompts.js` when promoted.)_
+1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) - 4 attachment schemas, threat responses, defense curves. _(Status: KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.)_
+2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) - First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck. _(Status: KEEP as-is.)_
+3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) - Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds. _(Status: IMPLEMENTABLE as `src/utils/dice.js` when promoted - pure, dependency-free.)_
+4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) - Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips. _(Status: KEEP, re-point at `src/engine/runs.js` + `Console.svelte` when promoted.)_
+5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) - Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing. _(Status: KEEP, needs an owner - no live counterpart yet.)_
+6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) - Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour. _(Status: KEEP as docs task alongside `FEATURES.md`.)_
+7. **Mystery Mode:** [`mystery-mode-suggestion.md`](./references/mystery-mode-suggestion.md) - _(Status: KEEP, re-point at the live engine cores in `src/engine/prompts.js` when promoted.)_
 
 > [!TIP]
 > **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.

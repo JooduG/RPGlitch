@@ -10,11 +10,11 @@
  */
 
 import { generate_uuid, state_bridge } from "@utils";
-import { format_clean_brackets } from "./parser.js";
-import { canonicalize_field_key } from "../definitions/profile-taxonomy.js";
-import { get_story, update_cast, upsert_entity, update_entity, append_ledger_entries } from "./db.js";
 import { DYNAMICS } from "../config.js";
 import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
+import { canonicalize_field_key } from "../definitions/profile-taxonomy.js";
+import { append_ledger_entries, get_story, update_cast, update_entity, upsert_entity } from "./db.js";
+import { format_clean_brackets } from "./parser.js";
 
 /**
  * Clamps a dynamics number to an integer between 1 and 100.
@@ -57,7 +57,7 @@ function normalize_dynamics(raw_dynamics, entity_type) {
 
 /**
  * Coerces a past-timeline value into a canonical multiline bracket string.
- * Non-string inputs (arrays, objects, null) yield "" — there is exactly one
+ * Non-string inputs (arrays, objects, null) yield "" - there is exactly one
  * writer of entity rows and it always stores bracket strings, so anything
  * else is corrupt input, not a shape to support.
  *

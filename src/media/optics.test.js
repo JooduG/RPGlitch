@@ -1,23 +1,23 @@
 /**
  * @file src/media/optics.test.js
- * Unit tests for Sensory Cortex — Visual Optics Compiler, Taxonomy, Trigger Arbitration, and Aesthetic Synthesis.
+ * Unit tests for Sensory Cortex - Visual Optics Compiler, Taxonomy, Trigger Arbitration, and Aesthetic Synthesis.
  */
 
+import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 import { describe, expect, it } from "vitest";
+import { IMAGE_POLICY } from "../config.js";
 import {
   IMAGE_TIERS,
+  extract_aesthetic_traits,
   get_resolution,
   get_resolution_string,
   get_tier_guidance_scale,
   normalize_image_tier,
-  resolve_image_trigger,
   render_optics_fallback,
-  extract_aesthetic_traits,
+  resolve_image_trigger,
 } from "./optics.js";
-import { IMAGE_POLICY } from "../config.js";
-import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 
-describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
+describe("optics.js - 4-Tier Image Taxonomy & Resolutions", () => {
   describe("constants", () => {
     it("exposes the 4 canonical image tiers", () => {
       expect(IMAGE_TIERS).toEqual(["story_entities", "story_character", "solo_entity", "story_scene"]);
@@ -110,7 +110,7 @@ describe("optics.js — 4-Tier Image Taxonomy & Resolutions", () => {
   });
 });
 
-describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
+describe("optics.js - Trigger Decision Engine & Dynamics Gate", () => {
   describe("resolve_image_trigger (Dual-Source & Decoupled Cooldown Orchestration)", () => {
     it("resolves dynamics trigger when dynamics cooldown has elapsed", () => {
       const snapshot = { ai: { dynamics: { intensity: 90 } } };
@@ -226,7 +226,7 @@ describe("optics.js — Trigger Decision Engine & Dynamics Gate", () => {
   });
 });
 
-describe("optics.js — Aesthetic Map & Prompt Composition", () => {
+describe("optics.js - Aesthetic Map & Prompt Composition", () => {
   describe("constants", () => {
     it("exports frozen VISUAL_EXCLUDED_KEYS set", () => {
       expect(VISUAL_EXCLUDED_KEYS).toBeInstanceOf(Set);

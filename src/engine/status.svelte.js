@@ -24,10 +24,10 @@
  * - `log.svelte.js` (`developer_log`): Diagnostic telemetry logging.
  */
 
-import { Audio } from "@media";
 import { TIMING_MS } from "@config";
-import { get_llm_gate_status } from "./gate.js";
 import { developer_log } from "@data";
+import { Audio } from "@media";
+import { get_llm_gate_status } from "./gate.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -400,7 +400,7 @@ let _freeze_watchdog_started = false;
  * @param {string} reason - Human-readable diagnostic description of why recovery was triggered.
  */
 export function force_recover_simulation(reason) {
-  console.warn("[Watchdog] Detected frozen simulation state — force-recovering.", {
+  console.warn("[Watchdog] Detected frozen simulation state - force-recovering.", {
     reason,
     phase: simulation_state.phase,
     intent_active: simulation_state.intent_active,
@@ -408,7 +408,7 @@ export function force_recover_simulation(reason) {
     streaming_active: streaming.active,
   });
 
-  developer_log.log(`[Watchdog] ${reason} — force-recovering the simulation.`, "error");
+  developer_log.log(`[Watchdog] ${reason} - force-recovering the simulation.`, "error");
 
   try {
     simulation_state.complete();
@@ -469,7 +469,7 @@ export function install_freeze_watchdog() {
     }
 
     // The foreground turn may simply be queued behind the global LLM gate while
-    // background enrichment holds the slot. That is back-pressure, not a freeze —
+    // background enrichment holds the slot. That is back-pressure, not a freeze -
     // let the gate preempt the background job instead of killing a healthy turn.
     if (get_llm_gate_status().foreground_queued > 0) {
       stuck_since = 0;
@@ -516,8 +516,8 @@ export function install_freeze_watchdog() {
 
     // Tier 3: Continuum consolidation overrun grace
     if (elapsed >= TIMING_MS.LIFETIME) {
-      console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, { phase, intent_active });
-      developer_log.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s — releasing intent lock.`, "warn");
+      console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s - releasing intent lock.`, { phase, intent_active });
+      developer_log.log(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s - releasing intent lock.`, "warn");
 
       try {
         simulation_state.set_intent_active(false);

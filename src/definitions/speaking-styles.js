@@ -27,8 +27,8 @@
  * ============================================================================
  */
 
-import { register_speaking_rules, register_anti_ai_rules, register_cluster_words, match_case } from "@utils";
 import { SPEAKING_STYLES } from "@config";
+import { match_case, register_anti_ai_rules, register_cluster_words, register_speaking_rules } from "@utils";
 
 // ============================================================================
 // 1. Declarative Rule Builder Primitive
@@ -1176,7 +1176,7 @@ export const TIER_2_CLUSTER_WORDS = Object.freeze([
 register_cluster_words(TIER_2_CLUSTER_WORDS);
 
 // ============================================================================
-// 9. Canonical Taxonomy & Validation (style ids live in config — views re-exported above)
+// 9. Canonical Taxonomy & Validation (style ids live in config - views re-exported above)
 // ============================================================================
 
 /**

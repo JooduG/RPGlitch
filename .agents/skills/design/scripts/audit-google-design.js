@@ -29,7 +29,7 @@ try {
 
   // Warnings are intentionally muted due to custom RPGlitch component schema
 
-  console.log(`📊 Summary — errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
+  console.log(`📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
   console.log("\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking).\x1b[0m\n");
 } catch (err) {
   // Parse error output from designmd (it writes JSON to stdout even on failure)
@@ -49,12 +49,12 @@ try {
     }
 
     // Warnings are intentionally muted due to custom RPGlitch component schema
-    console.log(`\n📊 Summary — errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
+    console.log(`\n📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
     console.log("\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking).\x1b[0m\n");
   } catch {
     console.warn("\x1b[33m⚠️  @google/design.md spec scan skipped (parse error).\x1b[0m");
   }
 }
 
-// Always exit 0 — this is an informational audit, not a gate.
+// Always exit 0 - this is an informational audit, not a gate.
 process.exit(0);

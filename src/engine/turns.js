@@ -16,12 +16,12 @@
  * ============================================================================
  */
 
-import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
-import { parse_brackets, parse_think_block } from "../data/parser.js";
-import { safe_parse_json } from "../utils/text.js";
-import { normalize_entity } from "../data/entities.js";
-import { state_bridge } from "../utils/index.js";
 import { LENGTH_THRESHOLDS } from "../config.js";
+import { normalize_entity } from "../data/entities.js";
+import { parse_brackets, parse_think_block } from "../data/parser.js";
+import { state_bridge } from "../utils/index.js";
+import { safe_parse_json } from "../utils/text.js";
+import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 
 /**
  * Normalizes prefilled startWith markers, parses <think>...</think> cognition,
@@ -74,7 +74,7 @@ export function build_turn_summary(feed, round) {
     counts[role] = (counts[role] || 0) + 1;
   }
   const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
-  return `Turn ${round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
+  return `Turn ${round} complete - ${parts.length ? parts.join(", ") : "no messages recorded"}.`;
 }
 
 /** Default round-robin entity rotation for Turn 3 Caretaker consolidation */

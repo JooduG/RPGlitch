@@ -11,7 +11,7 @@
   };
 
   /**
-   * Resolves a telemetry entity key to its display name — the runtime's active
+   * Resolves a telemetry entity key to its display name - the runtime's active
    * entity when available, otherwise a static label. Unknown keys pass through.
    * @param {string} key
    * @param {{ active_ai?: any, active_user?: any, active_fractal?: any, active_npcs?: Record<string, any> }} [runtime]
@@ -94,7 +94,7 @@
       return { source: source || "Entity", target: target || "Target", dynamic };
     }
     if (typeof edge === "string") {
-      const match = String(edge).match(/^\s*(.+?)\s*(?:→|->|—>\s*)\s*(.+?)\s*:\s*(.+)$/);
+      const match = String(edge).match(/^\s*(.+?)\s*(?:→|->|->\s*)\s*(.+?)\s*:\s*(.+)$/);
       if (!match) return null;
       const [, source, target, dynamic] = match;
       const s = source.trim();
@@ -194,20 +194,17 @@
    * Unified message chassis consolidating message headers, narrative prose,
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
-  import { parse_message } from "./Storymode.svelte";
-  import { resolve_speaking_style, safe_html } from "@utils";
-  import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color, render_optics_fallback } from "@media";
-  import { ProfilePicture, image_picker, open_picker, EntityCard } from "@ui";
+  import { parse_bracket_entries, parse_think_block, simulation_log, strip_bracket_engine_flags } from "@data";
+  import { runtime, simulation_state } from "@engine";
+  import { Audio, get_cadence_rate, get_resolution, get_signature_color, render_optics_fallback, resolve_voice_uri } from "@media";
+  import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
+  import { EntityCard, ProfilePicture, image_picker, open_picker } from "@ui";
+  import { get_percentage, resolve_speaking_style, safe_html } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
   import { app } from "./interface.svelte.js";
-  import { runtime, simulation_state } from "@engine";
-  import { simulation_log } from "@data";
-  import { get_resolution } from "@media";
+  import { parse_message } from "./Storymode.svelte";
   import Typewriter from "./Typewriter.svelte";
-  import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
-  import { get_percentage } from "@utils";
-  import { parse_bracket_entries, parse_think_block, strip_bracket_engine_flags } from "@data";
 
   /**
    * @typedef {Object} Props
@@ -265,7 +262,7 @@
 
   /** Voice-flag role for this message (npc speech is covered by the ai flag). */
   let speak_role = $derived(is_user ? "user" : is_fractal ? "fractal" : "ai");
-  /** Effective audibility: master switch AND per-role flag. Reactive — menu labels and the Read button follow toggles. */
+  /** Effective audibility: master switch AND per-role flag. Reactive - menu labels and the Read button follow toggles. */
   let voice_audible = $derived(Audio.is_role_enabled(speak_role));
   let is_telemetry = $derived(
     sender === "system" &&
@@ -419,7 +416,7 @@
   function handle_speak() {
     if (!clean_markdown) return;
     if (!Audio.is_role_enabled(speak_role)) {
-      app.log(`${entity_display_name || "This voice"} is muted — enable it from the message menu to hear it read aloud.`, "warn");
+      app.log(`${entity_display_name || "This voice"} is muted - enable it from the message menu to hear it read aloud.`, "warn");
       return;
     }
     Audio.voice.active_message_id = id;
@@ -612,7 +609,7 @@
   /**
    * Parses a quadrant bracket payload into per-item chip objects (B2, renderer-side).
    * Filters `| hide` internals so they never leak into the card. Weight is parsed
-   * but visual emphasis is deferred per user call — chips render neutral for now.
+   * but visual emphasis is deferred per user call - chips render neutral for now.
    * @param {any} text_or_obj
    * @returns {Array<{key:string,value:string}>}
    */
@@ -907,7 +904,7 @@
 {/snippet}
 
 {#snippet entity_trio()}
-  <div class="my-2 flex h-character-card-height w-full items-stretch gap-2 md:gap-4" data-msg-trio>
+  <div class="h-character-card-height my-2 flex w-full items-stretch gap-2 md:gap-4" data-msg-trio>
     {#if runtime.active_ai || app.selected_ai}
       {@const a = runtime.active_ai || app.selected_ai}
       <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
@@ -1449,12 +1446,12 @@
     {#if (is_ai || is_npc || is_fractal) && entity && !meta?.is_prologue && !meta?.is_epilogue}
       <div
         class="
+          w-column-unit
           absolute
           top-1/2
           left-[calc(var(--spacing-column-unit)*0.5)]
           m-0
           flex
-          w-column-unit
           -translate-y-1/2
           items-center
           justify-center
@@ -1468,11 +1465,11 @@
           onclick={handle_badge_click}
           class="
             group/badge
+            w-column-unit
             relative
             isolate
             m-0
             aspect-3/4
-            w-column-unit
             transform-[translateZ(0)]
             cursor-pointer
             overflow-hidden
@@ -1586,12 +1583,12 @@
     {#if is_user && entity && !meta?.is_prologue && !meta?.is_epilogue}
       <div
         class="
+          w-column-unit
           absolute
           top-1/2
           right-[calc(var(--spacing-column-unit)*0.5)]
           m-0
           flex
-          w-column-unit
           -translate-y-1/2
           items-center
           justify-center
@@ -1605,11 +1602,11 @@
           onclick={handle_badge_click}
           class="
             group/badge
+            w-column-unit
             relative
             isolate
             m-0
             aspect-3/4
-            w-column-unit
             transform-[translateZ(0)]
             cursor-pointer
             overflow-hidden

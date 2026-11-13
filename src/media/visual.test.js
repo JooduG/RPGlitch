@@ -1,24 +1,24 @@
 /**
  * @file src/media/visual.test.js
- * Unit tests for Sensory Cortex — Stateless Perchance Image Dispatcher
+ * Unit tests for Sensory Cortex - Stateless Perchance Image Dispatcher
  */
 
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  clear_generation_in_flight,
+  compose_story_beat_prompt,
   dispatch_visual_generation,
   find_image_engine,
-  reset_cached_image_engine,
-  mark_generation_in_flight,
-  clear_generation_in_flight,
   is_generation_in_flight,
+  mark_generation_in_flight,
+  reset_cached_image_engine,
   reset_generation_in_flight,
   reset_image_generation_queue,
-  visual_engine,
   resolve_story_beat_style,
-  compose_story_beat_prompt,
+  visual_engine,
 } from "./visual.svelte.js";
 
-describe("visual.js — Stateless Perchance Image Dispatcher", () => {
+describe("visual.js - Stateless Perchance Image Dispatcher", () => {
   beforeEach(() => {
     reset_cached_image_engine();
     reset_generation_in_flight();

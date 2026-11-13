@@ -56,13 +56,12 @@ rounded:
   radius-standard: calc(var(--spacing-unit) *4)
 spacing:
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
-  spacing-gap-standard: calc(var(--spacing-unit)* 4)
+  spacing-standard: calc(var(--spacing-unit)* 4)
   spacing-gap-tight: calc(var(--spacing-unit) *2)
   spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max))
   spacing-grid-height-max: clamp(25rem, calc(1.618* 100vw), 100dvh)
   spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max))
   spacing-grid-width-max: clamp(50rem, calc(1.618 *100dvh), 100vw)
-  spacing-padding-standard: calc(var(--spacing-unit)* 4)
   spacing-padding-tight: calc(var(--spacing-unit) *2)
   spacing-row-unit: calc(var(--spacing-grid-height) / 12)
   spacing-pixel: 1px
@@ -122,7 +121,7 @@ components:
 
 This design system adheres to the [design.md specification](https://github.com/google-labs-code/design.md) by Google Labs (aligned with the [W3C Design Tokens Community Group](https://design-tokens.github.io/community-group/format/)), declaring authoritative tokens in YAML frontmatter and design guidelines in Markdown. Tokens are automatically compiled to Tailwind CSS v4 and JavaScript bridges via `.agents/skills/design/scripts/sync-css.js`.
 
-The RPGlitch Design System is a high-fidelity aesthetic framework. It envisions the application as a high-end research terminal situated within a sub-zero facility—cool, deep, and elegant.
+The RPGlitch Design System is a high-fidelity aesthetic framework. It envisions the application as a high-end research terminal situated within a sub-zero facility-cool, deep, and elegant.
 
 ## ❄️ The Nordic Collection (Vision)
 
@@ -237,7 +236,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 4. **The Handoff**: Automatic build gate verification secures token compliance prior to deployment.
 
 The `signatures` frontmatter block names the vibrant entity colors that become
-`SIGNATURE_COLORS` — the canonical set of valid entity signature colors. It is
+`SIGNATURE_COLORS` - the canonical set of valid entity signature colors. It is
 regenerated into `src/data/definitions/signature-colors.js`; never edit that
 file by hand.
 
@@ -915,7 +914,7 @@ html:active-view-transition *::after {
   [data-wings-container] section {
     display: flex !important;
     flex-direction: column !important;
-    gap: var(--spacing-gap-standard, 1rem) !important;
+    gap: var(--spacing-standard, 1rem) !important;
   }
 
   /* Force standard desktop view margins */

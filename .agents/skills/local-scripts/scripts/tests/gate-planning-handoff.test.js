@@ -3,10 +3,10 @@
  * 🧪 GATE: planning-handoff-gate (Stop).
  *
  * NOTE: this gate reads `git status --porcelain`, so assertions stay
- * outcome-agnostic (stop|continue) — the contract pinned here is registration
+ * outcome-agnostic (stop|continue) - the contract pinned here is registration
  * + response shape, not tree state.
  */
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { GATE_TABLE } from "../gates.js";
 import { handle_planning_handoff } from "../hooks.js";
 

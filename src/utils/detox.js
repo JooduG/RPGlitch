@@ -1,6 +1,6 @@
-import { match_case } from "./text.js";
-import { stable_pick } from "./math.js";
 import { SPEAKING_STYLES } from "@config";
+import { stable_pick } from "./math.js";
+import { match_case } from "./text.js";
 
 // ============================================================================
 // [SECTION 1: CONSTANTS & SPEAKING STYLES]
@@ -191,7 +191,7 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   // 7. Dangling Significance Participial Clause (", underscoring/highlighting/cementing/serving as ...")
   clean_text = clean_text.replace(/,\s*(?:highlighting|underscoring|cementing|signaling|exemplifying|reflecting)\s+[^.!?]+([.!?])/gi, "$1");
 
-  // 8. Rhetorical False Contrast ("It's not just a tool — it's a movement" -> "It is a movement.")
+  // 8. Rhetorical False Contrast ("It's not just a tool - it's a movement" -> "It is a movement.")
   clean_text = clean_text.replace(
     /\b(?:it's|it is)\s+not\s+just\s+(?:a\s+|an\s+)?[^,;.—–]+\s*[,;.—–]\s*(?:it's|it is)\s+(?:a\s+|an\s+)?([^.!?]+)/gi,
     "It is a $1",

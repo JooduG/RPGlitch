@@ -1,7 +1,7 @@
 <script>
   /**
    * @file src/ui/profile/Profile.svelte
-   * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
+   * 🧪 ENTITY EDITOR - Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
   import { auto_resize, click_outside, format_datetime, generate_uuid } from "@utils";
@@ -44,16 +44,16 @@
   const profile_state = new ProfileState();
   /** @type {HTMLElement | undefined} */
   let footer_el = $state();
-  /** Footer height (px) — reserves scroll padding so end content clears the frost overlay. */
+  /** Footer height (px) - reserves scroll padding so end content clears the frost overlay. */
   let footer_h = $state(0);
   /** @type {HTMLElement | undefined} */
   let info_container_el = $state();
-  /** Native scrollbar lane width (px) — preserves spacing so buttons clear the scrollbar track. */
+  /** Native scrollbar lane width (px) - preserves spacing so buttons clear the scrollbar track. */
   let scrollbar_lane = $state(0);
   /** True while the info scroller actually overflows. */
   let info_needs_scroll = $state(false);
   let previous_scroll_top = $state(0);
-  /** Export chooser (edit-mode footer) — picks V2 Card or native RPGlitch JSON. */
+  /** Export chooser (edit-mode footer) - picks V2 Card or native RPGlitch JSON. */
   let show_export_modal = $state(false);
   /** Mutation Ledger Field History Inspector */
   let show_field_history_modal = $state(false);
@@ -485,7 +485,7 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute right-0 bottom-0 left-0 z-30 flex gap-4 px-4 pt-3 pb-4 outline-none overflow-hidden " +
+    "absolute right-0 bottom-0 left-0 z-30 flex gap-4 px-4 p-4 outline-none overflow-hidden " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
@@ -586,7 +586,7 @@
 
   // Operational catchment tracking user DOM actions.
   // Scoped to the profile card: the modal is pass-through, so background UI
-  // (composer, storyboard title, portals) stays interactive while it is open —
+  // (composer, storyboard title, portals) stays interactive while it is open -
   // input/change events from out there must never dirty this profile.
   // (Wing controls mark via direct calls; the description textarea, which uses
   // bind:value with no direct marker, is inside the card and still covered.)
@@ -725,7 +725,7 @@
     variant="bare"
     bind:open={show_export_modal}
     z_index="1000"
-    class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="bg-glass-elevated relative w-[clamp(24rem,92vw,38rem)] rounded-2xl p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_export_modal = false;
     }}
@@ -736,8 +736,8 @@
           Export {entity_type === "fractal" ? "Fractal" : "Character"}
         </h5>
         <p class="m-0 text-xs leading-relaxed text-slate-400">
-          V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data — memories, vectors,
-          seeds, styling — is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
+          V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data - memories, vectors,
+          seeds, styling - is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
         </p>
       </div>
       <div class="flex gap-4">
@@ -777,7 +777,7 @@
     is_pass_through={true}
   >
     <div
-      class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
+      class={`w-grid-width m-auto grid grid-cols-12 transition-all duration-300 ${
         app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4" : "h-dvh grid-rows-1") : "my-auto h-dvh grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
@@ -942,14 +942,14 @@
                       bind:this={name_input}
                       value={profile_state.draft_name ?? profile_state.char.name ?? ""}
                       class="
+                      font-heading
                       z-20
                       box-border
                       w-full
                       border-none
                       bg-transparent
-                      p-3
+                      p-4
                       text-left
-                      font-heading
                       text-4xl
                       leading-none
                       font-extrabold
@@ -1002,16 +1002,17 @@
                 >
                   <textarea
                     class="
+                    min-h-row-unit
+                    [&::-webkit-scrollbar-thumb]:rounded-standard
                     z-20
                     m-0
                     max-h-[calc(var(--spacing-row-unit)*4)]
-                    min-h-row-unit
                     w-full
                     resize-none
                     [scrollbar-color:color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))_transparent]
                     border-none
                     bg-transparent
-                    p-3
+                    p-4
                     text-left
                     font-sans
                     text-sm
@@ -1024,7 +1025,6 @@
                     placeholder:opacity-60
                     [&::-webkit-scrollbar]:h-[calc(var(--spacing-unit)*2)]
                     [&::-webkit-scrollbar]:w-[calc(var(--spacing-unit)*2)]
-                    [&::-webkit-scrollbar-thumb]:rounded-standard
                     [&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))]
                     hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
                     [&::-webkit-scrollbar-track]:bg-transparent
@@ -1118,7 +1118,7 @@
             style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
             style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}
           >
-            <!-- Phase 1: Mirrored photographic tiling — same bottom-anchored portrait slice, alternately flipped, so every joint is seamless by construction -->
+            <!-- Phase 1: Mirrored photographic tiling - same bottom-anchored portrait slice, alternately flipped, so every joint is seamless by construction -->
             <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 flex overflow-hidden select-none">
               {#if profile_state.char?.profile_picture}
                 {#each [0, 1, 2, 3, 4, 5] as tile, i (i)}
@@ -1152,7 +1152,7 @@
                   variant="primary"
                   square={true}
                   actions={[tooltip]}
-                  aria-label="Enhance Profile with AI — overwrites all fields (macros preserved)"
+                  aria-label="Enhance Profile with AI - overwrites all fields (macros preserved)"
                   disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
                   onclick={() => {
                     profile_state.enhance_profile(entity_type);
@@ -1249,7 +1249,7 @@
                   square={true}
                   actions={[tooltip]}
                   disabled={simulation_state.busy || !profile_state.can_edit}
-                  aria-label={!profile_state.can_edit ? "Edit locked — entity is in an active story. Enable DevMode to override." : "Edit"}
+                  aria-label={!profile_state.can_edit ? "Edit locked - entity is in an active story. Enable DevMode to override." : "Edit"}
                   onclick={() => {
                     if (!profile_state.can_edit) return;
                     previous_scroll_top = info_container_el?.scrollTop || 0;
@@ -1332,14 +1332,14 @@
       bind:open={show_field_history_modal}
       variant="bare"
       z_index="400"
-      class="relative flex max-h-[85vh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      class="bg-glass-elevated relative flex max-h-[85vh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_field_history_modal = false;
       }}
     >
       <div class="flex h-full flex-col gap-4 overflow-hidden font-sans">
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
           <div class="flex flex-col">
             <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Mutation Ledger Inspector</h4>
             <span class="font-mono text-xs text-slate-400">
@@ -1394,7 +1394,7 @@
               <div class="flex flex-col gap-2.5 py-1">
                 {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
                   <div
-                    class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-3 text-xs transition-colors hover:border-cyan-500/20"
+                    class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-4 text-xs transition-colors hover:border-cyan-500/20"
                   >
                     <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
                       <div class="flex items-center gap-2">
@@ -1449,11 +1449,11 @@
             {/if}
           {:else}
             <!-- Reconstructed Tab -->
-            <div class="flex flex-col gap-3 py-1">
+            <div class="flex flex-col gap-4 py-1">
               <div class="flex flex-col gap-1">
                 <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
                 <div
-                  class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
+                  class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
                 >
                   {reconstructed_brackets || "(empty state)"}
                 </div>
@@ -1462,7 +1462,7 @@
               {#if reconstructed_prose}
                 <div class="flex flex-col gap-1">
                   <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Raw Prose </span>
-                  <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-xs text-slate-300">
+                  <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs text-slate-300">
                     {reconstructed_prose}
                   </div>
                 </div>
@@ -1480,14 +1480,14 @@
       bind:open={show_timeline_modal}
       variant="bare"
       z_index="400"
-      class="relative flex max-h-[88vh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      class="bg-glass-elevated relative flex max-h-[88vh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_timeline_modal = false;
       }}
     >
       <div class="flex h-full flex-col gap-4 overflow-hidden font-sans">
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
           <div class="flex flex-col">
             <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Profile Timeline Scrubber</h4>
             <span class="font-mono text-xs text-slate-400">
@@ -1504,7 +1504,7 @@
         </div>
 
         <!-- Scrubber Bar -->
-        <div class="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/40 p-3">
+        <div class="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/40 p-4">
           <div class="flex items-center justify-between">
             <span class="font-mono text-xs font-semibold text-slate-300"> SELECT TIMELINE POINT </span>
             <span class="rounded bg-cyan-950/70 px-2 py-0.5 font-mono text-xs font-bold text-cyan-400">
@@ -1518,7 +1518,7 @@
             {#each available_timeline_rounds as r (r)}
               <button
                 type="button"
-                class="cursor-pointer rounded-lg px-3 py-1 font-mono text-xs font-medium transition-all {selected_timeline_round === r
+                class="cursor-pointer rounded-lg px-4 py-1 font-mono text-xs font-medium transition-all {selected_timeline_round === r
                   ? 'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                   : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
                 onclick={() => handle_select_timeline_round(r)}
@@ -1536,9 +1536,9 @@
               Reconstructing Four-Quadrant Matrix...
             </div>
           {:else if reconstructed_timeline_state}
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
               <!-- Present Quadrant -->
-              <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
+              <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-4">
                 <span class="font-mono text-xs font-bold text-cyan-300">PRESENT QUADRANT</span>
                 <div class="flex flex-col gap-1.5 font-mono text-xs">
                   <span class="text-[10px] text-slate-400 uppercase">Physical:</span>
@@ -1553,9 +1553,9 @@
               </div>
 
               <!-- Past & Future Quadrants -->
-              <div class="flex flex-col gap-3">
+              <div class="flex flex-col gap-4">
                 <!-- Past Quadrant -->
-                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
+                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-4">
                   <span class="font-mono text-xs font-bold text-cyan-300">PAST</span>
                   <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-slate-300">
                     {reconstructed_timeline_state.past || "<empty>"}
@@ -1563,7 +1563,7 @@
                 </div>
 
                 <!-- Future / Standing Trajectory -->
-                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-3">
+                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-4">
                   <span class="font-mono text-xs font-bold text-cyan-300">FUTURE (STANDING AGENDA)</span>
                   <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-slate-300">
                     {reconstructed_timeline_state.future || "<empty>"}
@@ -1574,7 +1574,7 @@
 
             <!-- Recorded mutations in this specific round -->
             {#if timeline_round_events.length > 0}
-              <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/20 p-3">
+              <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/20 p-4">
                 <span class="font-mono text-[11px] font-semibold text-slate-400">
                   Round {selected_timeline_round} Mutations ({timeline_round_events.length})
                 </span>
@@ -1599,7 +1599,7 @@
         </div>
 
         <!-- Actions Footer -->
-        <div class="flex items-center justify-between border-t border-white/10 pt-3">
+        <div class="flex items-center justify-between border-t border-white/10 pt-4">
           <div class="font-mono text-[11px] text-slate-500">Reverting alters current profile. Cloning branches a separate entity into census.</div>
 
           <div class="flex items-center gap-2">

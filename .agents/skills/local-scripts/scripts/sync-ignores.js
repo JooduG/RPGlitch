@@ -1,10 +1,10 @@
 /**
  * .agents/skills/local-scripts/scripts/sync-ignores.js
- * 🔄 IGNORE FAN-OUT — reconciles ignores.master.json into all config layers.
+ * 🔄 IGNORE FAN-OUT - reconciles ignores.master.json into all config layers.
  *
  * Split from workspace.js Pipeline 1 with one upgrade: DIFF-THEN-WRITE.
  * Every target is read first and rewritten ONLY when the content actually
- * changes, so no-update runs leave zero phantom diffs in `git status` —
+ * changes, so no-update runs leave zero phantom diffs in `git status` -
  * which previously tripped the planning-handoff gate on clean trees.
  */
 

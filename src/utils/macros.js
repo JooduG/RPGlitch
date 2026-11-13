@@ -5,11 +5,11 @@
  * Entity-aware {{macro}} resolution for both LLM prompts and human-facing
  * display, plus the profile-field text normalizers shared by @ui, @media and
  * @intelligence:
- * - parse_macros / render_field_value — prompt-side resolution + escaping
- * - resolve_display_macro_segments / render_display_macros — UI display
- * - strip_profile_wrappers / unwrap_enhancement_text — enhancer output cleanup
+ * - parse_macros / render_field_value - prompt-side resolution + escaping
+ * - resolve_display_macro_segments / render_display_macros - UI display
+ * - strip_profile_wrappers / unwrap_enhancement_text - enhancer output cleanup
  *
- * Pure and stateless: no upward imports — safe for ANY layer to import.
+ * Pure and stateless: no upward imports - safe for ANY layer to import.
  */
 
 import { prompt_escape } from "./xml.js";
@@ -175,7 +175,7 @@ export const UNRESOLVED_LABELS = {
 
 /**
  * True when two entity references point at the same entity: either the exact
- * same object, or (for normalized copies — the common production shape, where
+ * same object, or (for normalized copies - the common production shape, where
  * the user persona is persisted as a character-typed entity) matching ids.
  * @param {any} a
  * @param {any} b
@@ -192,7 +192,7 @@ function _entity_ids_match(a, b) {
 /**
  * True when `owner` is the user persona. Recognized three ways: the exact
  * `entities.USER` reference, an explicit `type === "user"` (mock/dev entities),
- * or a matching id with `entities.USER` — user personas are persisted as
+ * or a matching id with `entities.USER` - user personas are persisted as
  * character-typed entities in the database, so type alone cannot distinguish
  * them from AI characters.
  * @param {any} owner
@@ -220,7 +220,7 @@ function _owner_is_fractal(owner, entities = {}) {
 
 /**
  * Classifies `owner` into its macro perspective: "user" (the user persona),
- * "ai" (the primary companion — any character that isn't the user persona or
+ * "ai" (the primary companion - any character that isn't the user persona or
  * the fractal), or "fractal" (the scene/setting narrator). Resolved by id/type
  * as well as object identity, so normalized entity copies (distinct objects
  * with matching ids) classify identically to the entities themselves.
@@ -238,7 +238,7 @@ function _resolve_owner_perspective(owner, entities = {}) {
 }
 
 /**
- * Resolves `{{you}}` from the viewing owner's perspective — "you" is always the
+ * Resolves `{{you}}` from the viewing owner's perspective - "you" is always the
  * OTHER party (mirrors {@link parse_macros}): the user persona when viewing an
  * AI character's profile, the AI character when viewing the user persona's, and
  * both parties when viewing the fractal's.
@@ -270,8 +270,8 @@ function _resolve_you_target(owner, entities = {}) {
  * Resolves macros for HUMAN-facing display (readonly profiles, story cards)
  * into structural segments the UI can render with entity signature colors.
  *
- * Unlike `parse_macros` — which keeps unresolved tokens verbatim because LLM
- * prompts need the macro placeholder — display rendering resolves known macros
+ * Unlike `parse_macros` - which keeps unresolved tokens verbatim because LLM
+ * prompts need the macro placeholder - display rendering resolves known macros
  * to entity names ('{{me}}' → the viewed entity's name) and renders anything
  * unresolvable as a natural muted label (or a `⟨token⟩` placeholder for
  * unknown tokens), so the reader never sees raw `{{...}}` syntax. Edit-mode
@@ -282,7 +282,7 @@ function _resolve_you_target(owner, entities = {}) {
  * - Resolved macro: `macro` = lowercased token, `entity` = the referenced
  *   entity (so the UI can color it by signature color), `text` = its name.
  * - Known macro whose entity is absent: `entity: null`, `text` = a natural
- *   muted label from {@link UNRESOLVED_LABELS} — `{{user}}` → "the user
+ *   muted label from {@link UNRESOLVED_LABELS} - `{{user}}` → "the user
  *   persona", `{{fractal}}` → "the fractal", `{{char}}` → "the ai character",
  *   `{{you}}` → flips with the owner's perspective: "the user persona" from an
  *   AI character's profile, "the ai character" from the user persona's, and
@@ -395,7 +395,7 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
 /**
  * Resolves macros for HUMAN-facing display to a plain string (names in place
  * of tokens, friendly labels / ⟨placeholders⟩ for anything unresolvable).
- * Plain-text convenience over {@link resolve_display_macro_segments} — use the
+ * Plain-text convenience over {@link resolve_display_macro_segments} - use the
  * segment form when the UI needs per-entity signature colors.
  * @param {string} text
  * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
@@ -413,7 +413,7 @@ export function render_display_macros(text, owner, entities = {}) {
  * Strips structural XML tags and leading markdown-bold field-key headers that
  * LLMs occasionally echo from enhancement prompts into profile field values
  * (e.g. `<ETERNAL><NON_PHYSICAL>` or `**PRESENT.NON_PHYSICAL**`). Only the
- * known structural tag set is removed — ordinary prose is left untouched.
+ * known structural tag set is removed - ordinary prose is left untouched.
  * @param {string | null | undefined} text
  * @returns {string}
  */
@@ -503,7 +503,7 @@ export function unwrap_enhancement_text(text, field_id = "") {
           }
         }
       } catch (_e) {
-        // not parseable JSON — fall through to cleaned prose
+        // not parseable JSON - fall through to cleaned prose
       }
     }
   }
@@ -525,18 +525,18 @@ export function render_field_value(text, owner, entities, context = {}) {
 
 /**
  * CHANGELOG
- * - 2026-10-14: Phase B — Atom 3.3 RelationalContext tuple wiring: render_field_value forwards context tuple to parse_macros.
- * - 2026-10-14: Atom 3.2 — Implemented create_relational_context tuple broker, purged {me}/{you} curly syntax in favor of canonical @ME/@YOU/@TARGET, replaced computing fallbacks with diegetic "the companion"/"the traveler"/"the realm".
- * - 2026-10-14: Atom 3.1 — Fixed secondary NPC identity inversion bug (Issue 18). Eliminated blanket owner.type === "character" catch-all in _resolve_owner_perspective, classifying NPCs as entity:<id> so @ME resolves to the NPC's own name instead of the companion.
+ * - 2026-10-14: Phase B - Atom 3.3 RelationalContext tuple wiring: render_field_value forwards context tuple to parse_macros.
+ * - 2026-10-14: Atom 3.2 - Implemented create_relational_context tuple broker, purged {me}/{you} curly syntax in favor of canonical @ME/@YOU/@TARGET, replaced computing fallbacks with diegetic "the companion"/"the traveler"/"the realm".
+ * - 2026-10-14: Atom 3.1 - Fixed secondary NPC identity inversion bug (Issue 18). Eliminated blanket owner.type === "character" catch-all in _resolve_owner_perspective, classifying NPCs as entity:<id> so @ME resolves to the NPC's own name instead of the companion.
  * - 2026-10-01: Relocated prompt directive MACRO_DIRECTIVES and resolve_macro_directive to src/intelligence/modules/protocols.js per Layer 3 prompt architecture, keeping macros.js a pure stateless string utility.
  * - 2026-09-18: Added CORE_PROTOCOLS, ENTITIES, and HISTORY to PROFILE_WRAPPER_TAGS per scrobbles.md blueprint.
  * - 2026-09-16: Added TASK to PROFILE_WRAPPER_TAGS to ensure prompt envelope tags are stripped from raw profile generations.
  * - 2026-09-13: Repatriated MACRO_DIRECTIVES and resolve_macro_directive to src/utils/macros.js as the single source of truth for all macro parsing and entity token specifications.
- * - 2026-09-11: Purification pass — removed the duplicate MACRO_DIRECTIVES export; modules/protocols.js is the single home, making the 2026-09-11 'moved' note accurate.
+ * - 2026-09-11: Purification pass - removed the duplicate MACRO_DIRECTIVES export; modules/protocols.js is the single home, making the 2026-09-11 'moved' note accurate.
  * - 2026-09-11: Moved `MACRO_DIRECTIVES` to src/intelligence/modules/protocols.js where prompt protocols reside.
- * - 2026-09-10: Adopted `expand_entity_macros` from intelligence/prompts/story-prompt.js — the deep
+ * - 2026-09-10: Adopted `expand_entity_macros` from intelligence/prompts/story-prompt.js - the deep
  *   clone-and-resolve macro expander belongs beside `parse_macros`, its only dependency.
- * - 2026-09-10: Extracted from intelligence/prompts/shared.js — entity-aware
+ * - 2026-09-10: Extracted from intelligence/prompts/shared.js - entity-aware
  *   macro resolution and profile-field text normalizers shared by @ui, @media,
  *   and @intelligence.
  */

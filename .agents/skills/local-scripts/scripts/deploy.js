@@ -1,11 +1,11 @@
 /**
  * .agents/skills/local-scripts/scripts/deploy.js
- * 🚀 LOCAL DEPLOY SHIM — resolves the Perchance vault deploy script without
+ * 🚀 LOCAL DEPLOY SHIM - resolves the Perchance vault deploy script without
  * hardcoding a machine-specific absolute path.
  *
  * Resolution order:
  *   1. $PERCHANCE_DEPLOY_SCRIPT (absolute path to the perchance-plugin deploy.js)
- *   2. THIS file is the committed fallback — fails with guidance when unset.
+ *   2. THIS file is the committed fallback - fails with guidance when unset.
  *
  * Set it per-machine (never in the repo):
  *   export PERCHANCE_DEPLOY_SCRIPT="$HOME/.gemini/config/plugins/perchance-plugin/scripts/deploy.js"
@@ -32,5 +32,5 @@ process.exit(result.status ?? 0);
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Created — replaces the hardcoded C:/Users/johng/... deploy:auto path in package.json.
+ * 2026-11-10: Created - replaces the hardcoded C:/Users/johng/... deploy:auto path in package.json.
  */

@@ -1,11 +1,11 @@
 /**
  * .agents/skills/local-scripts/scripts/deepwiki-bridge.js
- * 🌉 DEEPWIKI MCP STDIO-TO-HTTP BRIDGE — archived, zero in-repo callers.
+ * 🌉 DEEPWIKI MCP STDIO-TO-HTTP BRIDGE - archived, zero in-repo callers.
  *
  * Split from bridges.js. Streams JSON-RPC lines from stdin to the DeepWiki MCP
  * SSE endpoint (https://mcp.deepwiki.com/mcp) and prints data: payloads.
  *
- * STATUS: archived — no npm script, no skill, and no test invokes this bridge.
+ * STATUS: archived - no npm script, no skill, and no test invokes this bridge.
  * Kept as a standalone file (not deleted) in case an external workflow needs it.
  * If nothing references it next quarter, delete this file.
  *
@@ -96,5 +96,5 @@ start_deepwiki_bridge();
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
- * 2026-11-10: Split from bridges.js — DeepWiki half, archived (zero in-repo callers).
+ * 2026-11-10: Split from bridges.js - DeepWiki half, archived (zero in-repo callers).
  */

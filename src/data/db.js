@@ -953,7 +953,7 @@ export function save_session_checkpoint(checkpoint) {
       storage.setItem(CHECKPOINT_KEY, JSON.stringify(payload));
       return;
     } catch {
-      /* Storage quota exceeded or blocked — continue to Tier 2 */
+      /* Storage quota exceeded or blocked - continue to Tier 2 */
     }
   }
 
@@ -983,7 +983,7 @@ export function load_session_checkpoint() {
         try {
           return JSON.parse(raw);
         } catch {
-          /* Corrupted storage payload — fall through to Tier 2 */
+          /* Corrupted storage payload - fall through to Tier 2 */
         }
       }
     } catch {

@@ -64,7 +64,7 @@ export function detect_card_format(payload_json) {
 }
 
 // ============================================================================
-// 2. DECODE — Card Payloads -> Flat Profile Shape
+// 2. DECODE - Card Payloads -> Flat Profile Shape
 // ============================================================================
 
 /**
@@ -183,7 +183,7 @@ export function extract_card_from_png(binary_buffer) {
 }
 
 // ============================================================================
-// 3. ENCODE — Entities -> Card Payloads
+// 3. ENCODE - Entities -> Card Payloads
 // ============================================================================
 
 /**

@@ -1,15 +1,14 @@
 /**
  * @file src/ui/profile/Profile.svelte.js
- * 🧬 PROFILE STATE — Reactive controller for entity editing.
+ * 🧬 PROFILE STATE - Reactive controller for entity editing.
  */
 import { db, normalize_entity as normalize } from "@data";
-import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "../definitions/profile-taxonomy.js";
-import { structure_profile } from "@engine";
-import { app } from "./interface.svelte.js";
-import { runtime } from "@engine";
+import { runtime, structure_profile } from "@engine";
 import { get_value, set_value } from "@utils";
-import { resolve_voice_name, resolve_voice_uri } from "../media/audio.svelte.js";
 import { SvelteSet } from "svelte/reactivity";
+import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "../definitions/profile-taxonomy.js";
+import { resolve_voice_name, resolve_voice_uri } from "../media/audio.svelte.js";
+import { app } from "./interface.svelte.js";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
@@ -133,7 +132,7 @@ export class ProfileState {
    * touch (id commit form, AudioWing voice fills), so pristine state never
    * diffs against itself. Uses the real resolvers (not a copy) so this can't
    * drift from AudioWing. Shared by the snapshot and the live side of the
-   * diff — both sides must be canonical, not just one.
+   * diff - both sides must be canonical, not just one.
    */
   canonical_copy(char) {
     const snap = JSON.parse(JSON.stringify(char));

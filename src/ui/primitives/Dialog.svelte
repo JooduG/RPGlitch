@@ -5,8 +5,8 @@
    * Standardizes Alert and Confirm into a single bits-ui/AlertDialog primitive.
    * Svelte 5 runes · Fully accessible.
    */
-  import { Backdrop, Button } from "@primitives";
   import { overlay_in, overlay_out } from "@media";
+  import { Backdrop, Button } from "@primitives";
   import { resolve_ms } from "@utils";
   import { AlertDialog } from "bits-ui";
 
@@ -34,7 +34,7 @@
     on_cancel = () => {},
   } = $props();
 
-  // Derived action config — single source of truth for the action button
+  // Derived action config - single source of truth for the action button
   const action = $derived(
     type === "confirm"
       ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
@@ -79,19 +79,19 @@
                 <div
                   {contentProps}
                   class="
+                    gap-standard
+                    p-standard
+                    z-max
+                    rounded-standard
+                    bg-glass-elevated
                     pointer-events-auto
                     relative
-                    z-max
                     flex
                     w-(--dialog-width)
                     cursor-default
                     flex-col
                     justify-between
-                    gap-gap-standard
                     overflow-hidden
-                    rounded-standard
-                    bg-glass-elevated
-                    p-padding-standard
                     duration-300
 
                     before:pointer-events-none
@@ -119,7 +119,7 @@
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
-                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
+                    <p class="text-frisk m-0 text-left text-base leading-relaxed whitespace-pre-wrap">
                       {message}
                     </p>
                   </AlertDialog.Description>
@@ -139,7 +139,7 @@
                   {/if}
 
                   <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
-                  <footer style="display: flex;" class="flex w-full justify-end gap-gap-standard outline-none">
+                  <footer style="display: flex;" class="gap-standard flex w-full justify-end outline-none">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
                         <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />

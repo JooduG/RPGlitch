@@ -35,7 +35,7 @@ All layout, motion, and visual density decisions in RPGlitch are governed by the
 
 ### C. Layout & Grid Integrity
 
-- **Eyebrow Restraint**: An "eyebrow" is the small uppercase wide-tracking label sitting above a section title (e.g. `SYSTEM TELEMETRY`, `ACTIVE RECALL`). **Rule: Max 1 eyebrow per 3 panels or sections.** Overusing eyebrows produces a robotic, templated cadence. When in doubt, drop the eyebrow—the content already categorizes itself.
+- **Eyebrow Restraint**: An "eyebrow" is the small uppercase wide-tracking label sitting above a section title (e.g. `SYSTEM TELEMETRY`, `ACTIVE RECALL`). **Rule: Max 1 eyebrow per 3 panels or sections.** Overusing eyebrows produces a robotic, templated cadence. When in doubt, drop the eyebrow-the content already categorizes itself.
 - **Bento Grid Cell Count Rule**: A bento grid or card cluster must have _exactly_ as many cells as there is real content. Never paste an empty tile or fake filler container to balance a grid. Re-shape the grid (e.g. 1+2 split or 2+1 layout).
 - **Layout Repetition Ban**: Avoid repeating the exact same layout structure across consecutive sections or drawer panels. Vary between asymmetric splits, vertical stacks, and compact tabular rows.
 - **Viewport Stability**: Never use `h-screen` for full-height views. Always use `min-h-[100dvh]` to prevent layout jumping caused by mobile address bars.

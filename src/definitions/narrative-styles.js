@@ -1,7 +1,7 @@
 /**
  * src/data/definitions/narrative-styles.js
  * ============================================================================
- * 📖 NARRATIVE STYLE SYSTEM — Declarative Author, Director & Genre Presets
+ * 📖 NARRATIVE STYLE SYSTEM - Declarative Author, Director & Genre Presets
  * ============================================================================
  *
  * Single source of truth for:
@@ -16,8 +16,8 @@
  * - Pure data definition module importing downward strictly from `@utils`.
  * - All style entries must specify a valid speaking_style ("casual" | "lyrical" | "primal" | "clinical").
  * - Dynamic motifs are co-located with their author definitions and auto-aggregated into `STYLE_MOTIF_REGISTRY`.
- * - `motif_keys`: Object.keys() of the style's motifs — fed to the Director <AVAILABLE_KEYWORDS> pool via `get_style_keywords()`.
- * - `elements`: The input `keywords` array — author-genre tags rendered as `<SIGNATURE_ELEMENTS>` in the protocol layer.
+ * - `motif_keys`: Object.keys() of the style's motifs - fed to the Director <AVAILABLE_KEYWORDS> pool via `get_style_keywords()`.
+ * - `elements`: The input `keywords` array - author-genre tags rendered as `<SIGNATURE_ELEMENTS>` in the protocol layer.
  * ============================================================================
  */
 
@@ -781,7 +781,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     name: "Ernest Hemingway",
     portrait: "",
     description:
-      "Sparse, unadorned prose driven by the 'Iceberg Theory'—short declarative sentences, zero flowery adverbs, and immense emotional subtext beneath stoic physical action.",
+      "Sparse, unadorned prose driven by the 'Iceberg Theory'-short declarative sentences, zero flowery adverbs, and immense emotional subtext beneath stoic physical action.",
     speaking_style: "casual",
     keywords: ["hardboiled", "minimalism", "iceberg_theory", "stoicism", "subtext"],
     motifs: {
@@ -810,7 +810,7 @@ export const NARRATIVE_STYLES = Object.freeze({
         id: "CONCRETE_REALISM",
         when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60,
         directive:
-          "Anchor tension in concrete sensory objects—cold glasses, aching joints, the stark glare of light—without decorative embellishments.",
+          "Anchor tension in concrete sensory objects-cold glasses, aching joints, the stark glare of light-without decorative embellishments.",
       },
     ],
   }),
@@ -847,7 +847,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       {
         id: "BODILY_MISERY",
         when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
-        directive: "Hyper-focus on visceral physical wear-and-tear—throbbing wounds, cold rain soaking through boots, stiffness in the joints.",
+        directive: "Hyper-focus on visceral physical wear-and-tear-throbbing wounds, cold rain soaking through boots, stiffness in the joints.",
       },
     ],
   }),
@@ -879,7 +879,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       {
         id: "LACONIC_PULP",
         when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 70,
-        directive: "Deliver terse, sharp dialogue backed by visceral sensory metaphors—smell of spent powder, rasping breath, burning tobacco.",
+        directive: "Deliver terse, sharp dialogue backed by visceral sensory metaphors-smell of spent powder, rasping breath, burning tobacco.",
       },
       {
         id: "CRACKED_DEFENSES",

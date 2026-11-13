@@ -1,8 +1,8 @@
 /**
  * .agents/skills/simulation/scripts/triage-prompt-shim.js
- * 📐 TRIAGE SHIM (deprecated) — canonical home is scripts/lib/triage.js.
+ * 📐 TRIAGE SHIM (deprecated) - canonical home is scripts/lib/triage.js.
  */
-export { triage_prompt, calculate_complexity_score, assess_technical_density, resolve_tier } from "./lib/triage.js";
+export { assess_technical_density, calculate_complexity_score, resolve_tier, triage_prompt } from "./lib/triage.js";
 import { triage_prompt } from "./lib/triage.js";
 
 if (process.argv[1] && process.argv[1].endsWith("triage-prompt.js")) {

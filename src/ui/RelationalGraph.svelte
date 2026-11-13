@@ -1,7 +1,7 @@
 <!--
   src/ui/profile/RelationalGraph.svelte
   🌐 RADIAL RELATIONAL CONSTELLATION GRAPH
-  
+
   Visualizes outgoing & incoming relationship vectors for an entity in a sleek
   radial constellation.
   - Center Node: The current active entity.
@@ -11,9 +11,9 @@
   - Navigation: Clicking a satellite node triggers on_select_entity(entity).
 -->
 <script>
+  import { ALL_PREMADES, extract_entity_relationships, list_entities } from "@data";
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
-  import { extract_entity_relationships, list_entities, ALL_PREMADES } from "@data";
 
   /**
    * @typedef {Object} Props
@@ -657,11 +657,11 @@
 <!--
   CHANGELOG
   ============================================================================
-  - 2026-10-14: Atom 3.5 — 360° Relational Dossier & Omniscient Observer Mode.
+  - 2026-10-14: Atom 3.5 - 360° Relational Dossier & Omniscient Observer Mode.
     Interactive glassmorphic dossier card displaying 4-layer state (eternal,
     present, past, future) on node and edge click; visual epistemic lock badge
     for concealed `| hide` brackets.
-  - 2026-10-01: Universal Predicates Migration — edit list and constellation nodes
+  - 2026-10-01: Universal Predicates Migration - edit list and constellation nodes
     are driven 100% by universal bracket predicates (`present.non_physical`).
     Purged legacy `entity.relationships` array references under P4 Zero Backwards
     Compatibility.

@@ -1,15 +1,15 @@
 /**
  * src/definitions/profile-taxonomy.js
- * 📋 PROFILE TAXONOMY — Single Source of Truth for Entity Fields.
+ * 📋 PROFILE TAXONOMY - Single Source of Truth for Entity Fields.
  *
  * Defines the canonical schema for all character and fractal fields across the simulation:
- * - Canonical Field Taxonomy (PROFILE_FIELDS — the single home of all words)
+ * - Canonical Field Taxonomy (PROFILE_FIELDS - the single home of all words)
  * - Field Atoms & routing/assembly authority (FIELD_ATOMS, canonicalize_field_key,
  *   resolve_entity_type, atom_for, output_key_for_path, caretaker_brief)
- * - Field Catalog (PROFILE_FIELD_CATALOG — derived from atoms, same shape as ever)
+ * - Field Catalog (PROFILE_FIELD_CATALOG - derived from atoms, same shape as ever)
  * - Profile Studio UI Layout Sections (PROFILE_SECTIONS_BY_TYPE)
- * - Flat Leaf Map & Ingestion Aliases (FLAT_LEAF_MAP — the alias table)
- * - Caretaker Enhancer Directives (ENHANCER_DIRECTIVES — derived from atoms)
+ * - Flat Leaf Map & Ingestion Aliases (FLAT_LEAF_MAP - the alias table)
+ * - Caretaker Enhancer Directives (ENHANCER_DIRECTIVES - derived from atoms)
  *
  * Dependencies:
  * - format_key_as_label from @utils
@@ -56,13 +56,13 @@ export const PROFILE_FIELDS = {
         label: "Physical Appearance",
         description:
           "Permanent visual truth (gender, age, ethnicity, build, face, eyes, hair, scars). Anchors diffusion synthesis without equipment or clothing.",
-        directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only — no clothing, equipment, or psychological traits.`,
+        directive: `[KEY: value] permanent biometrics (gender, age, ethnicity, build, face, eyes, hair, scars). Visible body details only - no clothing, equipment, or psychological traits.`,
         enhancer: "BIOMETRIC_RENDERER",
       },
       non_physical: {
         label: "Personality",
         description:
-          "Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps — write lived traits.",
+          "Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps - write lived traits.",
         directive: `[KEY: value] core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Bracketed traits only.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
@@ -100,7 +100,7 @@ export const PROFILE_FIELDS = {
       physical: {
         label: "Environment",
         description: "Permanent macro-features, landmarks, terrain, architecture, and enduring scale. Governs visual setting synthesis.",
-        directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only — no transient weather, lighting, or lore.`,
+        directive: `[KEY: value] permanent geography (terrain, architecture, materials, landmarks, scale). Concrete visible landscape features only - no transient weather, lighting, or lore.`,
         enhancer: "SPATIAL_RENDERER",
       },
       non_physical: {
@@ -194,7 +194,7 @@ export const PROFILE_FIELDS = {
  * Generic over the composite/single distinction: layers with physical/
  * non_physical children yield two atoms, other layers yield one atom per
  * layer. Top-level metadata (name/description/signature_color/pov) are
- * intentionally NOT atoms — not enhanceable, same as before.
+ * intentionally NOT atoms - not enhanceable, same as before.
  * @param {Record<string, any>} fields
  * @returns {FieldAtom[]}
  */
@@ -311,7 +311,7 @@ export const FLAT_LEAF_MAP = Object.freeze({
  * Single home for entity-type normalization: "user" (and "ai", undefined,
  * anything else) addresses the character schema; only "fractal" is fractal.
  * Replaces the copies that lived in build_profile_sections, Profile.svelte.js
- * and normalize_entity — same mapping, one definition.
+ * and normalize_entity - same mapping, one definition.
  * @param {string} [type]
  * @returns {"character" | "fractal"}
  */
@@ -412,7 +412,7 @@ export function caretaker_brief(entity_type = "character") {
   };
 }
 
-// ── 2c. Caretaker Enhancer Directives (derived — single home is the leaves) ──
+// ── 2c. Caretaker Enhancer Directives (derived - single home is the leaves) ──
 
 /**
  * Directives keyed by enhancer role, derived from FIELD_ATOMS so the words
@@ -491,15 +491,15 @@ export function build_profile_sections(entity_type = "character") {
  *   zero duplication). New authority helpers: resolve_entity_type (single home of the
  *   user->character mapping), canonicalize_field_key (alias + separator-insensitive routing;
  *   resolve_flat_path now delegates), atom_for, output_key_for_path, caretaker_brief
- *   (single home of Caretaker brief assembly — wires the fractal future/past directives
+ *   (single home of Caretaker brief assembly - wires the fractal future/past directives
  *   that prompts.js never sent). No exports removed; orphans (name/description/
  *   signature_color/pov) and tag derivation kept as-is.
- * - 2026-11-10: Folded src/data/profile-fields.js back in — FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES now live here verbatim; storage/entities.js + engine/prompts.js re-pointed, storage barrel line retired, file deleted. Removed dead leaf_map inside build_profile_catalog.
+ * - 2026-11-10: Folded src/data/profile-fields.js back in - FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES now live here verbatim; storage/entities.js + engine/prompts.js re-pointed, storage barrel line retired, file deleted. Removed dead leaf_map inside build_profile_catalog.
  * - 2026-11-10: Renamed from profile-fields.js to profile-taxonomy.js (the storage-side
  *   profile-fields.js owned ingestion at the time: FLAT_LEAF_MAP + resolve_flat_path + ENHANCER_DIRECTIVES).
  *   Removed the unused derived leaf_map inside build_profile_catalog (computed and discarded, zero importers).
- * - 2026-10-18: Phase V Sub-item 5.4 — Enriched character and fractal 4-quadrant field descriptions with educational lorebook guidance, establishing each quadrant as an active vector slice of the world lorebook without keyword dumps.
- * - 2026-10-14: Phase IV Sub-item 4.2 — Formally registered canonical top-level pov metadata field in PROFILE_FIELDS taxonomy.
+ * - 2026-10-18: Phase V Sub-item 5.4 - Enriched character and fractal 4-quadrant field descriptions with educational lorebook guidance, establishing each quadrant as an active vector slice of the world lorebook without keyword dumps.
+ * - 2026-10-14: Phase IV Sub-item 4.2 - Formally registered canonical top-level pov metadata field in PROFILE_FIELDS taxonomy.
  * - 2026-10-04: Stripped per-field tense clauses from the temporal layer directives (tense now stated once via TASK_LIBRARY.TEMPORAL.TENSE); field text is pure content guidance.
  * - 2026-10-03: Instructed and preferred bracket directives across all fields (eternal/present non_physical and future) using HELPERS.BRACKETS, allowing prose while documenting bracket syntax.
  * - 2026-10-03: Consolidated HELPERS.BRACKETS and HELPERS.RELATIONAL_BRACKETS into unified BRACKETS helper documenting both standard and relational bracket syntax.
@@ -513,5 +513,5 @@ export function build_profile_sections(entity_type = "character") {
  *   (2) Pruned legacy `appearance` alias from FLAT_LEAF_MAP per P4 Zero Backwards Compatibility;
  *   (3) Hardened section detection in build_profile_sections using explicit composite checks;
  *   (4) Object.freeze exported collections (PROFILE_FIELD_CATALOG, FLAT_LEAF_MAP, PROFILE_SECTIONS_BY_TYPE).
- * - 2026-08-29: Harmonized profile-fields module — enforced full-name variable nomenclature, enriched JSDoc types, and aligned universal file architecture.
+ * - 2026-08-29: Harmonized profile-fields module - enforced full-name variable nomenclature, enriched JSDoc types, and aligned universal file architecture.
  */
