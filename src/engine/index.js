@@ -9,6 +9,13 @@
  * ============================================================================
  */
 
+// Visualizer delegation (media -> engine inversion): the engine registers its
+// visualizer turn into media at boot, so media never imports @engine — not
+// even lazily — and audit-layers stays clean in both directions.
+import { set_visualizer_envision_impl } from "@media";
+import { execute_visualizer_envision as _execute_visualizer_envision } from "./lifecycle.js";
+set_visualizer_envision_impl(_execute_visualizer_envision);
+
 // Authoritative simulation state class
 export { LLM_PRIORITY, get_llm_gate_status, resolve_priority, run_llm_job } from "./gate.js";
 export { Kernel } from "./kernel.svelte.js";

@@ -363,7 +363,7 @@
               stroke-width={hovered_edge === ve.edge ? "2.75" : "1.75"}
               stroke-opacity={hovered_edge === ve.edge ? "1" : "0.75"}
               marker-end="url(#marker-{ve.id})"
-              class="pointer-events-none transition-all duration-200"
+              class="pointer-events-none transition-[stroke-opacity,filter] duration-200"
               filter={hovered_edge === ve.edge ? "url(#mesh-glow)" : undefined}
             />
           {/each}
@@ -419,7 +419,7 @@
                 };
               }}
               use:tooltip={format_node_tooltip(node.item)}
-              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-all duration-300 hover:scale-115 focus:outline-hidden"
+              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-300 hover:scale-115 focus:outline-hidden"
               style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;"
             >
               {#if sat_entity?.profile_picture}
@@ -629,7 +629,7 @@
                     on_select_entity(selected_dossier.entity);
                   }
                 }}
-                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
+                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-600/30"
               >
                 Open Full Profile →
               </button>
@@ -642,7 +642,7 @@
                     on_select_entity(selected_dossier.edge.target_entity);
                   }
                 }}
-                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
+                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-600/30"
               >
                 Open {selected_dossier.edge.target_name} Profile →
               </button>

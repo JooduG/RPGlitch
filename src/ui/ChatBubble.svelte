@@ -656,7 +656,7 @@
         tracking-widest
         uppercase
         opacity-100
-        transition-all
+        transition-opacity
         duration-300
         ease-out
       "
@@ -992,7 +992,7 @@
         {@const res = get_attachment_resolution(attachment, regenerate_key)}
         {@const box_h = 480}
         {@const box_w = Math.round((box_h * res.width) / res.height)}
-        {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60vh; aspect-ratio: ${res.width} / ${res.height};`}
+        {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60dvh; aspect-ratio: ${res.width} / ${res.height};`}
         {@const preview_options = build_preview_options(attachment, id, attach_idx, signature_color)}
         {@const is_failed = typeof attachment === "object" && attachment !== null && Boolean(attachment?.metadata?.failed)}
         {#if image_picker.hasError(regenerate_key)}
@@ -1002,7 +1002,7 @@
         {:else if image_picker.isReady(regenerate_key)}
           <Button
             variant="bare"
-            class="group relative flex cursor-pointer flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
+            class="group relative flex cursor-pointer flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-colors duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
             style={container_style}
             onclick={() => open_picker()}
             aria-label="Select image from candidates"
@@ -1010,15 +1010,15 @@
             <!-- Mini 3-card spread with dynamic mouseover animation -->
             <div class="relative h-16 w-24 transition-transform duration-300 group-hover:scale-110">
               <div
-                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition-all duration-300 group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-300 group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
                 style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;"
               ></div>
               <div
-                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition duration-300 group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
                 style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;"
               ></div>
               <div
-                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition-all duration-300 group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-300 group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
                 style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;"
               ></div>
             </div>
@@ -1030,7 +1030,7 @@
               </span>
               <svg
                 viewBox="0 0 24 24"
-                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition-all duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white"
+                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white"
               >
                 <polyline points="9 18 15 12 9 6" />
               </svg>
@@ -1297,12 +1297,12 @@
                           <div class="flex flex-1 items-center gap-standard">
                             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
-                                class="absolute h-full transition-all duration-300"
+                                class="absolute h-full transition-[width] duration-300"
                                 style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
                               ></div>
                               {#if delta.has_delta}
                                 <div
-                                  class="absolute z-10 h-full opacity-40 transition-all duration-300"
+                                  class="absolute z-10 h-full opacity-40 transition-[left,width] duration-300"
                                   style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
                                 ></div>
                               {/if}
@@ -1422,7 +1422,7 @@
 
 {#if is_telemetry}
   {#if app.settings.dev_mode}
-    <div class="relative flex w-full justify-center p-standard transition-all duration-200">
+    <div class="relative flex w-full justify-center p-standard transition duration-200">
       <div class="w-[calc(var(--spacing-column-unit)*6)]">
         {@render telemetry_content()}
       </div>
@@ -1446,7 +1446,7 @@
       w-full
       items-start
       p-standard
-      transition-all
+      transition
       duration-200
       {is_user
       ? 'justify-end pr-[calc(var(--spacing-column-unit)*2)]'
@@ -1492,7 +1492,7 @@
             bg-black/60
             p-0
             shadow-[0_4px_20px_rgba(0,0,0,0.5)]
-            transition-all
+            transition
             duration-300
             ease-out
             hover:scale-[1.02]
@@ -1531,7 +1531,7 @@
         border-transparent
         shadow-[0_8px_32px_rgba(0,0,0,0.5)]
         [backdrop-filter:var(--blur-mist)]
-        transition-all
+        transition
         duration-300
         ease-out
         outline-none
@@ -1542,7 +1542,7 @@
         before:rounded-[inherit]
         before:mask-border-solid
         before:p-px
-        before:transition-all
+        before:transition
         before:duration-300
         before:content-['']!
 
@@ -1629,7 +1629,7 @@
             bg-black/60
             p-0
             shadow-[0_4px_20px_rgba(0,0,0,0.5)]
-            transition-all
+            transition
             duration-300
             ease-out
             hover:scale-[1.02]

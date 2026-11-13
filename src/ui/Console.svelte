@@ -462,7 +462,7 @@
       actions={[pulse]}
     >
       <h6
-        class="m-0 text-[clamp(0.65rem,1.2vw,0.875rem)] tracking-widest whitespace-nowrap transition-all duration-300 {ready_to_begin
+        class="m-0 text-[clamp(0.65rem,1.2vw,0.875rem)] tracking-widest whitespace-nowrap transition duration-300 {ready_to_begin
           ? 'group-hover:scale-105 group-hover:brightness-125'
           : 'text-slate-400 opacity-80'}"
         style={ready_to_begin
@@ -769,7 +769,7 @@
       bg-glass-elevated
       shadow-2xl
       shadow-black/50 [backdrop-filter:var(--blur-mist)]
-      transition-all
+      transition-[height,max-height]
       duration-500
       ease-in-out
       md:max-h-[calc(var(--spacing-row-unit)*9)]

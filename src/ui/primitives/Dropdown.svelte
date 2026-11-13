@@ -38,8 +38,8 @@
   // `computed_height_css` is the raw CSS value applied to the scroll container so it
   // actually constrains (the previous `max-height: inherit` chain resolved to
   // `none` because Select.Viewport has no max-height of its own).
-  const computed_height = $derived(dropdownHeight || `max-h-[min(70vh,calc(${rows}*3.25rem))]`);
-  const computed_height_css = $derived(dropdownHeight || `min(70vh, calc(${rows} * 3.25rem))`);
+  const computed_height = $derived(dropdownHeight || `max-h-[min(70dvh,calc(${rows}*3.25rem))]`);
+  const computed_height_css = $derived(dropdownHeight || `min(70dvh, calc(${rows} * 3.25rem))`);
 </script>
 
 <Select.Root type="single" bind:value onValueChange={(val) => onchange?.(val)} {disabled}>

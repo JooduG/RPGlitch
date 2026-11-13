@@ -478,7 +478,7 @@
   variant="bare"
   z_index="500"
   on_close={close_image_preview}
-  class="flex max-h-[95vh] flex-col items-stretch justify-center gap-standard overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-[calc(var(--spacing-column-unit))]"
+  class="flex max-h-[95dvh] flex-col items-stretch justify-center gap-standard overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-[calc(var(--spacing-column-unit))]"
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -487,12 +487,12 @@
       <div
         role="img"
         aria-label="Generated canvas render preview"
-        class="pointer-events-auto max-h-[85vh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
+        class="pointer-events-auto max-h-[85dvh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
         use:copy_canvas={preview_state.canvas}
       ></div>
     {:else if preview_state.src}
       <img
-        class="pointer-events-auto max-h-[85vh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
+        class="pointer-events-auto max-h-[85dvh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
         src={preview_state.src}
         alt={preview_state.caption || "Preview"}
       />
@@ -511,7 +511,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
-      class="pointer-events-auto flex h-fit max-h-[95vh] w-full shrink-0 flex-col gap-standard self-center overflow-hidden rounded-standard bg-glass-elevated p-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-[calc(var(--spacing-column-unit)*3)]"
+      class="pointer-events-auto flex h-fit max-h-[95dvh] w-full shrink-0 flex-col gap-standard self-center overflow-hidden rounded-standard bg-glass-elevated p-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-[calc(var(--spacing-column-unit)*3)]"
       onclick={(e) => e.stopPropagation()}
     >
       <div class="flex scrollbar-none flex-col gap-standard overflow-y-auto [&::-webkit-scrollbar]:hidden">
@@ -691,7 +691,7 @@
               {#snippet child({ props: contentProps })}
                 <div
                   {...contentProps}
-                  class="relative flex min-h-[60vh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-tight py-6"
+                  class="relative flex min-h-[60dvh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-tight py-6"
                   onclick={(e) => e.stopPropagation()}
                 >
                   {#if image_picker.error}
@@ -730,7 +730,7 @@
                               : "w-60 sm:w-64 md:w-72 lg:w-76"}
                         <Button
                           variant="bare"
-                          class="group relative {card_width_class} shrink-0 pt-tight pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out {image_picker.selected_index ===
+                          class="group relative {card_width_class} shrink-0 pt-tight pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition duration-300 ease-out {image_picker.selected_index ===
                           i
                             ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
                             : image_picker.selected_index !== null
@@ -774,7 +774,7 @@
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
                         <Button
                           variant="bare"
-                          class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-white transition-all duration-200 hover:bg-white/20"
+                          class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-white transition-colors duration-200 hover:bg-white/20"
                           onclick={handle_picker_regenerate}
                         >
                           <svg

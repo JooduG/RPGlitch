@@ -1015,7 +1015,7 @@
         left-0
         z-50
         flex
-        h-screen
+        h-dvh
         w-screen
         flex-col
         items-center
@@ -1278,7 +1278,7 @@
     bind:open={show_import_modal}
     variant="bare"
     z_index="1000"
-    class="relative max-h-[92vh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_import_modal = false;
       import_error_message = "";

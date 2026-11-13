@@ -247,7 +247,7 @@
     border-(--signature-color)
     bg-slate-950/95
     shadow-sm
-    transition-all
+    transition
     duration-300
     ease-in-out
     outline-none
@@ -261,7 +261,7 @@
     after:border
     after:border-transparent
     after:shadow-[inset_0_0_0_1px_transparent]
-    after:transition-all
+    after:transition
     after:duration-300
     after:ease-in-out
     hover:scale-lift
@@ -439,7 +439,7 @@
       via-45%
       to-transparent
       text-center
-      transition-all
+      transition-opacity
       duration-300
       ease-in-out
 
@@ -520,7 +520,7 @@
           whitespace-normal
           text-slate-50
           opacity-80
-          transition-all
+          transition-opacity
           duration-300
           ease-in-out
           [-webkit-box-orient:vertical]

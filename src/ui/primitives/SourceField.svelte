@@ -228,7 +228,7 @@
     aria-label={is_image_mode ? "Drop an image to set the portrait" : "Drop a file here"}
     class="
       rounded-xl
-      transition-all
+      transition
       duration-200
       {is_dragging ? 'ring-2 ring-(--signature-color)/70' : ''}
       {dropzone_disabled ? 'pointer-events-none opacity-60' : ''}

@@ -557,9 +557,25 @@ export class VisualEngine {
       return { prompt: "", negative_prompt: "" };
     }
 
-    const { execute_visualizer_envision } = await import("@engine");
-    return execute_visualizer_envision(text, type, entity, app_style);
+    if (typeof visualizer_envision_impl !== "function") {
+      throw new Error(
+        "[VisualEngine.envision] no visualizer implementation registered — engine must call set_visualizer_envision_impl(execute_visualizer_envision) at boot",
+      );
+    }
+    return visualizer_envision_impl(text, type, entity, app_style);
   }
+}
+
+/**
+ * Visualizer delegation slot (media -> engine inversion).
+ *
+ * The engine registers its visualizer turn here at boot (see
+ * src/engine/index.js). Media never imports @engine — not even lazily —
+ * so the layer boundary stays clean in both directions.
+ */
+let visualizer_envision_impl = null;
+export function set_visualizer_envision_impl(fn) {
+  visualizer_envision_impl = typeof fn === "function" ? fn : null;
 }
 
 export const visual_engine = new VisualEngine();

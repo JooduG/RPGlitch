@@ -233,7 +233,7 @@
           w-full
           rounded-xl
           shadow-ghost
-          transition-all
+          transition-shadow
           duration-(--duration-fast)
           ease-(--motion-dissolve)
           has-not-disabled:hover:z-20

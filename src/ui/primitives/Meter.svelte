@@ -79,7 +79,7 @@
     border-transparent
     bg-neutral-900/60
     p-standard
-    transition-all
+    transition
     duration-300
     ease-in-out
     select-none

@@ -79,7 +79,7 @@
     p-standard
     text-left
     backdrop-blur-sm
-    transition-all
+    transition
     duration-300
     ease-in-out
 
@@ -196,7 +196,7 @@
           size="small"
           aria-label="Edit Title"
           onclick={start_edit_title}
-          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-all duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50"
+          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50"
         >
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -210,7 +210,7 @@
           size="small"
           aria-label="Save Story (.md)"
           onclick={handle_export}
-          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-all duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50"
+          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50"
         >
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -225,7 +225,7 @@
           size="small"
           aria-label="Delete Story"
           onclick={handle_delete}
-          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-all duration-200 hover:border-red-500/50! hover:bg-red-500/25! hover:text-red-300"
+          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-red-500/50! hover:bg-red-500/25! hover:text-red-300"
         >
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
             <polyline points="3 6 5 6 21 6" />
@@ -250,7 +250,7 @@
         bg-cover
         bg-center
         opacity-15
-        transition-all
+        transition-[width,opacity]
         duration-150
         ease-in-out
 
@@ -278,7 +278,7 @@
         w-[70%]
         rounded-[inherit]
         opacity-15
-        transition-all
+        transition-[width,opacity]
         duration-150
         ease-in-out
 

@@ -771,7 +771,7 @@
               flex
               w-full
               p-standard
-              transition-all
+              transition
               duration-200
               {entry.role === 'user' ? 'justify-end pr-column-unit' : 'justify-start pl-column-unit'}
             "
@@ -816,7 +816,7 @@
 
           {#if simulation_state.busy && !app.streaming.active}
             <div
-              class="relative flex w-full items-start justify-start p-standard pl-[calc(var(--spacing-column-unit)*2)] transition-all duration-200"
+              class="relative flex w-full items-start justify-start p-standard pl-[calc(var(--spacing-column-unit)*2)] transition duration-200"
               in:item_in={{ duration: 200 }}
             >
               <!-- Left-Gutter Portrait / Lens Anchor Slot -->
@@ -855,7 +855,7 @@
                 bg-black/60
                 p-0
                 shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_25%,transparent)]
-                transition-all
+                transition
                 duration-300
               "
                 >

@@ -106,7 +106,7 @@
       pb-tight
       text-center
       opacity-0
-      transition-all
+      transition-opacity
       duration-300
       ease-in-out
       group-hover/badge:opacity-100
@@ -161,7 +161,7 @@
           {hover_zoom_class}
           {badge_radius_class}
           shadow-md
-          transition-all
+          transition
           duration-300
           ease-in-out
         "
@@ -226,7 +226,7 @@
           {hover_zoom_class}
           {badge_radius_class}
           shadow-md
-          transition-all
+          transition
           duration-300
           ease-in-out
         "

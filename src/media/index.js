@@ -105,6 +105,7 @@ export {
   spawn_image_beat,
   VisualEngine,
   visual_engine,
+  set_visualizer_envision_impl,
   rescue_visual_prose,
   sanitize_visual_text,
   resolve_story_beat_style,

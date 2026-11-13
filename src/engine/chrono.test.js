@@ -27,6 +27,9 @@ vi.mock("./runs.js", () => ({
 
 vi.mock("./lifecycle.js", () => ({
   execute_prologue: vi.fn().mockResolvedValue({}),
+  execute_epilogue: vi.fn().mockResolvedValue({}),
+  execute_visualizer_envision: vi.fn().mockResolvedValue({ prompt: "", negative_prompt: "" }),
+  structure_profile: vi.fn().mockResolvedValue(null),
 }));
 
 describe("ChronoEngine", () => {

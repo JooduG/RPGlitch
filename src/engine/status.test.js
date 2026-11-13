@@ -12,6 +12,7 @@ import { TIMING_MS } from "@config";
 import { Audio } from "@media";
 
 vi.mock("@media", () => ({
+  set_visualizer_envision_impl: vi.fn(),
   Audio: {
     voice: {
       apply_stream_role: vi.fn(),

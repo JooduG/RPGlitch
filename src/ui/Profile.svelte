@@ -458,7 +458,7 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex overflow-hidden border border-solid transition-all duration-300 relative z-10 " +
+    "flex overflow-hidden border border-solid transition-[height,grid-template-columns,grid-template-rows,border-radius] duration-300 relative z-10 " +
       (app.viewport.mobile
         ? "col-span-full h-full flex-col rounded-none "
         : (has_wings ? "modal-profile-grid-main row-start-1 my-auto h-[90dvh]" : "modal-profile-grid-flat row-start-1 my-auto h-[90dvh]") +
@@ -467,13 +467,13 @@
   );
 
   const avatar_container_class = $derived(
-    "sticky top-0 z-20 flex shrink-0 items-stretch transition-all duration-300 " +
+    "sticky top-0 z-20 flex shrink-0 items-stretch transition-[height,width,min-height] duration-300 " +
       (entity_type === "fractal" ? "h-12 min-h-64 w-full " : "h-full w-[calc(var(--spacing-column-unit)*2)] ") +
       (app.viewport.mobile ? "h-auto w-auto items-center justify-center" : ""),
   );
 
   const profile_pic_wrapper_class = $derived(
-    "overflow-hidden border-solid transition-all duration-300 " +
+    "overflow-hidden border-solid transition-[border-radius] duration-300 " +
       (entity_type === "fractal"
         ? "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
         : "h-full w-full border-0 " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
@@ -501,7 +501,7 @@
 
   // --- MARKUP CONTEXT SANITIZERS ---
   const get_section_class = () => {
-    let cls = "relative flex w-full min-w-0 flex-col items-center justify-center my-auto overflow-visible text-center transition-all duration-300 ";
+    let cls = "relative flex w-full min-w-0 flex-col items-center justify-center my-auto overflow-visible text-center transition duration-300 ";
     cls += profile_state.is_editing ? "cursor-pointer " : "cursor-default ";
     if (app.viewport.mobile) cls += "pr-0";
     return cls;
@@ -521,7 +521,7 @@
   };
 
   const get_ai_action_btn_class = (fieldKey) => {
-    let cls = "text-slate-400 transition-all duration-200 hover:text-(--signature-color) ";
+    let cls = "text-slate-400 transition duration-200 hover:text-(--signature-color) ";
     cls += profile_state.active_field?.key === fieldKey ? "opacity-100" : "opacity-0 group-data-[expanded=true]/textfield:opacity-100";
     return cls;
   };
@@ -783,7 +783,7 @@
     is_pass_through={true}
   >
     <div
-      class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
+      class={`m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,height] duration-300 ${
         app.viewport.mobile
           ? has_wings
             ? "h-auto grid-rows-[auto_auto] gap-y-standard pb-standard"
@@ -1309,7 +1309,7 @@
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
               class={"flex flex-col gap-standard " +
-                (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-standard" : "w-full")}
+                (app.viewport.mobile ? "max-h-[65dvh] max-w-sm scrollbar-none overflow-y-auto pb-standard" : "w-full")}
               transition:fade={{ duration: 250 }}
             >
               <AudioWing {profile_state} />
@@ -1345,7 +1345,7 @@
       bind:open={show_field_history_modal}
       variant="bare"
       z_index="400"
-      class="relative flex max-h-[85vh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      class="relative flex max-h-[85dvh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_field_history_modal = false;
       }}
@@ -1493,7 +1493,7 @@
       bind:open={show_timeline_modal}
       variant="bare"
       z_index="400"
-      class="relative flex max-h-[88vh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      class="relative flex max-h-[88dvh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_timeline_modal = false;
       }}
@@ -1531,7 +1531,7 @@
             {#each available_timeline_rounds as r (r)}
               <button
                 type="button"
-                class="cursor-pointer rounded-lg px-standard py-1 font-mono text-xs font-medium transition-all {selected_timeline_round === r
+                class="cursor-pointer rounded-lg px-standard py-1 font-mono text-xs font-medium transition {selected_timeline_round === r
                   ? 'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                   : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
                 onclick={() => handle_select_timeline_round(r)}
@@ -1746,7 +1746,7 @@
             {#if !profile_state.is_editing && parsed}
               <div
                 id={field_id}
-                class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300"
+                class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-[border-color,height] duration-300"
                 role="region"
                 aria-label={field.label}
                 use:auto_resize={{ sync_id: section.label }}

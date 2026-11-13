@@ -115,7 +115,7 @@
                           relative
                           flex
                           h-auto
-                          max-h-screen
+                          max-h-dvh
                           min-h-48
                           ${variant === "lightbox" ? "w-[clamp(20rem,95vw,80rem)] max-w-[95vw]" : "w-[clamp(16rem,90vw,28rem)]"}
                           cursor-default
