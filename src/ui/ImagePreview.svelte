@@ -691,7 +691,7 @@
               {#snippet child({ props: contentProps })}
                 <div
                   {...contentProps}
-                  class="relative flex min-h-[60vh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-2 py-6"
+                  class="relative flex min-h-[60vh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-tight py-6"
                   onclick={(e) => e.stopPropagation()}
                 >
                   {#if image_picker.error}
@@ -700,7 +700,7 @@
                       <div class="flex gap-standard">
                         <Button
                           variant="bare"
-                          class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
+                          class="rounded-lg bg-white/10 px-6 py-tight font-bold text-white transition-colors hover:bg-white/20"
                           onclick={() => {
                             close_regenerate();
                           }}
@@ -774,7 +774,7 @@
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
                         <Button
                           variant="bare"
-                          class="flex items-center gap-tight rounded-lg bg-white/10 px-4 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
+                          class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-white transition-all duration-200 hover:bg-white/20"
                           onclick={handle_picker_regenerate}
                         >
                           <svg
@@ -793,7 +793,7 @@
                       <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No pictures available</p>
                       <Button
                         variant="bare"
-                        class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
+                        class="rounded-lg bg-white/10 px-6 py-tight font-bold text-white transition-colors hover:bg-white/20"
                         onclick={close_regenerate}
                       >
                         Close

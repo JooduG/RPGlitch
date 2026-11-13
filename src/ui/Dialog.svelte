@@ -79,19 +79,19 @@
                 <div
                   {contentProps}
                   class="
-                    gap-standard
-                    p-standard
-                    z-max
-                    rounded-standard
-                    bg-glass-elevated
                     pointer-events-auto
                     relative
+                    z-max
                     flex
                     w-(--dialog-width)
                     cursor-default
                     flex-col
                     justify-between
+                    gap-standard
                     overflow-hidden
+                    rounded-standard
+                    bg-glass-elevated
+                    p-standard
                     duration-300
 
                     before:pointer-events-none
@@ -119,7 +119,7 @@
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
-                    <p class="text-frisk m-0 text-left text-base leading-relaxed whitespace-pre-wrap">
+                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
                       {message}
                     </p>
                   </AlertDialog.Description>
@@ -128,7 +128,7 @@
                     <input
                       bind:value={input_value}
                       placeholder={input_placeholder}
-                      class="w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-base text-slate-50 outline-none focus:border-white/40"
+                      class="w-full rounded-md border border-white/20 bg-black/40 px-3 py-tight text-base text-slate-50 outline-none focus:border-white/40"
                       onkeydown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
@@ -139,7 +139,7 @@
                   {/if}
 
                   <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
-                  <footer style="display: flex;" class="gap-standard flex w-full justify-end outline-none">
+                  <footer style="display: flex;" class="flex w-full justify-end gap-standard outline-none">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
                         <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />

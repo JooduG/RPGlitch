@@ -651,7 +651,7 @@
         border-b
         border-white/10
         bg-(--signature-color)
-        px-4
+        px-standard
         font-mono
         tracking-widest
         uppercase
@@ -842,7 +842,7 @@
           <div
             class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard"
           >
-            <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-2 py-1 text-cyan-200">
+            <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-tight py-1 text-cyan-200">
               <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
             </div>
             {#if remainder_think_html}
@@ -908,7 +908,7 @@
 {/snippet}
 
 {#snippet entity_trio()}
-  <div class="my-2 flex h-character-card-height w-full items-stretch gap-tight md:gap-standard" data-msg-trio>
+  <div class="my-tight flex h-character-card-height w-full items-stretch gap-tight md:gap-standard" data-msg-trio>
     {#if runtime.active_ai || app.selected_ai}
       {@const a = runtime.active_ai || app.selected_ai}
       <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
@@ -1138,7 +1138,7 @@
     .filter((it) => clean_text_debris(it.value))}
   {#if chip_items.length > 0}
     <div
-      class="flex gap-standard rounded border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
+      class="flex gap-standard rounded border-l-2 px-3 py-tight font-mono text-xs leading-relaxed {isMuted
         ? 'border-l-slate-500 bg-black/20'
         : 'border-l-(--color-dev-accent) bg-black/40'}"
     >
@@ -1192,7 +1192,7 @@
       <!-- display:flex inline: unlayered normalize.css v3 resets header to block, defeating Tailwind's layered flex utility -->
       <header
         style="display: flex;"
-        class="flex min-h-10 items-center gap-tight border-b border-white/10 px-4 py-2 font-mono text-xs leading-none font-bold tracking-[0.18em] text-(--color-dev-accent) uppercase"
+        class="flex min-h-10 items-center gap-tight border-b border-white/10 px-standard py-tight font-mono text-xs leading-none font-bold tracking-[0.18em] text-(--color-dev-accent) uppercase"
       >
         <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
         <span class="min-w-0 translate-y-[1px] truncate">{telemetry_card_label}</span>
@@ -1206,7 +1206,7 @@
         {:else}
           <!-- 1. IMAGE TRIGGER INDICATOR -->
           {#if meta.trigger_image === true || meta.image_trigger === true}
-            <div class="flex flex-wrap items-center gap-tight rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+            <div class="flex flex-wrap items-center gap-tight rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-tight text-xs">
               <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
               <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
               {#if meta.image_tier}
@@ -1259,13 +1259,17 @@
 
           <!-- Director `directors_note` intentionally omitted here: it is the Turn 2 `startWith` prefix, so it already opens the AI Thoughts block (highlighted cyan-blue there). The director's own reasoning (`thoughts`) is shown below instead. -->
           {#if meta.thoughts}
-            <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+            <div
+              class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed"
+            >
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Thoughts</span>
               <span class="flex-1 text-slate-200">{meta.thoughts}</span>
             </div>
           {/if}
           {#if meta.camera_note}
-            <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+            <div
+              class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed"
+            >
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
               <span class="flex-1 text-slate-200">{meta.camera_note}</span>
             </div>
@@ -1392,7 +1396,7 @@
                 {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
               {/if}
               {#if meta.resolution}
-                <div class="flex gap-standard rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                <div class="flex gap-standard rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-tight font-mono text-xs leading-relaxed">
                   <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
                   <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
                 </div>

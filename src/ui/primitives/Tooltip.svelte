@@ -218,7 +218,7 @@
                       border
                       border-slate-600
                       bg-neutral-900/98
-                      px-2
+                      px-tight
                       py-1.5
                       text-center
                       font-sans

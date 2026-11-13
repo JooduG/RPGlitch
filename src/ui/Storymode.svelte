@@ -899,14 +899,14 @@
               w-[calc(var(--spacing-column-unit)*5)]
               max-w-full
               items-center
-              gap-4
+              gap-standard
               overflow-hidden
               rounded-2xl
               border
               border-solid
               border-white/10
               bg-[color-mix(in_srgb,var(--color-dev-accent)_5%,rgba(15,15,15,0.7))]
-              px-4
+              px-standard
               [backdrop-filter:var(--blur-mist)]
             "
               >

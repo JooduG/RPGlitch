@@ -441,10 +441,10 @@
       {#if selected_dossier}
         <div
           data-testid="relational-dossier-card"
-          class="absolute inset-2 z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-standard shadow-2xl backdrop-blur-xl"
+          class="absolute inset-tight z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-standard shadow-2xl backdrop-blur-xl"
         >
           <!-- Dossier Header -->
-          <div class="flex items-center justify-between border-b border-slate-800/80 pb-standard">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-tight">
             <div class="flex min-w-0 items-center gap-tight">
               {#if selected_dossier.type === "entity"}
                 {@const dossier_color = get_signature_color(selected_dossier.entity)}

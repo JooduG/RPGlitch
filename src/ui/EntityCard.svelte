@@ -459,7 +459,7 @@
       : `
         h-auto
         min-h-[50%]
-        px-2
+        px-tight
         pt-8
         pb-standard
       `}"

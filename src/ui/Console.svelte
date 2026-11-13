@@ -593,7 +593,7 @@
           : 'delay-0 duration-150'}"
       >
         <ScrollArea class="min-h-0 w-full">
-          <div class="flex w-full flex-col gap-tight px-2" style="--signature-color: var(--color-frozen);">
+          <div class="flex w-full flex-col gap-tight px-tight" style="--signature-color: var(--color-frozen);">
             <!-- DECK A: AUDIO -->
             <Accordion label="Audio" content_class="flex flex-col gap-standard">
               <div class="grid w-full grid-cols-2 gap-standard">
@@ -701,7 +701,7 @@
                   {/each}
                 </div>
               {:else}
-                <p class="m-0 py-4 text-center text-sm text-slate-500 italic">No stories yet..</p>
+                <p class="m-0 py-standard text-center text-sm text-slate-500 italic">No stories yet..</p>
               {/if}
             </Accordion>
 
@@ -776,7 +776,7 @@
 
       {app.control_panel_open
       ? 'absolute bottom-0 w-full rounded-none p-standard md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
-      : 'relative h-auto w-full rounded-none px-4 py-2 md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
+      : 'relative h-auto w-full rounded-none px-standard py-tight md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
       {!app.control_panel_open && has_text && app.view === 'storymode'
       ? `
       border-(--signature-color,var(--color-slate-600))

@@ -71,7 +71,7 @@
       <div class="flex items-center gap-tight">
         <span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Token Budget</span>
         <span
-          class="rounded-full border px-2 py-0.5 font-mono text-[10px] font-semibold {status_color}"
+          class="rounded-full border px-tight py-0.5 font-mono text-[10px] font-semibold {status_color}"
           use:tooltip
           aria-label={`Current compile token load against ${cliff_limit.toLocaleString()} cliff threshold`}
         >
@@ -100,7 +100,7 @@
 
     {#if show_token_details && snapshot}
       <div class="mt-tight flex flex-col gap-tight border-t border-white/5 pt-tight text-[10px]">
-        <div class="grid grid-cols-2 gap-x-2 gap-y-1 font-mono text-slate-300">
+        <div class="grid grid-cols-2 gap-x-tight gap-y-1 font-mono text-slate-300">
           <span class="text-slate-400">Mode:</span>
           <span class="text-right font-bold text-white uppercase">{snapshot.mode || "prose"}</span>
           <span class="text-slate-400">System Slot:</span>

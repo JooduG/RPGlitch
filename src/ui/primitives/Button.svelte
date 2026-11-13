@@ -55,7 +55,7 @@
     variant === "bare" ? "" : cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "",
   );
 
-  const padding_class = $derived(variant === "bare" ? "" : cover ? "" : square ? "p-0" : size === "small" ? "px-2" : "px-4");
+  const padding_class = $derived(variant === "bare" ? "" : cover ? "" : square ? "p-0" : size === "small" ? "px-tight" : "px-standard");
 
   // Svelte 5 Action delegation: Apply Svelte actions dynamically when element reference becomes active
   $effect(() => {

@@ -489,11 +489,13 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute right-0 bottom-0 left-0 z-30 flex gap-standard px-4 p-standard outline-none overflow-hidden " +
+    "absolute right-0 bottom-0 left-0 z-30 flex gap-standard px-standard p-standard outline-none overflow-hidden " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
-  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-standard" : "grid items-center gap-x-2 gap-y-4"));
+  const entity_body_class = $derived(
+    "min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-standard" : "grid items-center gap-x-tight gap-y-standard"),
+  );
 
   const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
@@ -782,7 +784,11 @@
   >
     <div
       class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
-        app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-standard" : "h-dvh grid-rows-1") : "my-auto h-dvh grid-rows-1"
+        app.viewport.mobile
+          ? has_wings
+            ? "h-auto grid-rows-[auto_auto] gap-y-standard pb-standard"
+            : "h-dvh grid-rows-1"
+          : "my-auto h-dvh grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
       role="presentation"
@@ -1291,7 +1297,7 @@
         bind:this={wings_ref}
         style:pointer-events={has_wings ? "auto" : "none"}
       >
-        <div class={"flex gap-standard " + (app.viewport.mobile ? "w-fit flex-row px-4" : "w-full flex-col")}>
+        <div class={"flex gap-standard " + (app.viewport.mobile ? "w-fit flex-row px-standard" : "w-full flex-col")}>
           {#if profile_state.is_editing}
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
@@ -1514,7 +1520,7 @@
         <div class="flex flex-col gap-tight rounded-xl border border-white/10 bg-black/40 p-standard">
           <div class="flex items-center justify-between">
             <span class="font-mono text-xs font-semibold text-slate-300"> SELECT TIMELINE POINT </span>
-            <span class="rounded bg-cyan-950/70 px-2 py-0.5 font-mono text-xs font-bold text-cyan-400">
+            <span class="rounded bg-cyan-950/70 px-tight py-0.5 font-mono text-xs font-bold text-cyan-400">
               Round {selected_timeline_round}
               {selected_timeline_round === 0 ? "(Genesis Baseline)" : ""}
             </span>
@@ -1525,7 +1531,7 @@
             {#each available_timeline_rounds as r (r)}
               <button
                 type="button"
-                class="cursor-pointer rounded-lg px-4 py-1 font-mono text-xs font-medium transition-all {selected_timeline_round === r
+                class="cursor-pointer rounded-lg px-standard py-1 font-mono text-xs font-medium transition-all {selected_timeline_round === r
                   ? 'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
                   : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
                 onclick={() => handle_select_timeline_round(r)}
@@ -1918,7 +1924,7 @@
 
               {#if should_show_bracket_tip(field.key, raw)}
                 <div
-                  class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-2 py-1 text-[11px] leading-tight text-cyan-300/80"
+                  class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-tight py-1 text-[11px] leading-tight text-cyan-300/80"
                   transition:fade={{ duration: 150 }}
                 >
                   <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>

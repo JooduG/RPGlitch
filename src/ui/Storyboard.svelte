@@ -861,7 +861,7 @@
           inline-block
           max-w-[90vw]
           cursor-text
-          px-4
+          px-standard
           text-center
           text-[clamp(1.5rem,3.2vw,2.6rem)]
           font-normal
@@ -898,7 +898,7 @@
               <span
                 class="
                 inline
-                px-2
+                px-tight
                 font-['Satisfy',cursive]
                 whitespace-nowrap
                 text-(--signature-color)
@@ -910,7 +910,7 @@
               <span
                 class="
               inline
-              px-2
+              px-tight
               font-['Satisfy',cursive]
               whitespace-normal
               text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]

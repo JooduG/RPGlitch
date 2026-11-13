@@ -61,8 +61,8 @@
       border-solid
       border-transparent
       bg-(--signature-color,#555d66)
-      px-4
-      py-2
+      px-standard
+      py-tight
       text-left
       font-sans
       text-sm
@@ -169,7 +169,7 @@
                         gap-standard
                         bg-(--signature-color,#555d66)
                         px-3
-                        py-2
+                        py-tight
                         text-left
                         font-sans
                         text-sm
