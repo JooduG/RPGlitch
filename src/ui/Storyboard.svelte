@@ -1295,7 +1295,7 @@
 
       <div class="flex flex-1 flex-col">
         {#if import_error_message}
-          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
+          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-standard text-xs text-red-400">
             {import_error_message}
           </div>
         {/if}

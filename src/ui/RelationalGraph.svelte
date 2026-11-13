@@ -445,7 +445,7 @@
         >
           <!-- Dossier Header -->
           <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
-            <div class="flex min-w-0 items-center gap-2.5">
+            <div class="flex min-w-0 items-center gap-tight">
               {#if selected_dossier.type === "entity"}
                 {@const dossier_color = get_signature_color(selected_dossier.entity)}
                 <div
@@ -501,7 +501,7 @@
               {@const present_brackets = parse_bracket_lines(ent?.present?.non_physical || (typeof ent?.present === "string" ? ent.present : ""))}
 
               <!-- 4 Quadrants -->
-              <div class="grid grid-cols-1 gap-2.5">
+              <div class="grid grid-cols-1 gap-tight">
                 <!-- 1. Eternal -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-cyan-400 uppercase"> 🏛️ Eternal </span>
@@ -528,7 +528,7 @@
                       <div class="space-y-1">
                         {#each present_brackets as bracket (bracket.raw)}
                           <div
-                            class="flex items-start justify-between gap-tight rounded-lg border p-1.5 text-[11px] {bracket.is_hidden
+                            class="flex items-start justify-between gap-tight rounded-lg border p-tight text-[11px] {bracket.is_hidden
                               ? 'border-amber-800/50 bg-amber-950/25 text-amber-200'
                               : 'border-slate-800/60 bg-slate-950/40 text-slate-300'}"
                           >
@@ -584,7 +584,7 @@
               {@const is_hidden = /\|\s*hide\b/i.test(edge?.dynamic || "")}
 
               <div class="space-y-3">
-                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3">
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-standard">
                   <span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Dynamic Vector</span>
                   <p class="mt-1 font-mono text-xs text-slate-200">{edge?.dynamic}</p>
                 </div>

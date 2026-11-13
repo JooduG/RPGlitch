@@ -1398,7 +1398,7 @@
                 <span class="text-[10px] text-slate-600">Mutations during genesis or turns will appear here.</span>
               </div>
             {:else}
-              <div class="flex flex-col gap-2.5 py-1">
+              <div class="flex flex-col gap-tight py-1">
                 {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
                   <div
                     class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20"

@@ -744,7 +744,7 @@
                             <img src={candidate.url} alt="Candidate {letter}" class="h-full w-full object-cover" />
                             {#if image_picker.selected_index === i}
                               <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
-                                <div class="rounded-full bg-emerald-400 p-3 text-white shadow-lg">
+                                <div class="rounded-full bg-emerald-400 p-standard text-white shadow-lg">
                                   <svg
                                     viewBox="0 0 24 24"
                                     class="h-6 w-6 fill-none stroke-current stroke-3 [stroke-linecap:round] [stroke-linejoin:round]"

@@ -153,7 +153,7 @@
     </div>
   </Accordion>
 
-  <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-3">
+  <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-standard">
     <div class="flex items-center justify-between">
       <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase"> Mutation Ledger </span>
       <Button

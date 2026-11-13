@@ -345,7 +345,7 @@
             overflow-y-auto
             border-none
             bg-transparent
-            p-3
+            p-standard
             text-left
             font-sans
             {font_size_class}
@@ -385,7 +385,7 @@
               box-border
               min-h-10
               w-full
-              p-3
+              p-standard
               text-left
               font-sans
               {font_size_class}
