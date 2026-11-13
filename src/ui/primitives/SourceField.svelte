@@ -200,7 +200,7 @@
 </script>
 
 {#snippet merged_header_actions()}
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-tight">
     <Button
       variant="invisible"
       size="small"
@@ -222,7 +222,7 @@
   </div>
 {/snippet}
 
-<div class="flex flex-col {has_footer ? 'gap-2' : ''}">
+<div class="flex flex-col {has_footer ? 'gap-tight' : ''}">
   <div
     role="group"
     aria-label={is_image_mode ? "Drop an image to set the portrait" : "Drop a file here"}
@@ -265,8 +265,8 @@
   </div>
 
   {#if has_footer}
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex min-w-0 items-center gap-2">
+    <div class="flex items-center justify-between gap-tight">
+      <div class="flex min-w-0 items-center gap-tight">
         {#if image_data}
           <img
             src={image_data}

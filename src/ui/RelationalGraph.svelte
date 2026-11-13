@@ -441,7 +441,7 @@
       {#if selected_dossier}
         <div
           data-testid="relational-dossier-card"
-          class="absolute inset-2 z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-4 shadow-2xl backdrop-blur-xl"
+          class="absolute inset-2 z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-standard shadow-2xl backdrop-blur-xl"
         >
           <!-- Dossier Header -->
           <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
@@ -503,7 +503,7 @@
               <!-- 4 Quadrants -->
               <div class="grid grid-cols-1 gap-2.5">
                 <!-- 1. Eternal -->
-                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-cyan-400 uppercase"> 🏛️ Eternal </span>
                   <div class="mt-1 space-y-1 text-[11px] text-slate-300">
                     {#if ent?.eternal?.physical}
@@ -518,7 +518,7 @@
                 </div>
 
                 <!-- 2. Present & Omniscient Observer Mode -->
-                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-amber-400 uppercase"> ⚡ Present </span>
                   <div class="mt-1 space-y-1.5 text-[11px] text-slate-300">
                     {#if ent?.present?.physical}
@@ -550,7 +550,7 @@
                 </div>
 
                 <!-- 3. Past -->
-                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-indigo-400 uppercase"> 📜 Past </span>
                   <div class="mt-1 space-y-1 text-[11px] text-slate-300">
                     {#if Array.isArray(ent?.past) && ent.past.length > 0}
@@ -572,7 +572,7 @@
                 </div>
 
                 <!-- 4. Future -->
-                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-2.5">
+                <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-emerald-400 uppercase"> 🚀 Future </span>
                   <div class="mt-1 text-[11px] text-slate-300">
                     <p>{ent?.future || "No standing agenda recorded."}</p>
@@ -590,12 +590,12 @@
                 </div>
 
                 <div
-                  class="rounded-xl border p-2.5 text-xs {is_hidden
+                  class="rounded-xl border p-0.5 text-xs {is_hidden
                     ? 'border-amber-800/60 bg-amber-950/30 text-amber-200'
                     : 'border-slate-800 bg-slate-900/40 text-slate-300'}"
                 >
                   {#if is_hidden}
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-tight">
                       <span class="text-sm text-amber-400">🔒</span>
                       <div>
                         <span class="font-semibold text-amber-300">Epistemic Lock Active</span>
@@ -605,7 +605,7 @@
                       </div>
                     </div>
                   {:else}
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-tight">
                       <span class="text-sm text-slate-400">🌐</span>
                       <div>
                         <span class="font-semibold text-slate-200">Public Dynamic</span>
@@ -619,7 +619,7 @@
           </div>
 
           <!-- Dossier Footer -->
-          <div class="flex items-center justify-end gap-2 border-t border-slate-800/80 pt-2.5">
+          <div class="flex items-center justify-end gap-tight border-t border-slate-800/80 pt-2.5">
             {#if selected_dossier.type === "entity"}
               <button
                 type="button"

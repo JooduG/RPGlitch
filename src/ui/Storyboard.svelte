@@ -6,17 +6,16 @@
    * three entity selection slots (AI Character, Fractal, User Persona),
    * orbital card-fan hand overlay, shuffle deal choreography, and begin-story flight.
    */
-  import { SvelteSet } from "svelte/reactivity";
-  import { compute_initials, pick_random } from "@utils";
-  import { active_entity_ids } from "@data";
-  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
-  import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
-  const stories = { active_entity_ids };
-  import { app } from "./interface.svelte.js";
+  import { active_entity_ids, simulation_log } from "@data";
   import { chrono_engine } from "@engine";
-  import { simulation_log } from "@data";
-  import { get_signature_color, motion, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@media";
+  import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, get_signature_color, motion } from "@media";
+  import { compute_initials, pick_random } from "@utils";
+  import { SvelteSet } from "svelte/reactivity";
+  import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
+  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
+  import { app } from "./interface.svelte.js";
   import { parse_message } from "./Storymode.svelte";
+  const stories = { active_entity_ids };
 
   // ---------------------------------------------------------------------------------------------
   // PURE GEOMETRY & CLAIM HELPERS
@@ -290,15 +289,12 @@
 </script>
 
 <script>
-  import { untrack } from "svelte";
-  import { Backdrop, Button, Shimmer, tooltip } from "@primitives";
-  import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@data";
-  const repository = { upsert: upsert_entity };
-  import { Audio, rect_of } from "@media";
+  import { birth_entity_core, create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card } from "@data";
   import { runtime, simulation_state } from "@engine";
-  import { birth_entity_core } from "@data";
+  import { Audio, rect_of } from "@media";
+  import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
   import { EntityCard } from "@ui";
-  import { Modal, SourceField, Toggle } from "@primitives";
+  import { untrack } from "svelte";
 
   // ============================================
   // TITLE HEADER STATE & CONSTANTS
@@ -737,6 +733,7 @@
     });
 
     try {
+      // eslint-disable-next-line no-undef
       const saved = await repository.upsert(type, plan);
       await app.load_entities();
       app.log(`Birthed new ${type} blueprint: ${saved.id}`, "db");
@@ -1275,16 +1272,16 @@
     bind:open={show_import_modal}
     variant="bare"
     z_index="1000"
-    class="relative max-h-[92vh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative max-h-[92vh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_import_modal = false;
       import_error_message = "";
     }}
   >
-    <div class="flex h-full flex-col gap-4 font-sans">
+    <div class="flex h-full flex-col gap-standard font-sans">
       <div class="flex items-center justify-between">
         <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">Import Entity</h5>
-        <div class="flex items-center gap-4 font-mono text-xs text-slate-300">
+        <div class="flex items-center gap-standard font-mono text-xs text-slate-300">
           <Toggle label="Character" bind:value={import_character} disabled={import_loading} />
           <Toggle label="Fractal" bind:value={import_fractal} disabled={import_loading} />
         </div>

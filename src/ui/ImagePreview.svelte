@@ -478,7 +478,7 @@
   variant="bare"
   z_index="500"
   on_close={close_image_preview}
-  class="flex max-h-[95vh] flex-col items-stretch justify-center gap-4 overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-[calc(var(--spacing-column-unit))]"
+  class="flex max-h-[95vh] flex-col items-stretch justify-center gap-standard overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-[calc(var(--spacing-column-unit))]"
 >
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -511,12 +511,12 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <div
-      class="gap-standard p-standard rounded-standard bg-glass-elevated pointer-events-auto flex h-fit max-h-[95vh] w-full shrink-0 flex-col self-center overflow-hidden [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-[calc(var(--spacing-column-unit)*3)]"
+      class="pointer-events-auto flex h-fit max-h-[95vh] w-full shrink-0 flex-col gap-standard self-center overflow-hidden rounded-standard bg-glass-elevated p-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-[calc(var(--spacing-column-unit)*3)]"
       onclick={(e) => e.stopPropagation()}
     >
-      <div class="gap-standard flex scrollbar-none flex-col overflow-y-auto [&::-webkit-scrollbar]:hidden">
+      <div class="flex scrollbar-none flex-col gap-standard overflow-y-auto [&::-webkit-scrollbar]:hidden">
         {#if preview_state.metadata.prompt}
-          <div class="flex flex-col gap-2 text-left">
+          <div class="flex flex-col gap-tight text-left">
             <TextField value={preview_state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
               {#snippet status()}
                 <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
@@ -542,7 +542,7 @@
         {/if}
 
         {#if preview_state.metadata.negative_prompt}
-          <div class="flex flex-col gap-2 text-left">
+          <div class="flex flex-col gap-tight text-left">
             <TextField
               value={preview_state.metadata.negative_prompt.trim()}
               is_edit={false}
@@ -573,7 +573,7 @@
           </div>
         {/if}
 
-        <div class="mt-auto grid shrink-0 grid-cols-2 gap-4">
+        <div class="mt-auto grid shrink-0 grid-cols-2 gap-standard">
           <!-- Row 1: Seed & Regenerate -->
           {#if preview_state.metadata.seed !== undefined && preview_state.metadata.seed !== null}
             <NumberField
@@ -654,7 +654,7 @@
             class="col-span-2 row-start-3 h-12! w-full!"
           >
             {#snippet trigger_content()}
-              <span class="flex w-full items-center justify-center gap-2 truncate text-[0.8125rem] font-semibold">
+              <span class="flex w-full items-center justify-center gap-tight truncate text-[0.8125rem] font-semibold">
                 <svg viewBox="0 0 24 24" class="size-4 shrink-0 fill-none stroke-current">
                   <path
                     d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
@@ -695,9 +695,9 @@
                   onclick={(e) => e.stopPropagation()}
                 >
                   {#if image_picker.error}
-                    <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
+                    <div class="flex flex-col items-center gap-standard" in:fade={{ duration: 200 }}>
                       <p class="text-lg text-red-400">{image_picker.error}</p>
-                      <div class="flex gap-4">
+                      <div class="flex gap-standard">
                         <Button
                           variant="bare"
                           class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
@@ -715,7 +715,7 @@
                     </div>
                   {:else if image_picker.candidates.length >= 2}
                     <!-- POLAROID CARD GRID -->
-                    <div class="flex max-w-full flex-wrap items-end justify-center gap-6 p-4 md:gap-8 lg:gap-10" in:fade={{ duration: 300 }}>
+                    <div class="flex max-w-full flex-wrap items-end justify-center gap-6 p-standard md:gap-8 lg:gap-10" in:fade={{ duration: 300 }}>
                       {#each image_picker.candidates as candidate, i (i)}
                         {@const letter = String.fromCharCode(65 + i)}
                         {@const { width: cW, height: cH } = resolve_candidate_resolution(candidate)}
@@ -770,11 +770,11 @@
                     </div>
 
                     {#if image_picker.selected_index === null}
-                      <div class="flex flex-wrap items-center justify-center gap-2" in:fade={{ duration: 300 }}>
+                      <div class="flex flex-wrap items-center justify-center gap-tight" in:fade={{ duration: 300 }}>
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
                         <Button
                           variant="bare"
-                          class="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
+                          class="flex items-center gap-tight rounded-lg bg-white/10 px-4 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
                           onclick={handle_picker_regenerate}
                         >
                           <svg
@@ -789,7 +789,7 @@
                       </div>
                     {/if}
                   {:else}
-                    <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
+                    <div class="flex flex-col items-center gap-standard" in:fade={{ duration: 200 }}>
                       <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No pictures available</p>
                       <Button
                         variant="bare"

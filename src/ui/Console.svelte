@@ -432,7 +432,7 @@
 {#snippet settings_gear(variant = "invisible")}
   <Button flank={true} {variant} aria-label="Settings" onclick={app.toggle_control_panel} actions={[roll, tooltip]} class="touch-target-coarse">
     <svg
-      class="size-icon-medium block {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
+      class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
       viewBox="0 0 24 24"
     >
       <path
@@ -483,7 +483,7 @@
     class="touch-target-coarse shrink-0"
     disabled={storyboard.is_shuffling || app.simulation.loading || app.control_panel_open}
   >
-    <svg class="size-icon-medium block" viewBox="0 0 24 24">
+    <svg class="block size-icon-medium" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"
@@ -499,7 +499,6 @@
   <textarea
     bind:this={textarea}
     class="
-      p-standard
       m-0
       box-border
       max-h-60
@@ -507,6 +506,7 @@
       resize-none
       border-none
       bg-transparent
+      p-standard
       font-sans
       text-base
       leading-normal
@@ -526,7 +526,7 @@
 
   {#if pending_count > 0}
     <span
-      class="flex shrink-0 items-center gap-2 text-[10px] font-bold tracking-widest text-amber-300 uppercase"
+      class="flex shrink-0 items-center gap-tight text-[10px] font-bold tracking-widest text-amber-300 uppercase"
       use:tooltip={pending_count > 1
         ? `${pending_count} messages queued; they send when the current turn finishes.`
         : "Message queued; it sends when the current turn finishes."}
@@ -545,7 +545,7 @@
       actions={[tooltip]}
       class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
     >
-      <svg class="size-icon-medium block" viewBox="0 0 24 24">
+      <svg class="block size-icon-medium" viewBox="0 0 24 24">
         <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
       </svg>
     </Button>
@@ -557,7 +557,7 @@
       actions={[tooltip]}
       class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!"
     >
-      <svg class="size-icon-medium block" viewBox="0 0 24 24">
+      <svg class="block size-icon-medium" viewBox="0 0 24 24">
         <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
       </svg>
     </Button>
@@ -570,7 +570,7 @@
       actions={[stab, tooltip]}
       class="touch-target-coarse"
     >
-      <svg class="size-icon-medium block" viewBox="0 0 24 24">
+      <svg class="block size-icon-medium" viewBox="0 0 24 24">
         <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
     </Button>
@@ -588,19 +588,19 @@
   >
     <div class="flex min-h-0 w-full flex-col overflow-hidden">
       <div
-        class="mx-auto flex min-h-0 w-full flex-col gap-4 pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
+        class="mx-auto flex min-h-0 w-full flex-col gap-standard pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
           ? 'opacity-100 delay-300 duration-200'
           : 'delay-0 duration-150'}"
       >
         <ScrollArea class="min-h-0 w-full">
-          <div class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
+          <div class="flex w-full flex-col gap-tight px-2" style="--signature-color: var(--color-frozen);">
             <!-- DECK A: AUDIO -->
-            <Accordion label="Audio" content_class="flex flex-col gap-4">
-              <div class="grid w-full grid-cols-2 gap-4">
+            <Accordion label="Audio" content_class="flex flex-col gap-standard">
+              <div class="grid w-full grid-cols-2 gap-standard">
                 <div class="flex min-w-0 items-center">
                   <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
                 </div>
-                <div class="flex min-w-0 flex-wrap items-center gap-2">
+                <div class="flex min-w-0 flex-wrap items-center gap-tight">
                   <Button
                     variant="bare"
                     onclick={toggle_mute}
@@ -652,7 +652,7 @@
 
             <!-- DECK B: STORYBOARD (Contextual) -->
             {#if app.view === "storyboard"}
-              <Accordion label="Storyboard" content_class="flex flex-col gap-4">
+              <Accordion label="Storyboard" content_class="flex flex-col gap-standard">
                 <div class="w-full">
                   <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
                 </div>
@@ -661,7 +661,7 @@
 
             <!-- DECK C: STORYMODE (Contextual) -->
             {#if app.view === "storymode"}
-              <Accordion label="Storymode" content_class="flex flex-row flex-wrap items-center gap-4">
+              <Accordion label="Storymode" content_class="flex flex-row flex-wrap items-center gap-standard">
                 <Button
                   label="Return to Storyboard"
                   variant="primary"
@@ -684,9 +684,9 @@
             {/if}
 
             <!-- DECK D: LIBRARY (Always available) -->
-            <Accordion label="Library" content_class="flex flex-col gap-4">
+            <Accordion label="Library" content_class="flex flex-col gap-standard">
               {#if story_cache.length > 0}
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-standard">
                   {#each story_cache as story (story.id)}
                     <div class="min-w-0" in:item_in>
                       <StoryCard
@@ -706,7 +706,7 @@
             </Accordion>
 
             <!-- DECK E: ADVANCED -->
-            <Accordion label="Advanced" content_class="flex w-full flex-wrap items-center justify-between gap-4">
+            <Accordion label="Advanced" content_class="flex w-full flex-wrap items-center justify-between gap-standard">
               <Dialog
                 type="confirm"
                 bind:open={is_confirming_reset}
@@ -721,7 +721,7 @@
               <Toggle label="GRID" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
               <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
                 <svg
-                  class="-translate-y-kinetic-shimmy-y size-3.5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                  class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
                   viewBox="0 0 24 24"
                 >
                   <path d="M3 6h18" />
@@ -775,7 +775,7 @@
       md:max-h-[calc(var(--spacing-row-unit)*9)]
 
       {app.control_panel_open
-      ? 'absolute bottom-0 w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
+      ? 'absolute bottom-0 w-full rounded-none p-standard md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
       : 'relative h-auto w-full rounded-none px-4 py-2 md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
       {!app.control_panel_open && has_text && app.view === 'storymode'
       ? `
@@ -801,17 +801,17 @@
     {/if}
 
     <!-- BOTTOM CONSOLE / INPUT AREA -->
-    <div class="flex w-full items-center justify-between gap-2 transition-colors duration-300 {app.control_panel_open ? 'pt-2' : ''}">
+    <div class="flex w-full items-center justify-between gap-tight transition-colors duration-300 {app.control_panel_open ? 'pt-2' : ''}">
       {#if app.view === "storyboard"}
         {@render storyboard_bar()}
       {:else if story_locked}
-        <div class="flex w-full flex-col items-center gap-2">
+        <div class="flex w-full flex-col items-center gap-tight">
           {#if app.conclusion_status === "COLLAPSED"}
             <span class="text-[10px] font-bold tracking-widest text-rose-400/90 uppercase">💀 Story Collapsed</span>
           {:else}
             <span class="text-[10px] font-bold tracking-widest text-amber-300/90 uppercase">✨ Story Concluded</span>
           {/if}
-          <div class="flex w-full items-center justify-center gap-2">
+          <div class="flex w-full items-center justify-center gap-tight">
             <Button
               label="Return to Storyboard"
               variant="primary"
@@ -862,19 +862,19 @@
                 <div
                   {contentProps}
                   class="
-                    gap-standard
-                    p-standard
-                    z-max
-                    rounded-standard
-                    bg-glass-elevated
                     pointer-events-auto
                     relative
+                    z-max
                     flex
                     w-(--dialog-width)
                     cursor-default
                     flex-col
                     justify-between
+                    gap-standard
                     overflow-hidden
+                    rounded-standard
+                    bg-glass-elevated
+                    p-standard
                     duration-300
 
                     before:pointer-events-none
@@ -902,13 +902,13 @@
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
-                    <p class="text-frisk m-0 text-left text-base leading-relaxed whitespace-pre-wrap">
+                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
                       Would you like to author a final epilogue before concluding, or conclude immediately?
                     </p>
                   </AlertDialog.Description>
 
                   <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
-                  <footer style="display: flex;" class="flex w-full flex-col justify-end gap-2 outline-none sm:flex-row">
+                  <footer style="display: flex;" class="flex w-full flex-col justify-end gap-tight outline-none sm:flex-row">
                     <Button
                       variant="primary"
                       onclick={handle_epilogue_and_conclude}

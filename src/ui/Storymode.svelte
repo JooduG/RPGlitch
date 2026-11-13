@@ -770,7 +770,7 @@
               relative
               flex
               w-full
-              p-4
+              p-standard
               transition-all
               duration-200
               {entry.role === 'user' ? 'justify-end pr-column-unit' : 'justify-start pl-column-unit'}
@@ -816,7 +816,7 @@
 
           {#if simulation_state.busy && !app.streaming.active}
             <div
-              class="relative flex w-full items-start justify-start p-4 pl-[calc(var(--spacing-column-unit)*2)] transition-all duration-200"
+              class="relative flex w-full items-start justify-start p-standard pl-[calc(var(--spacing-column-unit)*2)] transition-all duration-200"
               in:item_in={{ duration: 200 }}
             >
               <!-- Left-Gutter Portrait / Lens Anchor Slot -->
@@ -928,7 +928,7 @@
 
           {#if visible_feed.length === 0 && !simulation_state.busy}
             <div
-              class="flex h-full flex-col items-center justify-center gap-4 p-4 text-center text-slate-600 [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]"
+              class="flex h-full flex-col items-center justify-center gap-standard p-standard text-center text-slate-600 [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]"
             >
               <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
               <Button variant="primary" onclick={() => chrono_engine.retry()} disabled={simulation_state.busy} label="Retry Connection" />

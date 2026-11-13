@@ -5,7 +5,7 @@ description: Visual design system and kinetic UI engine. Use when authoring or r
 
 # Design (Styling, UI Structure & Kinetics)
 
-> **Persona: Sovereign Designer**  
+> **Persona: Sovereign Designer**
 > _"I weave the visual fabric and enforce the structural physics. I ensure every color, transition, and layout is anchored in the Token Registry."_
 
 ## 1.0 IDENTITY & PERSONA
@@ -69,7 +69,7 @@ Before writing any UI code, you MUST fetch the current state of the bridge:
 - For small warning, deletion, or action confirmation modals (e.g., "delete all?"):
   - **Header Title**: Left-aligned (`text-left`).
   - **Body Description**: Left-aligned (`text-left`).
-  - **Footer Actions/Buttons**: Right-aligned (`flex justify-end gap-2`).
+  - **Footer Actions/Buttons**: Right-aligned (`flex justify-end gap-tight`).
 
 ### 4. Interactive Feedback & Busy States
 

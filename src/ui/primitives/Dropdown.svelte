@@ -55,7 +55,7 @@
       cursor-pointer
       items-center
       justify-between
-      gap-2
+      gap-tight
       rounded-xl
       border
       border-solid
@@ -166,7 +166,7 @@
                         cursor-pointer
                         items-center
                         justify-between
-                        gap-4
+                        gap-standard
                         bg-(--signature-color,#555d66)
                         px-3
                         py-2

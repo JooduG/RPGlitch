@@ -55,20 +55,20 @@
 
 <section
   class="
-    gap-standard
-    p-standard
-    rounded-standard
-    bg-glass-elevated
     flex
     w-full
     flex-col
+    gap-standard
+    rounded-standard
+    bg-glass-elevated
+    p-standard
     [backdrop-filter:var(--blur-mist)]
   "
 >
   <!-- PROMPT TOKEN CLIFF HUD BADGE -->
-  <div class="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-black/40 p-2.5">
+  <div class="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-black/40 p-0.5">
     <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-tight">
         <span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Token Budget</span>
         <span
           class="rounded-full border px-2 py-0.5 font-mono text-[10px] font-semibold {status_color}"
@@ -138,7 +138,7 @@
     class="
       grid
       grid-cols-2
-      gap-4
+      gap-standard
     "
   >
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
@@ -148,12 +148,12 @@
 
   <!-- RAW EXPLORER & HISTORY INSPECTOR -->
   <Accordion label="View JSON Data">
-    <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-4 text-sm">
+    <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-standard text-sm">
       <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(profile_state.char, null, 2)}</pre>
     </div>
   </Accordion>
 
-  <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/20 p-3">
+  <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-3">
     <div class="flex items-center justify-between">
       <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase"> Mutation Ledger </span>
       <Button
@@ -174,14 +174,14 @@
     class="
       flex
       flex-col
-      gap-2
+      gap-tight
     "
   >
     <div
       class="
         flex
         justify-between
-        gap-4
+        gap-standard
         font-mono
         text-[10px]
         tracking-widest
@@ -200,7 +200,7 @@
       class="
         flex
         justify-between
-        gap-4
+        gap-standard
         font-mono
         text-[10px]
         tracking-widest

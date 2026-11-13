@@ -118,15 +118,15 @@
                           max-h-screen
                           min-h-48
                           ${variant === "lightbox" ? "w-[clamp(20rem,95vw,80rem)] max-w-[95vw]" : "w-[clamp(16rem,90vw,28rem)]"}
-                          bg-glass-elevated
                           cursor-default
                           scrollbar-none
                           flex-col
                           justify-between
-                          gap-4
+                          gap-standard
                           overflow-x-hidden
                           overflow-y-auto
                           rounded-xl
+                          bg-glass-elevated
                           transition-[filter]
                           duration-300
                           before:pointer-events-none

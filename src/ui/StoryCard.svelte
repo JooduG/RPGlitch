@@ -5,8 +5,8 @@
    * A high-fidelity atmospheric card representing a story archive.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { Button } from "@primitives";
   import { get_signature_color } from "@media";
+  import { Button } from "@primitives";
   import { format_datetime } from "@utils";
   import { tick } from "svelte";
 
@@ -76,7 +76,7 @@
     rounded-md
     border
     bg-black/15
-    p-4
+    p-standard
     text-left
     backdrop-blur-sm
     transition-all
@@ -111,7 +111,7 @@
       z-10
       flex
       flex-col
-      gap-2
+      gap-tight
       pl-2
     "
   >
@@ -187,7 +187,7 @@
         z-20
         flex
         items-center
-        gap-2
+        gap-tight
       "
     >
       {#if onrename && !is_editing_title}

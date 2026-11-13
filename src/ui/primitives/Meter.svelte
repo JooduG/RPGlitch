@@ -5,9 +5,9 @@
    * Encapsulates the dynamic value square, hover controls, and the underlying progress line.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { Button, tooltip, Label } from "@primitives";
-  import { Meter } from "bits-ui";
+  import { Button, Label, tooltip } from "@primitives";
   import { clamp } from "@utils";
+  import { Meter } from "bits-ui";
 
   /**
    * @typedef {Object} Props
@@ -78,7 +78,7 @@
     border
     border-transparent
     bg-neutral-900/60
-    p-4
+    p-standard
     transition-all
     duration-300
     ease-in-out
@@ -123,7 +123,7 @@
       w-full
       items-center
       justify-center
-      gap-2
+      gap-tight
     "
   >
     {#if is_editing}

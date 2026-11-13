@@ -206,7 +206,7 @@
   class="
   flex w-full
   flex-col
-  gap-2
+  gap-tight
   rounded-standard
   bg-glass-elevated
   p-standard
@@ -214,7 +214,7 @@
 "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-tight">
     <Label>Signature Color</Label>
 
     <div
@@ -272,11 +272,11 @@
     </div>
   </div>
 
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-tight">
     <Label for="visual-style-select">Profile Picture Generation</Label>
 
-    <div class="grid w-full grid-cols-[1fr_6rem] gap-2">
-      <div class="flex w-full min-w-0 flex-col gap-2">
+    <div class="grid w-full grid-cols-[1fr_6rem] gap-tight">
+      <div class="flex w-full min-w-0 flex-col gap-tight">
         <Dropdown
           id="visual-style-select"
           bind:value={profile_state.char.visual_style}
@@ -290,7 +290,7 @@
           onchange={() => profile_state.mark_mutated()}
         />
       </div>
-      <div class="flex h-full w-full flex-col justify-end gap-2">
+      <div class="flex h-full w-full flex-col justify-end gap-tight">
         <NumberField
           id="seed-input"
           bind:value={profile_state.char.modifiers.profile_picture_seed}
@@ -319,17 +319,17 @@
     on_source={handle_source_field}
   >
     {#snippet status()}
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-tight">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
         {#if app.visual.error || app.visual.is_offline || (app.visual.is_loading && app.visual.attempts > 0)}
           <div
             class="
               flex
               items-center
-              gap-2
+              gap-tight
               rounded-full
               border
-              p-2
+              p-tight
 
               {app.visual.error || app.visual.is_offline
               ? `
@@ -349,7 +349,7 @@
               box-border
               flex
               items-center
-              gap-2
+              gap-tight
             "
             >
               {#if app.visual.is_offline}
@@ -398,7 +398,7 @@
           class="
           flex
           items-center
-          gap-2
+          gap-tight
         "
         >
           <Button
@@ -479,9 +479,9 @@
     {/snippet}
   </TextField>
 
-  <div class="flex items-center justify-between gap-2">
+  <div class="flex items-center justify-between gap-tight">
     <!-- Left: Toggles -->
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-tight">
       <Toggle
         label="Flip Image"
         bind:value={profile_state.char.modifiers.flipped}

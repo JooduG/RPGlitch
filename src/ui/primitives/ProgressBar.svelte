@@ -6,10 +6,10 @@
    * Wraps bits-ui Progress.Root with Nordic design tokens.
    * For fluctuating range measurements (dynamics, volume), use Meter (bits-ui Meter).
    */
-  import { Progress, useId } from "bits-ui";
-  import { Tween } from "svelte/motion";
-  import { quartOut } from "svelte/easing";
   import { motion } from "@media";
+  import { Progress, useId } from "bits-ui";
+  import { quartOut } from "svelte/easing";
+  import { Tween } from "svelte/motion";
   import Label from "./Label.svelte";
 
   /**
@@ -36,7 +36,7 @@
   });
 </script>
 
-<div class="flex w-full flex-col gap-2 {className}" {style}>
+<div class="flex w-full flex-col gap-tight {className}" {style}>
   {#if label}
     <Label id={label_id} class="w-full justify-between font-mono">
       <span>{label}</span>

@@ -24,7 +24,7 @@
 </script>
 
 <Label.Root
-  class="flex w-full items-center gap-4 {disabled
+  class="flex w-full items-center gap-standard {disabled
     ? 'cursor-default'
     : 'cursor-pointer'} text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase {className}"
   onclick={handleClick}

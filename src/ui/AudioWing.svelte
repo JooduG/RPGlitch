@@ -77,19 +77,19 @@
 
 <section
   class="
-    gap-standard
-    p-standard
-    rounded-standard
-    bg-glass-elevated
     flex
     w-full
     flex-col
+    gap-standard
+    rounded-standard
+    bg-glass-elevated
+    p-standard
     [backdrop-filter:var(--blur-mist)]
   "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
   <!-- DROPDOWN + PREVIEW + SLIDER (3-col, single row) -->
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-tight">
     <Label for="voice-select">Voice</Label>
 
     <div
@@ -98,7 +98,7 @@
       w-full
       grid-cols-[minmax(0,1fr)_auto]
       items-stretch
-      gap-2
+      gap-tight
     "
     >
       <Dropdown

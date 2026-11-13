@@ -483,17 +483,17 @@
   );
 
   const info_container_class = $derived(
-    "flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-4 scrollbar-thin scrollbar-track-transparent [&::-webkit-scrollbar-track]:mb-(--footer-h)",
+    "flex min-h-0 min-w-0 flex-1 flex-col gap-standard overflow-x-hidden overflow-y-auto p-standard scrollbar-thin scrollbar-track-transparent [&::-webkit-scrollbar-track]:mb-(--footer-h)",
   );
 
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "absolute right-0 bottom-0 left-0 z-30 flex gap-4 px-4 p-4 outline-none overflow-hidden " +
+    "absolute right-0 bottom-0 left-0 z-30 flex gap-standard px-4 p-standard outline-none overflow-hidden " +
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
-  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-4" : "grid items-center gap-x-2 gap-y-4"));
+  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-standard" : "grid items-center gap-x-2 gap-y-4"));
 
   const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
@@ -514,7 +514,7 @@
   };
 
   const get_fields_container_class = (fieldsLength) => {
-    const base = "grid min-w-0 items-stretch gap-4 my-auto ";
+    const base = "grid min-w-0 items-stretch gap-standard my-auto ";
     return base + (fieldsLength === 2 ? "grid-cols-2" : "grid-cols-1");
   };
 
@@ -729,13 +729,13 @@
     variant="bare"
     bind:open={show_export_modal}
     z_index="1000"
-    class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_export_modal = false;
     }}
   >
-    <div class="flex flex-col gap-4 font-sans">
-      <div class="flex flex-col gap-4 text-left">
+    <div class="flex flex-col gap-standard font-sans">
+      <div class="flex flex-col gap-standard text-left">
         <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">
           Export {entity_type === "fractal" ? "Fractal" : "Character"}
         </h5>
@@ -744,7 +744,7 @@
           seeds, styling - is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
         </p>
       </div>
-      <div class="flex gap-4">
+      <div class="flex gap-standard">
         <Button
           variant="secondary"
           class="flex-1 justify-center"
@@ -816,7 +816,7 @@
           {#if entity_type === "fractal" && !app.viewport.mobile}
             {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
             {@const is_default_visual = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
-            <div class="absolute right-8 -bottom-16 z-30 flex flex-col items-end gap-2">
+            <div class="absolute right-8 -bottom-16 z-30 flex flex-col items-end gap-tight">
               {#if profile_state.is_editing || !is_default_style}
                 <Dropdown
                   bind:value={profile_state.char.narrative_style}
@@ -877,12 +877,14 @@
           >
             <!-- Inlined ProfileHeader snippet -->
             <div
-              class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-2 {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
+              class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-tight {entity_type === 'fractal' && !app.viewport.mobile
+                ? 'pr-44 pl-10'
+                : ''}"
               data-testid="profile-header"
               role="banner"
             >
               {#if profile_state.is_editing}
-                <div class="mb-1 flex items-center gap-2 font-mono text-xs opacity-80" style="color: {signature_color};">
+                <div class="mb-1 flex items-center gap-tight font-mono text-xs opacity-80" style="color: {signature_color};">
                   <span aria-hidden="true">@</span>
                   <input
                     type="text"
@@ -951,7 +953,7 @@
                       w-full
                       border-none
                       bg-transparent
-                      p-4
+                      p-standard
                       text-left
                       font-heading
                       text-4xl
@@ -1015,7 +1017,7 @@
                     [scrollbar-color:color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))_transparent]
                     border-none
                     bg-transparent
-                    p-4
+                    p-standard
                     text-left
                     font-sans
                     text-sm
@@ -1063,7 +1065,7 @@
               {@const active_style = get_narrative_style(profile_state.char.narrative_style)}
               {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
               {#if profile_state.is_editing || !is_default_style}
-                <div class="mt-2 flex w-full flex-col gap-2">
+                <div class="mt-2 flex w-full flex-col gap-tight">
                   <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
                   {#if profile_state.is_editing}
                     <div class="relative flex w-full max-w-sm rounded-md">
@@ -1088,7 +1090,7 @@
               {@const active_vstyle = get_visual_style(profile_state.char.visual_style)}
               {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
               {#if profile_state.is_editing || !is_default_vstyle}
-                <div class="mt-2 flex w-full flex-col gap-2">
+                <div class="mt-2 flex w-full flex-col gap-tight">
                   <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
                   {#if profile_state.is_editing}
                     <div class="relative flex w-full max-w-sm rounded-md">
@@ -1145,7 +1147,7 @@
             </div>
 
             <div
-              class={"relative z-10 flex max-w-full flex-row items-center justify-end gap-2" +
+              class={"relative z-10 flex max-w-full flex-row items-center justify-end gap-tight" +
                 // Footer frost is full-bleed (pulled under the portrait by -2 column units),
                 // but the buttons must stay in the info column: the sticky avatar (z-20)
                 // would otherwise paint over + eat clicks on anything under it.
@@ -1282,14 +1284,14 @@
       <!-- Wing Container stays in DOM to animate exit -->
       <aside
         data-wings-container
-        class={"relative isolate z-0 flex scrollbar-none gap-4 [&::-webkit-scrollbar]:hidden " +
+        class={"relative isolate z-0 flex scrollbar-none gap-standard [&::-webkit-scrollbar]:hidden " +
           (app.viewport.mobile
             ? "col-span-full w-full items-start overflow-x-visible"
             : "col-[9/12] row-start-1 flex-col items-center overflow-y-auto")}
         bind:this={wings_ref}
         style:pointer-events={has_wings ? "auto" : "none"}
       >
-        <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4" : "w-full flex-col")}>
+        <div class={"flex gap-standard " + (app.viewport.mobile ? "w-fit flex-row px-4" : "w-full flex-col")}>
           {#if profile_state.is_editing}
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
@@ -1300,7 +1302,7 @@
             </div>
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
-              class={"flex flex-col gap-4 " + (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-4" : "w-full")}
+              class={"flex flex-col gap-standard " + (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-4" : "w-full")}
               transition:fade={{ duration: 250 }}
             >
               <AudioWing {profile_state} />
@@ -1341,7 +1343,7 @@
         show_field_history_modal = false;
       }}
     >
-      <div class="flex h-full flex-col gap-4 overflow-hidden font-sans">
+      <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-white/10 pb-4">
           <div class="flex flex-col">
@@ -1351,7 +1353,7 @@
             </span>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-tight">
             <div class="flex rounded-lg bg-black/40 p-0.5">
               <button
                 type="button"
@@ -1398,10 +1400,10 @@
               <div class="flex flex-col gap-2.5 py-1">
                 {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
                   <div
-                    class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-4 text-xs transition-colors hover:border-cyan-500/20"
+                    class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20"
                   >
                     <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
-                      <div class="flex items-center gap-2">
+                      <div class="flex items-center gap-tight">
                         <span class="rounded bg-cyan-950/60 px-1.5 py-0.5 font-bold text-cyan-400">
                           R{record.round}:S{record.seq}
                         </span>
@@ -1413,7 +1415,7 @@
                       <span>{format_datetime(record.timestamp)}</span>
                     </div>
 
-                    <div class="flex items-start gap-2 pt-0.5">
+                    <div class="flex items-start gap-tight pt-0.5">
                       {#if record.key}
                         <span class="shrink-0 font-mono text-xs font-semibold text-cyan-300">
                           [{record.key}]
@@ -1453,11 +1455,11 @@
             {/if}
           {:else}
             <!-- Reconstructed Tab -->
-            <div class="flex flex-col gap-4 py-1">
+            <div class="flex flex-col gap-standard py-1">
               <div class="flex flex-col gap-1">
                 <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
                 <div
-                  class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
+                  class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
                 >
                   {reconstructed_brackets || "(empty state)"}
                 </div>
@@ -1466,7 +1468,7 @@
               {#if reconstructed_prose}
                 <div class="flex flex-col gap-1">
                   <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Raw Prose </span>
-                  <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-4 font-mono text-xs text-slate-300">
+                  <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs text-slate-300">
                     {reconstructed_prose}
                   </div>
                 </div>
@@ -1489,7 +1491,7 @@
         show_timeline_modal = false;
       }}
     >
-      <div class="flex h-full flex-col gap-4 overflow-hidden font-sans">
+      <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-white/10 pb-4">
           <div class="flex flex-col">
@@ -1508,7 +1510,7 @@
         </div>
 
         <!-- Scrubber Bar -->
-        <div class="flex flex-col gap-2 rounded-xl border border-white/10 bg-black/40 p-4">
+        <div class="flex flex-col gap-tight rounded-xl border border-white/10 bg-black/40 p-standard">
           <div class="flex items-center justify-between">
             <span class="font-mono text-xs font-semibold text-slate-300"> SELECT TIMELINE POINT </span>
             <span class="rounded bg-cyan-950/70 px-2 py-0.5 font-mono text-xs font-bold text-cyan-400">
@@ -1534,42 +1536,42 @@
         </div>
 
         <!-- Snapshot Replay Body -->
-        <div class="flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
+        <div class="flex flex-1 flex-col gap-standard overflow-y-auto pr-1">
           {#if is_timeline_loading}
             <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">
               Reconstructing Four-Quadrant Matrix...
             </div>
           {:else if reconstructed_timeline_state}
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="grid grid-cols-1 gap-standard md:grid-cols-2">
               <!-- Present Quadrant -->
-              <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-4">
+              <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
                 <span class="font-mono text-xs font-bold text-cyan-300">PRESENT QUADRANT</span>
                 <div class="flex flex-col gap-1.5 font-mono text-xs">
                   <span class="text-[10px] text-slate-400 uppercase">Physical:</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 text-slate-300">
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight text-slate-300">
                     {reconstructed_timeline_state.present.physical || "<empty>"}
                   </div>
                   <span class="text-[10px] text-slate-400 uppercase">Non-Physical:</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 text-slate-300">
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight text-slate-300">
                     {reconstructed_timeline_state.present.non_physical || "<empty>"}
                   </div>
                 </div>
               </div>
 
               <!-- Past & Future Quadrants -->
-              <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-standard">
                 <!-- Past Quadrant -->
-                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-4">
+                <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
                   <span class="font-mono text-xs font-bold text-cyan-300">PAST</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-slate-300">
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight font-mono text-slate-300">
                     {reconstructed_timeline_state.past || "<empty>"}
                   </div>
                 </div>
 
                 <!-- Future / Standing Trajectory -->
-                <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/25 p-4">
+                <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
                   <span class="font-mono text-xs font-bold text-cyan-300">FUTURE (STANDING AGENDA)</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-2 font-mono text-slate-300">
+                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight font-mono text-slate-300">
                     {reconstructed_timeline_state.future || "<empty>"}
                   </div>
                 </div>
@@ -1578,14 +1580,14 @@
 
             <!-- Recorded mutations in this specific round -->
             {#if timeline_round_events.length > 0}
-              <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/20 p-4">
+              <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/20 p-standard">
                 <span class="font-mono text-[11px] font-semibold text-slate-400">
                   Round {selected_timeline_round} Mutations ({timeline_round_events.length})
                 </span>
                 <div class="flex max-h-32 flex-col gap-1 overflow-y-auto font-mono text-[11px] text-slate-300">
                   {#each timeline_round_events as ev (ev.id || `${ev.field}-${ev.round}-${ev.seq || 0}-${ev.timestamp}`)}
-                    <div class="flex items-center justify-between gap-2 border-b border-white/5 py-0.5">
-                      <div class="flex items-center gap-2 truncate">
+                    <div class="flex items-center justify-between gap-tight border-b border-white/5 py-0.5">
+                      <div class="flex items-center gap-tight truncate">
                         <span class="text-cyan-400">[{ev.field}]</span>
                         {#if ev.key}
                           <span class="text-slate-200">[{ev.key}] &rarr; {ev.new_value ?? "cleared"}</span>
@@ -1606,7 +1608,7 @@
         <div class="flex items-center justify-between border-t border-white/10 pt-4">
           <div class="font-mono text-[11px] text-slate-500">Reverting alters current profile. Cloning branches a separate entity into census.</div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-tight">
             <Button
               variant="secondary"
               size="medium"
@@ -1727,7 +1729,7 @@
             }
             return null;
           })()}
-          <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
+          <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-tight">
             {#if field.column_label}
               <Label class="justify-center drop-shadow-md" style="color: var(--signature-color);" disabled={!profile_state.is_editing} for={field_id}
                 >{field.column_label}</Label
@@ -1758,7 +1760,7 @@
                         aria-label={field.description}>{field.label}</span
                       >
                     </div>
-                    <div class="ml-auto flex h-full shrink-0 items-center gap-2">
+                    <div class="ml-auto flex h-full shrink-0 items-center gap-tight">
                       {#if field.description}
                         <span class="flex cursor-help items-center text-white/60 hover:text-white" use:tooltip aria-label={field.description}>
                           <svg
@@ -1801,7 +1803,7 @@
                     <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
                   {:else}
                     {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap gap-tight">
                       {#each sorted_entries as [k, v] (k)}
                         {@const raw_val = String(v ?? "")}
                         {@const is_hidden = /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val)}
@@ -1937,7 +1939,7 @@
   {#each nodes as part, i (i)}
     {#if part.is_var}
       <span
-        class="mx-0.5 inline-flex flex-wrap items-center gap-2 rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
+        class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
       >
         <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
         {#each part.choices as choiceNodes, idx (idx)}

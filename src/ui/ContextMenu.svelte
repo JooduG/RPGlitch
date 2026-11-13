@@ -118,7 +118,7 @@
         <Button
           variant="bare"
           class="
-            flex h-9 w-full cursor-default items-center gap-2 px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
+            flex h-9 w-full cursor-default items-center gap-tight px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
             {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
             {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
           "

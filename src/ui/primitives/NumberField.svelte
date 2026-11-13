@@ -52,7 +52,7 @@
     [appearance:textfield]
     rounded-xl
     bg-[color-mix(in_srgb,var(--color-dev-accent)_8%,rgb(23_23_23/0.6))]
-    p-2
+    p-tight
     text-center
     font-sans
     text-(length:--font-size-base)

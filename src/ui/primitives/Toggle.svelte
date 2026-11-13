@@ -45,7 +45,7 @@
     inline-flex
     cursor-pointer
     items-center
-    gap-4
+    gap-standard
     transition-opacity
     duration-300
     ease-in-out

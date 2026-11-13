@@ -98,7 +98,7 @@
   transition:backdrop_transition
   use:use_actions={actions}
 >
-  <div class="flex min-h-full w-full items-center justify-center {is_profile ? 'p-0' : 'p-4 sm:p-8'}">
+  <div class="flex min-h-full w-full items-center justify-center {is_profile ? 'p-0' : 'p-standard sm:p-8'}">
     <div class="contents {is_pass_through ? '*:pointer-events-auto' : ''}">
       {@render children?.()}
     </div>

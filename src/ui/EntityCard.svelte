@@ -238,10 +238,6 @@
   data-card-root
   class="
     group group/card
-    hover:scale-lift
-    hover:brightness-glow
-    active:scale-sink
-    active:brightness-dim
     @container
     relative
     cursor-pointer
@@ -257,17 +253,21 @@
     outline-none
     select-none
     after:pointer-events-none
-
     after:absolute
     after:inset-0
     after:z-10
     after:rounded-[inherit]
+
     after:border
     after:border-transparent
     after:shadow-[inset_0_0_0_1px_transparent]
     after:transition-all
     after:duration-300
     after:ease-in-out
+    hover:scale-lift
+    hover:brightness-glow
+    active:scale-sink
+    active:brightness-dim
     md:rounded-2xl
 
     {disabled
@@ -388,7 +388,7 @@
         flex-col
         items-center
         justify-center
-        gap-4
+        gap-standard
         text-slate-50
         opacity-15
 
@@ -454,7 +454,7 @@
       ? `
         h-auto
         min-h-[40%]
-        p-2
+        p-tight
       `
       : `
         h-auto
@@ -467,11 +467,11 @@
     <span
       data-card-text
       class="
-        font-heading
         [display:-webkit-box]
         w-full
         overflow-hidden
         text-center
+        font-heading
         font-bold
         wrap-break-word
         text-(--signature-color,var(--color-slate-50))
@@ -548,9 +548,9 @@
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
     <div
       data-card-badge
-      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-2"
+      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-tight"
     >
-      <StyleBadge {entity} class="flex flex-col gap-2" />
+      <StyleBadge {entity} class="flex flex-col gap-tight" />
     </div>
   {/if}
 </div>

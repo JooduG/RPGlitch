@@ -38,7 +38,7 @@
   /** @type {{ entity?: any, class?: string, layout?: "storymode" | "prologue" | "profile" | "default", which?: "both" | "narrative" | "visual", tooltip?: string }} */
   let {
     entity = undefined,
-    class: className = "flex w-full justify-center gap-2",
+    class: className = "flex w-full justify-center gap-tight",
     layout = "default",
     which = "both",
     tooltip: tooltip_text = undefined,
@@ -114,11 +114,11 @@
   >
     <span
       class="
-        font-heading
         [display:-webkit-box]
         w-full
         overflow-hidden
         text-center
+        font-heading
         text-[clamp(0.45rem,4.5cqi,0.65rem)]
         leading-tight
         font-bold
@@ -167,7 +167,7 @@
         "
       >
         <div
-          class="font-heading absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] {initials_class} font-bold text-white uppercase select-none"
+          class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading {initials_class} font-bold text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
           {#if dportrait}
@@ -232,7 +232,7 @@
         "
       >
         <div
-          class="font-heading absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
+          class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
           {#if vportrait}

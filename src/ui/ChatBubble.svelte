@@ -661,7 +661,7 @@
         ease-out
       "
     >
-      <div class="flex items-center gap-2 overflow-hidden">
+      <div class="flex items-center gap-tight overflow-hidden">
         <span class="text-xs font-bold whitespace-nowrap text-white">
           {entity_display_name}
         </span>
@@ -671,7 +671,7 @@
       </div>
 
       <!-- HEADER ACTIONS -->
-      <div class="flex items-center gap-2 opacity-100 transition-opacity duration-200">
+      <div class="flex items-center gap-tight opacity-100 transition-opacity duration-200">
         {#if is_editing}
           <Button
             variant="invisible"
@@ -840,7 +840,7 @@
       <Accordion label="Thoughts">
         {#if show_director_split}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-4 text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
           >
             <div class="mb-2 border-l-2 border-cyan-400 bg-cyan-400/10 px-2 py-1 text-cyan-200">
               <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
@@ -851,7 +851,7 @@
           </div>
         {:else}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-4 text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
           >
             <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
           </div>
@@ -908,7 +908,7 @@
 {/snippet}
 
 {#snippet entity_trio()}
-  <div class="my-2 flex h-character-card-height w-full items-stretch gap-2 md:gap-4" data-msg-trio>
+  <div class="my-2 flex h-character-card-height w-full items-stretch gap-tight md:gap-standard" data-msg-trio>
     {#if runtime.active_ai || app.selected_ai}
       {@const a = runtime.active_ai || app.selected_ai}
       <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
@@ -925,7 +925,7 @@
     {#if runtime.active_fractal || app.selected_fractal}
       {@const f = runtime.active_fractal || app.selected_fractal}
       <div class="min-w-0" style="flex-grow: 2" data-msg-card="fractal">
-        <div class="flex h-full w-full flex-col gap-2 md:gap-4">
+        <div class="flex h-full w-full flex-col gap-tight md:gap-standard">
           <div class="min-h-0 flex-1">
             <EntityCard
               entity={f}
@@ -936,8 +936,8 @@
               onViewProfile={() => app.open_profile(f)}
             />
           </div>
-          <div class="flex w-full shrink-0 justify-center gap-2 md:gap-4" data-msg-style-badge>
-            <StyleBadge entity={f} layout="prologue" class="flex w-full justify-center gap-2 md:gap-4" />
+          <div class="flex w-full shrink-0 justify-center gap-tight md:gap-standard" data-msg-style-badge>
+            <StyleBadge entity={f} layout="prologue" class="flex w-full justify-center gap-tight md:gap-standard" />
           </div>
         </div>
       </div>
@@ -992,13 +992,13 @@
         {@const preview_options = build_preview_options(attachment, id, attach_idx, signature_color)}
         {@const is_failed = typeof attachment === "object" && attachment !== null && Boolean(attachment?.metadata?.failed)}
         {#if image_picker.hasError(regenerate_key)}
-          <div class="flex flex-col items-center justify-center gap-2 rounded-xl bg-red-900/20 p-4" style={container_style}>
+          <div class="flex flex-col items-center justify-center gap-tight rounded-xl bg-red-900/20 p-standard" style={container_style}>
             <p class="text-center text-sm text-red-400">{image_picker.error}</p>
           </div>
         {:else if image_picker.isReady(regenerate_key)}
           <Button
             variant="bare"
-            class="group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
+            class="group relative flex cursor-pointer flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
             style={container_style}
             onclick={() => open_picker()}
             aria-label="Select image from candidates"
@@ -1018,7 +1018,7 @@
                 style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;"
               ></div>
             </div>
-            <div class="flex items-center gap-2 transition-transform duration-200 group-hover:scale-105">
+            <div class="flex items-center gap-tight transition-transform duration-200 group-hover:scale-105">
               <span
                 class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-200 group-hover:text-white"
               >
@@ -1034,14 +1034,14 @@
           </Button>
         {:else if image_picker.isRegenerating(regenerate_key)}
           <div
-            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+            class="relative flex flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
             style={container_style}
           >
             <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
           </div>
         {:else if is_failed}
           <div
-            class="relative flex flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-4"
+            class="relative flex flex-col items-center justify-center gap-tight overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-standard"
             style={container_style}
           >
             <svg
@@ -1055,7 +1055,7 @@
             </svg>
             <p class="text-center text-xs font-medium text-red-300">Image generation failed</p>
             <p class="text-center text-[10px] text-red-400/70">The image service timed out. Retry or remove.</p>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-tight">
               {#if preview_options.on_regenerate}
                 <Button
                   variant="bare"
@@ -1111,7 +1111,7 @@
           </Button>
         {:else}
           <div
-            class="relative flex flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+            class="relative flex flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
             style={container_style}
           >
             <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
@@ -1134,15 +1134,15 @@
     .filter((it) => clean_text_debris(it.value))}
   {#if chip_items.length > 0}
     <div
-      class="flex gap-4 rounded border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
+      class="flex gap-standard rounded border-l-2 px-3 py-2 font-mono text-xs leading-relaxed {isMuted
         ? 'border-l-slate-500 bg-black/20'
         : 'border-l-(--color-dev-accent) bg-black/40'}"
     >
       <span class="w-28 shrink-0 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">{label}</span>
-      <div class="flex flex-1 flex-wrap gap-2 {isMuted ? 'text-slate-300' : 'text-slate-200'}">
+      <div class="flex flex-1 flex-wrap gap-tight {isMuted ? 'text-slate-300' : 'text-slate-200'}">
         {#each chip_items as item, i (i)}
           {#if item.key}
-            <span class="inline-flex max-w-full items-baseline gap-2 rounded border border-white/10 bg-white/5 px-2.5 py-1">
+            <span class="inline-flex max-w-full items-baseline gap-tight rounded border border-white/10 bg-white/5 px-2.5 py-1">
               <span class="shrink-0 text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">{item.key}</span>
               <span class="min-w-0 text-slate-100" use:safe_html={render_telemetry_text(item.value)}></span>
             </span>
@@ -1195,14 +1195,14 @@
         <span class="ml-auto shrink-0 translate-y-[1px] text-[10px] font-normal tracking-widest text-white/40">{time_label}</span>
       </header>
     {/if}
-    <div class="p-4">
-      <div class="flex flex-col gap-4">
+    <div class="p-standard">
+      <div class="flex flex-col gap-standard">
         {#if meta.type === "STORY_START"}
           <p class="font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
         {:else}
           <!-- 1. IMAGE TRIGGER INDICATOR -->
           {#if meta.trigger_image === true || meta.image_trigger === true}
-            <div class="flex flex-wrap items-center gap-2 rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
+            <div class="flex flex-wrap items-center gap-tight rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-2 text-xs">
               <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
               <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
               {#if meta.image_tier}
@@ -1231,15 +1231,15 @@
 
           <!-- 2. DIRECTOR TURN: AXIS GAUGES (A2 levels + signed deltas) -->
           {#if director_rows.length > 0}
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-standard">
               {#each director_rows as row (row.axis)}
-                <div class="flex items-center justify-between gap-4">
+                <div class="flex items-center justify-between gap-standard">
                   <span class="min-w-20 text-xs text-slate-400 lowercase">{row.axis}</span>
-                  <div class="flex flex-1 items-center gap-4">
+                  <div class="flex flex-1 items-center gap-standard">
                     <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                       <div class="absolute h-full" style="left: 0%; width: {row.fill}%; background: var(--color-dev-accent);"></div>
                     </div>
-                    <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
+                    <div class="flex min-w-16 items-center justify-end gap-tight font-mono text-xs">
                       <span class="text-slate-50">{row.level != null ? get_percentage(row.level) : `${row.delta > 0 ? "+" : ""}${row.delta}`}</span>
                       {#if row.level != null}
                         <span class={row.delta > 0 ? "text-(--color-dev-accent)" : row.delta < 0 ? "text-slate-500" : "text-slate-500"}>
@@ -1255,13 +1255,13 @@
 
           <!-- Director `directors_note` intentionally omitted here: it is the Turn 2 `startWith` prefix, so it already opens the AI Thoughts block (highlighted cyan-blue there). The director's own reasoning (`thoughts`) is shown below instead. -->
           {#if meta.thoughts}
-            <div class="flex gap-4 rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+            <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Thoughts</span>
               <span class="flex-1 text-slate-200">{meta.thoughts}</span>
             </div>
           {/if}
           {#if meta.camera_note}
-            <div class="flex gap-4 rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
+            <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed">
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
               <span class="flex-1 text-slate-200">{meta.camera_note}</span>
             </div>
@@ -1269,24 +1269,24 @@
 
           <!-- 3. LEGACY UPDATES BRANCH (fallback for old stored rows) -->
           {#if entity_blocks.length > 0}
-            <div class="flex flex-col gap-4">
+            <div class="flex flex-col gap-standard">
               {#each entity_blocks as block (block.key)}
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-tight">
                   <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
                     {block.name || get_entity_name(block.key)}
                   </header>
 
                   <!-- DYNAMICS BAR GAUGES -->
                   {#if block.dynamics.length > 0}
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-standard">
                       {#each block.dynamics as delta (delta.axis)}
                         {@const fill_width = delta.has_delta
                           ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
                           : get_percentage(delta.value)}
                         {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
-                        <div class="flex items-center justify-between gap-4">
+                        <div class="flex items-center justify-between gap-standard">
                           <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
-                          <div class="flex flex-1 items-center gap-4">
+                          <div class="flex flex-1 items-center gap-standard">
                             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
                                 class="absolute h-full transition-all duration-300"
@@ -1300,7 +1300,7 @@
                               {/if}
                             </div>
                             <div class="flex flex-col items-end gap-0.5">
-                              <div class="flex min-w-16 items-center justify-end gap-2 font-mono text-xs">
+                              <div class="flex min-w-16 items-center justify-end gap-tight font-mono text-xs">
                                 <span class="text-slate-50">{delta.has_delta ? get_percentage(delta.new_value) : get_percentage(delta.value)}</span>
                                 {#if delta.has_delta}
                                   <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
@@ -1349,7 +1349,7 @@
                       </header>
                       <div class="flex flex-col gap-1">
                         {#each block.relationships as rel, i (i)}
-                          <div class="flex items-center gap-2 font-mono text-xs text-slate-300">
+                          <div class="flex items-center gap-tight font-mono text-xs text-slate-300">
                             <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
                             <span class="text-slate-100">{rel.dynamic}</span>
                           </div>
@@ -1388,7 +1388,7 @@
                 {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
               {/if}
               {#if meta.resolution}
-                <div class="flex gap-4 rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
+                <div class="flex gap-standard rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-2 font-mono text-xs leading-relaxed">
                   <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
                   <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
                 </div>
@@ -1398,7 +1398,7 @@
 
           <!-- 6. RAW DATA ACCORDION -->
           <Accordion label="View Raw Data">
-            <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-4 text-sm">
+            <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-standard text-sm">
               <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(meta, null, 2)}</pre>
             </div>
           </Accordion>
@@ -1414,7 +1414,7 @@
 
 {#if is_telemetry}
   {#if app.settings.dev_mode}
-    <div class="relative flex w-full justify-center p-4 transition-all duration-200">
+    <div class="relative flex w-full justify-center p-standard transition-all duration-200">
       <div class="w-[calc(var(--spacing-column-unit)*6)]">
         {@render telemetry_content()}
       </div>
@@ -1423,7 +1423,7 @@
 {:else if sender === "system" && !app.settings.dev_mode}
   <!-- System / Director messages are purely internal background data and never render in normal mode -->
 {:else if is_image_only}
-  <div class="relative flex w-full items-center justify-center p-4">
+  <div class="relative flex w-full items-center justify-center p-standard">
     <div class="w-[calc(var(--spacing-column-unit)*5)] max-w-full">
       {@render attachments_gallery()}
     </div>
@@ -1437,7 +1437,7 @@
       flex
       w-full
       items-start
-      p-4
+      p-standard
       transition-all
       duration-200
       {is_user
@@ -1565,14 +1565,14 @@
       {@render header_bar()}
 
       <!-- CARD BODY -->
-      <div class="relative p-4">
+      <div class="relative p-standard">
         {#if meta?.is_prologue}
           <div data-msg-prologue>
             {@render cursive_title()}
             {@render entity_trio()}
           </div>
         {:else if meta?.is_epilogue}
-          <div class="flex flex-col items-center gap-4 text-center" data-msg-epilogue>
+          <div class="flex flex-col items-center gap-standard text-center" data-msg-epilogue>
             {@render cursive_title()}
             {@render entity_trio()}
           </div>

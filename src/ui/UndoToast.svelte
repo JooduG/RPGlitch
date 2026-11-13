@@ -18,7 +18,7 @@
     w-full
     items-center
     justify-between
-    gap-4
+    gap-standard
     overflow-hidden
     rounded-2xl
     border
@@ -32,7 +32,7 @@
     [backdrop-filter:var(--blur-mist)]
   "
 >
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-tight">
     <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
     <span class="font-mono text-xs tracking-wide text-slate-300">Entry removed</span>
   </div>

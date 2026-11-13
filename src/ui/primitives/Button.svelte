@@ -91,7 +91,7 @@
       cursor-pointer
       items-center
       justify-center
-      gap-2
+      gap-tight
       rounded-xl
       border
       border-solid
