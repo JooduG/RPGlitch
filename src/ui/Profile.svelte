@@ -4,37 +4,41 @@
    * 🧪 ENTITY EDITOR - Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import { auto_resize, click_outside, format_datetime, generate_uuid } from "@utils";
-  import { download_json_file, safe_parse_pseudo_json } from "@utils";
-  import { Button, Modal, TextField, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
-  import { Shimmer } from "@primitives";
-  import { ProfilePicture } from "@ui";
-  import { get_signature_color } from "@media";
-  import { Dialog } from "@primitives";
-  import AudioWing from "./AudioWing.svelte";
-  import DevWing from "./DevWing.svelte";
-  import VisualWing from "./VisualWing.svelte";
-  import { ProfileState } from "./Profile.svelte.js";
-  import RelationalGraph from "./RelationalGraph.svelte";
-  import { app } from "./interface.svelte.js";
-  import { runtime, simulation_state } from "@engine";
-  import { resolve_display_macro_segments } from "@utils";
-  import MacroText from "./MacroText.svelte";
-  import { fade } from "svelte/transition";
-  import { SvelteSet } from "svelte/reactivity";
   import {
-    serialize_character_card,
-    serialize_rpglitch_entity,
     normalize_entity as normalize,
     query_entity_history,
     replay_entity_field,
     replay_full_entity_at_round,
-    upsert_entity,
+    serialize_character_card,
+    serialize_rpglitch_entity,
     update_entity,
+    upsert_entity,
   } from "@data";
-  import { PROFILE_SECTIONS_BY_TYPE, PROFILE_FIELDS } from "../definitions/profile-taxonomy.js";
+  import { runtime, simulation_state } from "@engine";
+  import { get_signature_color } from "@media";
+  import { Button, Dialog, Dropdown, Label, Modal, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
+  import { ProfilePicture } from "@ui";
+  import {
+    auto_resize,
+    click_outside,
+    download_json_file,
+    format_datetime,
+    generate_uuid,
+    resolve_display_macro_segments,
+    safe_parse_pseudo_json,
+  } from "@utils";
+  import { SvelteSet } from "svelte/reactivity";
+  import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
+  import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "../definitions/profile-taxonomy.js";
   import { VISUAL_STYLES, get_visual_style } from "../definitions/visual-styles.js";
+  import AudioWing from "./AudioWing.svelte";
+  import DevWing from "./DevWing.svelte";
+  import MacroText from "./MacroText.svelte";
+  import { ProfileState } from "./Profile.svelte.js";
+  import RelationalGraph from "./RelationalGraph.svelte";
+  import VisualWing from "./VisualWing.svelte";
+  import { app } from "./interface.svelte.js";
   const entities = { upsert: upsert_entity, update: update_entity };
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -725,7 +729,7 @@
     variant="bare"
     bind:open={show_export_modal}
     z_index="1000"
-    class="bg-glass-elevated relative w-[clamp(24rem,92vw,38rem)] rounded-2xl p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-4 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_export_modal = false;
     }}
@@ -777,7 +781,7 @@
     is_pass_through={true}
   >
     <div
-      class={`w-grid-width m-auto grid grid-cols-12 transition-all duration-300 ${
+      class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
         app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4" : "h-dvh grid-rows-1") : "my-auto h-dvh grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
@@ -942,7 +946,6 @@
                       bind:this={name_input}
                       value={profile_state.draft_name ?? profile_state.char.name ?? ""}
                       class="
-                      font-heading
                       z-20
                       box-border
                       w-full
@@ -950,6 +953,7 @@
                       bg-transparent
                       p-4
                       text-left
+                      font-heading
                       text-4xl
                       leading-none
                       font-extrabold
@@ -958,7 +962,7 @@
                       sm:text-5xl
                       md:text-6xl
                     "
-                      style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem) !important;"
+                      style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem);"
                       oninput={(event) => {
                         profile_state.draft_name = event.currentTarget.value;
                         profile_state.identity_error = "";
@@ -987,7 +991,7 @@
                     md:text-8xl
                     lg:text-[5.5rem]
                   "
-                    style="margin: 0 !important; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem) !important; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
+                    style="margin: 0; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem); filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
                   >
                     {format_header_name(profile_state.char.name)}
                   </h1>
@@ -1002,11 +1006,10 @@
                 >
                   <textarea
                     class="
-                    min-h-row-unit
-                    [&::-webkit-scrollbar-thumb]:rounded-standard
                     z-20
                     m-0
                     max-h-[calc(var(--spacing-row-unit)*4)]
+                    min-h-row-unit
                     w-full
                     resize-none
                     [scrollbar-color:color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))_transparent]
@@ -1025,6 +1028,7 @@
                     placeholder:opacity-60
                     [&::-webkit-scrollbar]:h-[calc(var(--spacing-unit)*2)]
                     [&::-webkit-scrollbar]:w-[calc(var(--spacing-unit)*2)]
+                    [&::-webkit-scrollbar-thumb]:rounded-standard
                     [&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))]
                     hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
                     [&::-webkit-scrollbar-track]:bg-transparent
@@ -1332,7 +1336,7 @@
       bind:open={show_field_history_modal}
       variant="bare"
       z_index="400"
-      class="bg-glass-elevated relative flex max-h-[85vh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      class="relative flex max-h-[85vh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_field_history_modal = false;
       }}
@@ -1480,7 +1484,7 @@
       bind:open={show_timeline_modal}
       variant="bare"
       z_index="400"
-      class="bg-glass-elevated relative flex max-h-[88vh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
+      class="relative flex max-h-[88vh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_timeline_modal = false;
       }}
@@ -1741,15 +1745,13 @@
               >
                 {#if field.label}
                   <header
-                    style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--color-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --color-dev-accent: {signature_color};"
+                    style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; border-radius: 0.75rem; background-color: var(--color-dev-accent); padding: 0.175rem 0.75rem; opacity: 1; min-height: 1.5rem; height: auto; --color-dev-accent: {signature_color};"
                     class="relative w-full overflow-hidden"
                   >
                     {#if profile_state.busy_fields.has(field.key)}
                       <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
                     {/if}
-                    <div
-                      style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
-                    >
+                    <div style="margin-right: 0.5rem; display: flex; align-items: center; flex: 1 1 0%; min-width: 0; overflow: hidden;">
                       <span
                         class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
                         use:tooltip

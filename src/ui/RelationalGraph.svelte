@@ -393,7 +393,7 @@
               </span>
             {/if}
           </button>
-          <span class="mt-1 max-w-[90px] truncate text-center text-[11px] font-bold text-slate-200 drop-shadow-md">
+          <span class="mt-1 max-w-22.5 truncate text-center text-[11px] font-bold text-slate-200 drop-shadow-md">
             {entity?.name || "Active"}
           </span>
         </div>
@@ -430,7 +430,7 @@
                 </span>
               {/if}
             </button>
-            <span class="mt-1 max-w-[80px] truncate text-center text-[10px] font-medium text-slate-400 group-hover:text-slate-200">
+            <span class="mt-1 max-w-20 truncate text-center text-[10px] font-medium text-slate-400 group-hover:text-slate-200">
               {node.item.name}
             </span>
           </div>
@@ -532,7 +532,7 @@
                               ? 'border-amber-800/50 bg-amber-950/25 text-amber-200'
                               : 'border-slate-800/60 bg-slate-950/40 text-slate-300'}"
                           >
-                            <span class="font-mono text-[10.5px] leading-relaxed break-words">{bracket.raw}</span>
+                            <span class="font-mono text-[10.5px] leading-relaxed wrap-break-word">{bracket.raw}</span>
                             {#if bracket.is_hidden}
                               <span
                                 class="inline-flex shrink-0 items-center gap-1 rounded border border-amber-700/60 bg-amber-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300"

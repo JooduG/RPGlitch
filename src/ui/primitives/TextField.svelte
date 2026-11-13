@@ -10,11 +10,10 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { Button, ScrollArea, tooltip } from "@primitives";
-  import { Shimmer } from "./index.js";
-  import { parse_markdown } from "@utils";
-  import { auto_resize, use_actions } from "@utils";
-  import { fade, slide } from "svelte/transition";
+  import { auto_resize, parse_markdown, use_actions } from "@utils";
   import { onDestroy } from "svelte";
+  import { fade, slide } from "svelte/transition";
+  import { Shimmer } from "./index.js";
 
   let {
     // Data
@@ -247,7 +246,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <header
     onclick={onheaderclick}
-    style="display: flex !important; flex-wrap: nowrap !important;"
+    style="display: flex; flex-wrap: nowrap;"
     class="
       relative
       top-0

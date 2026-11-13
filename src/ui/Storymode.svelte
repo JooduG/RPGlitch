@@ -773,7 +773,7 @@
               p-4
               transition-all
               duration-200
-              {entry.role === 'user' ? 'pr-column-unit justify-end' : 'pl-column-unit justify-start'}
+              {entry.role === 'user' ? 'justify-end pr-column-unit' : 'justify-start pl-column-unit'}
             "
                 in:item_in={{ duration: 200 }}
               >
@@ -822,12 +822,12 @@
               <!-- Left-Gutter Portrait / Lens Anchor Slot -->
               <div
                 class="
-              w-column-unit
               absolute
               top-1/2
               left-[calc(var(--spacing-column-unit)*0.5)]
               m-0
               flex
+              w-column-unit
               -translate-y-1/2
               items-center
               justify-center
@@ -841,11 +841,11 @@
                 <div
                   class="
                 group/badge
-                w-column-unit
                 relative
                 isolate
                 m-0
                 aspect-3/4
+                w-column-unit
                 transform-[translateZ(0)]
                 overflow-hidden
                 rounded-xl
@@ -877,7 +877,7 @@
                   {:else}
                     <!-- Director Abstract Evaluation Rune / Lens -->
                     <div class="flex h-full w-full items-center justify-center bg-slate-950/80">
-                      <svg viewBox="0 0 24 24" class="text-frozen size-5 animate-spin opacity-80" style="animation-duration: 3s;">
+                      <svg viewBox="0 0 24 24" class="size-5 animate-spin text-frozen opacity-80" style="animation-duration: 3s;">
                         <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="14 10" />
                       </svg>
                     </div>
@@ -949,12 +949,12 @@
 
   :global(body:has([data-id="storymode-scroll-area"]) [data-id="storymode-scroll-area"] > [data-orientation="vertical"]),
   :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
-    position: fixed !important;
-    right: 0 !important;
-    top: 0 !important;
-    bottom: 0 !important;
-    height: 100dvh !important;
-    z-index: 9999 !important;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    height: 100dvh;
+    z-index: 9999;
   }
 
   .message--prologue {
