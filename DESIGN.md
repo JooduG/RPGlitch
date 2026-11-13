@@ -57,12 +57,11 @@ rounded:
 spacing:
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
   spacing-standard: calc(var(--spacing-unit)* 4)
-  spacing-gap-tight: calc(var(--spacing-unit) *2)
+  spacing-tight: calc(var(--spacing-unit) *2)
   spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max))
   spacing-grid-height-max: clamp(25rem, calc(1.618* 100vw), 100dvh)
   spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max))
   spacing-grid-width-max: clamp(50rem, calc(1.618 *100dvh), 100vw)
-  spacing-padding-tight: calc(var(--spacing-unit) *2)
   spacing-row-unit: calc(var(--spacing-grid-height) / 12)
   spacing-pixel: 1px
   spacing-unit: 0.25rem

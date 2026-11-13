@@ -204,12 +204,12 @@
 
 <section
   class="
-  p-standard rounded-standard
-  bg-glass-elevated
-  flex
-  w-full
+  flex w-full
   flex-col
   gap-2
+  rounded-standard
+  bg-glass-elevated
+  p-standard
   [backdrop-filter:var(--blur-mist)]
 "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
@@ -219,25 +219,25 @@
 
     <div
       class="
-      gap-gap-tight
-    grid
+      grid
     grid-cols-5
+    gap-tight
   "
     >
       {#each SPECTRUM_COLORS as [name, hex] (name)}
         {@const color = PALETTE_CSS_VARIABLES[/** @type {keyof typeof PALETTE_CSS_VARIABLES} */ (hex)] || hex}
         <div
           class="
-          shadow-ghost
-          has-not-disabled:hover:shadow-standard
           relative
           aspect-square
           w-full
           rounded-xl
+          shadow-ghost
           transition-all
           duration-(--duration-fast)
           ease-(--motion-dissolve)
           has-not-disabled:hover:z-20
+          has-not-disabled:hover:shadow-standard
           has-not-disabled:hover:brightness-125
           has-not-disabled:active:scale-[0.96]
           {current_label === name

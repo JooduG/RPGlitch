@@ -7,13 +7,20 @@
    * while Storyboard and Storymode own their respective stage regions inside the
    * persistent 12-column root grid.
    */
-  import { Tooltip } from "@primitives";
-  import { ImagePreview, open_image_preview, close_image_preview } from "@ui";
-  import { motion, Audio } from "@media";
-  import { Storyboard, Storymode, Console } from "@ui";
-  import { Profile } from "@ui";
-  import { app, register_image_preview_handlers } from "@ui";
   import { runtime } from "@engine";
+  import { Audio, motion } from "@media";
+  import { Tooltip } from "@primitives";
+  import {
+    app,
+    close_image_preview,
+    Console,
+    ImagePreview,
+    open_image_preview,
+    Profile,
+    register_image_preview_handlers,
+    Storyboard,
+    Storymode,
+  } from "@ui";
 
   // --- DERIVED RUNES ---
 
@@ -229,7 +236,7 @@
     font-size: 0.75rem;
     color: var(--color-frozen);
     background: var(--color-void-black);
-    padding: 0 var(--spacing-padding-tight);
+    padding: 0 var(--spacing-tight);
     opacity: var(--opacity-whisper);
   }
 

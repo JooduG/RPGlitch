@@ -307,6 +307,42 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(parse_relationship_edge({ source: "", target: "" })).toBeNull();
   });
 
+  test("parses every canonical arrow notation (em-dash-arrow regression)", () => {
+    // The repo-wide em-dash purge rewrote ChatBubble's local `—>` alternative to a
+    // duplicate `->`; string parsing now delegates to parse_relational_vector, so all
+    // five canonical notations must work again.
+    for (const arrow of ["→", "->", "—>", "=>", "—"]) {
+      expect(parse_relationship_edge(`Beast ${arrow} Glitch: protective hold`)).toEqual({
+        source: "Beast",
+        target: "Glitch",
+        dynamic: "protective hold",
+      });
+    }
+    // Whitespace-padded variants still parse (canonical trims first).
+    expect(parse_relationship_edge("  Beast  —>  Glitch  :  protective hold  ")).toEqual({
+      source: "Beast",
+      target: "Glitch",
+      dynamic: "protective hold",
+    });
+  });
+
+  test("relationship edges keep renderer rules: label mandatory, malformed strings dropped", () => {
+    // Labelless edges are dropped even though the canonical parser alone accepts them.
+    expect(parse_relationship_edge("Beast → Glitch")).toBeNull();
+    expect(parse_relationship_edge("Beast → Glitch:   ")).toBeNull();
+    // Blank-side or colon-in-source strings no longer get Entity/Target placeholder
+    // chips (pre-consolidation they rendered as such); object edges still do.
+    expect(parse_relationship_edge("Beast →   : stalks")).toBeNull();
+    expect(parse_relationship_edge("A: B → C: x")).toBeNull();
+    expect(parse_relationship_edge({ source: "Mira" })).toEqual({
+      source: "Mira",
+      target: "Target",
+      dynamic: "",
+    });
+    // Non-string, non-object inputs stay null.
+    expect(parse_relationship_edge(42)).toBeNull();
+  });
+
   test("cleans up comma debris and leading/trailing punctuation in prose strings", () => {
     expect(clean_text_debris(", , [CIRCULATING: low rumble]")).toBe("[CIRCULATING: low rumble]");
     expect(clean_text_debris(", , ,  ")).toBe("");

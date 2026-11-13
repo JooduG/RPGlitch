@@ -81,6 +81,10 @@
 
   /**
    * Parses a directed relationship edge string or object into a structured object.
+   * String parsing delegates to the canonical `parse_relational_vector` (@utils/text.js:
+   * all five arrow notations). The renderer keeps its own rules on top: the `: dynamic`
+   * label stays mandatory (canonical alone accepts labelless edges) and strings with a
+   * blank side are dropped. Object edges keep the Entity/Target fallbacks.
    * @param {any} edge
    * @returns {{ source: string, target: string, dynamic: string } | null}
    */
@@ -94,14 +98,14 @@
       return { source: source || "Entity", target: target || "Target", dynamic };
     }
     if (typeof edge === "string") {
-      const match = String(edge).match(/^\s*(.+?)\s*(?:→|->|->\s*)\s*(.+?)\s*:\s*(.+)$/);
-      if (!match) return null;
-      const [, source, target, dynamic] = match;
-      const s = source.trim();
-      const t = target.trim();
-      const d = dynamic.trim();
-      if (!s && !t && !d) return null;
-      return { source: s || "Entity", target: t || "Target", dynamic: d };
+      const parsed = parse_relational_vector(edge);
+      if (!parsed || !parsed.dynamic) return null;
+      if (!parsed.source_name && !parsed.target_name) return null;
+      return {
+        source: parsed.source_name || "Entity",
+        target: parsed.target_name || "Target",
+        dynamic: parsed.dynamic,
+      };
     }
     return null;
   }
@@ -199,7 +203,7 @@
   import { Audio, get_cadence_rate, get_resolution, get_signature_color, render_optics_fallback, resolve_voice_uri } from "@media";
   import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
   import { EntityCard, ProfilePicture, image_picker, open_picker } from "@ui";
-  import { get_percentage, resolve_speaking_style, safe_html } from "@utils";
+  import { get_percentage, parse_relational_vector, resolve_speaking_style, safe_html } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
   import { app } from "./interface.svelte.js";
@@ -904,7 +908,7 @@
 {/snippet}
 
 {#snippet entity_trio()}
-  <div class="h-character-card-height my-2 flex w-full items-stretch gap-2 md:gap-4" data-msg-trio>
+  <div class="my-2 flex h-character-card-height w-full items-stretch gap-2 md:gap-4" data-msg-trio>
     {#if runtime.active_ai || app.selected_ai}
       {@const a = runtime.active_ai || app.selected_ai}
       <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
@@ -1446,12 +1450,12 @@
     {#if (is_ai || is_npc || is_fractal) && entity && !meta?.is_prologue && !meta?.is_epilogue}
       <div
         class="
-          w-column-unit
           absolute
           top-1/2
           left-[calc(var(--spacing-column-unit)*0.5)]
           m-0
           flex
+          w-column-unit
           -translate-y-1/2
           items-center
           justify-center
@@ -1465,11 +1469,11 @@
           onclick={handle_badge_click}
           class="
             group/badge
-            w-column-unit
             relative
             isolate
             m-0
             aspect-3/4
+            w-column-unit
             transform-[translateZ(0)]
             cursor-pointer
             overflow-hidden
@@ -1583,12 +1587,12 @@
     {#if is_user && entity && !meta?.is_prologue && !meta?.is_epilogue}
       <div
         class="
-          w-column-unit
           absolute
           top-1/2
           right-[calc(var(--spacing-column-unit)*0.5)]
           m-0
           flex
+          w-column-unit
           -translate-y-1/2
           items-center
           justify-center
@@ -1602,11 +1606,11 @@
           onclick={handle_badge_click}
           class="
             group/badge
-            w-column-unit
             relative
             isolate
             m-0
             aspect-3/4
+            w-column-unit
             transform-[translateZ(0)]
             cursor-pointer
             overflow-hidden
