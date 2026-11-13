@@ -836,13 +836,13 @@
 
 {#snippet body_content()}
   {#if app.settings.dev_mode && think_block}
-    <div class="mb-4">
+    <div class="mb-standard">
       <Accordion label="Thoughts">
         {#if show_director_split}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard"
           >
-            <div class="mb-2 border-l-2 border-cyan-400 bg-cyan-400/10 px-2 py-1 text-cyan-200">
+            <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-2 py-1 text-cyan-200">
               <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
             </div>
             {#if remainder_think_html}
@@ -851,7 +851,7 @@
           </div>
         {:else}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-4"
+            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard"
           >
             <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
           </div>
@@ -877,7 +877,7 @@
         [&_em]:italic
         [&_em]:opacity-75
 
-        [&_p]:mb-4
+        [&_p]:mb-standard
         [&_p:last-child]:mb-0
 
         [&_strong]:font-bold
@@ -960,7 +960,11 @@
 
 {#snippet cursive_title()}
   {#if app.story_title}
-    <h2 class="mb-4 text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance" style="font-family: Satisfy, cursive;" data-msg-title>
+    <h2
+      class="mb-standard text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance"
+      style="font-family: Satisfy, cursive;"
+      data-msg-title
+    >
       {#if app.story_title_parts.length > 0}
         {#each app.story_title_parts as part, i (i)}
           {#if part.color}
@@ -981,7 +985,7 @@
 
 {#snippet attachments_gallery()}
   {#if attachments.length > 0}
-    <div class="flex justify-center {has_display_text || (should_use_typewriter && (has_display_text || busy)) ? 'mt-4' : ''}">
+    <div class="flex justify-center {has_display_text || (should_use_typewriter && (has_display_text || busy)) ? 'mt-standard' : ''}">
       {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
         {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
         {@const regenerate_key = `${id}:${attach_idx}`}
@@ -1317,7 +1321,7 @@
 
                   <!-- TEMPORAL ROWS -->
                   {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
-                    <div class="flex flex-col gap-tight pt-1">
+                    <div class="flex flex-col gap-tight pb-tight">
                       {@render temporal_quadrant(
                         "ETERNAL",
                         extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`),
@@ -1343,7 +1347,7 @@
 
                   <!-- RELATIONAL MUTATIONS -->
                   {#if block.relationships?.length > 0}
-                    <div class="flex flex-col gap-tight pt-1">
+                    <div class="flex flex-col gap-tight pb-tight">
                       <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
                         RELATIONAL MUTATIONS
                       </header>
@@ -1367,7 +1371,7 @@
             <p class="font-mono text-[11px] leading-relaxed text-slate-400">
               Updated brackets merged into {get_entity_name(meta.target) || String(meta.target || "target entity")}’s profile fields.
             </p>
-            <div class="flex flex-col gap-tight pt-1">
+            <div class="flex flex-col gap-tight pb-tight">
               {@render temporal_quadrant("ETERNAL", extract_bracket_items(meta.eternal))}
               {@render temporal_quadrant("PRESENT", extract_bracket_items(meta.present))}
               {@render temporal_quadrant("FUTURE", extract_bracket_items(meta.future))}
@@ -1383,7 +1387,7 @@
 
           <!-- 5. VECTOR RESOLUTION -->
           {#if meta.type === "VECTOR_RESOLUTION"}
-            <div class="flex flex-col gap-tight pt-1">
+            <div class="flex flex-col gap-tight pb-tight">
               {#if meta.vector}
                 {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
               {/if}

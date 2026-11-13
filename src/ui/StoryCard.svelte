@@ -112,7 +112,7 @@
       flex
       flex-col
       gap-tight
-      pl-2
+      pl-tight
     "
   >
     {#if is_editing_title}

@@ -103,7 +103,7 @@
       to-transparent
       px-1
       pt-standard
-      pb-1
+      pb-tight
       text-center
       opacity-0
       transition-all

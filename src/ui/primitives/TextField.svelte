@@ -274,13 +274,13 @@
     {/if}
     {#if is_expanded}
       {#if status}
-        <div class="mr-2 flex min-w-0 flex-1 items-center overflow-hidden" in:fade={{ duration: 200, delay: 0 }}>
+        <div class="mr-tight flex min-w-0 flex-1 items-center overflow-hidden" in:fade={{ duration: 200, delay: 0 }}>
           {@render status()}
         </div>
       {/if}
       <div class="ml-auto flex h-full shrink-0 items-center gap-tight">
         {#if is_edit}
-          <div class="mr-1 flex items-center gap-0.5" in:fade={{ duration: 150 }}>
+          <div class="mr-tight flex items-center gap-0.5" in:fade={{ duration: 150 }}>
             <Button
               variant="invisible"
               size="small"
@@ -405,7 +405,7 @@
           >
             {#if value && String(value).trim()}
               {#each paragraphs as p, pIdx (pIdx)}
-                <p class="m-0 mb-2 last:mb-0">
+                <p class="m-0 mb-tight last:mb-0">
                   {#each p as token, tIdx (tIdx)}
                     {#if token.type === "text"}
                       {@render token_content(token.content)}

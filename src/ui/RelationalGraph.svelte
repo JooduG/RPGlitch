@@ -311,8 +311,8 @@
           <path d="M6 12h3m6 0h3" />
         </svg>
       </div>
-      <span class="mt-2 text-xs font-semibold text-slate-300">No recorded relationships yet</span>
-      <p class="mt-1 max-w-xs text-[11px] text-slate-400">This entity has not yet established directed bonds with other entities.</p>
+      <span class="mt-tight text-xs font-semibold text-slate-300">No recorded relationships yet</span>
+      <p class="mt-tight max-w-xs text-[11px] text-slate-400">This entity has not yet established directed bonds with other entities.</p>
     </div>
   {:else}
     <!-- Radial Visual Constellation -->
@@ -393,7 +393,7 @@
               </span>
             {/if}
           </button>
-          <span class="mt-1 max-w-22.5 truncate text-center text-[11px] font-bold text-slate-200 drop-shadow-md">
+          <span class="mt-tight max-w-22.5 truncate text-center text-[11px] font-bold text-slate-200 drop-shadow-md">
             {entity?.name || "Active"}
           </span>
         </div>
@@ -430,7 +430,7 @@
                 </span>
               {/if}
             </button>
-            <span class="mt-1 max-w-20 truncate text-center text-[10px] font-medium text-slate-400 group-hover:text-slate-200">
+            <span class="mt-tight max-w-20 truncate text-center text-[10px] font-medium text-slate-400 group-hover:text-slate-200">
               {node.item.name}
             </span>
           </div>
@@ -444,7 +444,7 @@
           class="absolute inset-2 z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-standard shadow-2xl backdrop-blur-xl"
         >
           <!-- Dossier Header -->
-          <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-standard">
             <div class="flex min-w-0 items-center gap-tight">
               {#if selected_dossier.type === "entity"}
                 {@const dossier_color = get_signature_color(selected_dossier.entity)}
@@ -495,7 +495,7 @@
           </div>
 
           <!-- Dossier Content -->
-          <div class="my-3 flex-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent space-y-3 overflow-y-auto pr-1">
+          <div class="my-3 flex-1 scrollbar-thin scrollbar-thumb-slate-800 scrollbar-track-transparent space-y-3 overflow-y-auto pb-tight">
             {#if selected_dossier.type === "entity"}
               {@const ent = selected_dossier.entity}
               {@const present_brackets = parse_bracket_lines(ent?.present?.non_physical || (typeof ent?.present === "string" ? ent.present : ""))}
@@ -505,7 +505,7 @@
                 <!-- 1. Eternal -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-cyan-400 uppercase"> 🏛️ Eternal </span>
-                  <div class="mt-1 space-y-1 text-[11px] text-slate-300">
+                  <div class="mt-tight space-y-1 text-[11px] text-slate-300">
                     {#if ent?.eternal?.physical}
                       <p><strong class="text-slate-400">Physical:</strong> {ent.eternal.physical}</p>
                     {/if}
@@ -520,7 +520,7 @@
                 <!-- 2. Present & Omniscient Observer Mode -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-amber-400 uppercase"> ⚡ Present </span>
-                  <div class="mt-1 space-y-1.5 text-[11px] text-slate-300">
+                  <div class="mt-tight space-y-1.5 text-[11px] text-slate-300">
                     {#if ent?.present?.physical}
                       <p><strong class="text-slate-400">Condition:</strong> {ent.present.physical}</p>
                     {/if}
@@ -552,7 +552,7 @@
                 <!-- 3. Past -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-indigo-400 uppercase"> 📜 Past </span>
-                  <div class="mt-1 space-y-1 text-[11px] text-slate-300">
+                  <div class="mt-tight space-y-1 text-[11px] text-slate-300">
                     {#if Array.isArray(ent?.past) && ent.past.length > 0}
                       <ul class="list-disc space-y-0.5 pl-standard">
                         {#each ent.past.slice(0, 3) as mem, mem_idx (mem_idx)}
@@ -574,7 +574,7 @@
                 <!-- 4. Future -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
                   <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-emerald-400 uppercase"> 🚀 Future </span>
-                  <div class="mt-1 text-[11px] text-slate-300">
+                  <div class="mt-tight text-[11px] text-slate-300">
                     <p>{ent?.future || "No standing agenda recorded."}</p>
                   </div>
                 </div>
@@ -586,7 +586,7 @@
               <div class="space-y-3">
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-standard">
                   <span class="text-[10px] font-semibold tracking-wider text-slate-400 uppercase">Dynamic Vector</span>
-                  <p class="mt-1 font-mono text-xs text-slate-200">{edge?.dynamic}</p>
+                  <p class="mt-tight font-mono text-xs text-slate-200">{edge?.dynamic}</p>
                 </div>
 
                 <div
@@ -619,7 +619,7 @@
           </div>
 
           <!-- Dossier Footer -->
-          <div class="flex items-center justify-end gap-tight border-t border-slate-800/80 pt-2.5">
+          <div class="flex items-center justify-end gap-tight border-t border-slate-800/80 pt-tight">
             {#if selected_dossier.type === "entity"}
               <button
                 type="button"

@@ -509,7 +509,7 @@
       <p
         data-card-text
         class="
-          mt-2
+          mt-tight
           [display:-webkit-box]
           max-h-18
           overflow-hidden

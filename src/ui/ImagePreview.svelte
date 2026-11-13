@@ -500,7 +500,7 @@
 
     {#if preview_state.caption && !preview_state.metadata}
       <div
-        class="z-50 mt-4 max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
+        class="z-50 mt-standard max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
       >
         {preview_state.caption}
       </div>
@@ -630,7 +630,7 @@
                 fn();
               }}
             >
-              <svg viewBox="0 0 24 24" class="mr-1.5 h-4 w-4 fill-none stroke-current">
+              <svg viewBox="0 0 24 24" class="mr-tight h-4 w-4 fill-none stroke-current">
                 <path
                   d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   stroke="currentColor"
@@ -730,7 +730,7 @@
                               : "w-60 sm:w-64 md:w-72 lg:w-76"}
                         <Button
                           variant="bare"
-                          class="group relative {card_width_class} shrink-0 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out {image_picker.selected_index ===
+                          class="group relative {card_width_class} shrink-0 pt-tight pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out {image_picker.selected_index ===
                           i
                             ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
                             : image_picker.selected_index !== null

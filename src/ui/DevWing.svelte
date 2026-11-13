@@ -99,7 +99,7 @@
     </div>
 
     {#if show_token_details && snapshot}
-      <div class="mt-2 flex flex-col gap-tight border-t border-white/5 pt-2 text-[10px]">
+      <div class="mt-tight flex flex-col gap-tight border-t border-white/5 pt-tight text-[10px]">
         <div class="grid grid-cols-2 gap-x-2 gap-y-1 font-mono text-slate-300">
           <span class="text-slate-400">Mode:</span>
           <span class="text-right font-bold text-white uppercase">{snapshot.mode || "prose"}</span>
@@ -113,7 +113,7 @@
           <span class="text-right text-amber-300">{snapshot.layers?.task?.toLocaleString() ?? 0} tok</span>
         </div>
         {#if snapshot.entities_breakdown}
-          <div class="mt-1 flex flex-col gap-0.5 border-t border-white/5 pt-1 font-mono text-[9px] text-slate-400">
+          <div class="mt-tight flex flex-col gap-0.5 border-t border-white/5 pb-tight font-mono text-[9px] text-slate-400">
             <span class="font-bold tracking-wider text-slate-300 uppercase">Entities Sub-Allocation:</span>
             <div class="flex justify-between">
               <span>Actors:</span>

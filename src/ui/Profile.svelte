@@ -884,7 +884,7 @@
               role="banner"
             >
               {#if profile_state.is_editing}
-                <div class="mb-1 flex items-center gap-tight font-mono text-xs opacity-80" style="color: {signature_color};">
+                <div class="mt-tight flex items-center gap-tight font-mono text-xs opacity-80" style="color: {signature_color};">
                   <span aria-hidden="true">@</span>
                   <input
                     type="text"
@@ -927,13 +927,13 @@
                   {/if}
                 </div>
                 {#if profile_state.is_editing && profile_state.identity_error}
-                  <div role="alert" class="mb-1 font-mono text-[11px] tracking-wide text-red-300/90">
+                  <div role="alert" class="mt-tight font-mono text-[11px] tracking-wide text-red-300/90">
                     {profile_state.identity_error}
                   </div>
                 {/if}
               {:else if profile_state.char.id}
                 <div
-                  class="mb-1 font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
+                  class="mt-tight font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
                   style="color: {signature_color};"
                 >
                   @{profile_state.char.id.toUpperCase()}{#if entity_type !== "fractal"}
@@ -1065,7 +1065,7 @@
               {@const active_style = get_narrative_style(profile_state.char.narrative_style)}
               {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
               {#if profile_state.is_editing || !is_default_style}
-                <div class="mt-2 flex w-full flex-col gap-tight">
+                <div class="mt-tight flex w-full flex-col gap-tight">
                   <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
                   {#if profile_state.is_editing}
                     <div class="relative flex w-full max-w-sm rounded-md">
@@ -1090,7 +1090,7 @@
               {@const active_vstyle = get_visual_style(profile_state.char.visual_style)}
               {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
               {#if profile_state.is_editing || !is_default_vstyle}
-                <div class="mt-2 flex w-full flex-col gap-tight">
+                <div class="mt-tight flex w-full flex-col gap-tight">
                   <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
                   {#if profile_state.is_editing}
                     <div class="relative flex w-full max-w-sm rounded-md">
@@ -1388,7 +1388,7 @@
         </div>
 
         <!-- Body -->
-        <div class="flex flex-1 flex-col overflow-y-auto pr-1">
+        <div class="flex flex-1 flex-col overflow-y-auto pb-tight">
           {#if is_field_history_loading}
             <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Replaying ledger stream...</div>
           {:else if field_history_active_tab === "timeline"}
@@ -1521,7 +1521,7 @@
           </div>
 
           <!-- Round Selector Strip -->
-          <div class="flex flex-wrap items-center gap-tight pt-1">
+          <div class="flex flex-wrap items-center gap-tight pb-tight">
             {#each available_timeline_rounds as r (r)}
               <button
                 type="button"
@@ -1537,7 +1537,7 @@
         </div>
 
         <!-- Snapshot Replay Body -->
-        <div class="flex flex-1 flex-col gap-standard overflow-y-auto pr-1">
+        <div class="flex flex-1 flex-col gap-standard overflow-y-auto pb-tight">
           {#if is_timeline_loading}
             <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">
               Reconstructing Four-Quadrant Matrix...
@@ -1799,7 +1799,7 @@
                     </div>
                   </header>
                 {/if}
-                <div class="pt-2">
+                <div class="pt-tight">
                   {#if profile_state.busy_fields.has(field.key)}
                     <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
                   {:else}

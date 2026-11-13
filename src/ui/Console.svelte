@@ -801,7 +801,7 @@
     {/if}
 
     <!-- BOTTOM CONSOLE / INPUT AREA -->
-    <div class="flex w-full items-center justify-between gap-tight transition-colors duration-300 {app.control_panel_open ? 'pt-2' : ''}">
+    <div class="flex w-full items-center justify-between gap-tight transition-colors duration-300 {app.control_panel_open ? 'pt-tight' : ''}">
       {#if app.view === "storyboard"}
         {@render storyboard_bar()}
       {:else if story_locked}

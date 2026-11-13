@@ -192,7 +192,7 @@
     <Label
       for={test_id}
       disabled={is_disabled || busy}
-      class="{horizontal ? '' : 'mb-1'} w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] {!is_disabled
+      class="{horizontal ? '' : 'mt-tight'} w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] {!is_disabled
         ? 'group-hover/slider:brightness-125'
         : ''}"
     >
@@ -276,7 +276,7 @@
     bind:this={tooltip_el}
     class="
       pointer-events-none fixed z-9999
-      mb-3 w-max max-w-100
+      mb-standard w-max max-w-100
       -translate-x-1/2 -translate-y-full
       rounded-md border border-slate-600 bg-neutral-900/98
       px-2 py-1.5
@@ -289,7 +289,7 @@
   >
     {is_disabled ? disabled_label : format(value ?? 1.0)}
     <!-- Down Arrow -->
-    <div class="absolute bottom-[-8px] left-1/2 z-0 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-slate-600">
+    <div class="absolute bottom-2 left-1/2 z-0 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-slate-600">
       <div class="absolute bottom-px left-1/2 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-neutral-900"></div>
     </div>
   </div>

@@ -129,7 +129,7 @@
         </svg>
       </Button>
 
-      <div class="col-span-2 w-full pt-2">
+      <div class="col-span-2 w-full pt-tight">
         <Slider
           min={0}
           max={4}

@@ -100,7 +100,7 @@
     class="
       meter-label
       z-10
-      mb-2
+      mb-tight
       w-auto
       flex-none
       justify-center

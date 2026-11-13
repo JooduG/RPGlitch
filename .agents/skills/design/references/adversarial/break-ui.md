@@ -35,7 +35,7 @@ Two failure modes, and the first is worse:
 | Avatar centered against multi-line text looks adrift | `align-items: center` on multi-line row     | Top-align (`align-items: flex-start`) once text wraps         |
 | Long word breaks mid-word awkwardly                  | `word-break: break-all`                     | `overflow-wrap: anywhere` breaks only when strictly necessary |
 | Numbers jitter when updating in dials/meters         | Proportional width figures                  | `font-variant-numeric: tabular-nums`                          |
-| Diacritics or descenders clipped top or bottom       | Tight `line-height` with `overflow: hidden` | Relax `line-height` or add reserve padding (`pb-1`)           |
+| Diacritics or descenders clipped top or bottom       | Tight `line-height` with `overflow: hidden` | Relax `line-height` or add reserve padding (`pb-tight`)       |
 | Broken image portrait                                | Missing fallback state                      | Fall back to styled initials ring and signature hue           |
 | Content renders raw `<tag>`, `&`, or `**text**`      | Double-encoding or unescaped HTML           | Use deterministic DOMPurify fragment parsing                  |
 

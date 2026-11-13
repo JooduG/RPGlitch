@@ -1046,7 +1046,7 @@
       role="dialog"
       aria-labelledby="hand-title"
     >
-      <header class="pointer-events-auto z-20 -mb-4 text-center">
+      <header class="pointer-events-auto z-20 -mb-standard text-center">
         <h4 id="hand-title" class="m-0 font-bold tracking-widest text-slate-600 uppercase text-shadow-(--shadow-ambient)">
           {hand_title}
         </h4>
