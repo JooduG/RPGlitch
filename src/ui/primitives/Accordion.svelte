@@ -36,7 +36,7 @@
         class="grid min-h-0 w-full transition-[grid-template-rows] duration-300 ease-in-out {open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
       >
         <div class="min-h-0 overflow-hidden">
-          <div class="pt-2 pb-4 {content_class}">
+          <div class="pt-2 pb-standard {content_class}">
             {@render children?.()}
           </div>
         </div>

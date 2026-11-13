@@ -66,7 +66,7 @@
   "
 >
   <!-- PROMPT TOKEN CLIFF HUD BADGE -->
-  <div class="flex flex-col gap-1.5 rounded-xl border border-white/10 bg-black/40 p-0.5">
+  <div class="flex flex-col gap-tight rounded-xl border border-white/10 bg-black/40 p-0.5">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-tight">
         <span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Token Budget</span>
@@ -99,7 +99,7 @@
     </div>
 
     {#if show_token_details && snapshot}
-      <div class="mt-2 flex flex-col gap-1.5 border-t border-white/5 pt-2 text-[10px]">
+      <div class="mt-2 flex flex-col gap-tight border-t border-white/5 pt-2 text-[10px]">
         <div class="grid grid-cols-2 gap-x-2 gap-y-1 font-mono text-slate-300">
           <span class="text-slate-400">Mode:</span>
           <span class="text-right font-bold text-white uppercase">{snapshot.mode || "prose"}</span>

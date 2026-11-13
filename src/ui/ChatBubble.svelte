@@ -1317,7 +1317,7 @@
 
                   <!-- TEMPORAL ROWS -->
                   {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
-                    <div class="flex flex-col gap-1.5 pt-1">
+                    <div class="flex flex-col gap-tight pt-1">
                       {@render temporal_quadrant(
                         "ETERNAL",
                         extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`),
@@ -1343,11 +1343,11 @@
 
                   <!-- RELATIONAL MUTATIONS -->
                   {#if block.relationships?.length > 0}
-                    <div class="flex flex-col gap-1.5 pt-1">
+                    <div class="flex flex-col gap-tight pt-1">
                       <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
                         RELATIONAL MUTATIONS
                       </header>
-                      <div class="flex flex-col gap-1">
+                      <div class="flex flex-col gap-tight">
                         {#each block.relationships as rel, i (i)}
                           <div class="flex items-center gap-tight font-mono text-xs text-slate-300">
                             <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
@@ -1367,7 +1367,7 @@
             <p class="font-mono text-[11px] leading-relaxed text-slate-400">
               Updated brackets merged into {get_entity_name(meta.target) || String(meta.target || "target entity")}’s profile fields.
             </p>
-            <div class="flex flex-col gap-1.5 pt-1">
+            <div class="flex flex-col gap-tight pt-1">
               {@render temporal_quadrant("ETERNAL", extract_bracket_items(meta.eternal))}
               {@render temporal_quadrant("PRESENT", extract_bracket_items(meta.present))}
               {@render temporal_quadrant("FUTURE", extract_bracket_items(meta.future))}
@@ -1383,7 +1383,7 @@
 
           <!-- 5. VECTOR RESOLUTION -->
           {#if meta.type === "VECTOR_RESOLUTION"}
-            <div class="flex flex-col gap-1.5 pt-1">
+            <div class="flex flex-col gap-tight pt-1">
               {#if meta.vector}
                 {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
               {/if}

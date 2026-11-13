@@ -102,7 +102,7 @@
       via-45%
       to-transparent
       px-1
-      pt-4
+      pt-standard
       pb-1
       text-center
       opacity-0

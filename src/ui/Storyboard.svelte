@@ -289,7 +289,14 @@
 </script>
 
 <script>
-  import { birth_entity_core, create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card } from "@data";
+  import {
+    birth_entity_core,
+    create_entity as create_new,
+    detect_card_format,
+    normalize_entity as normalize,
+    parse_character_card,
+    upsert_entity,
+  } from "@data";
   import { runtime, simulation_state } from "@engine";
   import { Audio, rect_of } from "@media";
   import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
@@ -733,8 +740,7 @@
     });
 
     try {
-      // eslint-disable-next-line no-undef
-      const saved = await repository.upsert(type, plan);
+      const saved = await upsert_entity(plan);
       await app.load_entities();
       app.log(`Birthed new ${type} blueprint: ${saved.id}`, "db");
       app.select_entity(card_hand_type, saved);

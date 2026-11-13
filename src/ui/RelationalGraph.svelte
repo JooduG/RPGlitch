@@ -459,7 +459,7 @@
                   {/if}
                 </div>
                 <div class="min-w-0">
-                  <div class="flex flex-wrap items-center gap-1.5">
+                  <div class="flex flex-wrap items-center gap-tight">
                     <span class="truncate text-xs font-bold text-slate-200">{selected_dossier.name}</span>
                     <span class="rounded border border-cyan-800/50 bg-cyan-950/40 px-1.5 py-0.5 font-mono text-[9px] font-medium text-cyan-300">
                       @{get_entity_slug(selected_dossier.entity)}
@@ -471,7 +471,7 @@
                 </div>
               {:else}
                 <div class="min-w-0">
-                  <div class="flex items-center gap-1.5 truncate text-xs font-bold text-slate-200">
+                  <div class="flex items-center gap-tight truncate text-xs font-bold text-slate-200">
                     <span>{selected_dossier.edge?.source_name}</span>
                     <span class="text-slate-500">➔</span>
                     <span>{selected_dossier.edge?.target_name}</span>
@@ -504,7 +504,7 @@
               <div class="grid grid-cols-1 gap-2.5">
                 <!-- 1. Eternal -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
-                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-cyan-400 uppercase"> 🏛️ Eternal </span>
+                  <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-cyan-400 uppercase"> 🏛️ Eternal </span>
                   <div class="mt-1 space-y-1 text-[11px] text-slate-300">
                     {#if ent?.eternal?.physical}
                       <p><strong class="text-slate-400">Physical:</strong> {ent.eternal.physical}</p>
@@ -519,7 +519,7 @@
 
                 <!-- 2. Present & Omniscient Observer Mode -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
-                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-amber-400 uppercase"> ⚡ Present </span>
+                  <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-amber-400 uppercase"> ⚡ Present </span>
                   <div class="mt-1 space-y-1.5 text-[11px] text-slate-300">
                     {#if ent?.present?.physical}
                       <p><strong class="text-slate-400">Condition:</strong> {ent.present.physical}</p>
@@ -528,14 +528,14 @@
                       <div class="space-y-1">
                         {#each present_brackets as bracket (bracket.raw)}
                           <div
-                            class="flex items-start justify-between gap-1.5 rounded-lg border p-1.5 text-[11px] {bracket.is_hidden
+                            class="flex items-start justify-between gap-tight rounded-lg border p-1.5 text-[11px] {bracket.is_hidden
                               ? 'border-amber-800/50 bg-amber-950/25 text-amber-200'
                               : 'border-slate-800/60 bg-slate-950/40 text-slate-300'}"
                           >
                             <span class="font-mono text-[10.5px] leading-relaxed wrap-break-word">{bracket.raw}</span>
                             {#if bracket.is_hidden}
                               <span
-                                class="inline-flex shrink-0 items-center gap-1 rounded border border-amber-700/60 bg-amber-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300"
+                                class="inline-flex shrink-0 items-center gap-tight rounded border border-amber-700/60 bg-amber-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300"
                               >
                                 🔒 Epistemic Lock
                               </span>
@@ -551,16 +551,16 @@
 
                 <!-- 3. Past -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
-                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-indigo-400 uppercase"> 📜 Past </span>
+                  <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-indigo-400 uppercase"> 📜 Past </span>
                   <div class="mt-1 space-y-1 text-[11px] text-slate-300">
                     {#if Array.isArray(ent?.past) && ent.past.length > 0}
-                      <ul class="list-disc space-y-0.5 pl-4">
+                      <ul class="list-disc space-y-0.5 pl-standard">
                         {#each ent.past.slice(0, 3) as mem, mem_idx (mem_idx)}
                           <li>{typeof mem === "string" ? mem : mem.text || JSON.stringify(mem)}</li>
                         {/each}
                       </ul>
                     {:else if selected_dossier.temporal_links?.past?.length}
-                      <ul class="list-disc space-y-0.5 pl-4">
+                      <ul class="list-disc space-y-0.5 pl-standard">
                         {#each selected_dossier.temporal_links.past as past_link, link_idx (link_idx)}
                           <li>{past_link}</li>
                         {/each}
@@ -573,7 +573,7 @@
 
                 <!-- 4. Future -->
                 <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-0.5">
-                  <span class="flex items-center gap-1 text-[10px] font-semibold tracking-wider text-emerald-400 uppercase"> 🚀 Future </span>
+                  <span class="flex items-center gap-tight text-[10px] font-semibold tracking-wider text-emerald-400 uppercase"> 🚀 Future </span>
                   <div class="mt-1 text-[11px] text-slate-300">
                     <p>{ent?.future || "No standing agenda recorded."}</p>
                   </div>
@@ -629,7 +629,7 @@
                     on_select_entity(selected_dossier.entity);
                   }
                 }}
-                class="flex cursor-pointer items-center gap-1.5 rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
+                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
               >
                 Open Full Profile →
               </button>
@@ -642,7 +642,7 @@
                     on_select_entity(selected_dossier.edge.target_entity);
                   }
                 }}
-                class="flex cursor-pointer items-center gap-1.5 rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
+                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-all hover:border-cyan-400 hover:bg-cyan-600/30"
               >
                 Open {selected_dossier.edge.target_name} Profile →
               </button>

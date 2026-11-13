@@ -899,7 +899,7 @@
               w-[calc(var(--spacing-column-unit)*5)]
               max-w-full
               items-center
-              gap-3
+              gap-4
               overflow-hidden
               rounded-2xl
               border

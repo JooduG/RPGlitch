@@ -782,7 +782,7 @@
   >
     <div
       class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
-        app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4" : "h-dvh grid-rows-1") : "my-auto h-dvh grid-rows-1"
+        app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-standard" : "h-dvh grid-rows-1") : "my-auto h-dvh grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
       role="presentation"
@@ -1302,7 +1302,8 @@
             </div>
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
-              class={"flex flex-col gap-standard " + (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-4" : "w-full")}
+              class={"flex flex-col gap-standard " +
+                (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-standard" : "w-full")}
               transition:fade={{ duration: 250 }}
             >
               <AudioWing {profile_state} />
@@ -1345,7 +1346,7 @@
     >
       <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-standard">
           <div class="flex flex-col">
             <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Mutation Ledger Inspector</h4>
             <span class="font-mono text-xs text-slate-400">
@@ -1392,7 +1393,7 @@
             <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Replaying ledger stream...</div>
           {:else if field_history_active_tab === "timeline"}
             {#if field_history_records.length === 0}
-              <div class="flex h-48 flex-col items-center justify-center gap-1 font-mono text-xs text-slate-500">
+              <div class="flex h-48 flex-col items-center justify-center gap-tight font-mono text-xs text-slate-500">
                 <span>No ledger events recorded for this field.</span>
                 <span class="text-[10px] text-slate-600">Mutations during genesis or turns will appear here.</span>
               </div>
@@ -1400,7 +1401,7 @@
               <div class="flex flex-col gap-2.5 py-1">
                 {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
                   <div
-                    class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20"
+                    class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20"
                   >
                     <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
                       <div class="flex items-center gap-tight">
@@ -1422,7 +1423,7 @@
                         </span>
                       {/if}
 
-                      <div class="flex flex-1 flex-col gap-1">
+                      <div class="flex flex-1 flex-col gap-tight">
                         {#if record.new_value === null}
                           <span class="font-mono text-xs text-red-400 italic">cleared (null)</span>
                         {:else}
@@ -1439,7 +1440,7 @@
                       </div>
 
                       {#if record.visibility || record.weight}
-                        <div class="flex shrink-0 items-center gap-1.5 font-mono text-[10px]">
+                        <div class="flex shrink-0 items-center gap-tight font-mono text-[10px]">
                           {#if record.visibility === "hide"}
                             <span class="rounded bg-red-950/40 px-1.5 py-0.5 text-red-400">hide</span>
                           {/if}
@@ -1456,7 +1457,7 @@
           {:else}
             <!-- Reconstructed Tab -->
             <div class="flex flex-col gap-standard py-1">
-              <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-tight">
                 <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
                 <div
                   class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
@@ -1466,7 +1467,7 @@
               </div>
 
               {#if reconstructed_prose}
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-tight">
                   <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Raw Prose </span>
                   <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs text-slate-300">
                     {reconstructed_prose}
@@ -1493,7 +1494,7 @@
     >
       <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
         <!-- Header -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-standard">
           <div class="flex flex-col">
             <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Profile Timeline Scrubber</h4>
             <span class="font-mono text-xs text-slate-400">
@@ -1520,7 +1521,7 @@
           </div>
 
           <!-- Round Selector Strip -->
-          <div class="flex flex-wrap items-center gap-1.5 pt-1">
+          <div class="flex flex-wrap items-center gap-tight pt-1">
             {#each available_timeline_rounds as r (r)}
               <button
                 type="button"
@@ -1546,7 +1547,7 @@
               <!-- Present Quadrant -->
               <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
                 <span class="font-mono text-xs font-bold text-cyan-300">PRESENT QUADRANT</span>
-                <div class="flex flex-col gap-1.5 font-mono text-xs">
+                <div class="flex flex-col gap-tight font-mono text-xs">
                   <span class="text-[10px] text-slate-400 uppercase">Physical:</span>
                   <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight text-slate-300">
                     {reconstructed_timeline_state.present.physical || "<empty>"}
@@ -1580,11 +1581,11 @@
 
             <!-- Recorded mutations in this specific round -->
             {#if timeline_round_events.length > 0}
-              <div class="flex flex-col gap-1.5 rounded-xl border border-white/5 bg-black/20 p-standard">
+              <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-standard">
                 <span class="font-mono text-[11px] font-semibold text-slate-400">
                   Round {selected_timeline_round} Mutations ({timeline_round_events.length})
                 </span>
-                <div class="flex max-h-32 flex-col gap-1 overflow-y-auto font-mono text-[11px] text-slate-300">
+                <div class="flex max-h-32 flex-col gap-tight overflow-y-auto font-mono text-[11px] text-slate-300">
                   {#each timeline_round_events as ev (ev.id || `${ev.field}-${ev.round}-${ev.seq || 0}-${ev.timestamp}`)}
                     <div class="flex items-center justify-between gap-tight border-b border-white/5 py-0.5">
                       <div class="flex items-center gap-tight truncate">
@@ -1605,7 +1606,7 @@
         </div>
 
         <!-- Actions Footer -->
-        <div class="flex items-center justify-between border-t border-white/10 pt-4">
+        <div class="flex items-center justify-between border-t border-white/10 pt-standard">
           <div class="font-mono text-[11px] text-slate-500">Reverting alters current profile. Cloning branches a separate entity into census.</div>
 
           <div class="flex items-center gap-tight">
@@ -1917,7 +1918,7 @@
 
               {#if should_show_bracket_tip(field.key, raw)}
                 <div
-                  class="flex items-center gap-1.5 rounded-md border border-cyan-500/20 bg-cyan-950/20 px-2 py-1 text-[11px] leading-tight text-cyan-300/80"
+                  class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-2 py-1 text-[11px] leading-tight text-cyan-300/80"
                   transition:fade={{ duration: 150 }}
                 >
                   <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>

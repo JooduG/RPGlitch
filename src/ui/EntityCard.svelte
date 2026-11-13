@@ -461,7 +461,7 @@
         min-h-[50%]
         px-2
         pt-8
-        pb-4
+        pb-standard
       `}"
   >
     <span

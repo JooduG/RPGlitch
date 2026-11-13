@@ -588,7 +588,7 @@
   >
     <div class="flex min-h-0 w-full flex-col overflow-hidden">
       <div
-        class="mx-auto flex min-h-0 w-full flex-col gap-standard pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
+        class="mx-auto flex min-h-0 w-full flex-col gap-standard pb-standard opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
           ? 'opacity-100 delay-300 duration-200'
           : 'delay-0 duration-150'}"
       >
