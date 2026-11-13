@@ -47,8 +47,16 @@ export function get_master_gain() {
 export async function init_audio_on_gesture() {
   const context = get_audio_context();
   if (context && context.state === "suspended") {
+    // resume() stays pending until the first user gesture in autoplay-blocked
+    // contexts (and boot awaits this fn). Race it against a timeout so no
+    // caller — boot included — can hang forever on a black page. The pending
+    // resume still fulfills on first gesture; unlock listeners below re-run it.
+    const resume_attempt = context.resume();
+    resume_attempt.catch(() => {
+      /* Blocked by browser until gesture */
+    });
     try {
-      await context.resume();
+      await Promise.race([resume_attempt, new Promise((resolve) => setTimeout(resolve, 1500))]);
     } catch {
       /* Blocked by browser until gesture */
     }
