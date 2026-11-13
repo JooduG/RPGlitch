@@ -2,85 +2,81 @@
 
 ## Overview
 
-Headless, reactive simulation kernel and turn orchestration pipeline for **RPGlitch**.
-This package encapsulates the complete 3-turn narrative heartbeat (Director Shot, Character Shot, and Caretaker Round-Robin), XML prompt envelope compilation, streaming transport abstraction, Two-Tier Sieve RAG vector memory, bracket parsing, and Svelte 5 state reactivity.
+Headless, reactive simulation kernel, state runtime, and turn orchestration pipeline for **RPGlitch**.
+This package encapsulates the 3-turn narrative heartbeat (Director Shot, Character Shot, and Caretaker Round-Robin), prologue/epilogue lifecycle flows, XML prompt envelope compilation, priority-gated LLM transport abstraction, Two-Tier Sieve RAG vector memory, somatic/fractal dynamics math, and Svelte 5 state reactivity.
 
-### Parallel Coexistence & Migration Architecture
-
-`src/engine/` is built as a **sovereign parallel application engine** running alongside the legacy codebase until Phase 4 (Gate 4) cutover:
-
-- **Zero Legacy Dependency**: The engine does not import from legacy stores (`src/state/runtime.svelte.js`, `src/state/status.svelte.js`, `src/intelligence/director.js`).
-- **Data Layer Integration**: When Gate 2 consolidates the data layer (`src/data/db.js`), `Kernel` will read and write to the shared Dexie database schema. Existing user profiles, saved entities, and stories remain preserved.
-- **Preview Coexistence**: During Gate 3, a toggle/query parameter in the root shell mounted the engine UI alongside the legacy UI.
-- **Wholesale Cutover**: At Gate 4, the top-level application root switches from the legacy controller to `Kernel`, and deprecated files in `src/intelligence/` and `src/state/` are pruned.
+- **Barrel Entry & Dependency Inversion**: Consumer layers (`src/ui/`, `src/App.svelte`, `src/main.js`, `src/data/`) import via [`index.js`](./index.js). On module evaluation, [`index.js`](./index.js) registers [`execute_visualizer_envision`](./lifecycle.js) into `@media` via `set_visualizer_envision_impl` so the media layer never imports `@engine`.
+- **Cross-Package Delegation**: Runtime diagnostics and event logging live in [`../data/log.svelte.js`](../data/log.svelte.js) (`developer_log`), and bracket/`<think>` parsing lives in [`../data/parser.js`](../data/parser.js).
+- **Subdirectories**: None (`src/engine/` is a leaf package).
 
 ## Interface
 
-The package exposes its public interface via [`src/engine/index.js`](./index.js):
+The package exposes its primary public interface via [`index.js`](./index.js), plus direct-import utilities in [`dynamics.js`](./dynamics.js) and [`caretaker-compaction-template.md`](./caretaker-compaction-template.md).
 
-### 1. Authoritative State & Reactivity
+### 1. Session Lifecycle, Runs & Reactive State
 
-- [`Kernel`](./kernel.svelte.js): Authoritative Svelte 5 state class managing active entities (`user`, `ai`, `fractal`), macro state (`round`, `phase`), transcript `history`, and turn dispatch with transactional rollback on failure.
-  - `submit_turn(userText, options)`: Submits a user prompt, increments `round`, and executes the turn pipeline.
-  - `rewind_to_round(targetRound)`: Rewinds dialogue and macro round state.
-- [`DevLog`](./dev.svelte.js) / `dev_log`: Svelte 5 reactive telemetry ring buffer bounded to 100 events (`MAX_DEV_EVENTS = 100`) recording diagnostics (`DYNAMICS_DELTA`, `TURN_TEMPO`, `ERROR`).
-  - `record(type, payload)`: Appends an event to the ring buffer.
-  - `clear()`: Wipes the buffer.
+- [`chrono.svelte.js`](./chrono.svelte.js) (barrel):
+  - `ChronoEngine`, `chrono_engine`: Reactive session/turn controller (`error` `$state`) exposing `start(selection)`, `send(text)`, `retry()`, `continue(target_id)`, `advance_turn(input, options)`, and `stop()`.
+- [`runtime.svelte.js`](./runtime.svelte.js) (barrel):
+  - `RuntimeEngineStore`, `RuntimeEngine` (alias of `RuntimeEngineStore`), `runtime`: Authoritative Svelte 5 entity/story store (`active_user`, `active_ai`, `active_fractal`, `active_npcs`, `round`, `turn_type`, `story_id`, `active_story`, `ai`, `fractal`, `director_ms_pool`, `director_p50_ms`, `director_p95_ms`, `stagnation_turns`, `last_semantic_drift`, `is_ready`, `is_foreground_generating`, `is_background_generating`, `snapshot_entities`, `snapshot_npcs`) with `init_effects()`, `teardown_effects()`, `sync(active_story_id)`, `save(round)`, `save_entity(type, entity)`, `update_entity(type, id, data)`, `delete_entity(type, id)`, `restore_story_title()`, `reset_story_title()`, `record_director_latency(ms)`, `record_turn_drift(drift)`, `acquire_foreground_generation()`, `release_foreground_generation()`, `acquire_background_generation()`, `release_background_generation()`, `can_start_background_generation()`, and `_debug_inject(mock_data)`.
+- [`status.svelte.js`](./status.svelte.js) (barrel):
+  - `simulation_state` (`SimulationStateStore`), `ui_state` (`UIStateStore`), `streaming` (`StreamingStore`), `force_recover_simulation(reason)`, `install_freeze_watchdog()`: Simulation phase/thinking-stage store (`phase`, `role`, `intent_active`, `director_thinking`, `speaker_thinking`, `media_generating`, `busy`, `is_consolidating`, `start_generation`, `start_typing`, `stop_typing`, `complete`, `start_director_stage`, `set_delegated_speaker`, `start_media_stage`, `start_stream_stage`, `lock`, `unlock`, `set_intent_active`, `set_generating_entity`, `clear_generating_entity`), UI loading state (`loading`, `set_loading`), active stream buffer/abort handle (`active`, `content`, `node_id`, `role`, `abort_controller`, `start_stream`, `update_stream`, `end_stream`, `trigger_interrupt`), and tiered hang recovery.
+- [`kernel.svelte.js`](./kernel.svelte.js) (barrel):
+  - `Kernel`: Reactive headless turn state machine (`user`, `ai`, `fractal`, `round`, `phase`, `history`, `error`, `director_enabled`, `transport`) exposing `submit_turn(userText, options)`, `continue_turn(target, options)`, `rewind_to_round(targetRound)`, `retry(options)`, and `continue(options)`.
+- [`runs.js`](./runs.js):
+  - Barrel: `execute_turn(user_input, _options)`, `execute_continue(target_entry, _options)`.
+  - Direct module exports: `open_turn_session(app, runtime, feed)`, `write_back_kernel_state(kernel, outcome, live_transport, options)`, `dispatch_caretaker_consolidation(kernel, transport, signal)`.
+- [`lifecycle.js`](./lifecycle.js) (barrel):
+  - `execute_prologue(story_id)`, `execute_epilogue(story_id, conclusion_status)`, `execute_visualizer_envision(text, type, entity, app_style, signal)`, `structure_profile(raw, type, signal)`.
 
-### 2. Turn Orchestration & Life-Cycle
+### 2. Turn Orchestration & Dynamics Physics
 
-- [`execute_round(options)`](./turns.js): Orchestrates turns across a round with options `{ transport, round, entities, history, director_enabled, onChunk }`.
-- [`execute_turn_1_director(options)`](./turns.js): Turn 1 Director quick-shot generating dynamics deltas, visual cues, and tempo.
-- [`execute_turn_2_character(options)`](./turns.js): Turn 2 narrative shot streaming in-character prose and extracting `<think>` blocks.
-- [`execute_turn_3_caretaker(options)`](./turns.js): Turn 3 round-robin Caretaker maintenance updating quadrants (`eternal`, `present`, `future`, `past`).
-- [`calculate_turn_tempo(history)`](./turns.js): Dynamic pacing calculation based on recent dialogue history density.
-- [`resolve_caretaker_target(round, entities)`](./turns.js): Round-robin target selection (`AI` -> `USER` -> `FRACTAL` + active `npc`).
-- `CARETAKER_ROTATION`: Canonical rotation order constant `["AI", "USER", "FRACTAL"]`.
+- [`turns.js`](./turns.js):
+  - Barrel: `CARETAKER_ROTATION`, `build_turn_summary(feed, round)`, `calculate_turn_tempo(history)`, `execute_ghostwriter(transport, input_text, signal, on_token)`, `execute_round(options)`, `execute_turn_1_director(options)`, `execute_turn_2_character(options)`, `execute_turn_2_continue(options)`, `execute_turn_3_caretaker(options)`, `execute_turn_structuring(options)`, `execute_turn_visualizer(options)`, `resolve_caretaker_target(cursor_or_round, entities, use_cursor)`.
+  - Direct module exports: `extract_think_and_body(raw, start_with)`, `reconstruct_history_from_feed(feed, cast)`.
+- [`dynamics.js`](./dynamics.js) (direct module exports, not re-exported by [`index.js`](./index.js)):
+  - `reduce_dynamics(current, baselines, entropy, deltas)`, `apply_dynamics_gravity(dynamics, baselines, active_entropy, base_gravity, skip_axes)`, `extract_entity_dynamics_baselines(entity)`, `compute_dynamics_deltas(target, dynamics, runtime_target)`, `evaluate_subtext_protocols(options)`, `evaluate_dynamics_rules(dynamics, manual_keywords, max_directives)`.
 
-### 3. Prompt Assembly & Structural Verification
+### 3. Prompt Assembly, Structural Verification & Vector RAG
 
-- [`compile_prompt(options)`](./prompts.js): Pure XML prompt compiler supporting the 4 Purpose Cores (`director`, `character`, `caretaker`, `visualizer`). Compiles characters, relations, somatic state, past memories, and system instructions.
-- [`verify_compiled_prompt(xml_string)`](./verifier.js): Structural validator enforcing `<SYSTEM>` envelope integrity, tag symmetry, and anti-hallucination barriers.
-- [`verify_prompt_hygiene(prompt)`](./verifier.js), [`verify_tag_order(prompt, order)`](./verifier.js), [`verify_tag_balance(xml)`](./verifier.js), [`verify_system_envelope(xml)`](./verifier.js), [`extract_tag_sequence(xml)`](./verifier.js).
+- [`prompts.js`](./prompts.js):
+  - Barrel: `PURPOSE_CORES` (`DIRECTOR`, `CARETAKER`, `CHARACTER`, `VISUALIZER`), `compile_prompt({ core, round, entities, history, memories, task_options })`.
+  - Direct module export: `render_thinking_mode({ mode, lens, max_words, pivot_pov })`.
+- [`verifier.js`](./verifier.js) (barrel):
+  - `extract_tag_sequence(promptText)`, `verify_tag_balance(promptText)`, `verify_system_envelope(promptText)`, `verify_tag_order(promptText, expectedTagOrder)`, `verify_prompt_hygiene(promptText)`, `verify_compiled_prompt(promptText, options)`.
+- [`sieve.js`](./sieve.js):
+  - Barrel: `cosine_similarity(vecA, vecB)`, `count_text_tokens(text)`, `create_ephemeral_vector_cache()`, `score_and_rank_memories(candidates, queryVector)`, `two_tier_sieve_rag(options)`.
+  - Direct module export: `TOTAL_FIELD_FLOORS_CHARACTERS`.
+- [`caretaker-compaction-template.md`](./caretaker-compaction-template.md):
+  - Standalone reference summarization/compaction prompt template used for memory batch compression.
 
-### 4. Parsing & Stream Tokenization
+### 4. Priority Gate & Streaming Transport
 
-- [`parse_brackets(text)`](../data/parser.js): Extracts bracket tokens `[KEY: VALUE]` into structured token lists.
-- [`parse_bracket_token(raw_token)`](../data/parser.js): Parses a single bracket string into key, value, and metadata flags.
-- [`parse_think_block(text)`](../data/parser.js): Extracts `<think>...</think>` internal monologue from streaming or completed LLM outputs.
-- [`format_clean_brackets(state_obj)`](../data/parser.js): Serializes state objects into canonical `[KEY: VALUE]` bracket format.
-
-### 5. Two-Tier Sieve RAG & Vector Math
-
-- [`two_tier_sieve_rag(query, candidates, options)`](./sieve.js): Dual-tier vector retrieval with relevance decay, recency weighting, origin protection (`is_origin`), and diversity scoring.
-- [`score_and_rank_memories(query_embedding, memories, options)`](./sieve.js): Cosine similarity scoring with temporal decay.
-- [`create_ephemeral_vector_cache(max_size)`](./sieve.js): In-memory FIFO embedding cache bounded to 200 items.
-- [`cosine_similarity(vec_a, vec_b)`](./sieve.js): Normalized dot-product vector similarity.
-- [`count_text_tokens(text)`](./sieve.js): Hybrid token counter using native Perchance counter with character-ratio fallback.
-
-### 6. Streaming Transport Boundary
-
-- [`create_transport({ stream_fn, max_concurrency })`](./transport.js): Concurrency-controlled streaming gateway with queueing, cancellation, and chunk buffering.
+- [`gate.js`](./gate.js):
+  - Barrel: `LLM_PRIORITY` (`{ FOREGROUND: 10, BACKGROUND: 1 }`), `run_llm_job(run, priority)`, `resolve_priority(priority_name)`, `get_llm_gate_status()`.
+  - Direct module export: `_reset_gate_for_testing()`.
+- [`transport.js`](./transport.js):
+  - Barrel: `get_transport()`, `get_mock_message()`.
+  - Direct module exports: `create_live_stream_fn()`, `reset_transport()`, `generate_text(payload, options)`, `enhance_text(payload)`.
 
 ## Invariants
 
-- **Svelte 5 Purity**: All reactive state is modeled with `$state()` runes in `.svelte.js` files. No legacy stores (`writable`, `readable`) or Svelte 4 store subscriptions exist in `src/engine/`.
-- **Envelope Standard**: All compiled prompts strictly open with `<SYSTEM>` and close with `</SYSTEM>`.
-- **Epistemic Prompt Boundary**: Hidden properties flagged `| hide` are strictly excluded from opposing character contexts unless explicitly permitted by `see_hidden: true`.
-- **Quadrant Partitioning**: Caretaker bracket updates strictly partition into explicit quadrants (`eternal`, `present`, `future`, `past`).
-- **Dynamics Ownership & Bounding**:
-  - In 2-shot mode (`director_enabled: true`), dynamics deltas emitted by the Director are clamped to `[-20, 20]` per turn, and entity dynamics values are clamped within `[5, 95]`.
-  - In 1-shot mode (`director_enabled: false`), dynamics meters remain steady at current values (no LLM delta pass).
-- **Transactional Rollback**: If Turn 1 or Turn 2 fails during `Kernel.submit_turn()`, the `round` counter, `history` transcript, and both `ai.dynamics` and `fractal.dynamics` snapshots are restored to their pre-turn state.
-- **Ring Buffer Capping**: `DevLog` maintains an in-memory event buffer of at most 100 entries (`MAX_DEV_EVENTS = 100`). Sieve ephemeral vector cache caps at 200 items (`MAX_EPHEMERAL_VECTORS = 200`).
-- **Camera Note JSON Hygiene**: Diffusion visualizer camera parameters escape JSON strings properly to prevent prompt injection or schema breakage.
+- **Svelte 5 Purity**: All reactive state in `.svelte.js` modules uses Svelte 5 runes (`$state`, `$derived`, `$effect.root`, `SvelteSet`), with zero legacy Svelte 4 stores (`writable`, `readable`).
+- **Single-Flight Priority Gate & Preemption**: [`gate.js`](./gate.js) runs at most one LLM job at a time sorted by `(priority DESC, seq ASC)`. Foreground jobs (`LLM_PRIORITY.FOREGROUND = 10`) abort active background jobs (`LLM_PRIORITY.BACKGROUND = 1`) and schedule forced slot release after `TIMING_MS.INTERACTION`.
+- **Prompt Envelope & Epistemic Wall**: [`compile_prompt`](./prompts.js) enforces the 11-block Spatial State Spine opening with `<SYSTEM identity="...">` and closing with `</SYSTEM>`, capping `<RECENT>` at `TEMPO_ROUNDS.STANDARD` rounds and enforcing `see_hidden` visibility (`"all"` for `DIRECTOR`/`CARETAKER`, `"own"` for `CHARACTER`, `"none"` with inventory stripping for `VISUALIZER`). [`verify_system_envelope`](./verifier.js) validates `<SYSTEM` ... `</SYSTEM>` boundaries and [`verify_prompt_hygiene`](./verifier.js) rejects empty prompts or unparsed `{{...}}` mustache macros.
+- **Quadrant Partitioning & Caretaker Cursor**: Caretaker updates in [`execute_turn_3_caretaker`](./turns.js) and [`dispatch_caretaker_consolidation`](./runs.js) partition strictly into `eternal`, `present`, `future`, and `past` quadrants along `CARETAKER_ROTATION` (`["AI", "USER", "FRACTAL"]` plus active `NPC`). `runtime.back_shot_cursor` advances only after successful parsing and target persistence.
+- **Dynamics Ownership & Bounding**: [`execute_turn_1_director`](./turns.js) clamps emitted `dynamics_deltas` to `[-20, 20]` (defaulting to `MAIN_CHARACTER` and zeroed deltas on JSON parse failure). [`Kernel.submit_turn`](./kernel.svelte.js) clamps entity dynamics updates to `[5, 95]`, while [`dynamics.js`](./dynamics.js) clamps `reduce_dynamics` and `apply_dynamics_gravity` to `[0, 100]`.
+- **Transactional Rollback & Orphan Recovery**: [`Kernel.submit_turn`](./kernel.svelte.js) restores `round`, `history`, and `ai.dynamics` / `fractal.dynamics` / `user.dynamics` snapshots on failure. [`ChronoEngine.advance_turn`](./chrono.svelte.js) restores `runtime.round` on error/abort, deletes trailing user messages on user abort, and performs single-attempt orphan recovery via `_orphan_retry_in_flight`.
+- **Transport Fallback & Diffusion Sanitization**: [`generate_text`](./transport.js) restricts mock fallback strictly to local dev (`localhost` / `127.0.0.1` / `import.meta.env.DEV`, never under `VITEST`) and deduplicates `onToken` vs `onChunk` callbacks. [`execute_turn_visualizer`](./turns.js) strips `@tokens` and `[{}[\]]` brackets via `sanitize_diffusion_text`.
+- **Bounded Caches & Pools**: [`create_ephemeral_vector_cache`](./sieve.js) evicts FIFO at `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS`; [`two_tier_sieve_rag`](./sieve.js) applies `1.5x` origin priority (`is_origin`) within `FIELD_FLOORS.PAST` and `TOTAL_FIELD_FLOORS_CHARACTERS` budgets; [`RuntimeEngineStore.record_director_latency`](./runtime.svelte.js) caps `director_ms_pool` at `TELEMETRY_CAPS.DIRECTOR_LATENCY_POOL`.
 
 ## Side Effects
 
-- **State Mutation**: `Kernel.submit_turn()` mutates reactive state (`round`, `history`, `phase`, `ai.dynamics`, `fractal.dynamics`).
-- **Diagnostics & Telemetry**: Emits lifecycle events (`DYNAMICS_DELTA`, `TURN_TEMPO`, `ERROR`) to `dev_log`.
-- **Streaming Handlers**: Invokes consumer-provided `onChunk` streaming callback during Turn 2 inference.
+- **Boot Registration & Browser Globals**: [`index.js`](./index.js) injects `_execute_visualizer_envision` into `@media`; [`runtime.svelte.js`](./runtime.svelte.js) attaches `window.runtime` and mounts an auto-save `$effect.root` when `window` is defined; [`install_freeze_watchdog`](./status.svelte.js) starts a single `window.setInterval` heartbeat at `TIMING_MS.HEARTBEAT`.
+- **IndexedDB Persistence**: [`RuntimeEngineStore`](./runtime.svelte.js), [`runs.js`](./runs.js), [`lifecycle.js`](./lifecycle.js), and [`chrono.svelte.js`](./chrono.svelte.js) read and mutate Dexie tables (`db.stories`, `db.kv_settings`, `db.simulation_log`, `entities`, `append_ledger_entries`, `log_message`, `session_driver`).
+- **External LLM & Media Dispatch**: [`transport.js`](./transport.js) probes host `window`/`window.parent` Perchance text plugins under [`gate.js`](./gate.js) queuing/preemption and updates `stream_bridge`; [`runs.js`](./runs.js) and [`lifecycle.js`](./lifecycle.js) trigger detached image beats (`spawn_image_beat`, `visual_engine.visualize`).
+- **Web Speech Audio & Telemetry**: [`StreamingStore`](./status.svelte.js) drives `Audio.voice` streaming/interruption; [`status.svelte.js`](./status.svelte.js), [`runs.js`](./runs.js), [`lifecycle.js`](./lifecycle.js), and [`chrono.svelte.js`](./chrono.svelte.js) emit diagnostics to `developer_log` (`../data/log.svelte.js`), `app.log`, and `console`.
 
 ## Verification
 
-- Run test suite: `npm run test:engine`
+- Run: `npx vitest run src/engine/`

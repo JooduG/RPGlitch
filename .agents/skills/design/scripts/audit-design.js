@@ -192,6 +192,63 @@ export function findUnusedTokens() {
 
   const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
 
+  // Tailwind v4 resolves utilities from theme tokens, so a token counts as
+  // USED when any of these appear in src: the literal `--token`, its bare
+  // name as a hyphen-delimited class fragment (bg-glass-elevated,
+  // font-heading, opacity-ghost, ...), or a namespace-aliased utility
+  // (rounded-X -> --radius-X, size-X -> --spacing-X). Unprefixed multi-word
+  // rests (glass-elevated) are distinctive enough to count; single words are
+  // not, so they only count with their namespace prefix.
+  function token_used_in_code(token, combined_content) {
+    const literal = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);
+    if (literal.test(combined_content)) return true;
+    const bare = token.startsWith("--") ? token.slice(2) : token;
+    const fragment = new RegExp(`(?<![a-zA-Z0-9])${bare}(?![a-zA-Z0-9])`);
+    if (fragment.test(combined_content)) return true;
+    const rest_aliases = [];
+    if (bare.startsWith("radius-")) rest_aliases.push(`rounded-${bare.slice("radius-".length)}`);
+    if (bare.startsWith("spacing-")) rest_aliases.push(`size-${bare.slice("spacing-".length)}`);
+    for (const alias of rest_aliases) {
+      if (new RegExp(`(?<![a-zA-Z0-9])${alias}(?![a-zA-Z0-9])`).test(combined_content)) return true;
+    }
+    if (bare.startsWith("color-")) {
+      const rest = bare.slice("color-".length);
+      if (rest.includes("-") && new RegExp(`(?<![a-zA-Z0-9])${rest}(?![a-zA-Z0-9])`).test(combined_content)) return true;
+      for (const utility of [
+        "bg",
+        "text",
+        "border",
+        "ring",
+        "fill",
+        "stroke",
+        "from",
+        "via",
+        "to",
+        "accent",
+        "decoration",
+        "placeholder",
+        "outline",
+        "shadow",
+      ]) {
+        if (new RegExp(`(?<![a-zA-Z0-9])${utility}-${rest}(?![a-zA-Z0-9])`).test(combined_content)) return true;
+      }
+    }
+    const bare_rest =
+      bare.includes("-") && (bare.startsWith("spacing-") || bare.startsWith("grid-") || bare.startsWith("order-"))
+        ? bare.split("-").slice(1).join("-")
+        : null;
+    if (bare_rest && bare_rest.includes("-") && new RegExp(`(?<![a-zA-Z0-9])${bare_rest}(?![a-zA-Z0-9])`).test(combined_content)) return true;
+    return false;
+  }
+
+  // Tokens referenced only through runtime construction (setProperty,
+  // `--${name}` hydration over the generated bridge) never appear literally.
+  // Each entry names a concrete construction site in src/.
+  const RUNTIME_CONSTRUCTED_TOKENS = new Set([
+    "--signature-color", // Storyboard.svelte: clone/element setProperty
+    "--active-signature-color", // interface.svelte.js: documentElement setProperty
+  ]);
+
   const unused = Array.from(definedMap.keys()).filter((token) => {
     // Exempt signature color palette stuff from debt
     const signatureColors = [
@@ -214,8 +271,8 @@ export function findUnusedTokens() {
     ];
     if (signatureColors.includes(token)) return false;
 
-    const regex = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);
-    return !regex.test(combined_content);
+    if (RUNTIME_CONSTRUCTED_TOKENS.has(token)) return false;
+    return !token_used_in_code(token, combined_content);
   });
 
   if (unused.length > 0) {

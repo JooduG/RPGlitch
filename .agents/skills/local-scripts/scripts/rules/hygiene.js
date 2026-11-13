@@ -63,6 +63,10 @@ const REGEX_PASCAL = /^[A-Z][a-zA-Z0-9]+$/;
 const REGEX_ALL_CAPS = /^[A-Z][A-Z0-9_]*$/;
 const REGEX_VAR = /\bvar\s+[a-zA-Z_$][a-zA-Z0-9_$]*/;
 
+// Filenames the kebab-case rule must never flag: dotfiles are tool config
+// (audited separately), and these exact spellings are mandated by tooling.
+const KEBAB_FILENAME_ALLOWLIST = new Set(["fixtures.test-util.js"]);
+
 const STRIP_SUFFIXES = [".template", ".svelte", ".test", ".spec", ".manual", ".unit", ".integration", ".d"];
 const TEST_SUFFIXES = [".test", ".spec", ".manual", ".unit", ".integration"];
 const SUBJECT_EXTENSIONS = [".svelte", ".svelte.js", ".svelte.ts", ".js", ".ts"];
@@ -115,6 +119,7 @@ export const lexical_hygiene_rules = [
     message: "File must be kebab-case.",
     audit_path: (entry_name, is_directory, relative_path) => {
       if (is_directory || entry_name.includes("RPGlitch") || entry_name.startsWith("@") || entry_name.startsWith("$")) return true;
+      if (entry_name.startsWith(".") || KEBAB_FILENAME_ALLOWLIST.has(entry_name)) return true;
       if ((entry_name.endsWith(".svelte") || entry_name.endsWith(".svelte.js")) && !entry_name.includes(".template.")) return true;
       const base_stem = extract_base_stem(entry_name);
       if (REGEX_ALL_CAPS.test(base_stem)) return true;

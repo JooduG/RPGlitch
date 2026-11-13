@@ -3,76 +3,80 @@
 ## Overview
 
 Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling).
-This package encapsulates procedural Web Audio sound effect synthesis, browser Web Speech voice fallback, pure optics tier taxonomy, Perchance stateless image generation dispatching, design tokens, and transitional compatibility facades.
+This package encapsulates procedural Web Audio sound effect synthesis, browser Web Speech voice fallback, unified Svelte 5 kinetic motion and card-flight physics, pure optics tier taxonomy, Perchance stateless image generation dispatching, design tokens, and transitional compatibility facades.
 
 ### Parallel Coexistence & Migration Architecture
 
-`src/media/` is built as the **sovereign sensory presentation layer** running alongside legacy consumers until Phase 4 (Gate 4) atomic cutover:
+`src/media/` is built as the **sovereign sensory presentation layer** running alongside legacy consumers:
 
-- **Zero Upward Dependencies**: Imports downward strictly from `@utils`, `@config`, and `@platform`. Never imports from `@data`, `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
-- **Procedural SFX (Zero Remote Audio Assets)**: All UI sound effects are procedurally synthesized using Web Audio oscillators, biquad filters, and noise envelopes. Zero remote `.wav` file downloads or network dependencies.
-- **Excised Kokoro Neural Stack**: The legacy 1,248-line ONNX/WebGPU Kokoro neural voice pipeline and 373-line `speech.js` have been purged to protect the 4.00 MB bundle ceiling and 50 MiB iframe memory boundary. In-browser speech synthesis is handled cleanly via the standard Web Speech API.
-- **Transitional Facade Shims**: Re-export shims [`audio.svelte.js`](./audio.svelte.js) and [`visual.svelte.js`](./visual.svelte.js) preserve parallel operation for legacy consumers (`Feed.svelte`, `Message.svelte`, `story.js`, and unit test mocks) without breaking imports.
+- **Zero Upward Dependencies**: Imports downward strictly from `@utils`, `@config`, `../definitions/visual-styles.js`, and `svelte/easing` / `svelte/motion`. Never imports from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
+- **Procedural SFX (Zero Remote Audio Assets)**: All UI sound effects are procedurally synthesized using Web Audio oscillators (`OscillatorNode`), noise buffers (`AudioBufferSourceNode`), and gain envelopes (`GainNode`). Zero remote `.wav` file downloads or network dependencies.
+- **Excised Kokoro Neural Stack**: In-browser speech synthesis is handled cleanly via the standard Web Speech API (`window.speechSynthesis`) rather than an ONNX/WebGPU neural voice pipeline, protecting the 4.00 MB bundle ceiling and 50 MiB iframe memory boundary.
+- **Unified Kinetic Engine & Transitional Facades**: [`motion.svelte.js`](./motion.svelte.js) unifies reduced-motion detection, kinetic hover actions, Svelte transitions, and storyboard card flights, while [`audio.svelte.js`](./audio.svelte.js) (`Audio`, `AudioEngine`, `audio_engine`) and [`visual.svelte.js`](./visual.svelte.js) (`visual_engine`, `VisualEngine`) preserve facade compatibility.
 
 ## Interface
 
-The package exposes its public interface via [`src/media/index.js`](./index.js):
+The package exposes its public interface via [`index.js`](./index.js):
 
-### 1. Procedural Web Audio SFX & Web Speech API Voice
+### 1. Procedural Web Audio SFX & Web Speech API Voice (`audio.svelte.js`)
 
-- [`play_sfx(type, options)`](./audio.js): Plays procedurally synthesized sound effects (`"click"`, `"pop"`, `"glitch"`, `"alert"`, `"subtle_hum"`). Cleans up audio nodes immediately on ended to prevent memory leaks.
-- [`init_audio_on_gesture()`](./audio.js): Unlocks and resumes the shared hardware `AudioContext` on first verified user interaction.
-- [`suspend_audio()`](./audio.js): Suspends hardware `AudioContext` when idle or tab is hidden.
-- [`close_audio_context()`](./audio.js): Closes and resets the audio graph.
-- [`get_audio_context()`](./audio.js), [`get_master_gain()`](./audio.js): Returns shared Web Audio instances.
-- [`set_master_volume(level)`](./audio.js): Sets master volume `[0.0 - 1.0]` in memory.
-- [`toggle_mute()`](./audio.js): Toggles audio mute state.
-- [`VoiceEngine`](./audio.js): Web Speech API voice synthesis controller exposing `speak(text, should_clear_queue, force)`, `stop()`, `pause()`, and `toggle_pause()`.
-- Pure Voice Helpers: [`get_cadence_rate(role, dynamics)`](./audio.js), [`resolve_voice_uri(role, character)`](./audio.js), [`resolve_voice_name(name)`](./audio.js), [`normalize_role(role, options)`](./audio.js).
-- Transitional Facades: [`Audio`](./audio.js) / `audio_engine`, `AudioEngine`.
+- [`audio.svelte.js`](./audio.svelte.js):
+  - `play_sfx(type, options = {})`: Plays procedurally synthesized sound effects (`"click"`, `"pop"`, `"glitch"`, `"alert"`, `"subtle_hum"`, fallback tone) and cleans up audio nodes on `onended`.
+  - `init_audio_on_gesture()`, `suspend_audio()`, `close_audio_context()`, `get_audio_context()`, `get_master_gain()`: Hardware `AudioContext` and `GainNode` lifecycle management.
+  - `set_master_volume(level)`, `toggle_mute()`: Master gain and mute controls.
+  - `VoiceEngine`: Web Speech API voice synthesis controller exposing `is_role_enabled()`, `load_voices()`, `preview()`, `resume_context()`, `set_volume()`, `speak()`, `stop()`, `pause()`, `resume()`, `toggle_pause()`, `destroy()`, `apply_stream_role()`, `queue_stream_sentence()`, `flush_stream_remainder()`, and `reset_stream()`.
+  - Pure Voice Helpers & Cadences: `VOICE_CADENCES`, `CADENCE_RATES` (direct export in `audio.svelte.js`, not re-exported by `index.js`), `voice_role_key(role)`, `normalize_role(role, options)`, `resolve_voice_uri(name_or_uri)`, `resolve_voice_name(name_or_uri)`, `get_cadence_rate(cadence, dynamics_value = 50)`.
+  - Transitional Facades: `AudioEngine`, `Audio`, and `audio_engine` (direct export in `audio.svelte.js`, aliased as `Audio` in `index.js`).
 
-### 2. Stateless Perchance Visual Dispatcher & Queue Bookkeeping
+### 2. Unified Kinetic & Motion Physics Engine (`motion.svelte.js`)
 
-- [`dispatch_visual_generation(payload, options)`](./visual.js): Dispatches visual generation to the host Perchance `generate_image` iframe plugin with exponential backoff (2500ms initial for 429/503), circuit breaker failure insulation, and `AbortSignal` cancellation. Returns deterministic SVG data URIs in offline/test environments.
-- In-Flight Set Bookkeeping: [`mark_generation_in_flight(id, index)`](./visual.js), [`clear_generation_in_flight(id, index)`](./visual.js), [`is_generation_in_flight(id, index)`](./visual.js), [`reset_generation_in_flight()`](./visual.js).
-- Queue & Ghost Lifecycle: [`spawn_image_beat(tier, options)`](./visual.js), [`sweep_stale_ghosts()`](./visual.js), [`count_pending_ghosts()`](./visual.js), [`mark_placeholder_failed(id, metadata)`](./visual.js), [`reset_image_generation_queue()`](./visual.js).
-- Host Plugin Discovery: [`find_image_engine()`](./visual.js), [`reset_cached_image_engine()`](./visual.js).
-- Transitional Facades: [`visual_engine`](./visual.js), `VisualEngine`.
+- [`motion.svelte.js`](./motion.svelte.js):
+  - `motion`: Reactive `$state` namespace tracking `intensity` (`0.0`–`1.0`) and `is_reduced` (`prefers-reduced-motion`).
+  - Kinetic Svelte Actions: `pulse(node)`, `roll(node)`, `shimmy(node)`, `stab(node)`.
+  - Svelte Transitions: `overlay_in(_node, options)`, `overlay_out(_node, options)`, `item_in(_node, options)`.
+  - Card Flight & Scrub Primitives: `fly_card_in(source_el, from_rect, to_rect, options)`, `fly_card_out(source_el, to_rect, options)`, `make_card_clone(el, tag, z)`, `rect_of(el)`, `strip_card_text(el)`, `capture_storyboard_flight(enabled)`, `fly_storyboard_cards_into_prologue(assets, dst_rects)`, `update_card_scrub()`, `clear_card_location()`.
 
-### 3. Pure Optics Taxonomy & Guidance Scale
+### 3. Stateless Perchance Visual Dispatcher & Queue Bookkeeping (`visual.svelte.js`)
 
-- `IMAGE_TIERS`: The 4 canonical image generation tiers `["story_entities", "story_character", "solo_entity", "story_scene"]`.
-- `DEFAULT_IMAGE_TIER`: Default scene tier (`"story_scene"`).
-- [`normalize_image_tier(target_type)`](./optics.js): Normalizes tier keys and colloquial aliases to canonical tier names.
-- [`get_resolution(mode)`](./optics.js): Resolves `{ width, height }` dimensions from `IMAGE_RESOLUTIONS`.
-- [`get_tier_guidance_scale(mode)`](./optics.js): Returns calibrated guidance scale (7 for `story_scene`, 9 for character/solo).
-- [`resolve_image_trigger(parameters)`](./optics.js): Evaluates dual-source image trigger arbitration (Director explicit vs dynamics gate) with 3-round cooldown.
+- [`visual.svelte.js`](./visual.svelte.js):
+  - `dispatch_visual_generation(payload, options = {})`: Dispatches visual generation to the host Perchance image plugin with `AbortSignal` cancellation, `CircuitBreaker` insulation, `ExponentialBackoffRetryer` retries, or offline SVG fallback.
+  - Visual Prompt Hygiene: `rescue_visual_prose(text)`, `sanitize_visual_text(text)`, `resolve_story_beat_style(options)`, `compose_story_beat_prompt(prompt_text, style_key, base_negative = "")`.
+  - In-Flight Set & Queue Bookkeeping: `_in_flight_image_generations`, `_image_generation_queue`, `mark_generation_in_flight(id, attachment_index = 0)`, `clear_generation_in_flight(id, attachment_index = 0)`, `is_generation_in_flight(id, attachment_index = 0)`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`, `_remove_from_image_generation_queue(id)` (direct export in `visual.svelte.js`, not re-exported by `index.js`).
+  - Ghost & Beat Lifecycle: `spawn_image_beat(tier, options = {})`, `sweep_stale_ghosts()`, `count_pending_ghosts()`, `mark_placeholder_failed(id, metadata = {})`.
+  - Host Plugin Discovery & Facades: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine`, `visual_engine`, `set_visualizer_envision_impl(fn)`.
 
-### 4. Visual Color Palettes & Signature Tokens
+### 4. Pure Optics Taxonomy & Guidance Scale (`optics.js`)
 
-- [`get_signature_color(entity)`](./palette.js): Resolves hex color code for entity's signature color.
-- [`get_signature_label(entity)`](./palette.js): Resolves uppercase label for entity signature color.
-- [`ensure_theme_tokens()`](./palette.js): Injects design tokens into DOM.
-- `SIGNATURE_COLORS`, `PALETTE`, `PALETTE_CSS_VARIABLES`, `TOKENS`: Authoritative Nordic visual tokens generated from `DESIGN.md`.
+- [`optics.js`](./optics.js):
+  - `IMAGE_TIERS`: Canonical frozen tuple `["story_entities", "story_character", "solo_entity", "story_scene"]`.
+  - `ORDERED_VISUAL_STYLE_KEYS`: Frozen tuple of `_visual_style_*` trait keys (`medium`, `palette`, `camera`, `composition`, `texture`, `tags`).
+  - `normalize_image_tier(target_type)`, `get_resolution(mode)`, `get_resolution_string(mode)`, `get_tier_guidance_scale(mode)`, `resolve_image_trigger(parameters)`.
+  - `resolve_visual_engine_tokens(visual_style_key)`, `build_aesthetic_map(entity = {})`, `flatten_aesthetic_map(entity = {})`, `extract_aesthetic_traits(entity = {})`, `render_optics_fallback(parameters)`.
+
+### 5. Visual Color Palettes & Signature Tokens (`palette.js`, `tokens.js`)
+
+- [`palette.js`](./palette.js):
+  - `get_signature_color(entity, fallback = "var(--color-frozen)")`, `get_signature_label(entity)`, `ensure_theme_tokens()`.
+  - Direct module exports not in `index.js`: `resolve_token(color)`, `get_deterministic_color(seed = "default")`, `get_color_name(color_value)`.
+- [`tokens.js`](./tokens.js):
+  - `SIGNATURE_COLORS` (15 labels), `PALETTE` (28 frozen color-to-hex entries), `PALETTE_CSS_VARIABLES` (28 frozen hex-to-CSS-var entries), `TOKENS` (90 frozen design-system tokens generated from `DESIGN.md`).
 
 ## Invariants
 
-- **Zero Upward Layer Violations**: `src/media/` must never import from `@data`, `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
-- **User Gesture Requirement**: `AudioContext` is never constructed during module evaluation. It is strictly instantiated or resumed on verified user interaction (`pointerdown`, `keydown`).
-- **Memory Leak Protection**: Every procedural SFX node explicitly detaches event handlers (`source.onended = null`) and disconnects from the audio graph upon completion.
-- **Bounded Queue**: Active background image generation queue is bounded to 5 slots (`IMAGE_GENERATION_QUEUE_CAPACITY = 5`). Overflows evict the oldest unresolved placeholder and mark it failed.
-- **Ghost Card Limit**: Unresolved placeholders older than 2 minutes (`IMAGE_GHOST_MAX_AGE_MS = 120000`) are swept as stale. Hard cap of 5 pending ghosts (`IMAGE_PLACEHOLDER_HARD_CAP = 5`) halts new triggers.
-- **Calibrated Guidance Scales**: Diffusion CFG guidance scales are strictly preserved at 7 for environmental scenes and 9 for character portraits.
-- **Stateless Dispatch**: Generation calls are stateless functions taking payloads and options; no UI progress state is held at Rank 1.
+- **Zero Upward Layer Violations**: `src/media/` must never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`; `VisualEngine.envision` requires runtime dependency injection via `set_visualizer_envision_impl(fn)`.
+- **Silent Boot & User Gesture Audio (`audio.svelte.js`)**: `AudioContext` is never constructed at module evaluation, `is_muted` and `VoiceEngine.enabled` boot disabled, `init_audio_on_gesture()` races `context.resume()` against a 1500ms timeout, and every procedural SFX node detaches `source.onended = null` and disconnects on completion.
+- **Accessibility & Card-Flight Locking (`motion.svelte.js`)**: `motion.is_reduced` tracks `(prefers-reduced-motion: reduce)`, suppressing kinetic actions (except `roll`), collapsing transition durations to `0`, and bypassing `fly_storyboard_cards_into_prologue`; `_begin_flight_running` prevents overlapping prologue flights.
+- **Bounded Queue & Stale Ghost Sweep (`visual.svelte.js`)**: Active pending image beats and queue depth are capped at `IMAGE_POLICY.MAX_PENDING_IMAGES` (`5`), overflowing queues evict and fail the oldest placeholder, and `sweep_stale_ghosts()` sweeps unresolved entries older than `TIMING_MS.CEILING` (`120000` ms) while sparing `_in_flight_image_generations`.
+- **Template Syntax Hygiene & Fault Insulation (`visual.svelte.js`)**: `sanitize_visual_text()` strips `{`, `}`, `[`, `]`, and `@` from `@TARGET` tokens before Perchance evaluation; `dispatch_visual_generation()` enforces `visual_circuit_breaker` (`failure_threshold: 3`, `success_threshold: 2`, `recovery_timeout: 30000` ms) and `visual_retryer` (`max_attempts: 3`, `initial_delay: 2500` ms, `max_delay: 15000` ms).
+- **Calibrated Guidance Scales & Trigger Arbitration (`optics.js`)**: `get_tier_guidance_scale()` returns `IMAGE_POLICY.GUIDANCE.SCENE` (`7`) for `"story_scene"` and `IMAGE_POLICY.GUIDANCE.CHARACTER` (`9`) for character/group tiers; `resolve_image_trigger()` enforces at most 1 image beat per round with independent `IMAGE_POLICY.COOLDOWN_ROUNDS` (`3`) cooldowns and Director preemption over Dynamics.
+- **Generated Token Artifacts (`tokens.js`)**: `tokens.js` is generated from `DESIGN.md` via `npm run sync:css`; edit `DESIGN.md` rather than hand-editing generated values.
 
 ## Side Effects
 
-- **Web Audio Hardware**: Activates and modulates the browser hardware sound device.
-- **Web Speech API**: Dispatches spoken dialogue utterances via `window.speechSynthesis`.
-- **Perchance Iframe Messages**: Sends diffusion generation payloads across iframe boundaries to the host Perchance environment.
-- **Session Driver Attachments**: Updates simulation feed log attachments via `state_bridge.session_driver` during background image resolution.
+- **Web Audio & Web Speech Hardware (`audio.svelte.js`)**: Registers `{ once: true }` gesture-unlock listeners on `document`, queries `window.speechSynthesis.getVoices()` with a `"voiceschanged"` listener at module load, instantiates and resumes `AudioContext` / `GainNode` / oscillators, and dispatches `SpeechSynthesisUtterance` playback.
+- **DOM Mutation, Listeners & Timers (`motion.svelte.js`, `palette.js`)**: Subscribes to `window.matchMedia("(prefers-reduced-motion: reduce)")`, injects `<style id="card-flight-scrub-style">` into `document.head`, clones and animates `document.body` nodes via Web Animations and `requestAnimationFrame`, toggles `data-scrub-hidden`/`tabindex` attributes, and injects missing `--*` CSS custom properties onto `document.documentElement.style` via `ensure_theme_tokens()`.
+- **Perchance Host Messages & Bridge Persistence (`visual.svelte.js`)**: Invokes host/parent `pluginGenerateImage` or `generate_image`, mutates module-scoped `_in_flight_image_generations` / `_image_generation_queue` / `cached_image_engine`, writes placeholders and resolves attachments via `state_bridge.session_driver` / `state_bridge.simulation_log`, and logs warnings to `state_bridge.app?.log` and `console.warn`.
 
 ## Verification
 
-- Run test suites:
-  - `npx vitest run src/media/` (Runs `audio.test.js`, `visual.test.js`, `optics.test.js`, `tokens.test.js`)
+- Run: `npx vitest run src/media/` (runs `audio.test.js`, `motion.test.js`, `optics.test.js`, `transitions.test.js`, `visual.test.js`)
