@@ -129,29 +129,39 @@ export class ProfileState {
   }
 
   /**
+   * Deep copy of a char canonicalized the way the system canonicalizes on
+   * touch (id commit form, AudioWing voice fills), so pristine state never
+   * diffs against itself. Uses the real resolvers (not a copy) so this can't
+   * drift from AudioWing. Shared by the snapshot and the live side of the
+   * diff — both sides must be canonical, not just one.
+   */
+  canonical_copy(char) {
+    const snap = JSON.parse(JSON.stringify(char));
+    if (snap) {
+      if (typeof snap.id === "string")
+        snap.id = snap.id
+          .toUpperCase()
+          .replace(/[^A-Z0-9_-]/g, "")
+          .slice(0, 20);
+      const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
+      if (v) {
+        const vkey = v.name || v.uri || "Cinematic Narrator";
+        v.name = resolve_voice_name(vkey);
+        v.uri = resolve_voice_uri(vkey);
+        if (v.cadence == null) v.cadence = "standard";
+      }
+    }
+    return snap;
+  }
+
+  /**
    * (Re)baselines the discard-dialog snapshot, canonicalized the same way the
    * system canonicalizes on touch, so mount fills and pristine commits don't
-   * read as user edits. Uses the real resolvers (not a copy) so this can't
-   * drift from AudioWing.
+   * read as user edits.
    */
   take_edit_snapshot() {
     try {
-      const snap = JSON.parse(JSON.stringify(this.char));
-      if (snap) {
-        if (typeof snap.id === "string")
-          snap.id = snap.id
-            .toUpperCase()
-            .replace(/[^A-Z0-9_-]/g, "")
-            .slice(0, 20);
-        const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
-        if (v) {
-          const vkey = v.name || v.uri || "Cinematic Narrator";
-          v.name = resolve_voice_name(vkey);
-          v.uri = resolve_voice_uri(vkey);
-          if (v.cadence == null) v.cadence = "standard";
-        }
-      }
-      this._edit_snapshot = snap;
+      this._edit_snapshot = this.canonical_copy(this.char);
     } catch {
       this._edit_snapshot = null;
     }
@@ -164,7 +174,8 @@ export class ProfileState {
   describe_dirty() {
     try {
       if (!this._edit_snapshot || !this.char) return "Changed: (snapshot unavailable)";
-      const paths = this.collect_changed_paths(this._edit_snapshot, this.char, "", [], 0);
+      const live = this.canonical_copy(this.char);
+      const paths = this.collect_changed_paths(this._edit_snapshot, live, "", [], 0);
       if (!paths.length) return "Flag set, but no content differences found.";
       return "Changed: " + paths.join(", ");
     } catch {
