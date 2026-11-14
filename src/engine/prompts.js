@@ -35,8 +35,9 @@ import { caretaker_brief } from "../definitions/profile-taxonomy.js";
  */
 export function render_thinking_mode({ mode = "analysis", lens = "", max_words = 120, pivot_pov = false } = {}) {
   if (mode === "immersion") {
-    const pov_rule = pivot_pov
-      ? "\n    4. **Perspective Pivot**: Close \\</think\\> before narrative prose. Pivot immediately to third-person perspective ('he', 'she', 'they') for all narrative prose; never voice first-person pronouns ('I', 'me') outside \\</think\\>."
+    const pov_rule =
+      pivot_pov ?
+        "\n    4. **Perspective Pivot**: Close \\</think\\> before narrative prose. Pivot immediately to third-person perspective ('he', 'she', 'they') for all narrative prose; never voice first-person pronouns ('I', 'me') outside \\</think\\>."
       : "\n    4. **Boundary**: Close \\</think\\> before narrative prose. Never emit visible prose inside \\<think\\> tags.";
 
     return `    ### Thinking Mode
@@ -197,16 +198,14 @@ ${thinking_block}
       const is_character = context?.is_character ?? true;
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
 
-      const perspective_rule = is_first_person
-        ? "Maintain strict **first-person** perspective *('I', 'me', 'my')* anchored to your own sensory experience. Never speak, script, or dictate actions for anyone else."
+      const perspective_rule =
+        is_first_person ?
+          "Maintain strict **first-person** perspective *('I', 'me', 'my')* anchored to your own sensory experience. Never speak, script, or dictate actions for anyone else."
         : "Maintain strict **third-person** perspective anchored to your own identity. Never speak, script, or dictate actions for anyone else.";
 
-      const thinking_block = is_character
-        ? render_thinking_mode({
-            mode: "immersion",
-            max_words: 120,
-            pivot_pov: !is_first_person,
-          })
+      const thinking_block =
+        is_character ?
+          render_thinking_mode({ mode: "immersion", max_words: 120, pivot_pov: !is_first_person })
         : render_thinking_mode({
             mode: "analysis",
             max_words: 80,
@@ -234,20 +233,23 @@ ${thinking_block}
     task_block: (context) => {
       const raw_note = typeof context === "string" ? context : context?.camera_note;
       const camera_note = raw_note ? String(raw_note).trim() : "";
-      const aesthetic_direction = camera_note
-        ? `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - "${camera_note}"\n`
+      const aesthetic_direction =
+        camera_note ?
+          `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - "${camera_note}"\n`
         : "";
 
       const subject_kind = context?.subject_kind || "character";
       const is_place = subject_kind === "place";
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
 
-      const focal_instruction = is_place
-        ? "1. **Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
+      const focal_instruction =
+        is_place ?
+          "1. **Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
         : "1. **Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.";
 
-      const synthesis_focal_directive = is_place
-        ? "    - **Place Staging Mandate**: Emphasize architectural geometry, atmospheric depth, environmental textures, and weather/lighting. Do NOT place characters or human figures in frame unless explicitly requested in the camera note."
+      const synthesis_focal_directive =
+        is_place ?
+          "    - **Place Staging Mandate**: Emphasize architectural geometry, atmospheric depth, environmental textures, and weather/lighting. Do NOT place characters or human figures in frame unless explicitly requested in the camera note."
         : "    - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.";
 
       const thinking_block = render_thinking_mode({
@@ -338,9 +340,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const target_entity = task_options.target_entity_key ? entities[task_options.target_entity_key] : ai;
   const target_name = target_entity?.name || task_options.target_entity_key || speaker_name;
   const target_type =
-    task_options.target_type ||
-    target_entity?.type ||
-    (core === "CARETAKER" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
+    task_options.target_type || target_entity?.type || (core === "CARETAKER" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
 
   // Resolve active purpose core definition
   const purpose_core = PURPOSE_CORES[core] || PURPOSE_CORES.CHARACTER;
@@ -448,9 +448,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     const attr_str = dyn_attrs ? ` ${dyn_attrs}` : "";
 
     const fractal_present =
-      typeof fractal.present === "object"
-        ? `${fractal.present?.physical || ""} ${fractal.present?.non_physical || ""}`.trim()
-        : (fractal.present || "").trim();
+      typeof fractal.present === "object" ? `${fractal.present?.physical || ""} ${fractal.present?.non_physical || ""}`.trim() : (fractal.present || "").trim();
     const clean_present = format_clean_brackets(fractal_present, { see_hidden, is_counterpart: false }).trim();
 
     if (clean_present || attr_str) {
@@ -492,13 +490,10 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
       }
       const origin =
         h.origin ||
-        (h.role === "user"
-          ? user?.name || "USER"
-          : h.role === "fractal"
-            ? fractal?.name || "WORLD"
-            : h.role === "system"
-              ? "SYSTEM"
-              : ai?.name || "AI");
+        (h.role === "user" ? user?.name || "USER"
+        : h.role === "fractal" ? fractal?.name || "WORLD"
+        : h.role === "system" ? "SYSTEM"
+        : ai?.name || "AI");
       const round_number = h.round !== undefined ? h.round : idx + 1;
       return `    <ROUND number="${round_number}" origin="${origin}"${recency_attr}>${h.text}</ROUND>`;
     })

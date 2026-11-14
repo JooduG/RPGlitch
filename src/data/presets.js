@@ -37,8 +37,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "glitch",
     name: "Glitch",
     type: "character",
-    description:
-      "Bratty cyan-haired twunk hacker who sneaks up from the Nova City underground to pull chaotic shenanigans in the high-end districts.",
+    description: "Bratty cyan-haired twunk hacker who sneaks up from the Nova City underground to pull chaotic shenanigans in the high-end districts.",
     dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
     profile_picture: "https://user.uploads.dev/file/f8d14dcf7fb84ac7fa9959458678a61c.jpg",
     visual_style: "cyberpunk",
@@ -210,8 +209,7 @@ export const PREMADE_FRACTALS = Object.freeze([
     id: "ashenweald",
     name: "Ashenweald",
     type: "fractal",
-    description:
-      "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
+    description: "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
     dynamics: { velocity: 42, entropy: 58 },
     narrative_style: "anais_nin",
     profile_picture: "https://user.uploads.dev/file/5fd5f93c0a5899a7e4ec3446c764c887.jpg",

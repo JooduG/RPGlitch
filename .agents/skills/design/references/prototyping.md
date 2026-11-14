@@ -53,15 +53,15 @@ Because `.proto-picker` is temporary scaffolding (never part of production `DESI
 
 ### Visual & Behavior Spec
 
-| Property               | Specification                                                                                                                                                                                                                                                                                                                                            |
-| :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Placement**          | `position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: var(--z-index-tooltip);`                                                                                                                                                                                                                                                |
-| **Top Override**       | Support `data-position="top"` (`top: 24px; bottom: auto;`) only when an active variant occupies bottom-center (`Console` dock area).                                                                                                                                                                                                                     |
-| **Glass Pill Surface** | `background: rgba(10, 10, 10, 0.82); backdrop-filter: blur(12px) saturate(1.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 4px;`                                                                                                                                                                                        |
-| **Typography**         | Monospace (`var(--font-mono)`), `font-size: 12px`, `font-variant-numeric: tabular-nums`.                                                                                                                                                                                                                                                                 |
-| **Active Pill Glide**  | Measure active button metrics and animate a highlight pill strictly with compositor `transform` (`translateX(...) scaleX(...)` with `transform-origin: left center`) using `var(--duration-fast) var(--ease-out)` gated behind `data-ready="true"` set one `requestAnimationFrame` after initial mount so the indicator does not slide from `0` on load. |
-| **Reduced Motion**     | `@media (prefers-reduced-motion: reduce)` forces `transition: none` on the sliding indicator.                                                                                                                                                                                                                                                            |
-| **Replay Control**     | Append a `1px` vertical hairline divider + `↻` button (`aria-label="Replay variant animation"`) **only** when `VARIANTS.some((variant) => variant.has_replay)` is true.                                                                                                                                                                                  |
+| Property | Specification |
+| :-- | :-- |
+| **Placement** | `position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: var(--z-index-tooltip);` |
+| **Top Override** | Support `data-position="top"` (`top: 24px; bottom: auto;`) only when an active variant occupies bottom-center (`Console` dock area). |
+| **Glass Pill Surface** | `background: rgba(10, 10, 10, 0.82); backdrop-filter: blur(12px) saturate(1.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 999px; padding: 4px;` |
+| **Typography** | Monospace (`var(--font-mono)`), `font-size: 12px`, `font-variant-numeric: tabular-nums`. |
+| **Active Pill Glide** | Measure active button metrics and animate a highlight pill strictly with compositor `transform` (`translateX(...) scaleX(...)` with `transform-origin: left center`) using `var(--duration-fast) var(--ease-out)` gated behind `data-ready="true"` set one `requestAnimationFrame` after initial mount so the indicator does not slide from `0` on load. |
+| **Reduced Motion** | `@media (prefers-reduced-motion: reduce)` forces `transition: none` on the sliding indicator. |
+| **Replay Control** | Append a `1px` vertical hairline divider + `↻` button (`aria-label="Replay variant animation"`) **only** when `VARIANTS.some((variant) => variant.has_replay)` is true. |
 
 ## 4. Decision Tradeoff Table & Promotion
 

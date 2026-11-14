@@ -14,18 +14,8 @@ describe("src/engine/verifier.js - Tag Inventory & Structural Anchor", () => {
     const tags = extract_tag_sequence(prompt);
 
     expect(tags).toHaveLength(6);
-    expect(tags[0]).toEqual({
-      name: "SYSTEM",
-      is_closing: false,
-      is_self_closing: false,
-      raw: '<SYSTEM round="1">',
-    });
-    expect(tags[3]).toEqual({
-      name: "PERSONALITY",
-      is_closing: true,
-      is_self_closing: false,
-      raw: "</PERSONALITY>",
-    });
+    expect(tags[0]).toEqual({ name: "SYSTEM", is_closing: false, is_self_closing: false, raw: '<SYSTEM round="1">' });
+    expect(tags[3]).toEqual({ name: "PERSONALITY", is_closing: true, is_self_closing: false, raw: "</PERSONALITY>" });
   });
 
   it("validates balanced open and closed tags", () => {
@@ -79,9 +69,7 @@ describe("src/engine/verifier.js - Tag Inventory & Structural Anchor", () => {
       <TASK>Execute beat.</TASK>
     </SYSTEM>`;
 
-    const result = verify_compiled_prompt(validPrompt, {
-      expected_tags: ["SYSTEM", "AXIOMATIC_CONSTITUTION", "REALITY", "TASK"],
-    });
+    const result = verify_compiled_prompt(validPrompt, { expected_tags: ["SYSTEM", "AXIOMATIC_CONSTITUTION", "REALITY", "TASK"] });
 
     expect(result.valid).toBe(true);
     expect(result.errors).toEqual([]);

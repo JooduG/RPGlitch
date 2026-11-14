@@ -49,10 +49,7 @@ function normalize_dynamics(raw_dynamics, entity_type) {
     };
   }
 
-  return {
-    velocity: clamp_dynamic(dynamics.velocity, 50),
-    entropy: clamp_dynamic(dynamics.entropy, 50),
-  };
+  return { velocity: clamp_dynamic(dynamics.velocity, 50), entropy: clamp_dynamic(dynamics.entropy, 50) };
 }
 
 /**
@@ -214,14 +211,8 @@ export function create_entity(type = "character", overrides = {}) {
 export function filter_entity_epistemics(entity, options = {}) {
   const copy = normalize_entity(entity);
 
-  copy.eternal = {
-    physical: format_clean_brackets(copy.eternal.physical, options),
-    non_physical: format_clean_brackets(copy.eternal.non_physical, options),
-  };
-  copy.present = {
-    physical: format_clean_brackets(copy.present.physical, options),
-    non_physical: format_clean_brackets(copy.present.non_physical, options),
-  };
+  copy.eternal = { physical: format_clean_brackets(copy.eternal.physical, options), non_physical: format_clean_brackets(copy.eternal.non_physical, options) };
+  copy.present = { physical: format_clean_brackets(copy.present.physical, options), non_physical: format_clean_brackets(copy.present.non_physical, options) };
   copy.future = format_clean_brackets(copy.future, options);
   copy.past = format_clean_brackets(copy.past, options);
 
@@ -273,7 +264,10 @@ export function apply_profile_to_entity(entity, profile) {
     if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
     if (key === "past") {
-      const incoming_items = Array.isArray(value) ? value : typeof value === "string" ? [value] : null;
+      const incoming_items =
+        Array.isArray(value) ? value
+        : typeof value === "string" ? [value]
+        : null;
       if (incoming_items) {
         const cleaned_texts = incoming_items
           .map((item) => {
@@ -341,14 +335,8 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
     name: name || (type === "fractal" ? "New Fractal" : "New Character"),
     type,
     description,
-    eternal: {
-      physical: description,
-      non_physical: "",
-    },
-    present: {
-      physical: description,
-      non_physical: "",
-    },
+    eternal: { physical: description, non_physical: "" },
+    present: { physical: description, non_physical: "" },
     future: "",
     past: [],
     dynamics: { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
@@ -392,7 +380,10 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
 
   const record_genesis_field = (field_path, value) => {
     if (!value) return;
-    const string_value = Array.isArray(value) ? JSON.stringify(value) : typeof value === "object" ? JSON.stringify(value) : String(value);
+    const string_value =
+      Array.isArray(value) ? JSON.stringify(value)
+      : typeof value === "object" ? JSON.stringify(value)
+      : String(value);
     if (!string_value.trim()) return;
     ledger_lines.push({
       story_id,
@@ -452,9 +443,7 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
             }
           });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
-          portrait_promise.catch((error) =>
-            state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
-          );
+          portrait_promise.catch((error) => state_bridge.app?.log(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"));
         }
       } catch (_error) {
         /* portrait failure must never break genesis */

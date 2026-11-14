@@ -25,13 +25,7 @@ if (!fs.existsSync(TEMPLATES_DIRECTORY)) {
   }
 }
 
-export const COLORS = Object.freeze({
-  RED: "\x1b[31m",
-  YELLOW: "\x1b[33m",
-  GREEN: "\x1b[32m",
-  CYAN: "\x1b[36m",
-  RESET: "\x1b[0m",
-});
+export const COLORS = Object.freeze({ RED: "\x1b[31m", YELLOW: "\x1b[33m", GREEN: "\x1b[32m", CYAN: "\x1b[36m", RESET: "\x1b[0m" });
 
 /**
  * Safely inspects file stats without crashing on inaccessible paths.

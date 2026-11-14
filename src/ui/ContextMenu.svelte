@@ -109,8 +109,7 @@
     role="menu"
     tabindex="-1"
     onclick={(e) => e.stopPropagation()}
-    onkeydown={(e) => e.key === "Escape" && close()}
-  >
+    onkeydown={(e) => e.key === "Escape" && close()}>
     {#each actions as item, i (i)}
       {#if item.separator}
         <div class="block h-px bg-current opacity-20"></div>
@@ -124,8 +123,7 @@
           "
           disabled={item.disabled}
           onclick={(e) => handle_item_click(e, item)}
-          role="menuitem"
-        >
+          role="menuitem">
           {#if item.active}
             <span
               class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"

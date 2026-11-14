@@ -24,9 +24,7 @@ describe("format_story_beat", () => {
   });
 
   it("renders system telemetry as an italic note when include_system is true", () => {
-    expect(format_story_beat({ role: "system", text: "Vector Resolved: +2 affinity" }, { include_system: true })).toBe(
-      "_Vector Resolved: +2 affinity_",
-    );
+    expect(format_story_beat({ role: "system", text: "Vector Resolved: +2 affinity" }, { include_system: true })).toBe("_Vector Resolved: +2 affinity_");
   });
 
   it("omits system telemetry by default to preserve pure story immersion", () => {
@@ -34,9 +32,7 @@ describe("format_story_beat", () => {
   });
 
   it("strips cognition blocks from beat text", () => {
-    expect(format_story_beat({ role: "assistant", character_name: "Vael", text: "<think>plan</think>The sails fill." })).toBe(
-      "**Vael:** The sails fill.",
-    );
+    expect(format_story_beat({ role: "assistant", character_name: "Vael", text: "<think>plan</think>The sails fill." })).toBe("**Vael:** The sails fill.");
   });
 
   it("returns null for empty beats", () => {
@@ -47,11 +43,7 @@ describe("format_story_beat", () => {
 });
 
 describe("export_story_markdown", () => {
-  const story = {
-    title: "The Black Tide",
-    state: "active",
-    last_played: 1723636800000,
-  };
+  const story = { title: "The Black Tide", state: "active", last_played: 1723636800000 };
 
   it("emits a title and metadata header", () => {
     const md = export_story_markdown(story, []);
@@ -91,11 +83,7 @@ describe("export_story_markdown", () => {
   it("preserves and renders valid image attachments in story exports", () => {
     const entries = [
       { role: "user", text: "Look over there.", round: 1 },
-      {
-        role: "fractal",
-        text: "",
-        attachments: [{ src: "https://example.com/vault.png", metadata: { prompt: "Ancient obsidian chamber" } }],
-      },
+      { role: "fractal", text: "", attachments: [{ src: "https://example.com/vault.png", metadata: { prompt: "Ancient obsidian chamber" } }] },
     ];
     const md = export_story_markdown(story, entries);
     expect(md).toContain("**Beats:** 2");

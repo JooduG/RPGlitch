@@ -20,10 +20,7 @@ vi.mock("@data", async (importOriginal) => {
   };
 });
 
-vi.mock("./runs.js", () => ({
-  execute_turn: vi.fn().mockResolvedValue({}),
-  execute_continue: vi.fn().mockResolvedValue({}),
-}));
+vi.mock("./runs.js", () => ({ execute_turn: vi.fn().mockResolvedValue({}), execute_continue: vi.fn().mockResolvedValue({}) }));
 
 vi.mock("./lifecycle.js", () => ({
   execute_prologue: vi.fn().mockResolvedValue({}),
@@ -52,13 +49,7 @@ describe("ChronoEngine", () => {
       start_stream: vi.fn(),
       update_stream: vi.fn(),
       end_stream: vi.fn(),
-      streaming: {
-        active: false,
-        abort_controller: null,
-        content: "",
-        node_id: null,
-        role: "ai",
-      },
+      streaming: { active: false, abort_controller: null, content: "", node_id: null, role: "ai" },
     };
     mock_simulation_state = {
       phase: "idle",
@@ -79,24 +70,10 @@ describe("ChronoEngine", () => {
         mock_simulation_state.phase = "idle";
       }),
     };
-    mock_runtime = {
-      story_id: "story-123",
-      round: 1,
-      sync: vi.fn().mockResolvedValue({}),
-      save: vi.fn().mockResolvedValue({}),
-    };
-    mock_simulation_log = {
-      feed: [],
-      add: vi.fn(),
-      delete_entry: vi.fn().mockResolvedValue(undefined),
-    };
+    mock_runtime = { story_id: "story-123", round: 1, sync: vi.fn().mockResolvedValue({}), save: vi.fn().mockResolvedValue({}) };
+    mock_simulation_log = { feed: [], add: vi.fn(), delete_entry: vi.fn().mockResolvedValue(undefined) };
 
-    register_state_accessors({
-      app: mock_app,
-      simulation_state: mock_simulation_state,
-      runtime: mock_runtime,
-      simulation_log: mock_simulation_log,
-    });
+    register_state_accessors({ app: mock_app, simulation_state: mock_simulation_state, runtime: mock_runtime, simulation_log: mock_simulation_log });
   });
 
   it("exports a singleton chrono_engine instance", () => {
@@ -166,13 +143,7 @@ describe("ChronoEngine", () => {
 
       await chrono_engine.start(selection);
 
-      expect(session_driver.create_from_selection).toHaveBeenCalledWith(
-        expect.objectContaining({
-          ai_id: "ai-1",
-          user_id: "usr-1",
-          fractal_id: "fr-1",
-        }),
-      );
+      expect(session_driver.create_from_selection).toHaveBeenCalledWith(expect.objectContaining({ ai_id: "ai-1", user_id: "usr-1", fractal_id: "fr-1" }));
       expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
       expect(execute_prologue).toHaveBeenCalledWith("story-123");
       expect(mock_app.suppress_card_transitions).toBe(false);

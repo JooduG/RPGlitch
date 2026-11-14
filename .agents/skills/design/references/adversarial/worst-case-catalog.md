@@ -31,34 +31,34 @@ Realistic values that expose UI layout, wrapping, escaping, and state regression
 
 Unbreakable strings lack whitespace, so containers collapse or overflow unless `wrap-anywhere` is applied:
 
-| Value                                                                                                     | Breaks                                                                                   |
-| :-------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------- |
-| `bartholomew.fitzgerald@northwind-industries-holdings.example.com`                                        | Unbroken address that pushes sibling buttons off-row without `min-w-0` + `wrap-anywhere` |
-| `a@b.co`                                                                                                  | Shortest realistic address; exposes layouts that assume long metadata                    |
-| `first.last+billing-notifications@example.com`                                                            | Plus-addressing; naive validation rejecting `+` or end-truncation hiding suffix          |
-| `ops@sub.department.region.example.co.uk`                                                                 | Multi-level subdomains and two-part TLD parsing                                          |
-| `https://example.com/workspaces/acme/projects/q3-launch/docs/9f8e7d6c5b4a?tab=comments&filter=unresolved` | Long URL; overflow, or end-truncation hiding query parameters                            |
-| `9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f`                                                                    | UUID; monospace width, requires JS middle-truncation in narrow columns                   |
-| `Q3 Board Deck - FINAL (revised) v12 [approved by legal].pdf`                                             | Filename; end-truncation hides extension and version suffix                              |
-| `IMG_20250914_183022_HDR_portrait_edited_edited.HEIC`                                                     | Camera filename; unbreakable with uppercase extension                                    |
-| `@a` / `@thisisaverylongusernamethatisallowed`                                                            | Minimum vs. maximum handle lengths                                                       |
+| Value | Breaks |
+| :-- | :-- |
+| `bartholomew.fitzgerald@northwind-industries-holdings.example.com` | Unbroken address that pushes sibling buttons off-row without `min-w-0` + `wrap-anywhere` |
+| `a@b.co` | Shortest realistic address; exposes layouts that assume long metadata |
+| `first.last+billing-notifications@example.com` | Plus-addressing; naive validation rejecting `+` or end-truncation hiding suffix |
+| `ops@sub.department.region.example.co.uk` | Multi-level subdomains and two-part TLD parsing |
+| `https://example.com/workspaces/acme/projects/q3-launch/docs/9f8e7d6c5b4a?tab=comments&filter=unresolved` | Long URL; overflow, or end-truncation hiding query parameters |
+| `9f8e7d6c-5b4a-4c3d-8e2f-1a0b9c8d7e6f` | UUID; monospace width, requires JS middle-truncation in narrow columns |
+| `Q3 Board Deck - FINAL (revised) v12 [approved by legal].pdf` | Filename; end-truncation hides extension and version suffix |
+| `IMG_20250914_183022_HDR_portrait_edited_edited.HEIC` | Camera filename; unbreakable with uppercase extension |
+| `@a` / `@thisisaverylongusernamethatisallowed` | Minimum vs. maximum handle lengths |
 
 ---
 
 ## 3. Labels, Titles, and Copy from Data
 
-| Value                                                        | Breaks                                                                                                                                                                                                                   |
-| :----------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Senior Product Design Engineer, Platform Infrastructure`    | Long subtitle; wraps across multiple lines inside secondary slots                                                                                                                                                        |
-| `Invitation expired 12 days ago`                             | Long status pill; wraps mid-label or starves adjacent title slots at `320px`                                                                                                                                             |
-| `Benachrichtigungseinstellungen`                             | 30-character German compound word; overflows fixed badges without `wrap-anywhere`                                                                                                                                        |
-| `Paramètres de confidentialité et de sécurité`               | Localized expansion (~30% longer than English); overflows fixed button widths                                                                                                                                            |
-| `Twelve tags: design, frontend, q3, urgent, needs-review, …` | Multi-tag list; expands vertically unless capped with `+N` overflow badge                                                                                                                                                |
-| `customer-feedback-from-enterprise-onboarding`               | Single tag wider than its parent badge row                                                                                                                                                                               |
-| `Untitled` / `""` / `"   "`                                  | Empty or whitespace-only title; collapses row height without placeholder fallback                                                                                                                                        |
-| `<script>alert(1)</script>` / `&` / `**bold**`               | Plain fields must render literally via `{value}` or `escape_html()` (`src/utils/html.js`); narrative HTML sinks must pass through `MarkdownIt` (`html: false`) + `sanitize()` / `use:safe_html` (`src/utils/actions.js`) |
-| `Line one\nLine two`                                         | Newline inside a single-line header or badge doubles row height or disappears                                                                                                                                            |
-| A 2,000-character pasted bio or prompt description           | Tests `TextField.svelte` `auto_resize`, scroll bounds, and `line-clamp-2` previews                                                                                                                                       |
+| Value | Breaks |
+| :-- | :-- |
+| `Senior Product Design Engineer, Platform Infrastructure` | Long subtitle; wraps across multiple lines inside secondary slots |
+| `Invitation expired 12 days ago` | Long status pill; wraps mid-label or starves adjacent title slots at `320px` |
+| `Benachrichtigungseinstellungen` | 30-character German compound word; overflows fixed badges without `wrap-anywhere` |
+| `Paramètres de confidentialité et de sécurité` | Localized expansion (~30% longer than English); overflows fixed button widths |
+| `Twelve tags: design, frontend, q3, urgent, needs-review, …` | Multi-tag list; expands vertically unless capped with `+N` overflow badge |
+| `customer-feedback-from-enterprise-onboarding` | Single tag wider than its parent badge row |
+| `Untitled` / `""` / `"   "` | Empty or whitespace-only title; collapses row height without placeholder fallback |
+| `<script>alert(1)</script>` / `&` / `**bold**` | Plain fields must render literally via `{value}` or `escape_html()` (`src/utils/html.js`); narrative HTML sinks must pass through `MarkdownIt` (`html: false`) + `sanitize()` / `use:safe_html` (`src/utils/actions.js`) |
+| `Line one\nLine two` | Newline inside a single-line header or badge doubles row height or disappears |
+| A 2,000-character pasted bio or prompt description | Tests `TextField.svelte` `auto_resize`, scroll bounds, and `line-clamp-2` previews |
 
 > **Narrow-Column Rule (`320px`)**: Never apply single-line `truncate` (`white-space: nowrap`) to primary prose inside a `320px` mobile container because most content becomes unreadable; use `line-clamp-2` or `wrap-anywhere` instead.
 
@@ -143,24 +143,24 @@ Use `format_datetime()` (`sv-SE` / `Intl.DateTimeFormat`) for timestamps rather 
 
 Baseline the component, then switch environment conditions to these extremes:
 
-| Condition                                           | Breaks                                                                                                                                       |
-| :-------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
-| Container at `320px` (`--spacing-grid-width` floor) | Horizontal overflow, modal clipping, and button wrapping                                                                                     |
-| Narrow `--spacing-column-unit` sidebar placement    | Wide components compressed into sidebar columns                                                                                              |
-| `2560px` ultrawide desktop                          | Overly long prose lines (`max-w-*` missing) or disconnected gutters                                                                          |
-| Browser zoom `200%` / enlarged OS font size         | Fixed-pixel `h-*` heights clipping scaled text                                                                                               |
+| Condition | Breaks |
+| :-- | :-- |
+| Container at `320px` (`--spacing-grid-width` floor) | Horizontal overflow, modal clipping, and button wrapping |
+| Narrow `--spacing-column-unit` sidebar placement | Wide components compressed into sidebar columns |
+| `2560px` ultrawide desktop | Overly long prose lines (`max-w-*` missing) or disconnected gutters |
+| Browser zoom `200%` / enlarged OS font size | Fixed-pixel `h-*` heights clipping scaled text |
 | High-luminance vs dark `--signature-color` extremes | `#fde047` (Lemon Yellow, luminance `0.81`) vs `#15803d` (Forest Green) / `#3b82f6` (Space Blue): white text fails `4.5:1` on solid `#fde047` |
-| Coarse pointer / touch viewport (`< 48rem`)         | Hover-only controls unreachable and interactive targets under `44x44px` (`touch-target-coarse`)                                              |
+| Coarse pointer / touch viewport (`< 48rem`) | Hover-only controls unreachable and interactive targets under `44x44px` (`touch-target-coarse`) |
 
 ---
 
 ## 10. RPGlitch Simulation & Epistemic Payloads
 
-| Payload                                                                                       | Breaks                                                                                                 |
-| :-------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------- |
-| Raw `[SECRET: hidden agenda \| hide]` / `[MOOD: calm]`                                        | Epistemic bracket leakage in UI prose if `\| hide` or bracket stripping is skipped                     |
-| Unclosed `[INVENTORY: rusty key, cracked...`                                                  | Bracket parser or highlight spans eating the remainder of a turn message                               |
-| Stacked multi-item `[INVENTORY: ...]` / `[STASH: ...]` (`20+` items)                          | Unwrapped chip/bracket inspectors overflowing `DevWing.svelte` or `TextField.svelte`                   |
-| Unclosed `<think>` or `<DYNAMICS>` during token stream                                        | Streaming chunk renderer exposing raw internal chain-of-thought before `strip_cognition_blocks` closes |
-| `DYNAMICS.SCALE` (`1..100`) edge values (`0`, `1`, `15`, `50`, `85`, `100`, `NaN`)            | `Meter.svelte` / `ProgressBar.svelte` clamping, missing track fill at `1`, or overflow above `100`     |
-| Corrupt PNG without `chara` `tEXt` chunk, or non-image blob dropped onto `SourceField.svelte` | `extract_card_from_png` error handling leaving `is_fetching` stuck busy without `finally` reset        |
+| Payload | Breaks |
+| :-- | :-- |
+| Raw `[SECRET: hidden agenda \| hide]` / `[MOOD: calm]` | Epistemic bracket leakage in UI prose if `\| hide` or bracket stripping is skipped |
+| Unclosed `[INVENTORY: rusty key, cracked...` | Bracket parser or highlight spans eating the remainder of a turn message |
+| Stacked multi-item `[INVENTORY: ...]` / `[STASH: ...]` (`20+` items) | Unwrapped chip/bracket inspectors overflowing `DevWing.svelte` or `TextField.svelte` |
+| Unclosed `<think>` or `<DYNAMICS>` during token stream | Streaming chunk renderer exposing raw internal chain-of-thought before `strip_cognition_blocks` closes |
+| `DYNAMICS.SCALE` (`1..100`) edge values (`0`, `1`, `15`, `50`, `85`, `100`, `NaN`) | `Meter.svelte` / `ProgressBar.svelte` clamping, missing track fill at `1`, or overflow above `100` |
+| Corrupt PNG without `chara` `tEXt` chunk, or non-image blob dropped onto `SourceField.svelte` | `extract_card_from_png` error handling leaving `is_fetching` stuck busy without `finally` reset |

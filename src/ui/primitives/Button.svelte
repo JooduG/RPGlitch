@@ -48,14 +48,30 @@
   );
 
   const height_class = $derived(
-    variant === "bare" ? "" : cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10",
+    variant === "bare" ? ""
+    : cover ? ""
+    : square && size === "small" ? "h-4"
+    : square ? "h-12"
+    : size === "small" ? "h-8"
+    : "h-10",
   );
 
   const width_class = $derived(
-    variant === "bare" ? "" : cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "",
+    variant === "bare" ? ""
+    : cover ? ""
+    : square && size === "small" ? "w-4"
+    : square ? "w-12"
+    : full_width ? "w-full"
+    : "",
   );
 
-  const padding_class = $derived(variant === "bare" ? "" : cover ? "" : square ? "p-0" : size === "small" ? "px-tight" : "px-standard");
+  const padding_class = $derived(
+    variant === "bare" ? ""
+    : cover ? ""
+    : square ? "p-0"
+    : size === "small" ? "px-tight"
+    : "px-standard",
+  );
 
   // Svelte 5 Action delegation: Apply Svelte actions dynamically when element reference becomes active
   $effect(() => {
@@ -80,8 +96,8 @@
   disabled={is_disabled || busy}
   type="button"
   class="
-    {variant !== 'bare'
-    ? `
+    {variant !== 'bare' ?
+    `
       pointer-events-auto
       ${cover ? '' : 'relative'}
       inline-flex
@@ -122,17 +138,17 @@
 
       [&_.icon]:pointer-events-none
     `
-    : ''}
+  : ''}
 
-    {!is_flank && variant !== 'bare'
-    ? `
+    {!is_flank && variant !== 'bare' ?
+    `
       transition-[background-color,color,box-shadow,transform,filter,border-color]
       duration-(--duration-fast)
       ease-out
 
       data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
     `
-    : ''}
+  : ''}
     {variant === 'primary' ? 'bg-slate-600 hover:brightness-125' : ''}
     {variant === 'secondary' ? 'bg-(--signature-color) text-white hover:brightness-125' : ''}
     {variant === 'danger' ? 'bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125' : ''}
@@ -143,14 +159,13 @@
     {full_width && !square && variant !== 'bare' ? 'flex-1' : ''}
     {cover && variant !== 'bare' ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!' : ''}
     {busy ? 'pointer-events-none cursor-wait brightness-90 grayscale-30' : ''}
-    {is_flank && variant !== 'bare'
-    ? 'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-(--duration-fast) ease-out hover:scale-[1.02] hover:opacity-100 active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-(--duration-fast) [&_svg]:disabled:fill-slate-600'
-    : ''}
+    {is_flank && variant !== 'bare' ?
+    'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-(--duration-fast) ease-out hover:scale-[1.02] hover:opacity-100 active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-(--duration-fast) [&_svg]:disabled:fill-slate-600'
+  : ''}
     {className}"
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
-  {...rest}
->
+  {...rest}>
   {#if children}
     {@render children()}
   {:else}

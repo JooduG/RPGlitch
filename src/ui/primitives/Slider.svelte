@@ -56,8 +56,16 @@
   // position = calc(pct% * (100% - 16px) / 100% + 8px)
   // We invert that: css_pct = (pct / 100) * (1 - 16/track_px) * 100 + 8/track_px * 100
   // Since we can't read track_px reactively, we emit the calc() string directly.
-  const fill_start_css = $derived(fill_start === 0 ? "0px" : fill_start === 100 ? "100%" : `calc(${fill_start} * (100% - 16px) / 100 + 8px)`);
-  const fill_end_css = $derived(fill_end === 0 ? "0px" : fill_end === 100 ? "100%" : `calc(${fill_end} * (100% - 16px) / 100 + 8px)`);
+  const fill_start_css = $derived(
+    fill_start === 0 ? "0px"
+    : fill_start === 100 ? "100%"
+    : `calc(${fill_start} * (100% - 16px) / 100 + 8px)`,
+  );
+  const fill_end_css = $derived(
+    fill_end === 0 ? "0px"
+    : fill_end === 100 ? "100%"
+    : `calc(${fill_end} * (100% - 16px) / 100 + 8px)`,
+  );
 
   // Diagnostic identifier
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider");
@@ -82,14 +90,8 @@
       });
 
       const event = new Event("change", { bubbles: true });
-      Object.defineProperty(event, "currentTarget", {
-        value: mock_input,
-        writable: false,
-      });
-      Object.defineProperty(event, "target", {
-        value: mock_input,
-        writable: false,
-      });
+      Object.defineProperty(event, "currentTarget", { value: mock_input, writable: false });
+      Object.defineProperty(event, "target", { value: mock_input, writable: false });
 
       onchange(/** @type {any} */ (event));
     }
@@ -160,21 +162,21 @@
     cursor-pointer
     {horizontal ? 'flex-1 flex-row items-center justify-between gap-standard py-1' : 'w-full flex-col justify-center gap-tight'}
 
-    {is_disabled || busy
-    ? `
+    {is_disabled || busy ?
+    `
       opacity-30
       grayscale
     `
-    : ''}
-    {busy
-    ? `
+  : ''}
+    {busy ?
+    `
       cursor-wait
       brightness-90
       grayscale-50
 
       *:pointer-events-none
     `
-    : ''}
+  : ''}
     {className}"
   style="{style}; --state-fill-start: {fill_start_css}; --state-fill-end: {fill_end_css};"
   data-testid={test_id}
@@ -186,17 +188,15 @@
   onmouseout={handle_leave}
   onfocus={handle_enter}
   onblur={handle_leave}
-  onpointerdown={handle_pointer_down}
->
+  onpointerdown={handle_pointer_down}>
   {#if label}
     <Label
       for={test_id}
       disabled={is_disabled || busy}
-      class="{horizontal ? '' : 'mt-tight'} w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] {!is_disabled
-        ? 'group-hover/slider:brightness-125'
-        : ''}"
-    >
-      {label}: {busy ? "BUSY..." : is_disabled ? disabled_label : format(value ?? 1.0)}
+      class="{horizontal ? '' : 'mt-tight'} w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] {!is_disabled ? 'group-hover/slider:brightness-125' : ''}">
+      {label}: {busy ? "BUSY..."
+      : is_disabled ? disabled_label
+      : format(value ?? 1.0)}
     </Label>
   {/if}
 
@@ -213,8 +213,7 @@
           touch-none
           items-center
           select-none
-        "
-      >
+        ">
         <span
           class="
             relative
@@ -229,8 +228,7 @@
             ease-in-out
 
             group-hover/slider:brightness-125
-          "
-        ></span>
+          "></span>
         <Slider.Thumb index={0}>
           {#snippet child({ props: thumbProps })}
             <span
@@ -248,21 +246,20 @@
                 duration-300
                 ease-in-out
 
-                {is_disabled
-                ? `
+                {is_disabled ?
+                `
                   bg-[#555d66]
                   opacity-30
                   shadow-none
                 `
-                : `
+              : `
                   ${value > min ? 'bg-white' : 'bg-slate-50'}
                   shadow-[0_2px_8px_rgba(0,0,0,0.4)]
 
                   active:scale-[1.1]
                 `}
               "
-              style="{thumbProps.style}; top: 50%; transform: translateY(-50%);"
-            >
+              style="{thumbProps.style}; top: 50%; transform: translateY(-50%);">
             </span>
           {/snippet}
         </Slider.Thumb>
@@ -285,8 +282,7 @@
       transition-[opacity,transform] duration-(--duration-fast) ease-out
       {is_hovered || is_active ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}
     "
-    style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;"
-  >
+    style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;">
     {is_disabled ? disabled_label : format(value ?? 1.0)}
     <!-- Down Arrow -->
     <div class="absolute bottom-[-8px] left-1/2 z-0 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-slate-600">

@@ -139,8 +139,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     /\b(?:close-?ups?|portraits?|faces?|eyes?|expressions?|intimate|intimacy|confrontations?|clutch(?:es|ed|ing)?|hold(?:s|ing)?|held|holding|combats?|wounds?|wounded|touch(?:es|ed|ing)?|profiles?|headshots?)\b/i.test(
       raw_staging,
     );
-  const dynamics_have_character_focus =
-    !staging_has_scene_focus && (current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH);
+  const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH);
   const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
 
   // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
@@ -171,15 +170,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     next_dynamics_round = turn_round;
   }
 
-  return {
-    active,
-    tier,
-    source,
-    signals: image_trigger_evaluation.signals,
-    next_director_round,
-    next_dynamics_round,
-    director_explicit,
-  };
+  return { active, tier, source, signals: image_trigger_evaluation.signals, next_director_round, next_dynamics_round, director_explicit };
 }
 
 // ============================================================================
@@ -340,17 +331,13 @@ export function extract_aesthetic_traits(entity = {}) {
 export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
   const normalized_tier = normalize_image_tier(tier);
   const fallback_entity =
-    normalized_tier === "solo_entity"
-      ? subject === "user"
-        ? user
-        : subject === "fractal"
-          ? fractal
-          : ai
-      : normalized_tier === "story_scene" || normalized_tier === "story_entities"
-        ? fractal
-        : subject === "user"
-          ? user
-          : ai;
+    normalized_tier === "solo_entity" ?
+      subject === "user" ? user
+      : subject === "fractal" ? fractal
+      : ai
+    : normalized_tier === "story_scene" || normalized_tier === "story_entities" ? fractal
+    : subject === "user" ? user
+    : ai;
 
   const fallback_description = flatten_aesthetic_map(fallback_entity);
   const fallback_name = fallback_entity?.name || normalized_tier;

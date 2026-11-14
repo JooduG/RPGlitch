@@ -24,24 +24,22 @@ In RPGlitch, operational tasks fall into two categories:
 
 Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 
-| Command                            | Script Target          | Operational Purpose                                                                                                                                                                   |
-| :--------------------------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm run audit:hygiene`            | `audit.js hygiene`     | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). Rules in `scripts/rules/hygiene.js`, I/O in `scripts/lib/io.js`. |
-| `npm run audit:layers`             | `audit.js layers`      | Strict Layer Boundary Gate: imports must flow downward (`rules/layers.js`).                                                                                                           |
-| `npm run sync:ignores`             | `sync-ignores.js sync` | Workspace Synchronizer: diff-then-write fan-out of `ignores.master.json` (zero phantom diffs).                                                                                        |
-| `npm run sync:gates`               | `gates.js --dump`      | Regenerates `.agents/hooks.json` from GATE_TABLE (generated artifact - do not hand-edit).                                                                                             |
-| `node .../audit.js all`            | `audit.js all`         | Unified pass: `sync` + complete `hygiene` + `layers` audit.                                                                                                                           |
-| `npm run test:hooks`               | `scripts/tests/`       | Per-gate contract suite: one vitest file per registered gate in `GATE_TABLE`.                                                                                                         |
-| `npx vitest run .../proxy.test.js` | `proxy.test.js`        | Unit tests for `proxy.js` global-tool fan-out and CI fallbacks. DeepWiki bridge is archived (zero callers).                                                                           |
-| `npm run audit`                    | (Parallel Suite)       | Concurrently runs backlog, design, google-design, hygiene, layers, simulation, and svelte audits.                                                                                     |
+| Command | Script Target | Operational Purpose |
+| :-- | :-- | :-- |
+| `npm run audit:hygiene` | `audit.js hygiene` | Unified Hygiene & Debt Auditor: Phase A (Code/Security), Phase B (Lexical/Nomenclature), Phase C (Legislative Debt). Rules in `scripts/rules/hygiene.js`, I/O in `scripts/lib/io.js`. |
+| `npm run audit:layers` | `audit.js layers` | Strict Layer Boundary Gate: imports must flow downward (`rules/layers.js`). |
+| `npm run sync:ignores` | `sync-ignores.js sync` | Workspace Synchronizer: diff-then-write fan-out of `ignores.master.json` (zero phantom diffs). |
+| `npm run sync:gates` | `gates.js --dump` | Regenerates `.agents/hooks.json` from GATE_TABLE (generated artifact - do not hand-edit). |
+| `node .../audit.js all` | `audit.js all` | Unified pass: `sync` + complete `hygiene` + `layers` audit. |
+| `npm run test:hooks` | `scripts/tests/` | Per-gate contract suite: one vitest file per registered gate in `GATE_TABLE`. |
+| `npx vitest run .../proxy.test.js` | `proxy.test.js` | Unit tests for `proxy.js` global-tool fan-out and CI fallbacks. DeepWiki bridge is archived (zero callers). |
+| `npm run audit` | (Parallel Suite) | Concurrently runs backlog, design, google-design, hygiene, layers, simulation, and svelte audits. |
 
 ---
 
 ## 3.0 ANTIGRAVITY RUNTIME LIFECYCLE HOOKS
 
-RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](../../hooks.json).
-That file is a GENERATED artifact - the single source of truth is
-`scripts/gates.js` GATE_TABLE (`npm run sync:gates` regenerates it).
+RPGlitch registers automated behavioral hooks in [`.agents/hooks.json`](../../hooks.json). That file is a GENERATED artifact - the single source of truth is `scripts/gates.js` GATE_TABLE (`npm run sync:gates` regenerates it).
 
 ```mermaid
 flowchart TD
@@ -89,9 +87,7 @@ flowchart TD
 2. **`workspace-hygiene-gate`** (`hooks.js stop-hygiene`):
    - _Behavior_: Inspects repository root. Blocks completion if transient files (`.tmp`, `.log`, `scratch_*`, `temp_*`) were generated outside of `tmp/`.
 
-> Retired: the ceremonial `svelte-autofixer` PreInvocation reminder + Stop gate pair
-> (CI pins via `svelte-check` + `lint:svelte`) and the `active-track-gate` ghost
-> (no handler ever existed). See `scripts/gates.js` CHANGELOG.
+> Retired: the ceremonial `svelte-autofixer` PreInvocation reminder + Stop gate pair (CI pins via `svelte-check` + `lint:svelte`) and the `active-track-gate` ghost (no handler ever existed). See `scripts/gates.js` CHANGELOG.
 
 ---
 

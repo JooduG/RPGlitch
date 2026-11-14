@@ -14,10 +14,7 @@
 
 import { TIMING_MS } from "@config";
 
-export const LLM_PRIORITY = Object.freeze({
-  FOREGROUND: 10,
-  BACKGROUND: 1,
-});
+export const LLM_PRIORITY = Object.freeze({ FOREGROUND: 10, BACKGROUND: 1 });
 
 /** @type {any} */
 let active_job = null;

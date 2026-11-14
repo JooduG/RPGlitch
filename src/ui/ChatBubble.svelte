@@ -4,11 +4,7 @@
    * Pure helpers that turn Director/continuum metadata (DYNAMICS_DELTA, telemetry
    * cards) into renderable per-entity blocks.
    */
-  const ENTITY_KEYS = {
-    AI_CHARACTER: "ai",
-    USER_PERSONA: "user",
-    FRACTAL: "fractal",
-  };
+  const ENTITY_KEYS = { AI_CHARACTER: "ai", USER_PERSONA: "user", FRACTAL: "fractal" };
 
   /**
    * Resolves a telemetry entity key to its display name - the runtime's active
@@ -101,11 +97,7 @@
       const parsed = parse_relational_vector(edge);
       if (!parsed || !parsed.dynamic) return null;
       if (!parsed.source_name && !parsed.target_name) return null;
-      return {
-        source: parsed.source_name || "Entity",
-        target: parsed.target_name || "Target",
-        dynamic: parsed.dynamic,
-      };
+      return { source: parsed.source_name || "Entity", target: parsed.target_name || "Target", dynamic: parsed.dynamic };
     }
     return null;
   }
@@ -151,11 +143,10 @@
       const eternal_physical = clean_text_debris(raw.eternal_mutations?.physical ?? "");
       const eternal_non_physical = clean_text_debris(raw.eternal_mutations?.non_physical ?? "");
       const has_mods = !!eternal_physical || !!eternal_non_physical;
-      const raw_relationships = Array.isArray(raw.relationships)
-        ? raw.relationships
-        : Array.isArray(meta?.relationships) && ((meta.consolidated_entity ?? meta.forged_entity) === block_key || meta.target === key)
-          ? meta.relationships
-          : [];
+      const raw_relationships =
+        Array.isArray(raw.relationships) ? raw.relationships
+        : Array.isArray(meta?.relationships) && ((meta.consolidated_entity ?? meta.forged_entity) === block_key || meta.target === key) ? meta.relationships
+        : [];
       const relationships = raw_relationships
         .map(parse_relationship_edge)
         .filter((r) => r !== null && (r.source !== "Entity" || r.target !== "Target" || r.dynamic));
@@ -265,7 +256,11 @@
   let is_fractal = $derived(sender === "fractal");
 
   /** Voice-flag role for this message (npc speech is covered by the ai flag). */
-  let speak_role = $derived(is_user ? "user" : is_fractal ? "fractal" : "ai");
+  let speak_role = $derived(
+    is_user ? "user"
+    : is_fractal ? "fractal"
+    : "ai",
+  );
   /** Effective audibility: master switch AND per-role flag. Reactive - menu labels and the Read button follow toggles. */
   let voice_audible = $derived(Audio.is_role_enabled(speak_role));
   let is_telemetry = $derived(
@@ -278,17 +273,14 @@
   );
 
   let entity = $derived(
-    is_user
-      ? runtime.active_user || app.selected_user
-      : is_ai
-        ? runtime.active_ai || app.selected_ai
-        : is_npc
-          ? Object.values(runtime.active_npcs || {}).find((n) => String(n.name) === character_name) || null
-          : is_fractal
-            ? runtime.active_fractal && runtime.active_fractal.id !== "active_fractal"
-              ? runtime.active_fractal
-              : app.selected_fractal || runtime.active_fractal
-            : null,
+    is_user ? runtime.active_user || app.selected_user
+    : is_ai ? runtime.active_ai || app.selected_ai
+    : is_npc ? Object.values(runtime.active_npcs || {}).find((n) => String(n.name) === character_name) || null
+    : is_fractal ?
+      runtime.active_fractal && runtime.active_fractal.id !== "active_fractal" ?
+        runtime.active_fractal
+      : app.selected_fractal || runtime.active_fractal
+    : null,
   );
 
   let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
@@ -377,13 +369,7 @@
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
   let clean_markdown = $derived((parsed.detoxedText || "").trim());
 
-  let time_label = $derived(
-    timestamp.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }),
-  );
+  let time_label = $derived(timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
 
   let entity_display_name = $derived(entity?.name || character_name || (is_fractal ? "Fractal" : sender));
 
@@ -428,7 +414,10 @@
     if (entity && entity.voice) {
       const v_id = entity.voice.name || entity.voice.uri;
       Audio.voice.selected_voice = resolve_voice_uri(v_id);
-      const dyn_val = is_user ? 50 : is_ai || is_npc ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
+      const dyn_val =
+        is_user ? 50
+        : is_ai || is_npc ? (entity.dynamics?.intensity ?? 50)
+        : (entity.dynamics?.velocity ?? 50);
       Audio.voice.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
     }
 
@@ -453,12 +442,9 @@
           onSelect: () =>
             app.open_image_preview({
               src: entity.profile_picture,
-              metadata: entity.modifiers
-                ? {
-                    prompt: entity.modifiers.prompt,
-                    negative_prompt: entity.modifiers.negative_prompt,
-                    seed: entity.modifiers.last_generated_seed,
-                  }
+              metadata:
+                entity.modifiers ?
+                  { prompt: entity.modifiers.prompt, negative_prompt: entity.modifiers.negative_prompt, seed: entity.modifiers.last_generated_seed }
                 : null,
             }),
         });
@@ -476,12 +462,7 @@
         onSelect: () => {
           if (app.take_photo_handler) {
             const active_fractal = runtime.active_fractal || app.selected_fractal;
-            const raw_fallback = render_optics_fallback({
-              tier: "story_character",
-              subject: "ai",
-              ai: entity,
-              fractal: active_fractal,
-            });
+            const raw_fallback = render_optics_fallback({ tier: "story_character", subject: "ai", ai: entity, fractal: active_fractal });
             const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
 
             app.take_photo_handler("npc", photo_prompt, "story_character", entity);
@@ -580,7 +561,10 @@
 
   // Telemetry processing helpers
   let consolidated_vectors = $derived(
-    Array.isArray(meta?.vectors) ? meta.vectors : Array.isArray(meta?.past) ? meta.past : Array.isArray(meta?.memories) ? meta.memories : [],
+    Array.isArray(meta?.vectors) ? meta.vectors
+    : Array.isArray(meta?.past) ? meta.past
+    : Array.isArray(meta?.memories) ? meta.memories
+    : [],
   );
 
   let entity_blocks = $derived(meta ? process_entity_blocks(meta) : []);
@@ -659,8 +643,7 @@
         transition-opacity
         duration-300
         ease-out
-      "
-    >
+      ">
       <div class="flex items-center gap-tight overflow-hidden">
         <span class="text-xs font-bold whitespace-nowrap text-white">
           {entity_display_name}
@@ -680,8 +663,7 @@
             aria-label="Save"
             actions={[tooltip]}
             onclick={() => on_save?.(local_text)}
-            class="text-white/85 transition-colors hover:text-white"
-          >
+            class="text-white/85 transition-colors hover:text-white">
             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
               <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
             </svg>
@@ -693,8 +675,7 @@
             aria-label="Cancel"
             actions={[tooltip]}
             onclick={on_cancel}
-            class="text-white/85 transition-colors hover:text-white"
-          >
+            class="text-white/85 transition-colors hover:text-white">
             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
               <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
               <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
@@ -710,8 +691,7 @@
               actions={[tooltip]}
               onclick={on_continue}
               disabled={simulation_state.busy}
-              class="text-white/85 transition-colors hover:text-white"
-            >
+              class="text-white/85 transition-colors hover:text-white">
               <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
                 <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon>
               </svg>
@@ -724,8 +704,7 @@
               actions={[tooltip]}
               onclick={on_regenerate}
               disabled={simulation_state.busy}
-              class="text-white/85 transition-colors hover:text-white"
-            >
+              class="text-white/85 transition-colors hover:text-white">
               <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                 <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2"></polyline>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2"></path>
@@ -741,8 +720,7 @@
               aria-label={Audio.voice.is_paused ? "Resume Audio" : "Pause Audio"}
               actions={[tooltip]}
               onclick={() => Audio.voice.toggle_pause()}
-              class="text-white/85 transition-colors hover:text-white"
-            >
+              class="text-white/85 transition-colors hover:text-white">
               {#if Audio.voice.is_paused}
                 <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
                   <polygon points="5 3 19 12 5 21 5 3"></polygon>
@@ -761,8 +739,7 @@
               aria-label="Interrupt Audio"
               actions={[tooltip]}
               onclick={() => Audio.voice.stop()}
-              class="text-white/85 transition-colors hover:text-white"
-            >
+              class="text-white/85 transition-colors hover:text-white">
               <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
                 <rect x="6" y="6" width="12" height="12" rx="1"></rect>
               </svg>
@@ -776,13 +753,11 @@
               actions={[tooltip]}
               onclick={handle_speak}
               disabled={!clean_markdown || !voice_audible}
-              class="text-white/85 transition-colors hover:text-white disabled:opacity-30"
-            >
+              class="text-white/85 transition-colors hover:text-white disabled:opacity-30">
               <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
                 <path
                   fill="currentColor"
-                  d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-                />
+                  d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
               </svg>
             </Button>
           {/if}
@@ -793,8 +768,7 @@
             aria-label="Edit"
             actions={[tooltip]}
             onclick={on_edit}
-            class="text-white/85 transition-colors hover:text-white"
-          >
+            class="text-white/85 transition-colors hover:text-white">
             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"></path>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"></path>
@@ -807,8 +781,7 @@
             aria-label="Copy"
             actions={[tooltip]}
             onclick={handle_copy}
-            class="text-white/85 transition-colors hover:text-white"
-          >
+            class="text-white/85 transition-colors hover:text-white">
             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
@@ -821,8 +794,7 @@
             aria-label="Delete"
             actions={[tooltip]}
             onclick={on_delete}
-            class="text-white/85 transition-colors hover:text-white"
-          >
+            class="text-white/85 transition-colors hover:text-white">
             <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
               <polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"></path>
@@ -840,8 +812,7 @@
       <Accordion label="Thoughts">
         {#if show_director_split}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard"
-          >
+            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-tight py-1 text-cyan-200">
               <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
             </div>
@@ -851,8 +822,7 @@
           </div>
         {:else}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard"
-          >
+            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
           </div>
         {/if}
@@ -886,8 +856,7 @@
 
         {is_fractal ? 'text-center' : ''}
       "
-      style={!should_use_typewriter ? "content-visibility: auto;" : ""}
-    >
+      style={!should_use_typewriter ? "content-visibility: auto;" : ""}>
       {#if should_use_typewriter}
         {#if has_display_text}
           <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} show_cursor={true} cursor_style="block" />
@@ -918,8 +887,7 @@
           variant="message"
           actions={card_actions.ai}
           onclick={() => app.open_profile(a)}
-          onViewProfile={() => app.open_profile(a)}
-        />
+          onViewProfile={() => app.open_profile(a)} />
       </div>
     {/if}
     {#if runtime.active_fractal || app.selected_fractal}
@@ -933,8 +901,7 @@
               variant="message"
               actions={card_actions.fractal}
               onclick={() => app.open_profile(f)}
-              onViewProfile={() => app.open_profile(f)}
-            />
+              onViewProfile={() => app.open_profile(f)} />
           </div>
           <div class="flex w-full shrink-0 justify-center gap-tight md:gap-standard" data-msg-style-badge>
             <StyleBadge entity={f} layout="prologue" class="flex w-full justify-center gap-tight md:gap-standard" />
@@ -951,8 +918,7 @@
           variant="message"
           actions={card_actions.user}
           onclick={() => app.open_profile(u)}
-          onViewProfile={() => app.open_profile(u)}
-        />
+          onViewProfile={() => app.open_profile(u)} />
       </div>
     {/if}
   </div>
@@ -966,8 +932,7 @@
           {#if part.color}
             <span
               class="inline px-1 whitespace-nowrap text-(--signature-color) text-shadow-[0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]"
-              style:--signature-color={part.color}>{part.text}</span
-            >
+              style:--signature-color={part.color}>{part.text}</span>
           {:else}
             <span class="inline px-1 text-shadow-[0_0_var(--spacing-unit)_var(--color-void-black)]">{part.text}</span>
           {/if}
@@ -1001,33 +966,30 @@
             class="group relative flex cursor-pointer flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-colors duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
             style={container_style}
             onclick={() => open_picker()}
-            aria-label="Select image from candidates"
-          >
+            aria-label="Select image from candidates">
             <!-- Mini 3-card spread with dynamic mouseover animation -->
             <div class="relative h-16 w-24 transition-transform duration-300 group-hover:scale-110">
               <div
                 class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-300 group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
-                style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;"
-              ></div>
+                style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;">
+              </div>
               <div
                 class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition duration-300 group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
-                style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;"
-              ></div>
+                style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;">
+              </div>
               <div
                 class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-300 group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
-                style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;"
-              ></div>
+                style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;">
+              </div>
             </div>
             <div class="flex items-center gap-tight transition-transform duration-200 group-hover:scale-105">
               <span
-                class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-200 group-hover:text-white"
-              >
+                class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-200 group-hover:text-white">
                 Click to select
               </span>
               <svg
                 viewBox="0 0 24 24"
-                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white"
-              >
+                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </div>
@@ -1035,20 +997,14 @@
         {:else if image_picker.isRegenerating(regenerate_key)}
           <div
             class="relative flex flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-            style={container_style}
-          >
+            style={container_style}>
             <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
           </div>
         {:else if is_failed}
           <div
             class="relative flex flex-col items-center justify-center gap-tight overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-standard"
-            style={container_style}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              class="h-8 w-8 fill-none stroke-2 text-red-400/80 [stroke-linecap:round] [stroke-linejoin:round]"
-              aria-hidden="true"
-            >
+            style={container_style}>
+            <svg viewBox="0 0 24 24" class="h-8 w-8 fill-none stroke-2 text-red-400/80 [stroke-linecap:round] [stroke-linejoin:round]" aria-hidden="true">
               <path d="M12 3 L21 21 H3 Z" />
               <line x1="12" y1="9" x2="12" y2="14" />
               <line x1="12" y1="17.5" x2="12.01" y2="17.5" />
@@ -1060,8 +1016,7 @@
                 <Button
                   variant="bare"
                   onclick={preview_options.on_regenerate}
-                  class="rounded-md border border-red-400/40 bg-red-950/40 px-3 py-1 text-[11px] font-medium text-red-200 transition-colors hover:border-red-300/70 hover:text-white"
-                >
+                  class="rounded-md border border-red-400/40 bg-red-950/40 px-3 py-1 text-[11px] font-medium text-red-200 transition-colors hover:border-red-300/70 hover:text-white">
                   Retry
                 </Button>
               {/if}
@@ -1069,8 +1024,7 @@
                 <Button
                   variant="bare"
                   onclick={() => simulation_log.delete_attachment(String(id), attach_idx)}
-                  class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white"
-                >
+                  class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white">
                   Remove
                 </Button>
               {/if}
@@ -1093,8 +1047,7 @@
               hover:brightness-110
             "
             onclick={() => app.open_image_preview(preview_options)}
-            aria-label="View Attachment"
-          >
+            aria-label="View Attachment">
             <img
               {src}
               alt="Attachment {attach_idx + 1}"
@@ -1106,14 +1059,12 @@
                 cursor-zoom-in
                 rounded-xl
                 object-contain
-              "
-            />
+              " />
           </Button>
         {:else}
           <div
             class="relative flex flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-            style={container_style}
-          >
+            style={container_style}>
             <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
           </div>
         {/if}
@@ -1134,10 +1085,9 @@
     .filter((it) => clean_text_debris(it.value))}
   {#if chip_items.length > 0}
     <div
-      class="flex gap-standard rounded border-l-2 px-3 py-tight font-mono text-xs leading-relaxed {isMuted
-        ? 'border-l-slate-500 bg-black/20'
-        : 'border-l-(--color-dev-accent) bg-black/40'}"
-    >
+      class="flex gap-standard rounded border-l-2 px-3 py-tight font-mono text-xs leading-relaxed {isMuted ? 'border-l-slate-500 bg-black/20' : (
+        'border-l-(--color-dev-accent) bg-black/40'
+      )}">
       <span class="w-28 shrink-0 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">{label}</span>
       <div class="flex flex-1 flex-wrap gap-tight {isMuted ? 'text-slate-300' : 'text-slate-200'}">
         {#each chip_items as item, i (i)}
@@ -1182,14 +1132,12 @@
       before:opacity-30
       before:content-['']!
     "
-    style="--signature-color: var(--color-dev-accent);"
-  >
+    style="--signature-color: var(--color-dev-accent);">
     {#if telemetry_card_label}
       <!-- display:flex inline: unlayered normalize.css v3 resets header to block, defeating Tailwind's layered flex utility -->
       <header
         style="display: flex;"
-        class="flex min-h-10 items-center gap-tight border-b border-white/10 px-standard py-tight font-mono text-xs leading-none font-bold tracking-[0.18em] text-(--color-dev-accent) uppercase"
-      >
+        class="flex min-h-10 items-center gap-tight border-b border-white/10 px-standard py-tight font-mono text-xs leading-none font-bold tracking-[0.18em] text-(--color-dev-accent) uppercase">
         <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
         <span class="min-w-0 translate-y-[1px] truncate">{telemetry_card_label}</span>
         <span class="ml-auto shrink-0 translate-y-[1px] text-[10px] font-normal tracking-widest text-white/40">{time_label}</span>
@@ -1207,8 +1155,7 @@
               <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
               {#if meta.image_tier}
                 <span
-                  class="rounded bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
-                >
+                  class="rounded bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
                   {meta.image_tier}
                 </span>
               {/if}
@@ -1242,7 +1189,10 @@
                     <div class="flex min-w-16 items-center justify-end gap-tight font-mono text-xs">
                       <span class="text-slate-50">{row.level != null ? get_percentage(row.level) : `${row.delta > 0 ? "+" : ""}${row.delta}`}</span>
                       {#if row.level != null}
-                        <span class={row.delta > 0 ? "text-(--color-dev-accent)" : row.delta < 0 ? "text-slate-500" : "text-slate-500"}>
+                        <span
+                          class={row.delta > 0 ? "text-(--color-dev-accent)"
+                          : row.delta < 0 ? "text-slate-500"
+                          : "text-slate-500"}>
                           ({row.delta > 0 ? "+" : ""}{row.delta})
                         </span>
                       {/if}
@@ -1255,17 +1205,13 @@
 
           <!-- Director `directors_note` intentionally omitted here: it is the Turn 2 `startWith` prefix, so it already opens the AI Thoughts block (highlighted cyan-blue there). The director's own reasoning (`thoughts`) is shown below instead. -->
           {#if meta.thoughts}
-            <div
-              class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed"
-            >
+            <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed">
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Thoughts</span>
               <span class="flex-1 text-slate-200">{meta.thoughts}</span>
             </div>
           {/if}
           {#if meta.camera_note}
-            <div
-              class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed"
-            >
+            <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed">
               <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
               <span class="flex-1 text-slate-200">{meta.camera_note}</span>
             </div>
@@ -1284,9 +1230,8 @@
                   {#if block.dynamics.length > 0}
                     <div class="grid grid-cols-2 gap-standard">
                       {#each block.dynamics as delta (delta.axis)}
-                        {@const fill_width = delta.has_delta
-                          ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value))
-                          : get_percentage(delta.value)}
+                        {@const fill_width =
+                          delta.has_delta ? Math.min(get_percentage(delta.old_value), get_percentage(delta.new_value)) : get_percentage(delta.value)}
                         {@const delta_width = delta.has_delta ? Math.abs(get_percentage(delta.new_value) - get_percentage(delta.old_value)) : 0}
                         <div class="flex items-center justify-between gap-standard">
                           <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
@@ -1294,13 +1239,13 @@
                             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
                                 class="absolute h-full transition-[width] duration-300"
-                                style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
-                              ></div>
+                                style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);">
+                              </div>
                               {#if delta.has_delta}
                                 <div
                                   class="absolute z-10 h-full opacity-40 transition-[left,width] duration-300"
-                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
-                                ></div>
+                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);">
+                                </div>
                               {/if}
                             </div>
                             <div class="flex flex-col items-end gap-0.5">
@@ -1322,10 +1267,7 @@
                   <!-- TEMPORAL ROWS -->
                   {#if block.physical || block.non_physical || block.eternal_physical || block.eternal_non_physical || block.new_vectors.length > 0 || block.retrieval?.length > 0}
                     <div class="flex flex-col gap-tight pb-tight">
-                      {@render temporal_quadrant(
-                        "ETERNAL",
-                        extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`),
-                      )}
+                      {@render temporal_quadrant("ETERNAL", extract_bracket_items(`${block.eternal_physical || ""} ${block.eternal_non_physical || ""}`))}
                       {@render temporal_quadrant("PRESENT", extract_bracket_items(`${block.physical || ""} ${block.non_physical || ""}`))}
 
                       {#if block.new_vectors.length > 0}
@@ -1348,9 +1290,7 @@
                   <!-- RELATIONAL MUTATIONS -->
                   {#if block.relationships?.length > 0}
                     <div class="flex flex-col gap-tight pb-tight">
-                      <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
-                        RELATIONAL MUTATIONS
-                      </header>
+                      <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">RELATIONAL MUTATIONS</header>
                       <div class="flex flex-col gap-tight">
                         {#each block.relationships as rel, i (i)}
                           <div class="flex items-center gap-tight font-mono text-xs text-slate-300">
@@ -1444,13 +1384,10 @@
       p-standard
       transition
       duration-200
-      {is_user
-      ? 'justify-end pr-[calc(var(--spacing-column-unit)*2)]'
-      : is_ai || is_npc
-        ? 'justify-start pl-[calc(var(--spacing-column-unit)*2)]'
-        : 'justify-center'}
-    "
-  >
+      {is_user ? 'justify-end pr-[calc(var(--spacing-column-unit)*2)]'
+    : is_ai || is_npc ? 'justify-start pl-[calc(var(--spacing-column-unit)*2)]'
+    : 'justify-center'}
+    ">
     {#if (is_ai || is_npc || is_fractal) && entity && !meta?.is_prologue && !meta?.is_epilogue}
       <div
         class="
@@ -1466,8 +1403,7 @@
           p-0
           select-none
         "
-        style="--signature-color: {signature_color};"
-      >
+        style="--signature-color: {signature_color};">
         <button
           type="button"
           onclick={handle_badge_click}
@@ -1496,18 +1432,16 @@
             hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)]
             focus-visible:outline-none
           "
-          aria-label="{is_fractal ? 'Fractal' : 'Character'} Menu"
-        >
+          aria-label="{is_fractal ? 'Fractal' : 'Character'} Menu">
           <ProfilePicture
             {entity}
             alt=""
-            class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top"
-          />
+            class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
           <div
             aria-hidden="true"
             class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 transition-opacity duration-200 group-hover/badge:opacity-0"
-            style="background-color: {signature_color}; mix-blend-mode: color;"
-          ></div>
+            style="background-color: {signature_color}; mix-blend-mode: color;">
+          </div>
         </button>
       </div>
     {/if}
@@ -1542,13 +1476,13 @@
         before:duration-300
         before:content-['']!
 
-        {!is_extended
-        ? `
+        {!is_extended ?
+        `
           bg-[color-mix(in_srgb,var(--signature-color)_5%,rgba(15,15,15,0.7))]
           before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
           before:opacity-30
         `
-        : `
+      : `
           bg-[color-mix(in_srgb,var(--signature-color)_10%,rgba(15,15,15,0.75))]
           shadow-[0_8px_32px_color-mix(in_srgb,var(--signature-color),transparent_95%)]
           before:bg-[linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
@@ -1563,8 +1497,7 @@
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
       role="region"
-      aria-label="Message Context"
-    >
+      aria-label="Message Context">
       <!-- HEADER BAR -->
       {@render header_bar()}
 
@@ -1603,8 +1536,7 @@
           p-0
           select-none
         "
-        style="--signature-color: {signature_color};"
-      >
+        style="--signature-color: {signature_color};">
         <button
           type="button"
           onclick={handle_badge_click}
@@ -1633,18 +1565,16 @@
             hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)]
             focus-visible:outline-none
           "
-          aria-label="User Persona Menu"
-        >
+          aria-label="User Persona Menu">
           <ProfilePicture
             {entity}
             alt=""
-            class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top"
-          />
+            class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
           <div
             aria-hidden="true"
             class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 transition-opacity duration-200 group-hover/badge:opacity-0"
-            style="background-color: {signature_color}; mix-blend-mode: color;"
-          ></div>
+            style="background-color: {signature_color}; mix-blend-mode: color;">
+          </div>
         </button>
       </div>
     {/if}

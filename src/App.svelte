@@ -10,17 +10,7 @@
   import { runtime } from "@engine";
   import { Audio, motion } from "@media";
   import { Tooltip } from "@primitives";
-  import {
-    app,
-    close_image_preview,
-    Console,
-    ImagePreview,
-    open_image_preview,
-    Profile,
-    register_image_preview_handlers,
-    Storyboard,
-    Storymode,
-  } from "@ui";
+  import { app, close_image_preview, Console, ImagePreview, open_image_preview, Profile, register_image_preview_handlers, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
@@ -29,21 +19,20 @@
   let fractal_opacity = $derived("var(--opacity-muted)");
 
   let container_class = $derived(
-    app.viewport.mobile
-      ? app.view === "storymode"
-        ? "h-[100dvh] w-grid-width grid-cols-2 grid-rows-[min-content_16rem_1fr_min-content] overflow-hidden"
-        : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
-      : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden",
+    app.viewport.mobile ?
+      app.view === "storymode" ?
+        "h-[100dvh] w-grid-width grid-cols-2 grid-rows-[min-content_16rem_1fr_min-content] overflow-hidden"
+      : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
+    : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden",
   );
 
   let footer_class = $derived(
-    app.viewport.mobile
-      ? app.view === "storymode"
-        ? "relative inset-auto col-span-full row-4 h-auto items-center"
-        : "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center"
-      : app.view === "storymode"
-        ? "col-start-1 col-end-13 row-start-12 h-row-unit items-start self-stretch"
-        : "col-start-2 col-end-12 row-start-11 h-row-unit items-center self-stretch",
+    app.viewport.mobile ?
+      app.view === "storymode" ?
+        "relative inset-auto col-span-full row-4 h-auto items-center"
+      : "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center"
+    : app.view === "storymode" ? "col-start-1 col-end-13 row-start-12 h-row-unit items-start self-stretch"
+    : "col-start-2 col-end-12 row-start-11 h-row-unit items-center self-stretch",
   );
 
   // --- LIFECYCLE EFFECTS ---
@@ -84,8 +73,7 @@
 <main
   id="main-content"
   class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-out)_forwards] overflow-hidden text-left"
-  data-view={app.view}
->
+  data-view={app.view}>
   <div class="pointer-events-none fixed inset-0 z-0 h-dvh w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
@@ -93,15 +81,15 @@
       class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-[opacity,filter] duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
-      style:view-transition-name={app.view === "storymode" && !app.transitioning_profile ? "entity-morph-fractal" : undefined}
-    ></div>
+      style:view-transition-name={app.view === "storymode" && !app.transitioning_profile ? "entity-morph-fractal" : undefined}>
+    </div>
 
     <div
-      class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating'
-        ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
-        : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
-      style:animation-play-state={motion.is_reduced ? "paused" : "running"}
-    ></div>
+      class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating' ?
+        'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
+      : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
+      style:animation-play-state={motion.is_reduced ? "paused" : "running"}>
+    </div>
   </div>
 
   <ImagePreview />

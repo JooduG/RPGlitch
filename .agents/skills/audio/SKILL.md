@@ -1,14 +1,7 @@
 ---
 name: audio
 description: >-
-  Procedural Web Audio SFX synthesis, hardware AudioContext lifecycle, and
-  browser Web Speech API controller in `@media` (`src/media/audio.svelte.js`).
-  Use when implementing or refactoring `play_sfx`, `AudioEngine`, `VoiceEngine`,
-  `VOICE_CADENCES`, `get_cadence_rate`, user-gesture `AudioContext`
-  unlock/teardown, or `src/ui/AudioWing.svelte` voice controls. Do NOT use for
-  interactive animations, easing curves, or View Transitions (use motion),
-  static visual tokens or layouts (use design), turn orchestration (use
-  simulation), or general Svelte 5 component runes (use svelte).
+  Procedural Web Audio SFX synthesis, hardware AudioContext lifecycle, and browser Web Speech API controller in `@media` (`src/media/audio.svelte.js`). Use when implementing or refactoring `play_sfx`, `AudioEngine`, `VoiceEngine`, `VOICE_CADENCES`, `get_cadence_rate`, user-gesture `AudioContext` unlock/teardown, or `src/ui/AudioWing.svelte` voice controls. Do NOT use for interactive animations, easing curves, or View Transitions (use motion), static visual tokens or layouts (use design), turn orchestration (use simulation), or general Svelte 5 component runes (use svelte).
 ---
 
 # Audio & Speech Synthesis
@@ -78,16 +71,16 @@ description: >-
 - **Rank 1 Layer Isolation**: `src/media/` imports strictly downward (`@config`, `@utils`). Never import Dexie/`@data` into `audio.svelte.js`; `db.audio_prefs` ([db.js](../../../src/data/db.js#L38)) is an unused frozen schema store with no active readers or writers. Per-entity `{ name, uri, cadence }` settings live on character records edited via [AudioWing.svelte](../../../src/ui/AudioWing.svelte#L24-L75).
 - **Silent Boot & Reactivity Matrix**:
 
-| Member / Variable                                          | Boot Default                                 | Reactivity      | Scope / Notes                                                        |
-| :--------------------------------------------------------- | :------------------------------------------- | :-------------- | :------------------------------------------------------------------- |
-| `is_muted` (`Audio.is_muted`)                              | `true`                                       | Plain `let`     | Gates `play_sfx()` / `master_gain_node` only; not TTS                |
-| `current_master_volume`                                    | `1.0`                                        | Plain `let`     | Synced when `Audio.volume` / `set_volume()` changes                  |
-| `Audio.notifications_enabled`                              | `false`                                      | `$state(false)` | Bound in `Console.svelte`; not checked inside `Audio.play()`         |
-| `VoiceEngine.enabled`                                      | `false`                                      | `$state(false)` | Exposed as `Audio.voice_enabled`; flipped on by `set_entity_voice()` |
-| `VoiceEngine.volume` (`Audio.volume`)                      | `1.0`                                        | `$state(1.0)`   | Applies to both `master_gain_node` and `utterance.volume`            |
-| `VoiceEngine.entity_voice`                                 | `{ ai: false, user: false, fractal: false }` | `$state(...)`   | Opt-in per-role gate; toggled via `toggle_entity_voice(role)`        |
-| `VoiceEngine.rate` / `selected_voice`                      | `1.0` / `"default"`                          | Plain fields    | Non-reactive utterance defaults; read at `speak()` call time         |
-| `VoiceEngine.voices` / `is_speaking` / `active_message_id` | `[]` / `false` / `null`                      | `$state(...)`   | Drives dropdown hydration and message speech indicator buttons       |
+| Member / Variable | Boot Default | Reactivity | Scope / Notes |
+| :-- | :-- | :-- | :-- |
+| `is_muted` (`Audio.is_muted`) | `true` | Plain `let` | Gates `play_sfx()` / `master_gain_node` only; not TTS |
+| `current_master_volume` | `1.0` | Plain `let` | Synced when `Audio.volume` / `set_volume()` changes |
+| `Audio.notifications_enabled` | `false` | `$state(false)` | Bound in `Console.svelte`; not checked inside `Audio.play()` |
+| `VoiceEngine.enabled` | `false` | `$state(false)` | Exposed as `Audio.voice_enabled`; flipped on by `set_entity_voice()` |
+| `VoiceEngine.volume` (`Audio.volume`) | `1.0` | `$state(1.0)` | Applies to both `master_gain_node` and `utterance.volume` |
+| `VoiceEngine.entity_voice` | `{ ai: false, user: false, fractal: false }` | `$state(...)` | Opt-in per-role gate; toggled via `toggle_entity_voice(role)` |
+| `VoiceEngine.rate` / `selected_voice` | `1.0` / `"default"` | Plain fields | Non-reactive utterance defaults; read at `speak()` call time |
+| `VoiceEngine.voices` / `is_speaking` / `active_message_id` | `[]` / `false` / `null` | `$state(...)` | Drives dropdown hydration and message speech indicator buttons |
 
 - **SFX vs. TTS Mute Separation**: `master_gain_node` does **not** attenuate `window.speechSynthesis`. When muting audio globally, callers must set `Audio.is_muted = true`, zero `Audio.volume`, and call `Audio.voice.stop()` ([Console.svelte](../../../src/ui/Console.svelte#L304-L309)).
 - **Role Key Distinction**: `voice_role_key(role)` calls `normalize_role(role, { preserve_npc: true })` and folds `"npc"` into `"ai"`, keeping `"ai"`, `"user"`, and `"fractal"` independently toggleable while returning `null` for `"system"`.
@@ -118,12 +111,12 @@ Audio.voice.speak("System diagnostics stabilized.");
 
 ### Counter-Rationalization Table
 
-| Rationalization                                            | Required Action                                                                                         |
-| :--------------------------------------------------------- | :------------------------------------------------------------------------------------------------------ |
+| Rationalization | Required Action |
+| :-- | :-- |
 | `"Quick .wav asset fetch or getRpgList helper is simpler"` | Synthesize procedurally in `play_sfx()` via Web Audio oscillators/noise buffers with `onended` cleanup. |
-| `"Setting Audio.is_muted = true mutes everything"`         | `is_muted` only silences `play_sfx()`; also zero `Audio.volume` and call `Audio.voice.stop()` for TTS.  |
-| `"Audio preferences save automatically to db.audio_prefs"` | Master state is volatile in memory (silent boot); only entity `char.voice` persists on entity records.  |
-| `"AudioWing has wing-item-slide-down animation to tweak"`  | Hand visual transitions and easing curves to [motion/SKILL.md](../motion/SKILL.md).                     |
+| `"Setting Audio.is_muted = true mutes everything"` | `is_muted` only silences `play_sfx()`; also zero `Audio.volume` and call `Audio.voice.stop()` for TTS. |
+| `"Audio preferences save automatically to db.audio_prefs"` | Master state is volatile in memory (silent boot); only entity `char.voice` persists on entity records. |
+| `"AudioWing has wing-item-slide-down animation to tweak"` | Hand visual transitions and easing curves to [motion/SKILL.md](../motion/SKILL.md). |
 
 ### Verification Checklist
 

@@ -137,7 +137,11 @@ export function resolve_px(value, fallback = 0, context = null) {
         const op = mult_match[2];
         const right = parseFloat(mult_match[3]);
         if (!Number.isNaN(left) && !Number.isNaN(right)) {
-          return op === "*" ? left * right : right !== 0 ? left / right : fallback;
+          return (
+            op === "*" ? left * right
+            : right !== 0 ? left / right
+            : fallback
+          );
         }
       }
     }

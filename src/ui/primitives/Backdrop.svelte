@@ -29,7 +29,11 @@
 
   const is_profile = $derived(className === "profile");
   const computed_z_index = $derived(
-    layer === "console" ? "40" : layer === "cardhand" ? "50" : layer === "image" ? "600" : layer === "max" ? "var(--z-index-max)" : z_index,
+    layer === "console" ? "40"
+    : layer === "cardhand" ? "50"
+    : layer === "image" ? "600"
+    : layer === "max" ? "var(--z-index-max)"
+    : z_index,
   );
 
   /**
@@ -47,10 +51,7 @@
     // Return a dummy transition. Svelte won't interpolate CSS, which allows
     // the View Transition API to capture the fully blurred backdrop instantly
     // and naturally crossfade it, preventing the 300ms "snap" when VT ends.
-    return {
-      duration: 0,
-      css: () => "",
-    };
+    return { duration: 0, css: () => "" };
   }
 
   /**
@@ -79,25 +80,24 @@
     [-webkit-tap-highlight-color:transparent]
 
     {is_pass_through ? 'pointer-events-none' : 'pointer-events-auto'}
-    {is_blurred
-    ? `
+    {is_blurred ?
+    `
       backdrop-blur-lg
       backdrop-brightness-90
       backdrop-saturate-40
     `
-    : ''}
-    {busy
-    ? `
+  : ''}
+    {busy ?
+    `
       pointer-events-none
       cursor-wait
     `
-    : ''}
+  : ''}
     {className}"
   style:z-index={computed_z_index}
   data-backdrop={variant === "mini" ? "mini" : undefined}
   transition:backdrop_transition
-  use:use_actions={actions}
->
+  use:use_actions={actions}>
   <div class="flex min-h-full w-full items-center justify-center {is_profile ? 'p-0' : 'p-standard sm:p-8'}">
     <div class="contents {is_pass_through ? '*:pointer-events-auto' : ''}">
       {@render children?.()}

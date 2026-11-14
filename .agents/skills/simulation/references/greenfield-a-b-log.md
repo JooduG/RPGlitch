@@ -1,7 +1,6 @@
 # Greenfield A/B Forensics - live run log (2026-11-08, Perchance iframe preview, vault bundle)
 
-> **HISTORICAL (2026-11-10):** spent - Track 1 (think-seed) won and was canonized in
-> ROADMAP R4. Kept as the empirical record, not as a live protocol.
+> **HISTORICAL (2026-11-10):** spent - Track 1 (think-seed) won and was canonized in ROADMAP R4. Kept as the empirical record, not as a live protocol.
 
 ## Setup (Track 1 story, id=1)
 
@@ -195,14 +194,14 @@
 
 ## A/B DECISION SCORECARD
 
-| Dimension                  | Track 1 (inlined think)                                                                                     | Track 2 (TASK stage direction)                                                                                                               | Verdict                                                                                                         |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Director Adherence (1–5)   | 5 - every note physically executed incl. literal dimming (R7), lever hold (R8), sprint (R5), collapse (R10) | 4 - staging executed 9/10; R7 director overrode literal dim-request with brand logic (refused + compensated). Defensible but non-compliant   | T1 by a nose. Seeded notes read as self-instructions; TASK notes read as advisory.                              |
-| Cognitive Autonomy         | Think = note + inner-voice + physical-tell elaboration; coherent, zero derailment/10                        | Think = situation appraisal + motive invention ("he's playing a game", "terrified of silence without him"); interpretive surplus beyond note | T2 more inventive; T1 more disciplined. Texture difference is THE placement effect. Even.                       |
-| Prose Naturalism           | Strong throughout; banter persona stable                                                                    | Strong; same persona stability; slightly longer (clinch blocking)                                                                            | Even.                                                                                                           |
-| Kayfabe & Leak Resistance  | 0 leaks / 10 rounds (full-text scan R5 + all heads; corpus scan: no bracket leaks)                          | 2 inner-voice-in-prose leaks / 10 (R6, R8); corpus scan confirms these are the ONLY 2 in 26 prose rows                                       | T1 wins. n=26, leak rate 0% vs 20% of rounds (2 isolated lines, not placement-proven but placement-coincident). |
-| Token & Time Overhead      | ~20-40s/round; prose 597-968 chars                                                                          | ~20-40s/round; prose 630-1030 chars (slightly longer)                                                                                        | Even (no instrumentation for tokens; latency comparable).                                                       |
-| Downstream State Stability | Caretaker 10/10, rotation perfect ×3+prologue; ledger 4-quad writes/round                                   | Caretaker 9/10 (R8 USER skipped silently); otherwise identical rotation/ledger behavior                                                      | T1 (T2's skip is a reliability event, not placement-caused - but it happened on T2).                            |
+| Dimension | Track 1 (inlined think) | Track 2 (TASK stage direction) | Verdict |
+| --- | --- | --- | --- |
+| Director Adherence (1–5) | 5 - every note physically executed incl. literal dimming (R7), lever hold (R8), sprint (R5), collapse (R10) | 4 - staging executed 9/10; R7 director overrode literal dim-request with brand logic (refused + compensated). Defensible but non-compliant | T1 by a nose. Seeded notes read as self-instructions; TASK notes read as advisory. |
+| Cognitive Autonomy | Think = note + inner-voice + physical-tell elaboration; coherent, zero derailment/10 | Think = situation appraisal + motive invention ("he's playing a game", "terrified of silence without him"); interpretive surplus beyond note | T2 more inventive; T1 more disciplined. Texture difference is THE placement effect. Even. |
+| Prose Naturalism | Strong throughout; banter persona stable | Strong; same persona stability; slightly longer (clinch blocking) | Even. |
+| Kayfabe & Leak Resistance | 0 leaks / 10 rounds (full-text scan R5 + all heads; corpus scan: no bracket leaks) | 2 inner-voice-in-prose leaks / 10 (R6, R8); corpus scan confirms these are the ONLY 2 in 26 prose rows | T1 wins. n=26, leak rate 0% vs 20% of rounds (2 isolated lines, not placement-proven but placement-coincident). |
+| Token & Time Overhead | ~20-40s/round; prose 597-968 chars | ~20-40s/round; prose 630-1030 chars (slightly longer) | Even (no instrumentation for tokens; latency comparable). |
+| Downstream State Stability | Caretaker 10/10, rotation perfect ×3+prologue; ledger 4-quad writes/round | Caretaker 9/10 (R8 USER skipped silently); otherwise identical rotation/ledger behavior | T1 (T2's skip is a reliability event, not placement-caused - but it happened on T2). |
 
 **WINNER**: Track 1 (inlined think-seed) - same obedience ceiling, fewer cognition leaks, zero skipped consolidations. Cost: thinks read as execution plans rather than appraisals; if architectural goal is character interiority, T2's texture is richer. Recommendation: inline seed + add a "do not restate; appraise and act" think instruction to recover T2-style autonomy without the leak rate.
 

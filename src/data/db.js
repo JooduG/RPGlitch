@@ -38,9 +38,7 @@ db.version(1).stores({
   audio_prefs: "key",
 });
 
-db.version(2).stores({
-  mutation_ledger: "++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp",
-});
+db.version(2).stores({ mutation_ledger: "++id, story_id, entity_id, [story_id+round+seq], [entity_id+field], round, timestamp" });
 
 let _versionchange_quiesce = null;
 let _is_versionchange_pending = false;
@@ -179,9 +177,8 @@ export async function update_story(id, changes) {
  * @returns {Promise<number>}
  */
 export async function update_cast(id, npc_ids) {
-  const sanitized_npc_ids = Array.isArray(npc_ids)
-    ? [...new Set(npc_ids.map((npc_identifier) => (npc_identifier == null ? "" : String(npc_identifier).trim())).filter(Boolean))]
-    : [];
+  const sanitized_npc_ids =
+    Array.isArray(npc_ids) ? [...new Set(npc_ids.map((npc_identifier) => (npc_identifier == null ? "" : String(npc_identifier).trim())).filter(Boolean))] : [];
   return await db.stories.update(coerce_story_key(id), { npc_ids: sanitized_npc_ids, updated_at: Date.now() });
 }
 
@@ -438,7 +435,10 @@ export async function append_log_entry(entry) {
  */
 export async function delete_log_entry(id) {
   const entry = await _find_log_entry(id);
-  const key = entry?.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+  const key =
+    entry?.id != null ? entry.id
+    : isNaN(Number(id)) ? id
+    : Number(id);
   await db.simulation_log.delete(key);
 }
 
@@ -451,7 +451,10 @@ export async function delete_log_entry(id) {
  */
 export async function edit_log_entry(id, new_text) {
   const entry = await _find_log_entry(id);
-  const key = entry?.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+  const key =
+    entry?.id != null ? entry.id
+    : isNaN(Number(id)) ? id
+    : Number(id);
   await db.simulation_log.update(key, { text: new_text });
 }
 
@@ -488,7 +491,10 @@ export async function delete_log_attachment(id, attachment_index) {
     const is_empty_image_bubble =
       !entry.text?.trim() && !entry.meta?.is_prologue && !entry.meta?.is_epilogue && (!entry.attachments || entry.attachments.length === 0);
     if (is_empty_image_bubble) {
-      const key = entry.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+      const key =
+        entry.id != null ? entry.id
+        : isNaN(Number(id)) ? id
+        : Number(id);
       await db.simulation_log.delete(key);
     } else {
       await db.simulation_log.put(entry);
@@ -531,10 +537,7 @@ export async function delete_story_log(story_id) {
  * @returns {Promise<number>}
  */
 export async function record_session_access(session_id) {
-  return await db.sessions.add({
-    session_id: String(session_id),
-    timestamp: Date.now(),
-  });
+  return await db.sessions.add({ session_id: String(session_id), timestamp: Date.now() });
 }
 
 /**
@@ -611,12 +614,7 @@ export async function log_message(
     Boolean(meta?.is_telemetry);
 
   const is_empty =
-    typeof text === "string" &&
-    !text.trim() &&
-    (!attachments || attachments.length === 0) &&
-    !meta?.is_prologue &&
-    !meta?.is_epilogue &&
-    !is_telemetry_meta;
+    typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue && !is_telemetry_meta;
 
   if (is_empty) {
     return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };
@@ -655,11 +653,7 @@ export async function log_message(
  * @returns {Promise<void>}
  */
 export async function set_active_session_id(session_id) {
-  await db.kv_settings.put({
-    key: SESSION_ID_KEY,
-    value: String(session_id),
-    updated_at: Date.now(),
-  });
+  await db.kv_settings.put({ key: SESSION_ID_KEY, value: String(session_id), updated_at: Date.now() });
 }
 
 /**
@@ -708,7 +702,10 @@ export async function append_ledger_entry(entry) {
     key: entry.key ? String(entry.key).toUpperCase().trim() : null,
     old_value: entry.old_value != null ? String(entry.old_value) : null,
     new_value: entry.new_value != null ? String(entry.new_value) : null,
-    visibility: entry.visibility === "hide" ? "hide" : entry.visibility === "show" ? "show" : null,
+    visibility:
+      entry.visibility === "hide" ? "hide"
+      : entry.visibility === "show" ? "show"
+      : null,
     weight: typeof entry.weight === "number" && !Number.isNaN(entry.weight) ? entry.weight : null,
     writer: entry.writer || "kernel",
     decider: entry.decider || "kernel",
@@ -738,7 +735,10 @@ export async function append_ledger_entries(entries) {
     key: entry.key ? String(entry.key).toUpperCase().trim() : null,
     old_value: entry.old_value != null ? String(entry.old_value) : null,
     new_value: entry.new_value != null ? String(entry.new_value) : null,
-    visibility: entry.visibility === "hide" ? "hide" : entry.visibility === "show" ? "show" : null,
+    visibility:
+      entry.visibility === "hide" ? "hide"
+      : entry.visibility === "show" ? "show"
+      : null,
     weight: typeof entry.weight === "number" && !Number.isNaN(entry.weight) ? entry.weight : null,
     writer: entry.writer || "kernel",
     decider: entry.decider || "kernel",

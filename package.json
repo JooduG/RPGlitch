@@ -14,12 +14,12 @@
     "deploy:check": "npm run summarize:sequential lint:fix test:unit",
     "deploy:prepare": "npm run summarize:sequential sync deploy:check build",
     "// --- CHECKS & LINTING --- //": "",
-    "clean": "node -e \"for (const p of ['dist','tmp/test-home','.eslintcache']) require('fs').rmSync(p,{recursive:true,force:true})\"",
+    "clean": "node -e \"import('node:fs').then(fs => ['dist','tmp/test-home','.eslintcache','.stylelintcache'].forEach(p => fs.rmSync(p,{recursive:true,force:true})))\"",
     "verify": "npm run summarize:sequential lint audit test",
     "lint": "npm run summarize:parallel lint:js lint:css lint:md lint:prettier lint:svelte",
     "lint:fix": "npm run summarize:parallel lint:js:fix lint:css:fix lint:md:fix lint:prettier:fix",
-    "lint:css": "stylelint \"src/**/*.{css,svelte}\"",
-    "lint:css:fix": "stylelint \"src/**/*.{css,svelte}\" --fix",
+    "lint:css": "stylelint \"src/**/*.{css,svelte}\" --cache",
+    "lint:css:fix": "stylelint \"src/**/*.{css,svelte}\" --fix --cache",
     "lint:js": "eslint . --cache",
     "lint:js:fix": "eslint . --fix --cache",
     "lint:md": "markdownlint-cli2",
@@ -43,8 +43,8 @@
     "svelte:fix": "npm run summarize:parallel svelte:lint:fix svelte:lint:js:fix svelte:lint:css:fix",
     "svelte:lint": "npm run lint:svelte",
     "svelte:lint:fix": "npm run lint:svelte:fix",
-    "svelte:lint:css": "stylelint \"src/**/*.svelte\"",
-    "svelte:lint:css:fix": "stylelint \"src/**/*.svelte\" --fix",
+    "svelte:lint:css": "stylelint \"src/**/*.svelte\" --cache",
+    "svelte:lint:css:fix": "stylelint \"src/**/*.svelte\" --fix --cache",
     "svelte:lint:js": "eslint \"src/**/*.{svelte,svelte.js}\" --cache",
     "svelte:lint:js:fix": "eslint \"src/**/*.{svelte,svelte.js}\" --fix --cache",
     "svelte:audit": "npm run audit:svelte",
@@ -65,7 +65,7 @@
     "// --- TOOLS --- //": "",
     "sync": "npm run summarize:parallel sync:ignores sync:css sync:gates",
     "sync:css": "node .agents/skills/design/scripts/sync-css.js",
-    "sync:ignores": "node .agents/skills/local-scripts/scripts/sync-ignores.js sync",
+    "sync:ignores": "node .agents/skills/local-scripts/scripts/sync-ignores.js",
     "sync:gates": "node .agents/skills/local-scripts/scripts/gates.js --dump",
     "forge:skill": "node .agents/skills/local-scripts/scripts/proxy.js forge-skill",
     "forge:svelte": "node .agents/skills/local-scripts/scripts/proxy.js forge-svelte",
@@ -73,7 +73,7 @@
     "summarize:sequential": "node .agents/skills/local-scripts/scripts/proxy.js summarize --mode=sequential"
   },
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22.22.2"
   },
   "dependencies": {
     "@internationalized/date": "^3.12.4",
@@ -139,23 +139,14 @@
     "vitest-browser-svelte": "^3.1.0"
   },
   "overrides": {
-    "@modelcontextprotocol/sdk": "^1.32.2",
     "axios": "^1.21.1",
     "devalue": "^5.8.1",
-    "express-rate-limit": "^8.7.3",
-    "firecrawl-fastmcp": {
-      "@modelcontextprotocol/sdk": "^1.32.2"
-    },
-    "hono": "^4.13.17",
-    "ip-address": "^10.1.1",
-    "lodash": "^4.17.21",
-    "lodash-es": "^4.17.21",
-    "svelte": "^5.57.3",
-    "toad-cache": "^3.7.4",
-    "uuid": "^11.1.1",
-    "markdown-it": "^15.0.3",
-    "js-yaml": "^4.3.2",
     "esbuild": "^0.28.2",
-    "dotenv": "^18.0.10"
+    "hono": "^4.13.17",
+    "js-yaml": "^4.3.2",
+    "lodash-es": "^4.17.21",
+    "markdown-it": "^15.0.3",
+    "svelte": "^5.57.3",
+    "uuid": "^11.1.1"
   }
 }

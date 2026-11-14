@@ -30,8 +30,7 @@
     text-slate-200
     shadow-[0_8px_32px_rgba(0,0,0,0.5)]
     [backdrop-filter:var(--blur-mist)]
-  "
->
+  ">
   <div class="flex items-center gap-tight">
     <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
     <span class="font-mono text-xs tracking-wide text-slate-300">Entry removed</span>
@@ -40,6 +39,5 @@
   <span
     aria-hidden="true"
     class="absolute inset-x-0 bottom-0 h-px origin-left bg-(--color-dev-accent)"
-    style="animation: undo-countdown-shrink {undo_window_ms}ms linear forwards;"
-  ></span>
+    style="animation: undo-countdown-shrink {undo_window_ms}ms linear forwards;"></span>
 </div>

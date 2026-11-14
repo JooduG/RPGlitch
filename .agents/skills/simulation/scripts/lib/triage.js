@@ -57,12 +57,7 @@
  * @property {string} summary
  */
 
-const TIER_NAMES = Object.freeze({
-  0: "LEAVE AS-IS",
-  1: "LIGHT TOUCH",
-  2: "STRUCTURED REWRITE",
-  3: "FULL REBUILD",
-});
+const TIER_NAMES = Object.freeze({ 0: "LEAVE AS-IS", 1: "LIGHT TOUCH", 2: "STRUCTURED REWRITE", 3: "FULL REBUILD" });
 
 /**
  * Assesses technical parameter density (code blocks, paths, regexes, flags, URLs, model IDs).
@@ -155,13 +150,7 @@ export function calculate_complexity_score(text, consumer = "chat") {
     d5 = 1;
   }
 
-  return {
-    d1_specification: d1,
-    d2_ambiguity: d2,
-    d3_structure: d3,
-    d4_reasoning: d4,
-    d5_stakes: d5,
-  };
+  return { d1_specification: d1, d2_ambiguity: d2, d3_structure: d3, d4_reasoning: d4, d5_stakes: d5 };
 }
 
 /**
@@ -209,8 +198,7 @@ export function triage_prompt(prompt_text, options = {}) {
   }
 
   const dimensions = calculate_complexity_score(prompt_text, consumer);
-  const total_score =
-    dimensions.d1_specification + dimensions.d2_ambiguity + dimensions.d3_structure + dimensions.d4_reasoning + dimensions.d5_stakes;
+  const total_score = dimensions.d1_specification + dimensions.d2_ambiguity + dimensions.d3_structure + dimensions.d4_reasoning + dimensions.d5_stakes;
 
   const r1_density = assess_technical_density(prompt_text);
   let tier = resolve_tier(total_score, r1_density);
@@ -231,16 +219,7 @@ export function triage_prompt(prompt_text, options = {}) {
 
   const summary = `Triage: D1 ${dimensions.d1_specification}, D2 ${dimensions.d2_ambiguity}, D3 ${dimensions.d3_structure}, D4 ${dimensions.d4_reasoning}, D5 ${dimensions.d5_stakes} = ${total_score}/10; R1 = ${r1_density} -> Tier ${tier} (${TIER_NAMES[tier]})${cap_applied ? ` [Capped by ${cap_applied}]` : ""}`;
 
-  return {
-    is_degenerate: false,
-    dimensions,
-    total_score,
-    risk: { r1_technical_density: r1_density },
-    tier,
-    tier_name: TIER_NAMES[tier],
-    cap_applied,
-    summary,
-  };
+  return { is_degenerate: false, dimensions, total_score, risk: { r1_technical_density: r1_density }, tier, tier_name: TIER_NAMES[tier], cap_applied, summary };
 }
 
 // ============================================================================

@@ -26,10 +26,10 @@ Two failure modes threaten coverage, with the first being the most common blind 
 
 Catalog every dynamic slot in the target component and map it to one of the 9 categories in the Worst-Case Catalog (linked in `SKILL.md`):
 
-| Component / Slot             | Prop or State Source | Catalog Category            | Layout Container     | Expected Overflow / Fallback Rule                          |
-| :--------------------------- | :------------------- | :-------------------------- | :------------------- | :--------------------------------------------------------- |
-| _Example: EntityCard / Name_ | `entity.name`        | People & names              | Flex row (`min-w-0`) | Wraps cleanly; multi-script uses `dir="auto"`              |
-| _Example: ChatBubble / Body_ | `display_text`       | RPGlitch payloads / Strings | Flex column          | Parsed via `MarkdownIt` + `use:safe_html`; `wrap-anywhere` |
+| Component / Slot | Prop or State Source | Catalog Category | Layout Container | Expected Overflow / Fallback Rule |
+| :-- | :-- | :-- | :-- | :-- |
+| _Example: EntityCard / Name_ | `entity.name` | People & names | Flex row (`min-w-0`) | Wraps cleanly; multi-script uses `dir="auto"` |
+| _Example: ChatBubble / Body_ | `display_text` | RPGlitch payloads / Strings | Flex column | Parsed via `MarkdownIt` + `use:safe_html`; `wrap-anywhere` |
 
 ## Phase 2: Adversarial Payload Injection
 
@@ -39,19 +39,19 @@ Catalog every dynamic slot in the target component and map it to one of the 9 ca
 
 ## Phase 3: Failure Signatures & Remediation
 
-| Observed Failure                                                | Root Cause                                    | Canonical Fix                                                                                                                           |
-| :-------------------------------------------------------------- | :-------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
-| Avatar or icon squished into an oval                            | Flex child shrinking                          | Add `shrink-0` (`flex-shrink: 0`) on avatar or icon frames                                                                              |
-| Text overflows box instead of wrapping or truncating            | Flex/grid child defaults to `min-width: auto` | Add `min-w-0` on text column (or `minmax(0, 1fr)` in grid)                                                                              |
-| Unbroken identifier bleeds past card edge                       | No whitespace break opportunities             | Apply Tailwind v4 `wrap-anywhere` (`overflow-wrap: anywhere`)                                                                           |
-| Trailing action pushed off-screen or clipped                    | Middle column expands unrestrained            | `min-w-0` on middle content + `shrink-0` on trailing action                                                                             |
-| Short status badge wraps mid-label                              | Badge allowed to shrink                       | `whitespace-nowrap shrink-0` on short pills; allow `flex-wrap` at `320px` if localized labels widen                                     |
-| Avatar centered vertically beside wrapped text looks unanchored | `items-center` on multi-line row              | Use `items-start` (`align-items: flex-start`) when text wraps                                                                           |
-| Normal words split awkwardly mid-word                           | `break-all` (`word-break: break-all`)         | Replace with `wrap-anywhere` (`overflow-wrap: anywhere`)                                                                                |
-| Numbers jitter horizontally in live counters                    | Proportional font glyphs                      | Apply `tabular-nums` (`font-variant-numeric: tabular-nums`)                                                                             |
-| Diacritics or descenders clip top or bottom                     | Tight `line-height` + `overflow-hidden`       | Relax leading or add clearance padding (`pb-tight`)                                                                                     |
-| Missing or 404 image leaves blank box or broken icon            | Missing fallback layer                        | Use `ProfilePicture.svelte` (`Avatar.Fallback`: full-bleed `--signature-color` well with centered watermark initials)                   |
-| Raw `<script>`, `&`, or `**text**` misfires                     | Wrong escaping vs. HTML sink                  | Plain text: Svelte `{value}` or `escape_html()`. Rich narrative markdown: `MarkdownIt` (`html: false`) + `sanitize()` / `use:safe_html` |
+| Observed Failure | Root Cause | Canonical Fix |
+| :-- | :-- | :-- |
+| Avatar or icon squished into an oval | Flex child shrinking | Add `shrink-0` (`flex-shrink: 0`) on avatar or icon frames |
+| Text overflows box instead of wrapping or truncating | Flex/grid child defaults to `min-width: auto` | Add `min-w-0` on text column (or `minmax(0, 1fr)` in grid) |
+| Unbroken identifier bleeds past card edge | No whitespace break opportunities | Apply Tailwind v4 `wrap-anywhere` (`overflow-wrap: anywhere`) |
+| Trailing action pushed off-screen or clipped | Middle column expands unrestrained | `min-w-0` on middle content + `shrink-0` on trailing action |
+| Short status badge wraps mid-label | Badge allowed to shrink | `whitespace-nowrap shrink-0` on short pills; allow `flex-wrap` at `320px` if localized labels widen |
+| Avatar centered vertically beside wrapped text looks unanchored | `items-center` on multi-line row | Use `items-start` (`align-items: flex-start`) when text wraps |
+| Normal words split awkwardly mid-word | `break-all` (`word-break: break-all`) | Replace with `wrap-anywhere` (`overflow-wrap: anywhere`) |
+| Numbers jitter horizontally in live counters | Proportional font glyphs | Apply `tabular-nums` (`font-variant-numeric: tabular-nums`) |
+| Diacritics or descenders clip top or bottom | Tight `line-height` + `overflow-hidden` | Relax leading or add clearance padding (`pb-tight`) |
+| Missing or 404 image leaves blank box or broken icon | Missing fallback layer | Use `ProfilePicture.svelte` (`Avatar.Fallback`: full-bleed `--signature-color` well with centered watermark initials) |
+| Raw `<script>`, `&`, or `**text**` misfires | Wrong escaping vs. HTML sink | Plain text: Svelte `{value}` or `escape_html()`. Rich narrative markdown: `MarkdownIt` (`html: false`) + `sanitize()` / `use:safe_html` |
 
 ### Truncate, Wrap, or Clamp Strategy
 

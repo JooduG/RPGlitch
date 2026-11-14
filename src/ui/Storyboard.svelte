@@ -30,12 +30,7 @@
   export function deck_geometry(viewport, slot_rect, { pickup_scale = 0.62, deck_clearance = 1.25 } = {}) {
     const width = slot_rect.width * pickup_scale;
     const height = slot_rect.height * pickup_scale;
-    return {
-      left: Math.max(0, viewport.width / 2 - width / 2),
-      top: Math.max(0, viewport.height - height * deck_clearance),
-      width,
-      height,
-    };
+    return { left: Math.max(0, viewport.width / 2 - width / 2), top: Math.max(0, viewport.height - height * deck_clearance), width, height };
   }
 
   /**
@@ -218,11 +213,7 @@
         app.log(`"${locked.name || "Entity"}" is claimed by an active story. End or delete that story first.`, "error");
         return;
       }
-      await chrono_engine.start({
-        ai: app.selected_ai,
-        user: app.selected_user,
-        fractal: app.selected_fractal,
-      });
+      await chrono_engine.start({ ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal });
       await app.load_entities();
     }
   }
@@ -417,27 +408,27 @@
   // STAGE LAYOUT GRID CLASSES (STORYBOARD MODE)
   // ============================================
   let header_class = $derived(
-    app.viewport.mobile
-      ? "relative inset-auto col-start-1 col-end-13 row-start-1 row-end-3 self-end items-center justify-center"
-      : "col-start-2 col-end-12 row-start-1 row-end-4 self-end pb-[calc(var(--spacing-row-unit)*0.5)]",
+    app.viewport.mobile ?
+      "relative inset-auto col-start-1 col-end-13 row-start-1 row-end-3 self-end items-center justify-center"
+    : "col-start-2 col-end-12 row-start-1 row-end-4 self-end pb-[calc(var(--spacing-row-unit)*0.5)]",
   );
 
   let left_class = $derived(
-    app.viewport.mobile
-      ? "relative inset-auto col-start-1 col-end-7 row-start-6 row-end-12 h-full items-center justify-center"
-      : "col-start-2 col-end-4 row-start-3 row-end-11 h-full items-center",
+    app.viewport.mobile ?
+      "relative inset-auto col-start-1 col-end-7 row-start-6 row-end-12 h-full items-center justify-center"
+    : "col-start-2 col-end-4 row-start-3 row-end-11 h-full items-center",
   );
 
   let center_class = $derived(
-    app.viewport.mobile
-      ? "relative inset-auto col-start-1 col-end-13 row-start-3 row-end-6 h-full items-center justify-center"
-      : "col-start-4 col-end-10 row-start-3 row-end-11 h-full items-center",
+    app.viewport.mobile ?
+      "relative inset-auto col-start-1 col-end-13 row-start-3 row-end-6 h-full items-center justify-center"
+    : "col-start-4 col-end-10 row-start-3 row-end-11 h-full items-center",
   );
 
   let right_class = $derived(
-    app.viewport.mobile
-      ? "relative inset-auto col-start-7 col-end-13 row-start-6 row-end-12 h-full items-center justify-center"
-      : "col-start-10 col-end-12 row-start-3 row-end-11 h-full items-center",
+    app.viewport.mobile ?
+      "relative inset-auto col-start-7 col-end-13 row-start-6 row-end-12 h-full items-center justify-center"
+    : "col-start-10 col-end-12 row-start-3 row-end-11 h-full items-center",
   );
 
   // ============================================
@@ -464,12 +455,9 @@
         onSelect: () =>
           app.open_image_preview({
             src: entity.profile_picture,
-            metadata: entity.modifiers
-              ? {
-                  prompt: entity.modifiers.prompt,
-                  negative_prompt: entity.modifiers.negative_prompt,
-                  seed: entity.modifiers.last_generated_seed,
-                }
+            metadata:
+              entity.modifiers ?
+                { prompt: entity.modifiers.prompt, negative_prompt: entity.modifiers.negative_prompt, seed: entity.modifiers.last_generated_seed }
               : null,
           }),
       });
@@ -479,18 +467,11 @@
       const voice_role = type === "fractal" ? "fractal" : "ai";
       const voice_noun = type === "fractal" ? "Fractal Voice" : "AI Voice";
       const voice_label = Audio.is_role_enabled(voice_role) ? `Disable ${voice_noun}` : `Enable ${voice_noun}`;
-      items.push({
-        label: voice_label,
-        active: Audio.is_role_enabled(voice_role),
-        onSelect: () => Audio.toggle_entity_voice(voice_role),
-      });
+      items.push({ label: voice_label, active: Audio.is_role_enabled(voice_role), onSelect: () => Audio.toggle_entity_voice(voice_role) });
     }
 
     items.push({ separator: true });
-    items.push({
-      label: "Swap",
-      onSelect: () => app.open_card_hand(type),
-    });
+    items.push({ label: "Swap", onSelect: () => app.open_card_hand(type) });
 
     return items;
   }
@@ -546,10 +527,7 @@
   async function import_native_json(type, parsed) {
     const merged = { ...create_new(type), ...normalize(parsed) };
     if (import_image_data) merged.profile_picture = import_image_data;
-    await birth_entity_core(type, merged, {
-      run_sorter: false,
-      generate_portrait: false,
-    });
+    await birth_entity_core(type, merged, { run_sorter: false, generate_portrait: false });
   }
 
   async function import_card(type, parsed) {
@@ -561,10 +539,7 @@
   async function import_from_llm(type, raw) {
     const draft = { description: raw };
     if (import_image_data) draft.profile_picture = import_image_data;
-    await birth_entity_core(type, draft, {
-      run_sorter: true,
-      generate_portrait: !import_image_data,
-    });
+    await birth_entity_core(type, draft, { run_sorter: true, generate_portrait: !import_image_data });
   }
 
   async function execute_entity_import() {
@@ -649,7 +624,10 @@
 
   let entity_list = $derived(
     /** @type {any[]} */ (
-      card_hand_type === "ai" ? app.ai_list : card_hand_type === "user" ? app.user_list : card_hand_type === "fractal" ? app.fractal_list : []
+      card_hand_type === "ai" ? app.ai_list
+      : card_hand_type === "user" ? app.user_list
+      : card_hand_type === "fractal" ? app.fractal_list
+      : []
     ),
   );
 
@@ -690,11 +668,7 @@
   const import_angle = $derived(create_angle - card_step);
 
   /** @type {Record<string, string>} */
-  const TITLES = {
-    ai: "Select AI Character",
-    user: "Select User Persona",
-    fractal: "Select Fractal",
-  };
+  const TITLES = { ai: "Select AI Character", user: "Select User Persona", fractal: "Select Fractal" };
 
   let hand_title = $derived((card_hand_type ? TITLES[card_hand_type] : null) ?? "Select Entity");
 
@@ -735,9 +709,7 @@
 
   async function handle_create_new() {
     const type = card_hand_type === "fractal" ? "fractal" : "character";
-    const plan = create_new(type, {
-      name: `New ${type === "character" ? "Character" : "Fractal"}`,
-    });
+    const plan = create_new(type, { name: `New ${type === "character" ? "Character" : "Fractal"}` });
 
     try {
       const saved = await upsert_entity(plan);
@@ -769,8 +741,7 @@
 
     const source = /** @type {HTMLElement | null} */ (document.querySelector(`[data-entity-id="${CSS.escape(String(entity.id))}"] [data-card-root]`));
     const target = /** @type {HTMLElement | null} */ (
-      document.querySelector(`[data-slot-type="${card_hand_type}"] [data-card-root]`) ||
-        document.querySelector(`[data-slot-type="${card_hand_type}"]`)
+      document.querySelector(`[data-slot-type="${card_hand_type}"] [data-card-root]`) || document.querySelector(`[data-slot-type="${card_hand_type}"]`)
     );
     if (!source || !target) {
       app.select_entity(card_hand_type, entity);
@@ -791,13 +762,10 @@
     app.close_card_hand();
 
     const existing =
-      card_hand_type === "ai"
-        ? app.selected_ai
-        : card_hand_type === "user"
-          ? app.selected_user
-          : card_hand_type === "fractal"
-            ? app.selected_fractal
-            : null;
+      card_hand_type === "ai" ? app.selected_ai
+      : card_hand_type === "user" ? app.selected_user
+      : card_hand_type === "fractal" ? app.selected_fractal
+      : null;
 
     const source_rect = rect_of(source);
     const target_rect = rect_of(target);
@@ -885,13 +853,10 @@
         contenteditable="true"
         aria-label="Story Title"
         oninput={handle_input}
-        ondblclick={handle_reset}
-      >
+        ondblclick={handle_reset}>
         {#if is_custom}
-          <span
-            class="text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]"
-            >{custom_title}</span
-          >
+          <span class="text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]"
+            >{custom_title}</span>
         {:else}
           {#each title_parts as part, i (i)}
             {#if part.color}
@@ -904,8 +869,7 @@
                 text-(--signature-color)
                 [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
               "
-                style:--signature-color={part.color}>{part.text}</span
-              >
+                style:--signature-color={part.color}>{part.text}</span>
             {:else}
               <span
                 class="
@@ -914,8 +878,7 @@
               font-display
               whitespace-normal
               text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]
-            ">{part.text}</span
-              >
+            ">{part.text}</span>
             {/if}
           {/each}
         {/if}
@@ -943,8 +906,7 @@
           } else {
             app.open_card_hand("ai");
           }
-        }}
-      />
+        }} />
     </div>
   {/if}
 </aside>
@@ -968,8 +930,7 @@
           } else {
             app.open_card_hand("fractal");
           }
-        }}
-      />
+        }} />
     </div>
   {/if}
 </section>
@@ -993,8 +954,7 @@
           } else {
             app.open_card_hand("user");
           }
-        }}
-      />
+        }} />
     </div>
   {/if}
 </aside>
@@ -1027,25 +987,24 @@
         ease-in-out
 
         {show_import_modal ? 'pointer-events-none opacity-0 transition-opacity duration-200' : ''}
-        {is_visible
-        ? `
+        {is_visible ?
+        `
           translate-y-0
           opacity-100
         `
-        : `
+      : `
           translate-y-full
           opacity-0
         `}
-        {motion.is_reduced
-        ? `
+        {motion.is_reduced ?
+        `
           translate-y-0
           transition-opacity!
           duration-300!
         `
-        : ''}"
+      : ''}"
       role="dialog"
-      aria-labelledby="hand-title"
-    >
+      aria-labelledby="hand-title">
       <header class="pointer-events-auto z-20 -mb-standard text-center">
         <h4 id="hand-title" class="m-0 font-bold tracking-widest text-slate-600 uppercase text-shadow-(--shadow-ambient)">
           {hand_title}
@@ -1064,8 +1023,7 @@
           transition-transform
           duration-300
         "
-        style:--total-count={total_cards}
-      >
+        style:--total-count={total_cards}>
         <!-- IMPORT CARD -->
         <div
           class="
@@ -1084,8 +1042,7 @@
           style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
           style:z-index="0"
           onmouseenter={() => (hovered_index = -2)}
-          onmouseleave={() => (hovered_index = null)}
-        >
+          onmouseleave={() => (hovered_index = null)}>
           <Button
             variant="bare"
             class="
@@ -1103,8 +1060,7 @@
               disabled:cursor-default
             "
             aria-label="Import"
-            onclick={handle_open_import}
-          ></Button>
+            onclick={handle_open_import}></Button>
           <div
             class="
               relative
@@ -1117,10 +1073,9 @@
               ease-in-out
               will-change-transform
             "
-            style:transform={hovered_index === -2
-              ? `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
-              : "none"}
-          >
+            style:transform={hovered_index === -2 ?
+              `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
+            : "none"}>
             <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" onclick={handle_open_import} />
           </div>
         </div>
@@ -1143,8 +1098,7 @@
           style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
           style:z-index="0"
           onmouseenter={() => (hovered_index = -1)}
-          onmouseleave={() => (hovered_index = null)}
-        >
+          onmouseleave={() => (hovered_index = null)}>
           <Button
             variant="bare"
             class="
@@ -1162,8 +1116,7 @@
               disabled:cursor-default
             "
             aria-label="Create New"
-            onclick={handle_create_new}
-          ></Button>
+            onclick={handle_create_new}></Button>
           <div
             class="
               relative
@@ -1176,10 +1129,9 @@
               ease-in-out
               will-change-transform
             "
-            style:transform={hovered_index === -1
-              ? `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
-              : "none"}
-          >
+            style:transform={hovered_index === -1 ?
+              `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
+            : "none"}>
             <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
           </div>
         </div>
@@ -1206,8 +1158,7 @@
             style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
             style:z-index={idx + 1}
             onmouseenter={() => (hovered_index = idx)}
-            onmouseleave={() => (hovered_index = null)}
-          >
+            onmouseleave={() => (hovered_index = null)}>
             <Button
               variant="bare"
               class="
@@ -1226,8 +1177,7 @@
               "
               aria-label="Select {entity.name}"
               onclick={() => handle_select(entity)}
-              disabled={is_disabled(entity)}
-            ></Button>
+              disabled={is_disabled(entity)}></Button>
 
             <div
               class="
@@ -1241,32 +1191,30 @@
                 ease-in-out
                 will-change-transform
 
-                {is_disabled(entity)
-                ? `
+                {is_disabled(entity) ?
+                `
                   opacity-85
                   grayscale-[0.6]
                 `
-                : ''}
-                {hovered_index !== null && !is_hovered && !is_disabled(entity)
-                ? `
+              : ''}
+                {hovered_index !== null && !is_hovered && !is_disabled(entity) ?
+                `
                   blur-[1px]
                   brightness-[0.35]
                   grayscale-[0.4]
                 `
-                : ''}"
+              : ''}"
               use:tooltip={get_unavailable_reason(entity)}
-              style:transform={is_hovered && !is_disabled(entity)
-                ? `rotate(${-(dynamic_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)`
-                : "none"}
-            >
+              style:transform={is_hovered && !is_disabled(entity) ?
+                `rotate(${-(dynamic_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)`
+              : "none"}>
               <EntityCard
                 variant="library"
                 {entity}
                 type={card_hand_type ?? undefined}
                 disabled={is_disabled(entity)}
                 launch_gesture={false}
-                onclick={() => handle_select(entity)}
-              />
+                onclick={() => handle_select(entity)} />
             </div>
           </div>
         {/each}
@@ -1282,8 +1230,7 @@
     on_close={() => {
       show_import_modal = false;
       import_error_message = "";
-    }}
-  >
+    }}>
     <div class="flex h-full flex-col gap-standard font-sans">
       <div class="flex items-center justify-between">
         <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">Import Entity</h5>
@@ -1305,8 +1252,7 @@
           bind:image_data={import_image_data}
           type={import_fetch_type}
           disabled={import_loading}
-          on_source={handle_import_source}
-        />
+          on_source={handle_import_source} />
       </div>
 
       <div class="flex items-center justify-between">
@@ -1319,8 +1265,7 @@
           size="small"
           onclick={execute_entity_import}
           busy={import_loading}
-          disabled={import_loading || (!import_character && !import_fractal)}
-        >
+          disabled={import_loading || (!import_character && !import_fractal)}>
           <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />

@@ -19,21 +19,14 @@ import readline from "readline";
  * Runs the DeepWiki stdio-to-HTTP Server-Sent Events (SSE) bridge.
  */
 export function start_deepwiki_bridge() {
-  const readline_interface = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: false,
-  });
+  const readline_interface = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: false });
 
   readline_interface.on("line", async (line_content) => {
     if (!line_content.trim()) return;
     try {
       const response = await fetch("https://mcp.deepwiki.com/mcp", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json, text/event-stream",
-        },
+        headers: { "Content-Type": "application/json", Accept: "application/json, text/event-stream" },
         body: line_content,
       });
 
@@ -47,10 +40,7 @@ export function start_deepwiki_bridge() {
               JSON.stringify({
                 jsonrpc: "2.0",
                 id: message_payload.id,
-                error: {
-                  code: -32603,
-                  message: `DeepWiki returned ${response.status}: ${error_text}`,
-                },
+                error: { code: -32603, message: `DeepWiki returned ${response.status}: ${error_text}` },
               }) + "\n",
             );
           }
@@ -74,14 +64,7 @@ export function start_deepwiki_bridge() {
         const message_payload = JSON.parse(line_content);
         if (message_payload.id !== undefined) {
           process.stdout.write(
-            JSON.stringify({
-              jsonrpc: "2.0",
-              id: message_payload.id,
-              error: {
-                code: -32603,
-                message: `Bridge error: ${network_error.message}`,
-              },
-            }) + "\n",
+            JSON.stringify({ jsonrpc: "2.0", id: message_payload.id, error: { code: -32603, message: `Bridge error: ${network_error.message}` } }) + "\n",
           );
         }
       } catch {

@@ -132,9 +132,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought.",
     speaking_style: "lyrical",
     keywords: ["erotica", "queer_desire", "psychoanalysis", "dreams_vs_reality"],
-    motifs: {
-      sensual_submersion: "Sensory blur and lyrical interiority; emotional states surface as vast, intimate physical landscapes.",
-    },
+    motifs: { sensual_submersion: "Sensory blur and lyrical interiority; emotional states surface as vast, intimate physical landscapes." },
     dna: {
       internal_ratio: 0.8,
       rhythm: "Stream-of-consciousness, fluid, non-linear, following emotional logic over temporal order.",
@@ -177,13 +175,10 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Dark psychological prose centered on captivity, obsession, rationalized control, and intense psychological dependence.",
     speaking_style: "primal",
     keywords: ["captivity", "psychological", "dark_romance", "possession"],
-    motifs: {
-      captive_control: "Rationalized possession; obsessive hyper-focus and stark declarations of constraint.",
-    },
+    motifs: { captive_control: "Rationalized possession; obsessive hyper-focus and stark declarations of constraint." },
     dna: {
       internal_ratio: 0.85,
-      rhythm:
-        "Obsessive, hyper-focused, and declarative. Long analytical evaluations of power dynamics punctuated by stark declarations of constraint.",
+      rhythm: "Obsessive, hyper-focused, and declarative. Long analytical evaluations of power dynamics punctuated by stark declarations of constraint.",
       sensory: "Sight (Tracking Antagonist) > Sound (Voice Cadence/Commands) > Touch (Forced/Controlling) > Scent",
       grounding: "Survival and obsession. Shifts in dynamic register through self-preservation, rationalized dominance, and captive dependence.",
     },
@@ -214,9 +209,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       "Lush, operatic prose framing physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying architecture.",
     speaking_style: "lyrical",
     keywords: ["psychological", "erotica", "political_rebellion", "decaying_beauty"],
-    motifs: {
-      decaying_opulence: "Lush operatic intimacy inside unstable worlds; linger on bodily textures, light, and decaying architecture.",
-    },
+    motifs: { decaying_opulence: "Lush operatic intimacy inside unstable worlds; linger on bodily textures, light, and decaying architecture." },
     dna: {
       internal_ratio: 0.6,
       rhythm: "Sweeping, lyrical, and fluidly spatial, fragmenting into raw cadence during physical confrontations.",
@@ -244,9 +237,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Gritty, realistic prose focused on raw vulnerability, working-class realism, and physical touch.",
     speaking_style: "casual",
     keywords: ["contemporary", "working_class", "raw_vulnerability", "tactile_realism"],
-    motifs: {
-      tactile_grounding: "Raw working-class touch; feelings grounded in muscle tension, breathing rate, and physical friction.",
-    },
+    motifs: { tactile_grounding: "Raw working-class touch; feelings grounded in muscle tension, breathing rate, and physical friction." },
     dna: {
       internal_ratio: 0.7,
       rhythm: "Short burst clusters resolving into longer, grounded reflective observations.",
@@ -284,9 +275,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective, unvarnished gaze.",
     speaking_style: "casual",
     keywords: ["brutalist", "existential", "minimalist_punctuation", "gothic_western", "parched_stone", "biblical_cadence"],
-    motifs: {
-      blunt_fatalism: "Unvarnished brutalist gaze; emotional truth inferred purely from survival mechanics.",
-    },
+    motifs: { blunt_fatalism: "Unvarnished brutalist gaze; emotional truth inferred purely from survival mechanics." },
     dna: {
       internal_ratio: 0.2,
       rhythm: "Polysyndetic, unpunctuated. Clauses bound by repeating conjunctions terminating in blunt declarations.",
@@ -314,9 +303,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "A surreal narrative style governed by nightmare logic, auditory dread, temporal distortions, and uncanny mystery.",
     speaking_style: "clinical",
     keywords: ["surrealism", "nightmare_logic", "uncanny", "neo_noir"],
-    motifs: {
-      uncanny_hum: "Nightmare logic beneath still surfaces; auditory dread and uncanny mystery in ordinary moments.",
-    },
+    motifs: { uncanny_hum: "Nightmare logic beneath still surfaces; auditory dread and uncanny mystery in ordinary moments." },
     dna: {
       internal_ratio: 0.4,
       rhythm: "Hypnotic, slow, lingering. Earnest, plain dialogue juxtaposed against sudden surreal distortions.",
@@ -344,9 +331,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Gothic horror driven by an unreliable narrator tracking paranoia, guilt, and psychological decay.",
     speaking_style: "lyrical",
     keywords: ["gothic", "horror", "madness", "paranoia", "mortality", "sepulchral_damp", "nervous_hyperacusis"],
-    motifs: {
-      escalating_dread: "Feverish obsessive cadence; repetitive motifs building toward paranoid climax.",
-    },
+    motifs: { escalating_dread: "Feverish obsessive cadence; repetitive motifs building toward paranoid climax." },
     dna: {
       internal_ratio: 0.9,
       rhythm: "Lyrical, hypnotic, and escalating. Multi-clausal sentences repeating key obsessions up to a fever pitch.",
@@ -410,9 +395,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Detached, melancholic style blending domestic routines with sudden magical realism and vinyl records.",
     speaking_style: "clinical",
     keywords: ["magical_realism", "surrealism", "existential", "melancholy"],
-    motifs: {
-      quiet_detachment: "Calm, slightly numb acceptance; domestic routine deforming seamlessly into the surreal.",
-    },
+    motifs: { quiet_detachment: "Calm, slightly numb acceptance; domestic routine deforming seamlessly into the surreal." },
     dna: {
       internal_ratio: 0.7,
       rhythm: "Casual, rhythmic, and conversational. Detailed domestic tracking deforming seamlessly into dreamlike phenomena.",
@@ -435,9 +418,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Atmospheric dark romance combining gothic threat, stalker dynamics, and mafia-tier power imbalances.",
     speaking_style: "primal",
     keywords: ["dark_romance", "stalker", "mafia", "obsession", "gothic"],
-    motifs: {
-      predatory_tension: "Hunted atmosphere; threat and arousal fused into an indivisible physiological rush.",
-    },
+    motifs: { predatory_tension: "Hunted atmosphere; threat and arousal fused into an indivisible physiological rush." },
     dna: {
       internal_ratio: 0.8,
       rhythm: "Punchy, rapid-fire, and looping. Alternates between descriptive gothic atmosphere and sharp, visceral confrontation cadence.",
@@ -470,9 +451,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Dense, clinical narrative tracing intellectual breakdown when confronted by cosmic forces.",
     speaking_style: "lyrical",
     keywords: ["cosmic_horror", "gothic", "madness", "alienation"],
-    motifs: {
-      cosmic_insignificance: "Clinical metaphysical shock; human emotion replaced by absolute awe and alienation.",
-    },
+    motifs: { cosmic_insignificance: "Clinical metaphysical shock; human emotion replaced by absolute awe and alienation." },
     dna: {
       internal_ratio: 0.85,
       rhythm: "Ornate, academic, escalating. Multi-clausal clinical reports breaking into frantic fragments under cosmic dread.",
@@ -485,11 +464,7 @@ export const NARRATIVE_STYLES = Object.freeze({
         when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 80 && (character_dynamics?.chaos ?? 50) > 70,
         directive: "Escalate academic reportage into frantic, adjective-heavy fragments of cosmic terror.",
       },
-      {
-        id: "OCEANIC_ROT",
-        when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 50,
-        directive: "Evoke ancient dampness and fetid oceanic decay.",
-      },
+      { id: "OCEANIC_ROT", when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 50, directive: "Evoke ancient dampness and fetid oceanic decay." },
     ],
   }),
 
@@ -500,9 +475,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Witty, ironic Free Indirect Discourse observing propriety, conversational subtext, and social economics.",
     speaking_style: "lyrical",
     keywords: ["romance", "historical", "satire", "social_propriety"],
-    motifs: {
-      ironic_decorum: "Free indirect irony beneath polished etiquette; subtext carried by subtle glances and social breach.",
-    },
+    motifs: { ironic_decorum: "Free indirect irony beneath polished etiquette; subtext carried by subtle glances and social breach." },
     dna: {
       internal_ratio: 0.3,
       rhythm: "Long, balanced, grammatically structured, rich in ironic distance and formal composure.",
@@ -540,9 +513,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Earnest, elevated, archaic prose rich in mythic lore, duty, hope, and environmental reflection.",
     speaking_style: "lyrical",
     keywords: ["fantasy", "mythic", "history_and_lineage", "duty"],
-    motifs: {
-      elegiac_light: "Mythic fading light; world-weariness and hope mirrored in the surrounding environment and sky.",
-    },
+    motifs: { elegiac_light: "Mythic fading light; world-weariness and hope mirrored in the surrounding environment and sky." },
     dna: {
       internal_ratio: 0.4,
       rhythm: "Long, complex, multi-clausal sentences with poetic cadence and formal historical gravity.",
@@ -580,9 +551,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Terse, declarative, staccato prose stripped of figurative language. Built on spatial physics and momentum.",
     speaking_style: "clinical",
     keywords: ["crime", "action", "tactical_minimalism", "procedural_efficiency"],
-    motifs: {
-      tactical_geometry: "Staccato spatial physics; exact leverage, elapsed time, and mechanical geometry over feeling.",
-    },
+    motifs: { tactical_geometry: "Staccato spatial physics; exact leverage, elapsed time, and mechanical geometry over feeling." },
     dna: {
       internal_ratio: 0.4,
       rhythm: "Staccato. Short. Subject-Verb-Object. High impact. No fluff.",
@@ -605,9 +574,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "High-energy contemporary prose packed with confrontational angst, bully dynamics, sharp banter, and real-time emotional spirals.",
     speaking_style: "primal",
     keywords: ["contemporary", "enemies_to_lovers", "angst", "banter", "power_dynamics"],
-    motifs: {
-      battlefield_vulnerability: "Confrontational angst; emotional vulnerability treated as a high-stakes battlefield with somatic grounding.",
-    },
+    motifs: { battlefield_vulnerability: "Confrontational angst; emotional vulnerability treated as a high-stakes battlefield with somatic grounding." },
     dna: {
       internal_ratio: 0.75,
       rhythm: "Direct, punchy, and propulsive. Fragmented during high conflict, expansive during internal emotional turmoil.",
@@ -635,9 +602,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Ontologically unstable narrative style driven by paranoia, identity shifts, and simulation glitches.",
     speaking_style: "clinical",
     keywords: ["sci_fi", "paranoia", "simulation_theory", "identity_crisis"],
-    motifs: {
-      ontological_doubt: "Questioning the authenticity of reality and memory; paranoia threaded through plain declarations.",
-    },
+    motifs: { ontological_doubt: "Questioning the authenticity of reality and memory; paranoia threaded through plain declarations." },
     dna: {
       internal_ratio: 0.8,
       rhythm: "Frantic, questioning, unstable. Plain declarations disrupted by spiraling doubts regarding reality's validity.",
@@ -666,9 +631,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       "Flat, unadorned prose stripped of quotation marks. Focuses on interpersonal power dynamics, intellectualized feelings, alienation, and class friction.",
     speaking_style: "clinical",
     keywords: ["minimalism", "clinical", "contemporary", "unpunctuated", "transgressive"],
-    motifs: {
-      numb_precision: "Flat, unadorned clinical observation; emotional turmoil dissected analytically without moral affect.",
-    },
+    motifs: { numb_precision: "Flat, unadorned clinical observation; emotional turmoil dissected analytically without moral affect." },
     dna: {
       internal_ratio: 0.5,
       rhythm: "Flat, unadorned, declarative. Dialogue merges into prose without quotation marks, utilizing sparse, monotone syntax.",
@@ -693,13 +656,10 @@ export const NARRATIVE_STYLES = Object.freeze({
     id: "samuel_delany",
     name: "Samuel R. Delany",
     portrait: "https://user.uploads.dev/file/9b2f6375f89ff73e3696f8c085b03fb7.png",
-    description:
-      "Intellectualized, visceral queer erotica combining precise bodily mechanics with philosophy, structural linguistics, and urban decay.",
+    description: "Intellectualized, visceral queer erotica combining precise bodily mechanics with philosophy, structural linguistics, and urban decay.",
     speaking_style: "lyrical",
     keywords: ["queer_erotica", "transgressive", "philosophical", "visceral_detail"],
-    motifs: {
-      anatomical_philosophy: "Intellectualized visceral precision; intimacy and taboo processed as social theory in physical terms.",
-    },
+    motifs: { anatomical_philosophy: "Intellectualized visceral precision; intimacy and taboo processed as social theory in physical terms." },
     dna: {
       internal_ratio: 0.65,
       rhythm: "Elaborate, polyphonic, texturally dense. Complex syntax of urban space alternating with exact anatomical descriptions.",
@@ -722,9 +682,7 @@ export const NARRATIVE_STYLES = Object.freeze({
     description: "Grounded blue-collar realism punctured by plainspoken horror, regional colloquialisms, internal italics, and visceral dread.",
     speaking_style: "casual",
     keywords: ["horror", "everyman", "folksy_dread", "visceral"],
-    motifs: {
-      folksy_dread: "Everyman horror; fear manifesting directly in bodily discomfort and plainspoken dread.",
-    },
+    motifs: { folksy_dread: "Everyman horror; fear manifesting directly in bodily discomfort and plainspoken dread." },
     dna: {
       internal_ratio: 0.6,
       rhythm: "Conversational, folksy, punctuated by abrupt visceral jolts and italicized internal outbursts.",
@@ -809,8 +767,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       {
         id: "CONCRETE_REALISM",
         when: (character_dynamics) => (character_dynamics?.chaos ?? 50) > 60,
-        directive:
-          "Anchor tension in concrete sensory objects-cold glasses, aching joints, the stark glare of light-without decorative embellishments.",
+        directive: "Anchor tension in concrete sensory objects-cold glasses, aching joints, the stark glare of light-without decorative embellishments.",
       },
     ],
   }),
@@ -823,15 +780,12 @@ export const NARRATIVE_STYLES = Object.freeze({
       "Grimdark, cynical, and sharply comedic prose characterized by earthy wit, physical discomfort, raw brutality, and intentional bathos that deflates heroism.",
     speaking_style: "primal",
     keywords: ["grimdark", "cynicism", "bathos", "visceral_combat", "dark_humor", "rusted_iron", "cynical_pragmatism"],
-    motifs: {
-      grim_bathos: "Caustic cynical wit that deflates drama; weary pragmatism grounded in bodily aches and mundane discomfort.",
-    },
+    motifs: { grim_bathos: "Caustic cynical wit that deflates drama; weary pragmatism grounded in bodily aches and mundane discomfort." },
     dna: {
       internal_ratio: 0.65,
       rhythm: "Punchy, fragmented, cynical, punctuated by acerbic internal monologues and grim observations.",
       sensory: "Touch (Aches/Cold Mud/Stitches) > Scent (Blood/Sweat/Grease) > Sound (Bone Crunch/Cynical Snort) > Sight",
-      grounding:
-        "Weary pragmatism and grimdark irony. Heroic drama is consistently grounded in bodily aches, blistered feet, and mundane discomforts.",
+      grounding: "Weary pragmatism and grimdark irony. Heroic drama is consistently grounded in bodily aches, blistered feet, and mundane discomforts.",
     },
     triggers: [
       {
@@ -856,13 +810,10 @@ export const NARRATIVE_STYLES = Object.freeze({
     id: "arthur_morgan",
     name: "Arthur Morgan",
     portrait: "",
-    description:
-      "World-weary, visceral outlaw narrative filtering every observation through moral fatigue, laconic grit, and heavy sensory metaphors.",
+    description: "World-weary, visceral outlaw narrative filtering every observation through moral fatigue, laconic grit, and heavy sensory metaphors.",
     speaking_style: "primal",
     keywords: ["outlaw", "visceral_pulp", "outlaw_grit", "moral_fatigue", "red_dead", "horsehair_and_leather", "trail_weariness"],
-    motifs: {
-      outlaw_fatigue: "World-weary moral exhaustion; every observation filtered through hardened instinct and laconic grit.",
-    },
+    motifs: { outlaw_fatigue: "World-weary moral exhaustion; every observation filtered through hardened instinct and laconic grit." },
     dna: {
       internal_ratio: 0.55,
       rhythm: "Terse, rhythmic, weighted with physical gravity. Heavy sensory metaphors delivered with laconic, world-weary brevity.",
@@ -873,8 +824,7 @@ export const NARRATIVE_STYLES = Object.freeze({
       {
         id: "DEEP_LENS",
         when: (character_dynamics) => (character_dynamics?.intensity ?? 50) > 60 && (character_dynamics?.openness ?? 50) < 50,
-        directive:
-          "Filter all physical observations through the character's moral fatigue, sizing up threats and reading motives with jaded instincts.",
+        directive: "Filter all physical observations through the character's moral fatigue, sizing up threats and reading motives with jaded instincts.",
       },
       {
         id: "LACONIC_PULP",
@@ -919,12 +869,7 @@ export const STYLE_MOTIF_REGISTRY = Object.freeze(aggregated_motifs);
 export function extract_style_dna(style) {
   const dna = style?.dna;
   if (!dna) {
-    return {
-      internal_ratio: "0.50",
-      rhythm: "",
-      sensory: "",
-      grounding: "",
-    };
+    return { internal_ratio: "0.50", rhythm: "", sensory: "", grounding: "" };
   }
   return {
     internal_ratio: typeof dna.internal_ratio === "number" ? dna.internal_ratio.toFixed(2) : String(dna.internal_ratio || "0.50"),

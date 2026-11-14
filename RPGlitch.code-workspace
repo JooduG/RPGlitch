@@ -1,14 +1,32 @@
 {
-  "folders": [
-    {
-      "path": ".",
-    },
-  ],
-  "settings": {
-    "launch": {
-      "compounds": [],
-      "configurations": [],
-    },
-    "typescript.tsdk": "node_modules\\typescript\\lib",
+  "extensions": {
+    "recommendations": [
+      "svelte.svelte-vscode",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "stylelint.vscode-stylelint",
+      "DavidAnson.vscode-markdownlint",
+      "redhat.vscode-xml",
+      "vitest.explorer",
+    ],
   },
+  "folders": [{ "path": "." }],
+  "launch": {
+    "compounds": [],
+    "configurations": [
+      { "name": "Debug Vite App (Chrome)", "request": "launch", "type": "chrome", "url": "http://localhost:5173", "webRoot": "${workspaceFolder}/src" },
+      {
+        "args": ["run", "${relativeFile}"],
+        "console": "integratedTerminal",
+        "name": "Vitest: Current File",
+        "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+        "request": "launch",
+        "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+        "smartStep": true,
+        "type": "node",
+      },
+    ],
+    "version": "0.2.0",
+  },
+  "settings": { "typescript.tsdk": "node_modules/typescript/lib", "vite.autoStart": false },
 }

@@ -60,12 +60,7 @@ export function parse_bracket_token(bracket_string) {
   segments.push(current_segment.trim());
 
   const value = segments[0] || "";
-  const flags = {
-    hide: false,
-    show: false,
-    is_origin: false,
-    weight: undefined,
-  };
+  const flags = { hide: false, show: false, is_origin: false, weight: undefined };
 
   for (let j = 1; j < segments.length; j++) {
     const flag = segments[j].toLowerCase();
@@ -84,12 +79,7 @@ export function parse_bracket_token(bracket_string) {
     }
   }
 
-  return {
-    key,
-    value,
-    flags,
-    raw: trimmed,
-  };
+  return { key, value, flags, raw: trimmed };
 }
 
 /**
@@ -214,17 +204,7 @@ export function parse_bracket_entries(text) {
             }
           }
 
-          entries.push({
-            key,
-            original_key,
-            value,
-            visibility,
-            weight,
-            status,
-            raw,
-            start_index,
-            end_index: end_index + 1,
-          });
+          entries.push({ key, original_key, value, visibility, weight, status, raw, start_index, end_index: end_index + 1 });
         }
 
         index = end_index + 1;
@@ -325,11 +305,7 @@ export function apply_bracket_deltas(existing_text, delta_text) {
 
   // Build mutable entries list from existing tokens
   // Each entry: { key: string, raw: string, value: string }
-  const current_entries = existing_tokens.map((token) => ({
-    key: token.key,
-    raw: reconstruct_bracket_string(token),
-    value: token.value,
-  }));
+  const current_entries = existing_tokens.map((token) => ({ key: token.key, raw: reconstruct_bracket_string(token), value: token.value }));
 
   for (const delta of delta_tokens) {
     const delta_key = delta.key;
@@ -349,28 +325,16 @@ export function apply_bracket_deltas(existing_text, delta_text) {
 
     // Multi-entry keys append
     if (multi_entry_keys.has(delta_key)) {
-      current_entries.push({
-        key: delta_key,
-        raw: normalized_raw,
-        value: delta.value,
-      });
+      current_entries.push({ key: delta_key, raw: normalized_raw, value: delta.value });
       continue;
     }
 
     // Single-value keys overwrite or append
     const existing_index = current_entries.findIndex((entry) => entry.key === delta_key);
     if (existing_index !== -1) {
-      current_entries[existing_index] = {
-        key: delta_key,
-        raw: normalized_raw,
-        value: delta.value,
-      };
+      current_entries[existing_index] = { key: delta_key, raw: normalized_raw, value: delta.value };
     } else {
-      current_entries.push({
-        key: delta_key,
-        raw: normalized_raw,
-        value: delta.value,
-      });
+      current_entries.push({ key: delta_key, raw: normalized_raw, value: delta.value });
     }
   }
 
@@ -430,10 +394,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
     } else if (item && typeof item === "object") {
       const id_slug = item.id ? String(item.id).trim().toUpperCase() : null;
       const name_slug = item.name ? String(item.name).trim().toUpperCase() : null;
-      const entity_meta = {
-        id: item.id || item.name || "",
-        name: item.name || item.id || "",
-      };
+      const entity_meta = { id: item.id || item.name || "", name: item.name || item.id || "" };
       if (id_slug) slug_to_entity.set(id_slug, entity_meta);
       if (name_slug) slug_to_entity.set(name_slug, entity_meta);
     }
@@ -625,11 +586,7 @@ export function parse_think_block(text) {
   const think_string = think_accumulator.length > 0 ? think_accumulator.join("\n\n") : null;
   const cleaned_content = content.trim();
 
-  return {
-    content: cleaned_content,
-    prose: cleaned_content,
-    think: think_string || "",
-  };
+  return { content: cleaned_content, prose: cleaned_content, think: think_string || "" };
 }
 
 /**

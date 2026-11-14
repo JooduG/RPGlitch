@@ -33,20 +33,9 @@ describe("Design System Orchestration Engine", () => {
     function runSync(markdown) {
       fs.writeFileSync(tmpMd, markdown);
 
-      execSync(`node ${SCRIPT_SYNC}`, {
-        env: {
-          ...process.env,
-          DESIGN_MD_PATH: tmpMd,
-          CSS_PATH: tmpCss,
-          JS_BRIDGE_PATH: tmpJs,
-          VITEST: "1",
-        },
-      });
+      execSync(`node ${SCRIPT_SYNC}`, { env: { ...process.env, DESIGN_MD_PATH: tmpMd, CSS_PATH: tmpCss, JS_BRIDGE_PATH: tmpJs, VITEST: "1" } });
 
-      return {
-        css: fs.readFileSync(tmpCss, "utf8"),
-        js: fs.readFileSync(tmpJs, "utf8"),
-      };
+      return { css: fs.readFileSync(tmpCss, "utf8"), js: fs.readFileSync(tmpJs, "utf8") };
     }
 
     it("should parse Markdown frontmatter and generate CSS + unified JS tokens bridge", () => {
@@ -111,16 +100,7 @@ theme:
       fs.writeFileSync(tmpCss, sentinelCss);
       fs.writeFileSync(tmpJs, sentinelJs);
 
-      const execOpts = {
-        env: {
-          ...process.env,
-          DESIGN_MD_PATH: tmpMd,
-          CSS_PATH: tmpCss,
-          JS_BRIDGE_PATH: tmpJs,
-          VITEST: "1",
-        },
-        stdio: "pipe",
-      };
+      const execOpts = { env: { ...process.env, DESIGN_MD_PATH: tmpMd, CSS_PATH: tmpCss, JS_BRIDGE_PATH: tmpJs, VITEST: "1" }, stdio: "pipe" };
 
       fs.writeFileSync(tmpMd, "# Missing frontmatter delimiters\n");
       expect(() => execSync(`node ${SCRIPT_SYNC}`, execOpts)).toThrow();

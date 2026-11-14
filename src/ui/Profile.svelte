@@ -168,14 +168,8 @@
     try {
       const updated_entity = {
         ...profile_state.char,
-        eternal: {
-          ...profile_state.char.eternal,
-          ...reconstructed_timeline_state.eternal,
-        },
-        present: {
-          ...profile_state.char.present,
-          ...reconstructed_timeline_state.present,
-        },
+        eternal: { ...profile_state.char.eternal, ...reconstructed_timeline_state.eternal },
+        present: { ...profile_state.char.present, ...reconstructed_timeline_state.present },
         past: reconstructed_timeline_state.past,
         future: reconstructed_timeline_state.future,
       };
@@ -212,14 +206,8 @@
         ...profile_state.char,
         id: branch_id,
         name: branch_name,
-        eternal: {
-          ...profile_state.char.eternal,
-          ...reconstructed_timeline_state.eternal,
-        },
-        present: {
-          ...profile_state.char.present,
-          ...reconstructed_timeline_state.present,
-        },
+        eternal: { ...profile_state.char.eternal, ...reconstructed_timeline_state.eternal },
+        present: { ...profile_state.char.present, ...reconstructed_timeline_state.present },
         past: reconstructed_timeline_state.past,
         future: reconstructed_timeline_state.future,
       });
@@ -318,13 +306,7 @@
       if (b.id === "default") return 1;
       return a.name.localeCompare(b.name);
     })
-    .map((style) => ({
-      value: style.id,
-      label: style.name,
-      portrait: style.portrait,
-      tag: style.description,
-      tooltip: `${style.name}: ${style.description}`,
-    }));
+    .map((style) => ({ value: style.id, label: style.name, portrait: style.portrait, tag: style.description, tooltip: `${style.name}: ${style.description}` }));
 
   const visual_style_options = Object.values(VISUAL_STYLES)
     .sort((a, b) => {
@@ -332,13 +314,7 @@
       if (b.id === "none") return 1;
       return a.name.localeCompare(b.name);
     })
-    .map((style) => ({
-      value: style.id,
-      label: style.name,
-      portrait: style.portrait,
-      tag: style.description,
-      tooltip: `${style.name}: ${style.description}`,
-    }));
+    .map((style) => ({ value: style.id, label: style.name, portrait: style.portrait, tag: style.description, tooltip: `${style.name}: ${style.description}` }));
 
   const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
 
@@ -459,9 +435,9 @@
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
     "flex overflow-hidden border border-solid transition-[height,grid-template-columns,grid-template-rows,border-radius] duration-300 relative z-10 " +
-      (app.viewport.mobile
-        ? "col-span-full h-full flex-col rounded-none "
-        : (has_wings ? "md:col-[2/8] row-start-1 my-auto h-[90dvh]" : "md:col-[4/10] row-start-1 my-auto h-[90dvh]") + " rounded-2xl ") +
+      (app.viewport.mobile ?
+        "col-span-full h-full flex-col rounded-none "
+      : (has_wings ? "md:col-[2/8] row-start-1 my-auto h-[90dvh]" : "md:col-[4/10] row-start-1 my-auto h-[90dvh]") + " rounded-2xl ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
@@ -473,12 +449,10 @@
 
   const profile_pic_wrapper_class = $derived(
     "overflow-hidden border-solid transition-[border-radius] duration-300 " +
-      (entity_type === "fractal"
-        ? "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
-        : "h-full w-full border-0 " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
-      (app.viewport.mobile
-        ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-(--spacing-pixel) rounded-md"
-        : ""),
+      (entity_type === "fractal" ?
+        "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
+      : "h-full w-full border-0 " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
+      (app.viewport.mobile ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-(--spacing-pixel) rounded-md" : ""),
   );
 
   const info_container_class = $derived(
@@ -492,9 +466,7 @@
       (app.viewport.mobile ? "flex-col items-stretch" : "justify-end"),
   );
 
-  const entity_body_class = $derived(
-    "min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-standard" : "grid items-center gap-x-tight gap-y-standard"),
-  );
+  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-standard" : "grid items-center gap-x-tight gap-y-standard"));
 
   const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
@@ -670,9 +642,7 @@
    */
   function should_show_bracket_tip(field_key, value) {
     if (!profile_state.is_editing || !value) return false;
-    const is_temporal = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"].includes(
-      field_key,
-    );
+    const is_temporal = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"].includes(field_key);
     if (!is_temporal) return false;
     const trimmed = String(value).trim();
     return trimmed.length >= 120 && !trimmed.includes("\n") && !trimmed.includes("[");
@@ -692,8 +662,7 @@
       return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
-      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable || target.closest("[data-wings-container]"))
-        return;
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable || target.closest("[data-wings-container]")) return;
       e.preventDefault();
       if (profile_state.is_editing) {
         footer_el?.focus();
@@ -703,8 +672,7 @@
         profile_state.start_editing();
       }
     }
-  }}
-/>
+  }} />
 
 {#if profile_state.char}
   <Dialog
@@ -714,8 +682,7 @@
     message={`You have unsaved edits to ${profile_state.char?.name || "this profile"}. Open the other entity and discard them?${profile_state.pending_swap_detail ? ` [${profile_state.pending_swap_detail}]` : ""}`}
     confirm_label="Discard & Continue"
     on_confirm={() => profile_state.confirm_swap()}
-    on_cancel={() => profile_state.reject_swap()}
-  />
+    on_cancel={() => profile_state.reject_swap()} />
 
   <Dialog
     type="confirm"
@@ -723,8 +690,7 @@
     title="Delete {profile_state.char.name || 'Entity'}"
     message="This action is irreversible. All associated data, including history and memories, will be lost."
     confirm_label="Confirm"
-    on_confirm={() => profile_state.delete(entity_type)}
-  />
+    on_confirm={() => profile_state.delete(entity_type)} />
 
   <Modal
     variant="bare"
@@ -733,16 +699,15 @@
     class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_export_modal = false;
-    }}
-  >
+    }}>
     <div class="flex flex-col gap-standard font-sans">
       <div class="flex flex-col gap-standard text-left">
         <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">
           Export {entity_type === "fractal" ? "Fractal" : "Character"}
         </h5>
         <p class="m-0 text-xs leading-relaxed text-slate-400">
-          V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data - memories, vectors,
-          seeds, styling - is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
+          V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data - memories, vectors, seeds, styling
+          - is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
         </p>
       </div>
       <div class="flex gap-standard">
@@ -752,8 +717,7 @@
           onclick={() => {
             export_entity_card();
             show_export_modal = false;
-          }}
-        >
+          }}>
           V2 Card (.json)
         </Button>
         <Button
@@ -762,8 +726,7 @@
           onclick={() => {
             export_entity_json();
             show_export_modal = false;
-          }}
-        >
+          }}>
           RPGlitch JSON (.json)
         </Button>
       </div>
@@ -779,19 +742,16 @@
         profile_state.handle_close(entity_type);
       }
     }}
-    is_pass_through={true}
-  >
+    is_pass_through={true}>
     <div
       class={`m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,height] duration-300 ${
-        app.viewport.mobile
-          ? has_wings
-            ? "h-auto grid-rows-[auto_auto] gap-y-standard pb-standard"
-            : "h-dvh grid-rows-1"
-          : "my-auto h-dvh grid-rows-1"
+        app.viewport.mobile ?
+          has_wings ? "h-auto grid-rows-[auto_auto] gap-y-standard pb-standard"
+          : "h-dvh grid-rows-1"
+        : "my-auto h-dvh grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
-      role="presentation"
-    >
+      role="presentation">
       <div
         class={main_card_class}
         bind:this={card_ref}
@@ -800,19 +760,13 @@
         style:backdrop-filter="var(--blur-mist)"
         style:--signature-color={signature_color}
         style:view-transition-name={target_morph_name}
-        use:click_outside={handle_click_outside}
-      >
+        use:click_outside={handle_click_outside}>
         <div class={avatar_container_class + " relative"}>
           <Button
             variant="bare"
-            class={[
-              profile_pic_wrapper_class,
-              "relative flex appearance-none items-center justify-center overflow-hidden p-0 outline-none",
-              "cursor-default",
-            ]}
+            class={[profile_pic_wrapper_class, "relative flex appearance-none items-center justify-center overflow-hidden p-0 outline-none", "cursor-default"]}
             style="border-color: color-mix(in srgb, var(--signature-color) 30%, transparent); background: transparent;"
-            disabled
-          >
+            disabled>
             {#if profile_state.busy_fields.has("generating-image")}
               <Shimmer color={signature_color || "var(--color-electric-cyan)"} class="rounded-[inherit]" />
             {/if}
@@ -834,16 +788,9 @@
                   disabled={!profile_state.is_editing}
                   variant="bare"
                   class="block cursor-pointer p-0 outline-none data-disabled:cursor-default"
-                  trigger_style="width: 8.5rem; height: 8.5rem;"
-                >
+                  trigger_style="width: 8.5rem; height: 8.5rem;">
                   {#snippet trigger_content({ selected_item })}
-                    <StyleBadge
-                      entity={profile_state.char}
-                      layout="profile"
-                      which="narrative"
-                      class="h-full w-full"
-                      tooltip={selected_item?.tooltip}
-                    />
+                    <StyleBadge entity={profile_state.char} layout="profile" which="narrative" class="h-full w-full" tooltip={selected_item?.tooltip} />
                   {/snippet}
                 </Dropdown>
               {/if}
@@ -861,8 +808,7 @@
                   variant="bare"
                   class="block cursor-pointer p-0 outline-none data-disabled:cursor-default"
                   trigger_style="width: 8.5rem; height: 8.5rem;"
-                  onchange={() => profile_state.mark_mutated()}
-                >
+                  onchange={() => profile_state.mark_mutated()}>
                   {#snippet trigger_content({ selected_item })}
                     <StyleBadge entity={profile_state.char} layout="profile" which="visual" class="h-full w-full" tooltip={selected_item?.tooltip} />
                   {/snippet}
@@ -878,16 +824,12 @@
             bind:this={info_container_el}
             style:--footer-h={`${footer_h}px`}
             style:padding-bottom={`${footer_h + 16}px`}
-            style:scrollbar-gutter={info_needs_scroll ? "stable" : "auto"}
-          >
+            style:scrollbar-gutter={info_needs_scroll ? "stable" : "auto"}>
             <!-- Inlined ProfileHeader snippet -->
             <div
-              class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-tight {entity_type === 'fractal' && !app.viewport.mobile
-                ? 'pr-44 pl-10'
-                : ''}"
+              class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-tight {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
               data-testid="profile-header"
-              role="banner"
-            >
+              role="banner">
               {#if profile_state.is_editing}
                 <div class="mt-tight flex items-center gap-tight font-mono text-xs opacity-80" style="color: {signature_color};">
                   <span aria-hidden="true">@</span>
@@ -913,8 +855,7 @@
                       }
                       profile_state.set_active_field("", "");
                     }}
-                    onfocus={() => profile_state.set_active_field("id", "Entity Handle")}
-                  />
+                    onfocus={() => profile_state.set_active_field("id", "Entity Handle")} />
                   {#if entity_type !== "fractal"}
                     <span class="text-slate-400" aria-hidden="true">·</span>
                     <button
@@ -925,8 +866,7 @@
                         profile_state.mark_mutated();
                       }}
                       onfocus={() => profile_state.set_active_field("pov", "Perspective")}
-                      onblur={() => profile_state.set_active_field("", "")}
-                    >
+                      onblur={() => profile_state.set_active_field("", "")}>
                       {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
                     </button>
                   {/if}
@@ -937,10 +877,7 @@
                   </div>
                 {/if}
               {:else if profile_state.char.id}
-                <div
-                  class="mt-tight font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}"
-                  style="color: {signature_color};"
-                >
+                <div class="mt-tight font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}" style="color: {signature_color};">
                   @{profile_state.char.id.toUpperCase()}{#if entity_type !== "fractal"}
                     · {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}{/if}
                 </div>
@@ -981,8 +918,7 @@
                           profile_state.identity_error = "Name is required.";
                         }
                         profile_state.set_active_field("", "");
-                      }}
-                    />
+                      }} />
                   </div>
                 {:else}
                   <h1
@@ -998,19 +934,14 @@
                     md:text-8xl
                     lg:text-[5.5rem]
                   "
-                    style="margin: 0; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem); filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
-                  >
+                    style="margin: 0; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem); filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));">
                     {format_header_name(profile_state.char.name)}
                   </h1>
                 {/if}
               </div>
 
               {#if profile_state.is_editing}
-                <div
-                  class="glass-input"
-                  data-expanded={profile_state.active_field?.key === "description"}
-                  style="--signature-color: {signature_color};"
-                >
+                <div class="glass-input" data-expanded={profile_state.active_field?.key === "description"} style="--signature-color: {signature_color};">
                   <textarea
                     class="
                     z-20
@@ -1059,8 +990,7 @@
                   whitespace-pre-wrap
                   text-slate-200
                   opacity-75
-                "
-                >
+                ">
                   {profile_state.char.description}
                 </p>
               {/if}
@@ -1079,8 +1009,7 @@
                         items={author_options}
                         label="Select Narrative Style"
                         uppercase={false}
-                        matchWidth={false}
-                      />
+                        matchWidth={false} />
                     </div>
                   {:else}
                     <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
@@ -1105,8 +1034,7 @@
                         label="Select Visual Style"
                         uppercase={false}
                         matchWidth={true}
-                        onchange={() => profile_state.mark_mutated()}
-                      />
+                        onchange={() => profile_state.mark_mutated()} />
                     </div>
                   {:else}
                     <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_vstyle.name}: ${active_vstyle.description}`}>
@@ -1127,8 +1055,7 @@
             tabindex="-1"
             class={footer_layout_class}
             style:padding-right={`calc(1rem + ${scrollbar_lane}px)`}
-            style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}
-          >
+            style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}>
             <!-- Phase 1: Mirrored photographic tiling - same bottom-anchored portrait slice, alternately flipped, so every joint is seamless by construction -->
             <div aria-hidden="true" class="pointer-events-none absolute inset-0 z-0 flex overflow-hidden select-none">
               {#if profile_state.char?.profile_picture}
@@ -1138,17 +1065,16 @@
                     alt=""
                     draggable={false}
                     class={"h-full min-w-0 flex-1 object-cover object-bottom blur-2xl saturate-200 " +
-                      (tile % 2 === 0 ? "scale-125 opacity-70" : "scale-[-1.25_1.25] opacity-70")}
-                  />
+                      (tile % 2 === 0 ? "scale-125 opacity-70" : "scale-[-1.25_1.25] opacity-70")} />
                 {/each}
               {/if}
               <!-- Veil: transparent at the portrait edge (melt into the band), long ramp to 65% neutral glass so there's no curtain edge; backdrop-blur smears scrolled text into illegibility so the veil can stay light and the photo stays alive (desktop gradient, flat veil on mobile/fractal) -->
               <div
                 class="absolute inset-0 backdrop-blur-lg"
-                style:background={entity_type !== "fractal" && !app.viewport.mobile
-                  ? "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--color-glass-sunken) 65%, transparent) 55%, color-mix(in srgb, var(--color-glass-sunken) 65%, transparent) 100%)"
-                  : "color-mix(in srgb, var(--color-glass-sunken) 65%, transparent)"}
-              ></div>
+                style:background={entity_type !== "fractal" && !app.viewport.mobile ?
+                  "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--color-glass-sunken) 65%, transparent) 55%, color-mix(in srgb, var(--color-glass-sunken) 65%, transparent) 100%)"
+                : "color-mix(in srgb, var(--color-glass-sunken) 65%, transparent)"}>
+              </div>
             </div>
 
             <div
@@ -1156,8 +1082,7 @@
                 // Footer frost is full-bleed (pulled under the portrait by -2 column units),
                 // but the buttons must stay in the info column: the sticky avatar (z-20)
                 // would otherwise paint over + eat clicks on anything under it.
-                (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}
-            >
+                (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}>
               {#if profile_state.is_editing}
                 <Button
                   variant="primary"
@@ -1168,14 +1093,12 @@
                   onclick={() => {
                     profile_state.enhance_profile(entity_type);
                   }}
-                  class="touch-target-coarse"
-                >
+                  class="touch-target-coarse">
                   <svg
                     viewBox="0 0 24 24"
                     class={(Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt") ? "animate-pulse " : "") +
                       "h-5 w-5 fill-none stroke-current"}
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
-                  >
+                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
                     <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
                   </svg>
                 </Button>
@@ -1186,13 +1109,8 @@
                   aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
                   disabled={profile_state.is_saving}
                   onclick={() => (show_export_modal = true)}
-                  class="touch-target-coarse"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    class="h-5 w-5 fill-none stroke-current"
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
-                  >
+                  class="touch-target-coarse">
+                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="7 10 12 15 17 10"></polyline>
                     <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -1207,13 +1125,8 @@
                   onclick={() => {
                     profile_state.cancel();
                   }}
-                  class="touch-target-coarse"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    class="h-5 w-5 fill-none stroke-current"
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
-                  >
+                  class="touch-target-coarse">
+                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
                     <polyline points="1 4 1 10 7 10"></polyline>
                     <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                   </svg>
@@ -1226,13 +1139,8 @@
                   onclick={() => {
                     profile_state.show_delete_confirm = true;
                   }}
-                  class="touch-target-coarse"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    class="h-5 w-5 fill-none stroke-current"
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
-                  >
+                  class="touch-target-coarse">
+                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                   </svg>
@@ -1244,13 +1152,8 @@
                   actions={[tooltip]}
                   aria-label="Inspect historical rounds and branch or revert entity state"
                   onclick={() => (show_timeline_modal = true)}
-                  class="touch-target-coarse"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    class="h-5 w-5 fill-none stroke-current"
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
-                  >
+                  class="touch-target-coarse">
+                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
@@ -1269,13 +1172,8 @@
                       if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
                     }, 0);
                   }}
-                  class="touch-target-coarse"
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    class="h-5 w-5 fill-none stroke-current"
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"
-                  >
+                  class="touch-target-coarse">
+                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                   </svg>
@@ -1290,27 +1188,23 @@
       <aside
         data-wings-container
         class={"relative isolate z-0 flex scrollbar-none gap-standard [&::-webkit-scrollbar]:hidden " +
-          (app.viewport.mobile
-            ? "col-span-full w-full items-start overflow-x-visible"
-            : "col-[9/12] row-start-1 min-h-0 flex-col items-center [justify-content:safe_center] overflow-y-auto")}
+          (app.viewport.mobile ?
+            "col-span-full w-full items-start overflow-x-visible"
+          : "col-[9/12] row-start-1 min-h-0 flex-col items-center [justify-content:safe_center] overflow-y-auto")}
         bind:this={wings_ref}
-        style:pointer-events={has_wings ? "auto" : "none"}
-      >
+        style:pointer-events={has_wings ? "auto" : "none"}>
         <div class={"flex gap-standard " + (app.viewport.mobile ? "w-fit flex-row px-standard" : "w-full flex-col")}>
           {#if profile_state.is_editing}
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
               class={app.viewport.mobile ? "max-w-sm" : "w-full"}
-              transition:fade={{ duration: 250 }}
-            >
+              transition:fade={{ duration: 250 }}>
               <VisualWing {profile_state} />
             </div>
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
-              class={"flex flex-col gap-standard " +
-                (app.viewport.mobile ? "max-h-[65dvh] max-w-sm scrollbar-none overflow-y-auto pb-standard" : "w-full")}
-              transition:fade={{ duration: 250 }}
-            >
+              class={"flex flex-col gap-standard " + (app.viewport.mobile ? "max-h-[65dvh] max-w-sm scrollbar-none overflow-y-auto pb-standard" : "w-full")}
+              transition:fade={{ duration: 250 }}>
               <AudioWing {profile_state} />
               {#if app.settings.dev_mode}
                 <DevWing
@@ -1318,8 +1212,7 @@
                   on_inspect_history={(field) => {
                     history_target_field = field;
                     show_field_history_modal = true;
-                  }}
-                />
+                  }} />
               {/if}
             </div>
           {:else if app.settings.dev_mode}
@@ -1329,8 +1222,7 @@
                 on_inspect_history={(field) => {
                   history_target_field = field;
                   show_field_history_modal = true;
-                }}
-              />
+                }} />
             </div>
           {/if}
         </div>
@@ -1347,8 +1239,7 @@
       class="relative flex max-h-[85dvh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_field_history_modal = false;
-      }}
-    >
+      }}>
       <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-white/10 pb-standard">
@@ -1363,22 +1254,18 @@
             <div class="flex rounded-lg bg-black/40 p-0.5">
               <button
                 type="button"
-                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab ===
-                'timeline'
-                  ? 'bg-cyan-500/20 text-cyan-300'
-                  : 'text-slate-400 hover:text-slate-200'}"
-                onclick={() => (field_history_active_tab = "timeline")}
-              >
+                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab === 'timeline' ?
+                  'bg-cyan-500/20 text-cyan-300'
+                : 'text-slate-400 hover:text-slate-200'}"
+                onclick={() => (field_history_active_tab = "timeline")}>
                 Timeline ({field_history_records.length})
               </button>
               <button
                 type="button"
-                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab ===
-                'reconstructed'
-                  ? 'bg-cyan-500/20 text-cyan-300'
-                  : 'text-slate-400 hover:text-slate-200'}"
-                onclick={() => (field_history_active_tab = "reconstructed")}
-              >
+                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab === 'reconstructed' ?
+                  'bg-cyan-500/20 text-cyan-300'
+                : 'text-slate-400 hover:text-slate-200'}"
+                onclick={() => (field_history_active_tab = "reconstructed")}>
                 Reconstructed State
               </button>
             </div>
@@ -1406,8 +1293,7 @@
               <div class="flex flex-col gap-tight py-1">
                 {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
                   <div
-                    class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20"
-                  >
+                    class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20">
                     <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
                       <div class="flex items-center gap-tight">
                         <span class="rounded bg-cyan-950/60 px-1.5 py-0.5 font-bold text-cyan-400">
@@ -1464,9 +1350,7 @@
             <div class="flex flex-col gap-standard py-1">
               <div class="flex flex-col gap-tight">
                 <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
-                <div
-                  class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs leading-relaxed wrap-break-word text-cyan-200"
-                >
+                <div class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs leading-relaxed wrap-break-word text-cyan-200">
                   {reconstructed_brackets || "(empty state)"}
                 </div>
               </div>
@@ -1495,8 +1379,7 @@
       class="relative flex max-h-[88dvh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
       on_close={() => {
         show_timeline_modal = false;
-      }}
-    >
+      }}>
       <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
         <!-- Header -->
         <div class="flex items-center justify-between border-b border-white/10 pb-standard">
@@ -1530,11 +1413,10 @@
             {#each available_timeline_rounds as r (r)}
               <button
                 type="button"
-                class="cursor-pointer rounded-lg px-standard py-1 font-mono text-xs font-medium transition {selected_timeline_round === r
-                  ? 'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
-                  : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
-                onclick={() => handle_select_timeline_round(r)}
-              >
+                class="cursor-pointer rounded-lg px-standard py-1 font-mono text-xs font-medium transition {selected_timeline_round === r ?
+                  'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
+                : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
+                onclick={() => handle_select_timeline_round(r)}>
                 R{r}
               </button>
             {/each}
@@ -1544,9 +1426,7 @@
         <!-- Snapshot Replay Body -->
         <div class="flex flex-1 flex-col gap-standard overflow-y-auto pb-tight">
           {#if is_timeline_loading}
-            <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">
-              Reconstructing Four-Quadrant Matrix...
-            </div>
+            <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Reconstructing Four-Quadrant Matrix...</div>
           {:else if reconstructed_timeline_state}
             <div class="grid grid-cols-1 gap-standard md:grid-cols-2">
               <!-- Present Quadrant -->
@@ -1621,8 +1501,7 @@
               disabled={is_performing_timeline_action || is_timeline_loading}
               onclick={handle_timeline_clone_from_point}
               aria-label="Clone from this point into a new entity"
-              actions={[tooltip]}
-            >
+              actions={[tooltip]}>
               {is_performing_timeline_action ? "Cloning..." : "Clone from this point"}
             </Button>
 
@@ -1632,8 +1511,7 @@
               disabled={is_performing_timeline_action || is_timeline_loading}
               onclick={handle_timeline_update_from_point}
               aria-label="Revert entity in-place to this historical round"
-              actions={[tooltip]}
-            >
+              actions={[tooltip]}>
               {is_performing_timeline_action ? "Reverting..." : "Update from this point"}
             </Button>
           </div>
@@ -1650,18 +1528,15 @@
       class={get_section_class()}
       style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
       data-section="relationships"
-      role="presentation"
-    >
+      role="presentation">
       <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
         <h6
           class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
-          style="color: var(--signature-color); text-shadow: none;"
-        >
+          style="color: var(--signature-color); text-shadow: none;">
           <span
             class={get_label_span_class()}
             style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
-            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span
-          >
+            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span>
         </h6>
       </div>
     </div>
@@ -1673,8 +1548,7 @@
           if (selected) {
             app.open_profile(selected);
           }
-        }}
-      />
+        }} />
     </div>
 
     {#each active_sections as section (section.id)}
@@ -1691,18 +1565,15 @@
         }}
         onmouseenter={() => (profile_state.hovered_section = section.id)}
         onmouseleave={() => (profile_state.hovered_section = null)}
-        role="presentation"
-      >
+        role="presentation">
         <div class="relative flex w-full flex-col items-center" style={get_inner_section_style(section.id)}>
           <h6
             class="relative m-0 flex items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
-            style="color: var(--signature-color); text-shadow: none;"
-          >
+            style="color: var(--signature-color); text-shadow: none;">
             <span
               class={get_label_span_class()}
               style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
-              style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>{section.label}</span
-            >
+              style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>{section.label}</span>
           </h6>
         </div>
       </div>
@@ -1712,14 +1583,13 @@
           {@const field_id = `field-${field.key.replace(".", "-")}`}
           {@const raw_val = profile_state.get_safe_value(field.key)}
           {@const raw =
-            typeof raw_val === "string"
-              ? raw_val
-              : Array.isArray(raw_val)
-                ? raw_val
-                    .map((item) => (typeof item === "object" ? item?.content || item?.directive || "" : String(item || "")))
-                    .filter(Boolean)
-                    .join("\n")
-                : raw_val || ""}
+            typeof raw_val === "string" ? raw_val
+            : Array.isArray(raw_val) ?
+              raw_val
+                .map((item) => (typeof item === "object" ? item?.content || item?.directive || "" : String(item || "")))
+                .filter(Boolean)
+                .join("\n")
+            : raw_val || ""}
           {@const parsed = (() => {
             const res = safe_parse_pseudo_json(raw);
             if (res && Object.keys(res).length > 0 && !res.__raw_prose__) {
@@ -1738,8 +1608,7 @@
           <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-tight">
             {#if field.column_label}
               <Label class="justify-center drop-shadow-md" style="color: var(--signature-color);" disabled={!profile_state.is_editing} for={field_id}
-                >{field.column_label}</Label
-              >
+                >{field.column_label}</Label>
             {/if}
 
             {#if !profile_state.is_editing && parsed}
@@ -1749,13 +1618,11 @@
                 role="region"
                 aria-label={field.label}
                 use:auto_resize={{ sync_id: section.label }}
-                data-sync-id={section.label}
-              >
+                data-sync-id={section.label}>
                 {#if field.label}
                   <header
                     style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; border-radius: 0.75rem; background-color: var(--color-dev-accent); padding: 0.175rem 0.75rem; opacity: 1; min-height: 1.5rem; height: auto; --color-dev-accent: {signature_color};"
-                    class="relative w-full overflow-hidden"
-                  >
+                    class="relative w-full overflow-hidden">
                     {#if profile_state.busy_fields.has(field.key)}
                       <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
                     {/if}
@@ -1763,8 +1630,7 @@
                       <span
                         class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
                         use:tooltip
-                        aria-label={field.description}>{field.label}</span
-                      >
+                        aria-label={field.description}>{field.label}</span>
                     </div>
                     <div class="ml-auto flex h-full shrink-0 items-center gap-tight">
                       {#if field.description}
@@ -1772,8 +1638,7 @@
                           <svg
                             viewBox="0 0 24 24"
                             class="size-icon-small fill-none stroke-current stroke-2"
-                            style="stroke-linecap: round; stroke-linejoin: round;"
-                          >
+                            style="stroke-linecap: round; stroke-linejoin: round;">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="12" y1="16" x2="12" y2="12"></line>
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -1790,13 +1655,11 @@
                           history_target_field = field.key;
                           show_field_history_modal = true;
                         }}
-                        class="cursor-pointer text-slate-400 hover:text-cyan-300"
-                      >
+                        class="cursor-pointer text-slate-400 hover:text-cyan-300">
                         <svg
                           viewBox="0 0 24 24"
                           class="size-icon-small fill-none stroke-current stroke-2"
-                          style="stroke-linecap: round; stroke-linejoin: round;"
-                        >
+                          style="stroke-linecap: round; stroke-linejoin: round;">
                           <circle cx="12" cy="12" r="10"></circle>
                           <polyline points="12 6 12 12 16 14"></polyline>
                         </svg>
@@ -1819,15 +1682,13 @@
                           .trim()}
                         {#if clean_val}
                           <div
-                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl px-2.5 py-1.5 transition-colors {is_hidden
-                              ? 'border border-dashed border-slate-700/60 bg-slate-900/40 opacity-55'
-                              : 'border border-(--signature-color)/15 bg-(--signature-color)/5'}"
-                          >
+                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl px-2.5 py-1.5 transition-colors {is_hidden ?
+                              'border border-dashed border-slate-700/60 bg-slate-900/40 opacity-55'
+                            : 'border border-(--signature-color)/15 bg-(--signature-color)/5'}">
                             <span
-                              class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden
-                                ? 'text-slate-400 opacity-70'
-                                : 'text-(--signature-color) opacity-85'}">{k}</span
-                            >
+                              class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden ? 'text-slate-400 opacity-70' : (
+                                'text-(--signature-color) opacity-85'
+                              )}">{k}</span>
                             <span class="text-left text-xs leading-normal {is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
                               {@render RenderFormattedValue(clean_val)}
                             </span>
@@ -1850,26 +1711,20 @@
                 inline_snippet={inline_macro_text}
                 oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
                 busy={profile_state.busy_fields.has(field.key)}
-                onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
-              >
+                onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}>
                 {#snippet status()}
                   {#if field.label}
                     <span
                       class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
                       use:tooltip
-                      aria-label={field.description}>{field.label}</span
-                    >
+                      aria-label={field.description}>{field.label}</span>
                   {/if}
                 {/snippet}
 
                 {#snippet header_actions()}
                   {#if field.description}
                     <span class="flex cursor-help items-center text-white/60 hover:text-white" use:tooltip aria-label={field.description}>
-                      <svg
-                        viewBox="0 0 24 24"
-                        class="size-icon-small fill-none stroke-current stroke-2"
-                        style="stroke-linecap: round; stroke-linejoin: round;"
-                      >
+                      <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
                         <circle cx="12" cy="12" r="10"></circle>
                         <line x1="12" y1="16" x2="12" y2="12"></line>
                         <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -1886,13 +1741,8 @@
                       history_target_field = field.key;
                       show_field_history_modal = true;
                     }}
-                    class="cursor-pointer text-slate-400 hover:text-cyan-300"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      class="size-icon-small fill-none stroke-current stroke-2"
-                      style="stroke-linecap: round; stroke-linejoin: round;"
-                    >
+                    class="cursor-pointer text-slate-400 hover:text-cyan-300">
+                    <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
                       <circle cx="12" cy="12" r="10"></circle>
                       <polyline points="12 6 12 12 16 14"></polyline>
                     </svg>
@@ -1907,13 +1757,8 @@
                       actions={[tooltip]}
                       disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
                       onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
-                      class={get_ai_action_btn_class(field.key)}
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        class="size-icon-small fill-none stroke-current stroke-2"
-                        style="stroke-linecap: round; stroke-linejoin: round;"
-                      >
+                      class={get_ai_action_btn_class(field.key)}>
+                      <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
                         <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
                       </svg>
                     </Button>
@@ -1924,13 +1769,11 @@
               {#if should_show_bracket_tip(field.key, raw)}
                 <div
                   class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-tight py-1 text-[11px] leading-tight text-cyan-300/80"
-                  transition:fade={{ duration: 150 }}
-                >
+                  transition:fade={{ duration: 150 }}>
                   <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>
                   <span
-                    >The engine reasons best with multiple bracketed directives <code class="font-mono text-[10px] text-cyan-200">[KEY: value]</code> or
-                    distinct lines.</span
-                  >
+                    >The engine reasons best with multiple bracketed directives <code class="font-mono text-[10px] text-cyan-200">[KEY: value]</code> or distinct
+                    lines.</span>
                 </div>
               {/if}
             {/if}
@@ -1945,8 +1788,7 @@
   {#each nodes as part, i (i)}
     {#if part.is_var}
       <span
-        class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
-      >
+        class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300">
         <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
         {#each part.choices as choiceNodes, idx (idx)}
           <span class="inline-flex items-center">

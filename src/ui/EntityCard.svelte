@@ -170,8 +170,7 @@
         const has_transition_name = style_attr.includes("view-transition-name");
         const current_name = (el.style.getPropertyValue("view-transition-name") || el.style.viewTransitionName || "").trim();
 
-        const is_match =
-          current_name === target_name || current_name === `"${target_name}"` || (has_transition_name && style_attr.includes(target_name));
+        const is_match = current_name === target_name || current_name === `"${target_name}"` || (has_transition_name && style_attr.includes(target_name));
 
         if (is_match && el !== root_el) {
           el.style.removeProperty("view-transition-name");
@@ -270,8 +269,8 @@
     active:brightness-dim
     md:rounded-2xl
 
-    {disabled
-    ? `
+    {disabled ?
+    `
       pointer-events-none
       transform-none!
       border-[rgba(255,255,255,0.15)]
@@ -284,25 +283,25 @@
       after:border-transparent
       after:shadow-none
     `
-    : `
+  : `
       hover:border-(--signature-color)
       hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
 
       hover:after:border-(--signature-color,var(--color-slate-50))
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
     `}
-    {is_pressing && !disabled
-    ? `
+    {is_pressing && !disabled ?
+    `
       scale-sink
       border-[color-mix(in_srgb,var(--signature-color)_100%,transparent)]
     `
-    : ''}
-    {is_launching
-    ? `
+  : ''}
+    {is_launching ?
+    `
       z-50
       animate-[rack-pull-eject_0.35s_cubic-bezier(0.4,0,0.2,1)_forwards]
     `
-    : ''}
+  : ''}
     backdrop-blur-md
   "
   class:w-[calc(var(--spacing-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
@@ -318,16 +317,18 @@
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   style:opacity={app.profile_open && app.editing_entity?.id === entity?.id && variant !== "library" ? 0 : undefined}
-  style:width={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message"
-    ? "var(--spacing-character-card-width)"
-    : undefined}
+  style:width={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ?
+    "var(--spacing-character-card-width)"
+  : undefined}
   style:height={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? "auto" : undefined}
-  style:aspect-ratio={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message"
-    ? fractal_storymode_ratio
-    : undefined}
+  style:aspect-ratio={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? fractal_storymode_ratio : undefined}
   role="button"
   tabindex={disabled ? -1 : 0}
-  aria-label={variant === "library" ? (is_empty ? "Create New" : disabled ? "Already selected" : "Select " + name) : a11y_label}
+  aria-label={variant === "library" ?
+    is_empty ? "Create New"
+    : disabled ? "Already selected"
+    : "Select " + name
+  : a11y_label}
   onclick={handle_card_click}
   onanimationend={handle_animation_end}
   onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
@@ -349,8 +350,7 @@
         handle_select();
       }
     }
-  }}
->
+  }}>
   <div
     class="
       pointer-events-auto
@@ -375,15 +375,15 @@
       [&_img]:w-full
       [&_img]:object-cover
 
-      {disabled
-      ? `
+      {disabled ?
+      `
         opacity-20
         grayscale
         filter
       `
-      : 'opacity-100'}
-      {is_empty
-      ? `
+    : 'opacity-100'}
+      {is_empty ?
+      `
         flex
         flex-col
         items-center
@@ -394,8 +394,7 @@
 
         group-hover/card:opacity-100
       `
-      : ''}"
-  >
+    : ''}">
     {#if !is_empty}
       <ProfilePicture {entity} />
     {:else if variant === "library" && role_label.toLowerCase().includes("import")}
@@ -443,27 +442,26 @@
       duration-300
       ease-in-out
 
-      {app.view === 'storymode' && variant !== 'library'
-      ? `
+      {app.view === 'storymode' && variant !== 'library' ?
+      `
         opacity-0
         group-hover/card:opacity-100
       `
-      : 'opacity-100'}
+    : 'opacity-100'}
 
-      {variant === 'library'
-      ? `
+      {variant === 'library' ?
+      `
         h-auto
         min-h-[40%]
         p-tight
       `
-      : `
+    : `
         h-auto
         min-h-[50%]
         px-tight
         pt-8
         pb-standard
-      `}"
-  >
+      `}">
     <span
       data-card-text
       class="
@@ -480,21 +478,21 @@
         [-webkit-line-clamp:3]
         [line-clamp:3]
 
-        {variant === 'library'
-        ? `
+        {variant === 'library' ?
+        `
           text-sm
           leading-snug
           tracking-wide
           [text-shadow:0_1px_3px_#000,0_2px_6px_#000,0_0_2px_#000]
         `
-        : `
+      : `
           text-[clamp(1rem,12cqi,1.5rem)]
           leading-tight
           tracking-widest
           [text-shadow:0_2px_4px_var(--color-void-black)]
         `}
-        {is_empty
-        ? `
+        {is_empty ?
+        `
           text-slate-50
           opacity-15
           transition-opacity
@@ -503,8 +501,7 @@
 
           group-hover/card:opacity-100
         `
-        : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span
-    >
+      : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
     {#if !is_empty && variant !== "library" && variant !== "message" && app.view !== "storymode"}
       <p
         data-card-text
@@ -528,14 +525,13 @@
           [line-clamp:3]
           [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]
 
-          {variant === 'library' || variant === 'message'
-          ? `
+          {variant === 'library' || variant === 'message' ?
+          `
             m-0
             max-h-0
             opacity-0
           `
-          : ''}"
-      >
+        : ''}">
         {#if entity?.description}
           <MacroText text={entity.description} owner={entity} entities={display_entities} />
         {:else}
@@ -546,10 +542,7 @@
   </div>
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
-    <div
-      data-card-badge
-      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-tight"
-    >
+    <div data-card-badge class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-tight">
       <StyleBadge {entity} class="flex flex-col gap-tight" />
     </div>
   {/if}

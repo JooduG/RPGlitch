@@ -21,45 +21,16 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         { role: "unknown", text: "Echo in the dark." },
       ];
 
-      const cast = {
-        user: { name: "John" },
-        ai: { name: "Viper" },
-        fractal: { name: "Deep Station" },
-      };
+      const cast = { user: { name: "John" }, ai: { name: "Viper" }, fractal: { name: "Deep Station" } };
 
       const history = reconstruct_history_from_feed(mock_feed, cast);
 
       expect(history).toHaveLength(5);
-      expect(history[0]).toEqual({
-        role: "system",
-        origin: "SYSTEM",
-        text: "The air smells of ozone.",
-        round: 1,
-      });
-      expect(history[1]).toEqual({
-        role: "user",
-        origin: "John",
-        text: "I open the rusty airlock.",
-        round: 1,
-      });
-      expect(history[2]).toEqual({
-        role: "fractal",
-        origin: "Deep Station",
-        text: "Steam hisses from the ceiling pipe.",
-        round: 1,
-      });
-      expect(history[3]).toEqual({
-        role: "ai",
-        origin: "Viper",
-        text: "Stay behind me.",
-        round: 1,
-      });
-      expect(history[4]).toEqual({
-        role: "ai",
-        origin: "Viper",
-        text: "Echo in the dark.",
-        round: 1,
-      });
+      expect(history[0]).toEqual({ role: "system", origin: "SYSTEM", text: "The air smells of ozone.", round: 1 });
+      expect(history[1]).toEqual({ role: "user", origin: "John", text: "I open the rusty airlock.", round: 1 });
+      expect(history[2]).toEqual({ role: "fractal", origin: "Deep Station", text: "Steam hisses from the ceiling pipe.", round: 1 });
+      expect(history[3]).toEqual({ role: "ai", origin: "Viper", text: "Stay behind me.", round: 1 });
+      expect(history[4]).toEqual({ role: "ai", origin: "Viper", text: "Echo in the dark.", round: 1 });
     });
 
     it("handles empty or null feed gracefully", () => {
@@ -70,12 +41,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
 
   describe("Gap 3: director_enabled toggle from app settings", () => {
     it("respects app.settings.director_enabled flag", async () => {
-      const mock_app = {
-        settings: { director_enabled: false },
-        start_stream: vi.fn(),
-        update_stream: vi.fn(),
-        end_stream: vi.fn(),
-      };
+      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
       const mock_runtime = {
         active_ai: { name: "Viper", dynamics: { chaos: 50, intensity: 50 } },
         active_user: { name: "John", dynamics: {} },
@@ -85,11 +51,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         save_entity: vi.fn().mockResolvedValue(true),
         save: vi.fn().mockResolvedValue(true),
       };
-      register_state_accessors({
-        app: mock_app,
-        runtime: mock_runtime,
-        simulation_log: { feed: [] },
-      });
+      register_state_accessors({ app: mock_app, runtime: mock_runtime, simulation_log: { feed: [] } });
 
       vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
 
@@ -103,16 +65,8 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
 
   describe("B03: Turn stage transitions on Director and Speaker", () => {
     it("invokes set_delegated_speaker and start_stream_stage during execute_turn", async () => {
-      const mock_app = {
-        settings: { director_enabled: false },
-        start_stream: vi.fn(),
-        update_stream: vi.fn(),
-        end_stream: vi.fn(),
-      };
-      const mock_simulation_state = {
-        set_delegated_speaker: vi.fn(),
-        start_stream_stage: vi.fn(),
-      };
+      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_simulation_state = { set_delegated_speaker: vi.fn(), start_stream_stage: vi.fn() };
       const mock_runtime = {
         active_ai: { name: "Viper", profile_picture: "data:img", signature_color: "#ff0055", dynamics: {} },
         active_user: { name: "John", dynamics: {} },
@@ -122,23 +76,13 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         save_entity: vi.fn().mockResolvedValue(true),
         save: vi.fn().mockResolvedValue(true),
       };
-      register_state_accessors({
-        app: mock_app,
-        simulation_state: mock_simulation_state,
-        runtime: mock_runtime,
-        simulation_log: { feed: [] },
-      });
+      register_state_accessors({ app: mock_app, simulation_state: mock_simulation_state, runtime: mock_runtime, simulation_log: { feed: [] } });
 
       vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
 
       await execute_turn("Step into the light");
 
-      expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({
-        type: "ai",
-        name: "Viper",
-        avatar: "data:img",
-        color: "#ff0055",
-      });
+      expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({ type: "ai", name: "Viper", avatar: "data:img", color: "#ff0055" });
       expect(mock_simulation_state.start_stream_stage).toHaveBeenCalled();
     });
   });
@@ -154,9 +98,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         save_entity: vi.fn().mockResolvedValue(true),
         save: vi.fn().mockResolvedValue(true),
       };
-      register_state_accessors({
-        runtime: mock_runtime,
-      });
+      register_state_accessors({ runtime: mock_runtime });
 
       const kernel = new Kernel({
         ai: { id: "ai-1", dynamics: { chaos: 65, intensity: 75, openness: 50, affinity: 50 } },
@@ -164,15 +106,9 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         round: 2,
       });
 
-      const outcome = {
-        director_staging: {
-          dynamics_deltas: { chaos: 15, intensity: 25, velocity: 30, entropy: -10 },
-        },
-      };
+      const outcome = { director_staging: { dynamics_deltas: { chaos: 15, intensity: 25, velocity: 30, entropy: -10 } } };
 
-      const mock_transport = {
-        stream: vi.fn().mockResolvedValue('{"_thought_process":"test","present_physical":"[POSTURE: tense]"}'),
-      };
+      const mock_transport = { stream: vi.fn().mockResolvedValue('{"_thought_process":"test","present_physical":"[POSTURE: tense]"}') };
 
       await write_back_kernel_state(kernel, outcome, mock_transport);
 
@@ -212,16 +148,18 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
       });
 
       const mock_transport = {
-        stream: vi.fn().mockResolvedValue(
-          JSON.stringify({
-            _thought_process: "synthesizing all quadrants",
-            target: "AI",
-            present_physical: "[INJURY: bruised knee]",
-            present_non_physical: "[MOOD: alert]",
-            future: "[AGENDA: scout the perimeter]",
-            past: "[MEMORY: heard strange noises near the gate]",
-          }),
-        ),
+        stream: vi
+          .fn()
+          .mockResolvedValue(
+            JSON.stringify({
+              _thought_process: "synthesizing all quadrants",
+              target: "AI",
+              present_physical: "[INJURY: bruised knee]",
+              present_non_physical: "[MOOD: alert]",
+              future: "[AGENDA: scout the perimeter]",
+              past: "[MEMORY: heard strange noises near the gate]",
+            }),
+          ),
       };
 
       await dispatch_caretaker_consolidation(kernel, mock_transport);
@@ -234,16 +172,10 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
     });
 
     it("skips dispatch_caretaker_consolidation when signal is aborted or character prose is empty", async () => {
-      const mock_runtime = {
-        active_ai: { id: "ai-1", present: {}, future: "", past: "" },
-        save_entity: vi.fn(),
-      };
+      const mock_runtime = { active_ai: { id: "ai-1", present: {}, future: "", past: "" }, save_entity: vi.fn() };
       register_state_accessors({ runtime: mock_runtime });
 
-      const kernel = new Kernel({
-        ai: { id: "ai-1", name: "AI" },
-        round: 1,
-      });
+      const kernel = new Kernel({ ai: { id: "ai-1", name: "AI" }, round: 1 });
 
       const mock_transport = { stream: vi.fn() };
       const controller = new AbortController();
@@ -264,10 +196,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         // Simulate Perchance ai-text-plugin emitting startWith first with isFromStartWith: true
         onChunk({ textChunk: startWith, isFromStartWith: true });
         onChunk({ textChunk: "Next paragraph beat.", isFromStartWith: false });
-        return Promise.resolve({
-          text: `${startWith}Next paragraph beat.`,
-          generatedText: "Next paragraph beat.",
-        });
+        return Promise.resolve({ text: `${startWith}Next paragraph beat.`, generatedText: "Next paragraph beat." });
       });
 
       const mock_app = {
@@ -276,13 +205,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         update_stream: vi.fn((c) => streamed_chunks.push(c)),
         end_stream: vi.fn(),
       };
-      const target_entry = {
-        id: "msg-42",
-        role: "ai",
-        text: "Initial paragraph.",
-        round: 1,
-        meta: { think: "Initial thought." },
-      };
+      const target_entry = { id: "msg-42", role: "ai", text: "Initial paragraph.", round: 1, meta: { think: "Initial thought." } };
       const edit_entry = vi.fn().mockResolvedValue(true);
 
       register_state_accessors({
@@ -293,10 +216,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
           active_fractal: { id: "f-1", name: "Nova" },
           round: 1,
         },
-        simulation_log: {
-          feed: [target_entry],
-          edit_entry,
-        },
+        simulation_log: { feed: [target_entry], edit_entry },
       });
 
       try {
@@ -313,23 +233,9 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async () => "Extended paragraph.");
 
-      const mock_app = {
-        settings: { director_enabled: false },
-        start_stream: vi.fn(),
-        update_stream: vi.fn(),
-        end_stream: vi.fn(),
-      };
-      const mock_simulation_state = {
-        set_delegated_speaker: vi.fn(),
-        start_stream_stage: vi.fn(),
-      };
-      const target_entry = {
-        id: "msg-99",
-        role: "ai",
-        text: "Existing text.",
-        round: 1,
-        meta: {},
-      };
+      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_simulation_state = { set_delegated_speaker: vi.fn(), start_stream_stage: vi.fn() };
+      const target_entry = { id: "msg-99", role: "ai", text: "Existing text.", round: 1, meta: {} };
       const edit_entry = vi.fn().mockResolvedValue(true);
 
       register_state_accessors({
@@ -341,20 +247,12 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
           active_fractal: { id: "f-1", name: "Station" },
           round: 1,
         },
-        simulation_log: {
-          feed: [target_entry],
-          edit_entry,
-        },
+        simulation_log: { feed: [target_entry], edit_entry },
       });
 
       try {
         await execute_continue(target_entry);
-        expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({
-          type: "ai",
-          name: "Lyra",
-          avatar: "avatar.png",
-          color: "#00ffee",
-        });
+        expect(mock_simulation_state.set_delegated_speaker).toHaveBeenCalledWith({ type: "ai", name: "Lyra", avatar: "avatar.png", color: "#00ffee" });
         expect(mock_simulation_state.start_stream_stage).toHaveBeenCalled();
       } finally {
         window.generate_text = original_gen;
@@ -364,16 +262,8 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
 
   describe("B19: Automatic Visual Synthesis Wire-Up", () => {
     it("evaluates get_image_generation_queue and calls spawn_image_beat without blocking turn", async () => {
-      const mock_app = {
-        settings: { director_enabled: true },
-        start_stream: vi.fn(),
-        update_stream: vi.fn(),
-        end_stream: vi.fn(),
-      };
-      const mock_simulation_state = {
-        set_delegated_speaker: vi.fn(),
-        start_stream_stage: vi.fn(),
-      };
+      const mock_app = { settings: { director_enabled: true }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_simulation_state = { set_delegated_speaker: vi.fn(), start_stream_stage: vi.fn() };
       const mock_runtime = {
         active_ai: { name: "Lyra", dynamics: { chaos: 60, intensity: 60, openness: 50, affinity: 50 } },
         active_user: { name: "Glitch", dynamics: {} },
@@ -384,23 +274,14 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         save: vi.fn().mockResolvedValue(true),
       };
 
-      register_state_accessors({
-        app: mock_app,
-        simulation_state: mock_simulation_state,
-        runtime: mock_runtime,
-        simulation_log: { feed: [] },
-      });
+      register_state_accessors({ app: mock_app, simulation_state: mock_simulation_state, runtime: mock_runtime, simulation_log: { feed: [] } });
 
       vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
       const spawn_spy = vi.spyOn(media_module, "spawn_image_beat").mockResolvedValue({ id: "img-1" });
       const queue_spy = vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
-      const trigger_spy = vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({
-        active: true,
-        tier: "story_scene",
-        source: "director",
-        director_explicit: true,
-        next_director_round: 1,
-      });
+      const trigger_spy = vi
+        .spyOn(media_module, "resolve_image_trigger")
+        .mockReturnValue({ active: true, tier: "story_scene", source: "director", director_explicit: true, next_director_round: 1 });
 
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async ({ instruction }) => {
@@ -439,12 +320,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
           "",
           "system",
           "Director",
-          expect.objectContaining({
-            meta: expect.objectContaining({
-              type: "DYNAMICS_DELTA",
-              thoughts: "Scene shifts to ruined hall.",
-            }),
-          }),
+          expect.objectContaining({ meta: expect.objectContaining({ type: "DYNAMICS_DELTA", thoughts: "Scene shifts to ruined hall." }) }),
         );
       } finally {
         window.generate_text = original_gen;
@@ -452,12 +328,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
     });
 
     it("fails silently and never blocks the turn when spawn_image_beat rejects", async () => {
-      const mock_app = {
-        settings: { director_enabled: false },
-        start_stream: vi.fn(),
-        update_stream: vi.fn(),
-        end_stream: vi.fn(),
-      };
+      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
       const mock_runtime = {
         active_ai: { name: "Lyra", dynamics: {} },
         active_user: { name: "Glitch", dynamics: {} },
@@ -468,18 +339,10 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
         save: vi.fn().mockResolvedValue(true),
       };
 
-      register_state_accessors({
-        app: mock_app,
-        runtime: mock_runtime,
-        simulation_log: { feed: [] },
-      });
+      register_state_accessors({ app: mock_app, runtime: mock_runtime, simulation_log: { feed: [] } });
 
       vi.spyOn(storage_db, "log_message").mockResolvedValue({ id: 1 });
-      vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({
-        active: true,
-        tier: "story_character",
-        source: "dynamics",
-      });
+      vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character", source: "dynamics" });
       vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
       vi.spyOn(media_module, "spawn_image_beat").mockRejectedValue(new Error("Visual plugin timeout"));
 

@@ -15,13 +15,7 @@
 import fs from "fs";
 import path from "path";
 
-export const LAYER_HIERARCHY = Object.freeze({
-  "src/ui": 4,
-  "src/engine": 2,
-  "src/data": 2,
-  "src/media": 1,
-  "src/utils": 1,
-});
+export const LAYER_HIERARCHY = Object.freeze({ "src/ui": 4, "src/engine": 2, "src/data": 2, "src/media": 1, "src/utils": 1 });
 
 export const ALIAS_LAYER_MAP = Object.freeze({
   "@ui": "src/ui",
@@ -120,12 +114,7 @@ export function audit_layers(root_dir = process.cwd()) {
 
         // Violation: imported file layer rank is higher than importing file layer rank
         if (imported_rank > file_rank) {
-          violations.push({
-            file: relative_path,
-            file_layer,
-            specifier,
-            imported_layer,
-          });
+          violations.push({ file: relative_path, file_layer, specifier, imported_layer });
         }
       }
     }

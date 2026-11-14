@@ -70,10 +70,7 @@ export function use_actions(node, actions) {
 
   update(actions);
 
-  return {
-    update,
-    destroy: () => instances.forEach((result) => result?.destroy?.()),
-  };
+  return { update, destroy: () => instances.forEach((result) => result?.destroy?.()) };
 }
 
 /**
@@ -114,9 +111,7 @@ export function safe_html(node, content) {
     node.appendChild(sanitize_to_fragment(new_content ?? ""));
   };
   update_content(content);
-  return {
-    update: update_content,
-  };
+  return { update: update_content };
 }
 
 /**

@@ -1,83 +1,63 @@
 {
   "compilerOptions": {
-    "allowArbitraryExtensions": true,
     "allowJs": true,
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
     "checkJs": false,
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
-    "module": "esnext",
+    "esModuleInterop": true,
+    "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
       "@/*": [
-        "src/*"
-      ],
-      "@primitives": [
-        "src/ui/primitives/index.js"
-      ],
-      "@primitives/*": [
-        "src/ui/primitives/*"
-      ],
-      "@utils": [
-        "src/utils/index.js"
-      ],
-      "@utils/*": [
-        "src/utils/*"
+        "./src/*"
       ],
       "@config": [
-        "src/config.js"
-      ],
-      "@data": [
-        "src/data/index.js"
+        "./src/config.js"
       ],
       "@data/*": [
-        "src/data/*"
+        "./src/data/*"
       ],
-      "@engine": [
-        "src/engine/index.js"
+      "@definitions/*": [
+        "./src/definitions/*"
       ],
       "@engine/*": [
-        "src/engine/*"
-      ],
-      "@media": [
-        "src/media/index.js"
+        "./src/engine/*"
       ],
       "@media/*": [
-        "src/media/*"
+        "./src/media/*"
       ],
-      "@ui": [
-        "src/ui/index.js"
+      "@primitives/*": [
+        "./src/ui/primitives/*"
       ],
       "@ui/*": [
-        "src/ui/*"
+        "./src/ui/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+      "$src/*": [
+        "./src/*"
       ]
     },
-    "strict": true,
-    "target": "esnext",
-    "verbatimModuleSyntax": true,
-    "types": [
-      "node"
-    ]
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "target": "ESNext"
   },
   "exclude": [
+    "**/.agents/**",
     "**/.git/**",
     "**/node_modules/**",
     "**/dist/**",
     "**/coverage/**",
     "**/archive/**",
     "**/tmp/**",
-    "tmp/**/*",
     "test-results/**",
     ".secrets",
     "**/*.lock"
   ],
   "include": [
-    "src/**/*",
-    "types.d.ts",
-    "tmp/harness"
+    "src/**/*.d.ts",
+    "src/**/*.js",
+    "src/**/*.svelte",
+    "types.d.ts"
   ]
 }

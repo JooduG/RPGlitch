@@ -31,12 +31,7 @@ const themeRules = [
     regex: /border-radius:\s*[0-9]+px/,
     message: "❌ Hardcoded border-radius. Use tokens: var(--radius-sharp) or var(--radius-standard).",
   },
-  {
-    id: "PIXEL_BORDER",
-    severity: "ADVICE",
-    regex: /border:\s*[1-9]px/,
-    message: "❌ Pixel border detected. Use depth markers like shadows.",
-  },
+  { id: "PIXEL_BORDER", severity: "ADVICE", regex: /border:\s*[1-9]px/, message: "❌ Pixel border detected. Use depth markers like shadows." },
   {
     id: "LEGACY_SPACING_SYNTAX",
     severity: "HERESY",
@@ -240,9 +235,7 @@ export function findUnusedTokens() {
       }
     }
     const bare_rest =
-      bare.includes("-") && (bare.startsWith("spacing-") || bare.startsWith("grid-") || bare.startsWith("order-"))
-        ? bare.split("-").slice(1).join("-")
-        : null;
+      bare.includes("-") && (bare.startsWith("spacing-") || bare.startsWith("grid-") || bare.startsWith("order-")) ? bare.split("-").slice(1).join("-") : null;
     if (bare_rest && bare_rest.includes("-") && new RegExp(`(?<![a-zA-Z0-9])${bare_rest}(?![a-zA-Z0-9])`).test(combined_content)) return true;
     return false;
   }

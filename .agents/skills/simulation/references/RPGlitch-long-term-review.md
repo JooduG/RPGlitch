@@ -1,11 +1,8 @@
 # RPGlitch - Live Greenfield Simulation Forensics & Integrity Test Protocol
 
-> **HISTORICAL (2026-11-10):** spent - the A/B decision was canonized in ROADMAP R4
-> (think-seed wins; placement logic removed). Kept for forensics, not as a live protocol.
+> **HISTORICAL (2026-11-10):** spent - the A/B decision was canonized in ROADMAP R4 (think-seed wins; placement logic removed). Kept for forensics, not as a live protocol.
 
-> **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment)
-> **Protocol Focus**: Live Interactive Roleplay Stress Test, Early-Story A/B Comparative Forensics, and State Audit for Greenfield Nuclear Architecture
-> **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/data/`, and modernized `src/media/` per `nuclear-plan.md`). Features a dedicated **10-Round A/B Comparative Director Note Trial** (Inlined `<think>` Seed vs. Non-Inlined `<TASK>` Stage Direction), alongside Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
+> **System Designation**: Sovereign AI Roleplay Engine (Perchance Iframe Environment) **Protocol Focus**: Live Interactive Roleplay Stress Test, Early-Story A/B Comparative Forensics, and State Audit for Greenfield Nuclear Architecture **Target Scope**: End-to-end verification of Greenfield Shipped Reality (`src/engine/`, `src/data/`, and modernized `src/media/` per `nuclear-plan.md`). Features a dedicated **10-Round A/B Comparative Director Note Trial** (Inlined `<think>` Seed vs. Non-Inlined `<TASK>` Stage Direction), alongside Kernel round sovereignty, Caretaker 3-cycle rotation, sliding-window context budgeting, Epistemic Wall integrity, sensory diffusion dispatch, and transactional rollback.
 
 ---
 
@@ -50,16 +47,16 @@ To provide the empirical material needed for an upcoming architectural decision 
 
 ### 2.1 Test Track Configuration
 
-| Parameter               | Track 1: Inlined `<think>` Seed                                            | Track 2: Non-Inlined / In `<TASK>`                                         |
-| :---------------------- | :------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-| **Engine**              | Greenfield (`use_greenfield_engine: true`)                                 | Greenfield (`use_greenfield_engine: true`)                                 |
-| **Director Enabled**    | `director_enabled: true`                                                   | `director_enabled: true`                                                   |
-| **Console Setting**     | **`DIR IN TASK` = OFF** (`directors_note_in_task: false`)                  | **`DIR IN TASK` = ON** (`directors_note_in_task: true`)                    |
-| **Prompt Placement**    | `directors_note_placement: "think"`                                        | `directors_note_placement: "task"`                                         |
-| **`<think>` Injection** | `startWith: "<think>${note}\n("`                                           | `startWith: "<think>\n("`                                                  |
-| **`<TASK>` Injection**  | _None_ (omitted from task instructions)                                    | Injected under `### Stage Direction`                                       |
-| **Entities**            | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** |
-| **Seed Inputs**         | Identical Scripted Dialogue Matrix (Rounds 1–10)                           | Identical Scripted Dialogue Matrix (Rounds 1–10)                           |
+| Parameter | Track 1: Inlined `<think>` Seed | Track 2: Non-Inlined / In `<TASK>` |
+| :-- | :-- | :-- |
+| **Engine** | Greenfield (`use_greenfield_engine: true`) | Greenfield (`use_greenfield_engine: true`) |
+| **Director Enabled** | `director_enabled: true` | `director_enabled: true` |
+| **Console Setting** | **`DIR IN TASK` = OFF** (`directors_note_in_task: false`) | **`DIR IN TASK` = ON** (`directors_note_in_task: true`) |
+| **Prompt Placement** | `directors_note_placement: "think"` | `directors_note_placement: "task"` |
+| **`<think>` Injection** | `startWith: "<think>${note}\n("` | `startWith: "<think>\n("` |
+| **`<TASK>` Injection** | _None_ (omitted from task instructions) | Injected under `### Stage Direction` |
+| **Entities** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** | AI: **Orion the Pink Protector**, USER: **Glitch**, FRACTAL: **Nova City** |
+| **Seed Inputs** | Identical Scripted Dialogue Matrix (Rounds 1–10) | Identical Scripted Dialogue Matrix (Rounds 1–10) |
 
 ---
 
@@ -67,27 +64,16 @@ To provide the empirical material needed for an upcoming architectural decision 
 
 Both tracks must be stimulated with the exact same sequence of player messages to isolate the downstream effects of note placement:
 
-- **Round 1 (Opening Anchor)**:
-  `"Check your harness, Orion. Nova City power grid is surging, and the neon along 4th Avenue just blinked out."`
-- **Round 2 (Commitment & Trade)**:
-  `"Here - take the Silvers courier key. We use it at the rooftop relay mast before the security drone sweeps."`
-- **Round 3 (Environmental Hazard)**:
-  `"The storm sirens across Sector 4 just went dead. That's not a blackout, Orion - someone severed the conduits."`
-- **Round 4 (Micro-Pacing Probe - < 25 Chars)**:
-  `"Keep low."`
-- **Round 5 (Secret Plant & Tension)**:
-  _(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)_
-  `"If we split up at the catwalk, do not look back. Just get to the upper transformer."`
-- **Round 6 (Expansive Narrative Probe - > 500 Chars)**:
-  `"I pull my thermal hood tight against the freezing mist rising off the exhaust vents. Below us, the entire undercity grid looks like exposed veins of dead copper. I've spent three years mapping the bypass conduits behind the megacorp signboards, but tonight the pressure gauges are redlining in reverse. Listen to me, Orion: when that substation blows, the blast wave will travel upward through the elevator shafts. We have ninety seconds to anchor the bypass clamp or the whole district goes dark permanently."`
-- **Round 7 (Direct Sensory Challenge)**:
-  `"Your pink light is blinding in this rain. Can you dim the glow, or are you trying to announce us to the perimeter scouts?"`
-- **Round 8 (Climactic Pivot)**:
-  `"The relay hatch is jammed with melted solder. Give me your shoulder - force the lever while I ground the terminal!"`
-- **Round 9 (High-Stakes Action)**:
-  `"Look out! Spark shower from the feeder line!"`
-- **Round 10 (Scene Resolution / Cliffhanger)**:
-  `"Grid stabilized... but the signature on the terminal isn't syndicate code. Orion, look at this crest. Who really gave you this assignment?"`
+- **Round 1 (Opening Anchor)**: `"Check your harness, Orion. Nova City power grid is surging, and the neon along 4th Avenue just blinked out."`
+- **Round 2 (Commitment & Trade)**: `"Here - take the Silvers courier key. We use it at the rooftop relay mast before the security drone sweeps."`
+- **Round 3 (Environmental Hazard)**: `"The storm sirens across Sector 4 just went dead. That's not a blackout, Orion - someone severed the conduits."`
+- **Round 4 (Micro-Pacing Probe - < 25 Chars)**: `"Keep low."`
+- **Round 5 (Secret Plant & Tension)**: _(Before sending: Glitch adds `[HIDDEN_TRACKER: planted on Orion's belt | hide]` to present state)_ `"If we split up at the catwalk, do not look back. Just get to the upper transformer."`
+- **Round 6 (Expansive Narrative Probe - > 500 Chars)**: `"I pull my thermal hood tight against the freezing mist rising off the exhaust vents. Below us, the entire undercity grid looks like exposed veins of dead copper. I've spent three years mapping the bypass conduits behind the megacorp signboards, but tonight the pressure gauges are redlining in reverse. Listen to me, Orion: when that substation blows, the blast wave will travel upward through the elevator shafts. We have ninety seconds to anchor the bypass clamp or the whole district goes dark permanently."`
+- **Round 7 (Direct Sensory Challenge)**: `"Your pink light is blinding in this rain. Can you dim the glow, or are you trying to announce us to the perimeter scouts?"`
+- **Round 8 (Climactic Pivot)**: `"The relay hatch is jammed with melted solder. Give me your shoulder - force the lever while I ground the terminal!"`
+- **Round 9 (High-Stakes Action)**: `"Look out! Spark shower from the feeder line!"`
+- **Round 10 (Scene Resolution / Cliffhanger)**: `"Grid stabilized... but the signature on the terminal isn't syndicate code. Orion, look at this crest. Who really gave you this assignment?"`
 
 ---
 
@@ -131,14 +117,14 @@ For every round (1 through 10), record the telemetry under these specific headin
 
 At the conclusion of the 10-round comparison, synthesize the findings across these key architectural criteria:
 
-| Dimension                      | Track 1 (Inlined `<think>`)                             | Track 2 (Non-Inlined `<TASK>`)                          | Verdict & Tradeoff Summary                                         |
-| :----------------------------- | :------------------------------------------------------ | :------------------------------------------------------ | :----------------------------------------------------------------- |
-| **Director Adherence**         | _Score 1–5:_ Does character obey the staging note?      | _Score 1–5:_ Does character obey the staging note?      | Which placement reliably steers action without being ignored?      |
-| **Cognitive Autonomy**         | _Observation:_ Quality of reasoning inside `<think>`.   | _Observation:_ Quality of reasoning inside `<think>`.   | Does inlining hijack the LLM's chain-of-thought, or help prime it? |
-| **Prose Naturalism**           | _Observation:_ Does speech feel organic or scripted?    | _Observation:_ Does speech feel organic or scripted?    | Does one placement produce stiffer, more puppeted dialogue?        |
-| **Kayfabe & Leak Resistance**  | _Count:_ Director phrase leaks into spoken text.        | _Count:_ Director phrase leaks into spoken text.        | Which vector poses greater risk of breaking character?             |
-| **Token & Time Overhead**      | _Metrics:_ Generation latency & token consumption.      | _Metrics:_ Generation latency & token consumption.      | Is there a measurable latency or token difference?                 |
-| **Downstream State Stability** | _Observation:_ Volatility of Caretaker bracket updates. | _Observation:_ Volatility of Caretaker bracket updates. | Does one method produce more coherent long-term memory diffs?      |
+| Dimension | Track 1 (Inlined `<think>`) | Track 2 (Non-Inlined `<TASK>`) | Verdict & Tradeoff Summary |
+| :-- | :-- | :-- | :-- |
+| **Director Adherence** | _Score 1–5:_ Does character obey the staging note? | _Score 1–5:_ Does character obey the staging note? | Which placement reliably steers action without being ignored? |
+| **Cognitive Autonomy** | _Observation:_ Quality of reasoning inside `<think>`. | _Observation:_ Quality of reasoning inside `<think>`. | Does inlining hijack the LLM's chain-of-thought, or help prime it? |
+| **Prose Naturalism** | _Observation:_ Does speech feel organic or scripted? | _Observation:_ Does speech feel organic or scripted? | Does one placement produce stiffer, more puppeted dialogue? |
+| **Kayfabe & Leak Resistance** | _Count:_ Director phrase leaks into spoken text. | _Count:_ Director phrase leaks into spoken text. | Which vector poses greater risk of breaking character? |
+| **Token & Time Overhead** | _Metrics:_ Generation latency & token consumption. | _Metrics:_ Generation latency & token consumption. | Is there a measurable latency or token difference? |
+| **Downstream State Stability** | _Observation:_ Volatility of Caretaker bracket updates. | _Observation:_ Volatility of Caretaker bracket updates. | Does one method produce more coherent long-term memory diffs? |
 
 ---
 

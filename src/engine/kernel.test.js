@@ -6,11 +6,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
   const { entities } = create_contract_fixtures();
 
   it("initializes with default state values", () => {
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL });
 
     expect(kernel.round).toBe(0);
     expect(kernel.phase).toBe("idle");
@@ -25,34 +21,21 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
       },
     };
 
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-      transport: mock_transport,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL, transport: mock_transport });
 
     const outcome = await kernel.submit_turn("Check the corner.");
 
     expect(kernel.round).toBe(1);
     expect(kernel.phase).toBe("idle");
     expect(kernel.history).toHaveLength(2);
-    expect(kernel.history[0]).toEqual({
-      role: "user",
-      text: "Check the corner.",
-      round: 1,
-    });
+    expect(kernel.history[0]).toEqual({ role: "user", text: "Check the corner.", round: 1 });
     expect(kernel.history[1].text).toBe("Alice moves forward through the fog.");
     expect(kernel.history[1].think).toBe("Stay vigilant.");
     expect(outcome.character_turn.prose).toBe("Alice moves forward through the fog.");
   });
 
   it("rewinds simulation to a previous round", async () => {
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL });
 
     kernel.round = 3;
     kernel.history = [
@@ -81,12 +64,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
       },
     };
 
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-      transport: mock_transport,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL, transport: mock_transport });
 
     kernel.round = 1;
     kernel.history = [
@@ -94,12 +72,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
       { role: "ai", text: "She looks over", think: "Feel gentle", round: 1 },
     ];
 
-    const outcome = await kernel.continue_turn({
-      target_prose: "She looks over",
-      target_think: "Feel gentle",
-      target_round: 1,
-      target_history_index: 1,
-    });
+    const outcome = await kernel.continue_turn({ target_prose: "She looks over", target_think: "Feel gentle", target_round: 1, target_history_index: 1 });
 
     expect(captured_start_with).toBe("<think>Feel gentle</think>\nShe looks over ");
     expect(outcome.prose).toBe("She looks over and smiles softly.");
@@ -115,12 +88,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
       },
     };
 
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-      transport: mock_transport,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL, transport: mock_transport });
 
     kernel.history = [{ role: "user", text: "Look around.", round: 1 }];
 
@@ -128,11 +96,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
 
     // Exactly 1 user entry and 1 ai entry, no duplicate user entry at tail
     expect(kernel.history).toHaveLength(2);
-    expect(kernel.history[0]).toEqual({
-      role: "user",
-      text: "Look around.",
-      round: 1,
-    });
+    expect(kernel.history[0]).toEqual({ role: "user", text: "Look around.", round: 1 });
     expect(kernel.history[1].role).toBe("ai");
   });
 
@@ -143,13 +107,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
       },
     };
 
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-      transport: mock_transport,
-      round: 1,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL, transport: mock_transport, round: 1 });
 
     kernel.history = [
       { role: "user", text: "First prompt", round: 1 },
@@ -179,13 +137,7 @@ describe("src/engine/kernel.svelte.js - Sovereign Simulation Kernel", () => {
       },
     };
 
-    const kernel = new Kernel({
-      user: entities.USER,
-      ai: entities.AI,
-      fractal: entities.FRACTAL,
-      transport: mock_transport,
-      round: 1,
-    });
+    const kernel = new Kernel({ user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL, transport: mock_transport, round: 1 });
 
     kernel.history = [
       { role: "user", text: "First prompt", round: 1 },

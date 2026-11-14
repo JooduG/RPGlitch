@@ -13,10 +13,7 @@
     let destroyed = false;
     const props = $state({ target_html: initialHtml || "" });
 
-    const component = mount(Typewriter, {
-      target: node,
-      props: props,
-    });
+    const component = mount(Typewriter, { target: node, props: props });
 
     return {
       update: function (/** @type {string | null | undefined} */ new_content) {
@@ -157,8 +154,9 @@
       }
     }
 
-    const cursor_html = should_show_cursor
-      ? `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`
+    const cursor_html =
+      should_show_cursor ?
+        `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`
       : "";
 
     // Insert cursor before closing open tags so it renders inline with the active paragraph
@@ -180,9 +178,7 @@
   });
 
   // Secondary evaluation to show trailing typing pointers
-  const should_show_cursor = $derived(
-    show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length),
-  );
+  const should_show_cursor = $derived(show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length));
 
   // Compute delta progress increments across execution phases
   const active_speed = $derived.by(() => {
@@ -303,8 +299,7 @@
     font-[inherit]
     {as === 'span' ? 'inline-block' : 'block'}
     {className}"
-  style="content-visibility: auto;"
->
+  style="content-visibility: auto;">
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html sliced_html}
 </svelte:element>

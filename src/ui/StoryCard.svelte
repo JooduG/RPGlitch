@@ -83,13 +83,13 @@
     duration-300
     ease-in-out
 
-    {active
-    ? `
+    {active ?
+    `
       border-(--signature-color)
       bg-white/10
       shadow-[var(--signature-glow),var(--shadow-standard)]
     `
-    : `
+  : `
       border-white/5
       shadow-sm
 
@@ -100,8 +100,7 @@
   "
   style="--signature-color: {signature_color}"
   onpointerenter={() => (is_hovering = true)}
-  onpointerleave={() => (is_hovering = false)}
->
+  onpointerleave={() => (is_hovering = false)}>
   <Button variant="invisible" cover={true} {onclick} />
 
   <div
@@ -113,8 +112,7 @@
       flex-col
       gap-tight
       pl-tight
-    "
-  >
+    ">
     {#if is_editing_title}
       <input
         bind:this={title_input}
@@ -144,33 +142,30 @@
           }
         }}
         onblur={commit_title}
-        onclick={(e) => e.stopPropagation()}
-      />
+        onclick={(e) => e.stopPropagation()} />
     {:else}
       <span
         class="
         text-base
         font-bold
         text-slate-50
-      ">{story.title}</span
-      >
+      ">{story.title}</span>
     {/if}
     <span
       class="
       text-xs
 
-      {story.state === 'concluded'
-        ? `
+      {story.state === 'concluded' ?
+        `
         font-bold
         text-amber-400
       `
-        : active
-          ? `
+      : active ?
+        `
           font-bold
           text-(--signature-color)
         `
-          : 'text-slate-50'}"
-    >
+      : 'text-slate-50'}">
       {format_datetime(story.last_played)}{#if story.state === "concluded"}
         · CONCLUDED{:else if active}
         · ACTIVE{/if}
@@ -188,16 +183,14 @@
         flex
         items-center
         gap-tight
-      "
-    >
+      ">
       {#if onrename && !is_editing_title}
         <Button
           variant="invisible"
           size="small"
           aria-label="Edit Title"
           onclick={start_edit_title}
-          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50"
-        >
+          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50">
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -210,8 +203,7 @@
           size="small"
           aria-label="Save Story (.md)"
           onclick={handle_export}
-          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50"
-        >
+          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-(--signature-color)/60! hover:bg-(--signature-color)/40! hover:text-slate-50">
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
             <polyline points="7 10 12 15 17 10" />
@@ -225,8 +217,7 @@
           size="small"
           aria-label="Delete Story"
           onclick={handle_delete}
-          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-red-500/50! hover:bg-red-500/25! hover:text-red-300"
-        >
+          class="h-7! w-7! rounded-md! border border-(--signature-color)/30! bg-(--signature-color)/20! p-tight! text-slate-200 backdrop-blur-md transition-colors duration-200 hover:border-red-500/50! hover:bg-red-500/25! hover:text-red-300">
           <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
             <polyline points="3 6 5 6 21 6" />
             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
@@ -257,15 +248,15 @@
         group-hover:w-[80%]
         group-hover:opacity-30
 
-        {active
-        ? `
+        {active ?
+        `
           w-[80%]
           opacity-30
         `
-        : ''}
+      : ''}
       "
-      style="mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%); background-image: url({story.fractal_profile_picture})"
-    ></div>
+      style="mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%); background-image: url({story.fractal_profile_picture})">
+    </div>
   {:else}
     <div
       class="
@@ -285,14 +276,14 @@
         group-hover:w-[80%]
         group-hover:opacity-30
 
-        {active
-        ? `
+        {active ?
+        `
           w-[80%]
           opacity-30
         `
-        : ''}
+      : ''}
       "
-      style="mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%); background-color: var(--signature-color)"
-    ></div>
+      style="mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%); background-color: var(--signature-color)">
+    </div>
   {/if}
 </div>

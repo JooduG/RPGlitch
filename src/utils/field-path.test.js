@@ -13,16 +13,8 @@ describe("field-path.js (Safe Nested Object Dot-Path Accessors)", () => {
     it("retrieves top-level and nested values", () => {
       const data = {
         name: "Silas",
-        eternal: {
-          physical: "Cybernetic eye",
-          non_physical: "Stoic philosopher",
-        },
-        meta: {
-          scores: {
-            chaos: 75,
-            is_active: false,
-          },
-        },
+        eternal: { physical: "Cybernetic eye", non_physical: "Stoic philosopher" },
+        meta: { scores: { chaos: 75, is_active: false } },
       };
 
       expect(get_value(data, "name")).toBe("Silas");

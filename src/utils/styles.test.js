@@ -35,10 +35,7 @@ describe("resolve_speaking_style hierarchy", () => {
 });
 
 describe("resolve_style()", () => {
-  const registry = {
-    cyberpunk: { id: "cyberpunk" },
-    gothic: { id: "gothic" },
-  };
+  const registry = { cyberpunk: { id: "cyberpunk" }, gothic: { id: "gothic" } };
 
   it("resolves explicit entity/fractal style if valid in registry", () => {
     expect(resolve_style("cyberpunk", "visual_style", registry, "none")).toBe("cyberpunk");

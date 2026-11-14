@@ -131,11 +131,7 @@ export function score_and_rank_memories(candidates, queryVector) {
     const final_score = similarity * origin_multiplier;
     const length = (item.text || "").length;
 
-    scored.push({
-      item,
-      score: final_score,
-      length,
-    });
+    scored.push({ item, score: final_score, length });
   }
 
   // Sort descending by score
@@ -196,10 +192,5 @@ export function two_tier_sieve_rag({
     }
   }
 
-  return {
-    selected,
-    total_characters: current_characters,
-    tier1_count,
-    tier2_count,
-  };
+  return { selected, total_characters: current_characters, tier1_count, tier2_count };
 }

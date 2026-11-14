@@ -91,9 +91,7 @@ function loadDesignFrontmatter() {
     }
     return parsed;
   } catch (error) {
-    throw new Error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`, {
-      cause: error,
-    });
+    throw new Error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
   }
 }
 

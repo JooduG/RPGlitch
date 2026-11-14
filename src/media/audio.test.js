@@ -4,16 +4,7 @@
  */
 import { describe, expect, it } from "vitest";
 import { PREMADE_FRACTALS } from "@data";
-import {
-  get_cadence_rate,
-  normalize_role,
-  resolve_voice_name,
-  resolve_voice_uri,
-  Audio,
-  play_sfx,
-  set_master_volume,
-  toggle_mute,
-} from "./audio.svelte.js";
+import { get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, Audio, play_sfx, set_master_volume, toggle_mute } from "./audio.svelte.js";
 
 describe("normalize_role", () => {
   it("normalizes roles to internal keys", () => {

@@ -31,8 +31,8 @@
       );
       background-size: 250% 100%;
       --shimmer-color: {color};
-    "
-  ></div>
+    ">
+  </div>
 </div>
 
 <style>

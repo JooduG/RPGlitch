@@ -6,15 +6,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  is_valid_speaking_style,
-  SPEAKING_STYLE_RULES,
-  VOCAL_RULES,
-  SOUND_RULES,
-  SENSORY_RULES,
-  METAPHOR_RULES,
-  COMMUNITY_RULES,
-} from "./speaking-styles.js";
+import { is_valid_speaking_style, SPEAKING_STYLE_RULES, VOCAL_RULES, SOUND_RULES, SENSORY_RULES, METAPHOR_RULES, COMMUNITY_RULES } from "./speaking-styles.js";
 import { SPEAKING_STYLES } from "../config.js";
 
 describe("speaking-styles taxonomy", () => {

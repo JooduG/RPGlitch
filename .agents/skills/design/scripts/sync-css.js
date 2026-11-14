@@ -48,9 +48,7 @@ function parseMarkdownDoc() {
   try {
     parsed = yaml.load(parts[1]);
   } catch (error) {
-    throw new Error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`, {
-      cause: error,
-    });
+    throw new Error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
   }
 
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || !parsed.colors || typeof parsed.colors !== "object") {

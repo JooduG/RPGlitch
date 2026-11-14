@@ -211,13 +211,7 @@ describe("helpers", () => {
         const finished_promise = new Promise((resolve) => {
           resolveTransition = /** @type {() => void} */ (resolve);
         });
-        transitionMock = {
-          ready: Promise.resolve(),
-          finished: finished_promise,
-          updateCallbackDone: Promise.resolve(),
-          skipTransition: vi.fn(),
-          types: [],
-        };
+        transitionMock = { ready: Promise.resolve(), finished: finished_promise, updateCallbackDone: Promise.resolve(), skipTransition: vi.fn(), types: [] };
         /** @type {any} */ (document).startViewTransition = vi.fn((cb) => {
           Promise.resolve().then(cb);
           return transitionMock;

@@ -49,20 +49,17 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
   FEAR: "Shallow breathing, locked jaw, cold sweat, scanning physical exits. Physical freeze/flight response; hyper-vigilant scanning of immediate space.",
   VULNERABILITY:
     "Unclenching hands, softened gaze, hesitant cadence, dropped defensive posture. Defensive walls softening; cautious, tentative physical opening.",
-  BETRAYAL:
-    "Throat constricted, cold hands, sudden step backward, guarded silence. Acute trust collapse; sudden physical withdrawal and rigid skepticism.",
+  BETRAYAL: "Throat constricted, cold hands, sudden step backward, guarded silence. Acute trust collapse; sudden physical withdrawal and rigid skepticism.",
   ABANDONMENT:
     "Hollow stomach, chest tightness, searching gaze, abrupt cling or preemptive detachment. Panic of separation; hyper-reactive to perceived emotional distance.",
   EMOTIONAL_NEGLECT:
     "Affect numbness, flat monotone delivery, drifting gaze, motionless hands. Affect blunting and quiet withdrawal; disengages from connection effort.",
-  DEFIANCE:
-    "Raised chin, rigid spine, locked eye contact, squared stance. Open resistance and pride; physical assertion against authority or pressure.",
+  DEFIANCE: "Raised chin, rigid spine, locked eye contact, squared stance. Open resistance and pride; physical assertion against authority or pressure.",
   INTIMACY:
     "Leaning inward, softened micro-expressions, matched breathing tempo, lingering contact. Sensory closeness and reduced spatial distance; warmth and physical presence.",
   GRIEF:
     "Heavy swallow, pressure behind eyes, decelerated motor cadence, weighted pauses. Visceral emotional weight; speech slowed and anchored in physical heaviness.",
-  DOMINANCE:
-    "Deliberate unhurried movements, spatial expansion, steady downward gaze. Assert spatial control; unwavering presence and physical command.",
+  DOMINANCE: "Deliberate unhurried movements, spatial expansion, steady downward gaze. Assert spatial control; unwavering presence and physical command.",
   DECEPTION:
     "Calculated micro-pauses, forced smoothness, throat clearing, stiff hands. Over-managed composure; unnatural control concealing rapid internal calculation.",
   DYSREGULATION:
@@ -74,8 +71,7 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
   SLOW_MOTION: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
   GLITCH: "Reality glitching. Fragmented recall. Non-linear time perception.",
   RECOVERY: "High clarity. Sharp recall. Stable environment.",
-  EXPOSED:
-    "Psychological armor down, highly receptive and unshielded. Reveal genuine reactions without reflexive deflection; raw unguarded openness.",
+  EXPOSED: "Psychological armor down, highly receptive and unshielded. Reveal genuine reactions without reflexive deflection; raw unguarded openness.",
   MASKING:
     "Guarded self-containment. Deflects intrusive personal questions with disciplined silence, keeping private history and feelings concealed while avoiding overt hostility.",
   SYNCHRONY: "Mirroring user movement. Intense focus. Deep rapport.",
@@ -124,136 +120,46 @@ export const AVAILABLE_KEYWORDS = Object.freeze([
  */
 export const DYNAMICS_RULES = [
   // ── 2.1 Non-Verbal Reaction Thresholds (Priority-Ranked) ───────────────────
-  {
-    id: "FEAR",
-    when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60,
-    priority: 85,
-  },
-  {
-    id: "DYSREGULATION",
-    when: (d) => (d.chaos ?? 50) >= 75 || ((d.intensity ?? 50) >= 80 && (d.chaos ?? 50) >= 60),
-    priority: 80,
-  },
-  {
-    id: "EMOTIONAL_NEGLECT",
-    when: (d) => (d.intensity ?? 50) <= 25 && (d.openness ?? 50) <= 35,
-    priority: 75,
-  },
-  {
-    id: "BETRAYAL",
-    when: (d) => (d.openness ?? 50) <= 25 && (d.affinity ?? 50) <= 40,
-    priority: 80,
-  },
-  {
-    id: "DEFIANCE",
-    when: (d) => (d.openness ?? 50) <= 30 && (d.intensity ?? 50) >= 60,
-    priority: 70,
-  },
-  {
-    id: "VULNERABILITY",
-    when: (d) => (d.openness ?? 50) >= 75 && (d.affinity ?? 50) >= 50,
-    priority: 75,
-  },
-  {
-    id: "INTIMACY",
-    when: (d) => (d.affinity ?? 50) >= 75 && (d.openness ?? 50) >= 60,
-    priority: 80,
-  },
-  {
-    id: "GRIEF",
-    when: (d) => (d.intensity ?? 50) <= 35 && (d.affinity ?? 50) >= 65 && (d.chaos ?? 50) <= 40,
-    priority: 70,
-  },
-  {
-    id: "SHAME",
-    when: (d) => (d.openness ?? 50) <= 35 && (d.intensity ?? 50) >= 60 && (d.affinity ?? 50) >= 45,
-    priority: 65,
-  },
+  { id: "FEAR", when: (d) => (d.intensity ?? 50) >= 75 && (d.affinity ?? 50) <= 60, priority: 85 },
+  { id: "DYSREGULATION", when: (d) => (d.chaos ?? 50) >= 75 || ((d.intensity ?? 50) >= 80 && (d.chaos ?? 50) >= 60), priority: 80 },
+  { id: "EMOTIONAL_NEGLECT", when: (d) => (d.intensity ?? 50) <= 25 && (d.openness ?? 50) <= 35, priority: 75 },
+  { id: "BETRAYAL", when: (d) => (d.openness ?? 50) <= 25 && (d.affinity ?? 50) <= 40, priority: 80 },
+  { id: "DEFIANCE", when: (d) => (d.openness ?? 50) <= 30 && (d.intensity ?? 50) >= 60, priority: 70 },
+  { id: "VULNERABILITY", when: (d) => (d.openness ?? 50) >= 75 && (d.affinity ?? 50) >= 50, priority: 75 },
+  { id: "INTIMACY", when: (d) => (d.affinity ?? 50) >= 75 && (d.openness ?? 50) >= 60, priority: 80 },
+  { id: "GRIEF", when: (d) => (d.intensity ?? 50) <= 35 && (d.affinity ?? 50) >= 65 && (d.chaos ?? 50) <= 40, priority: 70 },
+  { id: "SHAME", when: (d) => (d.openness ?? 50) <= 35 && (d.intensity ?? 50) >= 60 && (d.affinity ?? 50) >= 45, priority: 65 },
 
   // ── 2.2 Global Baseline Dynamics Subtext Triggers ───────────────────────────
   // 📈 INTENSITY
-  {
-    id: "ADRENALINE",
-    when: (d) => (d?.intensity ?? 50) > 70 && (d?.affinity ?? 50) <= 70,
-  },
-  {
-    id: "SLOW_MOTION",
-    when: (d) => (d?.intensity ?? 50) < 30 && (d?.chaos ?? 50) <= 70,
-  },
+  { id: "ADRENALINE", when: (d) => (d?.intensity ?? 50) > 70 && (d?.affinity ?? 50) <= 70 },
+  { id: "SLOW_MOTION", when: (d) => (d?.intensity ?? 50) < 30 && (d?.chaos ?? 50) <= 70 },
 
   // 🌪️ CHAOS
-  {
-    id: "GLITCH",
-    when: (d) => (d?.chaos ?? 50) > 70 && (d?.intensity ?? 50) >= 30,
-  },
-  {
-    id: "RECOVERY",
-    when: (d) => (d?.chaos ?? 50) < 30 && (d?.entropy ?? 50) >= 30,
-  },
+  { id: "GLITCH", when: (d) => (d?.chaos ?? 50) > 70 && (d?.intensity ?? 50) >= 30 },
+  { id: "RECOVERY", when: (d) => (d?.chaos ?? 50) < 30 && (d?.entropy ?? 50) >= 30 },
 
   // 🔓 OPENNESS
-  {
-    id: "EXPOSED",
-    when: (d) => (d?.openness ?? 50) > 70 && (d?.velocity ?? 50) >= 30,
-  },
-  {
-    id: "MASKING",
-    when: (d) => (d?.openness ?? 50) < 30 && (d?.affinity ?? 50) >= 30,
-  },
+  { id: "EXPOSED", when: (d) => (d?.openness ?? 50) > 70 && (d?.velocity ?? 50) >= 30 },
+  { id: "MASKING", when: (d) => (d?.openness ?? 50) < 30 && (d?.affinity ?? 50) >= 30 },
 
   // 🤝 AFFINITY
-  {
-    id: "SYNCHRONY",
-    when: (d) => (d?.affinity ?? 50) > 70 && (d?.intensity ?? 50) <= 70,
-  },
-  {
-    id: "DISSONANCE",
-    when: (d) => (d?.affinity ?? 50) < 30 && (d?.openness ?? 50) >= 30,
-  },
+  { id: "SYNCHRONY", when: (d) => (d?.affinity ?? 50) > 70 && (d?.intensity ?? 50) <= 70 },
+  { id: "DISSONANCE", when: (d) => (d?.affinity ?? 50) < 30 && (d?.openness ?? 50) >= 30 },
 
   // 🚀 VELOCITY
-  {
-    id: "OVERDRIVE",
-    when: (d) => (d?.velocity ?? 50) > 70 && (d?.entropy ?? 50) <= 70,
-  },
-  {
-    id: "STASIS",
-    when: (d) => (d?.velocity ?? 50) < 30 && (d?.openness ?? 50) <= 70,
-  },
+  { id: "OVERDRIVE", when: (d) => (d?.velocity ?? 50) > 70 && (d?.entropy ?? 50) <= 70 },
+  { id: "STASIS", when: (d) => (d?.velocity ?? 50) < 30 && (d?.openness ?? 50) <= 70 },
 
   // 📉 ENTROPY
-  {
-    id: "INSTABILITY",
-    when: (d) => (d?.entropy ?? 50) > 70 && (d?.velocity ?? 50) <= 70,
-  },
-  {
-    id: "STABILITY",
-    when: (d) => (d?.entropy ?? 50) < 30 && (d?.chaos ?? 50) >= 30,
-  },
+  { id: "INSTABILITY", when: (d) => (d?.entropy ?? 50) > 70 && (d?.velocity ?? 50) <= 70 },
+  { id: "STABILITY", when: (d) => (d?.entropy ?? 50) < 30 && (d?.chaos ?? 50) >= 30 },
 
   // 🛡️ COMPOSITE TRIGGERS
-  {
-    id: "SUSPICION",
-    when: (d) => (d?.openness ?? 50) < 30 && (d?.affinity ?? 50) < 30,
-  },
-  {
-    id: "CATACLYSM",
-    when: (d) => (d?.velocity ?? 50) > 70 && (d?.entropy ?? 50) > 70,
-  },
-  {
-    id: "CONFESSION",
-    when: (d) => (d?.openness ?? 50) > 70 && (d?.velocity ?? 50) < 30,
-  },
-  {
-    id: "PASSION",
-    when: (d) => (d?.intensity ?? 50) > 70 && (d?.affinity ?? 50) > 70,
-  },
-  {
-    id: "TRANCE",
-    when: (d) => (d?.intensity ?? 50) < 30 && (d?.chaos ?? 50) > 70,
-  },
-  {
-    id: "HARMONY",
-    when: (d) => (d?.chaos ?? 50) < 30 && (d?.entropy ?? 50) < 30,
-  },
+  { id: "SUSPICION", when: (d) => (d?.openness ?? 50) < 30 && (d?.affinity ?? 50) < 30 },
+  { id: "CATACLYSM", when: (d) => (d?.velocity ?? 50) > 70 && (d?.entropy ?? 50) > 70 },
+  { id: "CONFESSION", when: (d) => (d?.openness ?? 50) > 70 && (d?.velocity ?? 50) < 30 },
+  { id: "PASSION", when: (d) => (d?.intensity ?? 50) > 70 && (d?.affinity ?? 50) > 70 },
+  { id: "TRANCE", when: (d) => (d?.intensity ?? 50) < 30 && (d?.chaos ?? 50) > 70 },
+  { id: "HARMONY", when: (d) => (d?.chaos ?? 50) < 30 && (d?.entropy ?? 50) < 30 },
 ];

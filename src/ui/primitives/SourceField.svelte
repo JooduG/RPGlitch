@@ -208,8 +208,7 @@
       aria-label={is_image_mode ? "Upload an image" : "Upload a file"}
       actions={[tooltip]}
       onclick={trigger_browse}
-      disabled={dropzone_disabled}
-    >
+      disabled={dropzone_disabled}>
       <svg viewBox="0 0 24 24" class="size-icon-small" fill="none">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
         <polyline points="17 8 12 3 7 8" stroke="currentColor"></polyline>
@@ -244,8 +243,7 @@
       e.preventDefault();
       is_dragging = false;
       handle_drop(e);
-    }}
-  >
+    }}>
     <TextField
       {is_edit}
       {size}
@@ -260,8 +258,7 @@
       onpaste={handle_paste}
       {status}
       header_actions={merged_header_actions}
-      {...rest}
-    ></TextField>
+      {...rest}></TextField>
   </div>
 
   {#if has_footer}
@@ -271,8 +268,7 @@
           <img
             src={image_data}
             alt={is_image_mode ? "Portrait" : "Import Avatar"}
-            class="h-7 w-7 shrink-0 rounded-md border border-white/10 object-cover shadow-md"
-          />
+            class="h-7 w-7 shrink-0 rounded-md border border-white/10 object-cover shadow-md" />
           <span class="shrink-0 text-[10px] font-bold tracking-widest text-slate-300 uppercase">
             {is_image_mode ? "Portrait" : "Avatar"}
           </span>

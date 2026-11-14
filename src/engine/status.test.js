@@ -1,25 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  force_recover_simulation,
-  SimulationStateStore,
-  simulation_state,
-  StreamingStore,
-  streaming,
-  UIStateStore,
-  ui_state,
-} from "./status.svelte.js";
+import { force_recover_simulation, SimulationStateStore, simulation_state, StreamingStore, streaming, UIStateStore, ui_state } from "./status.svelte.js";
 import { TIMING_MS } from "@config";
 import { Audio } from "@media";
 
 vi.mock("@media", () => ({
   set_visualizer_envision_impl: vi.fn(),
   Audio: {
-    voice: {
-      apply_stream_role: vi.fn(),
-      queue_stream_sentence: vi.fn(),
-      flush_stream_remainder: vi.fn(),
-      reset_stream: vi.fn(),
-    },
+    voice: { apply_stream_role: vi.fn(), queue_stream_sentence: vi.fn(), flush_stream_remainder: vi.fn(), reset_stream: vi.fn() },
     is_role_enabled: vi.fn(() => true),
   },
 }));
@@ -87,12 +74,7 @@ describe("SimulationStateStore", () => {
   });
 
   it("tracks and clears delegated generating entity metadata", () => {
-    simulation_state.set_generating_entity({
-      type: "npc",
-      name: "Mira",
-      avatar: "data:image/png;base64,123",
-      color: "#ff5500",
-    });
+    simulation_state.set_generating_entity({ type: "npc", name: "Mira", avatar: "data:image/png;base64,123", color: "#ff5500" });
 
     expect(simulation_state.generating_entity_type).toBe("npc");
     expect(simulation_state.generating_entity_name).toBe("Mira");
@@ -119,12 +101,7 @@ describe("SimulationStateStore", () => {
     expect(simulation_state.generating_entity_name).toBe("Director");
 
     // Stage 2: Speaker Delegated (Speaker Thinking)
-    simulation_state.set_delegated_speaker({
-      type: "npc",
-      name: "Sylvia",
-      avatar: "data:avatar",
-      color: "#00ffff",
-    });
+    simulation_state.set_delegated_speaker({ type: "npc", name: "Sylvia", avatar: "data:avatar", color: "#00ffff" });
     expect(simulation_state.director_thinking).toBe(false);
     expect(simulation_state.speaker_thinking).toBe(true);
     expect(simulation_state.generating_entity_name).toBe("Sylvia");

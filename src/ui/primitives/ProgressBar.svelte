@@ -56,11 +56,8 @@
       relative
       overflow-hidden
       border-none
-      {variant === 'thin'
-      ? 'h-px w-full bg-slate-700/40'
-      : 'h-2.5 w-full rounded-full bg-slate-700/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'}
-    "
-  >
+      {variant === 'thin' ? 'h-px w-full bg-slate-700/40' : 'h-2.5 w-full rounded-full bg-slate-700/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'}
+    ">
     {#if is_indeterminate}
       <div
         class="
@@ -71,8 +68,8 @@
           rounded-full
           bg-electric-cyan
           shadow-[0_0_8px_var(--color-electric-cyan)]
-        "
-      ></div>
+        ">
+      </div>
     {:else}
       <div
         class="
@@ -83,8 +80,8 @@
           bg-electric-cyan
           shadow-[0_0_8px_var(--color-electric-cyan)]
         "
-        style="width: {pct_tween.current}%;"
-      ></div>
+        style="width: {pct_tween.current}%;">
+      </div>
     {/if}
   </Progress.Root>
 </div>

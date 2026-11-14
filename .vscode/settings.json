@@ -1,18 +1,61 @@
 {
-  "stylelint.validate": [
-    "css",
-    "svelte"
-  ],
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "files.eol": "\n",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "always",
-    "source.fixAll.stylelint": "always"
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
   },
-  "typescript.preferences.autoImportFileExcludePatterns": [
-    "**/.gemini/**"
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "redhat.vscode-xml"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.stylelint": "explicit"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": false,
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false,
+  "explorer.fileNesting.patterns": {
+    ".env": "*.env, .env.*",
+    ".gitignore": ".gitattributes, .gitmodules, .mailmap",
+    "*.js": "$(capture).test.js, $(capture).js.map, $(capture).d.ts",
+    "*.svelte": "$(capture).svelte.js, $(capture).test.js, $(capture).svelte.test.js",
+    "*.svelte.js": "$(capture).test.js, $(capture).svelte.test.js",
+    "App.svelte": "main.js, main.test.js, index.html, *.pjs, config.js",
+    "ignores.master.json": "*ignore",
+    "package.json": "package-lock.json, .npmrc, .prettierrc*, .markdownlint*.mjs, eslint.config.*, *cache, stylelint.config.*, svelte.config.*, vite.config.*, vitest.config.*, jsconfig.json, types.d.ts, *.code-workspace",
+    "README.md": "CHANGELOG.md, DESIGN.md, GEMINI.md, ROADMAP.md, SECURITY.md"
+  },
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/.agents/skills/**/templates": true,
+    "**/.DS_Store": true,
+    "**/bun.lockb": true,
+    "**/node_modules/**": true,
+    "**/pnpm-lock.yaml": true,
+    "**/src/**/index.js": true,
+    "**/Thumbs.db": true,
+    "**/yarn.lock": true
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/dist/**": true,
+    "**/node_modules/**": true
+  },
+  "javascript.preferences.autoImportFileExcludePatterns": [
+    "**/.agents/**",
+    "**/.gemini/**",
+    "**/tmp/**"
   ],
+  "markdown.validate.enabled": true,
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
     "high | medium | low",
@@ -27,20 +70,26 @@
     "/ai-rpg",
     "../scrabbles.md"
   ],
-  "files.exclude": {
-    "**/.DS_Store": true,
-    "**/bun.lockb": true,
+  "search.exclude": {
+    "**/.agents/**": true,
+    "**/.gemini/**": true,
+    "**/.git/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true,
     "**/node_modules/**": true,
-    "**/pnpm-lock.yaml": true,
-    "**/Thumbs.db": true,
-    "**/yarn.lock": true,
-    "**/src/**/index.js": true,
-    "**/.gemini/config/skills/**/templates": true
+    "**/package-lock.json": true,
+    "**/tmp/archive/**": true
   },
-  "[xml]": {
-    "editor.defaultFormatter": "redhat.vscode-xml"
-  },
-  "[markdown]": {
-    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
-  }
+  "stylelint.validate": [
+    "css",
+    "svelte"
+  ],
+  "svelte.enable-ts-plugin": true,
+  "svelte.plugin.css.globals": "**/*design.css, **/*index.css",
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    "**/.agents/**",
+    "**/.gemini/**",
+    "**/tmp/**"
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

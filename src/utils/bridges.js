@@ -43,14 +43,7 @@
 // ============================================================================
 
 /** @type {StateAccessors} */
-const _accessors = {
-  app: null,
-  runtime: null,
-  simulation_state: null,
-  simulation_log: null,
-  session_driver: null,
-  record_prompt_token_snapshot: null,
-};
+const _accessors = { app: null, runtime: null, simulation_state: null, simulation_log: null, session_driver: null, record_prompt_token_snapshot: null };
 
 /**
  * Registers state accessors. Invoked once by the composition root during application startup.
@@ -109,12 +102,7 @@ export const state_bridge = {
 // ============================================================================
 
 /** @type {StreamHandlers} */
-const _handlers = {
-  start: null,
-  update: null,
-  end: null,
-  is_active: null,
-};
+const _handlers = { start: null, update: null, end: null, is_active: null };
 
 /**
  * Registers streaming lifecycle handlers from the streaming coordinator store.

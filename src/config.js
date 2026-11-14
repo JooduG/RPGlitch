@@ -143,13 +143,7 @@ export const IMAGE_POLICY = Object.freeze({
  * base speech-rate multipliers by cadence id + how far entity dynamics bend the base rate.
  */
 export const VOICE_CADENCE = Object.freeze({
-  RATES: Object.freeze({
-    drawl: 0.85,
-    measured: 0.95,
-    standard: 1.0,
-    brisk: 1.1,
-    rapid: 1.2,
-  }),
+  RATES: Object.freeze({ drawl: 0.85, measured: 0.95, standard: 1.0, brisk: 1.1, rapid: 1.2 }),
   SHAPING: Object.freeze({
     DYNAMICS_OFFSET: 0.001, // Per-point rate bend per dynamics unit away from neutral 50
     MIN_RATE: 0.5, // Hard floor on the shaped speech rate
@@ -165,13 +159,7 @@ export const VOICE_CADENCE = Object.freeze({
  *   Narrative participants are everything but SYSTEM (see is_narrative_role in text.js).
  * - NARRATOR_ROLES: lowercase export set - raw_role values marking narrator-voiced beats for the story exporter.
  */
-export const CANONICAL_ROLES = Object.freeze({
-  USER: "user",
-  AI: "ai",
-  NPC: "npc",
-  FRACTAL: "fractal",
-  SYSTEM: "system",
-});
+export const CANONICAL_ROLES = Object.freeze({ USER: "user", AI: "ai", NPC: "npc", FRACTAL: "fractal", SYSTEM: "system" });
 export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "narrator", "epilogue"]));
 
 // ── 10. Speaking Styles ──────────────────────────────────────────────────────

@@ -49,11 +49,7 @@ describe("gate mcp-argument-normalizer", () => {
     const res = capture(handle_mcp_argument_normalizer, {
       toolCall: {
         name: "call_mcp_tool",
-        args: {
-          ServerName: "mcp-sequentialthinking-tools",
-          ToolName: "sequentialthinking_tools",
-          Arguments: { thought: "Step 1" },
-        },
+        args: { ServerName: "mcp-sequentialthinking-tools", ToolName: "sequentialthinking_tools", Arguments: { thought: "Step 1" } },
       },
     });
     expect(Array.isArray(res.overwrite.Arguments.available_tools)).toBe(true);

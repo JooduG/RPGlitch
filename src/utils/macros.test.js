@@ -61,13 +61,7 @@ describe("Universal @ENTITY Macro Engine", () => {
 
     it("supports frozen RelationalContext tuple resolving @ME, @YOU, @SPEAKER, @LISTENER, @TARGET", () => {
       const target = { id: "char_silvers", name: "Silvers" };
-      const context = create_relational_context({
-        me: ai,
-        you: user,
-        speaker: ai,
-        listener: user,
-        target,
-      });
+      const context = create_relational_context({ me: ai, you: user, speaker: ai, listener: user, target });
       expect(Object.isFrozen(context)).toBe(true);
       const text = "@SPEAKER says to @LISTENER: behold @TARGET! (Signed: @ME to @YOU)";
       const resolved = parse_macros(text, context, entities);

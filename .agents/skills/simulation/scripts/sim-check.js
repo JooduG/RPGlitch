@@ -84,7 +84,10 @@ export function compile_live_cores() {
           round: 1,
           entities: MINIMAL_ENTITIES,
           history,
-          task_options: core === "CARETAKER" ? { target_entity_key: "AI" } : core === "CHARACTER" ? { directors_note: "Hold the line." } : {},
+          task_options:
+            core === "CARETAKER" ? { target_entity_key: "AI" }
+            : core === "CHARACTER" ? { directors_note: "Hold the line." }
+            : {},
         }),
       );
     } catch (error) {
@@ -161,13 +164,7 @@ export async function run_turn_smoke() {
   const entities = { ...MINIMAL_ENTITIES };
   const history = [{ role: "user", origin: "Glitch", text: "Hold the line.", round: 1 }];
   const director = await execute_turn_1_director({ transport, round: 1, entities, history });
-  const character = await execute_turn_2_character({
-    transport,
-    round: 1,
-    entities,
-    history,
-    directors_note: director.directors_note,
-  });
+  const character = await execute_turn_2_character({ transport, round: 1, entities, history, directors_note: director.directors_note });
   const caretaker = await execute_turn_3_caretaker({ transport, round: 1, entities, history });
   const visual = await execute_turn_visualizer({ transport, round: 1, entities, camera_note: director.camera_note });
   const structuring_transport = {

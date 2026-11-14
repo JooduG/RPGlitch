@@ -36,9 +36,9 @@
 
   // Derived action config - single source of truth for the action button
   const action = $derived(
-    type === "confirm"
-      ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
-      : { variant: /** @type {"primary"} */ ("primary"), label: ok_label },
+    type === "confirm" ?
+      { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
+    : { variant: /** @type {"primary"} */ ("primary"), label: ok_label },
   );
 
   const handle_confirm = () => {
@@ -65,8 +65,7 @@
       e.preventDefault();
       handle_confirm();
     }
-  }}
-/>
+  }} />
 
 <AlertDialog.Root bind:open preventScroll={false}>
   <AlertDialog.Portal>
@@ -112,8 +111,7 @@
                     transition-property: filter;
                   "
                   in:overlay_in={{ duration: duration_in }}
-                  out:overlay_out={{ duration: duration_out }}
-                >
+                  out:overlay_out={{ duration: duration_out }}>
                   <AlertDialog.Title class="m-0 p-0 text-left">
                     <h6 class="m-0 uppercase">{title}</h6>
                   </AlertDialog.Title>
@@ -134,8 +132,7 @@
                           e.preventDefault();
                           handle_confirm();
                         }
-                      }}
-                    />
+                      }} />
                   {/if}
 
                   <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->

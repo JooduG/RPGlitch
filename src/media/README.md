@@ -2,8 +2,7 @@
 
 ## Overview
 
-Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling).
-This package encapsulates procedural Web Audio sound effect synthesis, browser Web Speech voice fallback, unified Svelte 5 kinetic motion and card-flight physics, pure optics tier taxonomy, Perchance stateless image generation dispatching, design tokens, and transitional compatibility facades.
+Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling). This package encapsulates procedural Web Audio sound effect synthesis, browser Web Speech voice fallback, unified Svelte 5 kinetic motion and card-flight physics, pure optics tier taxonomy, Perchance stateless image generation dispatching, design tokens, and transitional compatibility facades.
 
 ### Parallel Coexistence & Migration Architecture
 

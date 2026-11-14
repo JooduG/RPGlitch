@@ -1,13 +1,7 @@
 ---
 name: design
 description: >-
-  Visual design system, CSS token pipeline, and static layout governance for
-  RPGlitch. Use when authoring or reviewing DESIGN.md tokens, color palettes,
-  typography, glassmorphic surfaces, static component layouts, adversarial UI
-  stress-testing, or running npm run sync:css and npm run audit:design. Do NOT
-  use for interactive animations, easing curves, or View Transitions API
-  choreography (use motion), sound synthesis (use audio), or Svelte 5 rune
-  state architecture (use svelte).
+  Visual design system, CSS token pipeline, and static layout governance for RPGlitch. Use when authoring or reviewing DESIGN.md tokens, color palettes, typography, glassmorphic surfaces, static component layouts, adversarial UI stress-testing, or running npm run sync:css and npm run audit:design. Do NOT use for interactive animations, easing curves, or View Transitions API choreography (use motion), sound synthesis (use audio), or Svelte 5 rune state architecture (use svelte).
 ---
 
 # Design System & Static Layout Governance
@@ -115,12 +109,12 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 
 ### Counter-Rationalization Table
 
-| Rationalization                                                | Required Action                                                                                                                                               |
-| :------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `"Quick one-line tweak in design.css / tokens.js"`             | Edit `DESIGN.md` and run `npm run sync:css`; Vite/CI overwrites manual edits.                                                                                 |
-| `"This badge can use solid bg-(--signature-color) text-white"` | Bright signatures (`#fde047`, `#fbbf24`, `#84cc16`) fail `4.5:1`; use translucent `color-mix()` wells or dark `--color-chalk` ink.                            |
-| `"Demo data fits cleanly; no need to stress-test"`             | Run the 3-phase protocol in [break-ui.md](./references/adversarial/break-ui.md) with [worst-case-catalog.md](./references/adversarial/worst-case-catalog.md). |
-| `"Need a new modal animation curve here"`                      | Hand off to [motion/SKILL.md](../motion/SKILL.md) instead of inventing raw CSS curves in `design`.                                                            |
+| Rationalization | Required Action |
+| :-- | :-- |
+| `"Quick one-line tweak in design.css / tokens.js"` | Edit `DESIGN.md` and run `npm run sync:css`; Vite/CI overwrites manual edits. |
+| `"This badge can use solid bg-(--signature-color) text-white"` | Bright signatures (`#fde047`, `#fbbf24`, `#84cc16`) fail `4.5:1`; use translucent `color-mix()` wells or dark `--color-chalk` ink. |
+| `"Demo data fits cleanly; no need to stress-test"` | Run the 3-phase protocol in [break-ui.md](./references/adversarial/break-ui.md) with [worst-case-catalog.md](./references/adversarial/worst-case-catalog.md). |
+| `"Need a new modal animation curve here"` | Hand off to [motion/SKILL.md](../motion/SKILL.md) instead of inventing raw CSS curves in `design`. |
 
 ### Verification Checklist
 

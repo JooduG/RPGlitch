@@ -116,7 +116,11 @@
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || busy);
   let is_sync_focused = $derived(sync_id ? (sync_focus_counts[sync_id] || 0) > 0 : false);
-  const font_size_class = $derived(size === "xs" ? "text-xs" : size === "md" ? "text-base" : "text-sm");
+  const font_size_class = $derived(
+    size === "xs" ? "text-xs"
+    : size === "md" ? "text-base"
+    : "text-sm",
+  );
   const paragraphs = $derived(parse_markdown(value));
   const is_expanded = $derived(
     (is_focused || is_sync_focused || active || busy || always_expanded || is_edit || !!status) && (!!header_actions || !!status || is_edit),
@@ -198,39 +202,39 @@
     before:transition-opacity
     before:duration-300
     before:content-['']!
-    {variant === 'bare'
-    ? `
+    {variant === 'bare' ?
+    `
       border-none!
       bg-transparent!
       shadow-none!
       before:hidden!
     `
-    : ''}
-    {!is_expanded
-    ? `
+  : ''}
+    {!is_expanded ?
+    `
       bg-[color-mix(in_srgb,var(--color-dev-accent)_calc(4%+16%*var(--state-weight-intensity)),rgb(23_23_23/0.6))]
       before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--color-dev-accent)_60%),transparent_50%)]
       before:opacity-[calc(0.2+0.6*var(--state-weight-intensity))]
     `
-    : `
+  : `
       overflow-visible!
       border-transparent
       bg-[color-mix(in_srgb,var(--color-dev-accent)_calc(10%+22%*var(--state-weight-intensity)),rgb(23_23_23/0.65))]
       before:bg-[linear-gradient(to_bottom,var(--color-dev-accent),color-mix(in_srgb,var(--color-dev-accent),transparent_60%)_30%,transparent_80%)]
       before:opacity-100
     `}
-    {is_disabled
-    ? `
+    {is_disabled ?
+    `
       cursor-not-allowed
       opacity-30
     `
-    : ''}
-    {busy
-    ? `
+  : ''}
+    {busy ?
+    `
       cursor-wait
       *:pointer-events-none
     `
-    : ''}
+  : ''}
     {className}"
   data-expanded={is_expanded ? "true" : undefined}
   data-busy={busy ? "true" : undefined}
@@ -240,8 +244,7 @@
   onfocusout={handle_blur}
   use:use_actions={actions}
   aria-busy={busy}
-  aria-disabled={is_disabled || busy}
->
+  aria-disabled={is_disabled || busy}>
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <header
@@ -267,8 +270,7 @@
       {collapsed ? 'rounded-b-xl' : 'border-b border-white/10'}
       {variant === 'bare' ? 'hidden!' : ''}
       {onheaderclick ? 'cursor-pointer' : 'cursor-default'}
-    "
-  >
+    ">
     {#if busy}
       <Shimmer color={signature_color || "var(--color-electric-cyan)"} class={collapsed ? "rounded-xl" : "rounded-t-xl"} />
     {/if}
@@ -290,8 +292,7 @@
               tooltip="Undo (Ctrl+Z)"
               disabled={!can_undo || is_disabled}
               onclick={undo}
-              class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20"
-            >
+              class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20">
               <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
                 <path d="M3 7v6h6" />
                 <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
@@ -306,8 +307,7 @@
               tooltip="Redo (Ctrl+Y)"
               disabled={!can_redo || is_disabled}
               onclick={redo}
-              class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20"
-            >
+              class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20">
               <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
                 <path d="M21 7v6h-6" />
                 <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
@@ -401,8 +401,7 @@
             aria-readonly="true"
             onfocus={handle_focus}
             onblur={handle_blur}
-            use:use_actions={actions}
-          >
+            use:use_actions={actions}>
             {#if value && String(value).trim()}
               {#each paragraphs as p, pIdx (pIdx)}
                 <p class="m-0 mb-tight last:mb-0">
@@ -414,15 +413,13 @@
                         class="
                           font-bold
                           text-(--color-dev-accent)
-                        ">{@render token_content(token.content)}</strong
-                      >
+                        ">{@render token_content(token.content)}</strong>
                     {:else if token.type === "em"}
                       <em
                         class="
                           italic
                           opacity-30
-                        ">{@render token_content(token.content)}</em
-                      >
+                        ">{@render token_content(token.content)}</em>
                     {:else if token.type === "strong-em"}
                       <strong
                         class="
@@ -434,8 +431,7 @@
                             italic
                             opacity-30
                           ">{@render token_content(token.content)}</em
-                        ></strong
-                      >
+                        ></strong>
                     {:else if token.type === "quote"}
                       <span class="text-[1.05em]">"{@render token_content(token.content)}"</span>
                     {/if}
@@ -448,8 +444,7 @@
                   font-normal
                   text-slate-400/60
                   italic
-                ">{placeholder}</span
-              >
+                ">{placeholder}</span>
             {/if}
           </div>
         </ScrollArea>

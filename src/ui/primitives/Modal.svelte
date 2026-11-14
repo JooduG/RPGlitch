@@ -57,8 +57,7 @@
   onOpenChange={(v) => {
     if (!v) on_close();
   }}
-  preventScroll={false}
->
+  preventScroll={false}>
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
@@ -87,8 +86,7 @@
             busy={is_busy}
             {is_pass_through}
             class={variant}
-            data-modal-backdrop={variant}
-          >
+            data-modal-backdrop={variant}>
             <Dialog.Content
               {...rest}
               forceMount
@@ -101,8 +99,7 @@
               }}
               onOpenAutoFocus={(/** @type {any} */ e) => {
                 e.preventDefault();
-              }}
-            >
+              }}>
               {#snippet child({ props: contentProps })}
                 {#if active_open}
                   <div
@@ -155,8 +152,7 @@
                     }}
                     in:overlay_in={{ duration: variant === "profile" ? 0 : 300 }}
                     out:overlay_out
-                    use:use_actions={actions}
-                  >
+                    use:use_actions={actions}>
                     {@render children?.()}
                   </div>
                 {/if}

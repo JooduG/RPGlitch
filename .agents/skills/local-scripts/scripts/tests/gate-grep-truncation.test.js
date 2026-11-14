@@ -39,10 +39,7 @@ describe("gate grep-truncation-breaker", () => {
   });
 
   it("passes through uncapped results silently", () => {
-    const res = capture(handle_grep_truncation, {
-      toolCall: { name: "grep_search", args: { Query: "import" } },
-      toolResult: "3 matches",
-    });
+    const res = capture(handle_grep_truncation, { toolCall: { name: "grep_search", args: { Query: "import" } }, toolResult: "3 matches" });
     expect(res.decision).toBe("allow");
     expect(res.feedback).toBeUndefined();
   });

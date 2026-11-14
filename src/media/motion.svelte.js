@@ -142,19 +142,11 @@ export function shimmy(node) {
       const animation = target.animate(
         [
           { transform: "translate(0, 0) rotate(0deg)" },
-          {
-            transform: "translate(calc(var(--spacing-kinetic-shimmy-offset) * -1), var(--spacing-kinetic-shimmy-y)) rotate(-30deg)",
-          },
-          {
-            transform: "translate(var(--spacing-kinetic-shimmy-offset), calc(var(--spacing-kinetic-shimmy-y) * -1)) rotate(30deg)",
-          },
+          { transform: "translate(calc(var(--spacing-kinetic-shimmy-offset) * -1), var(--spacing-kinetic-shimmy-y)) rotate(-30deg)" },
+          { transform: "translate(var(--spacing-kinetic-shimmy-offset), calc(var(--spacing-kinetic-shimmy-y) * -1)) rotate(30deg)" },
           { transform: "translate(0, 0) rotate(0deg)" },
         ],
-        {
-          duration: base_duration,
-          easing: "linear",
-          iterations: Infinity,
-        },
+        { duration: base_duration, easing: "linear", iterations: Infinity },
       );
       animation.playbackRate = intensity;
       return animation;
@@ -188,11 +180,7 @@ export function pulse(node) {
           { transform: "scale(1)", offset: 0.7 },
           { transform: "scale(1)", offset: 1 },
         ],
-        {
-          duration: base_duration,
-          easing: "ease-in-out",
-          iterations: Infinity,
-        },
+        { duration: base_duration, easing: "ease-in-out", iterations: Infinity },
       );
       animation.playbackRate = intensity;
       return animation;
@@ -281,11 +269,7 @@ export function stab(node) {
           { transform: "translateX(var(--spacing-kinetic-stab-distance))", offset: 0.2 },
           { transform: "translateX(0)", offset: 1 },
         ],
-        {
-          duration: base_duration,
-          easing,
-          iterations: Infinity,
-        },
+        { duration: base_duration, easing, iterations: Infinity },
       );
       animation.playbackRate = intensity;
       return animation;
@@ -324,11 +308,7 @@ export function overlay_in(_node, { duration = 300 } = {}) {
  */
 export function overlay_out(_node, { duration = 160 } = {}) {
   const d = motion.is_reduced ? 0 : duration;
-  return {
-    duration: d,
-    easing: quartOut,
-    css: (t) => `opacity: ${t}; transform: scale(${SETTLE_SCALE + (1 - SETTLE_SCALE) * t});`,
-  };
+  return { duration: d, easing: quartOut, css: (t) => `opacity: ${t}; transform: scale(${SETTLE_SCALE + (1 - SETTLE_SCALE) * t});` };
 }
 
 /**
@@ -339,11 +319,7 @@ export function overlay_out(_node, { duration = 160 } = {}) {
  */
 export function item_in(_node, { duration = 300 } = {}) {
   const d = motion.is_reduced ? 0 : duration;
-  return {
-    duration: d,
-    easing: quartOut,
-    css: (t) => `opacity: ${t}; transform: translateY(${(1 - t) * RISE_DISTANCE}px);`,
-  };
+  return { duration: d, easing: quartOut, css: (t) => `opacity: ${t}; transform: translateY(${(1 - t) * RISE_DISTANCE}px);` };
 }
 
 // =============================================================================
@@ -585,8 +561,7 @@ function ensure_scrub_style() {
   const style = document.createElement("style");
   style.id = "card-flight-scrub-style";
   style.textContent =
-    "[data-scrub-hidden]{opacity:0!important;transition:none!important}" +
-    "[data-scrub-hidden], [data-scrub-hidden] *{pointer-events:none!important}";
+    "[data-scrub-hidden]{opacity:0!important;transition:none!important}" + "[data-scrub-hidden], [data-scrub-hidden] *{pointer-events:none!important}";
   document.head.appendChild(style);
 }
 

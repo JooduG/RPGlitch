@@ -38,12 +38,7 @@
   const selected_voice = $derived((Audio.voice.voices ?? []).find((v) => v.name === active_voice_name || v.uri === profile_state.char?.voice?.uri));
 
   // Derived list formatted for the Dropdown atom schema
-  const dropdown_items = $derived(
-    (Audio.voice.voices ?? []).map((voice) => ({
-      value: voice.name,
-      label: voice.name,
-    })),
-  );
+  const dropdown_items = $derived((Audio.voice.voices ?? []).map((voice) => ({ value: voice.name, label: voice.name })));
 
   /** Finds index 0..4 in VOICE_CADENCES for the active cadence string key */
   const cadence_index = $derived.by(() => {
@@ -86,8 +81,7 @@
     p-standard
     [backdrop-filter:var(--blur-mist)]
   "
-  style:animation="wing-item-slide-down var(--motion-elastic) forwards"
->
+  style:animation="wing-item-slide-down var(--motion-elastic) forwards">
   <!-- DROPDOWN + PREVIEW + SLIDER (3-col, single row) -->
   <div class="flex flex-col gap-tight">
     <Label for="voice-select">Voice</Label>
@@ -99,8 +93,7 @@
       grid-cols-[minmax(0,1fr)_auto]
       items-stretch
       gap-tight
-    "
-    >
+    ">
       <Dropdown
         id="voice-select"
         bind:value={profile_state.char.voice.name}
@@ -109,8 +102,7 @@
         disabled={!profile_state.is_editing || dropdown_items.length === 0}
         label={dropdown_items.length === 0 ? "Loading Voices..." : "Select Voice"}
         uppercase={false}
-        matchWidth
-      />
+        matchWidth />
 
       <Button
         actions={[tooltip]}
@@ -119,13 +111,11 @@
         square
         disabled={!selected_voice}
         onclick={() => Audio.voice.preview(active_voice_name, get_cadence_rate(profile_state.char.voice.cadence))}
-        variant="secondary"
-      >
+        variant="secondary">
         <svg viewBox="0 0 24 24" class="size-icon-small">
           <path
             fill="currentColor"
-            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-          />
+            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
         </svg>
       </Button>
 
@@ -140,8 +130,7 @@
           label="Cadence"
           neutral={2}
           format={() => active_cadence.label}
-          style="--empty-fill: var(--signature-color, #555d66)"
-        />
+          style="--empty-fill: var(--signature-color, #555d66)" />
       </div>
     </div>
   </div>

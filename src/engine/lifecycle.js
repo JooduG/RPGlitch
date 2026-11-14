@@ -44,11 +44,7 @@ export async function execute_visualizer_envision(text, type = "character", enti
     style_key = app_choice;
   } else if (entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default") {
     style_key = entity.visual_style;
-  } else if (
-    runtime.active_fractal?.visual_style &&
-    runtime.active_fractal.visual_style !== "none" &&
-    runtime.active_fractal.visual_style !== "default"
-  ) {
+  } else if (runtime.active_fractal?.visual_style && runtime.active_fractal.visual_style !== "none" && runtime.active_fractal.visual_style !== "default") {
     style_key = runtime.active_fractal.visual_style;
   }
 
@@ -60,8 +56,9 @@ export async function execute_visualizer_envision(text, type = "character", enti
 
   try {
     const target_entity = entity || (type === "fractal" ? runtime.active_fractal : runtime.active_ai);
-    const style_cues = style_def?.engine
-      ? [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
+    const style_cues =
+      style_def?.engine ?
+        [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
       : "";
     const trimmed_text = text.trim();
     const camera_note = style_cues ? `${trimmed_text} | Aesthetic Style: ${style_cues}` : trimmed_text;
@@ -80,16 +77,8 @@ export async function execute_visualizer_envision(text, type = "character", enti
     const live_transport = {
       stream: async (compiled_prompt, stream_options = {}) => {
         const response = await generate_text(
-          {
-            system: compiled_prompt,
-            role: "model",
-            startWith: stream_options.startWith != null ? String(stream_options.startWith) : "",
-          },
-          {
-            silent: true,
-            priority: stream_options.priority || "background",
-            signal: stream_options.signal,
-          },
+          { system: compiled_prompt, role: "model", startWith: stream_options.startWith != null ? String(stream_options.startWith) : "" },
+          { silent: true, priority: stream_options.priority || "background", signal: stream_options.signal },
         );
         return typeof response === "string" ? response : response?.text || "";
       },
@@ -139,12 +128,7 @@ export async function structure_profile(raw, type = "character", signal = null) 
   };
 
   try {
-    const parsed = await execute_turn_structuring({
-      transport: live_transport,
-      input_data,
-      type,
-      signal,
-    });
+    const parsed = await execute_turn_structuring({ transport: live_transport, input_data, type, signal });
     return parsed;
   } catch (err) {
     console.warn("[structure_profile] Structuring failed:", err);
@@ -182,11 +166,7 @@ export async function execute_prologue(story_id) {
     await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
-      meta: {
-        id: node_id,
-        round: 0,
-        is_prologue: true,
-      },
+      meta: { id: node_id, round: 0, is_prologue: true },
       attachments: [],
     });
 
@@ -195,27 +175,17 @@ export async function execute_prologue(story_id) {
     const prologue_prompt = compile_prompt({
       core: "CHARACTER",
       round: 0,
-      entities: {
-        AI: fractal_quadrant,
-        USER: user_quadrant,
-        FRACTAL: fractal_quadrant,
-      },
-      task_options: {
-        turn_tempo: 3,
-      },
+      entities: { AI: fractal_quadrant, USER: user_quadrant, FRACTAL: fractal_quadrant },
+      task_options: { turn_tempo: 3 },
     });
 
     app.log("Establishing prologue scene (Round 0)...", "system");
-    const raw_prologue = await live_transport.stream(prologue_prompt, {
-      startWith: "<think>\n",
-    });
+    const raw_prologue = await live_transport.stream(prologue_prompt, { startWith: "<think>\n" });
 
     const { think: prologue_think, prose: prologue_body } = parse_think_block(raw_prologue);
     const prologue_text = (prologue_body || raw_prologue || "").trim();
 
-    await state_bridge.session_driver.edit_log_entry(node_id, prologue_text, {
-      think: prologue_think,
-    });
+    await state_bridge.session_driver.edit_log_entry(node_id, prologue_text, { think: prologue_think });
     app.log("Prologue scene established.", "system");
 
     // 3. Register deferred prologue scene image
@@ -296,23 +266,11 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
   const prompt = compile_prompt({
     core: "CHARACTER",
     round: (Number(runtime?.round) || 1) + 1,
-    entities: {
-      FRACTAL: runtime?.active_fractal || {},
-      AI: runtime?.active_ai || {},
-      USER: runtime?.active_user || {},
-    },
-    task_options: {
-      speaker_role: "fractal",
-      is_epilogue: true,
-      conclusion_status,
-    },
+    entities: { FRACTAL: runtime?.active_fractal || {}, AI: runtime?.active_ai || {}, USER: runtime?.active_user || {} },
+    task_options: { speaker_role: "fractal", is_epilogue: true, conclusion_status },
   });
 
-  const response = await generate_text({
-    system: prompt,
-    role: "fractal",
-    node_id,
-  });
+  const response = await generate_text({ system: prompt, role: "fractal", node_id });
 
   const { parse_think_block } = await import("../data/parser.js");
   const { detox_prose } = await import("../utils/detox.js");
@@ -322,12 +280,7 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
     await state_bridge.session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
-      meta: {
-        id: node_id,
-        is_epilogue: true,
-        conclusion_status,
-        story_status: conclusion_status,
-      },
+      meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
     });
   }
 

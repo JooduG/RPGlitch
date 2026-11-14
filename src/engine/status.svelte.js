@@ -199,12 +199,7 @@ export class SimulationStateStore {
     this.#director_thinking = true;
     this.#speaker_thinking = false;
     this.#media_generating = false;
-    this.set_generating_entity({
-      type: "system",
-      name: "Director",
-      avatar: null,
-      color: "var(--color-frozen)",
-    });
+    this.set_generating_entity({ type: "system", name: "Director", avatar: null, color: "var(--color-frozen)" });
   }
 
   /**

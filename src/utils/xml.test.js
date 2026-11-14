@@ -65,11 +65,7 @@ describe("render_atom_xml", () => {
   });
 
   it("supports catalog lookup with dotted key", () => {
-    const catalog = {
-      MOMENTUM: {
-        CRITICAL: { tag: "MOMENTUM", body: "Force dynamic change now.", attrs: { tier: "critical" } },
-      },
-    };
+    const catalog = { MOMENTUM: { CRITICAL: { tag: "MOMENTUM", body: "Force dynamic change now.", attrs: { tier: "critical" } } } };
     const xml = render_atom_xml(catalog, "MOMENTUM.CRITICAL");
     expect(xml).toContain('<MOMENTUM tier="critical">');
     expect(xml).toContain("Force dynamic change now.");
@@ -174,9 +170,7 @@ describe("render_xml_tag", () => {
 
   it("normalizes a pre-indented child block to a uniform depth", () => {
     const child = "  <ENTITIES>\n    <X>1</X>\n  </ENTITIES>";
-    expect(render_xml_tag({ tag: "SYSTEM", children: [child], child_indent: 2 })).toBe(
-      "<SYSTEM>\n  <ENTITIES>\n    <X>1</X>\n  </ENTITIES>\n</SYSTEM>",
-    );
+    expect(render_xml_tag({ tag: "SYSTEM", children: [child], child_indent: 2 })).toBe("<SYSTEM>\n  <ENTITIES>\n    <X>1</X>\n  </ENTITIES>\n</SYSTEM>");
   });
 });
 

@@ -24,17 +24,13 @@
 
 <Collapsible.Root bind:open {default_open} {disabled} class="w-full {className}">
   <Collapsible.Trigger
-    class="group flex w-full cursor-pointer items-center justify-between py-tight text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
-  >
+    class="group flex w-full cursor-pointer items-center justify-between py-tight text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
     <span>{label}</span>
     <span class="opacity-50 transition-transform {open ? 'rotate-180' : ''}">▼</span>
   </Collapsible.Trigger>
   <Collapsible.Content forceMount>
     {#snippet child({ props })}
-      <div
-        {...props}
-        class="grid min-h-0 w-full transition-[grid-template-rows] duration-300 ease-in-out {open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
-      >
+      <div {...props} class="grid min-h-0 w-full transition-[grid-template-rows] duration-300 ease-in-out {open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
         <div class="min-h-0 overflow-hidden">
           <div class="pt-tight pb-standard {content_class}">
             {@render children?.()}

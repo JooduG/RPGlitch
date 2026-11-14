@@ -6,18 +6,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // hoisted so it's initialized before the mocked @platform module is
 // first imported (which happens during the top-level runtime import below).
-const mock_checkpoint = vi.hoisted(() => ({
-  load_session_checkpoint: vi.fn(() => null),
-  clear_session_checkpoint: vi.fn(),
-}));
+const mock_checkpoint = vi.hoisted(() => ({ load_session_checkpoint: vi.fn(() => null), clear_session_checkpoint: vi.fn() }));
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    load_session_checkpoint: mock_checkpoint.load_session_checkpoint,
-    clear_session_checkpoint: mock_checkpoint.clear_session_checkpoint,
-  };
+  return { ...actual, load_session_checkpoint: mock_checkpoint.load_session_checkpoint, clear_session_checkpoint: mock_checkpoint.clear_session_checkpoint };
 });
 
 function base_entity(id, name, type, extra = {}) {
@@ -65,11 +58,7 @@ describe("State Synchronization", () => {
       dynamics: { velocity: 50, entropy: 50 },
     };
 
-    runtime._debug_inject({
-      user: mock_user,
-      ai: mock_ai,
-      fractal: mock_fractal,
-    });
+    runtime._debug_inject({ user: mock_user, ai: mock_ai, fractal: mock_fractal });
 
     expect(app.selected_user).toEqual(mock_user);
     expect(app.selected_ai).toEqual(mock_ai);
@@ -210,11 +199,7 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     await db.entities.put(base_entity("ai-1", "Silas", "character"));
     await db.entities.put(base_entity("fractal-1", "Nova City", "fractal"));
     for (const e of npc_entities) {
-      await db.entities.put(
-        base_entity(e.id, e.name, "character", {
-          role_tier: e.role_tier ?? 1,
-        }),
-      );
+      await db.entities.put(base_entity(e.id, e.name, "character", { role_tier: e.role_tier ?? 1 }));
     }
     const story_id = await db.stories.add({
       title: "Test",

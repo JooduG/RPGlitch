@@ -1,11 +1,6 @@
 # RPGlitch - Session Protocol & Handover Specification
 
-> **System Designation**: Sovereign AI Roleplay Engine
-> **Core Architecture**: Svelte 5 Runes + Vite 8 (Single-File Bundle, in-place Base64 vault)
-> **Target Deployment**: Perchance (`perchance.org`)
-> **Source Repository**: `https://github.com/JooduG/RPGlitch`
-> **Global Instructions & System Rules**: `https://github.com/JooduG/gemini`
-> **Protocol Audience**: External AI Engineering Agents & Collaborators
+> **System Designation**: Sovereign AI Roleplay Engine **Core Architecture**: Svelte 5 Runes + Vite 8 (Single-File Bundle, in-place Base64 vault) **Target Deployment**: Perchance (`perchance.org`) **Source Repository**: `https://github.com/JooduG/RPGlitch` **Global Instructions & System Rules**: `https://github.com/JooduG/gemini` **Protocol Audience**: External AI Engineering Agents & Collaborators
 
 ---
 
@@ -14,8 +9,7 @@
 External AI agents executing tasks on this repository operate without direct access to local execution shells or machine-specific environments. Adhere to these universal operational laws:
 
 1. 🧠 **Context Window Priming & Grounding Hierarchy (`/context`)**
-   - **Sovereign Ingestion Hierarchy**: Ingest and ground your context window strictly in order before drafting or modifying code:
-     `Rules (GEMINI.md)` ➔ `Specs (DESIGN.md, README.md, nuclear-plan.md, this protocol)` ➔ `Active State (ROADMAP.md, CHANGELOG.md)` ➔ `Active Target Code (src/**)` ➔ `Feedback (Tests/Logs)`.
+   - **Sovereign Ingestion Hierarchy**: Ingest and ground your context window strictly in order before drafting or modifying code: `Rules (GEMINI.md)` ➔ `Specs (DESIGN.md, README.md, nuclear-plan.md, this protocol)` ➔ `Active State (ROADMAP.md, CHANGELOG.md)` ➔ `Active Target Code (src/**)` ➔ `Feedback (Tests/Logs)`.
    - **Targeted Source Ingestion**: Load the exact source files and matching test suites (`*.test.js`) required for the specific task. Avoid context flooding (>2,000 lines without line ranges) to preserve a razor-sharp signal-to-noise ratio.
    - **Anti-Hallucination Law**: Never invent APIs, Svelte 4 legacy patterns, or assume component props. Always read the authoritative declarations in `src/engine/`, `src/data/`, `src/media/`, `src/state/`, or `src/ui/` into context first.
 

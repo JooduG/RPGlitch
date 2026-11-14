@@ -66,11 +66,10 @@
     placeholder:italic
     [&::-webkit-inner-spin-button]:appearance-none
     [&::-webkit-outer-spin-button]:appearance-none
-    {readonly
-    ? 'cursor-pointer text-slate-300 hover:bg-[color-mix(in_srgb,var(--color-dev-accent)_12%,rgb(23_23_23/0.6))] hover:text-white'
-    : 'cursor-text text-slate-50 focus:bg-[color-mix(in_srgb,var(--color-dev-accent)_12%,rgb(23_23_23/0.6))] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'}
+    {readonly ?
+    'cursor-pointer text-slate-300 hover:bg-[color-mix(in_srgb,var(--color-dev-accent)_12%,rgb(23_23_23/0.6))] hover:text-white'
+  : 'cursor-text text-slate-50 focus:bg-[color-mix(in_srgb,var(--color-dev-accent)_12%,rgb(23_23_23/0.6))] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'}
     {className}
   "
   style="--color-dev-accent: {signature_color}; {style}"
-  {placeholder}
-/>
+  {placeholder} />

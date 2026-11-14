@@ -27,18 +27,18 @@ Verify all three layers when auditing reduced-motion compliance:
 
 ## 3. Core Engineering Glossary (10 Terms)
 
-| Term                                     | RPGlitch Definition                                                                                                                                                                       |
-| :--------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Interruptibility**                     | Canceling active WAAPI handles on re-entry (`pulse`, `shimmy`, `stab`), retargeting `Spring` smoothly (`roll`), and serializing prologue transfers via `_begin_flight_running`.           |
-| **Origin-Aware Entrance**                | Anchoring floating overlays to trigger edges (`origin-(--transform-origin)` in `Tooltip.svelte`) and scaling from `0.95` — never `scale(0)`.                                              |
-| **Critically Damped**                    | Zero-bounce settling curves (`--ease-drawer`, damping `0.8`) rather than oscillatory overshoot.                                                                                           |
-| **Clone Card Flight**                    | Capturing bounding geometry (`rect_of`) and driving isolated fixed `document.body` clones via CSS transitions (`fly_card_in`, `fly_card_out`) or `rAF` crop lerp (`cover_flight`).        |
-| **View Transition Slot**                 | Cross-DOM morphing via `guarded_transition(cb, { className })` + canonical `view-transition-name`s (`card-slot-*`, `entity-morph-fractal`, `unified-console`).                            |
-| **Compositor-Only Property**             | Preferring `transform`, `opacity`, `clip-path`, and `grid-template-rows` over layout box properties (`width`, `height`, `top`, `left`, `margin`, `padding`).                              |
-| **Asymmetric Pacing**                    | Exits finish faster than entrances (`overlay_out` `160ms` vs `overlay_in` `300ms`) so dismissals never lag behind user intent.                                                            |
-| **Kinetic Suppression (`data-kinetic`)** | Setting `node.dataset.kinetic = "true"` so `Button.svelte` strips `transform` from CSS transitions without losing color/shadow feedback.                                                  |
-| **Stagger Discipline**                   | Intentional card stagger (`Storyboard.svelte` `90ms` index delay; `fly_storyboard_cards_into_prologue` `110ms`) kept bounded so multi-card sequences stay under ~780ms.                   |
-| **Layer-Scoped Backdrop Blur**           | Pairing `--color-glass-*` surfaces with `--blur-mist` (`16px`) / backdrop blur utilities cleanly on fixed overlays without stacking heavy redundant filter passes on animated text nodes. |
+| Term | RPGlitch Definition |
+| :-- | :-- |
+| **Interruptibility** | Canceling active WAAPI handles on re-entry (`pulse`, `shimmy`, `stab`), retargeting `Spring` smoothly (`roll`), and serializing prologue transfers via `_begin_flight_running`. |
+| **Origin-Aware Entrance** | Anchoring floating overlays to trigger edges (`origin-(--transform-origin)` in `Tooltip.svelte`) and scaling from `0.95` — never `scale(0)`. |
+| **Critically Damped** | Zero-bounce settling curves (`--ease-drawer`, damping `0.8`) rather than oscillatory overshoot. |
+| **Clone Card Flight** | Capturing bounding geometry (`rect_of`) and driving isolated fixed `document.body` clones via CSS transitions (`fly_card_in`, `fly_card_out`) or `rAF` crop lerp (`cover_flight`). |
+| **View Transition Slot** | Cross-DOM morphing via `guarded_transition(cb, { className })` + canonical `view-transition-name`s (`card-slot-*`, `entity-morph-fractal`, `unified-console`). |
+| **Compositor-Only Property** | Preferring `transform`, `opacity`, `clip-path`, and `grid-template-rows` over layout box properties (`width`, `height`, `top`, `left`, `margin`, `padding`). |
+| **Asymmetric Pacing** | Exits finish faster than entrances (`overlay_out` `160ms` vs `overlay_in` `300ms`) so dismissals never lag behind user intent. |
+| **Kinetic Suppression (`data-kinetic`)** | Setting `node.dataset.kinetic = "true"` so `Button.svelte` strips `transform` from CSS transitions without losing color/shadow feedback. |
+| **Stagger Discipline** | Intentional card stagger (`Storyboard.svelte` `90ms` index delay; `fly_storyboard_cards_into_prologue` `110ms`) kept bounded so multi-card sequences stay under ~780ms. |
+| **Layer-Scoped Backdrop Blur** | Pairing `--color-glass-*` surfaces with `--blur-mist` (`16px`) / backdrop blur utilities cleanly on fixed overlays without stacking heavy redundant filter passes on animated text nodes. |
 
 ## 4. Audit Protocol & Severity Rubric
 

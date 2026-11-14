@@ -227,9 +227,7 @@ export class DeveloperLogStore {
       this.#persist_timer = null;
     }
     try {
-      db?.kv_settings
-        ?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) })
-        ?.catch(() => {});
+      db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
     } catch {
       /* Persistence errors must never break runtime flow */
     }
@@ -245,9 +243,7 @@ export class DeveloperLogStore {
     this.#persist_timer = setTimeout(() => {
       this.#persist_timer = null;
       try {
-        db?.kv_settings
-          ?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) })
-          ?.catch(() => {});
+        db?.kv_settings?.put({ key: DEVELOPER_TELEMETRY_STORAGE_KEY, value: this.#entries.slice(-TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) })?.catch(() => {});
       } catch {
         /* Persistence errors must never break runtime flow */
       }
@@ -262,12 +258,7 @@ export class DeveloperLogStore {
    * @returns {DeveloperLogEntry}
    */
   log(message, type = "system") {
-    const entry = {
-      id: generate_uuid(),
-      message: String(message ?? ""),
-      type,
-      timestamp: Date.now(),
-    };
+    const entry = { id: generate_uuid(), message: String(message ?? ""), type, timestamp: Date.now() };
 
     this.#entries.push(entry);
     if (this.#entries.length > TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES) {

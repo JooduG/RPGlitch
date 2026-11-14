@@ -39,7 +39,11 @@ function pick_replacement(match, pool, exact_voice = "casual", fallback_voice = 
 
   if (typeof pool === "string") {
     const rep = match_case(match, pool);
-    return prefix ? `${prefix} ${rep}` : suffix ? `${rep} ${suffix}` : rep;
+    return (
+      prefix ? `${prefix} ${rep}`
+      : suffix ? `${rep} ${suffix}`
+      : rep
+    );
   }
 
   let target_pool = pool;
@@ -65,20 +69,19 @@ function pick_replacement(match, pool, exact_voice = "casual", fallback_voice = 
   }
 
   const is_array_pool = Array.isArray(target_pool);
-  const active_list = is_array_pool
-    ? target_pool
-    : target_pool[exact_voice] ||
-      target_pool[fallback_voice] ||
-      target_pool.casual ||
-      target_pool.lyrical ||
-      target_pool.primal ||
-      target_pool.clinical ||
-      [];
+  const active_list =
+    is_array_pool ? target_pool : (
+      target_pool[exact_voice] || target_pool[fallback_voice] || target_pool.casual || target_pool.lyrical || target_pool.primal || target_pool.clinical || []
+    );
 
   if (!active_list.length) return match;
 
   const rep = match_case(match, stable_pick(active_list, match, offset));
-  return prefix ? `${prefix} ${rep}` : suffix ? `${rep} ${suffix}` : rep;
+  return (
+    prefix ? `${prefix} ${rep}`
+    : suffix ? `${rep} ${suffix}`
+    : rep
+  );
 }
 
 // ============================================================================
@@ -150,10 +153,7 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   );
 
   // 2. Self-Answering Dialogue ("Tomato? What's that, some sort of red fruit...?" -> "Tomato...")
-  clean_text = clean_text.replace(
-    /\b([A-Z][a-z0-9_-]+)\?\s*What(?:'s| is)\s+that,\s+some\s+sort\s+of\s+[^?]+\?\s*/gi,
-    (_match, word) => `${word}... `,
-  );
+  clean_text = clean_text.replace(/\b([A-Z][a-z0-9_-]+)\?\s*What(?:'s| is)\s+that,\s+some\s+sort\s+of\s+[^?]+\?\s*/gi, (_match, word) => `${word}... `);
 
   // 3. Binary Comparison Cliché ("felt less like a sanctuary and more like a cage" -> "felt like a cage")
   clean_text = clean_text.replace(
@@ -232,16 +232,11 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   );
 
   // "the air grew thick" -> "the air went quiet" / "the room was still"
-  clean_text = clean_text.replace(/\bthe\s+air\s+(?:grew|went|turned|had\s+turned|was)\s+thick\b/gi, (match) =>
-    match_case(match, "the room went quiet"),
-  );
+  clean_text = clean_text.replace(/\bthe\s+air\s+(?:grew|went|turned|had\s+turned|was)\s+thick\b/gi, (match) => match_case(match, "the room went quiet"));
   clean_text = clean_text.replace(/\bair\s+(?:grew|went|turned|had\s+turned|was)\s+thick\b/gi, (match) => match_case(match, "room went quiet"));
 
   // Naming the subtext ("a gesture of ownership", "a display of dominance", etc.)
-  clean_text = clean_text.replace(
-    /,\s*(?:a\s+|an\s+)?(?:gesture|act|display|show|performance)\s+of\s+(?:ownership|dominance|possession|control)\b/gi,
-    "",
-  );
+  clean_text = clean_text.replace(/,\s*(?:a\s+|an\s+)?(?:gesture|act|display|show|performance)\s+of\s+(?:ownership|dominance|possession|control)\b/gi, "");
 
   // 13. Dynamic Anti-AI Replacements (Tier 1A & Tier 1B Dictionary Rules from @data)
   const anti_ai_rules = _cached_anti_ai_rules || [];

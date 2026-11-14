@@ -1,13 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  clean_text_debris,
-  get_telemetry_label,
-  parse_relationship_edge,
-  process_entity_blocks,
-  resolve_entity_name,
-  vector_label,
-} from "./ChatBubble.svelte";
+import { clean_text_debris, get_telemetry_label, parse_relationship_edge, process_entity_blocks, resolve_entity_name, vector_label } from "./ChatBubble.svelte";
 
 describe("TelemetryCard Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {
@@ -16,16 +9,11 @@ describe("TelemetryCard Telemetry Logic", () => {
       updates: {
         AI_CHARACTER: {
           name: "Lord Benedict Silvers",
-          present_mutations: {
-            physical: "[EXPRESSION: predatory curiosity]",
-            non_physical: "He feels a flicker of genuine interest.",
-          },
+          present_mutations: { physical: "[EXPRESSION: predatory curiosity]", non_physical: "He feels a flicker of genuine interest." },
           eternal_mutations: { physical: "", non_physical: "" },
           vectors: {
             new: [{ id: "valerius-f3", content: "Corner Glitch against the sterile walls.", type: "future", emotional_weight: 8 }],
-            retrieval: [
-              { id: "valerius-p1", content: "He was exiled from the Ashenweald court.", type: "past", emotional_weight: 10, _relevance: 10.9 },
-            ],
+            retrieval: [{ id: "valerius-p1", content: "He was exiled from the Ashenweald court.", type: "past", emotional_weight: 10, _relevance: 10.9 }],
           },
           dynamics: [
             { axis: "chaos", old_value: 46, new_value: 48, diff: 2 },
@@ -106,9 +94,7 @@ describe("TelemetryCard Telemetry Logic", () => {
         AI_CHARACTER: {
           name: "Lord Benedict Silvers",
           present_mutations: { physical: "", non_physical: "" },
-          vectors: {
-            new: [{ id: "valerius-f3", content: "Corner Glitch against the sterile walls.", type: "future", emotional_weight: 8 }],
-          },
+          vectors: { new: [{ id: "valerius-f3", content: "Corner Glitch against the sterile walls.", type: "future", emotional_weight: 8 }] },
         },
       },
     };
@@ -146,10 +132,7 @@ describe("TelemetryCard Telemetry Logic", () => {
   test("updates shape: omits entities with no content", () => {
     const meta = {
       type: "DYNAMICS_DELTA",
-      updates: {
-        AI_CHARACTER: { name: "Vesper", present_mutations: { physical: "", non_physical: "" }, vectors: { new: [] } },
-        FRACTAL: { name: "Orb" },
-      },
+      updates: { AI_CHARACTER: { name: "Vesper", present_mutations: { physical: "", non_physical: "" }, vectors: { new: [] } }, FRACTAL: { name: "Orb" } },
     };
 
     expect(process_entity_blocks(meta)).toEqual([]);
@@ -230,9 +213,7 @@ describe("TelemetryCard Telemetry Logic", () => {
             { axis: "intensity", old_value: 50, new_value: 65, diff: 15 },
             { axis: "affinity", old_value: 40, new_value: 45, diff: 5 },
           ],
-          vectors: {
-            new: [{ id: "mem-1", content: "Ghost showed unexpected bravery.", type: "past", emotional_weight: 8 }],
-          },
+          vectors: { new: [{ id: "mem-1", content: "Ghost showed unexpected bravery.", type: "past", emotional_weight: 8 }] },
         },
       },
     };
@@ -253,11 +234,7 @@ describe("TelemetryCard Telemetry Logic", () => {
   });
 
   test("computes dynamic telemetry card titles (Caretaker turn and Director turn)", () => {
-    const runtime = {
-      active_ai: { name: "Lord Benedict Silvers" },
-      active_user: { name: "Glitch" },
-      active_fractal: { name: "Project Tartarus" },
-    };
+    const runtime = { active_ai: { name: "Lord Benedict Silvers" }, active_user: { name: "Glitch" }, active_fractal: { name: "Project Tartarus" } };
 
     // Caretaker turn with turn count
     expect(get_telemetry_label({ type: "CONTINUUM_FORMATION", target: "AI_CHARACTER", turns_count: 2 }, runtime)).toBe(
@@ -275,28 +252,12 @@ describe("TelemetryCard Telemetry Logic", () => {
 
   test("parses directed relationship edge strings into structured objects", () => {
     // String formats
-    expect(parse_relationship_edge("Beast → Glitch: protective hold")).toEqual({
-      source: "Beast",
-      target: "Glitch",
-      dynamic: "protective hold",
-    });
-    expect(parse_relationship_edge("Ghost -> Viper : cautious trust")).toEqual({
-      source: "Ghost",
-      target: "Viper",
-      dynamic: "cautious trust",
-    });
-    expect(parse_relationship_edge("Void -> Viper: looming danger")).toEqual({
-      source: "Void",
-      target: "Viper",
-      dynamic: "looming danger",
-    });
+    expect(parse_relationship_edge("Beast → Glitch: protective hold")).toEqual({ source: "Beast", target: "Glitch", dynamic: "protective hold" });
+    expect(parse_relationship_edge("Ghost -> Viper : cautious trust")).toEqual({ source: "Ghost", target: "Viper", dynamic: "cautious trust" });
+    expect(parse_relationship_edge("Void -> Viper: looming danger")).toEqual({ source: "Void", target: "Viper", dynamic: "looming danger" });
 
     // Object format
-    expect(parse_relationship_edge({ source: "Mira", target: "Sorel", dynamic: "rivalry" })).toEqual({
-      source: "Mira",
-      target: "Sorel",
-      dynamic: "rivalry",
-    });
+    expect(parse_relationship_edge({ source: "Mira", target: "Sorel", dynamic: "rivalry" })).toEqual({ source: "Mira", target: "Sorel", dynamic: "rivalry" });
 
     // Invalid / empty formats return null
     expect(parse_relationship_edge("")).toBeNull();
@@ -312,18 +273,10 @@ describe("TelemetryCard Telemetry Logic", () => {
     // duplicate `->`; string parsing now delegates to parse_relational_vector, so all
     // five canonical notations must work again.
     for (const arrow of ["→", "->", "—>", "=>", "—"]) {
-      expect(parse_relationship_edge(`Beast ${arrow} Glitch: protective hold`)).toEqual({
-        source: "Beast",
-        target: "Glitch",
-        dynamic: "protective hold",
-      });
+      expect(parse_relationship_edge(`Beast ${arrow} Glitch: protective hold`)).toEqual({ source: "Beast", target: "Glitch", dynamic: "protective hold" });
     }
     // Whitespace-padded variants still parse (canonical trims first).
-    expect(parse_relationship_edge("  Beast  —>  Glitch  :  protective hold  ")).toEqual({
-      source: "Beast",
-      target: "Glitch",
-      dynamic: "protective hold",
-    });
+    expect(parse_relationship_edge("  Beast  —>  Glitch  :  protective hold  ")).toEqual({ source: "Beast", target: "Glitch", dynamic: "protective hold" });
   });
 
   test("relationship edges keep renderer rules: label mandatory, malformed strings dropped", () => {
@@ -334,11 +287,7 @@ describe("TelemetryCard Telemetry Logic", () => {
     // chips (pre-consolidation they rendered as such); object edges still do.
     expect(parse_relationship_edge("Beast →   : stalks")).toBeNull();
     expect(parse_relationship_edge("A: B → C: x")).toBeNull();
-    expect(parse_relationship_edge({ source: "Mira" })).toEqual({
-      source: "Mira",
-      target: "Target",
-      dynamic: "",
-    });
+    expect(parse_relationship_edge({ source: "Mira" })).toEqual({ source: "Mira", target: "Target", dynamic: "" });
     // Non-string, non-object inputs stay null.
     expect(parse_relationship_edge(42)).toBeNull();
   });

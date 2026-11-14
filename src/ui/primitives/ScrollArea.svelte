@@ -24,8 +24,7 @@
     overflow-hidden
 
     {className}"
-  {...rest}
->
+  {...rest}>
   <ScrollArea.Viewport
     class="
       scroll-area-viewport
@@ -34,8 +33,7 @@
       min-h-0
       w-full
       rounded-[inherit]
-    "
-  >
+    ">
     {@render children?.()}
   </ScrollArea.Viewport>
 
@@ -56,8 +54,7 @@
       data-[orientation=horizontal]:flex-col
 
       data-[orientation=vertical]:w-2
-    "
-  >
+    ">
     <ScrollArea.Thumb
       class="
         relative
@@ -69,8 +66,7 @@
         duration-150
 
         hover:opacity-100
-      "
-    />
+      " />
   </ScrollArea.Scrollbar>
 
   <ScrollArea.Corner />

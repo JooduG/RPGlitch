@@ -14,9 +14,7 @@ function designTokenSync() {
     buildStart() {
       try {
         console.log("🎨 Syncing design tokens...");
-        execSync("node ./.agents/skills/design/scripts/sync-css.js", {
-          stdio: "inherit",
-        });
+        execSync("node ./.agents/skills/design/scripts/sync-css.js", { stdio: "inherit" });
       } catch (err) {
         console.error("❌ Design token sync failed:", err.message);
       }
@@ -25,9 +23,7 @@ function designTokenSync() {
       if (file.endsWith("DESIGN.md")) {
         try {
           console.log("🎨 DESIGN.md changed, resyncing tokens...");
-          execSync("node ./.agents/skills/design/scripts/sync-css.js", {
-            stdio: "inherit",
-          });
+          execSync("node ./.agents/skills/design/scripts/sync-css.js", { stdio: "inherit" });
         } catch (err) {
           console.error("❌ Design token sync failed:", err.message);
         }
@@ -111,9 +107,7 @@ export default defineConfig(({ command, mode }) => {
 
   return {
     root: "src",
-    define: {
-      "import.meta": "{}",
-    },
+    define: isDev ? {} : { "import.meta": "{}" },
     plugins: [
       designTokenSync(),
       tailwindcss(),
@@ -126,6 +120,7 @@ export default defineConfig(({ command, mode }) => {
       alias: {
         "@": path.resolve(import.meta.dirname, "./src"),
         "@data": path.resolve(import.meta.dirname, "./src/data"),
+        "@definitions": path.resolve(import.meta.dirname, "./src/definitions"),
         "@engine": path.resolve(import.meta.dirname, "./src/engine"),
         "@media": path.resolve(import.meta.dirname, "./src/media"),
         "@ui": path.resolve(import.meta.dirname, "./src/ui"),
@@ -143,26 +138,9 @@ export default defineConfig(({ command, mode }) => {
       minify: "esbuild",
       sourcemap: mode === "development",
       assetsInlineLimit: 100000000,
-      rollupOptions: {
-        output: {
-          format: "iife",
-          name: "RPGlitch",
-        },
-      },
+      rollupOptions: { output: { format: "iife", name: "RPGlitch" } },
     },
-    server: {
-      port: 4001,
-      strictPort: false,
-      open: false,
-      watch:
-        mode === "test"
-          ? null
-          : {
-              ignored: ["!**/DESIGN.md"],
-            },
-    },
-    preview: {
-      port: 8080,
-    },
+    server: { port: 4001, strictPort: false, open: false, watch: mode === "test" ? null : { ignored: ["!**/DESIGN.md"] } },
+    preview: { port: 8080 },
   };
 });

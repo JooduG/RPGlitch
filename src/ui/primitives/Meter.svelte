@@ -84,18 +84,17 @@
     ease-in-out
     select-none
 
-    {is_editing
-    ? `
+    {is_editing ?
+    `
       cursor-default
       focus-within:z-10
       hover:z-10
       hover:brightness-125
     `
-    : ''}
+  : ''}
   "
   use:tooltip={dynamic.desc}
-  data-editable={is_editing}
->
+  data-editable={is_editing}>
   <Label
     class="
       meter-label
@@ -109,8 +108,7 @@
       transition-[filter,opacity]
       duration-150
       ease-in-out
-    "
-  >
+    ">
     {dynamic.label}
   </Label>
 
@@ -124,19 +122,10 @@
       items-center
       justify-center
       gap-tight
-    "
-  >
+    ">
     {#if is_editing}
       <Button flank={true} size="small" square class="hover:text-electric-cyan" onclick={decrease} aria-label="Decrease">
-        <svg
-          viewBox="0 0 24 24"
-          class="size-icon-small"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14" />
         </svg>
       </Button>
@@ -160,19 +149,10 @@
         {value}
         oninput={handle_input}
         min="0"
-        max="100"
-      />
+        max="100" />
 
       <Button flank={true} size="small" square class="hover:text-electric-cyan" onclick={increase} aria-label="Increase">
-        <svg
-          viewBox="0 0 24 24"
-          class="size-icon-small"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+        <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14M5 12h14" />
         </svg>
       </Button>
@@ -197,8 +177,7 @@
       w-full
       overflow-hidden
       bg-electric-cyan/20
-    "
-  >
+    ">
     <div
       class="
         h-full
@@ -208,7 +187,7 @@
         duration-150
         ease-in-out
       "
-      style="width: {percentage}%;"
-    ></div>
+      style="width: {percentage}%;">
+    </div>
   </Meter.Root>
 </div>

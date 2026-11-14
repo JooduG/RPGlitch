@@ -52,10 +52,7 @@ export function extract_think_and_body(raw, start_with = "") {
   }
 
   const { think, prose } = parse_think_block(text);
-  return {
-    think: think || "",
-    body: (prose || "").trim(),
-  };
+  return { think: think || "", body: (prose || "").trim() };
 }
 
 /**
@@ -94,9 +91,8 @@ export function resolve_caretaker_target(cursor_or_round, entities = {}, use_cur
   if (entities.NPC && entities.NPC.id) {
     cast.push("NPC");
   }
-  const index = use_cursor
-    ? Math.abs(Math.floor(Number(cursor_or_round) || 0)) % cast.length
-    : Math.abs(Math.floor(Number(cursor_or_round) || 1) - 1) % cast.length;
+  const index =
+    use_cursor ? Math.abs(Math.floor(Number(cursor_or_round) || 0)) % cast.length : Math.abs(Math.floor(Number(cursor_or_round) || 1) - 1) % cast.length;
   return cast[index];
 }
 
@@ -137,12 +133,7 @@ export function calculate_turn_tempo(history = []) {
  * @returns {Promise<object>} Parsed director staging payload
  */
 export async function execute_turn_1_director({ transport, round = 1, entities = {}, history = [], signal = null }) {
-  const prompt = compile_prompt({
-    core: "DIRECTOR",
-    round,
-    entities,
-    history,
-  });
+  const prompt = compile_prompt({ core: "DIRECTOR", round, entities, history });
 
   const start_prefix = PURPOSE_CORES.DIRECTOR.start_with();
   let raw_output = await transport.stream(prompt, { startWith: start_prefix, signal });
@@ -210,29 +201,14 @@ export async function execute_turn_2_character({
   const turn_tempo = calculate_turn_tempo(history);
   const is_character = Boolean(entities.AI && entities.AI.type !== "fractal");
 
-  const prompt = compile_prompt({
-    core: "CHARACTER",
-    round,
-    entities,
-    history,
-    memories,
-    task_options: { directors_note, turn_tempo },
-  });
+  const prompt = compile_prompt({ core: "CHARACTER", round, entities, history, memories, task_options: { directors_note, turn_tempo } });
 
-  const start_with = PURPOSE_CORES.CHARACTER.start_with({
-    is_character,
-    directors_note,
-  });
+  const start_with = PURPOSE_CORES.CHARACTER.start_with({ is_character, directors_note });
   let raw = await transport.stream(prompt, { onChunk, startWith: start_with, signal });
 
   const { think, body: prose } = extract_think_and_body(raw, start_with);
 
-  return {
-    raw,
-    think,
-    prose,
-    turn_tempo,
-  };
+  return { raw, think, prose, turn_tempo };
 }
 
 /**
@@ -265,14 +241,7 @@ export async function execute_turn_2_continue({
   // Continuations allow dynamic storytelling; assign a healthy 3-beat budget and flag is_continuation
   const turn_tempo = 3;
 
-  const prompt = compile_prompt({
-    core: "CHARACTER",
-    round,
-    entities,
-    history,
-    memories,
-    task_options: { turn_tempo, is_continuation: true },
-  });
+  const prompt = compile_prompt({ core: "CHARACTER", round, entities, history, memories, task_options: { turn_tempo, is_continuation: true } });
 
   const clean_prose = typeof target_prose === "string" ? target_prose.trim() : "";
   const clean_think = typeof target_think === "string" ? target_think.trim() : "";
@@ -327,14 +296,8 @@ export async function execute_turn_2_continue({
     });
     const fallback_start_with =
       "<think>Continue immediately from the final sentence of my last turn with the next physical action, sensory shift, or spoken beat without repeating prior text.</think>\n";
-    const fallback_raw = await transport.stream(fallback_prompt, {
-      onChunk,
-      startWith: fallback_start_with,
-      signal,
-    });
-    const fallback_extracted = parse_think_block(
-      fallback_raw && !fallback_raw.includes("<think>") ? `${fallback_start_with}${fallback_raw}` : fallback_raw,
-    );
+    const fallback_raw = await transport.stream(fallback_prompt, { onChunk, startWith: fallback_start_with, signal });
+    const fallback_extracted = parse_think_block(fallback_raw && !fallback_raw.includes("<think>") ? `${fallback_start_with}${fallback_raw}` : fallback_raw);
     let fallback_delta = fallback_extracted.prose.trim();
     if (clean_prose && fallback_delta.startsWith(clean_prose)) {
       fallback_delta = fallback_delta.slice(clean_prose.length).trimStart();
@@ -349,13 +312,7 @@ export async function execute_turn_2_continue({
   const separator = ends_with_terminal ? "\n\n" : " ";
   const final_fused_prose = clean_prose ? `${clean_prose}${continuation_prose ? `${separator}${continuation_prose}` : ""}` : continuation_prose;
 
-  return {
-    raw,
-    think: think || clean_think,
-    prose: final_fused_prose,
-    continuation_prose,
-    turn_tempo,
-  };
+  return { raw, think: think || clean_think, prose: final_fused_prose, continuation_prose, turn_tempo };
 }
 
 /**
@@ -386,13 +343,7 @@ export async function execute_round({
   let director_staging = null;
 
   if (director_enabled) {
-    director_staging = await execute_turn_1_director({
-      transport,
-      round,
-      entities,
-      history,
-      signal,
-    });
+    director_staging = await execute_turn_1_director({ transport, round, entities, history, signal });
   }
 
   const character_turn = await execute_turn_2_character({
@@ -406,10 +357,7 @@ export async function execute_round({
     signal,
   });
 
-  return {
-    director_staging,
-    character_turn,
-  };
+  return { director_staging, character_turn };
 }
 
 /**
@@ -430,13 +378,7 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   }
   const target = target_entity_key || resolve_caretaker_target(round, entities);
 
-  const prompt = compile_prompt({
-    core: "CARETAKER",
-    round,
-    entities,
-    history,
-    task_options: { target_entity_key: target },
-  });
+  const prompt = compile_prompt({ core: "CARETAKER", round, entities, history, task_options: { target_entity_key: target } });
 
   const start_prefix = PURPOSE_CORES.CARETAKER.start_with();
   let raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
@@ -467,21 +409,13 @@ export async function execute_turn_3_caretaker({ transport, round = 1, entities 
   const past = typeof parsed?.past === "string" ? parsed.past : "";
 
   // Parse brackets per temporal quadrant
-  const eternal = {
-    physical: parse_brackets(eternal_physical),
-    non_physical: parse_brackets(eternal_non_physical),
-  };
-  const present = {
-    physical: parse_brackets(present_physical),
-    non_physical: parse_brackets(present_non_physical),
-  };
+  const eternal = { physical: parse_brackets(eternal_physical), non_physical: parse_brackets(eternal_non_physical) };
+  const present = { physical: parse_brackets(present_physical), non_physical: parse_brackets(present_non_physical) };
   const parsed_future = parse_brackets(future);
   const parsed_past = parse_brackets(past);
 
   // Parse all bracket tokens across the consolidated fields
-  const combined_bracket_text = [eternal_physical, eternal_non_physical, present_physical, present_non_physical, future, past]
-    .filter(Boolean)
-    .join("\n");
+  const combined_bracket_text = [eternal_physical, eternal_non_physical, present_physical, present_non_physical, future, past].filter(Boolean).join("\n");
   const brackets = parse_brackets(combined_bracket_text);
 
   return {
@@ -520,15 +454,7 @@ export async function execute_turn_visualizer({ transport, round = 1, entities =
     throw new Error("Stream aborted by user.");
   }
 
-  const prompt = compile_prompt({
-    core: "VISUALIZER",
-    round,
-    entities,
-    task_options: {
-      camera_note,
-      subject_kind,
-    },
-  });
+  const prompt = compile_prompt({ core: "VISUALIZER", round, entities, task_options: { camera_note, subject_kind } });
 
   const start_prefix = PURPOSE_CORES.VISUALIZER.start_with();
   const raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background" });
@@ -594,11 +520,7 @@ export async function execute_turn_structuring({ transport, input_data = "", typ
     core: "CARETAKER",
     round: 1,
     entities: {},
-    task_options: {
-      target_name: type === "fractal" ? "New Fractal" : "New Character",
-      target_type: type,
-      input_data,
-    },
+    task_options: { target_name: type === "fractal" ? "New Fractal" : "New Character", target_type: type, input_data },
   });
 
   const start_prefix = PURPOSE_CORES.CARETAKER.start_with();
@@ -646,12 +568,7 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
         origin = origin || ai_name;
       }
 
-      return {
-        role,
-        origin,
-        text: entry.text.trim(),
-        round: Number(entry.round || 1),
-      };
+      return { role, origin, text: entry.text.trim(), round: Number(entry.round || 1) };
     });
 }
 
@@ -677,17 +594,10 @@ export async function execute_ghostwriter(transport, input_text = "", signal = n
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
   const feed = state_bridge.simulation_log?.feed || [];
-  const history = reconstruct_history_from_feed(feed, {
-    user: user_quadrant,
-    ai: ai_quadrant,
-    fractal: fractal_quadrant,
-  });
+  const history = reconstruct_history_from_feed(feed, { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
 
   if (input_text && input_text.trim()) {
-    history.push({
-      role: "user",
-      content: input_text.trim(),
-    });
+    history.push({ role: "user", content: input_text.trim() });
   }
 
   let full_accumulated = "";
@@ -696,11 +606,7 @@ export async function execute_ghostwriter(transport, input_text = "", signal = n
   const outcome = await execute_turn_2_character({
     transport,
     round: Number(runtime.round || 1),
-    entities: {
-      AI: user_quadrant,
-      USER: ai_quadrant,
-      FRACTAL: fractal_quadrant,
-    },
+    entities: { AI: user_quadrant, USER: ai_quadrant, FRACTAL: fractal_quadrant },
     history,
     memories: [],
     directors_note: "",

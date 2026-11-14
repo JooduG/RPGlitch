@@ -109,13 +109,7 @@ export function compose_story_beat_prompt(prompt_text, style_key, base_negative 
   if (String(base_negative || "").trim()) negatives.push(String(base_negative).trim());
   if (style_def && style_key !== "none") {
     const medium = style_def.engine?.medium || "";
-    const tokens = [
-      style_def.engine?.medium,
-      style_def.engine?.palette,
-      style_def.engine?.camera,
-      style_def.engine?.composition,
-      style_def.engine?.texture,
-    ]
+    const tokens = [style_def.engine?.medium, style_def.engine?.palette, style_def.engine?.camera, style_def.engine?.composition, style_def.engine?.texture]
       .filter(Boolean)
       .join(", ");
     // Style tokens lead: image models weight early tokens most, and story
@@ -128,10 +122,7 @@ export function compose_story_beat_prompt(prompt_text, style_key, base_negative 
   }
   const floor = get_visual_style("none")?.negative_prompt;
   if (floor) negatives.push(floor);
-  return {
-    prompt: sanitize_visual_text(prompt),
-    negative_prompt: sanitize_visual_text(negatives.filter(Boolean).join(", ")),
-  };
+  return { prompt: sanitize_visual_text(prompt), negative_prompt: sanitize_visual_text(negatives.filter(Boolean).join(", ")) };
 }
 
 // ============================================================================
@@ -189,11 +180,7 @@ export function reset_cached_image_engine() {
 // [SECTION 2: RESILIENCE & DISPATCHER]
 // ============================================================================
 
-const visual_circuit_breaker = new CircuitBreaker({
-  failure_threshold: 3,
-  success_threshold: 2,
-  recovery_timeout: 30000,
-});
+const visual_circuit_breaker = new CircuitBreaker({ failure_threshold: 3, success_threshold: 2, recovery_timeout: 30000 });
 
 const visual_retryer = new ExponentialBackoffRetryer({
   max_attempts: 3,
@@ -230,13 +217,7 @@ function create_offline_svg(prompt, width, height) {
  * @returns {Promise<{ image_url: string, seed: number, metadata: Record<string, any> }>}
  */
 export async function dispatch_visual_generation(payload, options = {}) {
-  const {
-    prompt: raw_prompt,
-    negative_prompt: raw_negative_prompt = "",
-    resolution = "512x768",
-    guidance_scale = 7,
-    seed: explicit_seed,
-  } = payload || {};
+  const { prompt: raw_prompt, negative_prompt: raw_negative_prompt = "", resolution = "512x768", guidance_scale = 7, seed: explicit_seed } = payload || {};
   // The host image plugin evaluates prompt text as Perchance template syntax
   // (`{...}` / `[...]` are structural). Sanitize first so a persisted raw-JSON
   // blob or stray braces can never throw a curly-bracket mismatch downstream.
@@ -260,15 +241,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
 
   // If no host engine available, return test fallback
   if (!raw_engine) {
-    return {
-      image_url: create_offline_svg(prompt, width, height),
-      seed,
-      metadata: {
-        offline: true,
-        resolution,
-        guidance_scale,
-      },
-    };
+    return { image_url: create_offline_svg(prompt, width, height), seed, metadata: { offline: true, resolution, guidance_scale } };
   }
 
   const execute_attempt = async () => {
@@ -276,13 +249,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
       throw new DOMException("Aborted", "AbortError");
     }
 
-    const engine_arguments = {
-      prompt,
-      negativePrompt: negative_prompt,
-      resolution,
-      guidanceScale: guidance_scale,
-      seed,
-    };
+    const engine_arguments = { prompt, negativePrompt: negative_prompt, resolution, guidanceScale: guidance_scale, seed };
 
     let result = raw_engine(engine_arguments);
     if (result && typeof result.then === "function") {
@@ -294,15 +261,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
       throw new Error("EMPTY_IMAGE_RESPONSE: Engine returned no image URL");
     }
 
-    return {
-      image_url,
-      seed,
-      metadata: {
-        resolution,
-        guidance_scale,
-        offline: false,
-      },
-    };
+    return { image_url, seed, metadata: { resolution, guidance_scale, offline: false } };
   };
 
   const response = await visual_circuit_breaker.execute(() => visual_retryer.retry(execute_attempt));
@@ -438,12 +397,7 @@ export async function sweep_stale_ghosts() {
           } else if (is_stale && !is_failed) {
             await state_bridge.session_driver?.update_log_attachment(entry.id, attachment_index, {
               src: null,
-              metadata: {
-                ...(attachment.metadata || {}),
-                failed: true,
-                image_ghost_swept: true,
-                error: "Image beat timed out before it could resolve.",
-              },
+              metadata: { ...(attachment.metadata || {}), failed: true, image_ghost_swept: true, error: "Image beat timed out before it could resolve." },
             });
           }
         }
@@ -477,10 +431,7 @@ export class VisualEngine {
       },
       options,
     );
-    return {
-      ...dispatched,
-      url: dispatched.image_url,
-    };
+    return { ...dispatched, url: dispatched.image_url };
   }
 
   async visualize(story_id, text, tier, options = {}) {
@@ -642,11 +593,7 @@ export async function spawn_image_beat(tier, options = {}) {
             dispatch_visual_generation({ prompt: fallback_composed.prompt, negative_prompt: fallback_composed.negative_prompt }),
             new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING)),
           ]);
-          result = {
-            imageUrl: dispatched.image_url,
-            metadata: { ...dispatched.metadata, style_key: fallback_style },
-            refinedPrompt: fallback_composed.prompt,
-          };
+          result = { imageUrl: dispatched.image_url, metadata: { ...dispatched.metadata, style_key: fallback_style }, refinedPrompt: fallback_composed.prompt };
         }
 
         _remove_from_image_generation_queue(placeholder_entry.id);

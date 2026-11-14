@@ -4,21 +4,14 @@ import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("./html.js", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    .../** @type {any} */ (actual),
-    sanitize_to_fragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })),
-  };
+  return { .../** @type {any} */ (actual), sanitize_to_fragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })) };
 });
 
 describe("safe_html action", () => {
   /** @type {any} */
   let mockNode;
   beforeEach(() => {
-    mockNode = {
-      textContent: "existing text",
-      appendChild: vi.fn(),
-      innerHTML: "should not use",
-    };
+    mockNode = { textContent: "existing text", appendChild: vi.fn(), innerHTML: "should not use" };
   });
 
   test("clears textContent and uses appendChild instead of innerHTML", () => {
@@ -26,12 +19,7 @@ describe("safe_html action", () => {
     expect(mockNode.innerHTML).toBe("should not use");
     expect(mockNode.textContent).toBe("");
     expect(mockNode.appendChild).toHaveBeenCalledTimes(1);
-    expect(mockNode.appendChild).toHaveBeenCalledWith(
-      expect.objectContaining({
-        __isMockFragment: true,
-        source: "<b>Bold Content</b>",
-      }),
-    );
+    expect(mockNode.appendChild).toHaveBeenCalledWith(expect.objectContaining({ __isMockFragment: true, source: "<b>Bold Content</b>" }));
     expect(html_utils.sanitize_to_fragment).toHaveBeenCalledWith("<b>Bold Content</b>");
   });
 

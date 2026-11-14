@@ -102,12 +102,7 @@ function apply_story_title(story, ai = null, user = null, fractal = null) {
   const target_app = get_app();
   if (target_app) {
     target_app.story_title = story.title;
-    target_app.story_title_parts = decompose_story_title(story.title, {
-      ai,
-      user,
-      fractal,
-      get_color: get_signature_color,
-    });
+    target_app.story_title_parts = decompose_story_title(story.title, { ai, user, fractal, get_color: get_signature_color });
   }
 }
 
@@ -231,11 +226,7 @@ export class RuntimeEngineStore {
    * Prevents Proxy errors during mathematical operations in physics engines.
    */
   get snapshot_entities() {
-    return {
-      AI: $state.snapshot(this.active_ai),
-      USER: $state.snapshot(this.active_user),
-      FRACTAL: $state.snapshot(this.active_fractal),
-    };
+    return { AI: $state.snapshot(this.active_ai), USER: $state.snapshot(this.active_user), FRACTAL: $state.snapshot(this.active_fractal) };
   }
 
   /** Non-reactive snapshot of the hydrated NPC world cast. */
@@ -425,11 +416,10 @@ export class RuntimeEngineStore {
 
       if (ai_data) {
         this.active_ai = ai_data;
-        this.#ai_physics = story.ai_dynamics
-          ? { ...story.ai_dynamics }
-          : story.entity_snapshots?.ai?.dynamics
-            ? { ...story.entity_snapshots.ai.dynamics }
-            : { ...ai_data.dynamics };
+        this.#ai_physics =
+          story.ai_dynamics ? { ...story.ai_dynamics }
+          : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics }
+          : { ...ai_data.dynamics };
       }
 
       if (fractal_data) {
@@ -441,11 +431,10 @@ export class RuntimeEngineStore {
           ...(effective_visual_style ? { visual_style: effective_visual_style } : {}),
           ...(effective_narrative_style ? { narrative_style: effective_narrative_style } : {}),
         };
-        this.#fractal_physics = story.fractal_dynamics
-          ? { ...story.fractal_dynamics }
-          : story.entity_snapshots?.fractal?.dynamics
-            ? { ...story.entity_snapshots.fractal.dynamics }
-            : { ...fractal_data.dynamics };
+        this.#fractal_physics =
+          story.fractal_dynamics ? { ...story.fractal_dynamics }
+          : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics }
+          : { ...fractal_data.dynamics };
       }
 
       // Dynamics baselines

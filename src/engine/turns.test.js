@@ -41,12 +41,7 @@ Routing: Active companion responds.
       },
     };
 
-    const staging = await execute_turn_1_director({
-      transport: mock_transport,
-      round: 1,
-      entities,
-      history,
-    });
+    const staging = await execute_turn_1_director({ transport: mock_transport, round: 1, entities, history });
 
     expect(captured_start_with).toBe("<think>\n");
     expect(staging._thought_process).toContain("Causality: Player is attempting an infiltration.");
@@ -67,12 +62,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       },
     };
 
-    const characterResult = await execute_turn_2_character({
-      transport: mock_transport,
-      round: 1,
-      entities,
-      history: [{ text: "We move now." }],
-    });
+    const characterResult = await execute_turn_2_character({ transport: mock_transport, round: 1, entities, history: [{ text: "We move now." }] });
 
     expect(characterResult.think).toContain("Distrust Bob's reckless speed.");
     expect(characterResult.prose).toBe("Alice steps into the shadow of the rusted girder, her hand resting on her holster.");
@@ -86,13 +76,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       },
     };
 
-    const result = await execute_round({
-      transport: mock_transport,
-      round: 1,
-      entities,
-      history: [{ text: "Ready?" }],
-      director_enabled: false,
-    });
+    const result = await execute_round({ transport: mock_transport, round: 1, entities, history: [{ text: "Ready?" }], director_enabled: false });
 
     expect(result.director_staging).toBeNull();
     expect(result.character_turn.prose).toBe("Alice nods silently.");
@@ -104,22 +88,13 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       async stream(prompt) {
         call_count++;
         if (prompt.includes('identity="director"')) {
-          return JSON.stringify({
-            directors_note: "Whisper your reply.",
-            dynamics_deltas: {},
-          });
+          return JSON.stringify({ directors_note: "Whisper your reply.", dynamics_deltas: {} });
         }
         return "Alice whispers, 'Almost.'";
       },
     };
 
-    const result = await execute_round({
-      transport: mock_transport,
-      round: 1,
-      entities,
-      history: [{ text: "Ready?" }],
-      director_enabled: true,
-    });
+    const result = await execute_round({ transport: mock_transport, round: 1, entities, history: [{ text: "Ready?" }], director_enabled: true });
 
     expect(call_count).toBe(2);
     expect(result.director_staging?.directors_note).toBe("Whisper your reply.");
@@ -209,15 +184,9 @@ Routing: Present physical gets lockpick, mood vigilant.
     const controller = new AbortController();
     controller.abort();
 
-    await expect(
-      execute_turn_3_caretaker({
-        transport: mock_transport,
-        round: 1,
-        entities,
-        history,
-        signal: controller.signal,
-      }),
-    ).rejects.toThrow("Stream aborted by user.");
+    await expect(execute_turn_3_caretaker({ transport: mock_transport, round: 1, entities, history, signal: controller.signal })).rejects.toThrow(
+      "Stream aborted by user.",
+    );
   });
 
   it("appends Perchance-safe double-newline lead when continuing terminal-punctuated prose and preserves paragraph break", async () => {

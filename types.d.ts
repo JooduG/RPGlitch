@@ -65,10 +65,7 @@ declare global {
     worlds?: unknown[];
     settings?: JsonMap;
     sounds?: JsonMap;
-    thread: {
-      on: (event: string, callback: (...args: unknown[]) => void) => void;
-      customData?: unknown;
-    };
+    thread: { on: (event: string, callback: (...args: unknown[]) => void) => void; customData?: unknown };
     [key: string]: unknown;
   }
 

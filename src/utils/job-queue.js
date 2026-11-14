@@ -107,13 +107,7 @@ export function create_job_queue(options = {}) {
       return new Promise((resolve, reject) => {
         const is_latest = !!opts?.latest;
 
-        const job = {
-          task,
-          latest: is_latest,
-          superseded: false,
-          resolve,
-          reject,
-        };
+        const job = { task, latest: is_latest, superseded: false, resolve, reject };
 
         if (is_latest) {
           // Supersede all older pending latest tasks

@@ -61,8 +61,7 @@
       filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]
       select-none
       [text-shadow:var(--spacing-pixel)_var(--spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--color-void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.6)]
-    "
-  >
+    ">
     {initials}
   </div>
 {/snippet}
@@ -82,8 +81,7 @@
 
     {className}"
   style="--signature-color: {signature_color};"
-  {...rest}
->
+  {...rest}>
   <!-- Fallback: auto-shown during loading/error/no-media via Avatar.Fallback -->
   {#if !has_media}
     <div
@@ -98,8 +96,7 @@
         justify-center
         bg-(--signature-color,#555d66)
       "
-      aria-hidden="true"
-    >
+      aria-hidden="true">
       {@render fallback_initials()}
     </div>
   {:else}
@@ -115,8 +112,7 @@
         justify-center
         bg-(--signature-color,#555d66)
       "
-      aria-hidden="true"
-    >
+      aria-hidden="true">
       {@render fallback_initials()}
     </Avatar.Fallback>
 
@@ -140,14 +136,13 @@
             blur-lg
             saturate-200
             select-none"
-          aria-hidden="true"
-        />
+          aria-hidden="true" />
 
         <!-- Signature Color Glow (shines through transparent foreground images) -->
         <div
           class="pointer-events-none absolute inset-0 z-5 opacity-25"
-          style="background: radial-gradient(circle at center, var(--signature-color) 0%, transparent 70%);"
-        ></div>
+          style="background: radial-gradient(circle at center, var(--signature-color) 0%, transparent 70%);">
+        </div>
       {/if}
 
       <!-- Crisp Foreground (centered on both axes, natural size, cropped by container) -->
@@ -161,8 +156,7 @@
           block
           {landscape ? 'h-auto max-h-none w-auto max-w-full' : 'h-auto max-h-full w-auto max-w-none'}
           select-none
-          {is_flipped ? '-scale-x-100' : ''}"
-      />
+          {is_flipped ? '-scale-x-100' : ''}" />
     {:else}
       <Avatar.Image
         src={media_url}
@@ -177,8 +171,7 @@
           w-full
           object-cover
 
-          {is_flipped ? '-scale-x-100' : ''}"
-      />
+          {is_flipped ? '-scale-x-100' : ''}" />
     {/if}
   {/if}
 </Avatar.Root>

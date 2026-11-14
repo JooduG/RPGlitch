@@ -1,12 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  register_state_accessors,
-  state_bridge,
-  register_stream_handlers,
-  stream_bridge,
-  stories_bridge,
-  reset_registries_for_testing,
-} from "./registries.js";
+import { register_state_accessors, state_bridge, register_stream_handlers, stream_bridge, stories_bridge, reset_registries_for_testing } from "./registries.js";
 
 describe("registries.js (Cross-Layer Decoupling Registries)", () => {
   beforeEach(() => {

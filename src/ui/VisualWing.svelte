@@ -53,13 +53,7 @@
   const sync_modifiers = () => {
     if (!profile_state.char) return;
     if (!profile_state.char.modifiers) {
-      profile_state.char.modifiers = {
-        prompt: "",
-        negative_prompt: "",
-        flipped: false,
-        profile_picture_seed: null,
-        last_generated_seed: null,
-      };
+      profile_state.char.modifiers = { prompt: "", negative_prompt: "", flipped: false, profile_picture_seed: null, last_generated_seed: null };
       return;
     }
     profile_state.char.modifiers.prompt ??= "";
@@ -93,13 +87,7 @@
       if (b.id === "none") return 1;
       return a.name.localeCompare(b.name);
     })
-    .map((style) => ({
-      value: style.id,
-      label: style.name,
-      portrait: style.portrait,
-      tag: style.description,
-      tooltip: `${style.name}: ${style.description}`,
-    }));
+    .map((style) => ({ value: style.id, label: style.name, portrait: style.portrait, tag: style.description, tooltip: `${style.name}: ${style.description}` }));
 
   // --- HANDLERS ---
 
@@ -160,11 +148,13 @@
         mode,
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:
-          profile_state.char.modifiers.profile_picture_seed !== null &&
-          profile_state.char.modifiers.profile_picture_seed !== undefined &&
-          profile_state.char.modifiers.profile_picture_seed !== ""
-            ? Number(profile_state.char.modifiers.profile_picture_seed)
-            : undefined,
+          (
+            profile_state.char.modifiers.profile_picture_seed !== null &&
+            profile_state.char.modifiers.profile_picture_seed !== undefined &&
+            profile_state.char.modifiers.profile_picture_seed !== ""
+          ) ?
+            Number(profile_state.char.modifiers.profile_picture_seed)
+          : undefined,
         returnPayload: true,
         _entity: profile_state.char,
       });
@@ -212,8 +202,7 @@
   p-standard
   [backdrop-filter:var(--blur-mist)]
 "
-  style:animation="wing-item-slide-down var(--motion-elastic) forwards"
->
+  style:animation="wing-item-slide-down var(--motion-elastic) forwards">
   <div class="flex flex-col gap-tight">
     <Label>Signature Color</Label>
 
@@ -222,8 +211,7 @@
       grid
     grid-cols-5
     gap-tight
-  "
-    >
+  ">
       {#each SPECTRUM_COLORS as [name, hex] (name)}
         {@const color = PALETTE_CSS_VARIABLES[/** @type {keyof typeof PALETTE_CSS_VARIABLES} */ (hex)] || hex}
         <div
@@ -240,8 +228,8 @@
           has-not-disabled:hover:shadow-standard
           has-not-disabled:hover:brightness-125
           has-not-disabled:active:scale-sink
-          {current_label === name
-            ? `
+          {current_label === name ?
+            `
             z-25
             scale-[1.1]
             cursor-default
@@ -252,9 +240,8 @@
             brightness-110
             outline-solid
           `
-            : ''}"
-          style="--color-swatch-active: {color}; background-color: var(--color-swatch-active);"
-        >
+          : ''}"
+          style="--color-swatch-active: {color}; background-color: var(--color-swatch-active);">
           <Button
             square={true}
             cover={true}
@@ -265,8 +252,7 @@
               profile_state.mark_mutated();
             }}
             disabled={!profile_state.is_editing}
-            variant="invisible"
-          ></Button>
+            variant="invisible"></Button>
         </div>
       {/each}
     </div>
@@ -287,8 +273,7 @@
           dropdownWidth="w-80"
           align="start"
           disabled={!profile_state.is_editing}
-          onchange={() => profile_state.mark_mutated()}
-        />
+          onchange={() => profile_state.mark_mutated()} />
       </div>
       <div class="flex h-full w-full flex-col justify-end gap-tight">
         <NumberField
@@ -297,8 +282,7 @@
           disabled={!profile_state.is_editing || is_prompt_busy}
           oninput={() => profile_state.mark_mutated()}
           placeholder="Seed"
-          class="min-h-12 w-full"
-        />
+          class="min-h-12 w-full" />
       </div>
     </div>
   </div>
@@ -316,8 +300,7 @@
     data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
     oninput={() => profile_state.mark_mutated()}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-prompt", label: "Image Prompt" })}
-    on_source={handle_source_field}
-  >
+    on_source={handle_source_field}>
     {#snippet status()}
       <div class="flex items-center gap-tight">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
@@ -331,27 +314,25 @@
               border
               p-tight
 
-              {app.visual.error || app.visual.is_offline
-              ? `
+              {app.visual.error || app.visual.is_offline ?
+              `
                 border-red-500/15
                 bg-red-500/15
                 text-red-500
               `
-              : `
+            : `
                 border-white/15
                 bg-white/5
                 text-slate-50
               `}"
-            data-loading={is_prompt_busy}
-          >
+            data-loading={is_prompt_busy}>
             <div
               class="
               box-border
               flex
               items-center
               gap-tight
-            "
-            >
+            ">
               {#if app.visual.is_offline}
                 <span
                   class="
@@ -360,8 +341,7 @@
                     tracking-widest
                     text-inherit
                     uppercase
-                  ">OFFLINE</span
-                >
+                  ">OFFLINE</span>
               {:else if app.visual.error}
                 <span
                   class="
@@ -370,8 +350,7 @@
                     tracking-widest
                     text-inherit
                     uppercase
-                  ">ERROR</span
-                >
+                  ">ERROR</span>
                 <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
               {:else if app.visual.attempts > 0}
                 <span
@@ -382,8 +361,7 @@
                     tracking-widest
                     text-inherit
                     uppercase
-                  ">RETRYING</span
-                >
+                  ">RETRYING</span>
                 <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
               {/if}
             </div>
@@ -399,8 +377,7 @@
           flex
           items-center
           gap-tight
-        "
-        >
+        ">
           <Button
             variant="invisible"
             size="small"
@@ -409,15 +386,13 @@
             actions={[tooltip]}
             onclick={handle_creative_action}
             onmousedown={prevent_default}
-            disabled={is_creative_disabled}
-          >
+            disabled={is_creative_disabled}>
             {#if has_prompt_text}
               <svg
                 viewBox="0 0 24 24"
                 class="
                 size-icon-small
-              "
-              >
+              ">
                 <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
               </svg>
             {:else}
@@ -426,8 +401,7 @@
                 class="
                 size-icon-small
               "
-                fill="none"
-              >
+                fill="none">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
                 <polyline points="7 10 12 15 17 10" stroke="currentColor"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"></line>
@@ -444,15 +418,13 @@
               actions={[tooltip]}
               onclick={handle_generate}
               onmousedown={prevent_default}
-              disabled={is_creative_disabled}
-            >
+              disabled={is_creative_disabled}>
               <svg
                 viewBox="0 0 24 24"
                 class="
                 size-icon-small
               "
-                fill="none"
-              >
+                fill="none">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor"></path>
                 <circle cx="12" cy="13" r="4" stroke="currentColor"></circle>
               </svg>
@@ -472,8 +444,7 @@
     disabled={!profile_state.is_editing || is_prompt_busy}
     signature_color="var(--color-frozen)"
     oninput={() => profile_state.mark_mutated()}
-    onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}
-  >
+    onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}>
     {#snippet status()}
       <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
     {/snippet}
@@ -486,8 +457,7 @@
         label="Flip Image"
         bind:value={profile_state.char.modifiers.flipped}
         disabled={!profile_state.is_editing}
-        onchange={() => profile_state.mark_mutated()}
-      />
+        onchange={() => profile_state.mark_mutated()} />
     </div>
   </div>
 </section>

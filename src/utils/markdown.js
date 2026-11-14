@@ -79,10 +79,7 @@ export function parse_markdown(text) {
     while ((match = INLINE_TOKEN_REGEX.exec(normalized)) !== null) {
       // Push any interstitial text before the match
       if (match.index > last_index) {
-        tokens.push({
-          type: "text",
-          content: normalized.substring(last_index, match.index),
-        });
+        tokens.push({ type: "text", content: normalized.substring(last_index, match.index) });
       }
 
       if (match[1] !== undefined) {
@@ -100,10 +97,7 @@ export function parse_markdown(text) {
 
     // Push any trailing text after the last match
     if (last_index < normalized.length) {
-      tokens.push({
-        type: "text",
-        content: normalized.substring(last_index),
-      });
+      tokens.push({ type: "text", content: normalized.substring(last_index) });
     }
 
     return tokens;

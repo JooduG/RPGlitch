@@ -64,11 +64,7 @@ describe("safe_parse_json", () => {
   it("handles startWith prefix option when model continues prefill", () => {
     const decapitated = 'thinking", "prompt": "neon city", "negative_prompt": "blurry"}';
     const prefix = '{"_thought_process": "';
-    expect(safe_parse_json(decapitated, { prefix })).toEqual({
-      _thought_process: "thinking",
-      prompt: "neon city",
-      negative_prompt: "blurry",
-    });
+    expect(safe_parse_json(decapitated, { prefix })).toEqual({ _thought_process: "thinking", prompt: "neon city", negative_prompt: "blurry" });
   });
 });
 
@@ -84,9 +80,9 @@ describe("strip_cognition_blocks", () => {
   });
 
   it("strips leaked DYNAMICS state blocks that leaked into prose", () => {
-    expect(
-      strip_cognition_blocks("<DYNAMICS>\n  Chaos: 60 -> 58 (-2)\n  Intensity: 65 -> 70 (+5)\n</DYNAMICS>\n\nThe white light is too loud."),
-    ).toBe("The white light is too loud.");
+    expect(strip_cognition_blocks("<DYNAMICS>\n  Chaos: 60 -> 58 (-2)\n  Intensity: 65 -> 70 (+5)\n</DYNAMICS>\n\nThe white light is too loud.")).toBe(
+      "The white light is too loud.",
+    );
     expect(strip_cognition_blocks("Stray <DYNAMICS> tag here.")).toBe("Stray");
     expect(strip_cognition_blocks("Stray </DYNAMICS> tag here.")).toBe("Stray  tag here.");
   });
@@ -100,17 +96,12 @@ describe("strip_cognition_blocks", () => {
 describe("safe_parse_pseudo_json", () => {
   it("extracts bracketed key value pairs", () => {
     const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [LOCATION: tavern]");
-    expect(parsed).toEqual({
-      SHIRT: "leather jacket",
-      LOCATION: "tavern",
-    });
+    expect(parsed).toEqual({ SHIRT: "leather jacket", LOCATION: "tavern" });
   });
 
   it("applies atomic clearing tokens by deleting the key", () => {
     const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [HELD: none] [INJURY: healed]");
-    expect(parsed).toEqual({
-      SHIRT: "leather jacket",
-    });
+    expect(parsed).toEqual({ SHIRT: "leather jacket" });
   });
 
   it("aggregates repeated INVENTORY / STASH entries", () => {
@@ -125,28 +116,17 @@ describe("safe_parse_pseudo_json", () => {
 
   it("falls back to quoted JSON or raw prose", () => {
     expect(safe_parse_pseudo_json('"STATUS": "active"')).toEqual({ STATUS: "active" });
-    expect(safe_parse_pseudo_json("Just raw narrative prose.")).toEqual({
-      __raw_prose__: "Just raw narrative prose.",
-    });
+    expect(safe_parse_pseudo_json("Just raw narrative prose.")).toEqual({ __raw_prose__: "Just raw narrative prose." });
   });
 
   it("keeps multi-word uppercase keys separate when unbracketed (tag-name leak regression)", () => {
-    const parsed = safe_parse_pseudo_json(
-      "HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs HEIGHT: 193 cm",
-    );
-    expect(parsed).toEqual({
-      HAIR: "dark with silver streaks at the temples",
-      DENTAL_FEATURES: "perfectly white sharp fangs",
-      HEIGHT: "193 cm",
-    });
+    const parsed = safe_parse_pseudo_json("HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs HEIGHT: 193 cm");
+    expect(parsed).toEqual({ HAIR: "dark with silver streaks at the temples", DENTAL_FEATURES: "perfectly white sharp fangs", HEIGHT: "193 cm" });
   });
 
   it("never merges a following key into the previous value across unbracketed keys", () => {
     const parsed = safe_parse_pseudo_json("LANDMARKS: rows of vat tanks VISUAL_THEME: sterile chrome and cold blue light");
-    expect(parsed).toEqual({
-      LANDMARKS: "rows of vat tanks",
-      VISUAL_THEME: "sterile chrome and cold blue light",
-    });
+    expect(parsed).toEqual({ LANDMARKS: "rows of vat tanks", VISUAL_THEME: "sterile chrome and cold blue light" });
   });
 
   it("does not let a bracket value swallow the next bracket's key", () => {
@@ -156,10 +136,7 @@ describe("safe_parse_pseudo_json", () => {
 
   it("splits a following uppercase key swallowed inside a single bracket (tag-name leak regression)", () => {
     const parsed = safe_parse_pseudo_json("[HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs]");
-    expect(parsed).toEqual({
-      HAIR: "dark with silver streaks at the temples",
-      DENTAL_FEATURES: "perfectly white sharp fangs",
-    });
+    expect(parsed).toEqual({ HAIR: "dark with silver streaks at the temples", DENTAL_FEATURES: "perfectly white sharp fangs" });
   });
 
   it("splits multiple keys inside one bracket", () => {
@@ -390,9 +367,7 @@ describe("filter_narrative_messages", () => {
       { role: "assistant", text: "I see it", character_name: "Iris" },
     ]);
 
-    expect(filter_narrative_messages(messages, { exclude_consolidated: true })).toEqual([
-      { role: "assistant", text: "I see it", character_name: "Iris" },
-    ]);
+    expect(filter_narrative_messages(messages, { exclude_consolidated: true })).toEqual([{ role: "assistant", text: "I see it", character_name: "Iris" }]);
   });
 
   it("filters out empty string entries without prologue/epilogue flags", () => {
@@ -524,22 +499,12 @@ describe("parse_relational_vector & format_relational_vector", () => {
     });
 
     const v3 = parse_relational_vector("K-9 → Nova-City: defense patrol unit");
-    expect(v3).toEqual({
-      source_name: "K-9",
-      target_name: "Nova-City",
-      dynamic: "defense patrol unit",
-      raw: "K-9 → Nova-City: defense patrol unit",
-    });
+    expect(v3).toEqual({ source_name: "K-9", target_name: "Nova-City", dynamic: "defense patrol unit", raw: "K-9 → Nova-City: defense patrol unit" });
   });
 
   it("handles vectors with no dynamic description", () => {
     const v = parse_relational_vector("Julien → Ashenweald");
-    expect(v).toEqual({
-      source_name: "Julien",
-      target_name: "Ashenweald",
-      dynamic: "",
-      raw: "Julien → Ashenweald",
-    });
+    expect(v).toEqual({ source_name: "Julien", target_name: "Ashenweald", dynamic: "", raw: "Julien → Ashenweald" });
   });
 
   it("formats canonical relational vectors properly", () => {
@@ -586,7 +551,10 @@ describe("decompose_story_title", () => {
       ai: { name: "Glitch" },
       user: { name: "Orion" },
       fractal: { name: "Nova City" },
-      get_color: (e) => (e.name === "Glitch" ? "#00ffcc" : e.name === "Orion" ? "#ff66cc" : "#6699ff"),
+      get_color: (e) =>
+        e.name === "Glitch" ? "#00ffcc"
+        : e.name === "Orion" ? "#ff66cc"
+        : "#6699ff",
     };
     const title = "Chronicles of Glitch & Orion in Nova City";
     const parts = decompose_story_title(title, entities);

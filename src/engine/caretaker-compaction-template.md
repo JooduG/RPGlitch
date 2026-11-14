@@ -1,7 +1,6 @@
 # Summarization Template
 
-> **Re-homed (2026-11-10):** moved here from `.agents/skills/simulation/references/compaction-template.md`
-> (now a pointer), next to its consumer `execute_turn_3_caretaker` in `src/engine/turns.js`.
+> **Re-homed (2026-11-10):** moved here from `.agents/skills/simulation/references/compaction-template.md` (now a pointer), next to its consumer `execute_turn_3_caretaker` in `src/engine/turns.js`.
 
 ```markdown
 <player_name>
@@ -16,8 +15,7 @@
 {{story_txt}}
 </material_to_summarize>
 
-TASK
-Create one compact memory snippet representing material_to_summarize.
+TASK Create one compact memory snippet representing material_to_summarize.
 
 The material may contain original chat messages or older summary snippets being compressed. Read all supplied material, including its middle. Do not claim access to messages outside it.
 
@@ -34,9 +32,7 @@ WHAT TO RETAIN, IN PRIORITY ORDER
 5. Open threads and practical continuity: Unresolved promises, debts, threats, mysteries, deadlines, injuries, resource changes, and important object ownership. A dormant thread is not resolved merely because it was not mentioned recently.
 6. Motifs: Retain recurring phrases, jokes, dreams, or images only when their established meaning matters. Do not invent psychological interpretations.
 
-TIME, CHRONOLOGY, AND CHANGING STATES
-Chat messages contain in-world headers such as:
-[ 🕰️ Time 11:35 AM | 🗓️ Day #45 - 🗓️ Friday, November 15, 2024 AD | 📍 Riverside - Apartment Building, Ground Floor, Unit 3 | ☁️ Overcast, 41°F ]
+TIME, CHRONOLOGY, AND CHANGING STATES Chat messages contain in-world headers such as: [ 🕰️ Time 11:35 AM | 🗓️ Day #45 - 🗓️ Friday, November 15, 2024 AD | 📍 Riverside - Apartment Building, Ground Floor, Unit 3 | ☁️ Overcast, 41°F ]
 
 Use these headers as temporal and scene anchors:
 
@@ -60,15 +56,13 @@ For changing states:
 - Silence is not proof of persistence, recovery, resolution, or reversal. Use "last confirmed on Day X" when continued validity is unknown.
 - Distinguish an actual change from a later correction of an earlier mistaken belief or report.
 
-SCOPE OF "CURRENT"
-This snippet describes a bounded historical interval. Its latest state is only the state at the END OF THAT INTERVAL, not necessarily the present of the ongoing chat.
+SCOPE OF "CURRENT" This snippet describes a bounded historical interval. Its latest state is only the state at the END OF THAT INTERVAL, not necessarily the present of the ongoing chat.
 
 Never present a batch's final location, condition, relationship, goal, or resource count as an unqualified current fact. Anchor it with "as of Day X / time" or "at the end of this interval."
 
 When consolidating older summaries, preserve meaningful before-and-after transitions. Do not flatten facts from different dates into simultaneous or timeless truths.
 
-OUTPUT
-Use only the labels with meaningful information. Omit empty sections.
+OUTPUT Use only the labels with meaningful information. Omit empty sections.
 
 Time span / setting: Earliest–latest supported in-world timestamps covered by this snippet, including day numbers and calendar dates when available. Identify relevant location changes. Include weather only when it affects events or continuity.
 
@@ -78,12 +72,9 @@ Core Memory: Specific event - lasting emotional or relational significance. Repe
 
 Characters/agendas (as of this interval’s end):
 
-- Name: last established goals, condition, and consequential relationship state, with a temporal anchor. Preserve earlier states when they explain a meaningful change. Mark uncertain persistence as "last confirmed [time/day]."
-  Conditions: include an aligned response, opposed response, or independent pursuit ONLY if explicitly established or demonstrated. Otherwise omit.
+- Name: last established goals, condition, and consequential relationship state, with a temporal anchor. Preserve earlier states when they explain a meaningful change. Mark uncertain persistence as "last confirmed [time/day]." Conditions: include an aligned response, opposed response, or independent pursuit ONLY if explicitly established or demonstrated. Otherwise omit.
 
-Secrets/knowledge: Information and its knowledge boundaries.
-Open threads: Unresolved matter, involved characters, and its last established status.
-Motifs: Reference - established significance.
+Secrets/knowledge: Information and its knowledge boundaries. Open threads: Unresolved matter, involved characters, and its last established status. Motifs: Reference - established significance.
 
 COMPRESSION RULES
 

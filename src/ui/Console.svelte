@@ -174,13 +174,10 @@
   });
 
   let label_text = $derived(
-    app.simulation.loading
-      ? PROLOGUE_PHRASES[phrase_index]
-      : has_active_story
-        ? "ENTER STORYMODE"
-        : ready_to_begin
-          ? "BEGIN STORY"
-          : `SELECT ENTITIES (${app.selected_count}/3)`,
+    app.simulation.loading ? PROLOGUE_PHRASES[phrase_index]
+    : has_active_story ? "ENTER STORYMODE"
+    : ready_to_begin ? "BEGIN STORY"
+    : `SELECT ENTITIES (${app.selected_count}/3)`,
   );
 
   // Install begin-story flight watcher on mount
@@ -419,8 +416,7 @@
         show_end_story_modal = false;
       }
     }
-  }}
-/>
+  }} />
 
 {#if app.control_panel_open}
   <Backdrop layer="console" onclick={() => (app.control_panel_open = false)} />
@@ -431,14 +427,10 @@
 <!-- ========================================================================= -->
 {#snippet settings_gear(variant = "invisible")}
   <Button flank={true} {variant} aria-label="Settings" onclick={app.toggle_control_panel} actions={[roll, tooltip]} class="touch-target-coarse">
-    <svg
-      class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
-      viewBox="0 0 24 24"
-    >
+    <svg class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}" viewBox="0 0 24 24">
       <path
         fill="currentColor"
-        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-      />
+        d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
     </svg>
   </Button>
 {/snippet}
@@ -459,16 +451,14 @@
       busy={!ready_to_begin || app.simulation.loading}
       disabled={app.control_panel_open}
       onclick={handle_primary_storyboard_click}
-      actions={[pulse]}
-    >
+      actions={[pulse]}>
       <h6
-        class="m-0 text-[clamp(0.65rem,1.2vw,0.875rem)] tracking-widest whitespace-nowrap transition duration-300 {ready_to_begin
-          ? 'group-hover:scale-105 group-hover:brightness-125'
-          : 'text-slate-400 opacity-80'}"
-        style={ready_to_begin
-          ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
-          : undefined}
-      >
+        class="m-0 text-[clamp(0.65rem,1.2vw,0.875rem)] tracking-widest whitespace-nowrap transition duration-300 {ready_to_begin ?
+          'group-hover:scale-105 group-hover:brightness-125'
+        : 'text-slate-400 opacity-80'}"
+        style={ready_to_begin ?
+          "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
+        : undefined}>
         {label_text}
       </h6>
     </Button>
@@ -481,13 +471,11 @@
     aria-label="Shuffle Storyboard"
     onclick={() => storyboard.shuffle()}
     class="touch-target-coarse shrink-0"
-    disabled={storyboard.is_shuffling || app.simulation.loading || app.control_panel_open}
-  >
+    disabled={storyboard.is_shuffling || app.simulation.loading || app.control_panel_open}>
     <svg class="block size-icon-medium" viewBox="0 0 24 24">
       <path
         fill="currentColor"
-        d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"
-      />
+        d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z" />
     </svg>
   </Button>
 {/snippet}
@@ -519,7 +507,9 @@
     bind:value
     onkeydown={handle_keydown}
     oninput={adjust_height}
-    placeholder={app.control_panel_open ? "" : is_ghostwriting ? "Ghostwriting..." : "Type a message..."}
+    placeholder={app.control_panel_open ? ""
+    : is_ghostwriting ? "Ghostwriting..."
+    : "Type a message..."}
     rows="1"
     disabled={app.control_panel_open || is_ghostwriting}
     aria-label="Input message"></textarea>
@@ -527,10 +517,9 @@
   {#if pending_count > 0}
     <span
       class="flex shrink-0 items-center gap-tight text-[10px] font-bold tracking-widest text-amber-300 uppercase"
-      use:tooltip={pending_count > 1
-        ? `${pending_count} messages queued; they send when the current turn finishes.`
-        : "Message queued; it sends when the current turn finishes."}
-    >
+      use:tooltip={pending_count > 1 ?
+        `${pending_count} messages queued; they send when the current turn finishes.`
+      : "Message queued; it sends when the current turn finishes."}>
       <span class="inline-block size-1.5 shrink-0 animate-pulse rounded-full bg-amber-400" role="status" aria-label="Status indicator"></span>
       {pending_count > 1 ? `${pending_count} queued` : "Queued"}
     </span>
@@ -543,8 +532,7 @@
       onclick={() => app.trigger_interrupt()}
       aria-label="Interrupt Generation"
       actions={[tooltip]}
-      class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
-    >
+      class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!">
       <svg class="block size-icon-medium" viewBox="0 0 24 24">
         <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
       </svg>
@@ -555,8 +543,7 @@
       onclick={() => force_recover_simulation("Manual unstick from composer")}
       aria-label="Unstick Simulation"
       actions={[tooltip]}
-      class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!"
-    >
+      class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!">
       <svg class="block size-icon-medium" viewBox="0 0 24 24">
         <path fill="currentColor" d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z" />
       </svg>
@@ -568,8 +555,7 @@
       disabled={!value.trim() || send_blocked}
       aria-label="Send Message"
       actions={[stab, tooltip]}
-      class="touch-target-coarse"
-    >
+      class="touch-target-coarse">
       <svg class="block size-icon-medium" viewBox="0 0 24 24">
         <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
       </svg>
@@ -581,17 +567,14 @@
 <!-- SNIPPET: CONTROL PANEL ACCORDIONS                                         -->
 <!-- ========================================================================= -->
 {#snippet control_panel()}
-  <div
-    class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open
-      ? 'grid-rows-[1fr]'
-      : 'grid-rows-[0fr]'}"
-  >
+  <div class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
     <div class="flex min-h-0 w-full flex-col overflow-hidden">
       <div
-        class="mx-auto flex min-h-0 w-full flex-col gap-standard pb-standard opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
-          ? 'opacity-100 delay-300 duration-200'
-          : 'delay-0 duration-150'}"
-      >
+        class="mx-auto flex min-h-0 w-full flex-col gap-standard pb-standard opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {(
+          app.control_panel_open
+        ) ?
+          'opacity-100 delay-300 duration-200'
+        : 'delay-0 duration-150'}">
         <ScrollArea class="min-h-0 w-full">
           <div class="flex w-full flex-col gap-tight px-tight" style="--signature-color: var(--color-frozen);">
             <!-- DECK A: AUDIO -->
@@ -616,21 +599,18 @@
                       hover:bg-slate-700/50 hover:text-white
                       focus-visible:outline
                       focus-visible:outline-offset-1 focus-visible:outline-slate-600 active:scale-95
-                    "
-                  >
+                    ">
                     {#if is_muted}
                       <svg viewBox="0 0 24 24" class="size-5">
                         <path
                           fill="currentColor"
-                          d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z"
-                        />
+                          d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z" />
                       </svg>
                     {:else}
                       <svg viewBox="0 0 24 24" class="size-5">
                         <path
                           fill="currentColor"
-                          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-                        />
+                          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
                       </svg>
                     {/if}
                   </Button>
@@ -643,8 +623,7 @@
                       oninput={() => {
                         explicitly_muted = false;
                         Audio.is_muted = false;
-                      }}
-                    />
+                      }} />
                   </div>
                 </div>
               </div>
@@ -668,8 +647,7 @@
                   size="small"
                   onclick={async () => {
                     await app.set_view("storyboard");
-                  }}
-                />
+                  }} />
 
                 <Button
                   label="END STORY"
@@ -678,8 +656,7 @@
                   loading={is_ending_story}
                   busy={is_ending_story}
                   disabled={is_ending_story || is_locked}
-                  onclick={() => (show_end_story_modal = true)}
-                />
+                  onclick={() => (show_end_story_modal = true)} />
               </Accordion>
             {/if}
 
@@ -695,8 +672,7 @@
                         onclick={() => load_story(story.id)}
                         ondelete={delete_story}
                         onrename={start_rename_story}
-                        onexport={export_story}
-                      />
+                        onexport={export_story} />
                     </div>
                   {/each}
                 </div>
@@ -713,8 +689,7 @@
                 title="Wipe Data?"
                 message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
                 confirm_label="Erase All"
-                on_confirm={hard_reset}
-              />
+                on_confirm={hard_reset} />
 
               <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
               <Toggle label="DIRECTOR" bind:value={app.settings.director_enabled} onchange={() => app.save_settings()} />
@@ -722,8 +697,7 @@
               <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
                 <svg
                   class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-                  viewBox="0 0 24 24"
-                >
+                  viewBox="0 0 24 24">
                   <path d="M3 6h18" />
                   <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
                   <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -750,8 +724,7 @@
     w-full
     items-center
     justify-center
-  "
->
+  ">
   <div
     use:click_outside={(e) => {
       if (!app.control_panel_open) return;
@@ -774,24 +747,22 @@
       ease-in-out
       md:max-h-[calc(var(--spacing-row-unit)*9)]
 
-      {app.control_panel_open
-      ? 'absolute bottom-0 w-full rounded-none p-standard md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
-      : 'relative h-auto w-full rounded-none px-standard py-tight md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
-      {!app.control_panel_open && has_text && app.view === 'storymode'
-      ? `
+      {app.control_panel_open ?
+      'absolute bottom-0 w-full rounded-none p-standard md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
+    : 'relative h-auto w-full rounded-none px-standard py-tight md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
+      {!app.control_panel_open && has_text && app.view === 'storymode' ?
+      `
       border-(--signature-color,var(--color-slate-600))
       shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
       md:w-[calc(var(--spacing-column-unit)*5)]
     `
-      : !app.control_panel_open
-        ? 'md:w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
-        : ''}
+    : !app.control_panel_open ? 'md:w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
+    : ''}
     "
     style:--signature-color={app.view === "storymode" ? signature_color : undefined}
     style:view-transition-name="unified-console"
     style:width={!app.control_panel_open && story_locked ? "fit-content" : null}
-    data-testid="unified-console"
-  >
+    data-testid="unified-console">
     {#if app.simulation.loading || app.is_ghostwriting || (simulation_state.busy && app.control_panel_open)}
       <Shimmer />
     {/if}
@@ -820,16 +791,9 @@
                 app.control_panel_open = false;
                 await session_driver.clear_active();
                 app.set_view("storyboard");
-              }}
-            />
+              }} />
             <Button label="Export Story" variant="primary" size="small" loading={is_exporting} onclick={handle_export_story} />
-            <Button
-              label={is_rewinding ? "Rewinding…" : "⟲ Keep Chatting"}
-              variant="secondary"
-              size="small"
-              loading={is_rewinding}
-              onclick={handle_rewind}
-            />
+            <Button label={is_rewinding ? "Rewinding…" : "⟲ Keep Chatting"} variant="secondary" size="small" loading={is_rewinding} onclick={handle_rewind} />
           </div>
         </div>
       {:else}
@@ -855,8 +819,7 @@
             }}
             layer="max"
             busy={is_ending_story}
-            variant="mini"
-          >
+            variant="mini">
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div
@@ -895,8 +858,7 @@
                     transition-property: filter;
                   "
                   in:overlay_in={{ duration: duration_in }}
-                  out:overlay_out={{ duration: duration_out }}
-                >
+                  out:overlay_out={{ duration: duration_out }}>
                   <AlertDialog.Title class="m-0 p-0 text-left">
                     <h6 class="m-0 uppercase">Conclude Active Story</h6>
                   </AlertDialog.Title>
@@ -908,12 +870,7 @@
                   </AlertDialog.Description>
 
                   <footer class="flex w-full flex-col justify-end gap-tight outline-none sm:flex-row">
-                    <Button
-                      variant="primary"
-                      onclick={handle_epilogue_and_conclude}
-                      label="Generate Epilogue & Conclude"
-                      disabled={is_ending_story}
-                    />
+                    <Button variant="primary" onclick={handle_epilogue_and_conclude} label="Generate Epilogue & Conclude" disabled={is_ending_story} />
                     <Button variant="danger" onclick={handle_conclude_immediately} label="Conclude Immediately" disabled={is_ending_story} />
                   </footer>
                 </div>
@@ -950,8 +907,7 @@
     } finally {
       is_concluding = false;
     }
-  }}
-/>
+  }} />
 
 <Dialog
   type="confirm"
@@ -959,8 +915,7 @@
   title="Delete Story?"
   message={`This will permanently delete "${pending_story_delete?.title ?? ""}" and its entire simulation log. This action cannot be undone.`}
   confirm_label="Delete"
-  on_confirm={confirm_story_delete}
-/>
+  on_confirm={confirm_story_delete} />
 
 <Dialog
   type="confirm"
@@ -971,8 +926,7 @@
   show_input={true}
   input_placeholder="New story title..."
   bind:input_value={rename_draft}
-  on_confirm={confirm_rename_story}
-/>
+  on_confirm={confirm_rename_story} />
 
 <style>
   /* Shuffle deal reveal - flying clones are art-only (strip_card_text); the

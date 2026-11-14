@@ -194,10 +194,7 @@ export const get_template_structure = (template_type) => {
     for (const single_line of frontmatter_lines) {
       const match = single_line.match(/^(\w+):/);
       if (match) {
-        frontmatter_fields.push({
-          name: match[1],
-          isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(single_line),
-        });
+        frontmatter_fields.push({ name: match[1], isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(single_line) });
       }
     }
   }
@@ -256,10 +253,7 @@ export const validate_against_structure = (document_content, template_structure,
   }
 
   const header_matches = content_without_code.matchAll(/^(#|##|###)\s+(.+)$/gm);
-  const actual_headers = Array.from(header_matches).map((match) => ({
-    level: match[1].length,
-    text: match[2].trim(),
-  }));
+  const actual_headers = Array.from(header_matches).map((match) => ({ level: match[1].length, text: match[2].trim() }));
 
   for (const template_header of template_structure.headers) {
     const has_matching_header = actual_headers.some((actual_header) => is_header_match(template_header, actual_header.level, actual_header.text));
@@ -270,14 +264,9 @@ export const validate_against_structure = (document_content, template_structure,
 
   for (const actual_header of actual_headers) {
     if (actual_header.level > 2) continue;
-    const is_recognized = template_structure.headers.some((template_header) =>
-      is_header_match(template_header, actual_header.level, actual_header.text),
-    );
+    const is_recognized = template_structure.headers.some((template_header) => is_header_match(template_header, actual_header.level, actual_header.text));
     if (!is_recognized) {
-      report_callback(
-        "HERESY",
-        `🚨 Illegal section detected: "${"#".repeat(actual_header.level)} ${actual_header.text}". Not in Sovereign Template.`,
-      );
+      report_callback("HERESY", `🚨 Illegal section detected: "${"#".repeat(actual_header.level)} ${actual_header.text}". Not in Sovereign Template.`);
     }
   }
 };

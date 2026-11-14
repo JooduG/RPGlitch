@@ -45,21 +45,11 @@ describe("compute_initials", () => {
 
 describe("deck_geometry", () => {
   it("centers the deck below the slot with default pickup scale and clearance", () => {
-    expect(deck_geometry({ width: 1000, height: 800 }, { width: 200, height: 300 })).toEqual({
-      left: 438,
-      top: 567.5,
-      width: 124,
-      height: 186,
-    });
+    expect(deck_geometry({ width: 1000, height: 800 }, { width: 200, height: 300 })).toEqual({ left: 438, top: 567.5, width: 124, height: 186 });
   });
 
   it("clamps to the viewport origin when the deck would overflow", () => {
-    expect(deck_geometry({ width: 100, height: 100 }, { width: 200, height: 100 })).toEqual({
-      left: 0,
-      top: 22.5,
-      width: 124,
-      height: 62,
-    });
+    expect(deck_geometry({ width: 100, height: 100 }, { width: 200, height: 100 })).toEqual({ left: 0, top: 22.5, width: 124, height: 62 });
   });
 
   it("respects custom pickup scale and deck clearance", () => {

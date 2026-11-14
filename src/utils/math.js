@@ -338,18 +338,12 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
   const triggered = band_entry !== null || displacement >= displacement_threshold;
 
   const character_band_entry = band_entries.find((entry) => character_domain_entities.has(entry.entity));
-  const tier = character_band_entry ? "story_character" : band_entries.length > 0 ? "story_scene" : default_tier;
+  const tier =
+    character_band_entry ? "story_character"
+    : band_entries.length > 0 ? "story_scene"
+    : default_tier;
 
-  return {
-    triggered,
-    signals: {
-      band_entry,
-      displacement,
-      displacement_threshold,
-    },
-    tier,
-    deltas,
-  };
+  return { triggered, signals: { band_entry, displacement, displacement_threshold }, tier, deltas };
 }
 
 /**

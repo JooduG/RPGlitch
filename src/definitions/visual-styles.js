@@ -155,8 +155,7 @@ const _VISUAL_STYLES = {
     id: "noir",
     name: "Film Noir",
     portrait: "https://user.uploads.dev/file/26f37e3915eaabab9248491fc3687f2e.png",
-    description:
-      "Classic 1940s detective cinema aesthetic featuring high-contrast black and white, hard chiaroscuro shadows, and venetian blinds light.",
+    description: "Classic 1940s detective cinema aesthetic featuring high-contrast black and white, hard chiaroscuro shadows, and venetian blinds light.",
     keywords: ["film_noir", "monochrome", "detective", "1940s", "shadows"],
     guidance_scale: 8,
     engine: {
@@ -198,8 +197,7 @@ const _VISUAL_STYLES = {
       medium: "photorealistic live-action magnetic tape analog horror frame, CCTV security screen capture, low-fi video snapshot",
       palette: "unsettling washed-out low-light shadows, desaturated phosphor cast, harsh dark contrast, heavy video sensor noise",
       camera: "low-resolution handheld camcorder optics or ceiling-mounted fisheye security lens, wide-angle distortion, out-of-focus motion framing",
-      texture:
-        "VHS tracking glitch lines, horizontal scanline stripes, video interlacing tear lines, chromatic edge bleeding, timestamp overlay, video noise",
+      texture: "VHS tracking glitch lines, horizontal scanline stripes, video interlacing tear lines, chromatic edge bleeding, timestamp overlay, video noise",
     },
     negative_prompt:
       "crisp 4k, sharp focus, modern digital camera, vibrant studio lighting, 3d render, vector, oil painting, illustration, anime, cartoon, drawing, cel-shaded",
@@ -238,8 +236,7 @@ const _VISUAL_STYLES = {
       composition: "wide establishing environmental layout, gentle framing, intimate focal subject with soft background depth",
       texture: "hand-painted watercolor backgrounds, soft cel shading on characters, visible brush texture",
     },
-    negative_prompt:
-      "photograph, 3d render, realistic, dark, gritty, cyberpunk, harsh neon lighting, photorealism, flat cel-shaded modern anime linework",
+    negative_prompt: "photograph, 3d render, realistic, dark, gritty, cyberpunk, harsh neon lighting, photorealism, flat cel-shaded modern anime linework",
   }),
 
   disney: define_visual_style({
@@ -255,16 +252,14 @@ const _VISUAL_STYLES = {
       composition: "expressive storytelling staging, theatrical silhouette, sweeping organic curves",
       texture: "clean hand-inked cel outlines, matte gouache background paint, subtle analog film scan texture",
     },
-    negative_prompt:
-      "3d render, cgi, photorealistic, raw photograph, sharp digital vector, modern 3d animation, low poly, noisy, anime cel shading, cyberpunk",
+    negative_prompt: "3d render, cgi, photorealistic, raw photograph, sharp digital vector, modern 3d animation, low poly, noisy, anime cel shading, cyberpunk",
   }),
 
   pixar: define_visual_style({
     id: "pixar",
     name: "3D Animation (Pixar)",
     portrait: "https://user.uploads.dev/file/27615c2c471da91f2052c4505a945053.png",
-    description:
-      "Stylized 3D CGI feature film artwork combining Pixar character warmth, ray-traced global illumination, and Unreal Engine 5 optical depth.",
+    description: "Stylized 3D CGI feature film artwork combining Pixar character warmth, ray-traced global illumination, and Unreal Engine 5 optical depth.",
     keywords: ["cgi", "animation", "3d", "pixar", "unreal_engine", "raytracing", "stylized"],
     guidance_scale: 8,
     engine: {
@@ -335,8 +330,7 @@ const _VISUAL_STYLES = {
     id: "lego",
     name: "LEGO®",
     portrait: "https://user.uploads.dev/file/120b2c46188fb711a93bc68b9bf1eadc.png",
-    description:
-      "Simulated physical toy block diorama featuring glossy minifigures and ABS plastic building blocks macro-photographed with tilt-shift depth.",
+    description: "Simulated physical toy block diorama featuring glossy minifigures and ABS plastic building blocks macro-photographed with tilt-shift depth.",
     keywords: ["lego", "plastic", "brick", "toy", "minifigure", "macro"],
     engine: {
       medium: "plastic toy construction brick artwork, blocky LEGO minifigure character illustration, brick-built macro diorama model",
@@ -358,8 +352,7 @@ const _VISUAL_STYLES = {
     engine: {
       medium: "macro-photographed papercraft diorama, a tangible miniature set built from layered cut construction paper and card stock",
       palette: "flat saturated construction-paper hues, soft pastel gradient washes between paper layers, warm directional studio spotlighting",
-      camera:
-        "60mm macro lens photography, shallow depth of field, tilt-shift miniature-set perspective, low raking sidelight carving out paper-edge shadows",
+      camera: "60mm macro lens photography, shallow depth of field, tilt-shift miniature-set perspective, low raking sidelight carving out paper-edge shadows",
       texture:
         "visible fibrous paper grain, crisp die-cut edges, stacked drop shadows between depth planes, gentle finger-pressed creases, matte uncoated paper surface",
     },
@@ -392,8 +385,7 @@ const _VISUAL_STYLES = {
     id: "wood",
     name: "Ukiyo-e Woodblock Print",
     portrait: "https://user.uploads.dev/file/c6978746b0f5ae93937c7890fced148c.png",
-    description:
-      "Traditional Edo-period Japanese woodblock print featuring organic sumi-e ink contours, flat mineral pigments, and wood grain impressions.",
+    description: "Traditional Edo-period Japanese woodblock print featuring organic sumi-e ink contours, flat mineral pigments, and wood grain impressions.",
     keywords: ["ukiyo_e", "japanese", "woodblock", "traditional", "print", "hokusai"],
     engine: {
       medium: "traditional Edo-period ukiyo-e woodblock print in the style of Hokusai",
@@ -459,8 +451,7 @@ const _VISUAL_STYLES = {
     id: "monochrome_sketch",
     name: "Monochrome Sketch",
     portrait: "https://user.uploads.dev/file/5658673d879658c2dd722fdf1791f688.png",
-    description:
-      "Detailed monochrome fine-nib ink, smudged charcoal, and heavy graphite pencil study featuring dramatic chiaroscuro and dense crosshatching.",
+    description: "Detailed monochrome fine-nib ink, smudged charcoal, and heavy graphite pencil study featuring dramatic chiaroscuro and dense crosshatching.",
     keywords: ["monochrome_sketch", "ink", "charcoal", "graphite", "line_art", "crosshatching", "drawing"],
     engine: {
       medium: "detailed monochrome ink drawing, smudged charcoal study, gestural graphite and pencil illustration",
@@ -527,8 +518,7 @@ const _VISUAL_STYLES = {
     id: "synthwave",
     name: "Synthwave",
     portrait: "https://user.uploads.dev/file/f2150b87f7133e099c38bbe384a7eaa1.png",
-    description:
-      "80s outrun synthwave and 90s vaporwave digital collage blending neon grid horizons, pastel cyan/magenta gradients, and CRT scan lines.",
+    description: "80s outrun synthwave and 90s vaporwave digital collage blending neon grid horizons, pastel cyan/magenta gradients, and CRT scan lines.",
     keywords: ["synthwave", "vaporwave", "retro", "80s", "90s", "neon", "pastel", "glitch"],
     guidance_scale: 8,
     engine: {

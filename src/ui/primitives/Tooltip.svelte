@@ -17,11 +17,7 @@
    * Global reactive state for the tooltip system.
    * @type {TooltipState}
    */
-  export const tooltip_state = $state({
-    text: null,
-    target: null,
-    active: false,
-  });
+  export const tooltip_state = $state({ text: null, target: null, active: false });
 
   /** @type {number | null} */
   let timer = null;
@@ -135,15 +131,7 @@
   <Tooltip.Root open={tooltip_state.active}>
     <Tooltip.Portal>
       {#if tooltip_state.target && tooltip_state.text}
-        <Tooltip.Content
-          customAnchor={tooltip_state.target}
-          side="top"
-          sideOffset={8}
-          align="center"
-          avoidCollisions={true}
-          strategy="fixed"
-          forceMount
-        >
+        <Tooltip.Content customAnchor={tooltip_state.target} side="top" sideOffset={8} align="center" avoidCollisions={true} strategy="fixed" forceMount>
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
               <div {...wrapperProps}>
@@ -165,8 +153,7 @@
                     ease-out
 
                     {open ? 'opacity-100' : 'opacity-0'}"
-                  transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
-                >
+                  transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}>
                   <div
                     class="
                       absolute
@@ -186,8 +173,7 @@
                       group-data-[side=top]:border-t-8
                       group-data-[side=top]:border-x-transparent
                       group-data-[side=top]:border-t-slate-600
-                    "
-                  >
+                    ">
                     <div
                       class="
                         absolute
@@ -206,8 +192,8 @@
                         group-data-[side=top]:border-t-8
                         group-data-[side=top]:border-x-transparent
                         group-data-[side=top]:border-t-neutral-900
-                      "
-                    ></div>
+                      ">
+                    </div>
                   </div>
 
                   <div
@@ -230,8 +216,7 @@
                       text-slate-50
                       normal-case
                       backface-hidden
-                    "
-                  >
+                    ">
                     {tooltip_state.text}
                   </div>
                 </div>

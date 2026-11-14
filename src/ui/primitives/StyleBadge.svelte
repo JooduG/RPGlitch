@@ -51,18 +51,18 @@
   let render_visual = $derived(which !== "narrative");
 
   let badge_size_class = $derived(
-    is_profile ? "h-full w-full" : is_storymode || is_prologue ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]",
+    is_profile ? "h-full w-full"
+    : is_storymode || is_prologue ? ""
+    : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]",
   );
 
   // In storymode, set only the height and use aspect-ratio for a perfect 1:1 square.
   // Subtract the inter-badge gap so two badges + gap = exactly the card width above.
   // flex-shrink: 0 prevents the flex container from compressing the width.
   let badge_size_style = $derived(
-    is_storymode
-      ? "height: calc((var(--spacing-character-card-width) - var(--spacing-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;"
-      : is_prologue
-        ? "flex: 1 1 0%; aspect-ratio: 1 / 1; min-width: 0;"
-        : "",
+    is_storymode ? "height: calc((var(--spacing-character-card-width) - var(--spacing-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;"
+    : is_prologue ? "flex: 1 1 0%; aspect-ratio: 1 / 1; min-width: 0;"
+    : "",
   );
 
   let opacity_class = "opacity-100";
@@ -110,8 +110,7 @@
       duration-300
       ease-in-out
       group-hover/badge:opacity-100
-    "
-  >
+    ">
     <span
       class="
         [display:-webkit-box]
@@ -130,8 +129,7 @@
         [-webkit-line-clamp:2]
         [line-clamp:2]
         [text-shadow:0_2px_4px_var(--color-void-black)]
-      ">{name}</span
-    >
+      ">{name}</span>
   </div>
 {/snippet}
 
@@ -141,7 +139,9 @@
       {@const dname = style_details?.name || "No Narrative Style"}
       {@const dportrait = style_details?.portrait}
       <div
-        use:tooltip={is_profile ? tooltip_text : is_storymode || is_prologue ? null : { text: `Narrative Style: ${style_details.name}` }}
+        use:tooltip={is_profile ? tooltip_text
+        : is_storymode || is_prologue ? null
+        : { text: `Narrative Style: ${style_details.name}` }}
         style={badge_size_style}
         class="
           group/badge
@@ -164,12 +164,10 @@
           transition
           duration-300
           ease-in-out
-        "
-      >
+        ">
         <div
           class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading {initials_class} font-bold text-white uppercase select-none"
-          style="background-color: {signature_color};"
-        >
+          style="background-color: {signature_color};">
           {#if dportrait}
             <img src={dportrait} alt={dname} class="h-full w-full object-cover object-center" draggable="false" />
           {:else}
@@ -181,8 +179,8 @@
           <div
             aria-hidden="true"
             class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-25 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
-            style="background-color: {signature_color}; mix-blend-mode: color;"
-          ></div>
+            style="background-color: {signature_color}; mix-blend-mode: color;">
+          </div>
         {/if}
 
         {#if is_storymode || is_prologue}
@@ -194,19 +192,18 @@
     {#if render_visual && (vstyle_details || is_profile)}
       {@const vname = vstyle_details?.name || "No Visual Style"}
       {@const vportrait = vstyle_details?.portrait}
-      {@const vfontsize = is_profile
-        ? vname.length > 12
-          ? "text-[8px]"
-          : vname.length > 8
-            ? "text-[9px]"
-            : "text-[10px]"
-        : vname.length > 12
-          ? "text-[clamp(0.35rem,3.4cqi,0.48rem)]"
-          : vname.length > 8
-            ? "text-[clamp(0.44rem,4.4cqi,0.6rem)]"
-            : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
+      {@const vfontsize =
+        is_profile ?
+          vname.length > 12 ? "text-[8px]"
+          : vname.length > 8 ? "text-[9px]"
+          : "text-[10px]"
+        : vname.length > 12 ? "text-[clamp(0.35rem,3.4cqi,0.48rem)]"
+        : vname.length > 8 ? "text-[clamp(0.44rem,4.4cqi,0.6rem)]"
+        : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
       <div
-        use:tooltip={is_profile ? tooltip_text : is_storymode || is_prologue ? null : { text: `Visual Style: ${vstyle_details.name}` }}
+        use:tooltip={is_profile ? tooltip_text
+        : is_storymode || is_prologue ? null
+        : { text: `Visual Style: ${vstyle_details.name}` }}
         style={badge_size_style}
         class="
           group/badge
@@ -229,12 +226,10 @@
           transition
           duration-300
           ease-in-out
-        "
-      >
+        ">
         <div
           class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
-          style="background-color: {signature_color};"
-        >
+          style="background-color: {signature_color};">
           {#if vportrait}
             <img src={vportrait} alt={vname} class="h-full w-full object-cover object-center" draggable="false" />
           {:else}
@@ -246,8 +241,8 @@
           <div
             aria-hidden="true"
             class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-25 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
-            style="background-color: {signature_color}; mix-blend-mode: color;"
-          ></div>
+            style="background-color: {signature_color}; mix-blend-mode: color;">
+          </div>
         {/if}
 
         {#if is_storymode || is_prologue}

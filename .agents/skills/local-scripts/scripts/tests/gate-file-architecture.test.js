@@ -47,9 +47,7 @@ describe("gate file-architecture-gate", () => {
   });
 
   it("allows replace_file_content (gate scopes to file creation only)", () => {
-    const res = capture(handle_file_architecture_gate, {
-      toolCall: { name: "replace_file_content", args: { TargetFile: `${ROOT}/src/engine/runs.js` } },
-    });
+    const res = capture(handle_file_architecture_gate, { toolCall: { name: "replace_file_content", args: { TargetFile: `${ROOT}/src/engine/runs.js` } } });
     expect(res.decision).toBe("allow");
   });
 });

@@ -52,13 +52,14 @@ export default defineConfig([
       "**/test-results/**",
       "**/yarn.lock",
       "**/tmp/**",
-      "tmp/**/*"
+      "**/.prettiercache",
+      "**/.stylelintcache"
     ],
     // @agent:ignore-end
   },
   {
     // ESLint-specific global ignores (not managed by sync-ignores.js)
-    ignores: ["dist/**/*", "src/index.html", "types.d.ts", "**/.cache"],
+    ignores: ["dist/**/*", "src/index.html", "types.d.ts", "**/.cache", "package-lock.json"],
   },
 
   // 1. Core JavaScript Engine Rules
@@ -100,7 +101,7 @@ export default defineConfig([
 
   // 3. Svelte Parsing Infrastructure
   {
-    files: ["**/*.svelte", "*.svelte", "**/*.svelte.js", "*.svelte.js", "**/*.svelte.ts", "*.svelte.ts"],
+    files: ["**/*.svelte", "**/*.svelte.js", "**/*.svelte.ts"],
     languageOptions: {
       parser: svelteParser,
       globals: {
@@ -155,12 +156,6 @@ export default defineConfig([
       "better-tailwindcss/enforce-consistent-line-wrapping": "off",
     },
   },
-  {
-    files: ["**/*.svelte"],
-    languageOptions: {
-      parser: svelteParser,
-    },
-  },
 
   // 6. Official Svelte Rules & Compiler Integration
   ...svelte.configs["flat/recommended"].map((config) => {
@@ -185,7 +180,6 @@ export default defineConfig([
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte,html}"],
     rules: {
       "no-irregular-whitespace": "off",
-
       "no-unused-vars": [
         "error",
         {
@@ -198,5 +192,5 @@ export default defineConfig([
     },
   },
   prettier,
-  svelte.configs.prettier,
+  ...svelte.configs["flat/prettier"],
 ]);

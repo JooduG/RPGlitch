@@ -120,11 +120,7 @@ export const prompt_escape = (str) => {
  * the shared vocabulary. Canonically-named keys always win over these aliases.
  * @type {Readonly<Record<string, string>>}
  */
-export const PHYSICAL_KEY_ALIASES = Object.freeze({
-  SHORTS: "APPAREL",
-  SOMA: "SOMATIC",
-  POSE: "POSTURE",
-});
+export const PHYSICAL_KEY_ALIASES = Object.freeze({ SHORTS: "APPAREL", SOMA: "SOMATIC", POSE: "POSTURE" });
 
 /**
  * Strips a duplicated "KEY:" prefix echoed inside its own value (e.g. the value
@@ -312,16 +308,7 @@ export function wrap_tag(tag, inner, indent) {
  * @param {boolean} [params.inline=false] - Emit `<tag>body</tag>` on one line when the body has no newline.
  * @returns {string}
  */
-export function render_xml_tag({
-  tag,
-  attrs = {},
-  children = [],
-  indent = 0,
-  child_indent = null,
-  closed = true,
-  separator = "\n\n",
-  inline = false,
-}) {
+export function render_xml_tag({ tag, attrs = {}, children = [], indent = 0, child_indent = null, closed = true, separator = "\n\n", inline = false }) {
   const attr_str = Object.entries(attrs)
     .filter(([, value]) => value != null && value !== "")
     .map(([key, value]) => `${key}="${escape_xml(String(value))}"`)
@@ -359,9 +346,7 @@ export function render_atom_xml(atom_or_catalog, key_or_options = {}, values_or_
   let values = {};
 
   const is_direct_atom =
-    typeof atom_or_catalog === "object" &&
-    atom_or_catalog !== null &&
-    (typeof atom_or_catalog.tag === "string" || typeof atom_or_catalog.body === "string");
+    typeof atom_or_catalog === "object" && atom_or_catalog !== null && (typeof atom_or_catalog.tag === "string" || typeof atom_or_catalog.body === "string");
 
   if (is_direct_atom) {
     atom = atom_or_catalog;
@@ -435,11 +420,5 @@ export function render_atom_xml(atom_or_catalog, key_or_options = {}, values_or_
   const final_inline = options.inline ?? base_inline;
   const final_indent = options.indent ?? 0;
 
-  return render_xml_tag({
-    tag: final_tag,
-    attrs: final_attrs,
-    children: [prompt_escape(raw_body)],
-    indent: final_indent,
-    inline: final_inline,
-  });
+  return render_xml_tag({ tag: final_tag, attrs: final_attrs, children: [prompt_escape(raw_body)], indent: final_indent, inline: final_inline });
 }

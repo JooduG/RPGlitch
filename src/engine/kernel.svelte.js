@@ -73,11 +73,7 @@ export class Kernel {
 
     // On retry, prune trailing model entries for the active round so the retry replaces previous reply
     if (options.is_retry) {
-      while (
-        this.history.length > 0 &&
-        this.history[this.history.length - 1].role === "ai" &&
-        this.history[this.history.length - 1].round === this.round
-      ) {
+      while (this.history.length > 0 && this.history[this.history.length - 1].role === "ai" && this.history[this.history.length - 1].round === this.round) {
         this.history.pop();
       }
     }
@@ -88,20 +84,12 @@ export class Kernel {
       const last_entry = this.history[this.history.length - 1];
       const is_already_at_tail = last_entry && last_entry.role === "user" && last_entry.text === trimmed_user_text;
       if (!is_already_at_tail) {
-        this.history.push({
-          role: "user",
-          text: trimmed_user_text,
-          round: this.round,
-        });
+        this.history.push({ role: "user", text: trimmed_user_text, round: this.round });
       }
     }
 
     try {
-      const entities = {
-        AI: this.ai,
-        USER: this.user,
-        FRACTAL: this.fractal,
-      };
+      const entities = { AI: this.ai, USER: this.user, FRACTAL: this.fractal };
 
       const outcome = await execute_round({
         transport: this.transport,
@@ -136,12 +124,7 @@ export class Kernel {
       }
 
       // Append assistant turn to history
-      this.history.push({
-        role: "ai",
-        text: outcome.character_turn.prose,
-        think: outcome.character_turn.think,
-        round: this.round,
-      });
+      this.history.push({ role: "ai", text: outcome.character_turn.prose, think: outcome.character_turn.think, round: this.round });
 
       return outcome;
     } catch (err) {
@@ -186,11 +169,7 @@ export class Kernel {
     this.error = null;
 
     try {
-      const entities = {
-        AI: this.ai,
-        USER: this.user,
-        FRACTAL: this.fractal,
-      };
+      const entities = { AI: this.ai, USER: this.user, FRACTAL: this.fractal };
 
       // If target_history_index is provided, scope dialogue history up to that point
       let contextual_history = this.history;

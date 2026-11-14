@@ -99,10 +99,7 @@ export class InterfaceStore {
   transition_target_id = $state(null);
   /** @type {string | number | null} Active pinned message header id */
   pinned_message_id = $state(null);
-  viewport = $state({
-    mobile: false,
-    is_touch: false,
-  });
+  viewport = $state({ mobile: false, is_touch: false });
 
   // --- STORYBOARD ENTITY SELECTION STATE ---
   /** @type {any | null} */
@@ -143,11 +140,7 @@ export class InterfaceStore {
   claimed_entity_ids = new SvelteSet();
 
   /** @type {CardHandState} */
-  card_hand = $state({
-    open: false,
-    type: null,
-    regenerate_count: 0,
-  });
+  card_hand = $state({ open: false, type: null, regenerate_count: 0 });
 
   // --- NARRATIVE CONFIG & ACTIVE PROPS ---
   prologue = $state("");
@@ -349,9 +342,7 @@ export class InterfaceStore {
       return px ? `${px}px` : null;
     };
 
-    const queries = {
-      mobile: `(width < ${get_breakpoint("mobile") || "48rem"})`,
-    };
+    const queries = { mobile: `(width < ${get_breakpoint("mobile") || "48rem"})` };
 
     Object.keys(queries).forEach((key) => {
       const k = /** @type {keyof typeof queries} */ (key);
@@ -379,11 +370,7 @@ export class InterfaceStore {
    * Stashes the current storyboard slot selections before a story inspection round-trip.
    */
   stash_storyboard_selection() {
-    this.stashed_storyboard_selection = {
-      ai: this.selected_ai,
-      user: this.selected_user,
-      fractal: this.selected_fractal,
-    };
+    this.stashed_storyboard_selection = { ai: this.selected_ai, user: this.selected_user, fractal: this.selected_fractal };
   }
 
   /**

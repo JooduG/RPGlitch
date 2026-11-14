@@ -2,8 +2,7 @@
 
 ## Overview
 
-Headless, reactive simulation kernel, state runtime, and turn orchestration pipeline for **RPGlitch**.
-This package encapsulates the 3-turn narrative heartbeat (Director Shot, Character Shot, and Caretaker Round-Robin), prologue/epilogue lifecycle flows, XML prompt envelope compilation, priority-gated LLM transport abstraction, Two-Tier Sieve RAG vector memory, somatic/fractal dynamics math, and Svelte 5 state reactivity.
+Headless, reactive simulation kernel, state runtime, and turn orchestration pipeline for **RPGlitch**. This package encapsulates the 3-turn narrative heartbeat (Director Shot, Character Shot, and Caretaker Round-Robin), prologue/epilogue lifecycle flows, XML prompt envelope compilation, priority-gated LLM transport abstraction, Two-Tier Sieve RAG vector memory, somatic/fractal dynamics math, and Svelte 5 state reactivity.
 
 - **Barrel Entry & Dependency Inversion**: Consumer layers (`src/ui/`, `src/App.svelte`, `src/main.js`, `src/data/`) import via [`index.js`](./index.js). On module evaluation, [`index.js`](./index.js) registers [`execute_visualizer_envision`](./lifecycle.js) into `@media` via `set_visualizer_envision_impl` so the media layer never imports `@engine`.
 - **Cross-Package Delegation**: Runtime diagnostics and event logging live in [`../data/log.svelte.js`](../data/log.svelte.js) (`developer_log`), and bracket/`<think>` parsing lives in [`../data/parser.js`](../data/parser.js).

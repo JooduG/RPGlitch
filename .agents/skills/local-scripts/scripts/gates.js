@@ -143,26 +143,15 @@ export function render_hooks_json() {
   const document = {};
   for (const gate of GATE_TABLE) {
     const entry = {
-      [gate.event]: gate.matcher
-        ? [
+      [gate.event]:
+        gate.matcher ?
+          [
             {
               matcher: gate.matcher,
-              hooks: [
-                {
-                  type: "command",
-                  command: `node skills/local-scripts/scripts/hooks.js ${gate.subcommand}`,
-                  timeout: gate.timeout,
-                },
-              ],
+              hooks: [{ type: "command", command: `node skills/local-scripts/scripts/hooks.js ${gate.subcommand}`, timeout: gate.timeout }],
             },
           ]
-        : [
-            {
-              type: "command",
-              command: `node skills/local-scripts/scripts/hooks.js ${gate.subcommand}`,
-              timeout: gate.timeout,
-            },
-          ],
+        : [{ type: "command", command: `node skills/local-scripts/scripts/hooks.js ${gate.subcommand}`, timeout: gate.timeout }],
     };
     document[gate.id] = entry;
   }

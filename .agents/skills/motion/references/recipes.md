@@ -24,8 +24,7 @@ When authoring a custom kinetic-compatible primitive in `src/ui/primitives/`, ke
     duration-(--duration-fast) ease-out active:scale-sink
     data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
     data-[kinetic=true]:active:scale-100
-  "
->
+  ">
   Action
 </button>
 ```
@@ -80,9 +79,7 @@ Use `@media` `overlay_in` (`300ms` default) and `overlay_out` (`160ms` default) 
 Toggle `grid-rows-[1fr]` and `grid-rows-[0fr]` around an `overflow-hidden` container (`Accordion.svelte` / `Console.svelte` pattern) instead of transitioning CSS `height`:
 
 ```svelte
-<div
-  class="grid transition-[grid-template-rows] duration-(--duration-standard) ease-(--ease-drawer) {is_open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
->
+<div class="grid transition-[grid-template-rows] duration-(--duration-standard) ease-(--ease-drawer) {is_open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
   <div class="overflow-hidden">
     <!-- Collapsible body -->
   </div>

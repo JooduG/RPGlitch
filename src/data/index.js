@@ -56,13 +56,7 @@ export {
 } from "./entities.js";
 
 // 4b. Character Card Conversion & PNG Metadata
-export {
-  detect_card_format,
-  extract_card_from_png,
-  parse_character_card,
-  serialize_character_card,
-  serialize_rpglitch_entity,
-} from "./card-conversion.js";
+export { detect_card_format, extract_card_from_png, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "./card-conversion.js";
 
 // 5. Dexie Persistence Engine
 export {

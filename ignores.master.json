@@ -1,14 +1,5 @@
 {
-  "antigravityignore": [
-    "!**/*.env",
-    "!**/*.git/**",
-    "!**/*scribbles**",
-    "!**/*scrabbles**",
-    "!**/templates/**",
-    "!**/test-results/**",
-    "!**/tmp/**",
-    "!tmp/**/*"
-  ],
+  "antigravityignore": ["!**/*.env", "!**/*.git/**", "!**/*scribbles**", "!**/*scrabbles**", "!**/templates/**", "!**/test-results/**", "!**/tmp/**"],
   "common": [
     "*.bak",
     "*.log",
@@ -46,42 +37,41 @@
     "**/test-results/**",
     "**/yarn.lock",
     "**/tmp/**",
-    "tmp/**/*"
+    "**/.prettiercache",
+    "**/.stylelintcache"
   ],
   "gitignore": ["!.env.example", "!package-lock.json", "!**/*main.pjs", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
-  "linters": {
-    "eslint": [],
-    "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
-    "prettier": ["**/suggestion*", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
-    "stylelint": []
-  },
-  "vscode": {
-    "files.exclude": {
-      "**/.DS_Store": true,
-      "**/bun.lockb": true,
-      "**/node_modules/**": true,
-      "**/pnpm-lock.yaml": true,
-      "**/Thumbs.db": true,
-      "**/yarn.lock": true,
-      "**/src/**/index.js": true,
-      "**/.gemini/config/skills/**/templates": true
-    }
-  },
   "jsconfig": {
     "exclude": [
+      "**/.agents/**",
       "**/.git/**",
       "**/node_modules/**",
       "**/dist/**",
       "**/coverage/**",
       "**/archive/**",
       "**/tmp/**",
-      "tmp/**/*",
       "test-results/**",
       ".secrets",
       "**/*.lock"
     ]
   },
-  "vitest": {
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/tmp/**", "**/archive/**"]
+  "linters": {
+    "eslint": [],
+    "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
+    "prettier": ["**/suggestion*", "package-lock.json", "package.json", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
+    "stylelint": []
+  },
+  "vitest": { "exclude": ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/tmp/**", "**/archive/**"] },
+  "vscode": {
+    "files.exclude": {
+      "**/.agents/skills/**/templates": true,
+      "**/.DS_Store": true,
+      "**/bun.lockb": true,
+      "**/node_modules/**": true,
+      "**/pnpm-lock.yaml": true,
+      "**/src/**/index.js": true,
+      "**/Thumbs.db": true,
+      "**/yarn.lock": true
+    }
   }
 }

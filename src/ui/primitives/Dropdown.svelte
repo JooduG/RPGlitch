@@ -90,8 +90,7 @@
       className,
     ]}
     style={trigger_style}
-    aria-label={label}
-  >
+    aria-label={label}>
     {#if trigger_content}
       {@render trigger_content({ selected_item, label })}
     {:else}
@@ -102,8 +101,7 @@
         class="
           flex-1
           truncate
-        "
-      >
+        ">
         {selected_item ? selected_item.label : label}
         {#if selected_item && (selected_item.region || selected_item.tag)}
           <span class="opacity-50"> - {selected_item.region || selected_item.tag}</span>
@@ -121,8 +119,7 @@
 
           group-data-[state=open]/trigger:rotate-180
           group-data-[state=open]/trigger:opacity-100
-        "
-      >
+        ">
         <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
       </svg>
     {/if}
@@ -139,7 +136,9 @@
               z-max
               flex
               {computed_height}
-              {dropdownWidth ? dropdownWidth : matchWidth ? 'w-(--bits-select-anchor-width)' : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
+              {dropdownWidth ? dropdownWidth
+            : matchWidth ? 'w-(--bits-select-anchor-width)'
+            : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
               flex-col
                 overflow-hidden
                 rounded-xl
@@ -149,14 +148,12 @@
                 bg-(--signature-color,#555d66)
                 shadow-[0_4px_16px_rgba(0,0,0,0.3)]
               "
-            transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
-          >
+            transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}>
             <Select.Viewport
               class="
                   overflow-hidden
                   p-0
-                "
-            >
+                ">
               <div class="scrollbar-none [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
                 {#each items as item (item.value)}
                   <Select.Item
@@ -201,8 +198,7 @@
                       "
                     value={item.value}
                     label={item.label}
-                    disabled={item.disabled}
-                  >
+                    disabled={item.disabled}>
                     {#if item.portrait}
                       <img src={item.portrait} alt="" class="size-6 shrink-0 rounded object-cover shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
                     {/if}
@@ -212,8 +208,7 @@
                           flex-1
                           truncate
                           {uppercase ? 'uppercase' : ''}
-                        "
-                    >
+                        ">
                       {item.label}
                       {#if item.region || item.tag}
                         <span class="opacity-50"> - {item.region || item.tag}</span>

@@ -91,14 +91,18 @@ function _store_parsed_entry(target, k, v) {
     return;
   }
   if (AGGREGATE_KEYS.has(k) || k.startsWith("@")) {
-    const items = AGGREGATE_KEYS.has(k)
-      ? v
+    const items =
+      AGGREGATE_KEYS.has(k) ?
+        v
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean)
       : [v];
     const existing = target[k];
-    const list = Array.isArray(existing) ? existing : existing ? [existing] : [];
+    const list =
+      Array.isArray(existing) ? existing
+      : existing ? [existing]
+      : [];
     for (const item of items) {
       if (item && !list.includes(item)) list.push(item);
     }
@@ -549,14 +553,14 @@ export function merge_prose_into_field(current_field_value, new_prose) {
         .map((s) => s.trim())
         .filter(Boolean);
       const existing = parsed[key];
-      const list = Array.isArray(existing)
-        ? existing
-        : existing
-          ? String(existing)
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
-          : [];
+      const list =
+        Array.isArray(existing) ? existing
+        : existing ?
+          String(existing)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
       const existing_norm = new Set(list.map((item) => collapse_whitespace(String(item)).toLowerCase()));
       for (const item of incoming) {
         const item_norm = collapse_whitespace(item).toLowerCase();
@@ -588,7 +592,10 @@ export function merge_prose_into_field(current_field_value, new_prose) {
 
   // Append any remaining unstructured prose to CONDITION
   if (remaining_prose) {
-    const cond_key = parsed.CONDITION ? "CONDITION" : parsed.condition ? "condition" : "CONDITION";
+    const cond_key =
+      parsed.CONDITION ? "CONDITION"
+      : parsed.condition ? "condition"
+      : "CONDITION";
     if (parsed[cond_key]) {
       const clean_existing = String(parsed[cond_key])
         .replace(/^[\s,]+|[\s,]+$/g, "")
@@ -798,15 +805,7 @@ export function format_key_as_label(key) {
  */
 export function format_datetime(ts) {
   if (!ts) return "---";
-  return new Date(ts)
-    .toLocaleString("sv-SE", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    })
-    .replace(",", "");
+  return new Date(ts).toLocaleString("sv-SE", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", "");
 }
 
 /**
@@ -830,12 +829,7 @@ export function parse_relational_vector(vector_str) {
 
   if (!source_name || !target_name) return null;
 
-  return {
-    source_name,
-    target_name,
-    dynamic,
-    raw,
-  };
+  return { source_name, target_name, dynamic, raw };
 }
 
 /**
@@ -940,14 +934,7 @@ export function canonicalize_role(role) {
 export function normalize_history_beat(entry, options = {}) {
   if (!entry || typeof entry !== "object") return null;
 
-  const {
-    include_cognition = false,
-    normalize_whitespace = false,
-    max_chars,
-    text_source = "content",
-    label_policy = "entry",
-    label_fallback,
-  } = options;
+  const { include_cognition = false, normalize_whitespace = false, max_chars, text_source = "content", label_policy = "entry", label_fallback } = options;
 
   const raw_role = String(entry.role || "");
   const canonical_role = canonicalize_role(raw_role);
@@ -967,18 +954,15 @@ export function normalize_history_beat(entry, options = {}) {
 
   const fallback =
     label_fallback ??
-    (label_policy === "visual"
-      ? "narrator"
-      : canonical_role === CANONICAL_ROLES.USER
-        ? "User"
-        : canonical_role === CANONICAL_ROLES.FRACTAL
-          ? "Fractal"
-          : "Character");
+    (label_policy === "visual" ? "narrator"
+    : canonical_role === CANONICAL_ROLES.USER ? "User"
+    : canonical_role === CANONICAL_ROLES.FRACTAL ? "Fractal"
+    : "Character");
 
   const origin =
-    label_policy === "visual"
-      ? entry?.character_name || entry?.role || fallback
-      : entry?.entity_id || entry?.origin || entry?.character_name || entry?.name || (entry?.role ? role_display_label(entry.role) : "") || fallback;
+    label_policy === "visual" ?
+      entry?.character_name || entry?.role || fallback
+    : entry?.entity_id || entry?.origin || entry?.character_name || entry?.name || (entry?.role ? role_display_label(entry.role) : "") || fallback;
 
   const character_name = String(
     entry?.character_name || (canonical_role === CANONICAL_ROLES.USER ? "You" : entry?.origin || entry?.name || (origin !== fallback ? origin : "")),
@@ -988,17 +972,7 @@ export function normalize_history_beat(entry, options = {}) {
   const round = entry.round != null && Number.isFinite(Number(entry.round)) ? Number(entry.round) : null;
   const timestamp = entry.timestamp ?? entry.created_at ?? null;
 
-  return Object.freeze({
-    role: canonical_role,
-    raw_role,
-    origin: String(origin),
-    character_name,
-    text,
-    attachments,
-    round,
-    timestamp,
-    raw_entry: entry,
-  });
+  return Object.freeze({ role: canonical_role, raw_role, origin: String(origin), character_name, text, attachments, round, timestamp, raw_entry: entry });
 }
 
 /**
@@ -1025,11 +999,10 @@ export function collapse_history(messages, options = {}) {
   for (const m of messages) {
     if (m.role === "system") continue;
     const lower_role = (m.role || "").toLowerCase();
-    const role = ["user", "user_persona"].includes(lower_role)
-      ? "user_persona"
-      : ["prologue", "fractal"].includes(lower_role)
-        ? "fractal"
-        : "ai_character";
+    const role =
+      ["user", "user_persona"].includes(lower_role) ? "user_persona"
+      : ["prologue", "fractal"].includes(lower_role) ? "fractal"
+      : "ai_character";
     const name = m.character_name || "";
     let content = strip_cognition_blocks(m.content || m.text || "");
     if (stripBoldQuotes) {
@@ -1142,34 +1115,19 @@ export function decompose_story_title(title, entities = {}) {
   if (ai?.name) {
     const idx = clean.indexOf(ai.name);
     if (idx !== -1) {
-      matches.push({
-        name: ai.name,
-        color: get_color(ai),
-        start: idx,
-        end: idx + ai.name.length,
-      });
+      matches.push({ name: ai.name, color: get_color(ai), start: idx, end: idx + ai.name.length });
     }
   }
   if (user?.name && (!ai?.name || user.name !== ai.name)) {
     const idx = clean.indexOf(user.name);
     if (idx !== -1) {
-      matches.push({
-        name: user.name,
-        color: get_color(user),
-        start: idx,
-        end: idx + user.name.length,
-      });
+      matches.push({ name: user.name, color: get_color(user), start: idx, end: idx + user.name.length });
     }
   }
   if (fractal?.name) {
     const idx = clean.indexOf(fractal.name);
     if (idx !== -1) {
-      matches.push({
-        name: fractal.name,
-        color: get_color(fractal),
-        start: idx,
-        end: idx + fractal.name.length,
-      });
+      matches.push({ name: fractal.name, color: get_color(fractal), start: idx, end: idx + fractal.name.length });
     }
   }
 
@@ -1358,7 +1316,11 @@ export function match_keyword_pattern(pattern, haystack) {
   if (needle.includes("*") || needle.includes("?")) {
     const glob = needle
       .split("")
-      .map((char) => (char === "*" ? ".*" : char === "?" ? "." : char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))
+      .map((char) =>
+        char === "*" ? ".*"
+        : char === "?" ? "."
+        : char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      )
       .join("");
     try {
       if (new RegExp(glob, "i").test(text)) return Object.freeze({ hit: true, pass: "glob" });

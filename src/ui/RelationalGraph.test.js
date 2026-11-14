@@ -10,25 +10,12 @@ vi.mock("@data", async (importOriginal) => {
       name: "Lord Benedict Silvers",
       type: "character",
       signature_color: "Crimson Red",
-      present: {
-        non_physical: "[@HANK: custom pyrotechnics]",
-      },
+      present: { non_physical: "[@HANK: custom pyrotechnics]" },
     },
-    {
-      id: "hank",
-      name: "Hank",
-      type: "character",
-      signature_color: "Rusty Orange",
-      present: {
-        non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]",
-      },
-    },
+    { id: "hank", name: "Hank", type: "character", signature_color: "Rusty Orange", present: { non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]" } },
     { id: "julien", name: "Julien", type: "character", signature_color: "Soft Rose", present: { non_physical: "" } },
   ];
-  return {
-    ...actual,
-    list_entities: vi.fn(async (type) => (type === "character" ? mock_list : [])),
-  };
+  return { ...actual, list_entities: vi.fn(async (type) => (type === "character" ? mock_list : [])) };
 });
 
 describe("RelationalGraph (Radial Constellation UI)", () => {
@@ -49,9 +36,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      present: {
-        non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]",
-      },
+      present: { non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]" },
     };
 
     const on_select_entity = vi.fn();
@@ -69,9 +54,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      present: {
-        non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]",
-      },
+      present: { non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]" },
     };
 
     const on_select_entity = vi.fn();
@@ -91,14 +74,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
   });
 
   it("renders constellation nodes derived from universal bracket predicates in present.non_physical", async () => {
-    const mock_entity = {
-      id: "silvers",
-      name: "Lord Benedict Silvers",
-      type: "character",
-      present: {
-        non_physical: "[@HANK: arms supplier debt | w: 8]",
-      },
-    };
+    const mock_entity = { id: "silvers", name: "Lord Benedict Silvers", type: "character", present: { non_physical: "[@HANK: arms supplier debt | w: 8]" } };
 
     render(RelationalGraph, { props: { entity: mock_entity } });
 
@@ -114,9 +90,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Lord Benedict Silvers",
       type: "character",
       eternal: { physical: "Scarred hands", non_physical: "Former military officer" },
-      present: {
-        non_physical: "[@HANK: secret arms smuggling | hide | w: 9]",
-      },
+      present: { non_physical: "[@HANK: secret arms smuggling | hide | w: 9]" },
       past: ["Survived the Siege of Erebos"],
       future: "Secure a monopoly on munitions",
     };

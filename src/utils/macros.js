@@ -27,15 +27,7 @@ import { prompt_escape } from "./xml.js";
  * @param {any[]} [parameters.witnesses=[]]
  * @returns {Readonly<{ me: any, you: any, speaker: any, listener: any, owner: any, target: any, witnesses: ReadonlyArray<any>, is_relational_context: boolean }>}
  */
-export function create_relational_context({
-  me = null,
-  you = null,
-  speaker = null,
-  listener = null,
-  owner = null,
-  target = null,
-  witnesses = [],
-} = {}) {
+export function create_relational_context({ me = null, you = null, speaker = null, listener = null, owner = null, target = null, witnesses = [] } = {}) {
   return Object.freeze({
     me,
     you,
@@ -62,15 +54,10 @@ export function create_relational_context({
  */
 export function parse_macros(text, owner_or_context, entities = {}, context = {}) {
   if (!text || !entities) return text || "";
-  const rel_ctx = owner_or_context?.is_relational_context
-    ? owner_or_context
-    : context?.is_relational_context
-      ? context
-      : create_relational_context({
-          owner: owner_or_context,
-          speaker: context?.speaker,
-          listener: context?.listener,
-        });
+  const rel_ctx =
+    owner_or_context?.is_relational_context ? owner_or_context
+    : context?.is_relational_context ? context
+    : create_relational_context({ owner: owner_or_context, speaker: context?.speaker, listener: context?.listener });
 
   const owner = rel_ctx.owner || (!owner_or_context?.is_relational_context ? owner_or_context : null) || rel_ctx.me;
 
@@ -87,7 +74,10 @@ export function parse_macros(text, owner_or_context, entities = {}, context = {}
     rel_ctx.speaker ||
     rel_ctx.me ||
     context.speaker ||
-    (perspective === "user" ? user_entity : perspective === "ai" ? ai_entity : perspective === "fractal" ? fractal_entity : owner || ai_entity);
+    (perspective === "user" ? user_entity
+    : perspective === "ai" ? ai_entity
+    : perspective === "fractal" ? fractal_entity
+    : owner || ai_entity);
   const listener_entity = rel_ctx.listener || rel_ctx.you || context.listener || (perspective === "user" ? ai_entity : user_entity);
 
   return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b/gi, (match, raw_token) => {
@@ -166,12 +156,7 @@ const UNRESOLVED_YOU_LABEL = "the traveler";
  * muted label used when the entity it references isn't present in the display
  * context.
  */
-export const UNRESOLVED_LABELS = {
-  user: UNRESOLVED_YOU_LABEL,
-  you: UNRESOLVED_YOU_LABEL,
-  fractal: "the realm",
-  char: "the companion",
-};
+export const UNRESOLVED_LABELS = { user: UNRESOLVED_YOU_LABEL, you: UNRESOLVED_YOU_LABEL, fractal: "the realm", char: "the companion" };
 
 /**
  * True when two entity references point at the same entity: either the exact

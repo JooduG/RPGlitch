@@ -34,8 +34,11 @@ src/media/tokens.js
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-tmp/**/*
+**/.prettiercache
+**/.stylelintcache
 **/suggestion*
+package-lock.json
+package.json
 eslint.config.js
 .vscode/settings.json
 jsconfig.json

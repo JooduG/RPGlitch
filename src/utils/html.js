@@ -140,11 +140,7 @@ export function install_environment_hardening() {
  */
 export function sanitize(dirty) {
   if (typeof window === "undefined") return dirty;
-  return DOMPurify.sanitize(dirty, {
-    RETURN_DOM_FRAGMENT: false,
-    SANITIZE_DOM: true,
-    SANITIZE_NAMED_PROPS: true,
-  });
+  return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: false, SANITIZE_DOM: true, SANITIZE_NAMED_PROPS: true });
 }
 
 /**
@@ -154,11 +150,7 @@ export function sanitize(dirty) {
  */
 export function sanitize_to_fragment(dirty) {
   if (typeof window === "undefined") return dirty;
-  return DOMPurify.sanitize(dirty, {
-    RETURN_DOM_FRAGMENT: true,
-    SANITIZE_DOM: true,
-    SANITIZE_NAMED_PROPS: true,
-  });
+  return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: true, SANITIZE_DOM: true, SANITIZE_NAMED_PROPS: true });
 }
 
 /**
@@ -175,13 +167,7 @@ export function escape_html(str) {
 // [SECTION 0C: SECURITY CONVENIENCE FACADE]
 // ============================================================================
 
-export const security = {
-  sanitize,
-  sanitize_to_fragment,
-  escape_html,
-  validate_image,
-  install_environment_hardening,
-};
+export const security = { sanitize, sanitize_to_fragment, escape_html, validate_image, install_environment_hardening };
 
 /**
  * Binary magic number / header signature validators for supported image formats.
@@ -422,7 +408,10 @@ export async function fetch_web(raw_url, options = {}) {
     throw new Error(`Network request to "${url}" failed.`, { cause: err });
   }
 
-  const status = typeof response?.status === "number" ? response.status : response?.ok ? 200 : null;
+  const status =
+    typeof response?.status === "number" ? response.status
+    : response?.ok ? 200
+    : null;
   if (status != null && (status < 200 || status >= 300)) {
     throw new Error(`Page returned HTTP ${status}.`);
   }
@@ -664,12 +653,7 @@ export function html_to_plain_text(html, options = {}) {
  */
 export function truncate_readable(text, max_chars = LENGTH_THRESHOLDS.INGESTION, ellipsis = "…") {
   if (typeof text !== "string" || !text) return "";
-  return truncate_at_word(text, max_chars, {
-    ellipsis,
-    reserve_ellipsis: true,
-    min_bound_ratio: 0.5,
-    strip_trailing_punctuation: true,
-  });
+  return truncate_at_word(text, max_chars, { ellipsis, reserve_ellipsis: true, min_bound_ratio: 0.5, strip_trailing_punctuation: true });
 }
 
 /**

@@ -34,6 +34,7 @@ src/media/tokens.js
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-tmp/**/*
+**/.prettiercache
+**/.stylelintcache
 **/modern-web-guidance/guides/**
 **/suggestion*

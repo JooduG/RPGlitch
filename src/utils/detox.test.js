@@ -14,9 +14,7 @@ describe("detox_prose() with speaking styles", () => {
     expect(detox_prose("Crimson lips, iridescent scales, a spatial disturbance.")).not.toMatch(/crimson|iridescent|spatial disturbance/i);
     expect(detox_prose("He let out a breath he didn't realize he was holding.")).not.toMatch(/realize.*holding|realized.*holding/i);
     expect(detox_prose("They were merging their molecules together.")).not.toMatch(/merging their molecules/i);
-    expect(detox_prose("His thumb rubbed small circles on her wrist as he traced the line of her collarbone.")).not.toMatch(
-      /rubbed.*circles|collarbone/i,
-    );
+    expect(detox_prose("His thumb rubbed small circles on her wrist as he traced the line of her collarbone.")).not.toMatch(/rubbed.*circles|collarbone/i);
     expect(detox_prose("Her heart fluttered in her chest like a trapped bird.")).not.toMatch(/trapped bird/i);
     expect(detox_prose("The air was thick with smoke, and then the air thickened.")).not.toMatch(/air was thick with|air thickened/i);
     expect(detox_prose("She laughed, a genuine sound.")).not.toMatch(/a genuine sound/i);
@@ -110,9 +108,7 @@ describe("detox_prose() with speaking styles", () => {
   });
 
   it("rewrites Tier 1A high-frequency AI vocabulary markers (Track 3.5)", () => {
-    expect(detox_prose("We delve into the intricate complexities of the digital realm.")).toBe(
-      "We dig into the complex details of the digital domain.",
-    );
+    expect(detox_prose("We delve into the intricate complexities of the digital realm.")).toBe("We dig into the complex details of the digital domain.");
     expect(detox_prose("A cutting-edge paradigm, a beacon of seamless progress.")).toBe("An advanced model, a signal of smooth progress.");
     expect(detox_prose("A comprehensive update leveraging robust mechanisms at its core.")).toBe("A thorough update using solid mechanisms.");
     expect(detox_prose("This game-changing moment was a pivotal watershed moment.")).toBe("This turning point moment was a key turning point.");

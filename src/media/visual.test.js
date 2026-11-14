@@ -72,13 +72,7 @@ describe("visual.js - Stateless Perchance Image Dispatcher", () => {
         { engine: mock_engine },
       );
 
-      expect(mock_engine).toHaveBeenCalledWith({
-        prompt: "Cybernetic warrior",
-        negativePrompt: "",
-        resolution: "768x512",
-        guidanceScale: 8,
-        seed: 12345,
-      });
+      expect(mock_engine).toHaveBeenCalledWith({ prompt: "Cybernetic warrior", negativePrompt: "", resolution: "768x512", guidanceScale: 8, seed: 12345 });
       expect(result.image_url).toBe("https://example.com/test.jpg");
       expect(result.seed).toBe(12345);
       expect(result.metadata.offline).toBe(false);
@@ -114,9 +108,7 @@ describe("visual.js - Stateless Perchance Image Dispatcher", () => {
     it("bypasses LLM refinement when style has llm_refine === false", async () => {
       const engine_mock = vi.fn();
       window.generate_text = engine_mock;
-      const result = await visual_engine.envision("A raw photographic snapshot", "character", {
-        visual_style: "none",
-      });
+      const result = await visual_engine.envision("A raw photographic snapshot", "character", { visual_style: "none" });
 
       expect(engine_mock).not.toHaveBeenCalled();
       expect(result.prompt).toBe("A raw photographic snapshot");
@@ -133,15 +125,11 @@ describe("visual.js - Stateless Perchance Image Dispatcher", () => {
       const engine_mock = vi.fn().mockResolvedValue(mock_json);
       window.generate_text = engine_mock;
 
-      const result = await visual_engine.envision("Rough concept of a hero", "character", {
-        name: "Aria",
-        visual_style: "cinematic",
-      });
+      const result = await visual_engine.envision("Rough concept of a hero", "character", { name: "Aria", visual_style: "cinematic" });
 
       expect(engine_mock).toHaveBeenCalled();
       const call_arg = engine_mock.mock.calls.at(-1)?.[0] ?? {};
-      const instruction_text =
-        typeof call_arg.instruction === "function" ? call_arg.instruction() : String(call_arg.instruction ?? call_arg.system ?? "");
+      const instruction_text = typeof call_arg.instruction === "function" ? call_arg.instruction() : String(call_arg.instruction ?? call_arg.system ?? "");
       expect(instruction_text).toContain("Aesthetic Direction");
       expect(call_arg.startWith).toBe("<think>\n");
       expect(result.prompt).toBe("A detailed cinematic portrait of the protagonist with ambient backlighting");
@@ -200,10 +188,7 @@ Line 3 of thoughts",
       const engine_mock = vi.fn().mockResolvedValue(full_response);
       window.generate_text = engine_mock;
 
-      const result = await visual_engine.envision("Hero", "character", {
-        name: "Aria",
-        visual_style: "photo",
-      });
+      const result = await visual_engine.envision("Hero", "character", { name: "Aria", visual_style: "photo" });
 
       expect(engine_mock).toHaveBeenCalled();
       expect(result.prompt).toBe("Authentic candid snapshot of the hero in sunlight");
@@ -216,10 +201,7 @@ Line 3 of thoughts",
       const engine_mock = vi.fn().mockResolvedValue(prefill_echo_only);
       window.generate_text = engine_mock;
 
-      const result = await visual_engine.envision("Draft character concept", "character", {
-        name: "Aria",
-        visual_style: "photo",
-      });
+      const result = await visual_engine.envision("Draft character concept", "character", { name: "Aria", visual_style: "photo" });
 
       expect(engine_mock).toHaveBeenCalled();
       expect(result.prompt).toBe("Draft character concept");
@@ -278,9 +260,7 @@ Line 3 of thoughts",
       const engine_mock = vi.fn().mockResolvedValue(mock_json);
       window.generate_text = engine_mock;
 
-      const result = await visual_engine.envision("Street showdown", "story_scene", {
-        visual_style: "cinematic",
-      });
+      const result = await visual_engine.envision("Street showdown", "story_scene", { visual_style: "cinematic" });
 
       expect(engine_mock).toHaveBeenCalled();
       expect(result.prompt).toBe("A dramatic confrontation between ORION and GLITCH in the dark alleyway");

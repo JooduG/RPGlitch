@@ -45,10 +45,7 @@ describe("src/engine/transport.js - Engine Transport Unit Tests", () => {
 
       try {
         const stream_fn = create_live_stream_fn();
-        await stream_fn("System prompt", {
-          startWith: "<think>My thoughts</think>\nFirst line",
-          stopSequences: ["\n\n"],
-        });
+        await stream_fn("System prompt", { startWith: "<think>My thoughts</think>\nFirst line", stopSequences: ["\n\n"] });
 
         expect(captured_params.startWith).toBe("<think>My thoughts</think>\nFirst line");
         expect(captured_params.stopSequences).toEqual(["\n\n"]);
@@ -72,9 +69,7 @@ describe("src/engine/transport.js - Engine Transport Unit Tests", () => {
 
       try {
         const stream_fn = create_live_stream_fn();
-        const res = await stream_fn("test", {
-          onChunk: (c) => chunks_emitted.push(c),
-        });
+        const res = await stream_fn("test", { onChunk: (c) => chunks_emitted.push(c) });
 
         // Chunks should only be delivered once, not twice
         expect(chunks_emitted).toEqual(["chunk1", "chunk2"]);

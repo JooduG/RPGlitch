@@ -1,12 +1,11 @@
 import markdownIt from "markdown-it";
 import githubRules, { init } from "@github/markdownlint-github";
 import mermaid from "@mermaid-lint/markdownlint";
+import master from "./ignores.master.json" with { type: "json" };
 
 export default {
   config: {
     ...init(),
-    "line-length": false,
-    "no-inline-html": false,
     MD003: { style: "atx" },
     MD004: { style: "dash" },
     MD007: { indent: 2 },
@@ -28,7 +27,7 @@ export default {
     MD060: { style: "any" },
   },
   globs: ["**/*.md", "**/*.mdx"],
-  ignores: ["node_modules", "**/archive/**", "tmp", "tmp/**", "*scribbles*", "*scrobbles*", "*scrabbles*", "hej.md"],
+  ignores: [...(master.common || []), ...(master.linters?.markdownlint || [])],
   markdownItFactory: () => markdownIt({ html: true }),
   customRules: githubRules,
   ...mermaid.recommended,

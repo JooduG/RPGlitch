@@ -10,6 +10,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
       "@data": path.resolve(import.meta.dirname, "./src/data"),
+      "@definitions": path.resolve(import.meta.dirname, "./src/definitions"),
       "@engine": path.resolve(import.meta.dirname, "./src/engine"),
       "@media": path.resolve(import.meta.dirname, "./src/media"),
       "@ui": path.resolve(import.meta.dirname, "./src/ui"),

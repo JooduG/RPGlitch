@@ -71,11 +71,11 @@ if (typeof set_versionchange_quiesce === "function") {
  * FOR TESTING ONLY: Reset the initialization guard.
  */
 export const reset_bootstrap_guard =
-  import.meta.env.MODE === "test"
-    ? () => {
-        has_initialized = false;
-      }
-    : () => {};
+  import.meta.env.MODE === "test" ?
+    () => {
+      has_initialized = false;
+    }
+  : () => {};
 
 /**
  * app_bootstrap handles the initial sequence of the application.
@@ -137,9 +137,7 @@ export const app_bootstrap = {
       }
 
       // 5. Mount Svelte App
-      mount(App, {
-        target: document.body,
-      });
+      mount(App, { target: document.body });
 
       // 6. Tear down boot illusion
       document.getElementById("svelte-root")?.remove();

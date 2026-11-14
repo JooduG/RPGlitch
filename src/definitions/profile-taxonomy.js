@@ -30,11 +30,7 @@ import { SIGNATURE_COLORS } from "../media/tokens.js";
  */
 
 export const PROFILE_FIELDS = {
-  name: {
-    label: "Name",
-    description: "Entity name string",
-    directive: "Entity name string",
-  },
+  name: { label: "Name", description: "Entity name string", directive: "Entity name string" },
   description: {
     label: "Description",
     description: "HUMAN EYES ONLY: internal notes / OOC summary (never used in simulation)",
@@ -61,8 +57,7 @@ export const PROFILE_FIELDS = {
       },
       non_physical: {
         label: "Personality",
-        description:
-          "Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps - write lived traits.",
+        description: "Timeless cognitive drivers, core beliefs, vocal cadence, and behavioural invariants. Never use keyword dumps - write lived traits.",
         directive: `[KEY: value] core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Bracketed traits only.`,
         enhancer: "COGNITIVE_ARCHITECT",
       },
@@ -70,8 +65,7 @@ export const PROFILE_FIELDS = {
     present: {
       physical: {
         label: "Current Look",
-        description:
-          "Immediate physical appearance, active attire, condition, posture, and held items. Use {Option A|Option B} for dynamic variants.",
+        description: "Immediate physical appearance, active attire, condition, posture, and held items. Use {Option A|Option B} for dynamic variants.",
         directive: `[KEY: value] current appearance (clothing, colors, expression, posture, condition, held). Use {Option A|Option B} for variables. Visible temporary items and poses only.`,
         enhancer: "SOMATIC_TRACKER",
       },
@@ -256,7 +250,10 @@ function build_profile_catalog(atoms) {
       enhancer: atom.enhancer,
       id: atom.id,
       path: atom.path,
-      tag: atom.label ? atom.label.toUpperCase().replace(/\s+/g, "_") : sub_key ? sub_key.toUpperCase() : layer_key.toUpperCase(),
+      tag:
+        atom.label ? atom.label.toUpperCase().replace(/\s+/g, "_")
+        : sub_key ? sub_key.toUpperCase()
+        : layer_key.toUpperCase(),
       section_label: format_key_as_label(layer_key),
       layer_key: layer_key.toUpperCase(),
     };
@@ -447,8 +444,9 @@ export function build_profile_sections(entity_type = "character") {
     const layer = entity_schema[section_key];
     const is_composite_section = Boolean(layer && (layer.physical || layer.non_physical));
 
-    const fields = is_composite_section
-      ? ["physical", "non_physical"]
+    const fields =
+      is_composite_section ?
+        ["physical", "non_physical"]
           .filter((field_key) => field_key in layer)
           .map((field_key) => {
             const leaf = layer[field_key];
@@ -475,11 +473,7 @@ export function build_profile_sections(entity_type = "character") {
           },
         ];
 
-    return {
-      id: section_key,
-      label: format_key_as_label(section_key),
-      fields,
-    };
+    return { id: section_key, label: format_key_as_label(section_key), fields };
   });
 }
 

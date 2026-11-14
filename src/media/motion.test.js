@@ -1,14 +1,6 @@
 import { flushSync } from "svelte";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import {
-  motion,
-  pulse,
-  roll,
-  update_card_scrub,
-  clear_card_location,
-  capture_storyboard_flight,
-  fly_storyboard_cards_into_prologue,
-} from "./motion.svelte.js";
+import { motion, pulse, roll, update_card_scrub, clear_card_location, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "./motion.svelte.js";
 
 describe("kinetic utilities", () => {
   /** @type {HTMLElement} */
@@ -18,11 +10,7 @@ describe("kinetic utilities", () => {
     motion.is_reduced = false;
     motion.intensity = 1.0;
     node = document.createElement("div");
-    node.animate = vi.fn().mockReturnValue({
-      cancel: vi.fn(),
-      play: vi.fn(),
-      onfinish: null,
-    });
+    node.animate = vi.fn().mockReturnValue({ cancel: vi.fn(), play: vi.fn(), onfinish: null });
     document.body.appendChild(node);
   });
 

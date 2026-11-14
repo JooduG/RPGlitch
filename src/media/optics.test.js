@@ -171,10 +171,7 @@ describe("optics.js - Trigger Decision Engine & Dynamics Gate", () => {
       const res = resolve_image_trigger({
         snapshot,
         prev_dynamics,
-        director_data: {
-          trigger_image: true,
-          visual_staging: "Tight close-up on Sylvia's face and eyes as she holds her breath in confrontation.",
-        },
+        director_data: { trigger_image: true, visual_staging: "Tight close-up on Sylvia's face and eyes as she holds her breath in confrontation." },
         turn_round: 5,
         last_director_beat_round: 2,
         last_dynamics_beat_round: 2,
@@ -191,9 +188,7 @@ describe("optics.js - Trigger Decision Engine & Dynamics Gate", () => {
       const res = resolve_image_trigger({
         snapshot,
         prev_dynamics,
-        director_data: {
-          trigger_image: true,
-        },
+        director_data: { trigger_image: true },
         turn_round: 5,
         last_director_beat_round: 2,
         last_dynamics_beat_round: 2,
@@ -210,10 +205,7 @@ describe("optics.js - Trigger Decision Engine & Dynamics Gate", () => {
       const res = resolve_image_trigger({
         snapshot,
         prev_dynamics,
-        director_data: {
-          trigger_image: true,
-          visual_staging: "Wide panoramic landscape of the burning research sector across the horizon.",
-        },
+        director_data: { trigger_image: true, visual_staging: "Wide panoramic landscape of the burning research sector across the horizon." },
         turn_round: 5,
         last_director_beat_round: 2,
         last_dynamics_beat_round: 2,
@@ -268,14 +260,8 @@ const test_entities = {
     name: "Alice",
     type: "character",
     pov: "1st_person",
-    eternal: {
-      physical: "[BUILD: tall and athletic]",
-      non_physical: "Analytical cybernetic specialist.",
-    },
-    present: {
-      physical: "[JACKET: worn leather] [POSTURE: alert]",
-      non_physical: "Guarded vigilance.",
-    },
+    eternal: { physical: "[BUILD: tall and athletic]", non_physical: "Analytical cybernetic specialist." },
+    present: { physical: "[JACKET: worn leather] [POSTURE: alert]", non_physical: "Guarded vigilance." },
     future: "Infiltrate the mainframe.",
     past: [],
     relationships: ["Alice -> Bob: guarded trust"],
@@ -285,14 +271,8 @@ const test_entities = {
     id: "SECTOR_FOUR",
     name: "Sector Four",
     type: "fractal",
-    eternal: {
-      physical: "[LANDMARKS: rusted catwalks] [ATMOSPHERE: neon haze]",
-      non_physical: "Degraded industrial district.",
-    },
-    present: {
-      physical: "[WEATHER: acid drizzle]",
-      non_physical: "Hostile and oppressive.",
-    },
+    eternal: { physical: "[LANDMARKS: rusted catwalks] [ATMOSPHERE: neon haze]", non_physical: "Degraded industrial district." },
+    present: { physical: "[WEATHER: acid drizzle]", non_physical: "Hostile and oppressive." },
     future: "Decay under acid rain.",
     past: [],
     dynamics: { velocity: 50, entropy: 80 },

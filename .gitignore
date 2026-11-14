@@ -34,7 +34,8 @@ src/media/tokens.js
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-tmp/**/*
+**/.prettiercache
+**/.stylelintcache
 !.env.example
 !package-lock.json
 !**/*main.pjs

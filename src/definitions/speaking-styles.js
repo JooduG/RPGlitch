@@ -234,35 +234,32 @@ const SOUND_RULES_LIST = [
     },
   }),
 
-  create_speaking_rule(
-    /\bflutter(ed|ing|s)?\b(?!\s+(?:his|her|their|the|my|your|our|its|some|a|an|wings|curtains|flags|pages|eyelashes|lashes|paper)\s)/gi,
-    {
-      ed: {
-        casual: ["beat quickly", "skipped", "stirred"],
-        lyrical: ["beat once, then again, quicker", "skipped a beat"],
-        primal: ["hammered", "thudded fast"],
-        clinical: ["moved rapidly", "beat quickly"],
-      },
-      ing: {
-        casual: ["beating quickly", "stirring", "beating lightly"],
-        lyrical: ["beating quick and light", "skipping"],
-        primal: ["hammering", "thudding fast"],
-        clinical: ["moving rapidly", "beating quickly"],
-      },
-      s: {
-        casual: ["beats quickly", "skips", "stirs"],
-        lyrical: ["beats quick and light", "skips a beat"],
-        primal: ["hammers", "thuds fast"],
-        clinical: ["moves rapidly", "beats quickly"],
-      },
-      "": {
-        casual: ["quick beat", "light stir", "flurry"],
-        lyrical: ["a quick light beat", "a soft stir"],
-        primal: ["hard fast beat", "heavy pulse"],
-        clinical: ["rapid movement", "quick oscillation"],
-      },
+  create_speaking_rule(/\bflutter(ed|ing|s)?\b(?!\s+(?:his|her|their|the|my|your|our|its|some|a|an|wings|curtains|flags|pages|eyelashes|lashes|paper)\s)/gi, {
+    ed: {
+      casual: ["beat quickly", "skipped", "stirred"],
+      lyrical: ["beat once, then again, quicker", "skipped a beat"],
+      primal: ["hammered", "thudded fast"],
+      clinical: ["moved rapidly", "beat quickly"],
     },
-  ),
+    ing: {
+      casual: ["beating quickly", "stirring", "beating lightly"],
+      lyrical: ["beating quick and light", "skipping"],
+      primal: ["hammering", "thudding fast"],
+      clinical: ["moving rapidly", "beating quickly"],
+    },
+    s: {
+      casual: ["beats quickly", "skips", "stirs"],
+      lyrical: ["beats quick and light", "skips a beat"],
+      primal: ["hammers", "thuds fast"],
+      clinical: ["moves rapidly", "beats quickly"],
+    },
+    "": {
+      casual: ["quick beat", "light stir", "flurry"],
+      lyrical: ["a quick light beat", "a soft stir"],
+      primal: ["hard fast beat", "heavy pulse"],
+      clinical: ["rapid movement", "quick oscillation"],
+    },
+  }),
 
   create_speaking_rule(/\bflicker(ed|ing|s)?\b/gi, {
     ed: {
@@ -381,15 +378,12 @@ const SENSORY_RULES_LIST = [
     clinical: ["phantom sensation", "neurological echo"],
   }),
 
-  create_speaking_rule(
-    /\b(?:(?:is|was|felt|hits|hit|strikes|landed|slams|slamming)?\s*(?:like\s+a\s+)?|(?:the\s+)?force\s+of\s+a\s+)?physical\s+blow\b/gi,
-    {
-      casual: ["landed with sudden force", "carried real weight", "hit like a heavy punch"],
-      lyrical: ["struck with visceral force", "landed with devastating clarity"],
-      primal: ["hit like a fist", "landed hard"],
-      clinical: ["produced high impact force", "registered as acute shock"],
-    },
-  ),
+  create_speaking_rule(/\b(?:(?:is|was|felt|hits|hit|strikes|landed|slams|slamming)?\s*(?:like\s+a\s+)?|(?:the\s+)?force\s+of\s+a\s+)?physical\s+blow\b/gi, {
+    casual: ["landed with sudden force", "carried real weight", "hit like a heavy punch"],
+    lyrical: ["struck with visceral force", "landed with devastating clarity"],
+    primal: ["hit like a fist", "landed hard"],
+    clinical: ["produced high impact force", "registered as acute shock"],
+  }),
 
   create_speaking_rule(/\bshivering\s+shadows?\b/gi, {
     casual: ["dark shadows", "shifting shadows", "moving shadows"],
@@ -1064,18 +1058,9 @@ export const ANTI_AI_REPLACEMENTS = Object.freeze([
       return match_case(match, "dig into");
     },
   },
-  {
-    pattern: /\btapestr(y|ies)\b/gi,
-    replace: (match) => (match.toLowerCase() === "tapestry" ? match_case(match, "weave") : match_case(match, "weaves")),
-  },
-  {
-    pattern: /\brealm(s)?\b/gi,
-    replace: (match) => (match.toLowerCase() === "realm" ? match_case(match, "domain") : match_case(match, "domains")),
-  },
-  {
-    pattern: /\bparadigm(s)?\b/gi,
-    replace: (match) => (match.toLowerCase() === "paradigm" ? match_case(match, "model") : match_case(match, "models")),
-  },
+  { pattern: /\btapestr(y|ies)\b/gi, replace: (match) => (match.toLowerCase() === "tapestry" ? match_case(match, "weave") : match_case(match, "weaves")) },
+  { pattern: /\brealm(s)?\b/gi, replace: (match) => (match.toLowerCase() === "realm" ? match_case(match, "domain") : match_case(match, "domains")) },
+  { pattern: /\bparadigm(s)?\b/gi, replace: (match) => (match.toLowerCase() === "paradigm" ? match_case(match, "model") : match_case(match, "models")) },
   {
     pattern: /\bembark(ed|s|ing)?\b/gi,
     replace: (match) => {
@@ -1087,10 +1072,7 @@ export const ANTI_AI_REPLACEMENTS = Object.freeze([
       return match_case(match, "start");
     },
   },
-  {
-    pattern: /\bbeacon(s)?\b/gi,
-    replace: (match) => (match.toLowerCase() === "beacon" ? match_case(match, "signal") : match_case(match, "signals")),
-  },
+  { pattern: /\bbeacon(s)?\b/gi, replace: (match) => (match.toLowerCase() === "beacon" ? match_case(match, "signal") : match_case(match, "signals")) },
   { pattern: /\brobust\b/gi, replace: (match) => match_case(match, "solid") },
   { pattern: /\bcomprehensive\b/gi, replace: (match) => match_case(match, "thorough") },
   { pattern: /\ba\s+cutting-edge\b/gi, replace: (match) => match_case(match, "an advanced") },
@@ -1107,10 +1089,7 @@ export const ANTI_AI_REPLACEMENTS = Object.freeze([
     },
   },
   { pattern: /\bpivotal\b/gi, replace: (match) => match_case(match, "key") },
-  {
-    pattern: /\bseamless(ly)?\b/gi,
-    replace: (match) => (match.toLowerCase() === "seamlessly" ? match_case(match, "smoothly") : match_case(match, "smooth")),
-  },
+  { pattern: /\bseamless(ly)?\b/gi, replace: (match) => (match.toLowerCase() === "seamlessly" ? match_case(match, "smoothly") : match_case(match, "smooth")) },
   { pattern: /\bgame-chang(er|ing)\b/gi, replace: (match) => match_case(match, "turning point") },
   { pattern: /\bwatershed\s+moment\b/gi, replace: (match) => match_case(match, "turning point") },
   { pattern: /\bdeep\s+dive\b/gi, replace: (match) => match_case(match, "close look") },

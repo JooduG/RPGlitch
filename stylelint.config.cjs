@@ -5,12 +5,7 @@ module.exports = {
   // One source of truth for ignore globs (complemented by .stylelintignore)
   ignoreFiles: master.linters?.stylelint || [],
   extends: ["stylelint-config-standard", "stylelint-config-html/svelte", "stylelint-prettier/recommended"],
-  overrides: [
-    {
-      files: ["**/*.svelte"],
-      customSyntax: "postcss-html",
-    },
-  ],
+  overrides: [{ files: ["**/*.svelte"], customSyntax: "postcss-html" }],
   rules: {
     /* ========================================================================
        STANDARD ARCHITECTURE RULES
@@ -19,32 +14,33 @@ module.exports = {
     // Accept kebab-case and optional BEM modifier: e.g., .card-title, .card-title--editing
     "selector-class-pattern": [
       "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$",
-      {
-        resolveNestedSelectors: true,
-        message: "Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier).",
-      },
+      { resolveNestedSelectors: true, message: "Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier)." },
     ],
 
-    "selector-pseudo-class-no-unknown": [
-      true,
-      {
-        ignorePseudoClasses: ["global", "deep", "slotted"],
-      },
-    ],
+    "selector-pseudo-class-no-unknown": [true, { ignorePseudoClasses: ["global", "deep", "slotted"] }],
 
     "at-rule-no-unknown": [
       true,
       {
-        ignoreAtRules: ["tailwind", "utility", "theme", "source", "config", "plugin", "custom-variant", "variant", "import"],
+        ignoreAtRules: [
+          "tailwind",
+          "utility",
+          "theme",
+          "source",
+          "config",
+          "plugin",
+          "custom-variant",
+          "variant",
+          "reference",
+          "apply",
+          "layer",
+          "slot",
+          "import",
+        ],
       },
     ],
 
-    "function-no-unknown": [
-      true,
-      {
-        ignoreFunctions: ["theme", "color-mix"],
-      },
-    ],
+    "function-no-unknown": [true, { ignoreFunctions: ["theme", "color-mix"] }],
 
     /* ========================================================================
        DEVELOPER SANITY OVERRIDES

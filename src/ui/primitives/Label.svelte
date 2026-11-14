@@ -24,11 +24,10 @@
 </script>
 
 <Label.Root
-  class="flex w-full items-center gap-standard {disabled
-    ? 'cursor-default'
-    : 'cursor-pointer'} text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase {className}"
+  class="flex w-full items-center gap-standard {disabled ? 'cursor-default' : (
+    'cursor-pointer'
+  )} text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase {className}"
   onclick={handleClick}
-  {...rest}
->
+  {...rest}>
   {@render children?.()}
 </Label.Root>

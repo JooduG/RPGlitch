@@ -22,11 +22,7 @@
   export const storymode_state = new StorymodeState();
 
   // --- MESSAGE RENDERING PIPELINE ---
-  const markdown = new MarkdownIt({
-    html: false,
-    breaks: true,
-    linkify: true,
-  });
+  const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
 
   /**
    * Stateful parser to wrap text inside double quotes with a `<span class="dialogue">` tag.
@@ -102,11 +98,7 @@
 
     const rendered_think = detoxed_think ? sanitize(markdown.render(detoxed_think).trim()) : null;
 
-    return {
-      displayText: rendered,
-      think: rendered_think,
-      detoxedText: detoxed_text,
-    };
+    return { displayText: rendered, think: rendered_think, detoxedText: detoxed_text };
   }
 
   // --- STORYMODE ACTION DISPATCHERS ---
@@ -167,11 +159,7 @@
         attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, {
-        subject,
-        entity,
-        negative_prompt: enhanced_negative,
-      });
+      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, { subject, entity, negative_prompt: enhanced_negative });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -345,15 +333,12 @@
     };
     const entity = entity_map[type];
 
-    const photo_label = type === "ai" ? "Generate AI Character Image" : type === "user" ? "Generate User Persona Image" : "Generate Fractal Image";
+    const photo_label =
+      type === "ai" ? "Generate AI Character Image"
+      : type === "user" ? "Generate User Persona Image"
+      : "Generate Fractal Image";
     const tier = type === "fractal" ? "story_scene" : "story_character";
-    const raw_fallback = render_optics_fallback({
-      tier,
-      subject: type,
-      ai: entity_map.ai,
-      user: entity_map.user,
-      fractal: entity_map.fractal,
-    });
+    const raw_fallback = render_optics_fallback({ tier, subject: type, ai: entity_map.ai, user: entity_map.user, fractal: entity_map.fractal });
     const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
 
     const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];
@@ -364,12 +349,9 @@
         onSelect: () =>
           app.open_image_preview({
             src: entity.profile_picture,
-            metadata: entity.modifiers
-              ? {
-                  prompt: entity.modifiers.prompt,
-                  negative_prompt: entity.modifiers.negative_prompt,
-                  seed: entity.modifiers.last_generated_seed,
-                }
+            metadata:
+              entity.modifiers ?
+                { prompt: entity.modifiers.prompt, negative_prompt: entity.modifiers.negative_prompt, seed: entity.modifiers.last_generated_seed }
               : null,
           }),
       });
@@ -379,11 +361,7 @@
       const voice_role = type === "fractal" ? "fractal" : "ai";
       const voice_noun = type === "fractal" ? "Fractal Voice" : "AI Voice";
       const voice_label = Audio.is_role_enabled(voice_role) ? `Disable ${voice_noun}` : `Enable ${voice_noun}`;
-      items.push({
-        label: voice_label,
-        active: Audio.is_role_enabled(voice_role),
-        onSelect: () => Audio.toggle_entity_voice(voice_role),
-      });
+      items.push({ label: voice_label, active: Audio.is_role_enabled(voice_role), onSelect: () => Audio.toggle_entity_voice(voice_role) });
     }
 
     items.push({ separator: true });
@@ -393,11 +371,7 @@
       disabled: simulation_state.busy || visual_engine.is_loading,
     });
     if (type === "fractal") {
-      items.push({
-        label: "Generate Story Image",
-        onSelect: () => take_group_photo(),
-        disabled: simulation_state.busy || visual_engine.is_loading,
-      });
+      items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: simulation_state.busy || visual_engine.is_loading });
     }
     if (type === "user") {
       items.push({
@@ -409,32 +383,17 @@
         },
       });
       items.push({ separator: true });
-      items.push({
-        label: "Ghostwrite",
-        onSelect: () => ghostwrite(),
-        disabled: simulation_state.busy,
-      });
+      items.push({ label: "Ghostwrite", onSelect: () => ghostwrite(), disabled: simulation_state.busy });
     }
 
     if (in_dev) {
-      items.push(
-        { separator: true },
-        {
-          label: "Mock Message",
-          onSelect: () => run_mock(type),
-          disabled: simulation_state.busy,
-        },
-      );
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock(type), disabled: simulation_state.busy });
     }
 
     return items;
   }
 
-  let card_actions = $derived({
-    ai: build_storymode_actions("ai"),
-    user: build_storymode_actions("user"),
-    fractal: build_storymode_actions("fractal"),
-  });
+  let card_actions = $derived({ ai: build_storymode_actions("ai"), user: build_storymode_actions("user"), fractal: build_storymode_actions("fractal") });
 
   // --- FEED ACTIVE TURN ORCHESTRATION ---
   let is_active_turn = $derived(simulation_state.phase === "generating" || app.streaming.active);
@@ -703,10 +662,7 @@
       pending_deletes = copy;
       await simulation_log.delete_entry(String(id));
     }, UNDO_DELETE_WINDOW_MS);
-    pending_deletes = {
-      ...pending_deletes,
-      [id]: { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS },
-    };
+    pending_deletes = { ...pending_deletes, [id]: { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS } };
   }
 
   function undo_delete(id) {
@@ -734,9 +690,9 @@
   }
 
   let stage_class = $derived(
-    app.viewport.mobile
-      ? "inset-auto col-span-full row-3 h-full items-center overflow-hidden"
-      : "col-start-2 col-end-12 row-start-1 row-end-13 h-full items-center",
+    app.viewport.mobile ?
+      "inset-auto col-span-full row-3 h-full items-center overflow-hidden"
+    : "col-start-2 col-end-12 row-start-1 row-end-13 h-full items-center",
   );
 </script>
 
@@ -752,8 +708,7 @@
   title="Delete Entry?"
   message="Delete this log entry? It will be removed in 5 seconds unless you undo."
   confirm_label="Delete"
-  on_confirm={execute_delete}
-/>
+  on_confirm={execute_delete} />
 
 <!-- display:flex inline: unlayered normalize.css v3 resets section to block, defeating Tailwind's layered flex utility -->
 <section style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {stage_class}">
@@ -775,8 +730,7 @@
               duration-200
               {entry.role === 'user' ? 'justify-end pr-column-unit' : 'justify-start pl-column-unit'}
             "
-                in:item_in={{ duration: 200 }}
-              >
+                in:item_in={{ duration: 200 }}>
                 <div class="w-[calc(var(--spacing-column-unit)*5)]">
                   <UndoToast undo_window_ms={UNDO_DELETE_WINDOW_MS} on_undo={() => undo_delete(entry.id)} />
                 </div>
@@ -786,14 +740,15 @@
                 data-entry-id={entry.id}
                 class="w-full shrink-0 {entry.meta?.is_prologue ? 'message--prologue' : ''}"
                 class:prologue-awaiting-flight={entry.meta?.is_prologue && app.begin_story_pending && !motion.is_reduced}
-                in:item_in={{ duration: entry.meta?.is_prologue ? 0 : 300 }}
-              >
+                in:item_in={{ duration: entry.meta?.is_prologue ? 0 : 300 }}>
                 <ChatBubble
                   id={entry.id}
                   text={entry.text}
                   sender={map_role(entry.role)}
                   character_name={entry.character_name ||
-                    (map_role(entry.role) === "ai" ? app.selected_ai?.name : map_role(entry.role) === "system" ? "SYSTEM" : "")}
+                    (map_role(entry.role) === "ai" ? app.selected_ai?.name
+                    : map_role(entry.role) === "system" ? "SYSTEM"
+                    : "")}
                   timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
                   attachments={entry.attachments}
                   is_last={index === visible_feed.length - 1}
@@ -808,8 +763,7 @@
                   }}
                   meta={entry.meta}
                   busy={entry.busy}
-                  {card_actions}
-                />
+                  {card_actions} />
               </div>
             {/if}
           {/each}
@@ -817,8 +771,7 @@
           {#if simulation_state.busy && !app.streaming.active}
             <div
               class="relative flex w-full items-start justify-start p-standard pl-[calc(var(--spacing-column-unit)*2)] transition duration-200"
-              in:item_in={{ duration: 200 }}
-            >
+              in:item_in={{ duration: 200 }}>
               <!-- Left-Gutter Portrait / Lens Anchor Slot -->
               <div
                 class="
@@ -834,10 +787,9 @@
               p-0
               select-none
             "
-                style="--signature-color: {simulation_state.speaker_thinking || simulation_state.media_generating
-                  ? simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
-                  : 'var(--color-frozen)'};"
-              >
+                style="--signature-color: {simulation_state.speaker_thinking || simulation_state.media_generating ?
+                  simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
+                : 'var(--color-frozen)'};">
                 <div
                   class="
                 group/badge
@@ -857,23 +809,17 @@
                 shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_25%,transparent)]
                 transition
                 duration-300
-              "
-                >
+              ">
                   {#if (simulation_state.speaker_thinking || simulation_state.media_generating) && simulation_state.generating_entity_avatar}
                     <img
                       src={simulation_state.generating_entity_avatar}
                       alt={simulation_state.generating_entity_name || "Speaker"}
-                      class="h-full w-full object-cover object-top"
-                    />
+                      class="h-full w-full object-cover object-top" />
                   {:else if (simulation_state.speaker_thinking || simulation_state.media_generating) && simulation_state.generating_entity_name}
                     <ProfilePicture
-                      entity={{
-                        name: simulation_state.generating_entity_name,
-                        signature_color: simulation_state.generating_entity_color,
-                      }}
+                      entity={{ name: simulation_state.generating_entity_name, signature_color: simulation_state.generating_entity_color }}
                       alt=""
-                      class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top"
-                    />
+                      class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
                   {:else}
                     <!-- Director Abstract Evaluation Rune / Lens -->
                     <div class="flex h-full w-full items-center justify-center bg-slate-950/80">
@@ -885,8 +831,8 @@
                   <div
                     aria-hidden="true"
                     class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30"
-                    style="background-color: var(--signature-color); mix-blend-mode: color;"
-                  ></div>
+                    style="background-color: var(--signature-color); mix-blend-mode: color;">
+                  </div>
                 </div>
               </div>
 
@@ -908,19 +854,15 @@
               bg-[color-mix(in_srgb,var(--color-dev-accent)_5%,rgba(15,15,15,0.7))]
               px-standard
               [backdrop-filter:var(--blur-mist)]
-            "
-              >
+            ">
                 <Shimmer
-                  color={simulation_state.speaker_thinking || simulation_state.media_generating
-                    ? simulation_state.generating_entity_color || "var(--color-electric-cyan)"
-                    : "var(--color-dev-accent)"}
-                />
+                  color={simulation_state.speaker_thinking || simulation_state.media_generating ?
+                    simulation_state.generating_entity_color || "var(--color-electric-cyan)"
+                  : "var(--color-dev-accent)"} />
                 <span class="truncate font-mono text-[11px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
-                  {simulation_state.generating_entity_name
-                    ? `Synthesizing ${simulation_state.generating_entity_name}`
-                    : active_turn_name
-                      ? `Synthesizing ${active_turn_name}`
-                      : "Synthesizing director turn"}
+                  {simulation_state.generating_entity_name ? `Synthesizing ${simulation_state.generating_entity_name}`
+                  : active_turn_name ? `Synthesizing ${active_turn_name}`
+                  : "Synthesizing director turn"}
                 </span>
               </div>
             </div>
@@ -928,8 +870,7 @@
 
           {#if visible_feed.length === 0 && !simulation_state.busy}
             <div
-              class="flex h-full flex-col items-center justify-center gap-standard p-standard text-center text-slate-600 [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]"
-            >
+              class="flex h-full flex-col items-center justify-center gap-standard p-standard text-center text-slate-600 [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]">
               <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
               <Button variant="primary" onclick={() => chrono_engine.retry()} disabled={simulation_state.busy} label="Retry Connection" />
             </div>

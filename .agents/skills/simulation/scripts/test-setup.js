@@ -31,19 +31,10 @@ if (typeof window !== "undefined") {
         this.destination = {};
       }
       createGain() {
-        return {
-          connect: vi.fn(),
-          gain: { value: 1, setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
-        };
+        return { connect: vi.fn(), gain: { value: 1, setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() } };
       }
       createBufferSource() {
-        return {
-          connect: vi.fn(),
-          start: vi.fn(),
-          stop: vi.fn(),
-          buffer: null,
-          playbackRate: { value: 1 },
-        };
+        return { connect: vi.fn(), start: vi.fn(), stop: vi.fn(), buffer: null, playbackRate: { value: 1 } };
       }
       decodeAudioData(_array_buffer, success_callback) {
         const mock_buffer = { duration: 1, length: 1000, sampleRate: 44100 };
@@ -69,29 +60,25 @@ if (typeof window !== "undefined") {
 
   // Mock matchMedia for Svelte 5 media query runes
   if (!window.matchMedia) {
-    window.matchMedia = vi.fn().mockImplementation((query) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    }));
+    window.matchMedia = vi
+      .fn()
+      .mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      }));
   }
 
   // Mock Element.animate for Svelte transitions in JSDOM
   if (typeof Element !== "undefined" && !Element.prototype.animate) {
-    Element.prototype.animate = vi.fn().mockReturnValue({
-      finished: Promise.resolve(),
-      cancel: vi.fn(),
-      pause: vi.fn(),
-      play: vi.fn(),
-      reverse: vi.fn(),
-      onfinish: null,
-      oncancel: null,
-    });
+    Element.prototype.animate = vi
+      .fn()
+      .mockReturnValue({ finished: Promise.resolve(), cancel: vi.fn(), pause: vi.fn(), play: vi.fn(), reverse: vi.fn(), onfinish: null, oncancel: null });
   }
 
   // Mock HTMLDialogElement for JSDOM

@@ -42,7 +42,11 @@ function resolve_log_entity_id(role, character_name) {
       if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
     }
   }
-  const trio = role === "user" ? snap.USER : role === "fractal" ? snap.FRACTAL : role === "ai" ? snap.AI : null;
+  const trio =
+    role === "user" ? snap.USER
+    : role === "fractal" ? snap.FRACTAL
+    : role === "ai" ? snap.AI
+    : null;
   return trio?.id ? String(trio.id) : null;
 }
 
@@ -65,9 +69,7 @@ async function _find_log_entry(id) {
     entry = await db.simulation_log.get(id);
   }
   if (!entry) {
-    const feed_match = state_bridge.simulation_log?.feed?.find(
-      (message) => message.id === id || message.meta?.id === id || String(message.id) === String(id),
-    );
+    const feed_match = state_bridge.simulation_log?.feed?.find((message) => message.id === id || message.meta?.id === id || String(message.id) === String(id));
     if (feed_match) {
       entry = await db.simulation_log.get(feed_match.id);
     }
@@ -253,7 +255,10 @@ export const session_driver = {
         };
         for (const [field_path, value] of Object.entries(fields)) {
           if (value == null) continue;
-          const string_value = Array.isArray(value) ? JSON.stringify(value) : typeof value === "object" ? JSON.stringify(value) : String(value);
+          const string_value =
+            Array.isArray(value) ? JSON.stringify(value)
+            : typeof value === "object" ? JSON.stringify(value)
+            : String(value);
           if (!string_value.trim() || string_value === "[]" || string_value === "{}") continue;
           genesis_lines.push({
             story_id,
@@ -282,9 +287,7 @@ export const session_driver = {
    */
   async send(text) {
     const character_name = state_bridge.runtime?.active_user?.name || "User";
-    return await this.log_message(text, "user", character_name, {
-      turn_type: "USER_TURN",
-    });
+    return await this.log_message(text, "user", character_name, { turn_type: "USER_TURN" });
   },
 
   /**
@@ -370,7 +373,10 @@ export const session_driver = {
    */
   async edit_log_entry(id, new_text) {
     const entry = await _find_log_entry(id);
-    const key = entry ? entry.id : isNaN(Number(id)) ? id : Number(id);
+    const key =
+      entry ? entry.id
+      : isNaN(Number(id)) ? id
+      : Number(id);
     await db.simulation_log.update(key, { text: new_text });
     state_bridge.simulation_log?.update?.(id, { text: new_text });
   },
@@ -408,7 +414,10 @@ export const session_driver = {
       const is_empty_image_bubble =
         !entry.text?.trim() && !entry.meta?.is_prologue && !entry.meta?.is_epilogue && (!entry.attachments || entry.attachments.length === 0);
       if (is_empty_image_bubble) {
-        const key = entry.id != null ? entry.id : isNaN(Number(id)) ? id : Number(id);
+        const key =
+          entry.id != null ? entry.id
+          : isNaN(Number(id)) ? id
+          : Number(id);
         await db.simulation_log.delete(key);
         state_bridge.simulation_log?.remove?.(key);
       } else {
@@ -458,12 +467,7 @@ export const session_driver = {
       Boolean(meta?.is_telemetry);
 
     const is_empty =
-      typeof text === "string" &&
-      !text.trim() &&
-      (!attachments || attachments.length === 0) &&
-      !meta?.is_prologue &&
-      !meta?.is_epilogue &&
-      !is_telemetry_meta;
+      typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue && !is_telemetry_meta;
 
     if (is_empty) {
       return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };

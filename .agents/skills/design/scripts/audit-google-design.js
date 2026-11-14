@@ -15,10 +15,7 @@ const designMd = path.resolve(__dirname, "../../../../DESIGN.md");
 let has_errors;
 
 try {
-  const output = execSync(`npx designmd lint "${designMd}" --format json`, {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const output = execSync(`npx designmd lint "${designMd}" --format json`, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 
   const result = JSON.parse(output);
   const { errors, warnings, infos } = result.summary;
@@ -62,9 +59,7 @@ try {
     console.log(`\n📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
     has_errors = errors > 0;
     console.log(
-      has_errors
-        ? "\n\x1b[31m❌ SPEC GATE FAILED: Fix DESIGN.md errors above.\x1b[0m\n"
-        : "\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking warnings).\x1b[0m\n",
+      has_errors ? "\n\x1b[31m❌ SPEC GATE FAILED: Fix DESIGN.md errors above.\x1b[0m\n" : "\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking warnings).\x1b[0m\n",
     );
   } catch {
     console.error("\x1b[31m❌ @google/design.md spec scan failed (unparseable output).\x1b[0m");

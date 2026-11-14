@@ -4,7 +4,7 @@
  *
  * Consolidates all lifecycle hooks into a single, high-performance router.
  * Can be invoked directly with a specific sub-hook name:
- *   node skills/local-scripts/scripts/hooks.js <hook-name>
+ *   node .agents/skills/local-scripts/scripts/hooks.js <hook-name>
  *
  * Supported Hook Handlers:
  *   - command-guard:            PreToolUse 3-tier security gate for run_command.
@@ -156,10 +156,7 @@ export function handle_command_guard(payload) {
     !command_line.includes("tmp\\");
 
   if (is_destructive_git || is_destructive_rm) {
-    send_hook_response({
-      decision: "deny",
-      reason: `Blocked by destructive-command-guard: "${command_line}" is potentially destructive to the repository.`,
-    });
+    send_hook_response({ decision: "deny", reason: `Blocked by destructive-command-guard: "${command_line}" is potentially destructive to the repository.` });
     return;
   }
 
@@ -168,10 +165,7 @@ export function handle_command_guard(payload) {
   const is_npm_mutation = /\bnpm\s+(install|uninstall|update|i)\b/i.test(command_line);
 
   if (is_sensitive_git || is_npm_mutation) {
-    send_hook_response({
-      decision: "ask",
-      reason: `Sensitive action detected ("${command_line}"). User confirmation required.`,
-    });
+    send_hook_response({ decision: "ask", reason: `Sensitive action detected ("${command_line}"). User confirmation required.` });
     return;
   }
 
@@ -199,7 +193,7 @@ export function handle_sequential_thinking_gate(payload) {
     return;
   }
 
-  const workspace_root = payload?.workspacePaths?.[0] || "";
+  const workspace_root = resolve_repo_root(payload);
   const relative_target = to_relative_workspace_path(target_file, workspace_root);
 
   if (!relative_target.startsWith("src/") && !relative_target.startsWith(".agents/skills/")) {
@@ -326,23 +320,13 @@ export function handle_mcp_argument_normalizer(payload) {
       }
 
       if (!inner_args.available_tools || inner_args.available_tools.length === 0) {
-        inner_args = {
-          ...inner_args,
-          available_tools: [...DEFAULT_WORKSPACE_TOOLS],
-        };
+        inner_args = { ...inner_args, available_tools: [...DEFAULT_WORKSPACE_TOOLS] };
       }
     }
 
     const args_changed = JSON.stringify(inner_args) !== JSON.stringify(tool_args.Arguments);
     if (server_name !== tool_args.ServerName || target_tool !== tool_args.ToolName || args_changed) {
-      send_hook_response({
-        decision: "allow",
-        overwrite: {
-          ServerName: server_name,
-          ToolName: target_tool,
-          Arguments: inner_args,
-        },
-      });
+      send_hook_response({ decision: "allow", overwrite: { ServerName: server_name, ToolName: target_tool, Arguments: inner_args } });
       return;
     }
   }
@@ -367,8 +351,7 @@ export function handle_file_architecture_gate(payload) {
   const target_file = (args.TargetFile || "").replace(/\\/g, "/");
   const code_content = args.CodeContent || "";
 
-  const is_src_source_file =
-    target_file.includes("/src/") && (target_file.endsWith(".js") || target_file.endsWith(".svelte") || target_file.endsWith(".ts"));
+  const is_src_source_file = target_file.includes("/src/") && (target_file.endsWith(".js") || target_file.endsWith(".svelte") || target_file.endsWith(".ts"));
 
   if (!is_src_source_file) {
     send_hook_response({ decision: "allow" });
@@ -415,8 +398,7 @@ export function handle_grep_truncation(payload) {
 
   const result_text = typeof tool_result === "string" ? tool_result : JSON.stringify(tool_result);
   const is_capped_at_fifty = result_text.includes("Total results are capped at 50 matches");
-  const has_truncation_warning =
-    /more results not shown/i.test(result_text) || /truncated/i.test(result_text) || /results are capped/i.test(result_text);
+  const has_truncation_warning = /more results not shown/i.test(result_text) || /truncated/i.test(result_text) || /results are capped/i.test(result_text);
 
   if (is_capped_at_fifty || has_truncation_warning) {
     send_hook_response({
@@ -466,9 +448,7 @@ export function handle_circuit_breaker(payload) {
   const combined_text = `${error_text} ${result_text}`.trim();
   const has_error =
     Boolean(error_text) ||
-    (/error|failed|exception|rejection|command failed/i.test(combined_text) &&
-      !combined_text.includes("0 errors") &&
-      !combined_text.includes("errors: 0"));
+    (/error|failed|exception|rejection|command failed/i.test(combined_text) && !combined_text.includes("0 errors") && !combined_text.includes("errors: 0"));
 
   let count = 0;
   try {
@@ -558,9 +538,7 @@ export function handle_svelte_stop_gate(payload) {
 
         if (
           /\.svelte["']/.test(stringified) &&
-          (step.tool_calls?.some(
-            (tc) => tc.name === "write_to_file" || tc.name === "replace_file_content" || tc.name === "multi_replace_file_content",
-          ) ||
+          (step.tool_calls?.some((tc) => tc.name === "write_to_file" || tc.name === "replace_file_content" || tc.name === "multi_replace_file_content") ||
             step.content?.includes("write_to_file") ||
             step.content?.includes("replace_file_content"))
         ) {
@@ -597,11 +575,7 @@ export function handle_planning_handoff(payload) {
   const repo_root = resolve_repo_root(payload);
 
   try {
-    const status_output = execSync("git status --porcelain", {
-      cwd: repo_root,
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    const status_output = execSync("git status --porcelain", { cwd: repo_root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] }).trim();
 
     if (!status_output) {
       send_hook_response({ decision: "stop" });
@@ -637,9 +611,7 @@ export function handle_planning_handoff(payload) {
 
       if (active_plan_content) {
         const src_modifications = changed_files.filter((file) => file.startsWith("src/"));
-        const drift_files = src_modifications.filter(
-          (file) => !active_plan_content.includes(file) && !active_plan_content.includes(path.basename(file)),
-        );
+        const drift_files = src_modifications.filter((file) => !active_plan_content.includes(file) && !active_plan_content.includes(path.basename(file)));
         if (drift_files.length > 0) {
           send_hook_response({
             decision: "continue",
@@ -713,9 +685,7 @@ const REGISTERED_SUBCOMMANDS = new Set(GATE_TABLE.map((gate) => gate.subcommand)
 // NOTE: svelte-pre-invocation / svelte-stop-gate and the waldzell-router /
 // guard-commands / workspace-hygiene aliases stay dispatchable for backward
 // compatibility but are no longer registered gates (see gates.js).
-const HOOK_DISPATCH_TABLE = Object.freeze(
-  Object.fromEntries(Object.entries(ALL_HANDLERS).filter(([subcommand]) => REGISTERED_SUBCOMMANDS.has(subcommand))),
-);
+const HOOK_DISPATCH_TABLE = Object.freeze(Object.fromEntries(Object.entries(ALL_HANDLERS).filter(([subcommand]) => REGISTERED_SUBCOMMANDS.has(subcommand))));
 
 /**
  * Executes router logic by reading stdin and calling the matched handler.
@@ -762,6 +732,7 @@ if (is_main_execution) {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-11-14: Standardized workspace_root resolution in handle_sequential_thinking_gate via resolve_repo_root(payload) and updated CLI header path to .agents/skills/local-scripts/scripts/hooks.js.
  * 2026-11-10: Dispatch table + high-risk policy now driven by gates.js GATE_TABLE (single source;
  *   hooks.json regenerated via `node gates.js --dump`). Retired svelte-autofixer pair + aliases
  *   from the registered set (handlers kept for backward compatibility).

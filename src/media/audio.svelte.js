@@ -327,11 +327,7 @@ export class VoiceEngine {
   // (a plain object froze the label at its initial value forever).
   // Per-role TTS switches, all off at boot (opt-in per role; enabling any
   // role flips the master gate on via set_entity_voice).
-  entity_voice = $state({
-    ai: false,
-    user: false,
-    fractal: false,
-  });
+  entity_voice = $state({ ai: false, user: false, fractal: false });
 
   // Browser speech-synthesis voices, loaded async (empty until the engine
   // publishes them). $state so the AudioWing dropdown populates when ready.

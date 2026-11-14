@@ -45,11 +45,9 @@
   const cliff_limit = $derived(snapshot?.cliff_limit ?? 6000);
   const cliff_percent = $derived(Math.min(100, Math.round((total_tokens / cliff_limit) * 100)));
   const status_color = $derived(
-    cliff_percent >= 90
-      ? "text-rose-400 bg-rose-950/40 border-rose-500/30"
-      : cliff_percent >= 75
-        ? "text-amber-400 bg-amber-950/40 border-amber-500/30"
-        : "text-emerald-400 bg-emerald-950/40 border-emerald-500/30",
+    cliff_percent >= 90 ? "text-rose-400 bg-rose-950/40 border-rose-500/30"
+    : cliff_percent >= 75 ? "text-amber-400 bg-amber-950/40 border-amber-500/30"
+    : "text-emerald-400 bg-emerald-950/40 border-emerald-500/30",
   );
 </script>
 
@@ -63,8 +61,7 @@
     bg-glass-elevated
     p-standard
     [backdrop-filter:var(--blur-mist)]
-  "
->
+  ">
   <!-- PROMPT TOKEN CLIFF HUD BADGE -->
   <div class="flex flex-col gap-tight rounded-xl border border-white/10 bg-black/40 p-0.5">
     <div class="flex items-center justify-between">
@@ -73,19 +70,15 @@
         <span
           class="rounded-full border px-tight py-0.5 font-mono text-[10px] font-semibold {status_color}"
           use:tooltip
-          aria-label={`Current compile token load against ${cliff_limit.toLocaleString()} cliff threshold`}
-        >
-          ⚡ {total_tokens.toLocaleString()} / {cliff_limit.toLocaleString()} tok ({cliff_percent}%){snapshot?.mode
-            ? ` [${snapshot.mode.toUpperCase()}]`
-            : ""}
+          aria-label={`Current compile token load against ${cliff_limit.toLocaleString()} cliff threshold`}>
+          ⚡ {total_tokens.toLocaleString()} / {cliff_limit.toLocaleString()} tok ({cliff_percent}%){snapshot?.mode ? ` [${snapshot.mode.toUpperCase()}]` : ""}
         </span>
       </div>
       <Button
         variant="invisible"
         size="small"
         onclick={() => (show_token_details = !show_token_details)}
-        class="cursor-pointer font-mono text-[10px] text-cyan-400 hover:text-cyan-200"
-      >
+        class="cursor-pointer font-mono text-[10px] text-cyan-400 hover:text-cyan-200">
         {show_token_details ? "Hide Breakdown ▲" : "Breakdown ▼"}
       </Button>
     </div>
@@ -93,9 +86,11 @@
     <!-- Progress bar -->
     <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
       <div
-        class="h-full transition-[width] duration-300 {cliff_percent >= 90 ? 'bg-rose-500' : cliff_percent >= 75 ? 'bg-amber-400' : 'bg-emerald-400'}"
-        style="width: {cliff_percent}%;"
-      ></div>
+        class="h-full transition-[width] duration-300 {cliff_percent >= 90 ? 'bg-rose-500'
+        : cliff_percent >= 75 ? 'bg-amber-400'
+        : 'bg-emerald-400'}"
+        style="width: {cliff_percent}%;">
+      </div>
     </div>
 
     {#if show_token_details && snapshot}
@@ -139,8 +134,7 @@
       grid
       grid-cols-2
       gap-standard
-    "
-  >
+    ">
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
       <Meter {profile_state} {dynamic} />
     {/each}
@@ -162,8 +156,7 @@
         onclick={() => {
           on_inspect_history("present.non_physical");
         }}
-        class="cursor-pointer font-mono text-[11px] text-cyan-300 hover:text-cyan-200"
-      >
+        class="cursor-pointer font-mono text-[11px] text-cyan-300 hover:text-cyan-200">
         Inspect History &rarr;
       </Button>
     </div>
@@ -175,8 +168,7 @@
       flex
       flex-col
       gap-tight
-    "
-  >
+    ">
     <div
       class="
         flex
@@ -186,14 +178,12 @@
         text-[10px]
         tracking-widest
         uppercase
-      "
-    >
+      ">
       <span
         class="
           text-cyan-400
           opacity-60
-        ">Born:</span
-      >
+        ">Born:</span>
       <span class="text-slate-50">{format_datetime(profile_state.char.created_at)}</span>
     </div>
     <div
@@ -205,14 +195,12 @@
         text-[10px]
         tracking-widest
         uppercase
-      "
-    >
+      ">
       <span
         class="
           text-cyan-400
           opacity-60
-        ">Sync:</span
-      >
+        ">Sync:</span>
       <span class="text-slate-50">{format_datetime(profile_state.char.updated_at)}</span>
     </div>
   </footer>

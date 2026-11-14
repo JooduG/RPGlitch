@@ -1,13 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
-const llm_service = {
-  enhance: vi.fn(),
-};
+const llm_service = { enhance: vi.fn() };
 const compile_prompt = vi.fn();
-const TextToImage = {
-  composeBasePrompt: vi.fn((_char) => "Composed Prompt"),
-  generate: vi.fn(),
-  upload: vi.fn(),
-};
+const TextToImage = { composeBasePrompt: vi.fn((_char) => "Composed Prompt"), generate: vi.fn(), upload: vi.fn() };
 // Replicate handle_creative_action logic for verification
 // We verify the LOGIC FLOW, since mounting the Svelte 5 component in this Node env is complex.
 /**
@@ -15,13 +9,7 @@ const TextToImage = {
  */
 function ensure_modifiers(char) {
   if (!char.modifiers) {
-    char.modifiers = {
-      prompt: "",
-      negative_prompt: "",
-      flipped: false,
-      profile_picture_seed: 0,
-      last_generated_seed: null,
-    };
+    char.modifiers = { prompt: "", negative_prompt: "", flipped: false, profile_picture_seed: 0, last_generated_seed: null };
   } else {
     char.modifiers.prompt ??= "";
     char.modifiers.negative_prompt ??= "";
@@ -69,11 +57,7 @@ describe("VisualWing Stability (Hotfix)", () => {
 
   test("ensure_modifiers preserves existing modifiers and fills missing fields", () => {
     /** @type {any} */
-    const char = {
-      modifiers: {
-        prompt: "Existing prompt",
-      },
-    };
+    const char = { modifiers: { prompt: "Existing prompt" } };
     ensure_modifiers(char);
     expect(char.modifiers.prompt).toBe("Existing prompt");
     expect(char.modifiers.negative_prompt).toBe("");
@@ -109,10 +93,7 @@ describe("VisualWing Stability (Hotfix)", () => {
     /** @type {any} */
     const char = { modifiers: { prompt: "old prompt", negative_prompt: "" } };
     // Simulate refine result update logic from handle_creative_action
-    const refine_result = {
-      prompt: "RAW photograph of a character, sharp focus, 8k.",
-      negative_prompt: "blurry, low quality, anime",
-    };
+    const refine_result = { prompt: "RAW photograph of a character, sharp focus, 8k.", negative_prompt: "blurry, low quality, anime" };
     if (refine_result) {
       if (refine_result.prompt) char.modifiers.prompt = refine_result.prompt;
       if (refine_result.negative_prompt) char.modifiers.negative_prompt = refine_result.negative_prompt;
@@ -125,15 +106,10 @@ describe("VisualWing Stability (Hotfix)", () => {
     /** @type {any} */
     const char = { modifiers: { prompt: "Hero draft concept", negative_prompt: "" } };
     const logged = [];
-    const app_mock = {
-      log: (msg, type) => logged.push({ msg, type }),
-    };
+    const app_mock = { log: (msg, type) => logged.push({ msg, type }) };
 
     // Simulate the exact VisualWing guard logic
-    const refine_result = {
-      prompt: '{"_thought_process": "Hero | Aesthetic Style: photo. continuation...", "resolution": "512x768"}',
-      negative_prompt: "",
-    };
+    const refine_result = { prompt: '{"_thought_process": "Hero | Aesthetic Style: photo. continuation...", "resolution": "512x768"}', negative_prompt: "" };
 
     let positive = refine_result.prompt || "";
     let negative = refine_result.negative_prompt || "";

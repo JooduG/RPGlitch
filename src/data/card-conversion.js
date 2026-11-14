@@ -35,12 +35,7 @@ export function detect_card_format(payload_json) {
 
   if (candidate.data && typeof candidate.data === "object" && !Array.isArray(candidate.data)) {
     const card_data = candidate.data;
-    if (
-      card_data.name !== undefined ||
-      card_data.first_mes !== undefined ||
-      card_data.personality !== undefined ||
-      card_data.scenario !== undefined
-    ) {
+    if (card_data.name !== undefined || card_data.first_mes !== undefined || card_data.personality !== undefined || card_data.scenario !== undefined) {
       return "v2";
     }
   }
@@ -75,8 +70,7 @@ export function detect_card_format(payload_json) {
  * @returns {Record<string, any>} Flat profile object ready for entity application.
  */
 export function parse_character_card(payload_json) {
-  const candidate =
-    payload_json && typeof payload_json === "object" && !Array.isArray(payload_json) ? /** @type {Record<string, any>} */ (payload_json) : null;
+  const candidate = payload_json && typeof payload_json === "object" && !Array.isArray(payload_json) ? /** @type {Record<string, any>} */ (payload_json) : null;
 
   const card_data = candidate?.data && typeof candidate.data === "object" && !Array.isArray(candidate.data) ? candidate.data : (candidate ?? {});
 
@@ -146,12 +140,7 @@ export function extract_card_from_png(binary_buffer) {
     const data_view = new DataView(byte_array.buffer, byte_array.byteOffset, byte_array.byteLength);
 
     const chunk_length = data_view.getUint32(byte_offset, false);
-    const chunk_type = String.fromCharCode(
-      byte_array[byte_offset + 4],
-      byte_array[byte_offset + 5],
-      byte_array[byte_offset + 6],
-      byte_array[byte_offset + 7],
-    );
+    const chunk_type = String.fromCharCode(byte_array[byte_offset + 4], byte_array[byte_offset + 5], byte_array[byte_offset + 6], byte_array[byte_offset + 7]);
 
     if (chunk_type === "tEXt") {
       const chunk_data_start = byte_offset + 8;

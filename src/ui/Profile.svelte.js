@@ -485,10 +485,7 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = resolve_entity_type(this.char?.type);
-      const structured = await structure_profile(
-        `Field: "${key}"\nCurrent Value: "${value || ""}"\nEntity: ${this.char.name || "Entity"} (${type})`,
-        type,
-      );
+      const structured = await structure_profile(`Field: "${key}"\nCurrent Value: "${value || ""}"\nEntity: ${this.char.name || "Entity"} (${type})`, type);
       if (structured) {
         const output_key = output_key_for_path(canonicalize_field_key(key, type));
         const field_val = output_key ? structured[output_key] || "" : "";

@@ -239,11 +239,7 @@ export class ChronoEngine {
 
         try {
           state_bridge.app.log("Executing turn via Sovereign Engine (Kernel)...", "system");
-          await execute_turn(final_input || "", {
-            signal: controller.signal,
-            is_retry: options.is_retry,
-            is_continue: options.is_continue,
-          });
+          await execute_turn(final_input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
           state_bridge.app.log("Generation complete.", "system");
 
           try {
@@ -253,9 +249,7 @@ export class ChronoEngine {
           }
         } catch (e) {
           const aborted =
-            /** @type {any} */ (e)?.name === "AbortError" ||
-            String(/** @type {any} */ (e)?.message || "").includes("aborted") ||
-            controller.signal.aborted;
+            /** @type {any} */ (e)?.name === "AbortError" || String(/** @type {any} */ (e)?.message || "").includes("aborted") || controller.signal.aborted;
           if (aborted) {
             console.warn("[Chrono] Generation aborted by user.");
             state_bridge.app.log("Generation interrupted by user.", "warn");

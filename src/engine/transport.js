@@ -305,8 +305,7 @@ export async function generate_text(payload, options = {}) {
       return await run_mock_generation(payload, options);
     }
 
-    const msg =
-      "LLM Engine Unavailable: window.generate_text or window.pluginGenerateText not found. This simulation requires the Perchance AI plugin.";
+    const msg = "LLM Engine Unavailable: window.generate_text or window.pluginGenerateText not found. This simulation requires the Perchance AI plugin.";
     if (!options.silent) console.error(msg);
     throw new Error(msg);
   }

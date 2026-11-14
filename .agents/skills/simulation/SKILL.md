@@ -72,8 +72,7 @@ Rather than attempting to do staging, acting, and memory extraction in a single 
 
 _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/director.js`](../../../src/intelligence/director.js)_
 
-**The Mental Model: The Stage Manager & Rules Engine.**
-Before an actor speaks, an invisible director evaluates the physical state. The Director does not write creative dialogue; it outputs pure structural judgment:
+**The Mental Model: The Stage Manager & Rules Engine.** Before an actor speaks, an invisible director evaluates the physical state. The Director does not write creative dialogue; it outputs pure structural judgment:
 
 - **Speaker Routing**: Who has the floor? Does the AI character respond (`AI_CHARACTER`)? Does the environment react to non-verbal exploration (`FRACTAL`)? Does an active companion speak (`npc:<id>`)? Or should an entirely new entity emerge from the world (`GENESIS`)?
 - **Active Scene Scope & Context Culling**: Off-screen characters are frozen in stasis to preserve token economy and prevent narrative bloat. The Director explicitly moves NPCs on-stage (`enter`) or off-stage (`exit`).
@@ -85,8 +84,7 @@ Before an actor speaks, an invisible director evaluates the physical state. The 
 
 _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/story.js`](../../../src/intelligence/story.js)_
 
-**The Mental Model: The In-Character Persona Behind the Sensory Horizon.**
-Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
+**The Mental Model: The In-Character Persona Behind the Sensory Horizon.** Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
 
 - **Epistemic Partitioning**: The actor is deliberately blinded. Other entities' brackets flagged with `| hide` are stripped across the Epistemic Wall in `render_character()`. The actor only knows what their physical senses (eyes, ears, skin) can register. Owner perspectives preserve their own `| hide` flags so persona LLMs do not voice covert items/plans openly.
 - **The 3-Layer Subconscious Delivery (`<think>`)**: Before vocalizing, the character must reason across three layers:
@@ -99,8 +97,7 @@ Once staging is established, the active speaker generates in-character prose. Th
 
 _Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)_
 
-**The Mental Model: Context Consolidation & Long-Term Memory.**
-Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. Context consolidation runs asynchronously in the background _after_ a turn completes:
+**The Mental Model: Context Consolidation & Long-Term Memory.** Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. Context consolidation runs asynchronously in the background _after_ a turn completes:
 
 - **Consolidation over Accumulation**: Instead of saving 50 turns of dialogue, the process distills durable facts into compact vector memories.
 - **Strategic Trajectory Rewriting**: An entity's `future` trajectory is rewritten wholesale each cycle to represent their current active motivation.
@@ -172,20 +169,18 @@ When authoring or modifying prompt architectures, watch for these common psychol
 
 When implementing changes, consult the canonical source files rather than duplicating schemas here:
 
-| Domain                           | Canonical Source File                                                                      | Primary Responsibility                                                                                          |
-| :------------------------------- | :----------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
-| **Simulation Lifecycle**         | `src/engine/runs.js` + `src/engine/lifecycle.js` (Kernel in `src/engine/kernel.svelte.js`) | Round counter, stasis lock, atomic turn dispatch (`send`, `retry`, `continue`), prologue/epilogue.              |
-| **Turn Pipeline (Orchestrator)** | `src/engine/turns.js`                                                                      | Pure turn orchestration: Turn 1 Director, Turn 2 Character/Continue, Turn 3 Caretaker, Visualizer, Structuring. |
-| **Director & Story Prompts**     | `src/engine/prompts.js`                                                                    | Unified 11-block Spatial Spine + 4 live Purpose Cores (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER).             |
-| **Dynamics & Settlement**        | `src/engine/dynamics.js` (physics) + `src/definitions/dynamics-registry.js` (registries)   | 0-100 slider math, gravity, entropy, write-back.                                                                |
-| **Temporal Memory & Compaction** | `src/engine/sieve.js` (Two-Tier Sieve RAG) + caretaker core in `src/engine/turns.js`       | Vector scoring, origin protection, tier floors, past/future sync.                                               |
-| **Universal XML & Compaction**   | `src/utils/xml.js`                                                                         | `render_atom_xml` universal compiler, `render_profile_field_block` attribute compactor.                         |
-| **Prompt Complexity Triage**     | `.agents/skills/simulation/scripts/lib/triage.js`                                          | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning.                            |
-| **Engine-Native Check**          | `.agents/skills/simulation/scripts/sim-check.js` (`npm run audit:simulation`)              | Turn smoke + live-core prompt contract + sieve memory stress.                                                   |
+| Domain | Canonical Source File | Primary Responsibility |
+| :-- | :-- | :-- |
+| **Simulation Lifecycle** | `src/engine/runs.js` + `src/engine/lifecycle.js` (Kernel in `src/engine/kernel.svelte.js`) | Round counter, stasis lock, atomic turn dispatch (`send`, `retry`, `continue`), prologue/epilogue. |
+| **Turn Pipeline (Orchestrator)** | `src/engine/turns.js` | Pure turn orchestration: Turn 1 Director, Turn 2 Character/Continue, Turn 3 Caretaker, Visualizer, Structuring. |
+| **Director & Story Prompts** | `src/engine/prompts.js` | Unified 11-block Spatial Spine + 4 live Purpose Cores (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER). |
+| **Dynamics & Settlement** | `src/engine/dynamics.js` (physics) + `src/definitions/dynamics-registry.js` (registries) | 0-100 slider math, gravity, entropy, write-back. |
+| **Temporal Memory & Compaction** | `src/engine/sieve.js` (Two-Tier Sieve RAG) + caretaker core in `src/engine/turns.js` | Vector scoring, origin protection, tier floors, past/future sync. |
+| **Universal XML & Compaction** | `src/utils/xml.js` | `render_atom_xml` universal compiler, `render_profile_field_block` attribute compactor. |
+| **Prompt Complexity Triage** | `.agents/skills/simulation/scripts/lib/triage.js` | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning. |
+| **Engine-Native Check** | `.agents/skills/simulation/scripts/sim-check.js` (`npm run audit:simulation`) | Turn smoke + live-core prompt contract + sieve memory stress. |
 
-> Historical note: earlier revisions of this table cited `src/state/chrono.svelte.js`
-> and `src/intelligence/*` - the pre-demolition tree. Those paths are intentionally
-> absent above. The live verification suite is `sim-check.js`, not the retired scripts.
+> Historical note: earlier revisions of this table cited `src/state/chrono.svelte.js` and `src/intelligence/*` - the pre-demolition tree. Those paths are intentionally absent above. The live verification suite is `sim-check.js`, not the retired scripts.
 
 ---
 
@@ -201,8 +196,7 @@ The `.agents/skills/simulation/references/` directory serves as the local idea i
 6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) - Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour. _(Status: KEEP as docs task alongside `FEATURES.md`.)_
 7. **Mystery Mode:** [`mystery-mode-suggestion.md`](./references/mystery-mode-suggestion.md) - _(Status: KEEP, re-point at the live engine cores in `src/engine/prompts.js` when promoted.)_
 
-> [!TIP]
-> **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.
+> [!TIP] **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.
 
 ---
 

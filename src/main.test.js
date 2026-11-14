@@ -1,58 +1,30 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 const { _mock_app, _mock_runtime } = vi.hoisted(() => ({
-  _mock_app: {
-    log: vi.fn(),
-    init: vi.fn(),
-    settings: { dev_mode: false },
-  },
-  _mock_runtime: {
-    sync: vi.fn(),
-    is_ready: false,
-  },
+  _mock_app: { log: vi.fn(), init: vi.fn(), settings: { dev_mode: false } },
+  _mock_runtime: { sync: vi.fn(), is_ready: false },
 }));
 
 vi.mock("@ui", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    app: _mock_app,
-  };
+  return { ...actual, app: _mock_app };
 });
 
 vi.mock("@engine", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    runtime: _mock_runtime,
-    simulation_state: {},
-  };
+  return { ...actual, runtime: _mock_runtime, simulation_state: {} };
 });
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    simulation_log: {},
-  };
+  return { ...actual, simulation_log: {} };
 });
 
-const { _mock_audio } = vi.hoisted(() => ({
-  _mock_audio: {
-    init: vi.fn(),
-    _init_promise: null,
-    voice: {
-      load_model: vi.fn().mockResolvedValue(),
-    },
-  },
-}));
+const { _mock_audio } = vi.hoisted(() => ({ _mock_audio: { init: vi.fn(), _init_promise: null, voice: { load_model: vi.fn().mockResolvedValue() } } }));
 
 vi.mock("@media", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    Audio: _mock_audio,
-  };
+  return { ...actual, Audio: _mock_audio };
 });
 
 // Mock the state bridge so main.js/boot can access app/runtime without pulling real @state
@@ -60,9 +32,7 @@ vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    embeddings_engine: {
-      load_model: vi.fn().mockResolvedValue(),
-    },
+    embeddings_engine: { load_model: vi.fn().mockResolvedValue() },
     state_bridge: {
       get app() {
         return _mock_app;
@@ -76,21 +46,14 @@ vi.mock("@utils", async (importOriginal) => {
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    seed_premades: vi.fn(),
-  };
+  return { ...actual, seed_premades: vi.fn() };
 });
 
 import * as repository from "@data";
 import { app_bootstrap, reset_bootstrap_guard } from "./main.js";
 
-vi.mock("svelte", () => ({
-  mount: vi.fn(),
-}));
-vi.mock("@/App.svelte", () => ({
-  default: {},
-}));
+vi.mock("svelte", () => ({ mount: vi.fn() }));
+vi.mock("@/App.svelte", () => ({ default: {} }));
 describe("app_bootstrap", () => {
   beforeEach(async () => {
     document.body.innerHTML = "";
@@ -187,12 +150,6 @@ describe("app_bootstrap", () => {
 
     await app_bootstrap.init();
 
-    expect(_mock_runtime.update_entity).toHaveBeenCalledWith(
-      "character",
-      "char-legacy",
-      expect.objectContaining({
-        past: expect.any(String),
-      }),
-    );
+    expect(_mock_runtime.update_entity).toHaveBeenCalledWith("character", "char-legacy", expect.objectContaining({ past: expect.any(String) }));
   });
 });

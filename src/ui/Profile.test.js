@@ -12,11 +12,7 @@ vi.mock("@engine", async (importOriginal) => {
         resolveEnhanceFn = resolve;
       });
     }),
-    runtime: {
-      active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" },
-      save_entity: vi.fn(),
-      update_entity: vi.fn(),
-    },
+    runtime: { active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" }, save_entity: vi.fn(), update_entity: vi.fn() },
   };
 });
 
@@ -34,15 +30,7 @@ vi.mock("./interface.svelte.js", () => ({
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    db: {
-      entities: {
-        update: vi.fn().mockResolvedValue(true),
-      },
-    },
-    normalize_entity: vi.fn((char) => char),
-  };
+  return { ...actual, db: { entities: { update: vi.fn().mockResolvedValue(true) } }, normalize_entity: vi.fn((char) => char) };
 });
 
 describe("ProfileState setImage", () => {
@@ -63,14 +51,9 @@ describe("ProfileState setImage", () => {
     const { db } = await import("@data");
     const { runtime } = await import("@engine");
 
-    expect(db.entities.update).toHaveBeenCalledWith("test-char", {
-      profile_picture: "data:image/png;base64,trimmed123",
-      updated_at: expect.any(Number),
-    });
+    expect(db.entities.update).toHaveBeenCalledWith("test-char", { profile_picture: "data:image/png;base64,trimmed123", updated_at: expect.any(Number) });
 
-    expect(runtime.update_entity).toHaveBeenCalledWith("character", "test-char", {
-      profile_picture: "data:image/png;base64,trimmed123",
-    });
+    expect(runtime.update_entity).toHaveBeenCalledWith("character", "test-char", { profile_picture: "data:image/png;base64,trimmed123" });
   });
 });
 

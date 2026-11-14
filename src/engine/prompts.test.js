@@ -38,17 +38,9 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
   });
 
   it("compiles director core with structured JSON staging task", () => {
-    const prompt = compile_prompt({
-      core: "DIRECTOR",
-      round: 1,
-      entities,
-      history,
-      input: "Move silently.",
-    });
+    const prompt = compile_prompt({ core: "DIRECTOR", round: 1, entities, history, input: "Move silently." });
 
-    const result = verify_compiled_prompt(prompt, {
-      expected_tags: ["SYSTEM", "REALITY", "CHARACTERS", "SCENARIO", "TRAJECTORY", "HISTORY", "TASK"],
-    });
+    const result = verify_compiled_prompt(prompt, { expected_tags: ["SYSTEM", "REALITY", "CHARACTERS", "SCENARIO", "TRAJECTORY", "HISTORY", "TASK"] });
 
     expect(result.valid).toBe(true);
     expect(prompt).toContain('OUTPUT_FORMAT mode="json"');
@@ -57,11 +49,7 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
   });
 
   it("compiles caretaker core with structured brackets task", () => {
-    const prompt = compile_prompt({
-      core: "CARETAKER",
-      round: 1,
-      entities,
-    });
+    const prompt = compile_prompt({ core: "CARETAKER", round: 1, entities });
 
     const result = verify_compiled_prompt(prompt);
     expect(result.valid).toBe(true);
@@ -76,11 +64,7 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
   });
 
   it("compiles visualizer core with diffusion prompt directives", () => {
-    const prompt = compile_prompt({
-      core: "VISUALIZER",
-      round: 1,
-      entities,
-    });
+    const prompt = compile_prompt({ core: "VISUALIZER", round: 1, entities });
 
     const result = verify_compiled_prompt(prompt);
     expect(result.valid).toBe(true);
@@ -92,13 +76,7 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
     const single_entity_prompt = compile_prompt({
       core: "CHARACTER",
       round: 1,
-      entities: {
-        AI: {
-          id: "solo_ai",
-          name: "Viper",
-          eternal: { non_physical: "Stoic, analytical." },
-        },
-      },
+      entities: { AI: { id: "solo_ai", name: "Viper", eternal: { non_physical: "Stoic, analytical." } } },
     });
 
     // Valid XML structure
@@ -121,15 +99,7 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
   });
 
   it("compiles character core with Character Immersion thinking mode and inlined directors note", () => {
-    const prompt = compile_prompt({
-      core: "CHARACTER",
-      round: 3,
-      entities,
-      history,
-      task_options: {
-        directors_note: "Keep your hand near your holster.",
-      },
-    });
+    const prompt = compile_prompt({ core: "CHARACTER", round: 3, entities, history, task_options: { directors_note: "Keep your hand near your holster." } });
 
     expect(prompt).toContain('<TASK round="3">');
     expect(prompt).toContain('<SYSTEM identity="character">');
@@ -146,22 +116,11 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
     expect(check.valid).toBe(true);
 
     // Verify start_with seeds <think> with note verbatim
-    const start_token = PURPOSE_CORES.CHARACTER.start_with({
-      is_character: true,
-      directors_note: "Keep your hand near your holster.",
-    });
+    const start_token = PURPOSE_CORES.CHARACTER.start_with({ is_character: true, directors_note: "Keep your hand near your holster." });
     expect(start_token).toBe("<think>Keep your hand near your holster.\n(");
 
     // Verify 3rd person POV enforces pivot rule
-    const prompt_3rd = compile_prompt({
-      core: "CHARACTER",
-      round: 3,
-      entities: {
-        ...entities,
-        AI: { ...entities.AI, pov: "3rd_person" },
-      },
-      history,
-    });
+    const prompt_3rd = compile_prompt({ core: "CHARACTER", round: 3, entities: { ...entities, AI: { ...entities.AI, pov: "3rd_person" } }, history });
     expect(prompt_3rd).toContain("Pivot immediately to third-person perspective");
     expect(verify_compiled_prompt(prompt_3rd).valid).toBe(true);
   });
@@ -170,11 +129,7 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
     const fractal_prompt = compile_prompt({
       core: "CHARACTER",
       round: 2,
-      entities: {
-        AI: { id: "fractal_world", name: "The Citadel", type: "fractal" },
-        USER: entities.USER,
-        FRACTAL: entities.FRACTAL,
-      },
+      entities: { AI: { id: "fractal_world", name: "The Citadel", type: "fractal" }, USER: entities.USER, FRACTAL: entities.FRACTAL },
       history,
     });
 
@@ -190,12 +145,7 @@ describe("src/engine/prompts.js - 11-Block Spatial Spine & 4 Purpose Cores", () 
   });
 
   it("compiles director core with Pure Analysis thinking mode", () => {
-    const director_prompt = compile_prompt({
-      core: "DIRECTOR",
-      round: 2,
-      entities,
-      history,
-    });
+    const director_prompt = compile_prompt({ core: "DIRECTOR", round: 2, entities, history });
 
     expect(director_prompt).toContain("[Thinking Mode Requirement]");
     expect(director_prompt).toContain("Causality & stakes");

@@ -36,12 +36,7 @@ export function extract_tag_sequence(promptText) {
     const is_closing = raw.startsWith("</");
     const is_self_closing = raw.endsWith("/>");
 
-    sequence.push({
-      name,
-      is_closing,
-      is_self_closing,
-      raw,
-    });
+    sequence.push({ name, is_closing, is_self_closing, raw });
   }
 
   return sequence;
@@ -80,10 +75,7 @@ export function verify_tag_balance(promptText) {
     errors.push(`Unclosed opening tag <${unclosed}>.`);
   }
 
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
+  return { valid: errors.length === 0, errors };
 }
 
 /**
@@ -103,10 +95,7 @@ export function verify_system_envelope(promptText) {
     errors.push("Prompt envelope does not end with </SYSTEM> closing tag.");
   }
 
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
+  return { valid: errors.length === 0, errors };
 }
 
 /**
@@ -139,11 +128,7 @@ export function verify_tag_order(promptText, expectedTagOrder) {
     }
   }
 
-  return {
-    valid: missing.length === 0 && out_of_order.length === 0,
-    missing,
-    out_of_order,
-  };
+  return { valid: missing.length === 0 && out_of_order.length === 0, missing, out_of_order };
 }
 
 /**
@@ -169,10 +154,7 @@ export function verify_prompt_hygiene(promptText) {
     // Note: <think> in prompt startWith is fine, but inside static spine must be closed or avoided
   }
 
-  return {
-    valid: violations.length === 0,
-    violations,
-  };
+  return { valid: violations.length === 0, violations };
 }
 
 /**
@@ -206,8 +188,5 @@ export function verify_compiled_prompt(promptText, options = {}) {
   const hygiene = verify_prompt_hygiene(promptText);
   if (!hygiene.valid) errors.push(...hygiene.violations);
 
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
+  return { valid: errors.length === 0, errors };
 }

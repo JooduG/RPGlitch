@@ -51,28 +51,27 @@
     ease-in-out
     select-none
 
-    {is_disabled || busy
-    ? `
+    {is_disabled || busy ?
+    `
       cursor-default!
       opacity-30
     `
-    : ''}
-    {busy
-    ? `
+  : ''}
+    {busy ?
+    `
       cursor-wait!
       brightness-90
       grayscale-50
 
       *:pointer-events-none
     `
-    : ''}
+  : ''}
     {size === 'small'}
     {className}"
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
   {style}
-  use:use_actions={actions}
->
+  use:use_actions={actions}>
   <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={() => onchange?.(new Event("change"))} id={test_id} {...rest}>
     {#snippet child({ props })}
       <button
@@ -100,17 +99,16 @@
           {always_signature ? 'bg-(--signature-color,#555d66)' : 'bg-neutral-900/60 data-[state=checked]:bg-(--signature-color,#555d66)'}
           data-[state=checked]:group-hover/toggle:brightness-125
 
-          {size === 'small'
-          ? `
+          {size === 'small' ?
+          `
             h-4
             w-7
           `
-          : `
+        : `
             h-6
             w-10
           `}"
-        data-testid={test_id}
-      >
+        data-testid={test_id}>
         <Switch.Thumb>
           {#snippet child({ props: thumbProps })}
             <span
@@ -129,22 +127,21 @@
                 hover:brightness-125
                 active:scale-[1.1]
 
-                {size === 'small'
-                ? `
+                {size === 'small' ?
+                `
                   top-0.5
                   left-0.5
                   size-3
 
                   group-data-[state=checked]:translate-x-3
                 `
-                : `
+              : `
                   top-[4px]
                   left-[4px]
                   size-4
 
                   group-data-[state=checked]:translate-x-4
-                `}"
-            ></span>
+                `}"></span>
           {/snippet}
         </Switch.Thumb>
       </button>
@@ -155,8 +152,7 @@
     <Label
       for={test_id}
       disabled={is_disabled || busy}
-      class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125"
-    >
+      class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125">
       {label}
     </Label>
   {/if}

@@ -40,11 +40,7 @@ export function open_turn_session(app, runtime, feed = []) {
     director_enabled: Boolean(app?.settings?.director_enabled),
   });
 
-  kernel.history = reconstruct_history_from_feed(feed, {
-    user: user_quadrant,
-    ai: ai_quadrant,
-    fractal: fractal_quadrant,
-  });
+  kernel.history = reconstruct_history_from_feed(feed, { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
 
   return { kernel, user_quadrant, ai_quadrant, fractal_quadrant };
 }
@@ -88,10 +84,7 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
     turn_type: "AI_TURN",
     round,
     story_id,
-    meta: {
-      think,
-      director_staging: outcome.director_staging,
-    },
+    meta: { think, director_staging: outcome.director_staging },
   });
   if (logged_entry && state_bridge.simulation_log?.add) {
     state_bridge.simulation_log.add(logged_entry);
@@ -123,10 +116,7 @@ async function maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fra
       const last_director_beat_round = runtime.last_director_beat_round ?? -1;
       const last_dynamics_beat_round = runtime.last_dynamics_beat_round ?? -1;
       const resolved_image = resolve_image_trigger({
-        snapshot: {
-          ai: ai_quadrant,
-          fractal: fractal_quadrant,
-        },
+        snapshot: { ai: ai_quadrant, fractal: fractal_quadrant },
         prev_dynamics: kernel.ai?.dynamics ? { ...kernel.ai.dynamics } : null,
         director_data: outcome.director_staging || {},
         turn_round,
@@ -220,15 +210,7 @@ export async function execute_turn(user_input, _options = {}) {
     const think = outcome?.character_turn?.think || "";
 
     // 5. Commit generated turn to IndexedDB log and reactive feed
-    await persist_turn_rows({
-      prose,
-      think,
-      outcome,
-      ai_name: ai_quadrant.name || "AI",
-      story_id: runtime.story_id,
-      round: kernel.round,
-      kernel,
-    });
+    await persist_turn_rows({ prose, think, outcome, ai_name: ai_quadrant.name || "AI", story_id: runtime.story_id, round: kernel.round, kernel });
 
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas
     await write_back_kernel_state(kernel, outcome, live_transport, _options);
@@ -430,24 +412,12 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
   if (!runtime) return;
 
   try {
-    const target_entity_key = resolve_caretaker_target(
-      runtime.back_shot_cursor ?? 0,
-      {
-        AI: kernel.ai,
-        USER: kernel.user,
-        FRACTAL: kernel.fractal,
-      },
-      true,
-    );
+    const target_entity_key = resolve_caretaker_target(runtime.back_shot_cursor ?? 0, { AI: kernel.ai, USER: kernel.user, FRACTAL: kernel.fractal }, true);
 
     const caretaker_outcome = await execute_turn_3_caretaker({
       transport,
       round: kernel.round,
-      entities: {
-        AI: kernel.ai,
-        USER: kernel.user,
-        FRACTAL: kernel.fractal,
-      },
+      entities: { AI: kernel.ai, USER: kernel.user, FRACTAL: kernel.fractal },
       history: kernel.history,
       target_entity_key,
       signal,
@@ -456,15 +426,15 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
     if (!caretaker_outcome?.target) return;
 
     if (!caretaker_outcome.parse_succeeded) {
-      state_bridge.app?.log?.(
-        `[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} - keeping cursor on target.`,
-        "warn",
-      );
+      state_bridge.app?.log?.(`[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} - keeping cursor on target.`, "warn");
       return;
     }
 
     const target_key = caretaker_outcome.target.toUpperCase();
-    const target_entity = target_key === "USER" ? runtime.active_user : target_key === "FRACTAL" ? runtime.active_fractal : runtime.active_ai;
+    const target_entity =
+      target_key === "USER" ? runtime.active_user
+      : target_key === "FRACTAL" ? runtime.active_fractal
+      : runtime.active_ai;
 
     if (!target_entity) return;
 
@@ -486,7 +456,12 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
           field,
           key: item.key,
           new_value: item.value,
-          visibility: item.flags ? (item.flags.hide ? "hide" : item.flags.show ? "show" : null) : item.visibility || null,
+          visibility:
+            item.flags ?
+              item.flags.hide ? "hide"
+              : item.flags.show ? "show"
+              : null
+            : item.visibility || null,
           weight: item.flags ? (item.flags.weight ?? null) : (item.weight ?? null),
           writer: "caretaker",
           decider: "caretaker",

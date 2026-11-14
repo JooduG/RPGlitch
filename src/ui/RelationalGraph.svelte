@@ -41,10 +41,7 @@
     if (!text || typeof text !== "string") return [];
     const tokens = text.match(/\[[^\]]+\]/g);
     if (tokens && tokens.length > 0) {
-      return tokens.map((raw) => ({
-        raw: raw.trim(),
-        is_hidden: /\|\s*hide\b/i.test(raw),
-      }));
+      return tokens.map((raw) => ({ raw: raw.trim(), is_hidden: /\|\s*hide\b/i.test(raw) }));
     }
     return text
       .split(/[\n,]/)
@@ -52,10 +49,7 @@
       .filter(Boolean)
       .map((line) => {
         const is_hidden = /\|\s*hide\b/i.test(line);
-        return {
-          raw: line,
-          is_hidden,
-        };
+        return { raw: line, is_hidden };
       });
   }
 
@@ -181,11 +175,7 @@
       const resolved = other_entity?.id ? other_entity : find_matched_entity(other_name);
       const key = norm(resolved?.name || other_name);
       if (key && key !== current_name && !map.has(key)) {
-        map.set(key, {
-          name: resolved?.name || other_name,
-          entity: resolved,
-          temporal_links: edge.temporal_links || null,
-        });
+        map.set(key, { name: resolved?.name || other_name, entity: resolved, temporal_links: edge.temporal_links || null });
       }
     }
 
@@ -300,9 +290,7 @@
 <div class="relative flex w-full items-center justify-center {custom_class}">
   {#if resolved_edges.length === 0}
     <!-- Empty State -->
-    <div
-      class="flex w-full flex-col items-center justify-center rounded-2xl border border-slate-800/60 bg-slate-950/40 p-6 text-center backdrop-blur-md"
-    >
+    <div class="flex w-full flex-col items-center justify-center rounded-2xl border border-slate-800/60 bg-slate-950/40 p-6 text-center backdrop-blur-md">
       <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800/60 text-slate-400">
         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current stroke-2">
           <circle cx="12" cy="12" r="3" />
@@ -348,13 +336,9 @@
               onmouseenter={() => (hovered_edge = ve.edge)}
               onmouseleave={() => (hovered_edge = null)}
               onclick={() => {
-                selected_dossier = {
-                  type: "edge",
-                  edge: ve.edge,
-                };
+                selected_dossier = { type: "edge", edge: ve.edge };
               }}
-              use:tooltip={`${ve.edge.source_name} → ${ve.edge.target_name}: ${ve.edge.dynamic} (Click to inspect dossier)`}
-            />
+              use:tooltip={`${ve.edge.source_name} → ${ve.edge.target_name}: ${ve.edge.dynamic} (Click to inspect dossier)`} />
             <!-- Visible Styled Curve Path -->
             <path
               d={ve.path_d}
@@ -364,8 +348,7 @@
               stroke-opacity={hovered_edge === ve.edge ? "1" : "0.75"}
               marker-end="url(#marker-{ve.id})"
               class="pointer-events-none transition-[stroke-opacity,filter] duration-200"
-              filter={hovered_edge === ve.edge ? "url(#mesh-glow)" : undefined}
-            />
+              filter={hovered_edge === ve.edge ? "url(#mesh-glow)" : undefined} />
           {/each}
         </svg>
 
@@ -375,16 +358,10 @@
             type="button"
             aria-label={`Inspect central entity ${entity?.name || "Active"}`}
             onclick={() => {
-              selected_dossier = {
-                type: "entity",
-                entity,
-                name: entity?.name || "Active",
-                is_center: true,
-              };
+              selected_dossier = { type: "entity", entity, name: entity?.name || "Active", is_center: true };
             }}
             class="relative flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-xl transition-transform duration-300 hover:scale-105 focus:outline-hidden"
-            style="border-color: {center_color}; box-shadow: 0 0 20px {center_color}33;"
-          >
+            style="border-color: {center_color}; box-shadow: 0 0 20px {center_color}33;">
             {#if entity?.profile_picture}
               <img src={entity.profile_picture} alt={entity.name} class="h-full w-full rounded-full object-cover" />
             {:else}
@@ -402,10 +379,7 @@
         {#each Array.from(node_positions.values()) as node (node.item.name)}
           {@const sat_entity = node.item.entity}
           {@const sat_color = get_signature_color(sat_entity)}
-          <div
-            class="absolute z-10 flex flex-col items-center justify-center"
-            style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%);"
-          >
+          <div class="absolute z-10 flex flex-col items-center justify-center" style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%);">
             <button
               type="button"
               aria-label={`Open profile for ${node.item.name}`}
@@ -420,8 +394,7 @@
               }}
               use:tooltip={format_node_tooltip(node.item)}
               class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-300 hover:scale-115 focus:outline-hidden"
-              style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;"
-            >
+              style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;">
               {#if sat_entity?.profile_picture}
                 <img src={sat_entity.profile_picture} alt={node.item.name} class="h-full w-full rounded-full object-cover" />
               {:else}
@@ -441,8 +414,7 @@
       {#if selected_dossier}
         <div
           data-testid="relational-dossier-card"
-          class="absolute inset-tight z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-standard shadow-2xl backdrop-blur-xl"
-        >
+          class="absolute inset-tight z-30 flex flex-col overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 p-standard shadow-2xl backdrop-blur-xl">
           <!-- Dossier Header -->
           <div class="flex items-center justify-between border-b border-slate-800/80 pb-tight">
             <div class="flex min-w-0 items-center gap-tight">
@@ -450,8 +422,7 @@
                 {@const dossier_color = get_signature_color(selected_dossier.entity)}
                 <div
                   class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-slate-900 text-xs font-bold text-slate-200 uppercase"
-                  style="border-color: {dossier_color};"
-                >
+                  style="border-color: {dossier_color};">
                   {#if selected_dossier.entity?.profile_picture}
                     <img src={selected_dossier.entity.profile_picture} alt={selected_dossier.name} class="h-full w-full rounded-full object-cover" />
                   {:else}
@@ -485,8 +456,7 @@
               type="button"
               aria-label="Close dossier"
               onclick={() => (selected_dossier = null)}
-              class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200"
-            >
+              class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-slate-800 bg-slate-900/60 text-slate-400 transition-colors hover:border-slate-700 hover:text-slate-200">
               <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 fill-none stroke-current stroke-2">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
@@ -528,15 +498,13 @@
                       <div class="space-y-1">
                         {#each present_brackets as bracket (bracket.raw)}
                           <div
-                            class="flex items-start justify-between gap-tight rounded-lg border p-tight text-[11px] {bracket.is_hidden
-                              ? 'border-amber-800/50 bg-amber-950/25 text-amber-200'
-                              : 'border-slate-800/60 bg-slate-950/40 text-slate-300'}"
-                          >
+                            class="flex items-start justify-between gap-tight rounded-lg border p-tight text-[11px] {bracket.is_hidden ?
+                              'border-amber-800/50 bg-amber-950/25 text-amber-200'
+                            : 'border-slate-800/60 bg-slate-950/40 text-slate-300'}">
                             <span class="font-mono text-[10.5px] leading-relaxed wrap-break-word">{bracket.raw}</span>
                             {#if bracket.is_hidden}
                               <span
-                                class="inline-flex shrink-0 items-center gap-tight rounded border border-amber-700/60 bg-amber-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300"
-                              >
+                                class="inline-flex shrink-0 items-center gap-tight rounded border border-amber-700/60 bg-amber-950/80 px-1.5 py-0.5 text-[9px] font-semibold text-amber-300">
                                 🔒 Epistemic Lock
                               </span>
                             {/if}
@@ -590,10 +558,9 @@
                 </div>
 
                 <div
-                  class="rounded-xl border p-0.5 text-xs {is_hidden
-                    ? 'border-amber-800/60 bg-amber-950/30 text-amber-200'
-                    : 'border-slate-800 bg-slate-900/40 text-slate-300'}"
-                >
+                  class="rounded-xl border p-0.5 text-xs {is_hidden ?
+                    'border-amber-800/60 bg-amber-950/30 text-amber-200'
+                  : 'border-slate-800 bg-slate-900/40 text-slate-300'}">
                   {#if is_hidden}
                     <div class="flex items-center gap-tight">
                       <span class="text-sm text-amber-400">🔒</span>
@@ -629,8 +596,7 @@
                     on_select_entity(selected_dossier.entity);
                   }
                 }}
-                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-600/30"
-              >
+                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-600/30">
                 Open Full Profile →
               </button>
             {:else if selected_dossier.edge?.target_entity}
@@ -642,8 +608,7 @@
                     on_select_entity(selected_dossier.edge.target_entity);
                   }
                 }}
-                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-600/30"
-              >
+                class="flex cursor-pointer items-center gap-tight rounded-xl border border-cyan-500/50 bg-cyan-600/20 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition-colors hover:border-cyan-400 hover:bg-cyan-600/30">
                 Open {selected_dossier.edge.target_name} Profile →
               </button>
             {/if}

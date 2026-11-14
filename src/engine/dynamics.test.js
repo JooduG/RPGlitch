@@ -20,9 +20,7 @@ describe("engine/dynamics.js & definitions/dynamics.js", () => {
 
   describe("extract_entity_dynamics_baselines", () => {
     it("extracts baselines from entity or returns empty object", () => {
-      const entity_with_baselines = {
-        dynamics_baseline: { intensity: 60, affinity: 70 },
-      };
+      const entity_with_baselines = { dynamics_baseline: { intensity: 60, affinity: 70 } };
       expect(extract_entity_dynamics_baselines(entity_with_baselines)).toEqual({ intensity: 60, affinity: 70 });
       expect(extract_entity_dynamics_baselines(null)).toEqual({});
       expect(extract_entity_dynamics_baselines({})).toEqual({});
