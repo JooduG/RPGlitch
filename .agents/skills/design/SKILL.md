@@ -37,7 +37,7 @@ description: >-
 - **When to Skip**: Skip this skill when modifying pure simulation/data logic (`src/engine/`, `src/intelligence/`, `src/data/`), authoring interactive motion/transitions, or implementing audio/TTS synthesis.
 - **Exclusions**:
   - [motion](../motion/SKILL.md): All duration budgets, easing curves (`--ease-out`, `--ease-in-out`, `--ease-drawer`), press scales, blur limits, and View Transitions choreography.
-  - [audio](../audio/SKILL.md): Web Audio API synthesis, SFX, and Kokoro TTS playback.
+  - [audio](../audio/SKILL.md): Web Audio API synthesis, procedural SFX, and Web Speech TTS playback.
   - [simulation](../simulation/SKILL.md): Turn/round physics, director/actor loop, and state schemas.
   - [local-scripts](../local-scripts/SKILL.md): Repository-wide verification gates (`npm run verify`) and ignore/deploy workflows.
   - Global `svelte` & `javascript` skills: Svelte 5 Runes architecture and non-UI engine utilities.
