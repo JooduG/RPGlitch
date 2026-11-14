@@ -8,7 +8,7 @@
 
   import { runtime } from "@engine";
   import { get_signature_color, motion } from "@media";
-  import { StyleBadge } from "@primitives";
+  import StyleBadge from "./StyleBadge.svelte";
   import { guarded_transition } from "@utils";
   import { flushSync } from "svelte";
   import ContextMenu from "./ContextMenu.svelte";

@@ -7,7 +7,8 @@
    */
   import { DYNAMICS } from "@config";
   import { runtime } from "@engine";
-  import { Accordion, Button, Meter, tooltip } from "@primitives";
+  import { Accordion, Button, tooltip } from "@primitives";
+  import Meter from "./Meter.svelte";
   import { format_datetime } from "@utils";
 
   /**

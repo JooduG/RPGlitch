@@ -12,6 +12,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Removed synthetic DOM/event shims in `src/ui/primitives/Toggle.svelte` and `src/ui/primitives/Slider.svelte` (`onchange` now passes `boolean` / `number` directly).
   - Removed unused `active_open` derived state in `src/ui/primitives/Modal.svelte`.
   - Removed obsolete `register_image_preview_handlers` bridge from `src/ui/interface.svelte.js`, `src/ui/index.js`, and `src/App.svelte`.
+  - Moved domain-coupled `Meter.svelte` and `StyleBadge.svelte` from `src/ui/primitives/` to `src/ui/` and updated consumer imports.
+  - Pruned `src/ui/primitives/NumberField.svelte` by replacing its 2 seed-input usages in `src/ui/ImagePreview.svelte` and `src/ui/VisualWing.svelte` with styled native `<input type="number">`.
+  - Added an optional `footer` snippet to `src/ui/primitives/Dialog.svelte` and migrated `src/ui/Console.svelte`'s "Conclude Active Story" modal off direct `bits-ui` `AlertDialog`.
 
 - **Tailwind v4 Responsive & Preflight Cleanup**:
   - Added `--breakpoint-mobile: 48rem;` to `@theme` and trimmed redundant Preflight resets (`box-sizing: border-box`, `margin: 0`, `padding: 0`, `line-height: 1.5`) from `@layer base` in `DESIGN.md`.

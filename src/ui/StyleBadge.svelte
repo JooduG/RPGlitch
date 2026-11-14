@@ -15,8 +15,8 @@
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
   import { get_style_initials } from "@utils";
-  import { NARRATIVE_STYLES } from "../../definitions/narrative-styles.js";
-  import { VISUAL_STYLES } from "../../definitions/visual-styles.js";
+  import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
+  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
 
   /**
    * `layout` controls badge sizing & interaction:

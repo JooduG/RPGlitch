@@ -7,11 +7,10 @@
    */
   import { db, session_driver, simulation_log, stories } from "@data";
   import { chrono_engine, execute_epilogue, execute_ghostwriter, force_recover_simulation, get_transport, runtime, simulation_state } from "@engine";
-  import { Audio, get_signature_color, item_in, overlay_in, overlay_out, pulse, roll, shimmy, stab } from "@media";
+  import { Audio, get_signature_color, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { install_begin_flight_effect, storyboard } from "@ui";
-  import { build_story_export_filename, click_outside, download_text_file, export_story_markdown, resolve_ms } from "@utils";
-  import { AlertDialog } from "bits-ui";
+  import { build_story_export_filename, click_outside, download_text_file, export_story_markdown } from "@utils";
   import { tick } from "svelte";
   import { app } from "./interface.svelte.js";
   import StoryCard from "./StoryCard.svelte";
@@ -402,9 +401,6 @@
       show_end_story_modal = false;
     }
   }
-
-  const duration_in = resolve_ms("--duration-standard", 300);
-  const duration_out = resolve_ms("--duration-fast", 150);
 </script>
 
 <svelte:window
@@ -807,81 +803,16 @@
 <!-- ========================================================================= -->
 <!-- MODAL: END ACTIVE STORY                                                   -->
 <!-- ========================================================================= -->
-<AlertDialog.Root bind:open={show_end_story_modal} preventScroll={false}>
-  <AlertDialog.Portal>
-    <AlertDialog.Overlay forceMount>
-      {#snippet child({ props: overlayProps, open: is_open })}
-        {#if is_open}
-          <Backdrop
-            {...overlayProps}
-            onclick={() => {
-              if (!is_ending_story) show_end_story_modal = false;
-            }}
-            layer="max"
-            busy={is_ending_story}
-            variant="mini">
-            <AlertDialog.Content forceMount>
-              {#snippet child({ props: contentProps })}
-                <div
-                  {...contentProps}
-                  class="
-                    pointer-events-auto
-                    relative
-                    z-max
-                    flex
-                    w-(--dialog-width)
-                    cursor-default
-                    flex-col
-                    justify-between
-                    gap-standard
-                    overflow-hidden
-                    rounded-standard
-                    bg-glass-elevated
-                    p-standard
-                    duration-300
-
-                    before:pointer-events-none
-                    before:absolute
-                    before:inset-0
-                    before:-z-10
-                    before:bg-(--noise-url)
-                    before:opacity-10
-                    before:mix-blend-overlay
-
-                    sm:w-[calc(var(--spacing-column-unit)*4)]
-
-                    {is_ending_story ? 'pointer-events-none cursor-wait brightness-75 grayscale' : ''}"
-                  style="
-                    --dialog-width: 90vw;
-
-                    backdrop-filter: var(--blur-mist);
-                    transition-property: filter;
-                  "
-                  in:overlay_in={{ duration: duration_in }}
-                  out:overlay_out={{ duration: duration_out }}>
-                  <AlertDialog.Title class="m-0 p-0 text-left">
-                    <h6 class="m-0 uppercase">Conclude Active Story</h6>
-                  </AlertDialog.Title>
-
-                  <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
-                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
-                      Would you like to author a final epilogue before concluding, or conclude immediately?
-                    </p>
-                  </AlertDialog.Description>
-
-                  <footer class="flex w-full flex-col justify-end gap-tight outline-none sm:flex-row">
-                    <Button variant="primary" onclick={handle_epilogue_and_conclude} label="Generate Epilogue & Conclude" disabled={is_ending_story} />
-                    <Button variant="danger" onclick={handle_conclude_immediately} label="Conclude Immediately" disabled={is_ending_story} />
-                  </footer>
-                </div>
-              {/snippet}
-            </AlertDialog.Content>
-          </Backdrop>
-        {/if}
-      {/snippet}
-    </AlertDialog.Overlay>
-  </AlertDialog.Portal>
-</AlertDialog.Root>
+<Dialog
+  bind:open={show_end_story_modal}
+  title="Conclude Active Story"
+  message="Would you like to author a final epilogue before concluding, or conclude immediately?"
+  busy={is_ending_story}>
+  {#snippet footer()}
+    <Button variant="primary" onclick={handle_epilogue_and_conclude} label="Generate Epilogue & Conclude" disabled={is_ending_story} />
+    <Button variant="danger" onclick={handle_conclude_immediately} label="Conclude Immediately" disabled={is_ending_story} />
+  {/snippet}
+</Dialog>
 
 <!-- ========================================================================= -->
 <!-- MODAL: ACTIVE STORY GUARD (CONFIRM BEFORE OVERWRITING IN STORYBOARD)       -->

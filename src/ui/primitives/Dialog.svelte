@@ -32,6 +32,7 @@
     // Handlers
     on_confirm = () => {},
     on_cancel = () => {},
+    footer = null,
   } = $props();
 
   // Derived action config - single source of truth for the action button
@@ -137,11 +138,15 @@
 
                   <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
                   <footer style="display: flex;" class="flex w-full justify-end gap-standard outline-none">
-                    <AlertDialog.Action>
-                      {#snippet child({ props: actionProps })}
-                        <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />
-                      {/snippet}
-                    </AlertDialog.Action>
+                    {#if footer}
+                      {@render footer()}
+                    {:else}
+                      <AlertDialog.Action>
+                        {#snippet child({ props: actionProps })}
+                          <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />
+                        {/snippet}
+                      </AlertDialog.Action>
+                    {/if}
                   </footer>
                 </div>
               {/snippet}

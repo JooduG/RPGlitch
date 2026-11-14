@@ -16,7 +16,8 @@
   } from "@data";
   import { runtime, simulation_state } from "@engine";
   import { get_signature_color } from "@media";
-  import { Button, Dialog, Dropdown, Label, Modal, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
+  import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
+  import StyleBadge from "./StyleBadge.svelte";
   import { ProfilePicture } from "@ui";
   import {
     auto_resize,

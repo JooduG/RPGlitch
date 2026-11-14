@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { extract_aesthetic_traits, get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, sanitize_visual_text, SIGNATURE_COLORS } from "@media";
-  import { Button, Dropdown, Label, NumberField, SourceField, TextField, Toggle, tooltip } from "@primitives";
+  import { Button, Dropdown, Label, SourceField, TextField, Toggle, tooltip } from "@primitives";
   import { VISUAL_STYLES } from "../definitions/visual-styles.js";
   import { app } from "./interface.svelte.js";
 
@@ -276,13 +276,14 @@
           onchange={() => profile_state.mark_mutated()} />
       </div>
       <div class="flex h-full w-full flex-col justify-end gap-tight">
-        <NumberField
+        <input
           id="seed-input"
+          type="number"
           bind:value={profile_state.char.modifiers.profile_picture_seed}
           disabled={!profile_state.is_editing || is_prompt_busy}
           oninput={() => profile_state.mark_mutated()}
           placeholder="Seed"
-          class="min-h-12 w-full" />
+          class="glass-input min-h-12 w-full [appearance:textfield] text-center font-mono [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
       </div>
     </div>
   </div>

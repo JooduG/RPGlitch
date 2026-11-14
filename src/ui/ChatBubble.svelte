@@ -192,7 +192,8 @@
   import { parse_bracket_entries, parse_think_block, simulation_log, strip_bracket_engine_flags } from "@data";
   import { runtime, simulation_state } from "@engine";
   import { Audio, get_cadence_rate, get_resolution, get_signature_color, render_optics_fallback, resolve_voice_uri } from "@media";
-  import { Accordion, Button, Shimmer, StyleBadge, TextField, tooltip } from "@primitives";
+  import { Accordion, Button, Shimmer, TextField, tooltip } from "@primitives";
+  import StyleBadge from "./StyleBadge.svelte";
   import { EntityCard, ProfilePicture, image_picker, open_picker } from "@ui";
   import { get_percentage, parse_relational_vector, resolve_speaking_style, safe_html } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";

@@ -308,7 +308,7 @@
 <script>
   import { runtime } from "@engine";
   import { get_resolution } from "@media";
-  import { Backdrop, Button, Dropdown, Modal, NumberField, Shimmer, TextField, tooltip } from "@primitives";
+  import { Backdrop, Button, Dropdown, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
   import { app } from "./interface.svelte.js";
@@ -553,15 +553,16 @@
         <div class="mt-auto grid shrink-0 grid-cols-2 gap-standard">
           <!-- Row 1: Seed & Regenerate -->
           {#if preview_state.metadata.seed !== undefined && preview_state.metadata.seed !== null}
-            <NumberField
+            <input
+              type="number"
               value={preview_state.metadata.seed}
               placeholder="Seed"
-              readonly={true}
-              actions={[tooltip]}
+              readonly
+              use:tooltip={"Click to copy seed"}
               aria-label="Click to copy seed"
               onclick={handle_copy_seed}
               onkeydown={handle_keydown_stub}
-              class="col-start-1 row-start-1 h-12! w-full text-lg" />
+              class="glass-input col-start-1 row-start-1 h-12! w-full cursor-pointer [appearance:textfield] text-center font-mono text-lg [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
           {/if}
 
           {#if preview_state.on_regenerate}
