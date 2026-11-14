@@ -59,10 +59,10 @@
   }
 
   /**
-   * @param {Event & { currentTarget: HTMLInputElement }} e
+   * @param {number} val - cadence index 0..4 (Slider passes the value directly)
    */
-  function handle_cadence_change(e) {
-    const idx = Number(e.currentTarget.value);
+  function handle_cadence_change(val) {
+    const idx = Number(val);
     if (!isNaN(idx) && VOICE_CADENCES[idx]) {
       profile_state.char.voice.cadence = VOICE_CADENCES[idx].id;
       profile_state.mark_mutated();
