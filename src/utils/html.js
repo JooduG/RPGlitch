@@ -26,6 +26,27 @@ import { truncate_at_word } from "./text.js";
 /** Text pattern identifying benign ResizeObserver layout deferral warnings. */
 const RESIZE_OBSERVER_LOOP_PATTERN = "ResizeObserver loop";
 
+let environment_hardening_installed = false;
+
+/**
+ * True when a log/error payload is the benign ResizeObserver layout-deferral
+ * notice ("ResizeObserver loop completed with undelivered notifications").
+ * Chrome reports it via console.error (not window.onerror), so pattern-match
+ * every shape: raw strings, Error.message, ErrorEvent.message/error, and
+ * rejection reasons.
+ * @param {any} target
+ * @returns {boolean}
+ */
+function is_resize_observer_loop_notice(target) {
+  if (!target) return false;
+  try {
+    const candidates = [target.message, target.reason, target.error?.message, target];
+    return candidates.some((candidate) => candidate != null && String(candidate).includes(RESIZE_OBSERVER_LOOP_PATTERN));
+  } catch {
+    return false;
+  }
+}
+
 /** Text patterns identifying benign Perchance iframe sandbox internal artifacts. */
 const PERCHANCE_FRAME_ERROR_PATTERNS = ["Symbol", "numActualScriptLines"];
 
@@ -53,6 +74,22 @@ export function is_perchance_frame_error(target) {
  */
 export function install_environment_hardening() {
   if (typeof window === "undefined") return;
+  if (environment_hardening_installed) return;
+  environment_hardening_installed = true;
+
+  // Chrome delivers the loop notice via console.error, which neither
+  // window.onerror nor the capture-phase error listener sees. Filter it at
+  // the call site so the platform error badge never fires on viewport
+  // resizes. Pattern-scoped: every other console.error passes through.
+  const original_console_error = console.error.bind(console);
+  console.error = function (...args) {
+    try {
+      if (args.some((arg) => is_resize_observer_loop_notice(arg))) return;
+    } catch {
+      /* fall through to the real console.error below */
+    }
+    return original_console_error(...args);
+  };
 
   const original_onerror = window.onerror;
   window.onerror = function (msg, source, lineno, colno, error) {
@@ -66,8 +103,7 @@ export function install_environment_hardening() {
   window.addEventListener(
     "error",
     (event) => {
-      const message = event?.message;
-      if (message && String(message).includes(RESIZE_OBSERVER_LOOP_PATTERN)) {
+      if (is_resize_observer_loop_notice(event)) {
         event.preventDefault?.();
         event.stopImmediatePropagation?.();
         return;
@@ -83,6 +119,11 @@ export function install_environment_hardening() {
   window.addEventListener(
     "unhandledrejection",
     (event) => {
+      if (is_resize_observer_loop_notice(event?.reason)) {
+        event.preventDefault?.();
+        event.stopPropagation?.();
+        return;
+      }
       if (is_perchance_frame_error(event?.reason)) {
         event.preventDefault?.();
         event.stopPropagation?.();

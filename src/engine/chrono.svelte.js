@@ -252,8 +252,17 @@ export class ChronoEngine {
             /* Telemetry logging must never break turn progression */
           }
         } catch (e) {
-          console.error("[Chrono] Generation Failed:", e);
-          state_bridge.app.log("Error: Generation Failed.", "error");
+          const aborted =
+            /** @type {any} */ (e)?.name === "AbortError" ||
+            String(/** @type {any} */ (e)?.message || "").includes("aborted") ||
+            controller.signal.aborted;
+          if (aborted) {
+            console.warn("[Chrono] Generation aborted by user.");
+            state_bridge.app.log("Generation interrupted by user.", "warn");
+          } else {
+            console.error("[Chrono] Generation Failed:", e);
+            state_bridge.app.log("Error: Generation Failed.", "error");
+          }
           throw e;
         } finally {
           state_bridge.simulation_state.complete();

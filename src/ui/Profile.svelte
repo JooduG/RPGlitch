@@ -1903,7 +1903,7 @@
                       variant="invisible"
                       size="small"
                       square={true}
-                      aria-label="Enhance with AI"
+                      aria-label={"Enhance " + (field.label || section.label || "field") + " with AI"}
                       actions={[tooltip]}
                       disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
                       onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
