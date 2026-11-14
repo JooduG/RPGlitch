@@ -87,13 +87,13 @@
           rounded-full
           backdrop-blur-sm
           transition-[background-color,box-shadow,filter,transform]
-          duration-300
-          ease-in-out
+          duration-(--duration-fast)
+          ease-out
           group-hover/toggle:brightness-125
           focus-visible:outline
           focus-visible:outline-offset-1
           focus-visible:outline-slate-600
-          active:scale-[0.96]
+          active:scale-sink
           disabled:cursor-default
           data-disabled:cursor-default
 

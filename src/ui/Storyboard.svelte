@@ -863,24 +863,24 @@
           cursor-text
           px-standard
           text-center
+          font-display
           text-[clamp(1.5rem,3.2vw,2.6rem)]
           font-normal
           text-balance
           transition-[background-color,box-shadow]
           duration-300
+
           select-none
-
           hover:rounded-md
-          hover:bg-white/5
 
+          hover:bg-white/5
           focus:rounded-md
           focus:bg-black/20
           focus:shadow-md
-          focus:outline-none
 
+          focus:outline-none
           [&>span]:pointer-events-auto
         "
-        style="font-family: Satisfy, cursive;"
         use:tooltip={{ text: "Double-click to regenerate title" }}
         contenteditable="true"
         aria-label="Story Title"
@@ -899,7 +899,7 @@
                 class="
                 inline
                 px-tight
-                font-['Satisfy',cursive]
+                font-display
                 whitespace-nowrap
                 text-(--signature-color)
                 [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
@@ -911,7 +911,7 @@
                 class="
               inline
               px-tight
-              font-['Satisfy',cursive]
+              font-display
               whitespace-normal
               text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]
             ">{part.text}</span

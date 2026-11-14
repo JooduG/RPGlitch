@@ -30,17 +30,8 @@ describe("Design System Orchestration Engine", () => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it("should parse Markdown frontmatter and generate CSS + unified JS tokens bridge", () => {
-      const mockMd = `---
-colors:
-  color-obsidian: "#0b0c10"
-  color-adrenaline-pink: "#ec4899"
-signatures:
-  - color-adrenaline-pink
----
-# Architecture Specs
-`;
-      fs.writeFileSync(tmpMd, mockMd);
+    function runSync(markdown) {
+      fs.writeFileSync(tmpMd, markdown);
 
       execSync(`node ${SCRIPT_SYNC}`, {
         env: {
@@ -52,14 +43,66 @@ signatures:
         },
       });
 
-      const finalCss = fs.readFileSync(tmpCss, "utf8");
-      expect(finalCss).toContain("--color-obsidian: #0b0c10;");
+      return {
+        css: fs.readFileSync(tmpCss, "utf8"),
+        js: fs.readFileSync(tmpJs, "utf8"),
+      };
+    }
 
-      const finalJs = fs.readFileSync(tmpJs, "utf8");
+    it("should parse Markdown frontmatter and generate CSS + unified JS tokens bridge", () => {
+      const { css: finalCss, js: finalJs } = runSync(`---
+colors:
+  color-obsidian: "#0b0c10"
+  color-adrenaline-pink: "#ec4899"
+signatures:
+  - color-adrenaline-pink
+---
+# Architecture Specs
+`);
+
+      expect(finalCss).toContain("--color-obsidian: #0b0c10;");
       expect(finalJs).toContain("export const TOKENS = Object.freeze({");
       expect(finalJs).toContain("export const PALETTE = Object.freeze({");
       expect(finalJs).toContain("export const SIGNATURE_COLORS = [");
       expect(finalJs).toContain("Adrenaline Pink");
+    });
+
+    it("should resolve object typography, {category.token} references, and top-level theme tokens", () => {
+      const { css: finalCss, js: finalJs } = runSync(`---
+colors:
+  color-electric-cyan: "#11aecc"
+  color-dev-accent: "{colors.color-electric-cyan}"
+  primary: "#11aecc"
+  empty-fill: "rgb(23 23 23 / 0.6)"
+typography:
+  font-sans:
+    fontFamily: '"Inter", sans-serif'
+  font-display:
+    fontFamily: '"Satisfy", cursive'
+rounded:
+  radius-sharp: "{spacing.spacing-unit}"
+spacing:
+  spacing-unit: 0.25rem
+theme:
+  duration-fast: 150ms
+  scale-sink: "0.97"
+---
+# Design Tokens
+`);
+
+      expect(finalCss).toContain("--color-dev-accent: var(--color-electric-cyan);");
+      expect(finalCss).toContain('--font-sans: "Inter", sans-serif;');
+      expect(finalCss).toContain('--font-display: "Satisfy", cursive;');
+      expect(finalCss).not.toContain("--fontFamily:");
+      expect(finalCss).toContain("--radius-sharp: var(--spacing-unit);");
+      expect(finalCss).toContain("/* --- COMPONENTS --- */");
+      expect(finalCss).toContain("--duration-fast: 150ms;");
+      expect(finalCss).toContain("--scale-sink: 0.97;");
+
+      const paletteBlock = finalJs.match(/export const PALETTE = Object\.freeze\(\{[\s\S]*?\}\);/)?.[0] ?? "";
+      expect(paletteBlock).toContain('"Electric Cyan": "#11aecc"');
+      expect(paletteBlock).not.toContain("Primary");
+      expect(paletteBlock).not.toContain("empty-fill");
     });
   });
 });

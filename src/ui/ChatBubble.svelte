@@ -960,11 +960,7 @@
 
 {#snippet cursive_title()}
   {#if app.story_title}
-    <h2
-      class="mb-standard text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance"
-      style="font-family: Satisfy, cursive;"
-      data-msg-title
-    >
+    <h2 class="mb-standard text-center font-display text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance" data-msg-title>
       {#if app.story_title_parts.length > 0}
         {#each app.story_title_parts as part, i (i)}
           {#if part.color}

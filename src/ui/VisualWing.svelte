@@ -235,11 +235,11 @@
           shadow-ghost
           transition-shadow
           duration-(--duration-fast)
-          ease-(--motion-dissolve)
+          ease-out
           has-not-disabled:hover:z-20
           has-not-disabled:hover:shadow-standard
           has-not-disabled:hover:brightness-125
-          has-not-disabled:active:scale-[0.96]
+          has-not-disabled:active:scale-sink
           {current_label === name
             ? `
             z-25

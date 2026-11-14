@@ -293,7 +293,7 @@
     `}
     {is_pressing && !disabled
     ? `
-      scale-96
+      scale-sink
       border-[color-mix(in_srgb,var(--signature-color)_100%,transparent)]
     `
     : ''}

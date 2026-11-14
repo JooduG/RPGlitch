@@ -2,6 +2,7 @@ import fs from "fs";
 import yaml from "js-yaml";
 import path from "path";
 import { fileURLToPath } from "url";
+import { resolveTokenValue } from "./token-utils.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,12 +70,19 @@ function flattenFrontmatter(data) {
 
       const category = obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : active_category;
 
-      if (value && typeof value === "object") {
-        traverse(value, category);
-      } else {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        if (Object.hasOwn(value, "fontFamily")) {
+          const target_category = category || "components";
+          if (result[target_category]) {
+            result[target_category][key] = resolveTokenValue(value.fontFamily);
+          }
+        } else {
+          traverse(value, category);
+        }
+      } else if (value !== undefined && value !== null) {
         const target_category = category || "components";
         if (result[target_category]) {
-          result[target_category][key] = value;
+          result[target_category][key] = resolveTokenValue(value);
         } else {
           console.error(`[ERROR] Unknown category "${target_category}" for token "${key}"`);
         }
@@ -112,7 +120,7 @@ function buildJsBridge(flat_data) {
   const palette_css_variables = {};
 
   for (const [name, value] of Object.entries(colors).sort()) {
-    if (typeof value === "string" && value.startsWith("#")) {
+    if (name.startsWith("color-") && typeof value === "string" && value.startsWith("#")) {
       const label = name
         .replace(/^color-/, "")
         .split("-")

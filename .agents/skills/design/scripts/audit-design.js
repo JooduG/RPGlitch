@@ -1,7 +1,7 @@
 import fs from "fs";
 import ignore from "ignore";
 import path from "path";
-import { PATHS, getSourceFiles, parseDefinedTokens } from "./token-utils.js";
+import { PATHS, getSourceFiles, parseDefinedTokens, parseSignatureTokens } from "./token-utils.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -190,7 +190,12 @@ export function findUnusedTokens() {
   const definedMap = parseDefinedTokens();
   const source_files = getSourceFiles(PATHS.src).filter((f) => f !== PATHS.designCss && f !== PATHS.jsBridge);
 
-  const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
+  const intra_token_values = Array.from(definedMap.values())
+    .map((entry) => entry.value)
+    .join("\n");
+  const design_body = fs.existsSync(PATHS.designMd) ? fs.readFileSync(PATHS.designMd, "utf8").split(/^---$/m).slice(2).join("---") : "";
+
+  const combined_content = [...source_files.map((f) => fs.readFileSync(f, "utf8")), intra_token_values, design_body].join("\n");
 
   // Tailwind v4 resolves utilities from theme tokens, so a token counts as
   // USED when any of these appear in src: the literal `--token`, its bare
@@ -249,28 +254,11 @@ export function findUnusedTokens() {
     "--active-signature-color", // interface.svelte.js: documentElement setProperty
   ]);
 
-  const unused = Array.from(definedMap.keys()).filter((token) => {
-    // Exempt signature color palette stuff from debt
-    const signatureColors = [
-      "--coral-rose",
-      "--forest-green",
-      "--lemon-yellow",
-      "--lime-green",
-      "--neon-teal",
-      "--ocean-blue",
-      "--pumpkin-amber",
-      "--royal-purple",
-      "--sunset-orange",
-      "--twilight-violet",
-      "--crimson-red",
-      "--frisk",
-      "--glass-peak",
-      "--frozen",
-      "--frozen",
-      "--frozen",
-    ];
-    if (signatureColors.includes(token)) return false;
+  const signature_tokens = parseSignatureTokens();
+  const EXEMPT_DESIGN_TOKENS = new Set([...signature_tokens, "--color-glass-peak", "--z-index-modal", "--z-index-popover", "--z-index-tooltip"]);
 
+  const unused = Array.from(definedMap.keys()).filter((token) => {
+    if (EXEMPT_DESIGN_TOKENS.has(token)) return false;
     if (RUNTIME_CONSTRUCTED_TOKENS.has(token)) return false;
     return !token_used_in_code(token, combined_content);
   });

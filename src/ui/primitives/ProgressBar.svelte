@@ -67,7 +67,7 @@
           absolute
           inset-y-0
           w-1/3
-          animate-[progress-indeterminate_var(--duration-slow)_var(--ease-standard)_infinite]
+          animate-[progress-indeterminate_var(--duration-slow)_var(--ease-in-out)_infinite]
           rounded-full
           bg-electric-cyan
           shadow-[0_0_8px_var(--color-electric-cyan)]

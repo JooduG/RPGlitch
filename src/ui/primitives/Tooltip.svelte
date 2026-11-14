@@ -154,13 +154,15 @@
                     group
                     pointer-events-none
                     relative
-                    z-99999
+                    z-(--z-index-tooltip)
                     flex
+                    origin-(--transform-origin)
                     flex-col
                     items-center
                     drop-shadow-lg
                     transition-opacity
-                    duration-150
+                    duration-(--duration-fast)
+                    ease-out
 
                     {open ? 'opacity-100' : 'opacity-0'}"
                   transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}

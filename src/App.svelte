@@ -83,7 +83,7 @@
 
 <main
   id="main-content"
-  class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left"
+  class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-out)_forwards] overflow-hidden text-left"
   data-view={app.view}
 >
   <div class="pointer-events-none fixed inset-0 z-0 h-dvh w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
@@ -165,27 +165,6 @@
     background-size: cover;
     background-attachment: fixed;
     background-repeat: no-repeat;
-  }
-
-  /* ── Global Document Resets ─────────────────────────────────── */
-
-  :global(html),
-  :global(body) {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-  }
-
-  /* ── Kinetic Physics Realization ────────────────────────────── */
-
-  @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
   }
 
   /* ── Diagnostic Global Grid ─────────────────────────────────── */

@@ -59,44 +59,79 @@ export function getCategory(name, value = "") {
  * Parses DESIGN.md and extracts all defined custom properties from the YAML frontmatter.
  * @returns {Map<string, {value: string}>} Map of token name -> { value }
  */
-export function parseDefinedTokens() {
-  const tokens = new Map();
-  if (!fs.existsSync(PATHS.designMd)) return tokens;
+/**
+ * Resolves `{category.token}` references to CSS `var(--token)` syntax.
+ * @param {unknown} raw_value - Raw YAML token value.
+ * @returns {string} CSS-ready token value.
+ */
+export function resolveTokenValue(raw_value) {
+  return String(raw_value).replace(/\{[a-zA-Z0-9_-]+\.([a-zA-Z0-9_-]+)\}/g, "var(--$1)");
+}
+
+/**
+ * Loads and parses the YAML frontmatter block from DESIGN.md.
+ * @returns {Record<string, unknown>} Parsed frontmatter object, or empty object on failure.
+ */
+function loadDesignFrontmatter() {
+  if (!fs.existsSync(PATHS.designMd)) return {};
 
   const content = fs.readFileSync(PATHS.designMd, "utf8");
   const parts = content.split(/^---$/m);
-  if (parts.length < 3) return tokens;
+  if (parts.length < 3) return {};
 
-  let data = {};
   try {
-    data = yaml.load(parts[1]) || {};
+    return yaml.load(parts[1]) || {};
   } catch (error) {
     console.error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error.message}`);
-    return tokens;
+    return {};
   }
+}
+
+export function parseDefinedTokens() {
+  const tokens = new Map();
+  const frontmatter_data = loadDesignFrontmatter();
 
   /**
-   * Recursively walks the frontmatter tree to collect all leaf token values.
-   * @param {Record<string, unknown>} obj - The current node in the token tree.
+   * Recursively walks a frontmatter branch to collect CSS token definitions.
+   * @param {Record<string, unknown>} branch - The current node in the token tree.
    */
-  function traverse(obj) {
-    if (!obj || typeof obj !== "object") return;
-    Object.entries(obj).forEach(([key, value]) => {
-      if (value && typeof value === "object") {
-        traverse(value);
-      } else {
-        tokens.set(`--${key}`, { value: String(value) });
+  function traverse(branch) {
+    if (!branch || typeof branch !== "object") return;
+    Object.entries(branch).forEach(([key, value]) => {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        if (Object.hasOwn(value, "fontFamily")) {
+          tokens.set(`--${key}`, { value: resolveTokenValue(value.fontFamily) });
+        } else {
+          traverse(value);
+        }
+      } else if (value !== undefined && value !== null) {
+        tokens.set(`--${key}`, { value: resolveTokenValue(value) });
       }
     });
   }
 
-  AUTHORITATIVE_CATEGORIES.forEach((cat) => {
-    if (data[cat]) {
-      traverse(data[cat]);
+  for (const category_name of new Set([...AUTHORITATIVE_CATEGORIES, "theme"])) {
+    if (frontmatter_data[category_name]) {
+      traverse(frontmatter_data[category_name]);
     }
-  });
+  }
 
   return tokens;
+}
+
+/**
+ * Parses declared signature color identifiers from DESIGN.md frontmatter.
+ * @returns {Set<string>} Set of `--color-*` signature CSS variable names.
+ */
+export function parseSignatureTokens() {
+  const frontmatter_data = loadDesignFrontmatter();
+  if (!Array.isArray(frontmatter_data.signatures)) return new Set();
+
+  return new Set(
+    frontmatter_data.signatures
+      .filter((entry) => typeof entry === "string" && entry.trim().length > 0)
+      .map((entry) => (entry.startsWith("--") ? entry : `--${entry}`)),
+  );
 }
 
 /**

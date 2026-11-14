@@ -275,14 +275,14 @@
   <div
     bind:this={tooltip_el}
     class="
-      pointer-events-none fixed z-9999
+      pointer-events-none fixed z-(--z-index-popover)
       mb-standard w-max max-w-100
       -translate-x-1/2 -translate-y-full
       rounded-md border border-slate-600 bg-neutral-900/98
       px-tight py-1.5
       text-center font-sans text-xs/normal tracking-normal whitespace-normal text-slate-50 normal-case
       shadow-lg
-      transition-[opacity,transform] duration-150 ease-out
+      transition-[opacity,transform] duration-(--duration-fast) ease-out
       {is_hovered || is_active ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}
     "
     style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;"

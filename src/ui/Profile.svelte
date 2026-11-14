@@ -348,7 +348,7 @@
   let _prev_has_wings = null;
 
   /** Slides `el` from one translateX to another via a CSS transition (FLIP). */
-  function slide_x(el, from_x, to_x, ease = "var(--motion-elastic)") {
+  function slide_x(el, from_x, to_x, ease = "var(--ease-drawer)") {
     if (el._slide_timer) clearTimeout(el._slide_timer);
     el.style.transition = "none";
     el.style.transform = `translateX(${from_x})`;
@@ -373,7 +373,7 @@
     el.style.opacity = "1";
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        el.style.transition = "opacity 90ms ease-in";
+        el.style.transition = "opacity 90ms var(--ease-out)";
         el.style.opacity = "0";
       });
     });
@@ -417,11 +417,11 @@
     if (_prev_has_wings !== hw) {
       _prev_has_wings = hw;
       if (hw) {
-        if (card_ref) slide_x(card_ref, "33.33%", "0", "var(--motion-elastic)");
-        if (wings_ref) slide_x(wings_ref, "-165%", "0", "var(--motion-elastic)");
+        if (card_ref) slide_x(card_ref, "33.33%", "0", "var(--ease-drawer)");
+        if (wings_ref) slide_x(wings_ref, "-165%", "0", "var(--ease-drawer)");
       } else {
         if (card_ref) slide_x(card_ref, "-33.33%", "0", "300ms ease-out");
-        if (wings_ref) slide_x(wings_ref, "0", "-165%", "var(--motion-elastic)");
+        if (wings_ref) slide_x(wings_ref, "0", "-165%", "var(--ease-drawer)");
       }
     }
   });
@@ -461,8 +461,7 @@
     "flex overflow-hidden border border-solid transition-[height,grid-template-columns,grid-template-rows,border-radius] duration-300 relative z-10 " +
       (app.viewport.mobile
         ? "col-span-full h-full flex-col rounded-none "
-        : (has_wings ? "modal-profile-grid-main row-start-1 my-auto h-[90dvh]" : "modal-profile-grid-flat row-start-1 my-auto h-[90dvh]") +
-          " rounded-2xl ") +
+        : (has_wings ? "md:col-[2/8] row-start-1 my-auto h-[90dvh]" : "md:col-[4/10] row-start-1 my-auto h-[90dvh]") + " rounded-2xl ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
@@ -1293,7 +1292,7 @@
         class={"relative isolate z-0 flex scrollbar-none gap-standard [&::-webkit-scrollbar]:hidden " +
           (app.viewport.mobile
             ? "col-span-full w-full items-start overflow-x-visible"
-            : "col-[9/12] row-start-1 flex-col items-center overflow-y-auto")}
+            : "col-[9/12] row-start-1 min-h-0 flex-col items-center [justify-content:safe_center] overflow-y-auto")}
         bind:this={wings_ref}
         style:pointer-events={has_wings ? "auto" : "none"}
       >

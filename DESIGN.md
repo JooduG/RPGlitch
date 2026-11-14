@@ -2,15 +2,15 @@
 name: RPGlitch
 version: alpha
 colors:
+  color-adrenaline-pink: "#ec4899"
   color-background-gradient-1: "#0b101a"
   color-background-gradient-2: "#14182b"
   color-background-gradient-3: "#1e1b38"
   color-background-gradient-4: "#16243b"
   color-chalk: "#171717"
-  color-soft-rose: "#fb7185"
   color-crimson-red: "#ef4444"
   color-deep-indigo: "#818cf8"
-  color-dev-accent: var(--color-electric-cyan)
+  color-dev-accent: "{colors.color-electric-cyan}"
   color-electric-cyan: "#11aecc"
   color-emerald-green: "#10b981"
   color-forest-green: "#15803d"
@@ -20,17 +20,19 @@ colors:
   color-glass-peak: "#fff9"
   color-glass-sunken: "#17171799"
   color-gunmetal: "#334155"
-  color-adrenaline-pink: "#ec4899"
   color-lemon-yellow: "#fde047"
-  color-toxic-green: "#84cc16"
-  color-scientific-teal: "#14b8a6"
-  color-space-blue: "#3b82f6"
+  color-proud-purple: "#a855f7"
   color-pumpkin-amber: "#fbbf24"
   color-pure-white: "#fff"
-  color-proud-purple: "#a855f7"
   color-rusty-orange: "#f97316"
+  color-scientific-teal: "#14b8a6"
+  color-soft-rose: "#fb7185"
+  color-space-blue: "#3b82f6"
+  color-toxic-green: "#84cc16"
   color-twilight-violet: "#c084fc"
   color-void-black: "#000"
+  empty-fill: "rgb(23 23 23 / 0.6)"
+  signature-color: "{colors.color-frozen}"
 signatures:
   - color-adrenaline-pink
   - color-crimson-red
@@ -48,26 +50,39 @@ signatures:
   - color-toxic-green
   - color-twilight-violet
 typography:
-  font-base: '"Inter", sans-serif'
-  font-heading: '"Ubuntu", sans-serif'
-  font-mono: '"JetBrains Mono", monospace'
+  font-display:
+    fontFamily: '"Satisfy", cursive'
+  font-heading:
+    fontFamily: '"Ubuntu", sans-serif'
+  font-mono:
+    fontFamily: '"JetBrains Mono", monospace'
+  font-sans:
+    fontFamily: '"Inter", sans-serif'
 rounded:
-  radius-sharp: var(--spacing-unit)
-  radius-standard: calc(var(--spacing-unit) *4)
+  radius-sharp: "{spacing.spacing-unit}"
+  radius-standard: "{spacing.spacing-standard}"
 spacing:
+  spacing-character-card-height: calc(var(--spacing-row-unit) * 5)
+  spacing-character-card-width: calc(var(--spacing-column-unit) * 2)
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
-  spacing-standard: calc(var(--spacing-unit)* 4)
-  spacing-tight: calc(var(--spacing-unit) *2)
+  spacing-fractal-card-height: calc(var(--spacing-row-unit) * 4)
+  spacing-fractal-card-width: calc(var(--spacing-column-unit) * 4)
   spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max))
-  spacing-grid-height-max: clamp(25rem, calc(1.618* 100vw), 100dvh)
+  spacing-grid-height-max: clamp(25rem, calc(1.618 * 100vw), 100dvh)
   spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max))
-  spacing-grid-width-max: clamp(50rem, calc(1.618 *100dvh), 100vw)
-  spacing-row-unit: calc(var(--spacing-grid-height) / 12)
+  spacing-grid-width-max: clamp(50rem, calc(1.618 * 100dvh), 100vw)
+  spacing-icon-medium: calc(var(--spacing-unit) * 8)
+  spacing-icon-small: calc(var(--spacing-unit) * 4)
+  spacing-kinetic-shimmy-offset: "{spacing.spacing-pixel}"
+  spacing-kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
+  spacing-kinetic-stab-distance: "{spacing.spacing-unit}"
   spacing-pixel: 1px
+  spacing-row-unit: calc(var(--spacing-grid-height) / 12)
+  spacing-standard: 1rem
+  spacing-tight: 0.5rem
   spacing-unit: 0.25rem
-components:
-  signature-color: var(--color-frozen)
-  blur-mist: blur(calc(var(--spacing-unit)* 4))
+theme:
+  blur-mist: blur(calc(var(--spacing-unit) * 4))
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
@@ -75,19 +90,11 @@ components:
   duration-fast: 150ms
   duration-slow: 500ms
   duration-standard: 300ms
-  ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
-  ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1)
-  spacing-icon-medium: calc(var(--spacing-unit) *8)
-  spacing-icon-small: calc(var(--spacing-unit)* 4)
-  kinetic-drag-threshold: "10"
-  kinetic-momentum-friction: "0.95"
-  kinetic-scroll-multiplier: "1.5"
-  spacing-kinetic-shimmy-offset: var(--spacing-pixel)
-  spacing-kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
-  spacing-kinetic-slide-y: calc(var(--spacing-pixel) *10)
-  spacing-kinetic-stab-distance: var(--spacing-unit)
-  motion-dissolve: opacity var(--duration-standard) var(--ease-standard)
-  motion-elastic: var(--duration-slow) var(--ease-elastic)
+  ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)
+  ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)
+  ease-out: cubic-bezier(0.23, 1, 0.32, 1)
+  motion-dissolve: opacity var(--duration-fast) var(--ease-out)
+  motion-elastic: var(--duration-standard) var(--ease-drawer)
   noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
   opacity-ghost: "0.1"
   opacity-muted: "0.6"
@@ -96,269 +103,50 @@ components:
   opacity-whisper: "0.3"
   scale-lift: "1.02"
   scale-pulse: "1.05"
-  scale-sink: "0.96"
-  shadow-ghost: 0 var(--spacing-pixel) var(--spacing-pixel) rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
-  shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit)* 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
-  shadow-ambient: 0 0 calc(var(--spacing-unit) *5) var(--color-void-black)
-  signature-glow: 0 0 calc(var(--spacing-unit)* 4) var(--color-frozen)
+  scale-sink: "0.97"
+  shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-background-gradient-1)
+  shadow-ghost: 0 var(--spacing-pixel) var(--spacing-pixel) rgb(from var(--color-background-gradient-1) r g b / var(--opacity-ghost))
+  shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit) * 4) rgb(from var(--color-background-gradient-1) r g b / var(--opacity-whisper))
+  signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--signature-color, var(--color-frozen))
   spring-damping-default: "0.8"
   spring-stiffness-default: "0.15"
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
-  spacing-character-card-height: calc(var(--spacing-row-unit) *5)
-  spacing-character-card-width: calc(var(--spacing-column-unit)* 2)
-  spacing-fractal-card-height: calc(var(--spacing-row-unit) *4)
-  spacing-fractal-card-width: calc(var(--spacing-column-unit)* 4)
   z-index-max: "999"
-  empty-fill: "rgb(23 23 23 / 0.6)"
+  z-index-modal: "999"
+  z-index-popover: "9999"
+  z-index-tooltip: "99999"
 ---
 
-# ⚔️ RPGlitch Design System
+# RPGlitch Design System
 
 > "Depth is the ultimate luxury. Precision is the baseline of sovereignty."
 
-This design system adheres to the [design.md specification](https://github.com/google-labs-code/design.md) by Google Labs (aligned with the [W3C Design Tokens Community Group](https://design-tokens.github.io/community-group/format/)), declaring authoritative tokens in YAML frontmatter and design guidelines in Markdown. Tokens are automatically compiled to Tailwind CSS v4 and JavaScript bridges via `.agents/skills/design/scripts/sync-css.js`.
+This specification is the single source of truth for the RPGlitch visual token system and base stylesheets. YAML frontmatter conforms to the `@google/design.md` specification and compiles into Tailwind CSS v4 tokens ([src/media/design.css](src/media/design.css)) and the JavaScript token bridge ([src/media/tokens.js](src/media/tokens.js)).
 
-The RPGlitch Design System is a high-fidelity aesthetic framework. It envisions the application as a high-end research terminal situated within a sub-zero facility-cool, deep, and elegant.
+## Overview
 
-## ❄️ The Nordic Collection (Vision)
+The interface is modeled as a subterranean Nordic research terminal — cool, deep, clinical, and restrained.
 
-The interface is a high-end research terminal in a frozen facility.
+- **Atmosphere**: Abyssal four-stop backgrounds (`--color-background-gradient-1` through `--color-background-gradient-4`), subtle film grain calibrated to 10% opacity (`--opacity-ghost` with `--noise-url`), and diffused glassmorphic surfaces (`--blur-mist`).
+- **Imagery Direction**: Prefer macro/micro natural textures (ice crystals, mineral grain, fabric weave), low-saturation palettes harmonized with the active signature color, and atmospheric stillness over high-action composition.
+- **4-Tier Architecture**: T1 Foundations (units, timings, palette hexes) → T2 Semantics (`colors`, `rounded`, `spacing`) → T3 Organisms (`spacing-character-*`, `spacing-fractal-*`) → T4 Realization (Tailwind utilities and custom `@utility` / `@layer base` rules compiled below).
 
-- **The Atmosphere**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic blurs.
-- **The Voice**: Cool, clinical, and precise.
-- **The Palette**: Gunmetal, Chalk, and Frozen tones.
-- **Adjectives**: Minimalist, Focused, Clinical, Abyssal, Frozen, Elegant.
+## Colors
 
-### 🖼️ Imagery Style (Sovereign Directive)
+- **Core Neutrals & Surfaces**: `--color-chalk` (`#171717`, near-black charcoal surface), `--color-gunmetal` (`#334155`), `--color-frozen` (`#475569`), `--color-frisk` (`#f8fafc`, primary foreground text), `--color-pure-white` (`#fff`), `--color-void-black` (`#000`), and translucency wells `--color-glass-sunken`, `--color-glass-elevated`, `--color-glass-peak`, `--empty-fill`.
+- **Developer Telemetry**: `--color-dev-accent` aliases `--color-electric-cyan` (`#11aecc`) for prompt brackets, vector diagnostics, and active engine telemetry.
+- **Entity Signatures**: The `signatures` list designates 15 vibrant accent tokens compiled into `SIGNATURE_COLORS`. Components resolve `--signature-color` dynamically per entity, falling back to `--color-frozen`.
 
-All imagery in the RPGlitch ecosystem must adhere to the following stylistic constraints:
+## Typography
 
-- **Macro/Micro Focus**: Prefer zoomed-in, high-detail shots (e.g., macro photo of ice crystals, zoomed-in texture of natural fabrics).
-- **Color Consistency**: Images should reflect the palette. If a theme changes, images must be updated to match.
-- **Atmospheric**: Use images that feel quiet and atmospheric, avoiding gaudy or high-action content.
-
-## 📐 Laws
-
-### 1. Token Sovereignty & IDE Alignment
-
-The system operates within a closed-loop token architecture. While using raw values is generally discouraged, **Tailwind CSS v4 IDE IntelliSense suggestions take absolute priority**. Do not enforce strict arbitrary properties if the IDE suggests a valid shorthand (e.g., `mask-exclude`).
-
-### 2. Kinetic Physics (The Grounded Law)
-
-Interactions favor depth and filters over vertical "lifts" or "bounces." Hover focuses on icon color and brightness, not layout shift.
-
-### 3. Visual Depth (The Z-Law)
-
-Visual hierarchy is governed by the Z-Law. Components detach from the abyssal background via structural shadows and glassmorphic filters.
-
-### 4. Auditory Harmony
-
-Sound effects must be clinical and minimalist. Audio is a feedback layer, never an interruption.
-
-### 5. Textual Precision
-
-All interface copy must be clinical and concise. Use UI/UX keywords consistently (e.g., "navigation bar," "call-to-action button"). Avoid flowery language.
-
----
-
-## 🏗️ Technical Architecture (4-Tier)
-
-1. **T1: Foundations (Atoms)**: Base values like spacing units, colors, and timing.
-2. **T2: Semantics (Molecules)**: Functional mappings (e.g., `--chalk`).
-3. **T3: Organisms**: Component-specific tokens (e.g., `--modal-width-base`).
-4. **T4: Realization**: CSS classes and Svelte logic that manifest the system.
-
----
-
-## 🧩 Pattern Registry (T4 Realization)
-
-### Headless Component Foundations
-
-The UI layers have been migrated from raw DOM manipulations to standardized headless components powered by `bits-ui`. The layout aesthetics are strictly preserved using semantic selectors and data attributes mapped directly from the library engines:
-
-- **Tooltip Layer**: Powered by `bits-ui/Tooltip`. Container overlays query `.tooltip-container[data-side="bottom"]` and compile portalled tracking at `z-index: var(--z-index-max)` to ensure clearing modal context bounds cleanly.
-- **Modal Framework**: Driven by `bits-ui/Dialog`. Manages focus-trapping, portal distribution, and Escape-key dismissals natively. Transitions map via custom snippets into native `fly` / `scale` states.
-- **Alert Dialogs**: Reconfigured via `bits-ui/AlertDialog` for high-priority destructive validation steps (e.g., memory clearing). Enforces explicit semantic roles (`[role="alertdialog"]`) and handles button action traps safely.
-- **Switch Controls**: Unified under `bits-ui/Switch`. Targets `.switch-root` and `.switch-thumb` elements, utilizing `[data-state="checked"]` and pointer restrictions natively.
-- **Slider Ranges**: Migrated to `bits-ui/Slider`. Removes auxiliary overlay blocks, letting custom background gradients compute coordinates directly via root `--state-fill-start` and `--state-fill-end` variables.
-- **Button Primitives**: Replaced with `bits-ui/Button`. Implements custom global scopes (`.svelte-button`) with reactive string allocations to protect Svelte 5 compilation rules.
-- **Dropdown Viewports**: Reconfigured using `bits-ui/Select`, querying state changes via `[data-highlighted]` and `[data-state="checked"]` to match glassmorphic list rows.
-- **Scroll Layering**: Wrapped via `bits-ui/ScrollArea` over primary list feeds, textboxes (`data-mode="readonly"`), and panels to eliminate platform layout shifts.
-
-### Structural Chassis
-
-- `.glass-sunken`: Submerged layer. Used for backgrounds and inactive containers.
-- `.glass-base`: Default interface layer.
-- `.glass-elevated`: Floating layer. Used for active cards and popovers.
-- `.glass-peak`: Maximum elevation. Used for modals and critical dialogs.
-
-### Interaction Reflex
-
-- `.interactable`: Standard hover/active behavior (Grounded Law).
-- `.truncate`: Ellipsis truncation for text containers.
-
-### Typography
-
-- `h1-h6`: Architectural weight, tightly tracked.
-- `.font-heading`: The "Ubuntu" font for structural hierarchy.
-- `.font-mono`: The "JetBrains Mono" font for data and terminal output.
-- `.font-base`: The "Inter" font for standard reading.
-- `.data-output`: Monochromatic, spaced, terminal-style text.
-
----
-
-## 🖥️ Screen Specifications (Stitch Templates)
-
-Use the following H2/H3 structure for specific screen prompts to ensure the Stitch bridge parses them correctly.
-
-```text
-## [Component Name / Screen Title]
-
-### [Element ID / Functional Area]
-
-- **Description**: Semantic description of the element (e.g., "A pill-shaped primary button with whisper-soft shadows").
-- **Intent**: What this element should achieve (e.g., "Directs user to the research log").
-- **Tokens**: Reference specific tokens.
-```
-
----
-
-## 🤖 THE WEAVER PROTOCOL
-
-The **Weaver** is the bridge between the Architect's intent and the Engine's reality.
-
-1. **The Source**: All changes start in **DESIGN.md**.
-2. **The Sync**: `npm run sync` triggers the Weaver to generate `design.css`, `src/media/tokens.js`, and `src/data/definitions/signature-colors.js` from this file.
-3. **The Audit**: `npm run audit:design` (The Warden) ensures 100% compliance across the codebase.
-4. **The Handoff**: Automatic build gate verification secures token compliance prior to deployment.
-
-The `signatures` frontmatter block names the vibrant entity colors that become
-`SIGNATURE_COLORS` - the canonical set of valid entity signature colors. It is
-regenerated into `src/data/definitions/signature-colors.js`; never edit that
-file by hand.
-
----
+- **Body & Interface (`--font-sans`)**: `"Inter", sans-serif` — neutral legibility for dialogue, forms, and long-form reading.
+- **Structural Headings (`--font-heading`)**: `"Ubuntu", sans-serif` — tightly tracked hierarchy across `h1`–`h6`.
+- **Display & Narrative Script (`--font-display`)**: `"Satisfy", cursive` — reserved for atmospheric titles and storybook accents.
+- **Telemetry & Brackets (`--font-mono`)**: `"JetBrains Mono", monospace` — monospaced precision for prompt brackets, token counters, and ledger diffs.
 
 ```css
-/* --- T4: Realization (Patterns & Resets) --- */
-
-/* Global Scrollbars */
-::-webkit-scrollbar {
-  width: calc(var(--spacing-unit) * 2);
-  height: calc(var(--spacing-unit) * 2);
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: var(--radius-sharp);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-gunmetal);
-  border-radius: var(--radius-sharp);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-frisk);
-}
-
-@utility mask-border-solid {
-  /* stylelint-disable property-no-vendor-prefix */
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  /* stylelint-enable property-no-vendor-prefix */
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-}
-
-@utility console-shimmer {
-  position: absolute;
-  background: linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--color-electric-cyan) 10%, transparent) 50%, transparent 58%);
-  background-size: 250% 100%;
-  animation: console-shimmer-sweep 2.4s linear infinite;
-}
-
-@utility message--prologue {
-  transition: opacity 650ms ease;
-}
-
-@utility prologue-awaiting-flight {
-  opacity: 0;
-}
-
-@utility glass-input {
-  position: relative;
-  display: flex;
-  width: var(--state-fill-end);
-  border-radius: var(--radius-standard);
-  border-color: transparent;
-  background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 4%, var(--color-glass-sunken));
-  transition-property: border-color, box-shadow, background;
-  transition-duration: var(--duration-fast);
-  transition-timing-function: var(--ease-standard);
-
-  &::before {
-    pointer-events: none;
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: var(--spacing-pixel);
-    opacity: var(--opacity-whisper);
-    transition-property: opacity;
-    transition-duration: var(--duration-standard);
-    content: "";
-    background: linear-gradient(to bottom, color-mix(in srgb, transparent, var(--signature-color, var(--color-frozen)) 40%), transparent 40%);
-    /* stylelint-disable property-no-vendor-prefix */
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    /* stylelint-enable property-no-vendor-prefix */
-    mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-  }
-
-  &:focus-within,
-  &[data-expanded="true"] {
-    border-color: transparent;
-    background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 8%, var(--color-glass-sunken));
-
-    &::before {
-      opacity: var(--opacity-solid);
-      background: linear-gradient(
-        to bottom,
-        var(--signature-color, var(--color-frozen)),
-        color-mix(in srgb, var(--signature-color, var(--color-frozen)), transparent 60%) 30%,
-        transparent 80%
-      );
-    }
-  }
-}
-
-@utility terminal-box {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: var(--radius-sharp);
-  border: var(--spacing-pixel) solid color-mix(in srgb, var(--color-electric-cyan) 20%, transparent);
-  background-color: rgba(24, 24, 27, 0.4);
-  text-align: left;
-  font-family: var(--font-mono);
-  backdrop-filter: blur(4px);
-  transition-property: border-color, box-shadow;
-  transition-duration: var(--duration-standard);
-  transition-timing-function: var(--ease-standard);
-}
-
 @layer base {
   *,
   *::before,
@@ -375,11 +163,29 @@ file by hand.
     width: 100%;
     height: 100%;
     overflow: hidden;
-    font-family: var(--font-base);
+    font-family: var(--font-sans);
     color: var(--color-frisk);
     background-color: var(--color-chalk);
     line-height: 1.5;
     text-align: left;
+  }
+
+  .skip-link {
+    position: fixed;
+    top: calc(var(--spacing-unit) * -20);
+    left: var(--spacing-standard);
+    z-index: var(--z-index-tooltip);
+    padding: var(--spacing-tight) var(--spacing-standard);
+    border-radius: var(--radius-sharp);
+    background-color: var(--color-chalk);
+    color: var(--color-frisk);
+    font-family: var(--font-mono);
+    transition: top var(--duration-fast) var(--ease-out);
+  }
+
+  .skip-link:focus-visible {
+    top: var(--spacing-standard);
+    outline: var(--spacing-pixel) solid var(--color-pure-white);
   }
 
   h1,
@@ -421,70 +227,6 @@ file by hand.
     font-size: clamp(1rem, 1vw + 0.9rem, 1.25rem);
   }
 
-  p,
-  span,
-  label,
-  li,
-  strong,
-  em,
-  small,
-  blockquote,
-  time,
-  code,
-  kbd,
-  mark,
-  q,
-  cite,
-  dfn,
-  sub,
-  sup,
-  b,
-  i,
-  u {
-    font-family: inherit; /* Allow inheritance from parent (e.g. h1) */
-    margin: 0;
-    line-height: inherit;
-  }
-
-  /* Base text fallback ONLY for top-level or specific containers */
-  body > p,
-  body > label,
-  main p,
-  main label,
-  section p,
-  section label {
-    font-family: var(--font-base);
-  }
-
-  strong,
-  b {
-    font-weight: 700;
-  }
-
-  em,
-  i {
-    font-style: italic;
-  }
-
-  u {
-    text-decoration: underline;
-  }
-
-  sup,
-  sub {
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
-  }
-
-  sup {
-    top: -0.5em;
-  }
-
-  sub {
-    bottom: -0.25em;
-  }
-
   small {
     font-size: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
   }
@@ -500,7 +242,7 @@ file by hand.
   a {
     color: inherit;
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-standard);
+    transition: color var(--duration-fast) var(--ease-out);
   }
 
   button,
@@ -528,11 +270,55 @@ file by hand.
     outline: none;
   }
 }
+```
 
-/* --- CAPABILITY & POINTER RESPONSIVENESS --- */
+## Layout & Spacing
 
-/* Prevent scale/brightness transitions on touchscreens to avoid sticky hovers */
-@media (hover: none) {
+- **12x12 Golden Ratio Stage Grid**: Stage geometry derives from `spacing-grid-width` / `spacing-grid-height` constrained by a `1.618` golden aspect ratio, subdividing cleanly into `--spacing-column-unit` and `--spacing-row-unit` for entity (`2x5`) and fractal (`4x4`) cards.
+- **Rhythm Scale**: Base quantum `--spacing-unit` (`0.25rem`), `--spacing-tight` (`0.5rem`), and `--spacing-standard` (`1rem`), paired with `--spacing-pixel` (`1px`) for hairline separators.
+- **Scroll Contract**: Root `html, body` sets `overflow: hidden` to lock the fixed viewport stage; scrolling regions opt into `ScrollArea` or `overflow-y-auto`.
+- **Host Isolation Bridge**: Perchance host pages inject unlayered `normalize.css v3` rules that force `display: block` on HTML5 landmark tags. The unlayered zero-specificity `:where(...)` rules below restore Tailwind `flex`, `inline-flex`, `grid`, and `hidden` utilities without resorting to `!important` overrides.
+
+```css
+/* Unlayered normalize.css v3 HTML5 landmark override bridge */
+:where(article, aside, details, figcaption, figure, footer, header, main, nav, section).flex {
+  display: flex;
+}
+
+:where(article, aside, details, figcaption, figure, footer, header, main, nav, section).inline-flex {
+  display: inline-flex;
+}
+
+:where(article, aside, details, figcaption, figure, footer, header, main, nav, section).grid {
+  display: grid;
+}
+
+:where(article, aside, details, figcaption, figure, footer, header, main, nav, section).hidden {
+  display: none;
+}
+
+/* Global scrollbars */
+::-webkit-scrollbar {
+  width: calc(var(--spacing-unit) * 2);
+  height: calc(var(--spacing-unit) * 2);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: var(--radius-sharp);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gunmetal);
+  border-radius: var(--radius-sharp);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-frisk);
+}
+
+/* Touch capability & pointer gating */
+@media (hover: none), (pointer: coarse) {
   button:hover,
   [role="button"]:hover,
   a:hover {
@@ -541,7 +327,7 @@ file by hand.
   }
 }
 
-/* Sniff coarse pointer to expand target sizes (WCAG 2.2 Success Criterion 2.5.8 compliant) */
+/* Expand opt-in interactive targets to 44px minimum on coarse-pointer devices */
 @media (pointer: coarse) {
   .touch-target-coarse {
     min-width: 44px !important;
@@ -552,8 +338,118 @@ file by hand.
     justify-content: center;
   }
 }
+```
 
-/* --- VIEW TRANSITIONS & NOISE ANIMATIONS (Phase 4) --- */
+## Elevation & Depth
+
+- **Tinted Abyssal Shadows**: `--shadow-ghost`, `--shadow-standard`, and `--shadow-ambient` tint drop-shadows with `--color-background-gradient-1` (`#0b101a`) rather than pure `#000` so surfaces merge naturally into the slate stage.
+- **Z-Index Hierarchy**: Stage panels sit below explicit overlay tiers: `--z-index-modal` (`999`, mirrored by legacy `--z-index-max`), `--z-index-popover` (`9999`), and `--z-index-tooltip` (`99999`).
+- **Backdrop Filtration**: Glass panels pair `--color-glass-sunken` / `--color-glass-elevated` with `--blur-mist` (`1rem`).
+
+## Shapes
+
+- **Border Radii**: `--radius-sharp` (`--spacing-unit`, `0.25rem`) for micro controls, badges, code pills, and terminal boxes; `--radius-standard` (`--spacing-standard`, `1rem`) for modal shells, inputs, and entity cards.
+- **Masked Gradient Hairlines**: Active panels and inputs use `@utility mask-border-solid` (XOR CSS masking) rather than opaque inner fills so translucency stays unbroken across stacked backgrounds.
+
+## Components
+
+Interactive UI primitives (headless `bits-ui` wrappers, buttons, dialogs, dropdowns, sliders, fields, and badges) are documented authoritatively in [src/ui/primitives/README.md](src/ui/primitives/README.md).
+
+Active T4 utilities compiled from this specification:
+
+- `@utility mask-border-solid`: XOR gradient mask utility for 1px illuminated borders on `::before` pseudo-elements.
+- `@utility glass-input`: Full-width glassmorphic field wrapper with signature-tinted hover/focus border glow and translucent well.
+- `@utility terminal-box`: Monospaced console container styled with `--color-glass-sunken`, `--blur-mist`, `--radius-sharp`, and `--color-electric-cyan` borders.
+- `@utility message--prologue` / `@utility prologue-awaiting-flight`: Opacity staging utilities for storyboard-to-storymode prologue card flight landing.
+
+Two-tier motion discipline governs animations:
+
+- **Tier 1 (UI Controls, < 300ms)**: Discrete interactions (buttons, toggles, menus, dialogs) stay under 300ms using `--ease-out` / `--ease-in-out` and `--scale-sink` (`0.97`).
+- **Tier 2 (Macro Card Choreography, 300ms–500ms)**: Spatial card flights, storyboard hand fan lifts (`--scale-lift`), and 3D profile flips use damped `--ease-drawer` / `--ease-out` curves — never bouncy spring overshoot.
+
+```css
+/* --- T4: Realization (Interactive Utilities & Motion) --- */
+
+@utility mask-border-solid {
+  /* stylelint-disable property-no-vendor-prefix */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  /* stylelint-enable property-no-vendor-prefix */
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+@utility message--prologue {
+  transition: opacity 650ms var(--ease-out);
+}
+
+@utility prologue-awaiting-flight {
+  opacity: 0;
+}
+
+@utility glass-input {
+  position: relative;
+  display: flex;
+  width: 100%;
+  border-radius: var(--radius-standard);
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 4%, var(--color-glass-sunken));
+  transition-property: border-color, box-shadow, background;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out);
+
+  &::before {
+    @apply mask-border-solid;
+
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: var(--spacing-pixel);
+    opacity: var(--opacity-whisper);
+    transition: var(--motion-dissolve);
+    content: "";
+    background: linear-gradient(to bottom, color-mix(in srgb, transparent, var(--signature-color, var(--color-frozen)) 40%), transparent 40%);
+  }
+
+  &:focus-within,
+  &[data-expanded="true"] {
+    border-color: transparent;
+    background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 8%, var(--color-glass-sunken));
+
+    &::before {
+      opacity: var(--opacity-solid);
+      background: linear-gradient(
+        to bottom,
+        var(--signature-color, var(--color-frozen)),
+        color-mix(in srgb, var(--signature-color, var(--color-frozen)), transparent 60%) 30%,
+        transparent 80%
+      );
+    }
+  }
+}
+
+@utility terminal-box {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-sharp);
+  border: var(--spacing-pixel) solid color-mix(in srgb, var(--color-electric-cyan) 20%, transparent);
+  background-color: var(--color-glass-sunken);
+  text-align: left;
+  font-family: var(--font-mono);
+  backdrop-filter: var(--blur-mist);
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--duration-standard);
+  transition-timing-function: var(--ease-out);
+}
+
+/* --- Active Keyframes --- */
 
 @keyframes noise-breathing {
   0%,
@@ -598,29 +494,6 @@ file by hand.
   }
 }
 
-/* Custom view transition handling */
-::view-transition-old(modal-container) {
-  animation:
-    250ms cubic-bezier(0.42, 0, 1, 1) both fade-out,
-    250ms cubic-bezier(0.42, 0, 1, 1) both scale-down;
-}
-
-::view-transition-new(modal-container) {
-  animation:
-    350ms cubic-bezier(0, 0, 0.2, 1) both fade-in,
-    350ms var(--ease-elastic) both slide-up;
-}
-
-@keyframes fade-out {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -631,115 +504,46 @@ file by hand.
   }
 }
 
-@keyframes scale-down {
+@keyframes wing-item-slide-down {
   from {
-    transform: scale(1);
-  }
-
-  to {
-    transform: scale(0.95);
-  }
-}
-
-@keyframes slide-up {
-  from {
-    transform: translateY(20px);
+    transform: translateY(-15px);
+    opacity: 0;
   }
 
   to {
     transform: translateY(0);
-  }
-}
-
-/* --- Decoupled Target Groups --- */
-::view-transition-group(card-slot-ai),
-::view-transition-group(card-slot-user),
-::view-transition-group(card-slot-fractal) {
-  animation-duration: var(--duration-standard, 400ms);
-  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1); /* Precise mechanical ease */
-}
-
-/* --- Outgoing Card: Decay Vector back to Deck --- */
-:root.is-swapping-card ::view-transition-old(card-slot-ai),
-:root.is-swapping-card ::view-transition-old(card-slot-user),
-:root.is-swapping-card ::view-transition-old(card-slot-fractal) {
-  animation: card-swap-decay var(--duration-standard, 400ms) cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  mix-blend-mode: normal;
-  height: 100%;
-  width: 100%;
-}
-
-/* --- Incoming Card: Ascent Vector into Slot --- */
-:root.is-swapping-card ::view-transition-new(card-slot-ai),
-:root.is-swapping-card ::view-transition-new(card-slot-user),
-:root.is-swapping-card ::view-transition-new(card-slot-fractal) {
-  animation: card-swap-ascent var(--duration-standard, 400ms) cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  mix-blend-mode: normal;
-  height: 100%;
-  width: 100%;
-}
-
-/* --- Kinetic Keyframe Arrays --- */
-@keyframes card-swap-decay {
-  0% {
-    transform: translateY(0) scale(1) rotate(0deg);
     opacity: 1;
-    filter: brightness(1);
-  }
-
-  40% {
-    filter: brightness(0.8);
-  }
-
-  100% {
-    /* Translate downward toward the orbital hand workspace with a slight tilt */
-    transform: translateY(calc(var(--spacing-row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
-    opacity: 0;
-    filter: brightness(0.4) blur(2px);
   }
 }
 
-@keyframes card-swap-ascent {
-  0% {
-    /* Emerge from the lower deck coordinates slightly scaled down */
-    transform: translateY(calc(var(--spacing-row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
-    opacity: 0;
-    filter: brightness(1.5) blur(4px);
+@keyframes undo-countdown-shrink {
+  from {
+    transform: scaleX(1);
   }
 
-  50% {
-    opacity: 1;
-    filter: blur(0);
-  }
-
-  100% {
-    transform: translateY(0) scale(1) rotate(0deg);
-    opacity: 1;
-    filter: brightness(1);
+  to {
+    transform: scaleX(0);
   }
 }
 
-/* Enforce uniform mechanical interpolation rates */
+/* --- View Transitions (Card Slots, Fractal Backdrop & Console) --- */
+
 ::view-transition-group(card-slot-ai),
 ::view-transition-group(card-slot-user),
 ::view-transition-group(card-slot-fractal),
-::view-transition-group(entity-morph-ai),
-::view-transition-group(entity-morph-user),
 ::view-transition-group(entity-morph-fractal),
 ::view-transition-group(unified-console) {
   animation-duration: var(--duration-slow);
-  animation-timing-function: var(--ease-standard);
+  animation-timing-function: var(--ease-drawer);
 }
 
-/* Clip view transition groups to match the cards' rounded corners */
 ::view-transition-group(card-slot-ai),
 ::view-transition-group(card-slot-user),
 ::view-transition-group(card-slot-fractal) {
-  border-radius: var(--radius-standard, 1rem) !important;
+  border-radius: var(--radius-standard) !important;
   overflow: hidden !important;
 }
 
-/* Base overrides for persistent elements (defaults for view transitions) */
 ::view-transition-old(card-slot-ai),
 ::view-transition-old(card-slot-user),
 ::view-transition-old(card-slot-fractal),
@@ -760,7 +564,70 @@ file by hand.
   width: 100% !important;
 }
 
-/* Suppress all conflicting CSS layout/opacity transitions when a view transition is active */
+/* Card-swap transitions inside storyboard slots */
+:root.is-swapping-card ::view-transition-group(card-slot-ai),
+:root.is-swapping-card ::view-transition-group(card-slot-user),
+:root.is-swapping-card ::view-transition-group(card-slot-fractal) {
+  animation-duration: var(--duration-standard);
+  animation-timing-function: var(--ease-out);
+}
+
+:root.is-swapping-card ::view-transition-old(card-slot-ai),
+:root.is-swapping-card ::view-transition-old(card-slot-user),
+:root.is-swapping-card ::view-transition-old(card-slot-fractal) {
+  animation: card-swap-decay var(--duration-standard) var(--ease-out) forwards;
+  mix-blend-mode: normal;
+  height: 100%;
+  width: 100%;
+}
+
+:root.is-swapping-card ::view-transition-new(card-slot-ai),
+:root.is-swapping-card ::view-transition-new(card-slot-user),
+:root.is-swapping-card ::view-transition-new(card-slot-fractal) {
+  animation: card-swap-ascent var(--duration-standard) var(--ease-out) forwards;
+  mix-blend-mode: normal;
+  height: 100%;
+  width: 100%;
+}
+
+@keyframes card-swap-decay {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+
+  40% {
+    filter: brightness(0.8);
+  }
+
+  100% {
+    transform: translateY(calc(var(--spacing-row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
+    opacity: 0;
+    filter: brightness(0.4) blur(2px);
+  }
+}
+
+@keyframes card-swap-ascent {
+  0% {
+    transform: translateY(calc(var(--spacing-row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
+    opacity: 0;
+    filter: brightness(1.5) blur(4px);
+  }
+
+  50% {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+/* Suppress conflicting layout/opacity transitions during view transitions */
 :root.is-switching-view *,
 :root.is-switching-view *::before,
 :root.is-switching-view *::after,
@@ -779,15 +646,10 @@ html:active-view-transition *::after {
 
 /* --- 3D Profile Flip Transition --- */
 
-/* Elevate active transition groups above inactive bystander cards */
 :root.is-profile-opening-ai::view-transition-group(card-slot-ai),
 :root.is-profile-closing-ai::view-transition-group(card-slot-ai),
-:root.is-profile-opening-ai::view-transition-group(entity-morph-ai),
-:root.is-profile-closing-ai::view-transition-group(entity-morph-ai),
 :root.is-profile-opening-user::view-transition-group(card-slot-user),
 :root.is-profile-closing-user::view-transition-group(card-slot-user),
-:root.is-profile-opening-user::view-transition-group(entity-morph-user),
-:root.is-profile-closing-user::view-transition-group(entity-morph-user),
 :root.is-profile-opening-fractal::view-transition-group(card-slot-fractal),
 :root.is-profile-closing-fractal::view-transition-group(card-slot-fractal),
 :root.is-profile-opening-fractal::view-transition-group(entity-morph-fractal),
@@ -795,49 +657,34 @@ html:active-view-transition *::after {
   z-index: var(--z-index-max);
 }
 
-/* Match root transition duration to the card flip duration during profile toggle */
 :root[class*="is-profile-"]::view-transition-old(root),
 :root[class*="is-profile-"]::view-transition-new(root) {
   animation-duration: var(--duration-slow);
 }
 
-/* AI */
 :root.is-profile-opening-ai::view-transition-old(card-slot-ai),
 :root.is-profile-closing-ai::view-transition-old(card-slot-ai),
-:root.is-profile-opening-ai::view-transition-old(entity-morph-ai),
-:root.is-profile-closing-ai::view-transition-old(entity-morph-ai),
-/* USER */
 :root.is-profile-opening-user::view-transition-old(card-slot-user),
 :root.is-profile-closing-user::view-transition-old(card-slot-user),
-:root.is-profile-opening-user::view-transition-old(entity-morph-user),
-:root.is-profile-closing-user::view-transition-old(entity-morph-user),
-/* FRACTAL */
 :root.is-profile-opening-fractal::view-transition-old(card-slot-fractal),
 :root.is-profile-closing-fractal::view-transition-old(card-slot-fractal),
 :root.is-profile-opening-fractal::view-transition-old(entity-morph-fractal),
 :root.is-profile-closing-fractal::view-transition-old(entity-morph-fractal) {
-  animation: var(--duration-slow) var(--ease-standard) both profile-flip-out;
+  animation: var(--duration-slow) var(--ease-drawer) both profile-flip-out;
   backface-visibility: hidden;
   height: 100%;
   width: 100%;
 }
 
-/* AI */
 :root.is-profile-opening-ai::view-transition-new(card-slot-ai),
 :root.is-profile-closing-ai::view-transition-new(card-slot-ai),
-:root.is-profile-opening-ai::view-transition-new(entity-morph-ai),
-:root.is-profile-closing-ai::view-transition-new(entity-morph-ai),
-/* USER */
 :root.is-profile-opening-user::view-transition-new(card-slot-user),
 :root.is-profile-closing-user::view-transition-new(card-slot-user),
-:root.is-profile-opening-user::view-transition-new(entity-morph-user),
-:root.is-profile-closing-user::view-transition-new(entity-morph-user),
-/* FRACTAL */
 :root.is-profile-opening-fractal::view-transition-new(card-slot-fractal),
 :root.is-profile-closing-fractal::view-transition-new(card-slot-fractal),
 :root.is-profile-opening-fractal::view-transition-new(entity-morph-fractal),
 :root.is-profile-closing-fractal::view-transition-new(entity-morph-fractal) {
-  animation: var(--duration-slow) var(--ease-standard) both profile-flip-in;
+  animation: var(--duration-slow) var(--ease-drawer) both profile-flip-in;
   backface-visibility: hidden;
   height: 100%;
   width: 100%;
@@ -885,7 +732,6 @@ html:active-view-transition *::after {
   }
 }
 
-/* --- Fluid Aspect and Sizing Transformations for Fractal Blooming --- */
 ::view-transition-old(entity-morph-fractal),
 ::view-transition-new(entity-morph-fractal) {
   mix-blend-mode: normal;
@@ -894,119 +740,24 @@ html:active-view-transition *::after {
   object-fit: cover;
 }
 
-@media (width >= 48rem) {
-  /* Fix profile panel side grid positioning */
-  [data-wings-container] {
-    grid-column: 9 / 12 !important;
-    display: flex !important;
-    flex-direction: column !important;
-
-    /* safe center: centers content when it fits within the scroll area,
-       but starts from the top (no clipping) when content overflows. */
-    justify-content: safe center !important;
-    min-height: 0 !important;
-    align-items: center !important;
-    gap: 1rem !important;
-  }
-
-  /* Force all 3 wing section containers to maintain flex states and respect vertical gaps */
-  [data-wings-container] section {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: var(--spacing-standard, 1rem) !important;
-  }
-
-  /* Force standard desktop view margins */
-  .modal-profile-grid-main {
-    grid-column: 2 / 8 !important;
-  }
-
-  .modal-profile-grid-flat {
-    grid-column: 4 / 10 !important;
-  }
-}
-
-/* Force right alignment on utility control bars */
-footer.outline-none,
-div.flex-1.flex-col footer {
-  display: flex !important;
-  flex-direction: row !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  gap: 1rem !important;
-}
-
-/* --- Profile Card Edit-Mode Transitions --- */
-
-/* Main card sliding to the left when wings open */
-@keyframes main-card-slide-left {
-  from {
-    transform: translateX(33.33%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* Main card sliding back to center when wings close */
-@keyframes main-card-slide-center {
-  from {
-    transform: translateX(-33.33%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* Wing container sliding out to the right from behind the main card */
-@keyframes wing-slide-out {
-  from {
-    transform: translateX(-220%);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-/* Wing container sliding back in to the left when closing */
-@keyframes wing-slide-in {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-
-  to {
-    transform: translateX(-220%);
-    opacity: 0;
-  }
-}
-
-/* Edit wings sliding down vertically inside an already open wings container */
-@keyframes wing-item-slide-down {
-  from {
-    transform: translateY(-15px);
-    opacity: 0;
-  }
-
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Undo-delete countdown bar in the Storymode feed */
-@keyframes undo-countdown-shrink {
-  from {
-    transform: scaleX(1);
-  }
-
-  to {
-    transform: scaleX(0);
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 ```
+
+## Do's and Don'ts
+
+- **Do**: Reference tokens defined in frontmatter (or Tailwind utilities compiled from them) instead of hardcoded colors, shadows, or radii.
+- **Do**: Preserve depth hierarchy through tinted `--shadow-*` tokens, XOR masked borders, and glassmorphic translucency.
+- **Do**: Keep interactive control transitions under 300ms using `--ease-out` / `--ease-in-out` and `--scale-sink` (`0.97`).
+- **Don't**: Use `ease-in` on UI transitions or bouncy springs on interactive controls.
+- **Don't**: Paint pure `#000` shadows for elevation drops; use `--color-background-gradient-1` tinted shadows so depth blends into the midnight palette.
+- **Don't**: Mix `view-transition-name` with Svelte transition directives (`transition:`, `in:`, `out:`) on the same DOM node.
+- **Don't**: Edit generated outputs (`src/media/design.css`, `src/media/tokens.js`, `src/data/definitions/signature-colors.js`) by hand; always edit `DESIGN.md` and run `npm run sync:css`.

@@ -20,12 +20,13 @@ As the `design` specialist (a fusion of CSS, UI structure, and Motion), you are 
 
 ### ⚖️ The High Law
 
-- **Token Sovereignty**: Use standard Tailwind utilities mapped to tokens. Tailwind v4 IDE IntelliSense is the absolute source of truth.
+- **Token Sovereignty**: Use standard Tailwind utilities mapped to tokens. Tailwind v4 IDE IntelliSense is the absolute source of truth; prefer valid IDE shorthand suggestions (e.g., `mask-exclude`) over awkward arbitrary properties.
 - **Source Grounding**: Always read [DESIGN.md](../../../DESIGN.md) before implementing.
 - **Zero Drift**: Any styling that uses custom semantic CSS classes instead of Tailwind v4 utilities is Heresy.
 - **Layout Stability**: Cumulative Layout Shift (CLS) is a failure of physics. Components must use stable heights and tokens.
 - **Viewport Sovereignty**: No element shall ever bleed beyond the user's view. Use `min-h-[100dvh]` over `h-screen`.
-- **Pattern Registry `[FATAL]`**: All structural arrangements MUST follow the **T4 Realization** registry in [DESIGN.md](../../../DESIGN.md).
+- **Component & Utility Grounding**: Use primitive wrappers documented in [src/ui/primitives/README.md](../../../src/ui/primitives/README.md) and active T4 `@utility` classes (`mask-border-solid`, `glass-input`, `terminal-box`) compiled from [DESIGN.md](../../../DESIGN.md).
+- **Textual Precision**: Keep interface copy clinical and concise. Use consistent UI/UX terminology and avoid decorative or flowery phrasing.
 
 ### 2.1 The Three Dials Baseline (Nordic Cockpit Terminal)
 
@@ -54,9 +55,9 @@ Before writing any UI code, you MUST fetch the current state of the bridge:
 
 ### 2. Implementation Tracks
 
-- **T1-T3 Alignment**: Map semantic styles to existing tokens.
-- **T4 Pattern Manifestation**: Implement structural patterns (Glass, Typography) using the registry in [DESIGN.md](../../../DESIGN.md).
-- **Micro-Interactions**: Apply hover/active reflexes using the `kinetic` tokens.
+- **T1-T3 Alignment**: Map semantic styles to existing tokens in [DESIGN.md](../../../DESIGN.md) (`font-sans`, `font-display`, `font-heading`, `font-mono`).
+- **T4 Pattern Manifestation**: Use the headless primitive wrappers in [src/ui/primitives/README.md](../../../src/ui/primitives/README.md) and active T4 `@utility` classes (`mask-border-solid`, `glass-input`, `terminal-box`) compiled from [DESIGN.md](../../../DESIGN.md).
+- **Micro-Interactions**: Apply hover/active reflexes using `--scale-sink` (`0.97`) and `--ease-out` / `--ease-in-out` tokens (see [motion](../motion/SKILL.md)).
 
 ### 3. Spatial Positioning & Chassis
 
@@ -80,8 +81,22 @@ Before writing any UI code, you MUST fetch the current state of the bridge:
 
 Interactive motion, easing curves, button press reflexes, and animation duration budgets are governed by the dedicated [motion](../motion/SKILL.md) skill.
 
-- **Basic Reflex Tokens**: Standard hover is `hover:brightness-125` gated behind `@media (hover: hover) and (pointer: fine)`. Discrete button presses apply `active:scale-[0.97] transition-transform duration-150 ease-out`.
-- **Advanced Motion & Audits**: For animation curves (`--ease-out`, `--ease-in-out`), modal/drawer transitions, sub-300ms duration audits, or Emil Kowalski craft reviews, invoke `/motion`.
+- **Basic Reflex Tokens**: Standard hover is `hover:brightness-125` (gated on fine-pointer hover capability). Discrete button presses apply `active:scale-sink transition-transform duration-150 ease-out`.
+- **Advanced Motion & Audits**: For animation curves (`--ease-out`, `--ease-in-out`, `--ease-drawer`), two-tier duration budgets, modal/drawer transitions, or Emil Kowalski craft reviews, invoke `/motion`.
+
+### 6. Stitch Screen Prompt Structure
+
+When drafting new screen prompts for Stitch workflows, structure each component using H2/H3 headings:
+
+```text
+## [Component Name / Screen Title]
+
+### [Element ID / Functional Area]
+
+- **Description**: Semantic visual description of the element.
+- **Intent**: Functional goal of the element in the workflow.
+- **Tokens**: Specific tokens from DESIGN.md frontmatter.
+```
 
 ### 7. Bits UI (`^2.18.1`) Headless Primitives
 
@@ -135,11 +150,13 @@ When building complex interactive overlays (Dropdowns, Dialogs, Popovers, Toolti
 - **Avatar Invariance**: Apply `flex-shrink: 0` (`shrink-0`) to all avatar frames and status markers.
 - **Blur Safety**: Keep transition-time `filter: blur()` under 20px.
 
-Run `npm run audit:design` to verify zero heresy.
-The `design` skill maintains several scripts for token integrity:
+### 5.2 Weaver Synchronization & Token Audits
 
-- `sync-css.js` / `sync-css.test.js`: Design token synchronization.
-- `audit-design.js` / `audit-google-design.js`: Token validation.
+The Weaver pipeline bridges [DESIGN.md](../../../DESIGN.md) tokens into runtime assets:
+
+1. **Authoritative Source**: All token additions or edits begin in [DESIGN.md](../../../DESIGN.md) YAML frontmatter and fenced CSS blocks.
+2. **Compile**: Run `npm run sync` (or `npm run sync:css`) to regenerate `src/media/design.css` and `src/media/tokens.js`. The `signatures` frontmatter array automatically populates `SIGNATURE_COLORS` in `src/media/tokens.js` — never hand-edit generated files.
+3. **Audit & Verify**: Run `npm run audit:design` (`audit-design.js` enforces CSS/Svelte `HERESY` rules while flagging `[DEBT]` / `ADVICE` tokens; `audit-google-design.js` reports `@google/design.md` spec status non-blockingly) and `npm run verify` to gate lint, audit, and tests before release.
 
 ### Visual & Browser Audit
 
@@ -158,11 +175,11 @@ The `design` skill maintains several scripts for token integrity:
 
 - [ ] 0% raw values in implementation. All styles derived from [DESIGN.md](../../../DESIGN.md) tokens.
 - [ ] Viewport overflows eliminated.
-- [ ] Structural patterns 100% compliant with [DESIGN.md](../../../DESIGN.md).
-- [ ] Kinetic interactions compliant with `interaction-audit.md`.
+- [ ] Component structure aligned with [src/ui/primitives/README.md](../../../src/ui/primitives/README.md) and active T4 utilities in [DESIGN.md](../../../DESIGN.md).
+- [ ] Kinetic interactions compliant with [the motion audit playbook](../motion/references/audit.md).
 - [ ] CLS verified at < 0.1 for all state transitions.
 - [ ] Interaction locking prevents input during busy states.
-- [ ] Audits passed with zero violations.
+- [ ] Audits passed with zero violations (`npm run audit:design`).
 - [ ] Visual design verified via `chrome-devtools` screenshot captures or browser inspection (where applicable).
 
 ---

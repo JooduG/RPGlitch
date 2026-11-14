@@ -30,9 +30,12 @@ You are the **Sovereign Kineticist**. You own the physical feel, responsive feed
    - **100+ times/day** (keyboard shortcuts, turn submission, command palettes): **Zero animation**.
    - **Tens of times/day** (hover states, card clicks): Minimal, sub-160ms feedback.
    - **Occasional** (modals, drawers, telemetry toasts): Standard choreographed animation (<300ms).
+   - **Macro Card Choreography** (3D profile flips, card-slot swaps, storyboard card flights, card-hand fan lift `--scale-lift`): 300–500ms using damped `--ease-drawer` / `--ease-out`, never bouncy spring overshoot.
    - **Rare / First-Time** (onboarding, initial synthesis celebration): Tasteful delight.
-3. **Responsive Easing**: Entering/exiting elements must use `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`. `ease-in` on UI transitions is banned. Moving elements use `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`.
-4. **Sub-300ms Budget**: UI animations must finish under 300ms (buttons: 100–160ms, tooltips: 125–200ms, dropdowns: 150–250ms, modals: 200–250ms).
+3. **Responsive Easing**: Entering/exiting elements must use `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`. `ease-in` on UI transitions is banned. Moving elements use `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)` or `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`.
+4. **Two-Tier Duration Budget**:
+   - **Tier 1 (UI Controls, <300ms)**: Discrete interactive controls must finish under 300ms (buttons: 100–160ms, tooltips: 125–200ms, dropdowns: 150–250ms, modals: 200–250ms).
+   - **Tier 2 (Macro Card Choreography, 300–500ms)**: Spatial flights, card lifts (`--scale-lift`), and 3D profile/wing transitions may span 300–500ms strictly with damped curves (`--ease-drawer` / `--ease-out`).
 5. **Physical Correctness**: Never animate from `scale(0)`. Start from `scale(0.95)` with `opacity: 0`. Popovers scale from their trigger via `var(--transform-origin)`. Modals stay centered.
 6. **Compositor Exclusivity**: Animate `transform` and `opacity` only. Never animate layout dimensions (`width`, `height`, `top`, `left`, `margin`, `padding`). `transition: all` is prohibited.
 7. **Accessibility & Pointer Gating**: Gate all `:hover` motion behind `@media (hover: hover) and (pointer: fine)`. Honor `prefers-reduced-motion: reduce` by preserving color/opacity feedback while nullifying spatial motion.

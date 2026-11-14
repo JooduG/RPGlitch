@@ -176,7 +176,7 @@
                         text-[#f2f7fa]
 
                         transition-[background-color,color,box-shadow,transform,filter,border-color]
-                        duration-500
+                        duration-(--duration-fast)
                         ease-out
 
                         outline-none
@@ -184,7 +184,7 @@
 
                         focus:outline-none
 
-                        active:scale-[0.96]
+                        active:scale-sink
 
                         aria-selected:brightness-110
                         data-disabled:pointer-events-none

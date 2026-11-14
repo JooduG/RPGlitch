@@ -956,12 +956,4 @@
     height: 100dvh;
     z-index: 9999;
   }
-
-  .message--prologue {
-    transition: opacity 650ms ease;
-  }
-
-  .message--prologue.prologue-awaiting-flight {
-    opacity: 0;
-  }
 </style>

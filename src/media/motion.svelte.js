@@ -138,7 +138,7 @@ function create_kinetic_action(node, config) {
 export function shimmy(node) {
   return create_kinetic_action(node, {
     animate: (target, intensity) => {
-      const base_duration = resolve_ms("--duration-(--duration-slow)", 500, node);
+      const base_duration = resolve_ms("--duration-slow", 500, node);
       const animation = target.animate(
         [
           { transform: "translate(0, 0) rotate(0deg)" },
@@ -178,7 +178,7 @@ export function pulse(node) {
         return_anim.cancel();
         return_anim = null;
       }
-      const base_duration = resolve_ms("--duration-(--duration-ambient)", 1000, node);
+      const base_duration = resolve_ms("--duration-ambient", 2000, node);
       const animation = target.animate(
         [
           { transform: "scale(1)", offset: 0 },
@@ -200,8 +200,8 @@ export function pulse(node) {
     onStop: (target, currentAnimation) => {
       if (currentAnimation) {
         currentAnimation.cancel();
-        const duration = resolve_ms("--duration-(--duration-fast)", 250, node);
-        const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
+        const duration = resolve_ms("--duration-fast", 150, node);
+        const easing = resolve_string("--ease-out", "cubic-bezier(0.23, 1, 0.32, 1)", node);
         return_anim = target.animate([{ transform: "scale(1)" }], { duration, easing });
         return_anim.onfinish = () => {
           return_anim = null;
@@ -265,8 +265,8 @@ roll.is_kinetic = true;
 export function stab(node) {
   return create_kinetic_action(node, {
     animate: (target, intensity) => {
-      const base_duration = resolve_ms("--duration-(--duration-slow)", 500, node);
-      const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
+      const base_duration = resolve_ms("--duration-slow", 500, node);
+      const easing = resolve_string("--ease-out", "cubic-bezier(0.23, 1, 0.32, 1)", node);
       const animation = target.animate(
         [
           { transform: "translateX(0)", offset: 0 },
@@ -361,7 +361,7 @@ let scrub_style_injected = false;
  */
 export function make_card_clone(el, tag, z) {
   const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
-  clone.classList.remove("scale-96");
+  clone.classList.remove("scale-96", "scale-sink");
   clone.setAttribute(tag, "true");
   clone.setAttribute("aria-hidden", "true");
   clone.style.position = "fixed";
@@ -455,7 +455,7 @@ export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
         on_land?.();
       } finally {
         // Set-down: settle slightly and dissolve, revealing the destination card.
-        clone.style.transition = `transform ${set_down_ms}ms ease-in, opacity ${set_down_ms}ms ease-in`;
+        clone.style.transition = `transform ${set_down_ms}ms var(--ease-out), opacity ${set_down_ms}ms var(--ease-out)`;
         clone.style.transform = `translate(${dx}px, ${dy}px) rotate(0deg) scale(${sx * 0.96}, ${sy * 0.96})`;
         clone.style.opacity = "0";
         setTimeout(() => clone.remove(), set_down_ms + 40);
@@ -502,7 +502,7 @@ export function fly_card_out(source_el, to_rect, options = {}) {
   const fade_delay = Math.round(duration_ms * 0.5);
   const fade_ms = Math.round(duration_ms * 0.4);
   requestAnimationFrame(() => {
-    clone.style.transition = `transform ${duration_ms}ms ${EXIT_EASE}, opacity ${fade_ms}ms ease-in ${fade_delay}ms`;
+    clone.style.transition = `transform ${duration_ms}ms ${EXIT_EASE}, opacity ${fade_ms}ms var(--ease-out) ${fade_delay}ms`;
     clone.style.transform = `translate(${dx}px, ${dy}px) rotate(${tilt_deg}deg) scale(${sx}, ${sy})`;
     clone.style.opacity = "0";
   });
@@ -552,7 +552,7 @@ function cover_flight(source_el, from_rect, to_rect, options = {}) {
         try {
           on_land?.();
         } finally {
-          clone.style.transition = "opacity 140ms ease-in";
+          clone.style.transition = "opacity 140ms var(--ease-out)";
           clone.style.opacity = "0";
           setTimeout(() => clone.remove(), 160);
           resolve();

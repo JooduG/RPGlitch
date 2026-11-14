@@ -860,7 +860,7 @@
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div
-                  {contentProps}
+                  {...contentProps}
                   class="
                     pointer-events-auto
                     relative
@@ -907,8 +907,7 @@
                     </p>
                   </AlertDialog.Description>
 
-                  <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
-                  <footer style="display: flex;" class="flex w-full flex-col justify-end gap-tight outline-none sm:flex-row">
+                  <footer class="flex w-full flex-col justify-end gap-tight outline-none sm:flex-row">
                     <Button
                       variant="primary"
                       onclick={handle_epilogue_and_conclude}
