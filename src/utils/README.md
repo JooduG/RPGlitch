@@ -48,7 +48,7 @@ Rank-0 shared utilities package for **RPGlitch**, providing pure data codecs, te
 
 - [`detox.js`](./detox.js): Deterministic speaking-style and anti-AI prose rewriting:
   - `register_speaking_rules(rules)` and `register_anti_ai_rules(rules)`: Store rule tables supplied by higher layers.
-  - `detox_prose(raw_text, speaking_style = "casual", custom_rules = null)`: Applies speaking-style rules, 12 hardcoded structural regex rewrites, and registered anti-AI rules.
+  - `detox_prose(raw_text, speaking_style = "casual", custom_rules = null)`: Applies speaking-style rules, 18 hardcoded structural regex rewrites across 12 numbered sections, and registered anti-AI rules.
 - [`styles.js`](./styles.js): Style key resolution and narrative slop/shape auditing:
   - `SLOP_PATTERNS`: Deep-frozen object holding `CLICHES` (10 patterns) and `SOMATIC_MARKERS` (17 patterns).
   - `lint_narrative_slop(text)`: Returns frozen `{ violations, somatic_count, over_cap }`.

@@ -24,9 +24,9 @@ The package exposes its public interface via [`index.js`](./index.js):
   - `play_sfx(type, options = {})`: Plays procedurally synthesized sound effects (`"click"`, `"pop"`, `"glitch"`, `"alert"`, `"subtle_hum"`, fallback tone) and cleans up audio nodes on `onended`.
   - `init_audio_on_gesture()`, `suspend_audio()`, `close_audio_context()`, `get_audio_context()`, `get_master_gain()`: Hardware `AudioContext` and `GainNode` lifecycle management.
   - `set_master_volume(level)`, `toggle_mute()`: Master gain and mute controls.
-  - `VoiceEngine`: Web Speech API voice synthesis controller exposing `is_role_enabled()`, `load_voices()`, `preview()`, `resume_context()`, `set_volume()`, `speak()`, `stop()`, `pause()`, `resume()`, `toggle_pause()`, `destroy()`, `apply_stream_role()`, `queue_stream_sentence()`, `flush_stream_remainder()`, and `reset_stream()`.
+  - `VoiceEngine`: Web Speech API voice synthesis controller (`enabled`, `selected_voice`, `rate`, `volume`, `is_speaking`, `active_message_id`, `entity_voice`, `voices`, `_stream_role`, `_stream_emitted_length`) exposing `is_role_enabled()`, `load_voices()`, `preview()`, `resume_context()`, `set_volume()`, `speak()`, `stop()`, `pause()`, `resume()`, `toggle_pause()`, `destroy()`, `apply_stream_role()`, `queue_stream_sentence()`, `flush_stream_remainder()`, and `reset_stream()`.
   - Pure Voice Helpers & Cadences: `VOICE_CADENCES`, `CADENCE_RATES` (direct export in `audio.svelte.js`, not re-exported by `index.js`), `voice_role_key(role)`, `normalize_role(role, options)`, `resolve_voice_uri(name_or_uri)`, `resolve_voice_name(name_or_uri)`, `get_cadence_rate(cadence, dynamics_value = 50)`.
-  - Transitional Facades: `AudioEngine`, `Audio`, and `audio_engine` (direct export in `audio.svelte.js`, aliased as `Audio` in `index.js`).
+  - Transitional Facades: `AudioEngine`, `Audio` (exported in `audio.svelte.js` and re-exported by `index.js`), and `audio_engine` (direct export in `audio.svelte.js`, not re-exported by `index.js`), exposing `voice`, `notifications_enabled`, `volume`, `is_muted`, `voice_enabled`, `entity_voice`, `is_role_enabled(role)`, `set_entity_voice(role, is_enabled)`, `toggle_entity_voice(role)`, `play(sound_key)`, `init()`, and `destroy()`.
 
 ### 2. Unified Kinetic & Motion Physics Engine (`motion.svelte.js`)
 
@@ -43,7 +43,7 @@ The package exposes its public interface via [`index.js`](./index.js):
   - Visual Prompt Hygiene: `rescue_visual_prose(text)`, `sanitize_visual_text(text)`, `resolve_story_beat_style(options)`, `compose_story_beat_prompt(prompt_text, style_key, base_negative = "")`.
   - In-Flight Set & Queue Bookkeeping: `_in_flight_image_generations`, `_image_generation_queue`, `mark_generation_in_flight(id, attachment_index = 0)`, `clear_generation_in_flight(id, attachment_index = 0)`, `is_generation_in_flight(id, attachment_index = 0)`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`, `_remove_from_image_generation_queue(id)` (direct export in `visual.svelte.js`, not re-exported by `index.js`).
   - Ghost & Beat Lifecycle: `spawn_image_beat(tier, options = {})`, `sweep_stale_ghosts()`, `count_pending_ghosts()`, `mark_placeholder_failed(id, metadata = {})`.
-  - Host Plugin Discovery & Facades: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine`, `visual_engine`, `set_visualizer_envision_impl(fn)`.
+  - Host Plugin Discovery & Facades: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`is_loading`, `generate(target, options)`, `visualize(story_id, text, tier, options)`, `generate_candidates(prompt, options)`, `envision(text, type, entity, app_style)`), `visual_engine`, `set_visualizer_envision_impl(fn)`.
 
 ### 4. Pure Optics Taxonomy & Guidance Scale (`optics.js`)
 

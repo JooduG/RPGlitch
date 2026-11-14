@@ -25,9 +25,9 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
   - `entities`: Polymorphic facade `{ list, get, upsert, update, delete, remove }`.
   - `seed_premades()`, `list_entities(type)`, `get_entity(id, expected_type = null)`, `upsert_entity(entity)`, `update_entity(id, changes)`, `delete_entity(id)`.
 - Simulation Logs & Sessions ([`db.js`](./db.js)):
-  - `append_log_entry(entry)`, `delete_log_entry(id)`, `edit_log_entry(id, new_text)`, `update_log_attachment(id, attachment_index, new_attachment)`, `delete_log_attachment(id, attachment_index)`, `get_story_log(story_id)`, `delete_story_log(story_id)`, `log_message(text, role, character_name, options)`.
+  - `append_log_entry(entry)`, `delete_log_entry(id)`, `edit_log_entry(id, new_text)`, `update_log_attachment(id, attachment_index, new_attachment)`, `delete_log_attachment(id, attachment_index)`, `get_story_log(story_id)`, `delete_story_log(story_id)`.
   - `record_session_access(session_id)`, `get_recent_sessions(limit = 10)`, `get_active_session_id()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
-  - Direct module exports not in `index.js`: `_find_log_entry(id)`, `require_active()`.
+  - Direct module exports not in `index.js`: `log_message(text, role, character_name, options)`, `_find_log_entry(id)`, `require_active()`.
 - Mutation Ledger & Deterministic Replay ([`db.js`](./db.js)):
   - `append_ledger_entry(entry)`, `append_ledger_entries(entries)`, `get_story_ledger(story_id)`, `query_entity_history(entity_id, field = null)`, `query_story_snapshot(story_id, max_round = Infinity, max_seq = Infinity)`, `replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity)`, `replay_full_entity_at_round(entity_id, up_to_round = Infinity)`.
 - Reload Checkpoints ([`db.js`](./db.js)):

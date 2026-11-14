@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## `[Unreleased]`
 
+- **EGM Architecture Contracts Bootstrap, Drift Audit & Legacy UI Cleanup**:
+  - Bootstrapped and verified 9 hierarchical EGM `README.md` package contracts across root (`README.md`) and `src/` (`src/README.md`, `src/ui/README.md`, `src/ui/primitives/README.md`, `src/engine/README.md`, `src/data/README.md`, `src/definitions/README.md`, `src/media/README.md`, `src/utils/README.md`).
+  - Reconciled all contract drift items against live source implementations (`tmp/2026-11-14_DRIFT_REPORT.md` at 0 drift).
+  - Removed dead pre-harmonization `Array.isArray(this.char["past"])` filter loop in `src/ui/Profile.svelte.js` (`save()`) and unused `confirm_variant="danger"` attribute on `<Dialog>` in `src/ui/Console.svelte`.
+
 - **Pulse 4 Demolition: Eradicate `src/state/` & Settle Clean Layer Boundaries**:
   - Completely obliterated legacy directory `src/state/` (all 11 modules and test suites eradicated, retiring the directory completely) under P4 Zero Backwards Compatibility.
   - Relocated application UI view state, modal coordinators, and navigation to `src/ui/interface.svelte.js` (`src/ui/interface.test.js`) and re-exported via `@ui` (`app`, `register_image_preview_handlers`).

@@ -29,21 +29,29 @@ flowchart TD
     Root --> Data
     Root --> Media
     Root --> Utils
+    UI --> Root
     UI --> Engine
     UI --> Data
     UI --> Media
     UI --> Utils
     UI --> Defs
+    Engine --> Root
     Engine --> Data
     Engine --> Media
     Engine --> Utils
     Engine --> Defs
+    Data --> Root
+    Data --> Engine
     Data --> Media
     Data --> Utils
     Data --> Defs
+    Defs --> Root
     Defs --> Media
     Defs --> Utils
+    Media --> Root
+    Media --> Defs
     Media --> Utils
+    Utils --> Root
 ```
 
 ### Core Technologies
@@ -113,7 +121,7 @@ RPGlitch organizes its source code into clean, isolated subsystems:
   npm test
   ```
 
-  Runs the full `vitest run` suite across `src/`, `.agents/skills/*/scripts/`, and `tests/`.
+  Runs the full `vitest run` suite across `src/` and `.agents/skills/*/scripts/` (`vitest.config.js` also includes `tests/**/*.test.{js,ts}` if present).
 
 - **Production Single-File Bundle Verification**:
 
@@ -121,4 +129,4 @@ RPGlitch organizes its source code into clean, isolated subsystems:
   npm run build
   ```
 
-  Builds `dist/index.html` and verifies single-file Vault encapsulation stays within the 4.00 MB ceiling.
+  Builds `dist/index.html` with `perchanceBase64Vault` asset encapsulation (the 4.00 MB deployment ceiling is verified in `.agents/skills/local-scripts/scripts/deploy.js`).

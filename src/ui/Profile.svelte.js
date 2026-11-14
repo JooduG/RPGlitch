@@ -405,14 +405,6 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_saving = true;
     try {
-      for (const key of ["past"]) {
-        if (Array.isArray(this.char[key])) {
-          this.char[key] = this.char[key].filter((v) =>
-            typeof v === "object" && v !== null ? !(v.content || v.directive)?.trim() : !String(v).trim(),
-          );
-        }
-      }
-
       const prev_id = this._original_id;
       const next_id = this.char.id;
 

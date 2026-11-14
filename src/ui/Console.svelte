@@ -936,7 +936,6 @@
   title="Conclude Active Story?"
   message="Ending this story will archive it in your library and free up its entities so you can select them for a new story."
   confirm_label={is_concluding ? "Concluding..." : "Conclude & Free Entities"}
-  confirm_variant="danger"
   on_confirm={async () => {
     is_concluding = true;
     try {
