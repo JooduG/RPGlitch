@@ -1,333 +1,190 @@
-# Animation Recipes
+# RPGlitch Motion Recipes
 
-Ready-to-build implementations for the cases that come up most. Start from the recipe, then adapt - don't rebuild from scratch.
+Verified Svelte 5, Tailwind v4, `DESIGN.md`, `@primitives`, and `@media` (`src/media/motion.svelte.js`) motion patterns. Use exact exported symbols and canonical aliases (`@primitives`, `@media`, `@utils`).
 
-Curves are the `--ease-out`, `--ease-in-out`, and `--ease-drawer` tokens defined in SKILL.md.
+## 1. Tactile Button Press & Kinetic Actions (`@primitives`)
 
----
+Use `<Button actions={[...]}>` from `@primitives`; `Button.svelte` handles `active:scale-sink` and yields CSS `transform` transitions cleanly whenever `@media` kinetic actions set `data-kinetic="true"`:
 
-## Button press
+```svelte
+<script>
+  import { stab } from "@media";
+  import { Button } from "@primitives";
+</script>
 
-Any pressable element. Instant feedback that the interface heard the user.
+<Button actions={[stab]} onclick={submit_turn}>Send</Button>
+```
 
-```css
-.button {
-  transition: transform 160ms var(--ease-out);
-}
+When authoring a custom kinetic-compatible primitive in `src/ui/primitives/`, keep color/shadow transitions alive while dropping CSS `transform` transitions during active JS motion (verbatim `Button.svelte` pattern):
 
-.button:active {
-  transform: scale(0.97);
+```svelte
+<button
+  class="
+    transition-[background-color,color,box-shadow,transform,filter,border-color]
+    duration-(--duration-fast) ease-out active:scale-sink
+    data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
+    data-[kinetic=true]:active:scale-100
+  "
+>
+  Action
+</button>
+```
+
+## 2. Floating Overlays (`src/ui/primitives/` `Tooltip` / `Dropdown`)
+
+Feature views import `<Tooltip>` and `<Dropdown>` from `@primitives` — direct `bits-ui` imports stay encapsulated in `src/ui/primitives/` (no `Popover` wrapper exists). Inside a `bits-ui` primitive wrapper (`Tooltip.svelte` pattern), anchor transforms via `origin-(--transform-origin)` and scale from `0.95` (never `0`):
+
+```svelte
+<script>
+  import { scale } from "svelte/transition";
+  import { Tooltip } from "bits-ui";
+</script>
+
+<Tooltip.Content forceMount sideOffset={6}>
+  {#snippet child({ wrapperProps, props, open })}
+    {#if open}
+      <div {...wrapperProps}>
+        <div {...props} transition:scale={{ duration: 150, start: 0.95, opacity: 0 }} class="origin-(--transform-origin)">
+          <!-- Tooltip content -->
+        </div>
+      </div>
+    {/if}
+  {/snippet}
+</Tooltip.Content>
+```
+
+## 3. Modals, Dialogs & View-Transition Backdrops
+
+Use `@media` `overlay_in` (`300ms` default) and `overlay_out` (`160ms` default) for overlay panels (both auto-collapse to `0ms` when `motion.is_reduced` is `true`), paired with `@primitives` `<Backdrop>`:
+
+```svelte
+<script>
+  import { overlay_in, overlay_out } from "@media";
+  import { Backdrop } from "@primitives";
+
+  let { is_open = false, is_profile_view = false } = $props();
+</script>
+
+{#if is_open}
+  <!-- class="profile" automatically triggers Backdrop's internal 0ms VT snapshot transition -->
+  <Backdrop class={is_profile_view ? "profile" : ""}>
+    <div in:overlay_in out:overlay_out>
+      <!-- Modal surface -->
+    </div>
+  </Backdrop>
+{/if}
+```
+
+## 4. Compositor-Safe Accordions (CSS Grid Trick)
+
+Toggle `grid-rows-[1fr]` and `grid-rows-[0fr]` around an `overflow-hidden` container (`Accordion.svelte` / `Console.svelte` pattern) instead of transitioning CSS `height`:
+
+```svelte
+<div
+  class="grid transition-[grid-template-rows] duration-(--duration-standard) ease-(--ease-drawer) {is_open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
+>
+  <div class="overflow-hidden">
+    <!-- Collapsible body -->
+  </div>
+</div>
+```
+
+## 5. View Transitions (`guarded_transition` + `flushSync`)
+
+Always wrap state flips in `guarded_transition(callback, { className })` from `@utils`, using only canonical `DESIGN.md` `view-transition-name`s (`card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, `unified-console`):
+
+```javascript
+import { flushSync } from "svelte";
+import { guarded_transition } from "@utils";
+
+export function switch_view(target_view) {
+  return guarded_transition(
+    () => {
+      state.view = target_view;
+      flushSync();
+    },
+    { className: "is-switching-view" },
+  );
 }
 ```
 
-`scale()` scales children too - the label and icons come along, which is what makes it read as a physical press.
+- **Conflict ban**: Never combine `view-transition-name` with Svelte `transition:` / `in:` / `out:` on the same DOM element; set `transition_name = undefined` (and remove inline `view-transition-name` during flights) as in `EntityCard.svelte`.
 
-No hover gating needed here: `:active` is a real press on touch. Gate any `:hover` styling separately.
+## 6. Card Flights & Prologue Choreography (`@media`)
 
----
+Gate `fly_card_in` (`Promise<void>`) and `fly_card_out` (`void`) with `motion.is_reduced` in callers; use `capture_storyboard_flight()` + `fly_storyboard_cards_into_prologue()` for Storyboard -> Storymode transitions:
 
-## Dropdown, popover, menu, select
+```javascript
+import {
+  motion,
+  fly_card_in,
+  fly_card_out,
+  capture_storyboard_flight,
+  fly_storyboard_cards_into_prologue,
+  update_card_scrub,
+  clear_card_location,
+} from "@media";
 
-Scales out of its trigger, not out of thin air.
-
-```css
-.popover {
-  transform-origin: var(--transform-origin); /* Base UI supplies this */
-  transition:
-    opacity 200ms var(--ease-out),
-    transform 200ms var(--ease-out);
+// Callers gate fly_card_in / fly_card_out explicitly with motion.is_reduced
+if (!motion.is_reduced && card_node && from_rect && to_rect) {
+  await fly_card_in(card_node, from_rect, to_rect, { glide_ms: 380 });
 }
 
-.popover[data-starting-style],
-.popover[data-ending-style] {
-  opacity: 0;
-  transform: scale(0.95);
+// Synchronous void trigger (do not await fly_card_out)
+if (!motion.is_reduced && old_card_node && deck_rect) {
+  fly_card_out(old_card_node, deck_rect, { duration_ms: 300, tilt_deg: -8 });
 }
+
+// Storyboard -> Prologue transfer (internally checks motion.is_reduced & _begin_flight_running)
+const assets = capture_storyboard_flight();
+// ...switch view & flushSync()...
+await fly_storyboard_cards_into_prologue(assets, destination_rects);
+
+// Static prologue card visibility helpers (0 arguments)
+update_card_scrub();
+clear_card_location();
 ```
 
-The `transform-origin` is the whole point - the panel should look like it came out of the thing you clicked.
+## 7. Token Resolution, Damped `Spring` & Keyframes
 
----
+Resolve `DESIGN.md` tokens inside `src/media/` with `@utils`, and pair Svelte `Spring` (`svelte/motion`) with `$effect.root` teardown in `destroy()` (`roll()` pattern):
 
-## Tooltip
+```javascript
+import { Spring } from "svelte/motion";
+import { resolve_ms, resolve_string, resolve_number } from "@utils";
+import { motion } from "./motion.svelte.js";
 
-Same shape as a popover, faster, plus the detail most implementations miss.
+export function spin_action(node) {
+  const duration = resolve_ms("--duration-standard", 300, node);
+  const easing = resolve_string("--ease-out", "cubic-bezier(0.23, 1, 0.32, 1)", node);
+  const angle_spring = new Spring(0, {
+    stiffness: resolve_number("--spring-stiffness-default", 0.15, node),
+    damping: resolve_number("--spring-damping-default", 0.8, node),
+  });
 
-```css
-.tooltip {
-  transform-origin: var(--transform-origin);
-  transition:
-    transform 125ms var(--ease-out),
-    opacity 125ms var(--ease-out);
-}
-
-.tooltip[data-starting-style],
-.tooltip[data-ending-style] {
-  opacity: 0;
-  transform: scale(0.97);
-}
-
-/* Once one tooltip is open, neighbours open instantly */
-.tooltip[data-instant] {
-  transition-duration: 0ms;
-}
-```
-
-The initial delay prevents accidental activation. After that, skipping both the delay and the animation makes the whole toolbar feel faster.
-
----
-
-## Modal
-
-The one popover that stays centered.
-
-```css
-.modal {
-  transform-origin: center; /* exempt - not anchored to a trigger */
-  transition:
-    opacity 250ms var(--ease-out),
-    transform 250ms var(--ease-out);
-}
-
-.modal[data-starting-style],
-.modal[data-ending-style] {
-  opacity: 0;
-  transform: scale(0.96);
-}
-
-.backdrop {
-  transition: opacity 250ms var(--ease-out);
-}
-```
-
-Animate the backdrop's opacity alongside it so they read as one surface.
-
----
-
-## Drawer / sheet
-
-```css
-.drawer {
-  transform: translateY(0);
-  transition: transform 500ms var(--ease-drawer);
-}
-
-.drawer[data-closed] {
-  transform: translateY(100%);
-}
-```
-
-This is how Vaul hides a drawer before animating it in.
-
-Add drag and it becomes a gesture problem - see **Drag to dismiss** below.
-
----
-
-## Toast
-
-```css
-.toast {
-  opacity: 1;
-  transform: translateY(0);
-  transition:
-    opacity 400ms ease,
-    transform 400ms ease;
-
-  @starting-style {
-    opacity: 0;
-    transform: translateY(100%);
+  let cleanup_effect = null;
+  if (typeof window !== "undefined") {
+    cleanup_effect = $effect.root(() => {
+      $effect(() => {
+        const intensity = motion.is_reduced ? 0 : motion.intensity;
+        if (intensity === 0) {
+          angle_spring.set(0, { instant: true });
+          node.style.transform = "rotate(0deg)";
+          return;
+        }
+        node.style.transform = `rotate(${angle_spring.current}deg)`;
+      });
+    });
   }
+
+  return {
+    duration,
+    easing,
+    destroy() {
+      if (cleanup_effect) cleanup_effect();
+    },
+  };
 }
 ```
 
-- `ease` rather than `ease-out`, slightly slower than typical UI: Sonner reads as elegant partly because its motion is tuned to the component's personality rather than to the generic UI budget.
-- If `@starting-style` isn't available, fall back to the mount flag:
-
-```jsx
-useEffect(() => {
-  setMounted(true);
-}, []);
-// <div data-mounted={mounted}>
-```
-
-When toasts stack and the list reflows, the opacity change has to work against the height change. There's no formula for that pair - adjust until it feels right, then check it again the next day.
-
----
-
-## Accordion / collapse
-
-```css
-.content {
-  overflow: hidden;
-  transition:
-    height 200ms var(--ease-out),
-    opacity 200ms var(--ease-out);
-}
-```
-
-Keep it short - this is one of the few animations that costs layout on every frame, so a long duration is expensive as well as sluggish. Measure the content height in JS (or use a headless primitive that supplies it) rather than animating to `auto`.
-
----
-
-## Stagger a group entrance
-
-For a list or grid the user sees occasionally - not for a list they scroll past all day.
-
-```css
-.item {
-  opacity: 0;
-  transform: translateY(8px);
-  animation: fadeIn 300ms var(--ease-out) forwards;
-}
-
-.item:nth-child(2) {
-  animation-delay: 50ms;
-}
-.item:nth-child(3) {
-  animation-delay: 100ms;
-}
-.item:nth-child(4) {
-  animation-delay: 150ms;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-```
-
-Stagger is decorative - it must never block interaction while it plays.
-
----
-
-## Hold to confirm
-
-For destructive actions where a plain click is too easy to fire by accident.
-
-```css
-.overlay {
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 200ms var(--ease-out); /* release: snappy */
-}
-
-.button:active .overlay {
-  clip-path: inset(0 0 0 0);
-  transition: clip-path 2s linear; /* press: slow and deliberate */
-}
-
-.button:active {
-  transform: scale(0.97);
-}
-```
-
-`linear` is correct here - the fill is a progress indicator, and progress shouldn't ease.
-
----
-
-## Tab indicator with a color transition
-
-Timing individual color transitions across a tab list never quite lands. Clip instead.
-
-Duplicate the tab list. Style the copy as the active state - different background, different text color. Clip the copy so only the active tab shows, and animate the clip on change:
-
-```css
-.tabs-active-copy {
-  clip-path: inset(0 60% 0 20%); /* driven by the active tab's position */
-  transition: clip-path 250ms var(--ease-in-out);
-}
-```
-
-The text and background change together, in perfect sync, because they're one element being revealed rather than two colors being interpolated.
-
----
-
-## Scroll reveal
-
-Marketing surfaces only. Don't do this to functional UI a user visits daily.
-
-```css
-.reveal {
-  clip-path: inset(0 0 100% 0);
-  transition: clip-path 600ms var(--ease-in-out);
-}
-
-.reveal[data-visible] {
-  clip-path: inset(0 0 0 0);
-}
-```
-
-Trigger with `IntersectionObserver`, or Motion's `useInView` with `{ once: true, margin: "-100px" }`. Fire it once - re-animating on every scroll-by is an interface fighting its reader.
-
----
-
-## Drag to dismiss
-
-The gesture recipe. Springs, not durations, because the user can reverse mid-motion.
-
-```js
-// Dismiss on a flick, not just on distance
-const timeTaken = Date.now() - dragStartTime.current;
-const velocity = Math.abs(swipeAmount) / timeTaken;
-
-if (Math.abs(swipeAmount) >= SWIPE_THRESHOLD || velocity > 0.11) {
-  dismiss();
-}
-```
-
-```js
-// Set transform on the dragged element directly.
-// Driving it through a CSS variable on the parent recalcs styles for every child.
-element.style.transform = `translateY(${distance}px)`;
-```
-
-Four details that separate a good drag from a bad one:
-
-- **Pointer capture** once the drag starts, so it continues when the pointer leaves the element's bounds.
-- **Multi-touch protection** - `if (isDragging) return` on new touch points, or switching fingers mid-drag makes the element jump.
-- **Damping past boundaries** - dragging beyond a natural edge moves the element less the further it goes. Real things slow before they stop.
-- **Friction, not a wall** - allow the over-drag with rising resistance rather than refusing it.
-
-Settle with a spring so an interrupted drag keeps its velocity:
-
-```js
-{ type: "spring", duration: 0.5, bounce: 0.2 }
-```
-
----
-
-## Masking a crossfade that won't settle
-
-When two states overlap visibly during a transition and no amount of easing or duration tuning fixes it, blur the seam:
-
-```css
-.content {
-  transition:
-    filter 200ms ease,
-    opacity 200ms ease;
-}
-
-.content.transitioning {
-  filter: blur(2px);
-  opacity: 0.7;
-}
-```
-
-Without blur the eye reads two distinct objects swapping. Blur blends them into one perceived transformation. Keep it under 20px - heavy blur is expensive, especially in Safari.
-
----
-
-## Programmatic, without a library
-
-When the motion needs JS control but not a dependency, WAAPI gives you CSS-grade performance:
-
-```js
-element.animate([{ clipPath: "inset(0 0 100% 0)" }, { clipPath: "inset(0 0 0 0)" }], {
-  duration: 1000,
-  fill: "forwards",
-  easing: "cubic-bezier(0.77, 0, 0.175, 1)",
-});
-```
-
-Hardware-accelerated, interruptible, no bundle cost.
+- **Keyframes in `DESIGN.md`**: Reuse `wing-item-slide-down` (`var(--motion-elastic)`) for wing reveals and `undo-countdown-shrink` (`transform: scaleX(1)` -> `scaleX(0)`) for GPU-composited progress bars.

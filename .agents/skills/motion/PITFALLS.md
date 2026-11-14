@@ -1,59 +1,41 @@
-# Failure Traps & Empirical Pitfalls for Motion
+# Motion Pitfalls & Empirical Scar Tissue
 
-Authored in the Triadic Entry Format (`Trigger` / `Wrong Behavior` / `Correct Behavior`). Consult this file before designing, auditing, or refactoring animations and kinetic interactions.
-
----
-
-## 1. Animating High-Frequency / Keyboard Actions
-
-- **Trigger**: Adding open/close or enter/exit animations to command palettes, hotkey dialogs, turn submissions, or frequent list toggles.
-- **Wrong Behavior**: Wrapping command palettes or rapid navigation elements in 200–300ms transitions, making the interface feel sluggish and unresponsive.
-- **Correct Behavior**: Follow the Raycast Law. Actions triggered 100+ times/day receive **zero animation**. Zero entrance/exit transitions for keyboard-shortcut interactions.
+> Pre-flight failure catalog for RPGlitch motion engineering. Read every entry before modifying `DESIGN.md` motion rules, `@media` motion helpers, or View Transitions.
 
 ---
 
-## 2. Using `ease-in` on UI Transitions
+## Pitfall 1: Mixing `view-transition-name` with Svelte Transition Directives
 
-- **Trigger**: Selecting an easing curve for element appearance, tooltip emergence, or interactive hover/active states.
-- **Wrong Behavior**: Using `ease-in` or built-in slow acceleration curves. The animation starts slowly, delaying visual feedback exactly when the user is watching.
-- **Correct Behavior**: Never use `ease-in` for UI. Entering and exiting elements use `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`. Moving elements on screen use `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`.
+- **Trigger**: Swapping cards, opening modals, or toggling backdrops (`EntityCard.svelte`, `Backdrop.svelte`) during `document.startViewTransition`.
+- **Wrong Behavior**: Keeping `view-transition-name` bound while a clone flight runs, or placing a standard Svelte fade on a backdrop owned by a View Transition, captures overlapping snapshots and leaves frozen double ghosts.
+- **Correct Behavior**: Clear `transition_name` to `undefined` (and call `style.removeProperty("view-transition-name")` on active DOM nodes) when clone flights run (`EntityCard.svelte`), and pass `class="profile"` on `<Backdrop>` so its internal 0ms `profile_transition` lets the View Transition crossfade the backdrop cleanly.
 
----
+## Pitfall 2: Calling Raw `document.startViewTransition()` Instead of `guarded_transition()`
 
-## 3. Animating from `scale(0)`
+- **Trigger**: Animating view changes (`Storyboard` <-> `Storymode`), card swaps, or profile opens in UI/state controllers.
+- **Wrong Behavior**: Invoking `document.startViewTransition()` directly skips the `_transition_state.active` single-flight concurrency lock, unsupported-browser synchronous fallback, `flushSync()` coordination, and `.is-switching-view` / `.is-swapping-card` / `.is-profile-*` root scoping classes.
+- **Correct Behavior**: Always call `guarded_transition(callback, { className })` from `@utils` (`src/utils/ui-helpers.js`), flushing Svelte 5 DOM updates via `flushSync()` immediately before or inside `callback`.
 
-- **Trigger**: Creating popovers, dropdowns, tooltips, or badge emergence animations.
-- **Wrong Behavior**: Animating from `transform: scale(0)`. Nothing in the real world emerges from a microscopic point; it creates an exaggerated, cartoonish look.
-- **Correct Behavior**: Animate from `transform: scale(0.95)` with `opacity: 0`. Subtle, physical scaling that feels grounded.
+## Pitfall 3: Unguarded `fly_card_*` Flights & CSS Transitions Under Reduced Motion
 
----
+- **Trigger**: Calling `fly_card_in` / `fly_card_out`, adding custom `duration-*` transitions, or using `<Backdrop>` without `class="profile"`.
+- **Wrong Behavior**: Assuming all `@media` functions and `DESIGN.md` media queries suppress every animation. `fly_card_in` and `fly_card_out` run clone CSS transitions unconditionally without checking `motion.is_reduced`, and `DESIGN.md` sets `0.01ms !important` only on `animation-duration` and `::view-transition-*` — not CSS `transition-duration` or non-profile `Backdrop` `fade(150)`.
+- **Correct Behavior**: Gate `fly_card_in` / `fly_card_out` calls with `if (!motion.is_reduced)` (`Storyboard.svelte`), and explicitly handle `motion.is_reduced` on continuous/custom CSS `transition-*` elements when instant suppression is required.
 
-## 4. Centered Popovers vs. Origin-Aware Popovers
+## Pitfall 4: Static Scanner & Tailwind Class Rejections (`audit-design.js` & ESLint)
 
-- **Trigger**: Displaying a popover, dropdown menu, or tooltip relative to an interactive trigger button.
-- **Wrong Behavior**: Setting `transform-origin: center` so the menu scales out from its own midpoint.
-- **Correct Behavior**: Set `transform-origin: var(--transform-origin)` so the element scales directly from its trigger. Modals are exempt (modals stay centered).
+- **Trigger**: Authoring hover transforms, popovers, accordions, easing classes, or custom utility names in `.css` / `.svelte` files.
+- **Wrong Behavior**: Writing hover `transform` rules in themes (`THEME_HOVER_TRANSFORM` blocking `[HERESY]`), triggering `audit-design.js` `[ADVICE]` rules (`scale-0` `MOTION_SCALE_ZERO`, `transition-all` `MOTION_TRANSITION_ALL`, `ease-in` `MOTION_EASE_IN`, inline `transition: width/height/top/left/margin/padding` `MOTION_LAYOUT_PROPS`), or writing unregistered utility/keyframe names absent from `DESIGN.md` / `src/media/design.css` (rejected by `better-tailwindcss/no-unknown-classes`).
+- **Correct Behavior**: Use compiled `DESIGN.md` utilities (`duration-(--duration-fast)`, `ease-(--ease-drawer)`, `active:scale-sink`), start floating overlays at `scale` `0.95`, build collapsible panels with CSS Grid `grid-rows-[0fr]` / `grid-rows-[1fr]`, and verify with `npm run audit:design`.
 
----
+## Pitfall 5: CSS Hover Transitions Fighting Kinetic Actions & Missing Duration Shorthands
 
-## 5. Compositor Violations (`transition: all` & Layout Properties)
+- **Trigger**: Attaching `pulse`, `roll`, `shimmy`, or `stab` to interactive buttons (`Button.svelte`), or writing inline CSS `transition:` strings (`Profile.svelte`).
+- **Wrong Behavior**: Allowing CSS `transition-[...,transform,...]` to fight active WAAPI/Spring transforms produces rubbery jitter; passing only `var(--ease-drawer)` in an inline CSS `transition:` string leaves `transition-duration` at `0s`.
+- **Correct Behavior**: Keep interactive primitives aligned with `Button.svelte`'s kinetic suppression selectors (`data-[kinetic=true]:active:scale-100 data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]` and `hover:scale-100` on flank controls), and always pair duration + easing tokens in inline CSS transitions (e.g. `var(--duration-standard) var(--ease-drawer)`).
 
-- **Trigger**: Animating accordion reveals, button resizing, or drawer expansion.
-- **Wrong Behavior**: Animating `height`, `width`, `top`, `left`, `margin`, or using `transition: all`. Causes layout thrashing and Cumulative Layout Shift (CLS).
-- **Correct Behavior**: Animate GPU/compositor properties exclusively (`transform`, `opacity`). Never use `transition: all`. If height collapse is required, use CSS grid `grid-template-rows: 0fr -> 1fr` with inner `min-h-0` overflow clipping.
+## Pitfall 6: Uncleaned `$effect.root`, Animation Races, or Overlapping Flights
 
----
-
-## 6. Mixing View Transitions with Svelte Transition Directives
-
-- **Trigger**: Creating solid-state page or modal transitions in Svelte 5.
-- **Wrong Behavior**: Attaching both `view-transition-name: card` and Svelte directives (`transition:fly` or `in:fade`) to the same DOM element.
-- **Correct Behavior**: Complete separation of concerns. Never mix `view-transition-name` with Svelte transition directives. Use `document.startViewTransition` with `flushSync` for macro morphing.
-
----
-
-## 7. Missing Reduced Motion & Fine Pointer Gating
-
-- **Trigger**: Adding hover effects or kinetic feedback to interactive controls.
-- **Wrong Behavior**: Applying `:hover` transforms globally without pointer media queries, or ignoring `prefers-reduced-motion`.
-- **Correct Behavior**: Gate hover animations behind `@media (hover: hover) and (pointer: fine)` to protect touch screens. Respect `prefers-reduced-motion: reduce` by preserving color/opacity feedback while neutralizing translation/scale movement.
+- **Trigger**: Implementing Spring-driven actions (`roll`), rapidly re-hovered WAAPI actions (`pulse`, `shimmy`, `stab`), or rapid Storyboard -> Prologue transitions (`fly_storyboard_cards_into_prologue`).
+- **Wrong Behavior**: Spawning `$effect.root` without invoking its disposer in `destroy()`, letting hover triggers clash with active return animations, treating synchronous `fly_card_out` (`returns void`) as awaitable, or launching overlapping fixed-clone prologue transfers.
+- **Correct Behavior**: Invoke the `cleanup_effect` disposer in `destroy()`, cancel active WAAPI handles before launching replacements, synchronize prologue transfers with `_begin_flight_running`, and avoid awaiting `fly_card_out`.

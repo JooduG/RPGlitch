@@ -23,8 +23,9 @@ description: >-
 
 - [PITFALLS.md](./PITFALLS.md) — Pre-flight empirical scar tissue (read before any token or UI edit).
 - [references/anti-slop.md](./references/anti-slop.md) — Color, typography, dark-surface, and hierarchy craft rules (consult before designing or styling components).
+- [references/prototyping.md](./references/prototyping.md) — Isolated multi-variant Svelte 5 `{#key}` prototyping and temporary `.proto-picker` switcher (consult when comparing 2–3 competing design directions before promoting to `src/ui/`).
 - [references/adversarial/break-ui.md](./references/adversarial/break-ui.md) — 3-Phase adversarial UI stress-test protocol (consult when stress-testing components or layouts).
-- [references/adversarial/worst-case-catalog.md](./references/adversarial/worst-case-catalog.md) — Adversarial fixture dictionary across 9 data categories (use during Phase 2 of `break-ui.md`).
+- [references/adversarial/worst-case-catalog.md](./references/adversarial/worst-case-catalog.md) — Adversarial fixture dictionary across 10 data categories (use during Phase 2 of `break-ui.md`).
 - [scripts/sync-css.js](./scripts/sync-css.js) — Forward compiler (`DESIGN.md` -> `src/media/design.css` + `src/media/tokens.js`).
 - [scripts/audit-design.js](./scripts/audit-design.js) — Static CSS/Svelte rule scanner, hallucinated `var(--*)` detector, and unused-token auditor.
 - [scripts/audit-google-design.js](./scripts/audit-google-design.js) — `@google/design.md` frontmatter schema validator.
@@ -89,7 +90,7 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 ## 6. View Transition Names & Motion Boundary
 
 - **Jurisdiction**: Delegate all duration budgets, easing curves, scale physics, and entrance/exit choreography to [motion/SKILL.md](../motion/SKILL.md). Only apply design token bindings (e.g., `duration-(--duration-fast) ease-(--ease-out) active:scale-sink`).
-- **Canonical View-Transition Names**: Registered in `DESIGN.md`: `card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, and `unified-console` (plus per-card slots in `Storyboard.svelte`).
+- **Canonical View-Transition Names**: Registered in `DESIGN.md`: `card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, and `unified-console` (bound dynamically in `EntityCard.svelte`, `App.svelte`, and `Console.svelte`).
 - **Guarded Transitions Only**: Trigger DOM view transitions exclusively via `guarded_transition(callback, options)` from [ui-helpers.js](../../../src/utils/ui-helpers.js) — never call raw `document.startViewTransition()` directly.
 - **Directive Isolation**: Never combine `view-transition-name` with Svelte `transition:`, `in:`, or `out:` directives on the same DOM node.
 

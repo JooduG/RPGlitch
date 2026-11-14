@@ -10,6 +10,5 @@
       "configurations": [],
     },
     "typescript.tsdk": "node_modules\\typescript\\lib",
-    "markdown.validate.enabled": true,
   },
 }

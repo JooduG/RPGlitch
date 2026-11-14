@@ -1,11 +1,22 @@
+import { flushSync } from "svelte";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { pulse, update_card_scrub, clear_card_location, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "./motion.svelte.js";
+import {
+  motion,
+  pulse,
+  roll,
+  update_card_scrub,
+  clear_card_location,
+  capture_storyboard_flight,
+  fly_storyboard_cards_into_prologue,
+} from "./motion.svelte.js";
 
 describe("kinetic utilities", () => {
   /** @type {HTMLElement} */
   let node;
 
   beforeEach(() => {
+    motion.is_reduced = false;
+    motion.intensity = 1.0;
     node = document.createElement("div");
     node.animate = vi.fn().mockReturnValue({
       cancel: vi.fn(),
@@ -66,6 +77,41 @@ describe("kinetic utilities", () => {
 
       expect(return_anim1.cancel).toHaveBeenCalled();
       expect(node.dataset.kinetic).toBe("true");
+
+      action.destroy?.();
+    });
+  });
+
+  describe("roll", () => {
+    it("sets dataset.kinetic when motion is enabled", () => {
+      const action = roll(node);
+      node.dispatchEvent(new MouseEvent("mouseenter"));
+      expect(node.dataset.kinetic).toBe("true");
+      action.destroy?.();
+    });
+
+    it("suppresses rotation and keeps rotate(0deg) when motion.is_reduced is true", () => {
+      motion.is_reduced = true;
+      const action = roll(node);
+      flushSync();
+
+      node.dispatchEvent(new MouseEvent("mouseenter"));
+      flushSync();
+
+      expect(node.dataset.kinetic).toBeUndefined();
+      expect(node.style.transform).toBe("rotate(0deg)");
+
+      action.destroy?.();
+    });
+
+    it("resets transform to rotate(0deg) if motion.is_reduced flips true mid-lifecycle", () => {
+      const action = roll(node);
+      node.dispatchEvent(new MouseEvent("mouseenter"));
+      expect(node.dataset.kinetic).toBe("true");
+
+      motion.is_reduced = true;
+      flushSync();
+      expect(node.style.transform).toBe("rotate(0deg)");
 
       action.destroy?.();
     });

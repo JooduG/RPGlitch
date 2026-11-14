@@ -225,6 +225,8 @@ export function roll(node) {
   const target = get_target(node);
 
   const trigger = () => {
+    const intensity = motion.is_reduced ? 0 : motion.intensity;
+    if (intensity === 0) return;
     node.dataset.kinetic = "true";
     angle_spring.target = 360;
   };
@@ -238,6 +240,12 @@ export function roll(node) {
   if (typeof window !== "undefined") {
     cleanup_effect = $effect.root(() => {
       $effect(() => {
+        const intensity = motion.is_reduced ? 0 : motion.intensity;
+        if (intensity === 0) {
+          angle_spring.set(0, { instant: true });
+          target.style.transform = "rotate(0deg)";
+          return;
+        }
         const val = angle_spring.current;
         target.style.transform = `rotate(${val}deg)`;
       });
