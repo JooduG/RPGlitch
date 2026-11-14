@@ -5,7 +5,7 @@
    * Handles real images, placeholders, and watermark-style initials.
    * Built on bits-ui Avatar for robust loading-state management.
    */
-  import { Avatar } from "bits-ui";
+  import { Avatar } from "@primitives";
   import { compute_initials } from "@utils";
   import { get_signature_color } from "@media";
 

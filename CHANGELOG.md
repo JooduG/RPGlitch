@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Moved domain-coupled `Meter.svelte` and `StyleBadge.svelte` from `src/ui/primitives/` to `src/ui/` and updated consumer imports.
   - Pruned `src/ui/primitives/NumberField.svelte` by replacing its 2 seed-input usages in `src/ui/ImagePreview.svelte` and `src/ui/VisualWing.svelte` with styled native `<input type="number">`.
   - Added an optional `footer` snippet to `src/ui/primitives/Dialog.svelte` and migrated `src/ui/Console.svelte`'s "Conclude Active Story" modal off direct `bits-ui` `AlertDialog`.
+  - Re-exported `Avatar` from `src/ui/primitives/index.js` and updated `src/ui/ProfilePicture.svelte` to import `Avatar` from `@primitives` instead of `bits-ui`.
+  - Slimmed `src/ui/index.js` barrel exports to only the symbols actually imported via `@ui`.
 
 - **Tailwind v4 Responsive & Preflight Cleanup**:
   - Added `--breakpoint-mobile: 48rem;` to `@theme` and trimmed redundant Preflight resets (`box-sizing: border-box`, `margin: 0`, `padding: 0`, `line-height: 1.5`) from `@layer base` in `DESIGN.md`.

@@ -1,3 +1,4 @@
+export { Avatar } from "bits-ui";
 export { default as Backdrop } from "./Backdrop.svelte";
 export { default as Button } from "./Button.svelte";
 export { default as Dropdown } from "./Dropdown.svelte";
