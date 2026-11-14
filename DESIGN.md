@@ -68,9 +68,9 @@ spacing:
   spacing-fractal-card-height: calc(var(--spacing-row-unit) * 4)
   spacing-fractal-card-width: calc(var(--spacing-column-unit) * 4)
   spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max))
-  spacing-grid-height-max: clamp(25rem, calc(1.618 * 100vw), 100dvh)
+  spacing-grid-height-max: min(clamp(25rem, calc(1.618 * 100vw), 100dvh), 100dvh)
   spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max))
-  spacing-grid-width-max: clamp(50rem, calc(1.618 * 100dvh), 100vw)
+  spacing-grid-width-max: min(clamp(50rem, calc(1.618 * 100dvh), 100vw), 100vw)
   spacing-icon-medium: calc(var(--spacing-unit) * 8)
   spacing-icon-small: calc(var(--spacing-unit) * 4)
   spacing-kinetic-shimmy-offset: "{spacing.spacing-pixel}"
@@ -137,7 +137,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 
 - **Core Neutrals & Surfaces**: `--color-chalk` (`#171717`, near-black charcoal surface), `--color-gunmetal` (`#334155`), `--color-frozen` (`#475569`), `--color-frisk` (`#f8fafc`, primary foreground text), `--color-pure-white` (`#fff`), `--color-void-black` (`#000`), and translucency wells `--color-glass-sunken`, `--color-glass-elevated`, `--color-glass-peak`, `--empty-fill`.
 - **Developer Telemetry**: `--color-dev-accent` aliases `--color-electric-cyan` (`#11aecc`) for prompt brackets, vector diagnostics, and active engine telemetry.
-- **Entity Signatures**: The `signatures` list designates 15 vibrant accent tokens compiled into `SIGNATURE_COLORS`. Components resolve `--signature-color` dynamically per entity, falling back to `--color-frozen`.
+- **Entity Signatures**: The `signatures` list designates 15 vibrant accent tokens compiled into `SIGNATURE_COLORS`. Components resolve `--signature-color` dynamically per entity, falling back to `--color-frozen`. Because high-luminance signatures (`--color-lemon-yellow` `#fde047`, `--color-pumpkin-amber` `#fbbf24`, `--color-toxic-green` `#84cc16`) fail `4.5:1` contrast under white text, text-bearing signature containers must use translucent `color-mix(in srgb, var(--signature-color) 10%, var(--color-glass-sunken))` wells (or dark gradient scrims) over obsidian surfaces, or pair solid high-luminance fills with dark `--color-chalk` ink.
 
 ## Typography
 
@@ -145,6 +145,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 - **Structural Headings (`--font-heading`)**: `"Ubuntu", sans-serif` — tightly tracked hierarchy across `h1`–`h6`.
 - **Display & Narrative Script (`--font-display`)**: `"Satisfy", cursive` — reserved for atmospheric titles and storybook accents.
 - **Telemetry & Brackets (`--font-mono`)**: `"JetBrains Mono", monospace` — monospaced precision for prompt brackets, token counters, and ledger diffs.
+- **Offline & Iframe Resilience**: Every `--font-*` stack terminates in a native system fallback (`sans-serif`, `cursive`, `monospace`) so typography remains legible without layout breakage if external font CDNs are blocked inside sandboxed iframes.
 
 ```css
 @layer base {
@@ -746,8 +747,13 @@ html:active-view-transition *::after {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
   }
 }
 ```
@@ -760,4 +766,4 @@ html:active-view-transition *::after {
 - **Don't**: Use `ease-in` on UI transitions or bouncy springs on interactive controls.
 - **Don't**: Paint pure `#000` shadows for elevation drops; use `--color-background-gradient-1` tinted shadows so depth blends into the midnight palette.
 - **Don't**: Mix `view-transition-name` with Svelte transition directives (`transition:`, `in:`, `out:`) on the same DOM node.
-- **Don't**: Edit generated outputs (`src/media/design.css`, `src/media/tokens.js`, `src/data/definitions/signature-colors.js`) by hand; always edit `DESIGN.md` and run `npm run sync:css`.
+- **Don't**: Edit generated outputs (`src/media/design.css`, `src/media/tokens.js`) by hand; always edit `DESIGN.md` and run `npm run sync:css`.

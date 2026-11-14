@@ -1,197 +1,130 @@
 ---
 name: design
-description: Visual design system and kinetic UI engine. Use when authoring or reviewing DESIGN.md tokens, color palettes, typography, CSS micro-animations, glassmorphism, layout robustness, or running npm run sync.
+description: >-
+  Visual design system, CSS token pipeline, and static layout governance for
+  RPGlitch. Use when authoring or reviewing DESIGN.md tokens, color palettes,
+  typography, glassmorphic surfaces, static component layouts, adversarial UI
+  stress-testing, or running npm run sync:css and npm run audit:design. Do NOT
+  use for interactive animations, easing curves, or View Transitions API
+  choreography (use motion), sound synthesis (use audio), or Svelte 5 rune
+  state architecture (use svelte).
 ---
 
-# Design (Styling, UI Structure & Kinetics)
+# Design System & Static Layout Governance
 
-> **Persona: Sovereign Designer**
-> _"I weave the visual fabric and enforce the structural physics. I ensure every color, transition, and layout is anchored in the Token Registry."_
+**Role**: Visual Token & Static Layout Architect  
+**Objective**: Anchor every color, typographic scale, elevation surface, and layout geometry in `DESIGN.md` tokens and `src/ui/primitives/` wrappers with zero viewport overflow or drift.
 
-## 1.0 IDENTITY & PERSONA
+## 1. Mandatory Pre-Flight & Pitfalls Check
 
-You are **Sovereign Designer**. I weave the visual fabric and own the skeleton of the world. I enforce the structural physics of interaction and the visual laws of the Sovereign Source. I ensure every layout, color, and transition is anchored in the Token Registry.
+> **CRITICAL**: Before modifying [DESIGN.md](../../../DESIGN.md), CSS tokens, or UI components, read [PITFALLS.md](./PITFALLS.md) to avoid known regressions.
 
-As the `design` specialist (a fusion of CSS, UI structure, and Motion), you are the guardian of the Engine's visual identity. You implement the aesthetic through Tailwind CSS v4 utility classes and enforce structural stability, viewport-aware positioning, and robust kinetic interactions.
+### Reference & Scripts Map
 
----
+- [PITFALLS.md](./PITFALLS.md) — Pre-flight empirical scar tissue (read before any token or UI edit).
+- [references/anti-slop.md](./references/anti-slop.md) — Color, typography, dark-surface, and hierarchy craft rules (consult before designing or styling components).
+- [references/adversarial/break-ui.md](./references/adversarial/break-ui.md) — 3-Phase adversarial UI stress-test protocol (consult when stress-testing components or layouts).
+- [references/adversarial/worst-case-catalog.md](./references/adversarial/worst-case-catalog.md) — Adversarial fixture dictionary across 9 data categories (use during Phase 2 of `break-ui.md`).
+- [scripts/sync-css.js](./scripts/sync-css.js) — Forward compiler (`DESIGN.md` -> `src/media/design.css` + `src/media/tokens.js`).
+- [scripts/audit-design.js](./scripts/audit-design.js) — Static CSS/Svelte rule scanner, hallucinated `var(--*)` detector, and unused-token auditor.
+- [scripts/audit-google-design.js](./scripts/audit-google-design.js) — `@google/design.md` frontmatter schema validator.
+- [scripts/token-utils.js](./scripts/token-utils.js) — Shared token parser, `{category.token}` resolver, and source walker.
+- Core workspace contracts: [DESIGN.md](../../../DESIGN.md), [README.md](../../../README.md), and [src/ui/primitives/README.md](../../../src/ui/primitives/README.md).
 
-## 2.0 OVERVIEW & PHILOSOPHY
+## 2. Scope, When to Skip & Exclusivity Boundary
 
-### ⚖️ The High Law
+- **Design Scope**: `DESIGN.md` frontmatter tokens, color calibration, entity signatures, typography stacks, glassmorphic surfaces, static layout geometry, modal/dialog structure, `bits-ui` wrapper boundaries, and token compilation/audits.
+- **When to Skip**: Skip this skill when modifying pure simulation/data logic (`src/engine/`, `src/intelligence/`, `src/data/`), authoring interactive motion/transitions, or implementing audio/TTS synthesis.
+- **Exclusions**:
+  - [motion](../motion/SKILL.md): All duration budgets, easing curves (`--ease-out`, `--ease-in-out`, `--ease-drawer`), press scales, blur limits, and View Transitions choreography.
+  - [audio](../audio/SKILL.md): Web Audio API synthesis, SFX, and Kokoro TTS playback.
+  - [simulation](../simulation/SKILL.md): Turn/round physics, director/actor loop, and state schemas.
+  - [local-scripts](../local-scripts/SKILL.md): Repository-wide verification gates (`npm run verify`) and ignore/deploy workflows.
+  - Global `svelte` & `javascript` skills: Svelte 5 Runes architecture and non-UI engine utilities.
 
-- **Token Sovereignty**: Use standard Tailwind utilities mapped to tokens. Tailwind v4 IDE IntelliSense is the absolute source of truth; prefer valid IDE shorthand suggestions (e.g., `mask-exclude`) over awkward arbitrary properties.
-- **Source Grounding**: Always read [DESIGN.md](../../../DESIGN.md) before implementing.
-- **Zero Drift**: Any styling that uses custom semantic CSS classes instead of Tailwind v4 utilities is Heresy.
-- **Layout Stability**: Cumulative Layout Shift (CLS) is a failure of physics. Components must use stable heights and tokens.
-- **Viewport Sovereignty**: No element shall ever bleed beyond the user's view. Use `min-h-[100dvh]` over `h-screen`.
-- **Component & Utility Grounding**: Use primitive wrappers documented in [src/ui/primitives/README.md](../../../src/ui/primitives/README.md) and active T4 `@utility` classes (`mask-border-solid`, `glass-input`, `terminal-box`) compiled from [DESIGN.md](../../../DESIGN.md).
-- **Textual Precision**: Keep interface copy clinical and concise. Use consistent UI/UX terminology and avoid decorative or flowery phrasing.
+## 3. Token Architecture & Aesthetic Calibration
 
-### 2.1 The Three Dials Baseline (Nordic Cockpit Terminal)
+### Three Dials Baseline (Nordic Cockpit Terminal)
 
-Every layout, motion, and visual density decision across RPGlitch is anchored in the Three Dials configuration:
+All visual design decisions calibrate to the following `1–10` scale targets:
 
-- **`DESIGN_VARIANCE: 4-5`** (Controlled Clinical Geometry): Clean, structural alignments with intentional grid contrast for biometric monitors and dialogues.
-- **`MOTION_INTENSITY: 5-6`** (Responsive Kinetic Telemetry): Snappy, physics-grounded transitions with spring dampening; no gratuitous theatricality on high-frequency turns.
-- **`VISUAL_DENSITY: 8-9`** (Subterranean Research Terminal): High-information cockpit layout with dense somatic metrics, multiline prompt bracket inspectors, and fixed-width tabular figures.
+- **Layout Variance (`4–5 / 10`, Controlled Clinical Geometry)**: Structured alignments with intentional grid contrast for telemetry monitors and narrative dialogue.
+- **Motion Intensity (`5–6 / 10`, Responsive Kinetic Telemetry)**: Snappy, damped physics with zero theatrical delay; see [motion](../motion/SKILL.md) for timing rules.
+- **Visual Density (`8–9 / 10`, Subterranean Research Terminal)**: High-information workspace featuring somatic vectors (numerical character axes in `src/config.js`), prompt brackets (`[KEY: VALUE]` tags in `--font-mono`), and tabular figures (`tabular-nums`).
 
----
+### 4-Tier Token Hierarchy
 
-## 3.0 WHEN TO USE
+Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the sole authoritative source (compiled to `src/media/design.css` and the `src/media/tokens.js` bridge):
 
-- **Positive Triggers**: Any task involving CSS, Tailwind classes, spacing, padding, layout structures, floating elements, kinetic motion, hover/active interaction states, view transitions, or UI components.
-- **EXCLUSIONS**: Core simulation logic (`simulation`), pure backend/data logic (`javascript`), Audio/TTS logic (`audio`).
+- **T1–T3 (`@theme` tokens)**: Frontmatter categories `colors`, `typography` (`--font-sans`, `--font-heading`, `--font-display`, `--font-mono`), `rounded`, `spacing` (including T3 organism dimensions `spacing-character-card-*`, `spacing-fractal-card-*`), and `theme` (compiled under `/* --- COMPONENTS --- */` in `src/media/design.css`).
+- **T4 (`@utility` & `@layer base`)**: Compiled CSS utilities defined in `DESIGN.md` fenced blocks: `mask-border-solid`, `glass-input`, `terminal-box`, `message--prologue`, and `prologue-awaiting-flight`.
 
----
+### Token Purity, Signatures & ESLint Boundary
 
-## 4.0 OPERATIONAL PROTOCOL
+- **Mandate Tokens First**: Use `DESIGN.md` tokens wherever a domain token exists (surfaces, entity signatures, typography, radii, spacing, shadows, z-index, durations/easing).
+- **Permitted Tailwind & CSS Primitives**: Standard Tailwind v4 layout/structural utilities, neutral palette/opacity utilities (`bg-white/5`, `border-white/10`, `text-slate-50`), `color-mix(in srgb, var(--signature-color) 10%, var(--color-glass-sunken))`, and `1px`/`2px` hairline borders are permitted where no semantic token fits.
+- **ESLint Unknown-Class Gate**: [eslint.config.js](../../../eslint.config.js) enforces `better-tailwindcss/no-unknown-classes`. Register new semantic utilities as `@utility` in `DESIGN.md` (or add non-utility component classes to the ESLint ignore whitelist).
+- **Entity Signature Contrast (`>= 4.5:1`)**: Because `signatures` in `DESIGN.md` span dark greens (`#15803d`) to high-luminance yellows (`#fde047`, `#fbbf24`, `#84cc16`), text-bearing containers tinted by `--signature-color` must use translucent `color-mix()` wells or dark scrims over obsidian surfaces (as in `ChatBubble.svelte` and `Profile.svelte`), or pair solid high-luminance fills with dark `--color-chalk` ink.
+- **No Pure-Black Drops**: Use tinted `--shadow-ghost`, `--shadow-standard`, and `--shadow-ambient` over `#0b101a` (`--color-background-gradient-1`).
 
-### 1. Mandatory Memory Load
+## 4. Layout Geometry, Scroll Containers & Perchance Normalization
 
-Before writing any UI code, you MUST fetch the current state of the bridge:
+- **Viewport Grid & Mobile Breakpoint**: Use the 12x12 golden-ratio stage grid (`--spacing-grid-width`, `--spacing-grid-height`, bounded via `min(clamp(...), 100vw / 100dvh)`), `min-h-dvh` over `h-screen`, and the `< 48rem` (`768px`) mobile breakpoint tracked in [interface.svelte.js](../../../src/ui/interface.svelte.js).
+- **Defensive Columns & Numeric Stability**: Place `min-w-0` on text flex/grid children (`minmax(0, 1fr)`), `wrap-anywhere` on long unbroken values, `shrink-0` on avatars/icons, and `tabular-nums` on dynamic counters and telemetry figures.
+- **Scrollbar Suppression**: Never use `.no-scrollbar` (fails ESLint). Use [ScrollArea.svelte](../../../src/ui/primitives/ScrollArea.svelte) or `scrollbar-none [&::-webkit-scrollbar]:hidden` (as in `Dropdown.svelte` and `Modal.svelte`).
+- **Modal & Dialog Layout**: Left-align header titles and body copy (`items-start text-left`); right-align footer actions (`justify-end gap-standard` in `Dialog.svelte`, `gap-2` in custom modal footers). Add inline `style="display: flex;"` on HTML5 landmark `<footer>`/`<header>` containers alongside Perchance `normalize.css v3` `:where(...)` rules in `DESIGN.md`.
+- **Disabled vs. Busy States**: Reserve `opacity-30 cursor-not-allowed` for `disabled` controls. Busy controls (`Button`, `Dialog`, `Modal`, `Slider`, `Toggle`) apply `brightness-90` / `brightness-75`, `grayscale*`, `cursor-wait`, `pointer-events-none`, and `finally`-guarded lock release.
 
-- Read [DESIGN.md](../../../DESIGN.md).
+## 5. UI Primitives & State Sovereignty
 
-### 2. Implementation Tracks
+- **Directory Structure**:
+  - [src/ui/primitives/](../../../src/ui/primitives/README.md) (`18` wrappers + `tooltip` action): `Accordion`, `Backdrop`, `Button`, `Dialog`, `Dropdown`, `Label`, `Meter`, `Modal`, `NumberField`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `SourceField`, `StyleBadge`, `TextField`, `Toggle`, `Tooltip`.
+  - `src/ui/` feature views: `Storymode.svelte`, `Storyboard.svelte`, `StoryCard.svelte`, `Console.svelte`, `EntityCard.svelte`, `Profile.svelte`, `ProfilePicture.svelte`, `VisualWing.svelte`, `AudioWing.svelte`, `DevWing.svelte`, `ChatBubble.svelte`, `ContextMenu.svelte`, `ImagePreview.svelte`, `MacroText.svelte`, `RelationalGraph.svelte`, `Typewriter.svelte`, `UndoToast.svelte`.
+- **Bits UI (`^2.20.6`) Boundary**: Feature views must consume `src/ui/primitives/` first. Direct `bits-ui` imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) stay encapsulated inside `src/ui/primitives/` (plus `Avatar` in `ProfilePicture.svelte`). `Dropdown.svelte` wraps `Select` (no `DropdownMenu` or `Popover` exists). Use `{#snippet child({ props })}` for render delegation and keep `bind:ref` and `origin-(--transform-origin)` internal to primitive wrappers. Rely on `bits-ui` for ARIA roles and modal focus management.
+- **Reactive State Ownership Matrix**:
+  - [src/engine/runtime.svelte.js](../../../src/engine/runtime.svelte.js): Active entities (`user`, `ai`, `fractal`), `round`, `story_id`.
+  - [src/engine/status.svelte.js](../../../src/engine/status.svelte.js): Simulation lifecycle (`simulation_state`, `ui_state`, `phase` = `"idle"` | `"generating"` | `"locked"`, `busy`, `streaming`).
+  - [src/ui/interface.svelte.js](../../../src/ui/interface.svelte.js): Modal/view routing, `< 48rem` viewport state, and `--active-signature-color` hydration. _(Note: these three files reside under `src/engine/` and `src/ui/`, despite stale `@file src/state/...` header comments.)_
 
-- **T1-T3 Alignment**: Map semantic styles to existing tokens in [DESIGN.md](../../../DESIGN.md) (`font-sans`, `font-display`, `font-heading`, `font-mono`).
-- **T4 Pattern Manifestation**: Use the headless primitive wrappers in [src/ui/primitives/README.md](../../../src/ui/primitives/README.md) and active T4 `@utility` classes (`mask-border-solid`, `glass-input`, `terminal-box`) compiled from [DESIGN.md](../../../DESIGN.md).
-- **Micro-Interactions**: Apply hover/active reflexes using `--scale-sink` (`0.97`) and `--ease-out` / `--ease-in-out` tokens (see [motion](../motion/SKILL.md)).
+## 6. View Transition Names & Motion Boundary
 
-### 3. Spatial Positioning & Chassis
+- **Jurisdiction**: Delegate all duration budgets, easing curves, scale physics, and entrance/exit choreography to [motion/SKILL.md](../motion/SKILL.md). Only apply design token bindings (e.g., `duration-(--duration-fast) ease-(--ease-out) active:scale-sink`).
+- **Canonical View-Transition Names**: Registered in `DESIGN.md`: `card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, and `unified-console` (plus per-card slots in `Storyboard.svelte`).
+- **Guarded Transitions Only**: Trigger DOM view transitions exclusively via `guarded_transition(callback, options)` from [ui-helpers.js](../../../src/utils/ui-helpers.js) — never call raw `document.startViewTransition()` directly.
+- **Directive Isolation**: Never combine `view-transition-name` with Svelte `transition:`, `in:`, or `out:` directives on the same DOM node.
 
-- **Viewport-Aware**: Check available space before rendering (dropup vs dropdown).
-- **Stable Fields**: Use `min-height` derived from `spacing` tokens to prevent collapse.
-- **Boundary Control**: Use `max-height` and `overflow-y: auto` with `.no-scrollbar`.
+## 7. Token Compilation, Audits & Visual Inspection
 
-#### Warning & Confirmation Modal Standards
+1. **Compile Tokens**: Run `npm run sync:css` (`node .agents/skills/design/scripts/sync-css.js`) after editing `DESIGN.md` to regenerate `src/media/design.css` and `src/media/tokens.js` (also invoked automatically by `designTokenSync()` in `vite.config.js`). Every entry in `signatures` and `PALETTE` must reference a `#hex` color token. Use `npm run test:sync` to run `sync-css.test.js`, or `npm run sync` for full repo sync (`sync:ignores` + `sync:css` + `sync:gates`). All CLI scripts support `--help`.
+2. **Audit Design Compliance**:
+   - `npm run audit:design`: Runs `audit-design.js` (exits `1` on `[HERESY]` rules such as hover `translateY`, legacy `--spacing-<num>`, or hallucinated `var(--*)` variables; prints `[ADVICE]` and `[DEBT]` unused-token diagnostics) and `audit-google-design.js` (`npx designmd lint`, exits `1` on broken reference `errors > 0`, warnings non-blocking).
+   - `npm run lint`: Runs ESLint (`better-tailwindcss/no-unknown-classes`) and Stylelint.
+   - `npm run verify`: Full gate (`lint`, `audit`, `test`) before finalizing work.
+3. **Browser & Stitch Workflows**:
+   - **Browser Verification**: Launch `npm run dev` (`http://localhost:4001`) or `npm run preview` (`http://localhost:8080`) and inspect via `chrome-devtools` MCP whenever modifying layout structure, modal overlays, view-transition groups, or responsive behavior at `320px` / `< 48rem` / desktop widths to verify zero visual bleed and `< 0.1` CLS.
+   - **Stitch Prompt Structure**: When authoring screens for Stitch (`stitch` skill / `StitchMCP`), document each functional block with `## [Screen]`, `### [Area]`, `- **Description**:`, `- **Intent**:`, and `- **Tokens**:` referencing exact `DESIGN.md` frontmatter keys.
 
-- For small warning, deletion, or action confirmation modals (e.g., "delete all?"):
-  - **Header Title**: Left-aligned (`text-left`).
-  - **Body Description**: Left-aligned (`text-left`).
-  - **Footer Actions/Buttons**: Right-aligned (`flex justify-end gap-tight`).
+## 8. Bright-Line Constraints & Verification Checklist
 
-### 4. Interactive Feedback & Busy States
-
-- **Interaction Locking**: Disable input, set `cursor: wait`, and apply `opacity: var(--opacity-whisper)` during busy states.
-- **Async Safety**: Use `finally` blocks to release UI locks.
-
-### 5. Kinetic Feedback & Motion Jurisdiction
-
-Interactive motion, easing curves, button press reflexes, and animation duration budgets are governed by the dedicated [motion](../motion/SKILL.md) skill.
-
-- **Basic Reflex Tokens**: Standard hover is `hover:brightness-125` (gated on fine-pointer hover capability). Discrete button presses apply `active:scale-sink transition-transform duration-150 ease-out`.
-- **Advanced Motion & Audits**: For animation curves (`--ease-out`, `--ease-in-out`, `--ease-drawer`), two-tier duration budgets, modal/drawer transitions, or Emil Kowalski craft reviews, invoke `/motion`.
-
-### 6. Stitch Screen Prompt Structure
-
-When drafting new screen prompts for Stitch workflows, structure each component using H2/H3 headings:
-
-```text
-## [Component Name / Screen Title]
-
-### [Element ID / Functional Area]
-
-- **Description**: Semantic visual description of the element.
-- **Intent**: Functional goal of the element in the workflow.
-- **Tokens**: Specific tokens from DESIGN.md frontmatter.
-```
-
-### 7. Bits UI (`^2.18.1`) Headless Primitives
-
-When building complex interactive overlays (Dropdowns, Dialogs, Popovers, Tooltips, Collapsibles):
-
-- **Headless Foundation**: Use `bits-ui` primitives (`DropdownMenu`, `Dialog`, `Popover`, `Tooltip`). They supply accessible ARIA attributes, keyboard traps, and `var(--transform-origin)` out of the box.
-- **Render Delegation**: Use `{#snippet child({ props })}` instead of legacy wrappers.
-- **Reference Binding**: Use `ref = $bindable(null)` instead of `el`.
-
-### 8. Solid-State View Transitions in Svelte 5
-
-- **Synchronous Execution**: Wrap layout mutations in `flushSync` within `document.startViewTransition()` to ensure DOM capture before morphing:
-
-  ```ts
-  import { flushSync } from "svelte";
-  document.startViewTransition(() => {
-    flushSync(() => {
-      active_view = target_view;
-    });
-  });
-  ```
-
-- **Rigid-Body Morphing**: Suppress crossfade ghosting via CSS pseudo-element overrides:
-
-  ```css
-  ::view-transition-old(telemetry-card) {
-    animation: none;
-    opacity: 0 !important;
-  }
-  ::view-transition-new(telemetry-card) {
-    animation: none;
-    opacity: 1 !important;
-  }
-  ::view-transition-group(telemetry-card) {
-    animation-duration: 250ms;
-    animation-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  ```
-
-- **Directive Isolation**: Never declare `view-transition-name` on an element that also uses Svelte transition directives (`transition:`, `in:`, `out:`).
-
----
-
-## 5.0 MANDATORY DIRECTIVES & QUALITY GATE
-
-### 5.1 Performance & Defensive Layout
-
-- **Zero Layout Jitter**: Animate only compositor properties (`transform`, `opacity`).
-- **Defensive Text Boxes**: Always apply `min-w-0` to flex/grid child columns containing text, and `overflow-wrap: anywhere` on dynamic dialogue and prompt brackets.
-- **Numeric Stability**: Always apply `font-variant-numeric: tabular-nums` (`tabular-nums`) to somatic vectors, counters, and telemetry numbers.
-- **Avatar Invariance**: Apply `flex-shrink: 0` (`shrink-0`) to all avatar frames and status markers.
-- **Blur Safety**: Keep transition-time `filter: blur()` under 20px.
-
-### 5.2 Weaver Synchronization & Token Audits
-
-The Weaver pipeline bridges [DESIGN.md](../../../DESIGN.md) tokens into runtime assets:
-
-1. **Authoritative Source**: All token additions or edits begin in [DESIGN.md](../../../DESIGN.md) YAML frontmatter and fenced CSS blocks.
-2. **Compile**: Run `npm run sync` (or `npm run sync:css`) to regenerate `src/media/design.css` and `src/media/tokens.js`. The `signatures` frontmatter array automatically populates `SIGNATURE_COLORS` in `src/media/tokens.js` — never hand-edit generated files.
-3. **Audit & Verify**: Run `npm run audit:design` (`audit-design.js` enforces CSS/Svelte `HERESY` rules while flagging `[DEBT]` / `ADVICE` tokens; `audit-google-design.js` reports `@google/design.md` spec status non-blockingly) and `npm run verify` to gate lint, audit, and tests before release.
-
-### Visual & Browser Audit
-
-- **Visual Verification**: Proactively use the `chrome-devtools` MCP server to inspect active page states, evaluate CSS variables, capture screen configurations, and perform audits on Svelte components under dynamic states to ensure visual accuracy and zero bleed.
-
-### Mandatory Directives
-
-- **Zero Jitter**: Animate only compositor properties (`transform`, `opacity`). Never animate `height` or `width`.
-- **Modern Notation**: Use `rgb(r g b / alpha)` for transparency.
-- **Scoping**: Favor atomic, scoped styles in Svelte `<style>` blocks.
-- **Viewport Resilience**: Ensure layouts are responsive and respect `safe-area-inset`.
-
----
-
-## 6.0 VERIFICATION (Definition of Done)
-
-- [ ] 0% raw values in implementation. All styles derived from [DESIGN.md](../../../DESIGN.md) tokens.
-- [ ] Viewport overflows eliminated.
-- [ ] Component structure aligned with [src/ui/primitives/README.md](../../../src/ui/primitives/README.md) and active T4 utilities in [DESIGN.md](../../../DESIGN.md).
-- [ ] Kinetic interactions compliant with [the motion audit playbook](../motion/references/audit.md).
-- [ ] CLS verified at < 0.1 for all state transitions.
-- [ ] Interaction locking prevents input during busy states.
-- [ ] Audits passed with zero violations (`npm run audit:design`).
-- [ ] Visual design verified via `chrome-devtools` screenshot captures or browser inspection (where applicable).
-
----
-
-## 7.0 RPGlitch UI Directory Conventions
-
-- **Centralized State**: Coordinate state via centralized runes (`src/engine/runtime.svelte.js` for simulation state, `src/ui/interface.svelte.js` for UI session state).
-
----
-
-## 8.0 Reference Catalogs & Craft Playbooks
-
-- [Anti-Slop Taste Guide](./references/anti-slop.md): Anti-default color calibration, eyebrow restraint, descender clearances, and layout diversity.
-- [Adversarial Breaking UI](./references/adversarial/break-ui.md): Stress-testing UI with realistic worst-case values, layout failure signatures, and fixes.
-- [Worst-Case Catalog](./references/adversarial/worst-case-catalog.md): Dictionary of edge-case strings (unbreakable identifiers, diacritics, surrogate pairs, numeric extremes).
+- **NEVER** edit `src/media/design.css` or `src/media/tokens.js` by hand.
+- **NEVER** invent `.no-scrollbar` or unregistered CSS classes without defining `@utility` in `DESIGN.md` or whitelisting in `eslint.config.js`.
+- **NEVER** call raw `document.startViewTransition()` or mix `view-transition-name` with Svelte transition directives.
+- **NEVER** import raw `bits-ui` directly inside feature views when a wrapper exists in `src/ui/primitives/`.
+- **ALWAYS** apply `min-w-0` + `wrap-anywhere` on flex/grid text columns, `shrink-0` on avatars/icons, and `style="display: flex;"` on modal `<header>`/`<footer>` containers.
+
+### Counter-Rationalization Table
+
+| Rationalization                                                | Required Action                                                                                                                                               |
+| :------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `"Quick one-line tweak in design.css / tokens.js"`             | Edit `DESIGN.md` and run `npm run sync:css`; Vite/CI overwrites manual edits.                                                                                 |
+| `"This badge can use solid bg-(--signature-color) text-white"` | Bright signatures (`#fde047`, `#fbbf24`, `#84cc16`) fail `4.5:1`; use translucent `color-mix()` wells or dark `--color-chalk` ink.                            |
+| `"Demo data fits cleanly; no need to stress-test"`             | Run the 3-phase protocol in [break-ui.md](./references/adversarial/break-ui.md) with [worst-case-catalog.md](./references/adversarial/worst-case-catalog.md). |
+| `"Need a new modal animation curve here"`                      | Hand off to [motion/SKILL.md](../motion/SKILL.md) instead of inventing raw CSS curves in `design`.                                                            |
+
+### Verification Checklist
+
+- [ ] New or modified components follow [references/anti-slop.md](./references/anti-slop.md) dark-surface, contrast, and token rules.
+- [ ] All dynamic slots survive Phase 2 adversarial inputs from [worst-case-catalog.md](./references/adversarial/worst-case-catalog.md) (no horizontal overflow at `320px`, `< 48rem`, or `200%` zoom).
+- [ ] `npm run sync:css` and `npm run test:sync` pass if `DESIGN.md` changed.
+- [ ] `npm run audit:design` and `npm run verify` exit `0`.
+- [ ] Browser layout & CLS (`< 0.1`) inspected via `chrome-devtools` on modified views/modals (`:4001` or `:8080`).

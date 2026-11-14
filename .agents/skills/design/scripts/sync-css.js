@@ -34,17 +34,30 @@ function generatedHeader(rel_path) {
 
 /**
  * Reads and parses DESIGN.md, splitting YAML frontmatter from the markdown body.
+ * Fails fast on missing delimiters, YAML syntax errors, or missing core token maps.
  * @returns {{data: Record<string, unknown>, body: string}}
  */
 function parseMarkdownDoc() {
   const content = fs.readFileSync(PATHS.designMd, "utf8");
   const parts = content.split(/^---$/m);
-  if (parts.length < 3) return { data: {}, body: content };
-  try {
-    return { data: yaml.load(parts[1]) || {}, body: parts.slice(2).join("---").trim() };
-  } catch {
-    return { data: {}, body: content };
+  if (parts.length < 3) {
+    throw new Error(`[ERROR] DESIGN.md (${PATHS.designMd}) is missing YAML frontmatter delimiters (---).`);
   }
+
+  let parsed;
+  try {
+    parsed = yaml.load(parts[1]);
+  } catch (error) {
+    throw new Error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`, {
+      cause: error,
+    });
+  }
+
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed) || !parsed.colors || typeof parsed.colors !== "object") {
+    throw new Error("[ERROR] DESIGN.md frontmatter must define a non-empty 'colors' token map.");
+  }
+
+  return { data: parsed, body: parts.slice(2).join("---").trim() };
 }
 
 /**
@@ -189,5 +202,20 @@ export function syncToCss() {
 }
 
 if (process.argv[1] && process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/sync-css.js")) {
-  syncToCss();
+  if (process.argv.includes("--help") || process.argv.includes("-h")) {
+    console.log(`Usage: node .agents/skills/design/scripts/sync-css.js [--help]
+
+Compiles DESIGN.md YAML frontmatter and fenced CSS blocks into:
+  - src/media/design.css (override via CSS_PATH)
+  - src/media/tokens.js  (override via JS_BRIDGE_PATH)
+  Source path override:    DESIGN_MD_PATH`);
+    process.exit(0);
+  }
+
+  try {
+    syncToCss();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  }
 }

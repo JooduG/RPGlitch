@@ -70,20 +70,30 @@ export function resolveTokenValue(raw_value) {
 
 /**
  * Loads and parses the YAML frontmatter block from DESIGN.md.
- * @returns {Record<string, unknown>} Parsed frontmatter object, or empty object on failure.
+ * Throws on missing file, missing delimiters, or YAML syntax errors.
+ * @returns {Record<string, unknown>} Parsed frontmatter object.
  */
 function loadDesignFrontmatter() {
-  if (!fs.existsSync(PATHS.designMd)) return {};
+  if (!fs.existsSync(PATHS.designMd)) {
+    throw new Error(`[ERROR] DESIGN.md not found at ${PATHS.designMd}.`);
+  }
 
   const content = fs.readFileSync(PATHS.designMd, "utf8");
   const parts = content.split(/^---$/m);
-  if (parts.length < 3) return {};
+  if (parts.length < 3) {
+    throw new Error(`[ERROR] DESIGN.md (${PATHS.designMd}) is missing YAML frontmatter delimiters (---).`);
+  }
 
   try {
-    return yaml.load(parts[1]) || {};
+    const parsed = yaml.load(parts[1]);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("Parsed frontmatter is not a YAML mapping object.");
+    }
+    return parsed;
   } catch (error) {
-    console.error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error.message}`);
-    return {};
+    throw new Error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error instanceof Error ? error.message : String(error)}`, {
+      cause: error,
+    });
   }
 }
 

@@ -2,8 +2,17 @@ import { execSync } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(`Usage: node .agents/skills/design/scripts/audit-google-design.js [--help]
+
+Validates DESIGN.md YAML frontmatter using @google/design.md (npx designmd lint).
+Exits 1 if broken-token schema errors > 0 or output cannot be parsed; schema warnings remain non-blocking (exit 0).`);
+  process.exit(0);
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const designMd = path.resolve(__dirname, "../../../../DESIGN.md");
+let has_errors;
 
 try {
   const output = execSync(`npx designmd lint "${designMd}" --format json`, {
@@ -30,7 +39,8 @@ try {
   // Warnings are intentionally muted due to custom RPGlitch component schema
 
   console.log(`📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
-  console.log("\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking).\x1b[0m\n");
+  has_errors = errors > 0;
+  console.log(has_errors ? "\n\x1b[31m❌ SPEC GATE FAILED: Fix DESIGN.md errors above.\x1b[0m\n" : "\n\x1b[32m✅ SPEC SCAN COMPLETE.\x1b[0m\n");
 } catch (err) {
   // Parse error output from designmd (it writes JSON to stdout even on failure)
   try {
@@ -50,11 +60,16 @@ try {
 
     // Warnings are intentionally muted due to custom RPGlitch component schema
     console.log(`\n📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
-    console.log("\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking).\x1b[0m\n");
+    has_errors = errors > 0;
+    console.log(
+      has_errors
+        ? "\n\x1b[31m❌ SPEC GATE FAILED: Fix DESIGN.md errors above.\x1b[0m\n"
+        : "\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking warnings).\x1b[0m\n",
+    );
   } catch {
-    console.warn("\x1b[33m⚠️  @google/design.md spec scan skipped (parse error).\x1b[0m");
+    console.error("\x1b[31m❌ @google/design.md spec scan failed (unparseable output).\x1b[0m");
+    has_errors = true;
   }
 }
 
-// Always exit 0 - this is an informational audit, not a gate.
-process.exit(0);
+process.exit(has_errors ? 1 : 0);

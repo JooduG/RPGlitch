@@ -23,13 +23,13 @@ const themeRules = [
     id: "THEME_HOVER_TRANSFORM",
     severity: "HERESY",
     regex: /:hover\s*\{[^}]*translateY|:hover\s*\{[^}]*transform:\s*translate/,
-    message: "❌ Rule 04 violation: GROUNDED POLICY. Avoid translateY on hover to maintain subterranean weight.",
+    message: "❌ DESIGN.md Hover Policy: Avoid translateY/translate on :hover to maintain subterranean weight.",
   },
   {
     id: "THEME_RADIUS",
     severity: "ADVICE",
     regex: /border-radius:\s*[0-9]+px/,
-    message: "❌ Hardcoded border-radius. Use Tokens: var(--border-radius-m), etc.",
+    message: "❌ Hardcoded border-radius. Use tokens: var(--radius-sharp) or var(--radius-standard).",
   },
   {
     id: "PIXEL_BORDER",
@@ -54,31 +54,31 @@ const themeRules = [
     id: "VIEWPORT_H_SCREEN",
     severity: "ADVICE",
     regex: /\b(h-screen|min-h-screen)\b/,
-    message: "❌ Viewport instability detected: Use min-h-[100dvh] instead of h-screen.",
+    message: "❌ Viewport instability detected: Use min-h-dvh instead of h-screen.",
   },
   {
     id: "MOTION_SCALE_ZERO",
     severity: "ADVICE",
     regex: /scale\(0\)/,
-    message: "❌ Rule 05 violation: Never animate scale(0). Start from scale(0.95) with opacity: 0.",
+    message: "❌ Motion Policy: Never animate scale(0). Start from scale(0.95) with opacity: 0.",
   },
   {
     id: "MOTION_TRANSITION_ALL",
     severity: "ADVICE",
     regex: /transition:\s*all\b|\btransition-all\b/,
-    message: "❌ Rule 07 violation: Banned transition: all. Name exact animated properties.",
+    message: "❌ Motion Policy: Banned transition: all. Name exact animated properties.",
   },
   {
     id: "MOTION_EASE_IN",
     severity: "ADVICE",
     regex: /transition:[^;]*\bease-in\b|\btransition-timing-function:\s*ease-in\b/,
-    message: "❌ Rule 03 violation: Banned ease-in on UI. Use ease-out or custom cubic-bezier.",
+    message: "❌ DESIGN.md Motion Policy: Banned ease-in on UI. Use var(--ease-out) or var(--ease-in-out).",
   },
   {
     id: "MOTION_LAYOUT_PROPS",
     severity: "ADVICE",
     regex: /transition:[^;]*\b(width|height|top|left|margin|padding)\b/,
-    message: "❌ Rule 07 violation: Animating layout properties triggers repaint/reflow. Animate transform or opacity.",
+    message: "❌ Motion Policy: Animating layout properties triggers repaint/reflow. Animate transform or opacity.",
   },
 ];
 
@@ -165,8 +165,8 @@ export function auditCodebaseTokens() {
         for (const match of var_matches) {
           const token_name = match[1];
           if (!definedMap.has(token_name)) {
-            // Exempt local component variables and standard Tailwind variables
-            if (token_name === "--stage-align" || token_name === "--shimmer-color") continue;
+            // Exempt local component variables and standard Tailwind/bits-ui variables
+            if (token_name === "--stage-align" || token_name === "--shimmer-color" || token_name === "--transform-origin") continue;
             if (token_name.startsWith("--color-")) continue;
             if (token_name.startsWith("--bits-")) continue;
             if (token_name.startsWith("--state-")) continue;
@@ -194,8 +194,9 @@ export function findUnusedTokens() {
     .map((entry) => entry.value)
     .join("\n");
   const design_body = fs.existsSync(PATHS.designMd) ? fs.readFileSync(PATHS.designMd, "utf8").split(/^---$/m).slice(2).join("---") : "";
+  const design_css_blocks = [...design_body.matchAll(/```css([\s\S]*?)```/g)].map((match) => match[1]).join("\n");
 
-  const combined_content = [...source_files.map((f) => fs.readFileSync(f, "utf8")), intra_token_values, design_body].join("\n");
+  const combined_content = [...source_files.map((f) => fs.readFileSync(f, "utf8")), intra_token_values, design_css_blocks].join("\n");
 
   // Tailwind v4 resolves utilities from theme tokens, so a token counts as
   // USED when any of these appear in src: the literal `--token`, its bare
@@ -268,6 +269,15 @@ export function findUnusedTokens() {
     unused.forEach((tok) => console.log(`  - ${tok}`));
     console.log("");
   }
+}
+
+if (process.argv.includes("--help") || process.argv.includes("-h")) {
+  console.log(`Usage: node .agents/skills/design/scripts/audit-design.js [--help]
+
+Audits src/ .svelte, .css, .js, and .html files against DESIGN.md tokens:
+  - [HERESY] rules (hover translateY, legacy --spacing-<num>, unknown var(--*) tokens; exits 1)
+  - [ADVICE] & [DEBT] diagnostics (hardcoded px radii/borders, em-dashes, h-screen, scale(0), transition-all, ease-in, unused tokens)`);
+  process.exit(0);
 }
 
 console.log("\n================================================================================");

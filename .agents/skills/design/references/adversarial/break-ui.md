@@ -1,52 +1,62 @@
----
-name: break-ui
-description: Adversarial UI stress-testing guide. Tests components against worst-case realistic data (unbreakable strings, diacritics, long names, empty states, boundary counts) and documents failure signatures and fixes.
----
-
 # Breaking UI (Adversarial Component Stress-Testing)
 
-An adversarial reference runbook. Its purpose is to take a piece of UI that looks clean with cooperative demo data, find the realistic worst case for every value it renders, and document what broke.
+An adversarial stress-test runbook for identifying layout collapse, clipping, state leakage, and XSS vulnerabilities under realistic worst-case inputs before release.
+
+---
 
 ## Operating Posture
 
-Demo data is chosen, usually without anyone noticing, to make the design look good: names that fit on one line, counts that never need a separator, every optional field filled in. The job here is to undo that choice, one field at a time.
+Cooperative demo data hides visual defects: single-line character names, populated avatars, short numeric deltas, and well-formed markdown. Stress-testing reverses those defaults one field at a time.
 
-Two failure modes, and the first is worse:
+Two failure modes threaten coverage, with the first being the most common blind spot:
 
-1. **Nonsense data.** `"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"` and 5,000-character strings prove nothing. Every worst-case value must be something a real user or LLM generation could plausibly produce, or the limit from the schema.
-2. **Stopping at long text.** Long names are the obvious break. The ones that ship are the short name that leaves an orphaned dash, the missing avatar, the count of exactly 1 ("1 members"), the empty feed, and the unescaped markdown tag.
+1. **Synthetic noise strings**: Repeating `"aaaa..."` across 5,000 characters tests unrealistically flat inputs. Every stress payload must reflect an authentic user entry, LLM output, or schema boundary (`src/config.js`, `src/utils/`).
+2. **Focusing only on long strings**: Long names are obvious breaks. Quiet regressions ship through empty fields, orphaned dashes, `1` vs `0` singular/plural counts, broken portrait URLs, and unescaped HTML or markdown tokens.
 
 ## Core Rules
 
-1. **Plausible or schema-backed, never random.** Each worst-case value is either a realistic example or the actual limit from validation schemas or database columns.
-2. **Change the data, not the component.** The worst case enters through the same boundary demo data does: props, stores, or fixtures.
-3. **One dataset, many failures.** A single worst-case dataset should hit multiple edge cases at once across different rows.
-4. **Report before fixing.** List the breaks, identify their root cause CSS/HTML signatures, and propose targeted fixes.
+1. **Plausible or schema-backed inputs only**: Source fixtures from realistic strings or schema constants in the codebase.
+2. **Test through external data boundaries**: Inject payloads via component props, Svelte state stores, or fixture imports rather than mutating component markup solely for testing.
+3. **Pack multiple edges per pass**: Combine long names, missing images, boundary numbers, and empty collections into one adversarial fixture set.
+4. **Record exact CSS/HTML root causes before patching**: Log which slot failed, the responsible rule, and the targeted layout fix.
 
-## Failure Signatures & CSS Fixes
+---
 
-| What you see                                         | Cause                                       | Fix                                                           |
-| :--------------------------------------------------- | :------------------------------------------ | :------------------------------------------------------------ |
-| Avatar or icon squished into an oval                 | Flex child shrinking                        | `flex-shrink: 0` on the avatar, icon, or fixed container      |
-| Text overflows box instead of wrapping/truncating    | Flex/grid child has `min-width: auto`       | `min-width: 0` on the text column (`minmax(0, 1fr)` in grid)  |
-| Long unbroken identifier runs past card edge         | No break opportunities in the string        | `overflow-wrap: anywhere` or `break-words`                    |
-| Trailing action/button pushed off-screen or clipped  | Middle content expanded without constraint  | `min-width: 0` on middle column, `flex-shrink: 0` on action   |
-| Status badge wraps onto two lines                    | Badge allowed to shrink                     | `white-space: nowrap; flex-shrink: 0` on badge                |
-| Avatar centered against multi-line text looks adrift | `align-items: center` on multi-line row     | Top-align (`align-items: flex-start`) once text wraps         |
-| Long word breaks mid-word awkwardly                  | `word-break: break-all`                     | `overflow-wrap: anywhere` breaks only when strictly necessary |
-| Numbers jitter when updating in dials/meters         | Proportional width figures                  | `font-variant-numeric: tabular-nums`                          |
-| Diacritics or descenders clipped top or bottom       | Tight `line-height` with `overflow: hidden` | Relax `line-height` or add reserve padding (`pb-tight`)       |
-| Broken image portrait                                | Missing fallback state                      | Fall back to styled initials ring and signature hue           |
-| Content renders raw `<tag>`, `&`, or `**text**`      | Double-encoding or unescaped HTML           | Use deterministic DOMPurify fragment parsing                  |
+## Phase 1: Component & Field Inventory Table
 
-## Truncate, Wrap, or Clamp Strategy
+Catalog every dynamic slot in the target component and map it to one of the 9 categories in the Worst-Case Catalog (linked in `SKILL.md`):
 
-- **Wrap**: Text the user needs in full to identify entities: names, primary story prose.
-- **Truncate at the end**: Secondary metadata where the start carries meaning: agendas, inventory notes, previews.
-- **Truncate in the middle**: File names, UUIDs, or hashes where the beginning and ending distinguish entries.
-- **Clamp** (`line-clamp: 2` or `line-clamp: 3`): Multi-line previews in compact cards to maintain rhythm.
-- **Never truncate**: Numbers, status values, dates, or resource tallies.
+| Component / Slot             | Prop or State Source | Catalog Category            | Layout Container     | Expected Overflow / Fallback Rule                          |
+| :--------------------------- | :------------------- | :-------------------------- | :------------------- | :--------------------------------------------------------- |
+| _Example: EntityCard / Name_ | `entity.name`        | People & names              | Flex row (`min-w-0`) | Wraps cleanly; multi-script uses `dir="auto"`              |
+| _Example: ChatBubble / Body_ | `display_text`       | RPGlitch payloads / Strings | Flex column          | Parsed via `MarkdownIt` + `use:safe_html`; `wrap-anywhere` |
 
-## Reference Catalog
+## Phase 2: Adversarial Payload Injection
 
-- [Worst-Case Catalog](./worst-case-catalog.md) - Dictionary of realistic breaking strings across names, identifiers, copy, and numbers.
+1. Select the matching stress inputs from each mapped category in `worst-case-catalog.md` plus Section 9 (RPGlitch Simulation & Epistemic Payloads).
+2. Render the component at both `320px` (minimum stage width / `--spacing-grid-width` floor), `--spacing-column-unit` narrow sidebar columns, `< 48rem` mobile breakpoint, and `200%` browser zoom.
+3. Test dynamic transitions (`busy`, loading, empty, error) and coarse-pointer touch views.
+
+## Phase 3: Failure Signatures & Remediation
+
+| Observed Failure                                                | Root Cause                                    | Canonical Fix                                                                                                                           |
+| :-------------------------------------------------------------- | :-------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
+| Avatar or icon squished into an oval                            | Flex child shrinking                          | Add `shrink-0` (`flex-shrink: 0`) on avatar or icon frames                                                                              |
+| Text overflows box instead of wrapping or truncating            | Flex/grid child defaults to `min-width: auto` | Add `min-w-0` on text column (or `minmax(0, 1fr)` in grid)                                                                              |
+| Unbroken identifier bleeds past card edge                       | No whitespace break opportunities             | Apply Tailwind v4 `wrap-anywhere` (`overflow-wrap: anywhere`)                                                                           |
+| Trailing action pushed off-screen or clipped                    | Middle column expands unrestrained            | `min-w-0` on middle content + `shrink-0` on trailing action                                                                             |
+| Short status badge wraps mid-label                              | Badge allowed to shrink                       | `whitespace-nowrap shrink-0` on short pills; allow `flex-wrap` at `320px` if localized labels widen                                     |
+| Avatar centered vertically beside wrapped text looks unanchored | `items-center` on multi-line row              | Use `items-start` (`align-items: flex-start`) when text wraps                                                                           |
+| Normal words split awkwardly mid-word                           | `break-all` (`word-break: break-all`)         | Replace with `wrap-anywhere` (`overflow-wrap: anywhere`)                                                                                |
+| Numbers jitter horizontally in live counters                    | Proportional font glyphs                      | Apply `tabular-nums` (`font-variant-numeric: tabular-nums`)                                                                             |
+| Diacritics or descenders clip top or bottom                     | Tight `line-height` + `overflow-hidden`       | Relax leading or add clearance padding (`pb-tight`)                                                                                     |
+| Missing or 404 image leaves blank box or broken icon            | Missing fallback layer                        | Use `ProfilePicture.svelte` (`Avatar.Fallback`: full-bleed `--signature-color` well with centered watermark initials)                   |
+| Raw `<script>`, `&`, or `**text**` misfires                     | Wrong escaping vs. HTML sink                  | Plain text: Svelte `{value}` or `escape_html()`. Rich narrative markdown: `MarkdownIt` (`html: false`) + `sanitize()` / `use:safe_html` |
+
+### Truncate, Wrap, or Clamp Strategy
+
+- **Wrap**: Primary text required for comprehension (entity names, story dialogue, active prompt brackets).
+- **Truncate at the end**: Secondary metadata where the prefix carries identity (sidebar labels, previews).
+- **Truncate in the middle**: File names, UUIDs, or hashes where start and end characters distinguish entries — implement via a JS middle-slice helper before rendering (`text-overflow: ellipsis` only truncates at the end).
+- **Clamp (`line-clamp-2` / `line-clamp-3`)**: Multi-line card summaries requiring uniform height for predictable card rhythm.
+- **Never truncate**: Numbers, round counters, status states, `YYYY-MM-DD HH:MM` timestamps, or resource budgets.

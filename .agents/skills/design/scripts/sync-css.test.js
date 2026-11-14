@@ -104,5 +104,33 @@ theme:
       expect(paletteBlock).not.toContain("Primary");
       expect(paletteBlock).not.toContain("empty-fill");
     });
+
+    it("should fail fast and preserve existing outputs when DESIGN.md has malformed YAML or missing frontmatter", () => {
+      const sentinelCss = "/* existing css */";
+      const sentinelJs = "/* existing js */";
+      fs.writeFileSync(tmpCss, sentinelCss);
+      fs.writeFileSync(tmpJs, sentinelJs);
+
+      const execOpts = {
+        env: {
+          ...process.env,
+          DESIGN_MD_PATH: tmpMd,
+          CSS_PATH: tmpCss,
+          JS_BRIDGE_PATH: tmpJs,
+          VITEST: "1",
+        },
+        stdio: "pipe",
+      };
+
+      fs.writeFileSync(tmpMd, "# Missing frontmatter delimiters\n");
+      expect(() => execSync(`node ${SCRIPT_SYNC}`, execOpts)).toThrow();
+      expect(fs.readFileSync(tmpCss, "utf8")).toBe(sentinelCss);
+      expect(fs.readFileSync(tmpJs, "utf8")).toBe(sentinelJs);
+
+      fs.writeFileSync(tmpMd, "---\ncolors:\n  color-bad: [\n---\n# Broken YAML\n");
+      expect(() => execSync(`node ${SCRIPT_SYNC}`, execOpts)).toThrow();
+      expect(fs.readFileSync(tmpCss, "utf8")).toBe(sentinelCss);
+      expect(fs.readFileSync(tmpJs, "utf8")).toBe(sentinelJs);
+    });
   });
 });

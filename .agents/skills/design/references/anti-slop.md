@@ -1,65 +1,35 @@
----
-name: anti-slop
-description: Sovereign anti-slop design and frontend taste guidelines for RPGlitch. Covers anti-default color calibration, typography discipline, layout variance, bento grid integrity, and interactive feedback.
----
-
 # Anti-Slop Frontend Craft & Taste Guide
 
-A distilled set of taste laws and bias corrections designed to prevent AI-generated interfaces from looking generic, templated, or lifeless.
+Taste laws and bias corrections preventing generic, templated, or low-contrast interfaces across RPGlitch views. Visual target dials (`4–5 / 10` layout variance, `5–6 / 10` motion intensity, `8–9 / 10` visual density) are anchored in [SKILL.md](../SKILL.md).
 
 ---
 
-## 1. The Three Dials Baseline
+## 1. Anti-Default Color & Surface Discipline
 
-All layout, motion, and visual density decisions in RPGlitch are governed by the Three Dials configuration:
-
-- **`DESIGN_VARIANCE: 4-5`** (Controlled Clinical Geometry): Clean structural alignments with intentional grid contrast for biometric monitors and narrative feeds.
-- **`MOTION_INTENSITY: 5-6`** (Responsive Kinetic Telemetry): Snappy, physics-grounded transitions with spring dampening; zero theatrical delays on high-frequency turns.
-- **`VISUAL_DENSITY: 8-9`** (Subterranean Research Terminal): High-information cockpit layout with dense somatic metrics, multiline prompt bracket inspectors, and fixed-width tabular figures.
-
----
-
-## 2. Anti-Default Discipline (Breaking LLM Clichés)
-
-### A. The Lila Rule & Color Calibration
-
-- **Ban on AI Purple / Blue Glows**: No automatic purple button glows, no random neon mesh gradients. Use neutral terminal bases (charcoal, deep slate, obsidian) with high-contrast singular accents (electric cyan, amber warning, signal red).
-- **Single Accent Lock**: Once an accent hue is established for an entity or view, it governs that entire context. Never introduce a random third accent color in secondary controls.
-- **Tinted Shadows**: Never use pure-black drop shadows on tinted backgrounds; tint the shadow color to the surface beneath it.
-
-### B. Typography Discipline
-
-- **Serif Discipline**: Never default to serifs merely because a context is described as "creative" or "narrative." Sans-serif display (clean, modern, technical) is the default anchor. Serifs are reserved exclusively for stylized character dialogue quotes or formal lore passages.
-- **Descender Clearance (`leading-[1.1]` + `pb-1`)**: When using display headlines with tight tracking and line-height, descender letters (`y, g, j, p, q`) will clip against overflow boundaries. Always reserve bottom clearance (`pb-1` or `leading-[1.1]`).
-- **Tabular Figures**: Always use `font-variant-numeric: tabular-nums` for timers, health bars, coordinate displays, round counters, and numeric meters to prevent visual jitter during updates.
-
-### C. Layout & Grid Integrity
-
-- **Eyebrow Restraint**: An "eyebrow" is the small uppercase wide-tracking label sitting above a section title (e.g. `SYSTEM TELEMETRY`, `ACTIVE RECALL`). **Rule: Max 1 eyebrow per 3 panels or sections.** Overusing eyebrows produces a robotic, templated cadence. When in doubt, drop the eyebrow-the content already categorizes itself.
-- **Bento Grid Cell Count Rule**: A bento grid or card cluster must have _exactly_ as many cells as there is real content. Never paste an empty tile or fake filler container to balance a grid. Re-shape the grid (e.g. 1+2 split or 2+1 layout).
-- **Layout Repetition Ban**: Avoid repeating the exact same layout structure across consecutive sections or drawer panels. Vary between asymmetric splits, vertical stacks, and compact tabular rows.
-- **Viewport Stability**: Never use `h-screen` for full-height views. Always use `min-h-[100dvh]` to prevent layout jumping caused by mobile address bars.
+- **Obsidian Base & Exempted Stage Gradients**: Ban gratuitous purple/neon button glows and arbitrary rainbow meshes. Ground views in [DESIGN.md](../../../../DESIGN.md) charcoal and obsidian bases (`--color-chalk`, `--color-gunmetal`, `--color-frozen`, `--color-glass-sunken`, `--color-glass-elevated`) paired with `--color-frisk` foreground text. _(Exception: the four-stop abyssal backdrop `--color-background-gradient-1` through `--color-background-gradient-4` and `--signature-glow` defined in `DESIGN.md` are canonical.)_
+- **Single-Entity Accent Scope**: Within a single character or fractal container, anchor accents to `--signature-color` (mixed via `color-mix(in srgb, var(--signature-color) 10%, var(--color-glass-sunken))` for readable wells) rather than introducing unrelated tertiary accents. Reserve `--color-dev-accent` (`--color-electric-cyan`) strictly for developer telemetry (`DevWing.svelte`, prompt brackets, and ledger diagnostics).
+- **Accessible Signature Contrast (`>= 4.5:1`)**: High-luminance `signatures` (`#fde047`, `#fbbf24`, `#84cc16`) fail contrast under white text. Keep text-bearing signature panels translucent over dark obsidian surfaces (or framed behind dark gradient scrims), or pair solid bright signature fills with `--color-chalk` ink.
+- **Tinted Shadows**: Never paint pure `#000` drop shadows onto dark slate surfaces; use `--shadow-ghost`, `--shadow-standard`, and `--shadow-ambient` (tinted with `--color-background-gradient-1`).
 
 ---
 
-## 3. Component & Interaction Craft
+## 2. Typography & Information Hierarchy
 
-### A. Tactile Press Feedback
+- **Explicit Font Role Assignment**: Do not swap fonts arbitrarily for `"narrative flavor"`:
+  - `--font-sans` (`"Inter"`): Default UI copy and narrative dialogue (`ChatBubble.svelte` applies `.dialogue` weight `1.12em` emphasis directly in `--font-sans`, with `[&_em]` italics — not serifs).
+  - `--font-heading` (`"Ubuntu"`): Structural headings `h1`–`h6` and watermark initials.
+  - `--font-display` (`"Satisfy"`, cursive): Atmospheric titles and storybook accents only.
+  - `--font-mono` (`"JetBrains Mono"`): Prompt brackets (`[KEY: VALUE]`), telemetry counters, and terminal labels.
+- **Descender Clearance (`pb-tight`)**: When styling tight headings or single-line labels with compact `line-height`, preserve vertical clearance (e.g., `pb-tight` / `--spacing-tight`) so descenders (`y, g, j, p, q`) do not clip against `overflow-hidden` bounds.
+- **Tabular Figures (`tabular-nums`)**: Apply `font-variant-numeric: tabular-nums` (`tabular-nums`) to live numeric readouts — progress percentages (`ProgressBar.svelte`), meter inputs (`Meter.svelte` alignment target), round counters, and dynamics deltas (`[0..100]`) — so changing digits never jitter horizontally.
+- **Eyebrow Restraint**: Limit decorative marketing/section eyebrows (uppercase tracked labels above headings) to at most `1` per `3` panels so layouts avoid a templated cadence; compact monospace field labels inside dense `VISUAL_DENSITY: 8–9` telemetry inspectors (`DevWing.svelte`, `ChatBubble.svelte`) are structural labels, not decorative eyebrows.
 
-- Every pressable control (buttons, cards, toggle switches, pills) must provide instant tactile feedback on `:active`.
-- Apply `transform: scale(0.97)` with `transition: transform 160ms ease-out`. This reassures the user that the system immediately heard their gesture.
+---
 
-### B. Never Animate from Scale(0)
+## 3. Layout Integrity & Component Restraint
 
-- Nothing in physical reality appears out of nothingness. Elements animating in from `scale(0)` look like cartoon pops.
-- Start entrances from `scale(0.95)` to `scale(0.97)` combined with an opacity fade. This imparts physical weight and substance.
-
-### C. Asymmetric Transition Timing
-
-- **Entrances (250–300ms, `ease-out`)**: Give the user a brief, readable spatial hint of where an overlay or drawer came from.
-- **Exits (150–160ms, `ease-out`)**: Fast and crisp. Dismissals must never linger or block the user's next action.
-
-### D. Single Intent per Action
-
-- Never duplicate action intent labels across the same view (e.g., "Start Story", "Begin Adventure", "Launch Narrative"). Pick ONE precise, canonical verb per action and use it consistently.
-- Button text must fit on a single line at all standard desktop widths. If a button wraps to multiple lines, the label is too wordy or the container is improperly constrained.
+- **Content-Matched Bento Cells**: Render only as many grid tiles or cards as real entities/data require; reshape grid spans (e.g., `1+2` or `2+1`) instead of inserting placeholder filler tiles.
+- **Structural Variety**: Vary consecutive panels between asymmetric splits, stacked rows, and compact tabular readouts instead of cloning identical card shells across every drawer.
+- **Viewport Stability**: Use `min-h-dvh` rather than `h-screen` (`100vh`) so embedded Perchance iframes and mobile browser toolbars do not cause vertical jumps.
+- **Single Canonical Verb & Concise Actions**: Never show synonymous action buttons in the same view (pick one canonical verb such as `Delete` or `Confirm`). Keep button labels concise (`<= 2–3` words) so primary controls fit cleanly on one line within button containers across desktop and `< 48rem` views.
+- **Motion Jurisdiction**: All `:active` press reflexes (`active:scale-sink`), entrance/exit durations (`duration-(--duration-fast)`, `duration-(--duration-standard)`), easing tokens (`ease-(--ease-out)`), and View Transition choreography live exclusively in [motion/SKILL.md](../../motion/SKILL.md). Static styling applies only `DESIGN.md` token classes.
