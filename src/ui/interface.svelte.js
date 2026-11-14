@@ -36,25 +36,7 @@ import { SvelteSet } from "svelte/reactivity";
 // Bridges & JSDoc Type Definitions
 // ============================================================================
 
-/**
- * Image preview bridge: The state layer cannot import from @primitives (UI layer).
- * Instead, the UI layer registers its open/close handlers here at boot time.
- * @type {{ open: ((src: any, caption?: string) => void) | null, close: (() => void) | null }}
- */
-const _image_preview_bridge = { open: null, close: null };
-
-/**
- * Registers UI-level image preview handlers.
- * @param {((src: any, caption?: string) => void) | null} open
- * @param {(() => void) | null} close
- */
-export function register_image_preview_handlers(open, close) {
-  _image_preview_bridge.open = open;
-  _image_preview_bridge.close = close;
-}
-
-const close_image_preview = () => _image_preview_bridge.close?.();
-const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(src, caption);
+import { close_image_preview, open_image_preview } from "./ImagePreview.svelte";
 
 /**
  * @typedef {Object} AppSettings

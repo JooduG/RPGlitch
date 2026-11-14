@@ -10,7 +10,7 @@
   import { runtime } from "@engine";
   import { Audio, motion } from "@media";
   import { Tooltip } from "@primitives";
-  import { app, close_image_preview, Console, ImagePreview, open_image_preview, Profile, register_image_preview_handlers, Storyboard, Storymode } from "@ui";
+  import { app, Console, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
@@ -53,10 +53,6 @@
       motion.intensity = 1.0;
     }
   });
-
-  // Image Preview Bridge: Wire UI-layer handlers into the state layer's bridge.
-  // This must run once at mount to satisfy the import boundary (state cannot import from ui).
-  register_image_preview_handlers(open_image_preview, close_image_preview);
 
   // Audio Lifecycle Cleanup: Suspend AudioContexts on unmount and pagehide
   // to prevent context leaks across view transitions and story swaps.

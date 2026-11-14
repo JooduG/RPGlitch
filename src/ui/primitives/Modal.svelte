@@ -42,7 +42,6 @@
   let is_busy = $derived(busy !== null ? busy : false);
 
   // Track active state for mount/unmount gating
-  let active_open = $derived(open);
 
   // Trigger on_close only when open changes from true to false
   $effect(() => {
@@ -61,7 +60,7 @@
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
-        {#if active_open}
+        {#if open}
           <Backdrop
             {...overlayProps}
             onpointerdown={(/** @type {PointerEvent} */ e) => {
@@ -101,7 +100,7 @@
                 e.preventDefault();
               }}>
               {#snippet child({ props: contentProps })}
-                {#if active_open}
+                {#if open}
                   <div
                     {...contentProps}
                     data-modal-variant={variant}

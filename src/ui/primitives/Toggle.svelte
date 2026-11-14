@@ -10,7 +10,7 @@
    * @property {any[]} [actions] - Svelte actions.
    * @property {string} [class] - External styling.
    * @property {string} [style] - Inline styling.
-   * @property {(e: Event) => void} [onchange] - Change callback.
+   * @property {(checked: boolean) => void} [onchange] - Change callback.
    */
 
   import { use_actions } from "@utils";
@@ -72,7 +72,7 @@
   aria-disabled={is_disabled || busy}
   {style}
   use:use_actions={actions}>
-  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={() => onchange?.(new Event("change"))} id={test_id} {...rest}>
+  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={(checked) => onchange?.(checked)} id={test_id} {...rest}>
     {#snippet child({ props })}
       <button
         {...props}

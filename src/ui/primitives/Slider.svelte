@@ -13,7 +13,7 @@
    * @property {any[]} [actions] - Svelte actions orchestration.
    * @property {string} [class] - External styling.
    * @property {string} [style] - Inline styling.
-   * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
+   * @property {(val: number) => void} [onchange] - Change callback.
    * @property {boolean} [horizontal] - Render in horizontal row layout.
    * @property {string} [disabled_label] - Override label text when disabled.
    * @property {boolean} [show_value_tooltip] - Show reactive value tooltip.
@@ -73,28 +73,11 @@
   let is_disabled = $derived(disabled);
 
   /**
-   * Adapts bits-ui number value to the backward compatible HTMLInputElement event structure.
    * @param {number} val
    */
   function handle_value_change(val) {
     value = val;
-
-    if (onchange) {
-      // Create a mock HTMLInputElement that supports standard .value and range configurations
-      const mock_input = Object.assign(document.createElement("input"), {
-        type: "range",
-        min: String(min),
-        max: String(max),
-        step: String(step),
-        value: String(val),
-      });
-
-      const event = new Event("change", { bubbles: true });
-      Object.defineProperty(event, "currentTarget", { value: mock_input, writable: false });
-      Object.defineProperty(event, "target", { value: mock_input, writable: false });
-
-      onchange(/** @type {any} */ (event));
-    }
+    onchange?.(val);
   }
 
   let is_active = $state(false);

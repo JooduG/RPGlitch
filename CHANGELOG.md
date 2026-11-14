@@ -8,6 +8,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **UI & Primitives Cleanup (EGM Quick Wins)**:
+  - Removed synthetic DOM/event shims in `src/ui/primitives/Toggle.svelte` and `src/ui/primitives/Slider.svelte` (`onchange` now passes `boolean` / `number` directly).
+  - Removed unused `active_open` derived state in `src/ui/primitives/Modal.svelte`.
+  - Removed obsolete `register_image_preview_handlers` bridge from `src/ui/interface.svelte.js`, `src/ui/index.js`, and `src/App.svelte`.
+
 - **Tailwind v4 Responsive & Preflight Cleanup**:
   - Added `--breakpoint-mobile: 48rem;` to `@theme` and trimmed redundant Preflight resets (`box-sizing: border-box`, `margin: 0`, `padding: 0`, `line-height: 1.5`) from `@layer base` in `DESIGN.md`.
   - Enabled `@container` + `@sm:p-standard` responsive padding in `src/ui/StoryCard.svelte`.
