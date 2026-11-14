@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **Tailwind v4 Responsive & Preflight Cleanup**:
+  - Added `--breakpoint-mobile: 48rem;` to `@theme` and trimmed redundant Preflight resets (`box-sizing: border-box`, `margin: 0`, `padding: 0`, `line-height: 1.5`) from `@layer base` in `DESIGN.md`.
+  - Enabled `@container` + `@sm:p-standard` responsive padding in `src/ui/StoryCard.svelte`.
+
 - **Motion Skill Consolidation, Prototyping Reference & `roll()` Reduced-Motion Guard**:
   - Consolidated `.agents/skills/motion/` via `/egm-review-loop` + `/grill-me`: merged external reference rules and core engineering terms into `.agents/skills/motion/references/audit-and-standards.md`, rewrote `.agents/skills/motion/references/recipes.md` for RPGlitch's Svelte 5 + Tailwind v4 + `bits-ui` + `DESIGN.md` + `@media` stack, removed 11 superseded reference files, and aligned `.agents/skills/motion/SKILL.md` and `.agents/skills/motion/PITFALLS.md` with sibling skill structure and codebase contracts.
   - Migrated and refactored Svelte 5 `{#key}` UI variant prototyping (`prototype.md` + `picker.md`) to `.agents/skills/design/references/prototyping.md` and linked it in `.agents/skills/design/SKILL.md`.

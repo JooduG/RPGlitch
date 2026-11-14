@@ -148,26 +148,26 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 - **Offline & Iframe Resilience**: Every `--font-*` stack terminates in a native system fallback (`sans-serif`, `cursive`, `monospace`) so typography remains legible without layout breakage if external font CDNs are blocked inside sandboxed iframes.
 
 ```css
+@theme {
+  --breakpoint-mobile: 48rem;
+}
+
 @layer base {
   *,
   *::before,
   *::after {
-    box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   html,
   body {
-    margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
     font-family: var(--font-sans);
     color: var(--color-frisk);
     background-color: var(--color-chalk);
-    line-height: 1.5;
     text-align: left;
   }
 

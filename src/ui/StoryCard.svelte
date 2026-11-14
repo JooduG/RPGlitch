@@ -65,6 +65,7 @@
   aria-label={story.title || "Story card"}
   class="
     group
+    @container
     relative
     flex
     w-full
@@ -76,12 +77,13 @@
     rounded-md
     border
     bg-black/15
-    p-standard
+    p-tight
     text-left
     backdrop-blur-sm
     transition
     duration-300
     ease-in-out
+    @sm:p-standard
 
     {active ?
     `
