@@ -163,12 +163,6 @@ export function escape_html(str) {
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-// ============================================================================
-// [SECTION 0C: SECURITY CONVENIENCE FACADE]
-// ============================================================================
-
-export const security = { sanitize, sanitize_to_fragment, escape_html, validate_image, install_environment_hardening };
-
 /**
  * Binary magic number / header signature validators for supported image formats.
  * @type {Record<string, (header: Uint8Array) => boolean>}

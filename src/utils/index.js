@@ -78,6 +78,7 @@ export * from "./registries.js";
 // ============================================================================
 
 export * from "./text.js";
+export * from "./alternations.js";
 
 // ============================================================================
 // Circuit Breaker & Exponential Backoff Resilience

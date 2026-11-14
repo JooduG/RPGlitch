@@ -5,6 +5,7 @@ _AUTHORITATIVE SPECIFICATION (2026-10-14) - Unified, code-grounded engineering b
 This roadmap defines the authoritative technical backlog, active engineering sprints, and target architectural blueprints for **RPGlitch**.
 
 - **Temporal Mirror**: `ROADMAP.md` is the **FUTURE mirror** representing exclusively the unbuilt delta between current state and desired target state. Completed milestones are recorded in [CHANGELOG.md](CHANGELOG.md) (the **PAST mirror**).
+- **Active Refactor Scope**: `src/utils/ui-helpers.js`, `src/utils/alternations.js`, and `src/ui/StyleBadge.svelte` (surgical `src/utils/` cleanup).
 - **Core Specifications**:
   - [README.md](README.md): Strategic product overview, game design, and simulation philosophy.
   - [README.md](README.md): Authoritative software architecture, layer boundaries, and state reality in `src/`.

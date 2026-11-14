@@ -20,7 +20,6 @@ import {
   format_datetime,
   format_key_as_label,
   format_relational_vector,
-  get_style_initials,
   indent_continuation,
   is_narrative_role,
   match_case,
@@ -215,19 +214,6 @@ describe("indent_continuation", () => {
   it("returns empty string on empty inputs", () => {
     expect(indent_continuation(null, 2)).toBe("");
     expect(indent_continuation("", 2)).toBe("");
-  });
-});
-
-describe("get_style_initials", () => {
-  it("derives initials from style names", () => {
-    expect(get_style_initials("Cyberpunk Noir")).toBe("CN");
-    expect(get_style_initials("Dark-Gothic-Horror")).toBe("DGH");
-  });
-
-  it("returns fallback question mark on none styles", () => {
-    expect(get_style_initials("No Narrative Style")).toBe("?");
-    expect(get_style_initials("No Visual Style")).toBe("?");
-    expect(get_style_initials("")).toBe("?");
   });
 });
 

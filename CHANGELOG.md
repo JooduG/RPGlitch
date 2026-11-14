@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **Utils Layer Surgical Refactor (EGM Review)**:
+  - Deleted orphaned `src/utils/bridges.js` (superseded by `src/utils/registries.js`).
+  - Removed unused `security` shim object from `src/utils/html.js`.
+  - Consolidated `get_style_initials` into `compute_initials` (`src/utils/text.js`, `src/ui/StyleBadge.svelte`).
+  - Deduplicated CSS variable resolution in `src/utils/ui-helpers.js` via `_resolve_var_expression`.
+  - Extracted alternation macro helpers into `src/utils/alternations.js` (re-exported via `src/utils/index.js`).
+
 - **UI & Primitives Cleanup (EGM Quick Wins)**:
   - Removed synthetic DOM/event shims in `src/ui/primitives/Toggle.svelte` and `src/ui/primitives/Slider.svelte` (`onchange` now passes `boolean` / `number` directly).
   - Removed unused `active_open` derived state in `src/ui/primitives/Modal.svelte`.

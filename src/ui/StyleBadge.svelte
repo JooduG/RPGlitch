@@ -14,7 +14,7 @@
    */
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
-  import { get_style_initials } from "@utils";
+  import { compute_initials } from "@utils";
   import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
   import { VISUAL_STYLES } from "../definitions/visual-styles.js";
 
@@ -171,7 +171,7 @@
           {#if dportrait}
             <img src={dportrait} alt={dname} class="h-full w-full object-cover object-center" draggable="false" />
           {:else}
-            {get_style_initials(dname)}
+            {!dname || dname === "No Narrative Style" || dname === "No Visual Style" ? "?" : compute_initials(dname)}
           {/if}
         </div>
 

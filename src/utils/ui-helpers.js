@@ -71,6 +71,29 @@ function _resolve_css_var(var_name, context) {
  * @param {HTMLElement | null} [context=null] - Optional element context for variable resolution.
  * @returns {number} Resolved pixel number.
  */
+function _resolve_var_expression(raw, context, fallback, recurse_fn) {
+  if (typeof window === "undefined" || typeof document === "undefined") return undefined;
+
+  let var_name = "";
+  let var_fallback = "";
+
+  if (raw.startsWith("--")) {
+    var_name = raw;
+  } else {
+    const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
+    if (var_match) {
+      var_name = var_match[1].trim();
+      var_fallback = var_match[2]?.trim() || "";
+    }
+  }
+
+  if (!var_name) return undefined;
+  const resolved = _resolve_css_var(var_name, context);
+  if (resolved) return recurse_fn ? recurse_fn(resolved, fallback, context) : resolved;
+  if (var_fallback) return recurse_fn ? recurse_fn(var_fallback, fallback, context) : var_fallback;
+  return fallback;
+}
+
 export function resolve_px(value, fallback = 0, context = null) {
   if (value === undefined || value === null) return fallback;
   if (typeof value === "number") return Number.isNaN(value) ? fallback : value;
@@ -99,24 +122,8 @@ export function resolve_px(value, fallback = 0, context = null) {
 
   // 3. Variable resolution: bare "--token" or "var(--token, fallback)"
   if (typeof window !== "undefined" && typeof document !== "undefined") {
-    let var_name = "";
-    let var_fallback = "";
-
-    if (raw.startsWith("--")) {
-      var_name = raw;
-    } else {
-      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
-      if (var_match) {
-        var_name = var_match[1].trim();
-        var_fallback = var_match[2]?.trim() || "";
-      }
-    }
-
-    if (var_name) {
-      const resolved = _resolve_css_var(var_name, context);
-      if (resolved) return resolve_px(resolved, fallback, context);
-      if (var_fallback) return resolve_px(var_fallback, fallback, context);
-    }
+    const var_result = _resolve_var_expression(raw, context, fallback, resolve_px);
+    if (var_result !== undefined) return var_result;
 
     // 4. Simple calc() evaluation (e.g. calc(10px + 5px), calc(var(--a) + var(--b)))
     // NOTE: Operators MUST be whitespace-delimited per CSS spec (avoids splitting on hyphens in variable names).
@@ -184,26 +191,8 @@ export function resolve_ms(value, fallback = 0, context = null) {
   if (raw === "0") return 0;
 
   // Variable resolution: bare "--token" or "var(--token, fallback)"
-  if (typeof window !== "undefined" && typeof document !== "undefined") {
-    let var_name = "";
-    let var_fallback = "";
-
-    if (raw.startsWith("--")) {
-      var_name = raw;
-    } else {
-      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
-      if (var_match) {
-        var_name = var_match[1].trim();
-        var_fallback = var_match[2]?.trim() || "";
-      }
-    }
-
-    if (var_name) {
-      const resolved = _resolve_css_var(var_name, context);
-      if (resolved) return resolve_ms(resolved, fallback, context);
-      if (var_fallback) return resolve_ms(var_fallback, fallback, context);
-    }
-  }
+  const var_result = _resolve_var_expression(raw, context, fallback, resolve_ms);
+  if (var_result !== undefined) return var_result;
 
   return fallback;
 }
@@ -231,26 +220,8 @@ export function resolve_number(value, fallback = 0, context = null) {
   }
 
   // Variable resolution: bare "--token" or "var(--token, fallback)"
-  if (typeof window !== "undefined" && typeof document !== "undefined") {
-    let var_name = "";
-    let var_fallback = "";
-
-    if (raw.startsWith("--")) {
-      var_name = raw;
-    } else {
-      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
-      if (var_match) {
-        var_name = var_match[1].trim();
-        var_fallback = var_match[2]?.trim() || "";
-      }
-    }
-
-    if (var_name) {
-      const resolved = _resolve_css_var(var_name, context);
-      if (resolved) return resolve_number(resolved, fallback, context);
-      if (var_fallback) return resolve_number(var_fallback, fallback, context);
-    }
-  }
+  const var_result = _resolve_var_expression(raw, context, fallback, resolve_number);
+  if (var_result !== undefined) return var_result;
 
   return fallback;
 }
@@ -271,27 +242,8 @@ export function resolve_string(value, fallback = "", context = null) {
   if (!raw) return fallback;
 
   // Variable resolution: bare "--token" or "var(--token, fallback)"
-  if (typeof window !== "undefined" && typeof document !== "undefined") {
-    let var_name = "";
-    let var_fallback = "";
-
-    if (raw.startsWith("--")) {
-      var_name = raw;
-    } else {
-      const var_match = raw.match(/^var\((--[^,)]+)(?:,\s*([^)]+))?\)$/);
-      if (var_match) {
-        var_name = var_match[1].trim();
-        var_fallback = var_match[2]?.trim() || "";
-      }
-    }
-
-    if (var_name) {
-      const resolved = _resolve_css_var(var_name, context);
-      if (resolved) return resolved;
-      if (var_fallback) return var_fallback;
-      return fallback;
-    }
-  }
+  const var_result = _resolve_var_expression(raw, context, fallback, null);
+  if (var_result !== undefined) return var_result;
 
   // Literal string passthrough
   return raw || fallback;
