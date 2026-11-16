@@ -3,9 +3,9 @@
  * Unit tests for Sensory Cortex - Visual Optics Compiler, Taxonomy, Trigger Arbitration, and Aesthetic Synthesis.
  */
 
+import { IMAGE_POLICY } from "@config";
 import { VISUAL_EXCLUDED_KEYS, strip_visual_excluded } from "@utils";
 import { describe, expect, it } from "vitest";
-import { IMAGE_POLICY } from "../config.js";
 import {
   IMAGE_TIERS,
   extract_aesthetic_traits,

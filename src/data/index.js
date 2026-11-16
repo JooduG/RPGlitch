@@ -63,6 +63,7 @@ export {
   conclude_story,
   create_story,
   db,
+  log_message,
   delete_entity,
   delete_log_attachment,
   delete_log_entry,

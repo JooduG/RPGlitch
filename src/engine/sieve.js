@@ -15,7 +15,7 @@
  * ============================================================================
  */
 
-import { CHARS_PER_TOKEN, EMBEDDING_SPECS, FIELD_FLOORS } from "../config.js";
+import { CHARS_PER_TOKEN, EMBEDDING_SPECS, FIELD_FLOORS } from "@config";
 
 /** Origin protection multiplier boosting author canon and immutable memories (single consumer - lives here, not on the dashboard) */
 const ORIGIN_SCORE_MULTIPLIER = 1.5;

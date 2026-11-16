@@ -1,12 +1,9 @@
+import { CHARS_PER_TOKEN } from "@config";
 import { describe, expect, it } from "vitest";
 import {
   AGGREGATE_KEYS,
   alternation_field_label,
-  diff_alternation_picks,
-  extract_alternations,
-  has_alternations,
-  resolve_alternations,
-  strip_alternation_braces,
+  balance_brackets,
   clean_text,
   CLEAR_TOKENS,
   collapse_history,
@@ -14,12 +11,18 @@ import {
   compute_initials,
   decompose_story_title,
   derive_vector_title,
+  diff_alternation_picks,
   escape_unescaped_json_quotes,
+  estimate_tokens,
+  extract_alternations,
   extract_json_block,
+  filter_narrative_messages,
   first_sentence,
   format_datetime,
+  format_history_entries,
   format_key_as_label,
   format_relational_vector,
+  has_alternations,
   indent_continuation,
   is_narrative_role,
   match_case,
@@ -27,20 +30,17 @@ import {
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
   parse_relational_vector,
+  resolve_alternations,
   role_display_label,
   safe_parse_json,
   safe_parse_pseudo_json,
-  filter_narrative_messages,
-  format_history_entries,
-  balance_brackets,
+  strip_alternation_braces,
   strip_cognition_blocks,
   strip_visual_excluded,
-  truncate_at_word,
   truncate_at_boundary,
+  truncate_at_word,
   VISUAL_EXCLUDED_KEYS,
-  estimate_tokens,
 } from "./text.js";
-import { CHARS_PER_TOKEN } from "../config.js";
 
 describe("safe_parse_json", () => {
   it("extracts embedded JSON object from surrounding text", () => {

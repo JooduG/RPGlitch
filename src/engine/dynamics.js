@@ -13,8 +13,8 @@
  * ============================================================================
  */
 
-import { clamp } from "../utils/math.js";
-import { DYNAMICS } from "../config.js";
+import { DYNAMICS } from "@config";
+import { clamp } from "@utils";
 import { DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
 
 /**

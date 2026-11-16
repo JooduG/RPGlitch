@@ -1,13 +1,13 @@
+import { SPEAKING_STYLES } from "@config";
 import { describe, expect, it } from "vitest";
 import {
   NARRATIVE_STYLES,
   STYLE_MOTIF_REGISTRY,
+  extract_style_dna,
   get_narrative_style,
   get_style_keywords,
   resolve_active_style_key,
-  extract_style_dna,
 } from "./narrative-styles.js";
-import { SPEAKING_STYLES } from "../config.js";
 
 describe("NARRATIVE_STYLES Preset Catalog", () => {
   it("exports all expected author, director, and genre presets", () => {

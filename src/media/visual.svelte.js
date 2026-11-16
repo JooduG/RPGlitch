@@ -7,10 +7,10 @@
  * circuit breaking, cancellation via AbortSignal, and queue / in-flight bookkeeping.
  */
 
+import { IMAGE_POLICY, TIMING_MS } from "@config";
 import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, state_bridge } from "@utils";
-import { IMAGE_POLICY, TIMING_MS } from "../config.js";
 import { get_visual_style } from "../definitions/visual-styles.js";
-import { IMAGE_TIERS, get_resolution_string } from "./optics.js";
+import { get_resolution_string, IMAGE_TIERS } from "./optics.js";
 
 // ============================================================================
 // Visual prompt hygiene.

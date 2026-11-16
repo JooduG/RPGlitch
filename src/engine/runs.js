@@ -12,12 +12,10 @@
  * stay pure (parameters in, outcomes out).
  */
 
-import { IMAGE_POLICY } from "../config.js";
-import { append_ledger_entries, db, log_message } from "../data/db.js";
-import { normalize_entity } from "../data/entities.js";
-import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "../data/parser.js";
-import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "../media/index.js";
-import { state_bridge } from "../utils/index.js";
+import { IMAGE_POLICY } from "@config";
+import { append_ledger_entries, apply_bracket_deltas, db, log_message, normalize_entity, parse_bracket_entries, parse_think_block } from "@data";
+import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
+import { state_bridge } from "@utils";
 import { Kernel } from "./kernel.svelte.js";
 import { get_transport } from "./transport.js";
 import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";

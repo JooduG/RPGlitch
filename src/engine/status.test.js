@@ -3,13 +3,17 @@ import { force_recover_simulation, SimulationStateStore, simulation_state, Strea
 import { TIMING_MS } from "@config";
 import { Audio } from "@media";
 
-vi.mock("@media", () => ({
-  set_visualizer_envision_impl: vi.fn(),
-  Audio: {
-    voice: { apply_stream_role: vi.fn(), queue_stream_sentence: vi.fn(), flush_stream_remainder: vi.fn(), reset_stream: vi.fn() },
-    is_role_enabled: vi.fn(() => true),
-  },
-}));
+vi.mock("@media", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    set_visualizer_envision_impl: vi.fn(),
+    Audio: {
+      voice: { apply_stream_role: vi.fn(), queue_stream_sentence: vi.fn(), flush_stream_remainder: vi.fn(), reset_stream: vi.fn() },
+      is_role_enabled: vi.fn(() => true),
+    },
+  };
+});
 
 describe("SimulationStateStore", () => {
   beforeEach(() => {

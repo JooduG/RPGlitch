@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { write_back_kernel_state, dispatch_caretaker_consolidation, execute_turn, execute_continue } from "./runs.js";
-import { reconstruct_history_from_feed } from "./turns.js";
+import * as storage_db from "@data";
+import * as media_module from "@media";
+import { register_state_accessors } from "@utils";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Kernel } from "./kernel.svelte.js";
-import { register_state_accessors } from "../utils/index.js";
-import * as storage_db from "../data/db.js";
-import * as media_module from "../media/index.js";
+import { dispatch_caretaker_consolidation, execute_continue, execute_turn, write_back_kernel_state } from "./runs.js";
+import { reconstruct_history_from_feed } from "./turns.js";
 
 describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
   beforeEach(() => {

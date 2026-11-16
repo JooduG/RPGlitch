@@ -16,11 +16,9 @@
  * ============================================================================
  */
 
-import { LENGTH_THRESHOLDS } from "../config.js";
-import { normalize_entity } from "../data/entities.js";
-import { parse_brackets, parse_think_block } from "../data/parser.js";
-import { state_bridge } from "../utils/index.js";
-import { safe_parse_json } from "../utils/text.js";
+import { LENGTH_THRESHOLDS } from "@config";
+import { normalize_entity, parse_brackets, parse_think_block } from "@data";
+import { safe_parse_json, state_bridge } from "@utils";
 import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 
 /**

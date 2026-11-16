@@ -1,5 +1,5 @@
+import { EMBEDDING_SPECS } from "@config";
 import { describe, expect, it } from "vitest";
-import { EMBEDDING_SPECS } from "../config.js";
 import { cosine_similarity, count_text_tokens, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
 
 describe("src/engine/sieve.js - Two-Tier Sieve RAG & Vector Retrieval Engine", () => {

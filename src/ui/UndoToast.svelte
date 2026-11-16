@@ -1,5 +1,5 @@
 <script>
-  import { Button } from "./primitives/index.js";
+  import { Button } from "@primitives";
   /**
    * @typedef {Object} Props
    * @property {number} undo_window_ms

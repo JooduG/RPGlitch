@@ -10,9 +10,8 @@
  * and the opening turn through runs.js.
  */
 
-import { normalize_entity } from "../data/entities.js";
-import { parse_think_block } from "../data/parser.js";
-import { state_bridge } from "../utils/index.js";
+import { normalize_entity, parse_think_block } from "@data";
+import { state_bridge } from "@utils";
 import { execute_turn } from "./runs.js";
 import { enhance_text, generate_text, get_transport } from "./transport.js";
 import { execute_turn_structuring, execute_turn_visualizer } from "./turns.js";

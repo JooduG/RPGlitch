@@ -1,6 +1,6 @@
+import { NARRATOR_ROLES } from "@config";
 import { describe, expect, it } from "vitest";
 import { build_story_export_filename, export_story_markdown, format_story_beat } from "./story-export.js";
-import { NARRATOR_ROLES } from "../config.js";
 
 describe("format_story_beat", () => {
   it("renders character dialogue as a bold label + prose", () => {

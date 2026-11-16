@@ -18,8 +18,8 @@
  * ============================================================================
  */
 
-import { DYNAMICS, TEMPO_ROUNDS } from "../config.js";
-import { format_clean_brackets } from "../data/parser.js";
+import { DYNAMICS, TEMPO_ROUNDS } from "@config";
+import { format_clean_brackets } from "@data";
 import { caretaker_brief } from "../definitions/profile-taxonomy.js";
 
 /**

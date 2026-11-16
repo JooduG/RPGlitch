@@ -20,8 +20,8 @@
  * - Always maintain symmetrical field structures for character and fractal entity models.
  */
 
+import { SIGNATURE_COLORS } from "@media";
 import { format_key_as_label } from "@utils";
-import { SIGNATURE_COLORS } from "../media/tokens.js";
 
 // ── 1. Canonical Field Taxonomy ───────────────────────────────────────────────
 

@@ -113,10 +113,10 @@ theme:
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
+  z-index-modal: "100"
+  z-index-popover: "200"
+  z-index-tooltip: "300"
   z-index-max: "999"
-  z-index-modal: "999"
-  z-index-popover: "9999"
-  z-index-tooltip: "99999"
 ---
 
 # RPGlitch Design System

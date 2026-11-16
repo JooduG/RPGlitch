@@ -255,7 +255,7 @@
   <div
     bind:this={tooltip_el}
     class="
-      pointer-events-none fixed z-(--z-index-popover)
+      pointer-events-none fixed z-popover
       mb-standard w-max max-w-100
       -translate-x-1/2 -translate-y-full
       rounded-md border border-slate-600 bg-neutral-900/98

@@ -20,8 +20,7 @@
  * generate_text keeps mock-or-throw policy and AbortError-to-"" mapping.
  */
 
-import { sanitize_llm, stream_bridge } from "../utils/index.js";
-import { merge_abort_signals } from "../utils/resilience.js";
+import { merge_abort_signals, sanitize_llm, stream_bridge } from "@utils";
 import { resolve_priority, run_llm_job } from "./gate.js";
 
 export function get_mock_message() {

@@ -5,9 +5,9 @@
  * ============================================================================
  */
 
+import { SPEAKING_STYLES } from "@config";
 import { describe, expect, it } from "vitest";
-import { is_valid_speaking_style, SPEAKING_STYLE_RULES, VOCAL_RULES, SOUND_RULES, SENSORY_RULES, METAPHOR_RULES, COMMUNITY_RULES } from "./speaking-styles.js";
-import { SPEAKING_STYLES } from "../config.js";
+import { COMMUNITY_RULES, is_valid_speaking_style, METAPHOR_RULES, SENSORY_RULES, SOUND_RULES, SPEAKING_STYLE_RULES, VOCAL_RULES } from "./speaking-styles.js";
 
 describe("speaking-styles taxonomy", () => {
   it("exports canonical SPEAKING_STYLES containing the 4 balanced quartets", () => {
