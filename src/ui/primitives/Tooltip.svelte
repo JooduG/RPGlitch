@@ -142,7 +142,7 @@
                     group
                     pointer-events-none
                     relative
-                    z-(--z-index-tooltip)
+                    z-tooltip
                     flex
                     origin-(--transform-origin)
                     flex-col
@@ -212,6 +212,7 @@
                       font-sans
                       text-xs/normal
                       tracking-normal
+                      text-balance
                       whitespace-normal
                       text-slate-50
                       normal-case
