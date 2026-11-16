@@ -404,7 +404,7 @@
             {#if hover_ent}
               <ProfilePicture entity={hover_ent} />
             {/if}
-            <div class="absolute inset-x-0 bottom-0 flex flex-col justify-end bg-linear-to-t from-black/95 via-black/75 to-transparent p-tight text-left">
+            <div class="absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end bg-linear-to-t from-black/95 via-black/75 to-transparent p-tight text-left">
               <span class="truncate font-heading text-xs font-bold uppercase" style="color: {hover_color};">
                 {hovered_node.name}
               </span>

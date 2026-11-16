@@ -100,21 +100,23 @@
       {@render fallback_initials()}
     </div>
   {:else}
-    <Avatar.Fallback
-      class="
-        absolute
-        inset-0
-        z-0
-        flex
-        h-full
-        w-full
-        items-center
-        justify-center
-        bg-(--signature-color,#555d66)
-      "
-      aria-hidden="true">
-      {@render fallback_initials()}
-    </Avatar.Fallback>
+    {#if loading_status === "error"}
+      <Avatar.Fallback
+        class="
+          absolute
+          inset-0
+          z-0
+          flex
+          h-full
+          w-full
+          items-center
+          justify-center
+          bg-(--signature-color,#555d66)
+        "
+        aria-hidden="true">
+        {@render fallback_initials()}
+      </Avatar.Fallback>
+    {/if}
 
     {#if contain}
       <!-- Blurred Background (resolves aspect ratio discrepancy without stretching artifacts) -->

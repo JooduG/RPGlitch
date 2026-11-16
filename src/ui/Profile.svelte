@@ -1332,117 +1332,84 @@
                 >{field.column_label}</Label>
             {/if}
 
-            {#if !profile_state.is_editing && parsed}
-              <div
-                id={field_id}
-                class="glass-input relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border-transparent bg-(--signature-color)/6 transition-[height] duration-300 before:bg-[linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)] before:opacity-100"
-                role="region"
-                aria-label={field.label}
-                use:auto_resize={{ sync_id: section.label }}
-                data-sync-id={section.label}>
-                {#if field.label}
-                  <header
-                    style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; background-color: var(--signature-color); padding: 0.25rem 0.75rem; min-height: 1.5rem; height: auto;"
-                    class="relative w-full overflow-hidden">
-                    {#if profile_state.busy_fields.has(field.key)}
-                      <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
-                    {/if}
-                    <div style="margin-right: 0.5rem; display: flex; align-items: center; flex: 1 1 0%; min-width: 0; overflow: hidden;">
+            {#snippet bracketed_content()}
+              {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
+              <div class="flex flex-col divide-y divide-white/5">
+                {#each sorted_entries as [k, v] (k)}
+                  {@const raw_val = String(v ?? "")}
+                  {@const is_hidden = /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val)}
+                  {@const clean_val = raw_val
+                    .replace(/\s*\|\s*(?:hide|show|private)\b/gi, "")
+                    .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
+                    .trim()}
+                  {@const key_color = resolve_bracket_target_color(k)}
+                  {#if clean_val}
+                    <div class="flex flex-col items-start gap-0.5 py-1.5 first:pt-0 last:pb-0 {is_hidden ? 'opacity-55' : ''}">
                       <span
-                        class="block max-w-full truncate font-sans text-xs font-medium tracking-normal whitespace-nowrap text-white {field.description ?
-                          'cursor-help'
-                        : 'cursor-default'}"
-                        use:tooltip
-                        aria-label={field.description}>{field.label}</span>
-                    </div>
-                  </header>
-                {/if}
-                <div class="px-3 py-2.5">
-                  {#if profile_state.busy_fields.has(field.key)}
-                    <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                  {:else}
-                    {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
-                    <div class="flex flex-col divide-y divide-white/5">
-                      {#each sorted_entries as [k, v] (k)}
-                        {@const raw_val = String(v ?? "")}
-                        {@const is_hidden = /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val)}
-                        {@const clean_val = raw_val
-                          .replace(/\s*\|\s*(?:hide|show|private)\b/gi, "")
-                          .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
-                          .trim()}
-                        {@const key_color = resolve_bracket_target_color(k)}
-                        {#if clean_val}
-                          <div class="flex flex-col items-start gap-0.5 py-1.5 first:pt-0 last:pb-0 {is_hidden ? 'opacity-55' : ''}">
-                            <span
-                              style={key_color && !is_hidden ? `color: ${key_color};` : undefined}
-                              class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden ? 'text-slate-400'
-                              : key_color ? ''
-                              : 'text-(--signature-color)'}">{k}</span>
-                            <span class="text-left text-xs leading-normal {is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
-                              {@render RenderFormattedValue(clean_val)}
-                            </span>
-                          </div>
-                        {/if}
-                      {/each}
+                        style={key_color && !is_hidden ? `color: ${key_color};` : undefined}
+                        class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden ? 'text-slate-400'
+                        : key_color ? ''
+                        : 'text-(--signature-color)'}">{k}</span>
+                      <span class="text-left text-xs leading-normal {is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
+                        {@render RenderFormattedValue(clean_val)}
+                      </span>
                     </div>
                   {/if}
-                </div>
+                {/each}
               </div>
-            {:else}
-              <TextField
-                id={field_id}
-                is_edit={profile_state.is_editing}
-                active={profile_state.active_field?.key === field.key}
-                sync_id={section.label}
-                {signature_color}
-                placeholder={field.description}
-                value={raw}
-                inline_snippet={inline_macro_text}
-                oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
-                busy={profile_state.busy_fields.has(field.key)}
-                onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}>
-                {#snippet status()}
-                  {#if field.label}
-                    <span
-                      class="block max-w-full truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 {(
-                        field.description
-                      ) ?
-                        'cursor-help'
-                      : 'cursor-default'}"
-                      use:tooltip
-                      aria-label={field.description}>{field.label}</span>
-                  {/if}
-                {/snippet}
+            {/snippet}
 
-                {#snippet header_actions()}
-                  {#if profile_state.is_editing}
-                    <Button
-                      variant="invisible"
-                      size="small"
-                      square={true}
-                      aria-label={"Enhance " + (field.label || section.label || "field") + " with AI"}
-                      actions={[tooltip]}
-                      disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
-                      onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
-                      class={get_ai_action_btn_class(field.key)}>
-                      <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
-                      </svg>
-                    </Button>
-                  {/if}
-                {/snippet}
-              </TextField>
-
-              {#if should_show_bracket_tip(field.key, raw)}
-                <div
-                  class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-tight py-1 text-[11px] leading-tight text-cyan-300/80"
-                  transition:fade={{ duration: 150 }}>
-                  <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>
+            <TextField
+              id={field_id}
+              is_edit={profile_state.is_editing}
+              active={profile_state.active_field?.key === field.key}
+              sync_id={section.label}
+              {signature_color}
+              placeholder={field.description}
+              value={raw}
+              inline_snippet={inline_macro_text}
+              content={!profile_state.is_editing && parsed ? bracketed_content : undefined}
+              oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
+              busy={profile_state.busy_fields.has(field.key)}
+              onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}>
+              {#snippet status()}
+                {#if field.label}
                   <span
-                    >The engine reasons best with multiple bracketed directives <code class="font-mono text-[10px] text-cyan-200">[KEY: value]</code> or distinct
-                    lines.</span>
-                </div>
-              {/if}
+                    class="block max-w-full truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 {field.description ?
+                      'cursor-help'
+                    : 'cursor-default'}"
+                    use:tooltip
+                    aria-label={field.description}>{field.label}</span>
+                {/if}
+              {/snippet}
+
+              {#snippet header_actions()}
+                {#if profile_state.is_editing}
+                  <Button
+                    variant="invisible"
+                    size="small"
+                    square={true}
+                    aria-label={"Enhance " + (field.label || section.label || "field") + " with AI"}
+                    actions={[tooltip]}
+                    disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
+                    onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
+                    class={get_ai_action_btn_class(field.key)}>
+                    <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
+                    </svg>
+                  </Button>
+                {/if}
+              {/snippet}
+            </TextField>
+
+            {#if should_show_bracket_tip(field.key, raw)}
+              <div
+                class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-tight py-1 text-[11px] leading-tight text-cyan-300/80"
+                transition:fade={{ duration: 150 }}>
+                <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>
+                <span
+                  >The engine reasons best with multiple bracketed directives <code class="font-mono text-[10px] text-cyan-200">[KEY: value]</code> or distinct lines.</span>
+              </div>
             {/if}
           </div>
         {/each}

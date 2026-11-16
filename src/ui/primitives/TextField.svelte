@@ -41,6 +41,7 @@
     header_actions = null,
     status = null,
     inline_snippet = null,
+    content = null,
     actions = [],
 
     oninput = undefined,
@@ -402,7 +403,9 @@
             onfocus={handle_focus}
             onblur={handle_blur}
             use:use_actions={actions}>
-            {#if value && String(value).trim()}
+            {#if content}
+              {@render content()}
+            {:else if value && String(value).trim()}
               {#each paragraphs as p, pIdx (pIdx)}
                 <p class="m-0 mb-tight last:mb-0">
                   {#each p as token, tIdx (tIdx)}
