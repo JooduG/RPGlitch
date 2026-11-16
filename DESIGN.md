@@ -86,15 +86,15 @@ theme:
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
-  duration-ambient: 2000ms
-  duration-fast: 150ms
-  duration-slow: 500ms
-  duration-standard: 300ms
+  transition-duration-ambient: 2000ms
+  transition-duration-fast: 150ms
+  transition-duration-slow: 500ms
+  transition-duration-standard: 300ms
   ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)
   ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)
   ease-out: cubic-bezier(0.23, 1, 0.32, 1)
-  motion-dissolve: opacity var(--duration-fast) var(--ease-out)
-  motion-elastic: var(--duration-standard) var(--ease-drawer)
+  motion-dissolve: opacity var(--transition-duration-fast) var(--ease-out)
+  motion-elastic: var(--transition-duration-standard) var(--ease-drawer)
   noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
   opacity-ghost: "0.1"
   opacity-muted: "0.6"
@@ -182,7 +182,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
     background-color: var(--color-chalk);
     color: var(--color-frisk);
     font-family: var(--font-mono);
-    transition: top var(--duration-fast) var(--ease-out);
+    transition: top var(--transition-duration-fast) var(--ease-out);
   }
 
   .skip-link:focus-visible {
@@ -244,7 +244,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
   a {
     color: inherit;
     text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out);
+    transition: color var(--transition-duration-fast) var(--ease-out);
   }
 
   button,
@@ -402,7 +402,7 @@ Two-tier motion discipline governs animations:
   border-color: transparent;
   background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 4%, var(--color-glass-sunken));
   transition-property: border-color, box-shadow, background;
-  transition-duration: var(--duration-fast);
+  transition-duration: var(--transition-duration-fast);
   transition-timing-function: var(--ease-out);
 
   &::before {
@@ -448,7 +448,7 @@ Two-tier motion discipline governs animations:
   font-family: var(--font-mono);
   backdrop-filter: var(--blur-mist);
   transition-property: border-color, box-shadow;
-  transition-duration: var(--duration-standard);
+  transition-duration: var(--transition-duration-standard);
   transition-timing-function: var(--ease-out);
 }
 
@@ -536,7 +536,7 @@ Two-tier motion discipline governs animations:
 ::view-transition-group(card-slot-fractal),
 ::view-transition-group(entity-morph-fractal),
 ::view-transition-group(unified-console) {
-  animation-duration: var(--duration-slow);
+  animation-duration: var(--transition-duration-slow);
   animation-timing-function: var(--ease-drawer);
 }
 
@@ -571,14 +571,14 @@ Two-tier motion discipline governs animations:
 :root.is-swapping-card ::view-transition-group(card-slot-ai),
 :root.is-swapping-card ::view-transition-group(card-slot-user),
 :root.is-swapping-card ::view-transition-group(card-slot-fractal) {
-  animation-duration: var(--duration-standard);
+  animation-duration: var(--transition-duration-standard);
   animation-timing-function: var(--ease-out);
 }
 
 :root.is-swapping-card ::view-transition-old(card-slot-ai),
 :root.is-swapping-card ::view-transition-old(card-slot-user),
 :root.is-swapping-card ::view-transition-old(card-slot-fractal) {
-  animation: card-swap-decay var(--duration-standard) var(--ease-out) forwards;
+  animation: card-swap-decay var(--transition-duration-standard) var(--ease-out) forwards;
   mix-blend-mode: normal;
   height: 100%;
   width: 100%;
@@ -587,7 +587,7 @@ Two-tier motion discipline governs animations:
 :root.is-swapping-card ::view-transition-new(card-slot-ai),
 :root.is-swapping-card ::view-transition-new(card-slot-user),
 :root.is-swapping-card ::view-transition-new(card-slot-fractal) {
-  animation: card-swap-ascent var(--duration-standard) var(--ease-out) forwards;
+  animation: card-swap-ascent var(--transition-duration-standard) var(--ease-out) forwards;
   mix-blend-mode: normal;
   height: 100%;
   width: 100%;
@@ -662,7 +662,7 @@ html:active-view-transition *::after {
 
 :root[class*="is-profile-"]::view-transition-old(root),
 :root[class*="is-profile-"]::view-transition-new(root) {
-  animation-duration: var(--duration-slow);
+  animation-duration: var(--transition-duration-slow);
 }
 
 :root.is-profile-opening-ai::view-transition-old(card-slot-ai),
@@ -673,7 +673,7 @@ html:active-view-transition *::after {
 :root.is-profile-closing-fractal::view-transition-old(card-slot-fractal),
 :root.is-profile-opening-fractal::view-transition-old(entity-morph-fractal),
 :root.is-profile-closing-fractal::view-transition-old(entity-morph-fractal) {
-  animation: var(--duration-slow) var(--ease-drawer) both profile-flip-out;
+  animation: var(--transition-duration-slow) var(--ease-drawer) both profile-flip-out;
   backface-visibility: hidden;
   height: 100%;
   width: 100%;
@@ -687,7 +687,7 @@ html:active-view-transition *::after {
 :root.is-profile-closing-fractal::view-transition-new(card-slot-fractal),
 :root.is-profile-opening-fractal::view-transition-new(entity-morph-fractal),
 :root.is-profile-closing-fractal::view-transition-new(entity-morph-fractal) {
-  animation: var(--duration-slow) var(--ease-drawer) both profile-flip-in;
+  animation: var(--transition-duration-slow) var(--ease-drawer) both profile-flip-in;
   backface-visibility: hidden;
   height: 100%;
   width: 100%;

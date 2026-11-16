@@ -103,7 +103,7 @@
 {#if open}
   <div
     use:portal_to_body
-    class="fixed z-popover min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-(--shadow-standard) [backdrop-filter:var(--blur-mist)] outline-none
+    class="fixed z-popover min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
       before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
     style="left:{clamped_x}px;top:{clamped_y}px;--signature-color:{signature_color}"
     role="menu"

@@ -86,7 +86,7 @@
           rounded-full
           backdrop-blur-sm
           transition-[background-color,box-shadow,filter,transform]
-          duration-(--duration-fast)
+          duration-fast
           ease-out
           group-hover/toggle:brightness-125
           focus-visible:outline

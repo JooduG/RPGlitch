@@ -149,7 +149,7 @@
                     items-center
                     drop-shadow-lg
                     transition-opacity
-                    duration-(--duration-fast)
+                    duration-fast
                     ease-out
 
                     {open ? 'opacity-100' : 'opacity-0'}"

@@ -222,7 +222,7 @@
           rounded-xl
           shadow-ghost
           transition-shadow
-          duration-(--duration-fast)
+          duration-fast
           ease-out
           has-not-disabled:hover:z-20
           has-not-disabled:hover:shadow-standard

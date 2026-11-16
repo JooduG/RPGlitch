@@ -156,7 +156,7 @@
 
     const cursor_html =
       should_show_cursor ?
-        `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`
+        `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--transition-duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`
       : "";
 
     // Insert cursor before closing open tags so it renders inline with the active paragraph

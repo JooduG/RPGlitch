@@ -173,7 +173,7 @@
                         text-[#f2f7fa]
 
                         transition-[background-color,color,box-shadow,transform,filter,border-color]
-                        duration-(--duration-fast)
+                        duration-fast
                         ease-out
 
                         outline-none

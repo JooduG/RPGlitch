@@ -68,13 +68,13 @@
 
 <main
   id="main-content"
-  class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-out)_forwards] overflow-hidden text-left"
+  class="relative z-10 h-dvh w-full animate-[fade-in_var(--transition-duration-slow)_var(--ease-out)_forwards] overflow-hidden text-left"
   data-view={app.view}>
   <div class="pointer-events-none fixed inset-0 z-0 h-dvh w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
     <div
-      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-[opacity,filter] duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
+      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-[opacity,filter] duration-ambient ease-in-out will-change-[opacity,filter]"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
       style:view-transition-name={app.view === "storymode" && !app.transitioning_profile ? "entity-morph-fractal" : undefined}>

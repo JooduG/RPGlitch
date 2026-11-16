@@ -262,7 +262,7 @@
       px-tight py-1.5
       text-center font-sans text-xs/normal tracking-normal whitespace-normal text-slate-50 normal-case
       shadow-lg
-      transition-[opacity,transform] duration-(--duration-fast) ease-out
+      transition-[opacity,transform] duration-fast ease-out
       {is_hovered || is_active ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}
     "
     style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;">

@@ -143,7 +143,7 @@
     {!is_flank && variant !== 'bare' ?
     `
       transition-[background-color,color,box-shadow,transform,filter,border-color]
-      duration-(--duration-fast)
+      duration-fast
       ease-out
 
       data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
@@ -160,7 +160,7 @@
     {cover && variant !== 'bare' ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!' : ''}
     {busy ? 'pointer-events-none cursor-wait brightness-90 grayscale-30' : ''}
     {is_flank && variant !== 'bare' ?
-    'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-(--duration-fast) ease-out hover:scale-[1.02] hover:opacity-100 active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-(--duration-fast) [&_svg]:disabled:fill-slate-600'
+    'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-fast ease-out hover:scale-[1.02] hover:opacity-100 active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-fast [&_svg]:disabled:fill-slate-600'
   : ''}
     {className}"
   aria-busy={busy}
