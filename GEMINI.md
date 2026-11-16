@@ -20,6 +20,7 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
 - **P4: Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims**. Refactor all downstream consumers and prune dead code immediately.
 - **P5: Honest Literals & Scoped Scales**: Avoid forcing hardware constants, intake policies, or system quotas into artificial shared scales. Restrict semantic tier enums (e.g., `PROSE`, `IDENT`) strictly to their specific text domains, keeping non-prose limits as honest literals. Ensure every exported config constant has an active consumer.
 - **P6: Audit Scope Disambiguation**: When evaluating "what's left behind" or "pending agreements", explicitly distinguish between commitments concluded within the active chat log versus historical technical debt or parked features in `ROADMAP.md` and `scribbles.md`.
+- **P7: Root-Fix First (No Symptom Patching)**: Before patching a caller or consumer (`Profile.svelte`, `RelationalGraph.svelte`, etc.), inspect whether the shared primitive or helper (`ProfilePicture.svelte`, `TextField.svelte`, `@data`, `@media`, `@utils`) is the actual root cause. Fix the underlying primitive—or expose a clean Svelte 5 `{@render ...}` snippet extension point—rather than duplicating component shells or layering caller workarounds.
 
 ---
 
@@ -76,6 +77,7 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
 
 - `src/ui/` (Presentation) → `src/state/` (Reactive Controllers) → `src/intelligence/` (Inference) → `src/data/` (Persistence) → `src/platform/` & `src/media/`.
 - Downward imports allowed. Upward imports strictly forbidden (`src/state/` cannot import `src/ui/`, lower levels cannot import state or UI).
+- **Cross-Folder Barrel Mandate**: Use module alias barrels (`@data`, `@engine`, `@media`, `@primitives`, `@ui`, `@utils`) for **all** cross-folder imports; use relative `./file.js` paths strictly for in-folder imports. When switching a consumer to a barrel import, ensure the symbol is re-exported by the barrel's `index.js` and update any unit test `vi.spyOn` / `vi.mock` targets to match the barrel rather than an internal file.
 - **Prompt Sovereign Mandate (Single Source of Truth for Prompts)**:
   - All prompt compilation envelopes (`<SYSTEM>`, `<TASK>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, Purpose Cores) MUST live exclusively in `src/engine/prompts.js`.
   - Never copy-paste or assemble prompt XML templates in `src/media/`, `src/storage/`, `src/data/`, or `src/utils/`.

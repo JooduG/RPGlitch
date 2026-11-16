@@ -21,7 +21,7 @@ When authoring a custom kinetic-compatible primitive in `src/ui/primitives/`, ke
 <button
   class="
     transition-[background-color,color,box-shadow,transform,filter,border-color]
-    duration-(--duration-fast) ease-out active:scale-sink
+    duration-fast ease-out active:scale-sink
     data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
     data-[kinetic=true]:active:scale-100
   ">
@@ -79,7 +79,7 @@ Use `@media` `overlay_in` (`300ms` default) and `overlay_out` (`160ms` default) 
 Toggle `grid-rows-[1fr]` and `grid-rows-[0fr]` around an `overflow-hidden` container (`Accordion.svelte` / `Console.svelte` pattern) instead of transitioning CSS `height`:
 
 ```svelte
-<div class="grid transition-[grid-template-rows] duration-(--duration-standard) ease-(--ease-drawer) {is_open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
+<div class="grid transition-[grid-template-rows] duration-standard ease-(--ease-drawer) {is_open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
   <div class="overflow-hidden">
     <!-- Collapsible body -->
   </div>
@@ -152,7 +152,7 @@ import { resolve_ms, resolve_string, resolve_number } from "@utils";
 import { motion } from "./motion.svelte.js";
 
 export function spin_action(node) {
-  const duration = resolve_ms("--duration-standard", 300, node);
+  const duration = resolve_ms("--transition-duration-standard", 300, node);
   const easing = resolve_string("--ease-out", "cubic-bezier(0.23, 1, 0.32, 1)", node);
   const angle_spring = new Spring(0, {
     stiffness: resolve_number("--spring-stiffness-default", 0.15, node),

@@ -33,3 +33,21 @@
 - **Trigger**: Building buttons, dialogs, modals, dropdowns, sliders, toggles, meters, progress bars, scroll areas, or tooltips in view components.
 - **Wrong Behavior**: Importing raw primitives directly from `bits-ui` in feature views or referencing nonexistent wrappers (`Popover`, `DropdownMenu`).
 - **Correct Behavior**: Import project wrappers from [src/ui/primitives/](../../../src/ui/primitives/README.md). Keep direct `bits-ui` (`^2.20.6`) imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) inside primitive wrappers (plus `Avatar` in [ProfilePicture.svelte](../../../src/ui/ProfilePicture.svelte)).
+
+## Pitfall 6: Box-in-a-Box Bracket Shells & Redundant `(i)` Tooltip Icons
+
+- **Trigger**: Rendering parsed `[KEY: VALUE]` fields, tooltips, or field headers inside panels (`Profile.svelte`, `Tooltip.svelte`).
+- **Wrong Behavior**: Bypassing `<TextField>` to build a separate pill-bordered header + individual `1px` bordered cards around each bracket entry, or adding standalone `(i)` info icons next to header labels.
+- **Correct Behavior**: Render structured read-only content inside `<TextField>` via its `content` snippet (preserving the full `--signature-color` borderless header and `glass-input` hairline), separate rows cleanly with `divide-y divide-white/5`, attach `cursor-help` + `use:tooltip` directly to the header label (with `text-balance` in `Tooltip.svelte`), and reserve decorative borders strictly for purposeful top-level/focus/terminal containers per [DESIGN.md](../../../DESIGN.md).
+
+## Pitfall 7: `ProfilePicture` Placeholder Flicker & `z-10` Stacking Order
+
+- **Trigger**: Rendering `<ProfilePicture>` for an entity that already has `profile_picture`, or overlaying captions atop `<ProfilePicture>`.
+- **Wrong Behavior**: Mounting `Avatar.Fallback` unconditionally during `"loading"` (flashes initials before decode) or placing text overlays without a `z-index` (gets hidden behind `ProfilePicture`'s `z-10` loaded image layer).
+- **Correct Behavior**: Only render `Avatar.Fallback` in `ProfilePicture.svelte` when `!has_media` or `loading_status === "error"`, and give text overlays `z-20`+ inside the card container.
+
+## Pitfall 8: `InterfaceStore` (`app`) Entity Lists
+
+- **Trigger**: Resolving `@ENTITY` bracket keys or looking up characters/fractals across `src/ui/` (`Profile.svelte`).
+- **Wrong Behavior**: Reading nonexistent `app.characters` or `app.fractals` arrays (`undefined`), causing lookups to fail silently.
+- **Correct Behavior**: Read `app.ai_list` and `app.fractal_list` (combined with `runtime.active_*` and `ALL_PREMADES` fallback), or query `@data` `list_entities(...)`.

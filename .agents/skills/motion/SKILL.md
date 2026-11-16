@@ -36,7 +36,7 @@ Edit motion primitives strictly in [DESIGN.md](../../../DESIGN.md) and run `npm 
 
 | Category | Authoritative Tokens & Values |
 | :-- | :-- |
-| **Durations** | `--duration-fast: 150ms`, `--duration-standard: 300ms`, `--duration-slow: 500ms`, `--duration-ambient: 2000ms` |
+| **Durations** | `--transition-duration-fast: 150ms` (`duration-fast`), `--transition-duration-standard: 300ms` (`duration-standard`), `--transition-duration-slow: 500ms` (`duration-slow`), `--transition-duration-ambient: 2000ms` (`duration-ambient`) |
 | **Easings & Shorthands** | `--ease-out: cubic-bezier(0.23, 1, 0.32, 1)`, `--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1)`, `--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1)`, `--motion-dissolve`, `--motion-elastic` |
 | **Scales & Springs** | `--scale-lift: "1.02"`, `--scale-pulse: "1.05"`, `--scale-sink: "0.97"`, `--spring-stiffness-default: "0.15"`, `--spring-damping-default: "0.8"` |
 | **Kinetic Spacing** | `--spacing-kinetic-shimmy-offset` (`1px`), `--spacing-kinetic-shimmy-y` (`0.5px`), `--spacing-kinetic-stab-distance` (`0.25rem`) |
@@ -44,8 +44,8 @@ Edit motion primitives strictly in [DESIGN.md](../../../DESIGN.md) and run `npm 
 | **View-Transition Slots** | `card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, `unified-console`; root classes `is-switching-view`, `is-swapping-card`, `is-profile-opening-${type}`, `is-profile-closing-${type}` |
 
 - **Two-Tier Motion Budget**:
-  - **Tier 1 (`<= 300ms`)**: Discrete interactive controls (`--duration-fast` `150ms` + `--ease-out` / `--ease-in-out`), floating overlays (`150ms`), and standard modal/item entrances (`overlay_in` / `item_in` `300ms` with faster `overlay_out` `160ms`).
-  - **Tier 2 (`300–500ms` single-phase / up to `780ms` composite)**: View Transitions (`--duration-slow` `500ms`, `--ease-drawer`), collapsible control drawers (`duration-500`), damped `Spring` (`0.15` / `0.8`), and clone card flights (`380–420ms` glide phase; composite pickup+glide+setdown `600ms` or staggered multi-card prologue transfers up to `780ms`). Zero overshoot or bounce.
+  - **Tier 1 (`<= 300ms`)**: Discrete interactive controls (`--transition-duration-fast` `150ms` + `--ease-out` / `--ease-in-out`), floating overlays (`150ms`), and standard modal/item entrances (`overlay_in` / `item_in` `300ms` with faster `overlay_out` `160ms`).
+  - **Tier 2 (`300–500ms` single-phase / up to `780ms` composite)**: View Transitions (`--transition-duration-slow` `500ms`, `--ease-drawer`), collapsible control drawers (`duration-500`), damped `Spring` (`0.15` / `0.8`), and clone card flights (`380–420ms` glide phase; composite pickup+glide+setdown `600ms` or staggered multi-card prologue transfers up to `780ms`). Zero overshoot or bounce.
 - **View Transition Discipline**: Wrap every view switch, card swap, or profile morph in `guarded_transition(callback, { className })` from `@utils` (flushing Svelte 5 DOM state via `flushSync()` before or inside `callback`). Note `guarded_transition` manages single-flight locking (`_transition_state.active`) and fallback execution; `DESIGN.md` `::view-transition-*` handles `prefers-reduced-motion: reduce`.
 
 ## 4. @media Motion API (`src/media/motion.svelte.js`)

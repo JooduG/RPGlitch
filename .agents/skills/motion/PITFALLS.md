@@ -26,13 +26,13 @@
 
 - **Trigger**: Authoring hover transforms, popovers, accordions, easing classes, or custom utility names in `.css` / `.svelte` files.
 - **Wrong Behavior**: Writing hover `transform` rules in themes (`THEME_HOVER_TRANSFORM` blocking `[HERESY]`), triggering `audit-design.js` `[ADVICE]` rules (`scale-0` `MOTION_SCALE_ZERO`, `transition-all` `MOTION_TRANSITION_ALL`, `ease-in` `MOTION_EASE_IN`, inline `transition: width/height/top/left/margin/padding` `MOTION_LAYOUT_PROPS`), or writing unregistered utility/keyframe names absent from `DESIGN.md` / `src/media/design.css` (rejected by `better-tailwindcss/no-unknown-classes`).
-- **Correct Behavior**: Use compiled `DESIGN.md` utilities (`duration-(--duration-fast)`, `ease-(--ease-drawer)`, `active:scale-sink`), start floating overlays at `scale` `0.95`, build collapsible panels with CSS Grid `grid-rows-[0fr]` / `grid-rows-[1fr]`, and verify with `npm run audit:design`.
+- **Correct Behavior**: Use compiled `DESIGN.md` utilities (`duration-fast`, `ease-(--ease-drawer)`, `active:scale-sink`), start floating overlays at `scale` `0.95`, build collapsible panels with CSS Grid `grid-rows-[0fr]` / `grid-rows-[1fr]`, and verify with `npm run audit:design`.
 
 ## Pitfall 5: CSS Hover Transitions Fighting Kinetic Actions & Missing Duration Shorthands
 
 - **Trigger**: Attaching `pulse`, `roll`, `shimmy`, or `stab` to interactive buttons (`Button.svelte`), or writing inline CSS `transition:` strings (`Profile.svelte`).
 - **Wrong Behavior**: Allowing CSS `transition-[...,transform,...]` to fight active WAAPI/Spring transforms produces rubbery jitter; passing only `var(--ease-drawer)` in an inline CSS `transition:` string leaves `transition-duration` at `0s`.
-- **Correct Behavior**: Keep interactive primitives aligned with `Button.svelte`'s kinetic suppression selectors (`data-[kinetic=true]:active:scale-100 data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]` and `hover:scale-100` on flank controls), and always pair duration + easing tokens in inline CSS transitions (e.g. `var(--duration-standard) var(--ease-drawer)`).
+- **Correct Behavior**: Keep interactive primitives aligned with `Button.svelte`'s kinetic suppression selectors (`data-[kinetic=true]:active:scale-100 data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]` and `hover:scale-100` on flank controls), and always pair duration + easing tokens in inline CSS transitions (e.g. `var(--transition-duration-standard) var(--ease-drawer)`).
 
 ## Pitfall 6: Uncleaned `$effect.root`, Animation Races, or Overlapping Flights
 

@@ -56,7 +56,7 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 
 ### Token Purity, Signatures & ESLint Boundary
 
-- **Mandate Tokens First**: Use `DESIGN.md` tokens wherever a domain token exists (surfaces, entity signatures, typography, radii, spacing, shadows, z-index, durations/easing).
+- **Mandate Tokens First**: Use `DESIGN.md` tokens wherever a domain token exists (surfaces, entity signatures, typography, radii, spacing, shadows, z-index, durations/easing). Prefer native Tailwind v4 `@theme` utility classes (`z-elevated`, `z-modal`, `z-popover`, `z-tooltip`, `z-max`, `duration-fast`, `duration-standard`, `shadow-standard`, `rounded-standard`) over verbose `var(--...)` arbitrary syntax or hardcoded high `z-*` values.
 - **Permitted Tailwind & CSS Primitives**: Standard Tailwind v4 layout/structural utilities, neutral palette/opacity utilities (`bg-white/5`, `border-white/10`, `text-slate-50`), `color-mix(in srgb, var(--signature-color) 10%, var(--color-glass-sunken))`, and `1px`/`2px` hairline borders are permitted where no semantic token fits.
 - **ESLint Unknown-Class Gate**: [eslint.config.js](../../../eslint.config.js) enforces `better-tailwindcss/no-unknown-classes`. Register new semantic utilities as `@utility` in `DESIGN.md` (or add non-utility component classes to the ESLint ignore whitelist).
 - **Entity Signature Contrast (`>= 4.5:1`)**: Because `signatures` in `DESIGN.md` span dark greens (`#15803d`) to high-luminance yellows (`#fde047`, `#fbbf24`, `#84cc16`), text-bearing containers tinted by `--signature-color` must use translucent `color-mix()` wells or dark scrims over obsidian surfaces (as in `ChatBubble.svelte` and `Profile.svelte`), or pair solid high-luminance fills with dark `--color-chalk` ink.
@@ -83,7 +83,7 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 
 ## 6. View Transition Names & Motion Boundary
 
-- **Jurisdiction**: Delegate all duration budgets, easing curves, scale physics, and entrance/exit choreography to [motion/SKILL.md](../motion/SKILL.md). Only apply design token bindings (e.g., `duration-(--duration-fast) ease-(--ease-out) active:scale-sink`).
+- **Jurisdiction**: Delegate all duration budgets, easing curves, scale physics, and entrance/exit choreography to [motion/SKILL.md](../motion/SKILL.md). Only apply design token bindings (e.g., `duration-fast ease-(--ease-out) active:scale-sink`).
 - **Canonical View-Transition Names**: Registered in `DESIGN.md`: `card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, and `unified-console` (bound dynamically in `EntityCard.svelte`, `App.svelte`, and `Console.svelte`).
 - **Guarded Transitions Only**: Trigger DOM view transitions exclusively via `guarded_transition(callback, options)` from [ui-helpers.js](../../../src/utils/ui-helpers.js) — never call raw `document.startViewTransition()` directly.
 - **Directive Isolation**: Never combine `view-transition-name` with Svelte `transition:`, `in:`, or `out:` directives on the same DOM node.
