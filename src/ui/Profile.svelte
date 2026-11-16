@@ -22,6 +22,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
+  import { ALL_PREMADES } from "../definitions/premades.js";
   import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "../definitions/profile-taxonomy.js";
   import { VISUAL_STYLES, get_visual_style } from "../definitions/visual-styles.js";
   import AudioWing from "./AudioWing.svelte";
@@ -253,6 +254,44 @@
     USER: runtime.active_user || app.selected_user,
     FRACTAL: runtime.active_fractal || app.selected_fractal,
   });
+
+  const known_entities = $derived(
+    [...(app.ai_list || []), ...(app.fractal_list || []), runtime.active_ai, runtime.active_user, runtime.active_fractal, ...ALL_PREMADES].filter(Boolean),
+  );
+
+  /**
+   * Resolves the target entity's signature color for `@ENTITY` bracket keys.
+   * @param {string} key
+   * @returns {string | null}
+   */
+  function resolve_bracket_target_color(key) {
+    if (!key || !key.startsWith("@")) return null;
+    const raw_slug = key.slice(1).trim().toLowerCase();
+    if (!raw_slug) return null;
+    if (raw_slug === "user" && display_entities.USER) return get_signature_color(display_entities.USER, null);
+    if ((raw_slug === "char" || raw_slug === "ai") && display_entities.AI) return get_signature_color(display_entities.AI, null);
+    if (raw_slug === "fractal" && display_entities.FRACTAL) return get_signature_color(display_entities.FRACTAL, null);
+
+    const spaced_slug = raw_slug.replace(/_/g, " ");
+    const exact_match = known_entities.find((entity) => {
+      const entity_id = String(entity?.id || "")
+        .trim()
+        .toLowerCase();
+      const entity_name = String(entity?.name || "")
+        .trim()
+        .toLowerCase();
+      return entity_id === raw_slug || entity_id === spaced_slug || entity_name === raw_slug || entity_name === spaced_slug;
+    });
+    if (exact_match) return get_signature_color(exact_match, null);
+
+    const token_match = known_entities.find((entity) => {
+      const entity_name = String(entity?.name || "")
+        .trim()
+        .toLowerCase();
+      return entity_name.split(/\s+/).includes(spaced_slug);
+    });
+    return token_match ? get_signature_color(token_match, null) : null;
+  }
 
   const author_options = Object.values(NARRATIVE_STYLES)
     .sort((a, b) => {
@@ -1331,10 +1370,7 @@
                           .replace(/\s*\|\s*(?:hide|show|private)\b/gi, "")
                           .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
                           .trim()}
-                        {@const target_id = k.startsWith("@") ? k.slice(1).trim().toLowerCase() : null}
-                        {@const target_entity =
-                          target_id ? [...(app.characters || []), ...(app.fractals || [])].find((e) => String(e?.id || "").toLowerCase() === target_id) : null}
-                        {@const key_color = target_entity ? get_signature_color(target_entity, null) : null}
+                        {@const key_color = resolve_bracket_target_color(k)}
                         {#if clean_val}
                           <div class="flex flex-col items-start gap-0.5 py-1.5 first:pt-0 last:pb-0 {is_hidden ? 'opacity-55' : ''}">
                             <span
