@@ -1,91 +1,40 @@
-# Security Policy and Architecture Specification
+# RPGlitch Security Architecture
 
-This specification documents the client-side security architecture, threat model, input validation controls, and credential handling practices for RPGlitch. This standard integrates directly with the global Security Skill.
-
-- **System Architecture**: Consult [README.md](README.md) for reactive state layers, dynamics, and persistence bindings.
-- **Product Vision**: Consult [README.md](README.md) for game design philosophy and the User Agency Invariant (P1).
-- **Visual Design**: Consult [DESIGN.md](DESIGN.md) for design tokens and rendering contracts.
+> **Scope**: Client-side security boundaries, input validation, and environment hardening for the RPGlitch single-file PWA running inside a Perchance iframe. For system topology, see [README.md](./README.md).
 
 ---
 
-## 1. Threat Model and Trust Boundaries
+## 1. Trust Boundaries & Ingestion Vectors
 
-RPGlitch is a local-first Progressive Web Application running inside the Perchance sandboxed runtime. The application ingests data across four external ingestion vectors:
+RPGlitch has no backend server; all state lives locally in the browser (IndexedDB via Dexie.js). Untrusted inputs enter through four client-side vectors:
 
-- Human text inputs (chat forms, UI controls, settings)
-- URL query parameters and deep links
-- Cross-document messaging interfaces (`window.postMessage`)
-- Streaming AI LLM generation output
-
-Every external data source is classified as untrusted. No payload is permitted to mutate reactive state or touch DOM sinks without traversing the multi-layer pipeline below:
-
-```mermaid
-flowchart TD
-    Sources["Untrusted Sources:<br>User Input | URL Params | postMessage | LLM Streams"]
-    Boundary["1. Ingestion Boundary:<br>Schema parsing & key stripping"]
-    Invariants["2. State & Invariants:<br>Numeric clamping & memory limits"]
-    Encoding["3. Output Encoding:<br>DOMPurify sanitization before sink"]
-    Protected["Protected UI Runtime & Local Storage Engine"]
-
-    Sources --> Boundary
-    Boundary --> Invariants
-    Invariants --> Encoding
-    Encoding --> Protected
-```
+- **User text & chat inputs** (`Console.svelte`, `Profile.svelte`)
+- **Imported character cards & JSON/PNG files** (`src/data/card-conversion.js`, `src/ui/primitives/SourceField.svelte`)
+- **External web fetches** (`validate_url` / `fetch_web` in `src/utils/html.js`)
+- **Streaming LLM responses** (`src/engine/transport.js`, `src/engine/turns.js`)
 
 ---
 
-## 2. Defense-in-Depth Pipeline
+## 2. Active Security Controls
 
-### 2.1 Boundary Validation and Schema Enforcement
+### 2.1 URL & Web Ingestion (`src/utils/html.js`)
+- **`validate_url(url)`**: Enforces an explicit protocol allowlist, blocking dangerous schemes (`javascript:`, `data:`, `file:`) before `fetch_web` or `get_super_fetch_engine` executes.
+- **`validate_image(file)` / `IMAGE_SIGNATURE_VALIDATORS`**: Inspects raw binary magic-byte headers (`image/jpeg`, `image/png`, `image/gif`, `image/webp`) before ingesting uploaded image files.
 
-External payloads must undergo strict shape and type verification at the ingress boundary before passing to application stores.
+### 2.2 HTML Sanitization & Markdown Rendering
+- **AST-Based Markdown (`src/utils/markdown.js`, `src/ui/primitives/TextField.svelte`)**: Markdown is parsed into an AST token array and rendered via native Svelte snippets (`{@render token_content(...)}`) without evaluating HTML strings.
+- **DOMPurify (`src/utils/html.js`)**: `sanitize()` and `sanitize_to_fragment()` enforce `{ SANITIZE_NAMED_PROPS: true, SANITIZE_DOM: true }` to prevent XSS and DOM clobbering (verified by `SECURITY_DOMPURIFY_CONFIG` in `npm run audit:hygiene`).
+- **Known Gap**: `src/ui/Typewriter.svelte` uses `{@html sliced_html}` for structural character slicing without calling `sanitize()`.
 
-- **Validate all ingress payloads against strict schemas** using schema parsers prior to consumption.
-- **Strip unknown object keys immediately** at boundary normalizers (such as `normalize_director_data`) to prevent prototype pollution and injection attacks.
-- **Enforce primitive type checking** on all clipboard imports and message bridge payloads. Reject unparseable or malformed payloads without partial execution.
-
-### 2.2 Domain Invariants and Resource Quotas
-
-Application stores must reject out-of-spec mutations to maintain mathematical consistency and prevent client-side Denial-of-Service (DoS) via memory exhaustion.
-
-- **Clamp all state metrics to valid boundaries** (0 to 100 on axes including `chaos`, `intensity`, `openness`, `affinity`, `velocity`, and `entropy`) using `@utils/math:clamp`.
-- **Enforce capacity caps on collection vectors** (memories, chat history, relationship buffers) to avoid uncontrolled heap allocation.
-- **Drop payloads exceeding byte-size ceilings** before state ingestion.
-
-### 2.3 Cross-Site Scripting (XSS) Mitigation and Sink Controls
-
-Browser DOM insertion sinks represent the primary vulnerability surface in client-rendered applications.
-
-- **Never invoke dangerous DOM sinks** such as `element.innerHTML`, `element.outerHTML`, or `document.write`.
-- **Sanitize all dynamic HTML and rendered markdown via DOMPurify** before passing content to Svelte rendering expressions (`{@html ...}`).
-- **Rely on Svelte compile-time template auto-escaping** for all standard string interpolations.
-
-### 2.4 Epistemic Isolation & Directive Leak Prevention
-
-RPGlitch employs strict Epistemic Partitioning to preserve player agency and narrative immersion across agent boundaries.
-
-- **Covert Directive Stripping (`strip_covert_directives`)**: Directives flagged with `| hide` or internal control tags belonging to other entities are stripped before rendering persona prompts. This prevents autonomous personas from gaining illicit telepathy or acting on unrevealed player intentions.
-- **Visual Prompt Stripping (`strip_visual_excluded`)**: Hidden items, covert weapons, or stashed inventory are scrubbed from visual diffusion prompts to prevent rendering unrevealed state.
-
-### 2.5 Exception Handling and Information Disclosure Prevention
-
-Runtime failures must provide clear application recovery without leaking internal implementation details.
-
-- **Display opaque error messages to users** instead of raw runtime exceptions or stack traces.
-- **Restrict diagnostic logs to the local developer console**, ensuring low-cardinality error reporting in production builds.
+### 2.3 LLM Response & Domain Bounds
+- **Whitelisted Extraction (`src/engine/turns.js`)**: `execute_turn_1_director` parses JSON via `safe_parse_json` and extracts only whitelisted fields (`_thought_process`, `next_action`, `directors_note`, `dynamics_deltas`, `camera_note`).
+- **Resource & Numeric Caps**: `clamp` (`@utils`) and `DYNAMICS.DELTA.CLIP` (`src/config.js`) bound dynamics values (`[0, 100]` in `reduce_dynamics`, `[5, 95]` in `Kernel.submit_turn`), and `PAST_VECTOR_CAP = 20` caps session memory vectors.
 
 ---
 
-## 3. Secrets Management and Storage Isolation
+## 3. Environment & Repository Hygiene
 
-### 3.1 Environment Isolation
-
-- **Store secrets strictly in local environment files** (`.env`), ensuring they are never tracked in version control.
-- **Maintain non-sensitive template variables** inside `.env.example`.
-- **Block commits containing high-entropy strings** by maintaining static analysis or secret-detection hooks on pre-commit runs.
-
-### 3.2 Client-Side Storage Hygiene
-
-- **Confine persisted state to IndexedDB via Dexie.js** under the origin-isolated sandbox.
-- **Prohibit third-party data egress**; state persistence must remain isolated to the user's local instance without outbound telemetry tracking.
+- **Sandbox Hardening (`src/utils/html.js`)**: `install_environment_hardening()` (wired in `src/main.js`) catches and silences sandbox-boundary rejections on initialization.
+- **Zero-Secret Client Bundle**: The single-file `dist/index.html` bundle has no runtime `.env` access and must contain zero secrets.
+- **Local-Only Persistence**: All story, entity, and ledger state is confined to browser IndexedDB (`Dexie.js`) with zero `localStorage` usage and zero outbound telemetry.
+- **Hygiene Gate**: `npm run audit:hygiene` (part of `npm run verify`) scans for accidental secret leaks (`SECURITY_SECRET_LEAK`) and `DOMPurify` configuration regressions.
