@@ -1,203 +1,51 @@
 ---
 name: simulation
-description: Sovereign RPGlitch simulation physics and chronology guide. Use when implementing, debugging, or asking about turn/round flow (Round, Shot 1 Director, Shot 2 Storyteller/Actor, Shot 3 User), multi-shot telemetry cards, epistemic isolation, somatic physics, or temporal memory consolidation.
+description: Operational runbook for RPGlitch's 3-turn simulation engine, prompt compilation, Sieve RAG memory, and deterministic somatic physics in `src/engine/`. Use when modifying `turns.js`, `runs.js`, `prompts.js`, `sieve.js`, `dynamics.js`, `gate.js`, `kernel.svelte.js`, or `chrono.svelte.js`. Do NOT use for UI components or runes (use `svelte`), visual tokens/layouts (use `design`), animations (use `motion`), or Web Audio/TTS (use `audio`).
 ---
 
-# 🕹️ The Simulation Physics & Cognitive Playbook
+# Simulation Engine Runbook
 
-> "State is Truth. The User is the Protagonist; I am the Physics."
+> **Pre-Flight Check**: Read [PITFALLS.md](./PITFALLS.md) before editing any simulation module.
 
-This skill serves as the operational engineering runbook for simulation physics, prompt architecture, and cognitive guardrails.
-
-- **Conceptual Game Design & Strategy**: Consult [README.md](../../../README.md) for the Story Triad, simulation philosophy, and turn progression concepts.
-- **Authoritative Technical Architecture**: Consult [README.md](../../../README.md) for reactive Svelte 5 state models, Quad-Partitioned entity schemas, and layer boundaries.
-- **Active Sprint & Delta**: Consult [ROADMAP.md](../../../ROADMAP.md) for target memory compaction blueprints.
+> **Spec Boundary**: Authoritative product specs live in [README.md](../../../README.md) and [GEMINI.md](../../../GEMINI.md). This skill covers **how** to modify and verify the live engine in `src/engine/`.
 
 ---
 
-## 1.0 THE CORE MENTAL FRAMEWORK: PHYSICS VS. PROSE
+## 1. Live Engine Map
 
-In traditional interactive fiction, the language model is asked to be everything at once: the rule arbiter, the world simulator, the scene director, and the roleplaying actor. This inevitably causes **hallucinatory collapse**-characters magically know secrets, physics bend to convenience, inventory evaporates, and conversations drift into agreeable, sterile pleasantness.
-
-**RPGlitch breaks this illusion into strict mechanical physics and subjective prose:**
-
-- **The Engine is the Physics**: Real mechanical state (slider dynamics, worn clothing, inventory items, interpersonal relationship edges, environmental entropy) lives strictly inside **Svelte 5 Runes and Dexie.js**. It never lives inside the model's ungrounded memory.
-- **The LLM is the Sensor & Expression Layer**: The language model never invents core physical state out of thin air. Instead, the engine projects the live **State Geometry** into structured contexts, and the model merely acts as a subjective lens experiencing and reacting to that reality.
-- **P1 Sovereignty (User Agency)**: The User owns the only unconstrained biological will in the simulation. The engine and AI characters may create physical obstacles, emotional friction, and environmental consequences, but **never narrate, predict, assume, or feel on behalf of the User Persona**.
-
----
-
-## 2.0 SIMULATION LIFECYCLE & CHRONOS EXECUTION PIPELINE
-
-Time in RPGlitch does not flow continuously; it progresses through a strict, discrete temporal lifecycle (session pipeline in `src/engine/runs.js`, jobs in `src/engine/lifecycle.js`, Kernel in `src/engine/kernel.svelte.js`).
-
-```mermaid
-flowchart TD
-    Input["User Action Input"] --> |The Absolute Interrupt| Lock["STASIS LOCK<br>UI freezes, inputs disabled, double-click gate active"]
-    Lock --> |Stage 1: State Arbitration & Director Pass| Stage1["STAGE 1: DIR<br>Director staging, physics deltas, context culling, speaker routing"]
-    Stage1 --> |Stage 2: Narrative Generation & Streaming| Stage2["STAGE 2: ACT<br>Streamed in-character reaction behind Epistemic Partitioning"]
-    Stage2 --> Lift["STASIS LIFT<br>User composer unfreezes"]
-    Stage2 -.-> |Async Background Fork| Stage3["STAGE 3: CTX<br>Context Consolidation"]
-```
-
-### The Round (Macro-State)
-
-A **Round** tracks the macro progression of the session.
-
-- **The Absolute Interrupt**: A round is born when human input arrives (`chrono.send()`), or when an intentional retry/continuation occurs. Human will finalizes the previous cycle and births the next.
-- **Macro Boundaries**: Rounds govern long-term scenario decay, image generation beat intervals, and chapter progression milestones.
-
-### The 3-Turn Sequence: Shot & Sub-Process
-
-Within each round, active intelligence and underlying mechanics execute as sequential **Turns (Shot & Sub-Process)**:
-
-- 🎬 **Turn 1: Director Turn (Quick Shot)**:
-  - _Shot (Quick Shot)_: Fast staging inference (`phase = "generating"`, `director_thinking = true`) in response to the **previous round**. Evaluates rules, updates numerical dynamics, delegates the chosen actor (`AI`, `FRACTAL`, or `NPC`), conditionally schedules image beats (`trigger_image`), and delivers the Director's Note. Emits `DYNAMICS_DELTA` telemetry.
-  - _Sub-Process (Physics Pre-Pass)_: Evaluates deterministic somatic physics, slider bounds, and spatial presence synchronously before LLM invocation (no LLM).
-- 🎭 **Turn 2: Actor Turn (Narrative Shot)**:
-  - _Shot (Narrative Shot)_: Storyteller pass in response to the **Director Turn**. The chosen speaker transitions to `speaker_thinking = true` then streams in-character dialogue, inner `<think>` cognition, and sensory prose directly into the view.
-  - _Sub-Process (Optional Visual Generation)_: If scheduled by the Director in Turn 1, the visual synthesis pipeline compiles prompt optics and dispatches image diffusion via the Perchance Image Plugin immediately upon narrative stream completion.
-- 🧑‍🚀 **Turn 3: User Turn (Head Shot)**:
-  - _Shot (Head Shot)_: Biological protagonist deliberation in response to the **Actor Turn**. STASIS is lifted (`phase = "idle"`). The UI unlocks, allowing the user to reflect and compose their next message without arbitrary time constraints.
-  - _Sub-Process (Full-State Consolidation)_: Runs silently in the background on `director_background_queue` while the user composes their message in Turn 3. Sweeps one entity round-robin style across multiple historical rounds, consolidating all 4 entity quadrants (`eternal`, `present`, `past`, `future`), computing 384-d embeddings, enforcing vector caps (`PAST_VECTOR_CAP = 20`), appending change-only diffs to `mutation_ledger`, and emitting `MEMORY_FORMATION` / `VECTOR_RESOLUTION` telemetry cards.
-- 🏁 **Round Completion**: The user submits their message, finalizing the round and immediately birthing the next.
+- **Entry & Lifecycle**: `src/engine/chrono.svelte.js` (`chrono_engine.send()`), `src/engine/kernel.svelte.js` (`Kernel`), `src/engine/runs.js` (`execute_turn`, `execute_continue`, `dispatch_caretaker_consolidation`).
+- **3-Turn Pipeline (`src/engine/turns.js`)**:
+  - **Turn 1 (Director)**: `execute_turn_1_director` — fast staging pass; evaluates somatic deltas, delegates next actor, optionally schedules image beats (`spawn_image_beat` in `runs.js`), and emits `directors_note`.
+  - **Turn 2 (Character)**: `execute_turn_2_character` — streams in-character dialogue, `<think>` cognition, and sensory prose; runs `detox_prose(text, resolved_style)`.
+  - **Turn 3 (Caretaker)**: `execute_turn_3_caretaker` — background consolidation (`LLM_PRIORITY.BACKGROUND` via `gate.js`), computing 384-d embeddings and writing `mutation_ledger` diffs.
+- **Prompt Compilation (`src/engine/prompts.js`)**: `PURPOSE_CORES` and `compile_prompt()` assemble the 11-block Spatial State Spine (`<SYSTEM>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, etc.). Keep the opening prefix byte-identical across turns for KV-cache reuse.
+- **Memory & Budgets (`src/engine/sieve.js`)**: Two-Tier Sieve RAG enforces character budgets (`FIELD_FLOORS`, `TOTAL_FIELD_FLOORS_CHARACTERS = 1700`) and `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` (`src/config.js`). `usr_` memories are origin-protected (`1.5x` relevance).
+- **Somatic Physics & Gate**: `src/engine/dynamics.js` (`reduce_dynamics`, clamped to `DYNAMICS.DELTA.CLIP` `[5, 95]` in `Kernel.submit_turn`), `src/engine/gate.js` (`run_llm_job`, `LLM_PRIORITY`).
 
 ---
 
-## 3.0 MULTI-STAGE EXECUTION PIPELINE
+## 2. Execution Workflow
 
-Rather than attempting to do staging, acting, and memory extraction in a single monolithic prompt, RPGlitch bifurcates the cognitive workload across three distinct pipeline stages.
-
-### Stage 1: State Arbitration & Director Pass (Staging & Physics)
-
-_Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/director.js`](../../../src/intelligence/director.js)_
-
-**The Mental Model: The Stage Manager & Rules Engine.** Before an actor speaks, an invisible director evaluates the physical state. The Director does not write creative dialogue; it outputs pure structural judgment:
-
-- **Speaker Routing**: Who has the floor? Does the AI character respond (`AI_CHARACTER`)? Does the environment react to non-verbal exploration (`FRACTAL`)? Does an active companion speak (`npc:<id>`)? Or should an entirely new entity emerge from the world (`GENESIS`)?
-- **Active Scene Scope & Context Culling**: Off-screen characters are frozen in stasis to preserve token economy and prevent narrative bloat. The Director explicitly moves NPCs on-stage (`enter`) or off-stage (`exit`).
-- **Physical Causality & Prop Provenance**: If the player attempts an impossible physical feat (e.g., walking through solid steel or materializing an unearned quest relic), the Director does _not_ throw a rude error message. Instead, it injects a directorial note instructing the actor to confront that physical contradiction in-character.
-- **Pacing Law (Dead-Air Prevention)**: If a user submits passive silence ("...") or pure waiting, the Director recognizes a stall and instructs the world to complicate the scene with an active event or probing challenge.
-- **Visual & Media Orchestration (Image Beat Triggering)**: The Director evaluates somatic intensity, environmental reveals, and narrative climax thresholds. If an illustrative beat is earned, it schedules an image generation trigger (`trigger_image`). To prevent browser LLM gate collisions during Shot 2's live streaming, the visual synthesis pipeline (optics prompt compilation + Perchance image generation) is deferred and released concurrently onto the background lane immediately when Shot 2 lands.
-
-### Stage 2: Narrative Generation & Streaming (Sensory Horizon)
-
-_Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/story.js`](../../../src/intelligence/story.js)_
-
-**The Mental Model: The In-Character Persona Behind the Sensory Horizon.** Once staging is established, the active speaker generates in-character prose. The actor is subject to strict cognitive limitations:
-
-- **Epistemic Partitioning**: The actor is deliberately blinded. Other entities' brackets flagged with `| hide` are stripped across the Epistemic Wall in `render_character()`. The actor only knows what their physical senses (eyes, ears, skin) can register. Owner perspectives preserve their own `| hide` flags so persona LLMs do not voice covert items/plans openly.
-- **The 3-Layer Subconscious Delivery (`<think>`)**: Before vocalizing, the character must reason across three layers:
-  1. _Visceral Impact_: Immediate physical reaction to sensory stimuli.
-  2. _Secret Agenda_: How their private `future` standing agenda steers their reaction toward friction or intrigue.
-  3. _Somatic Manifestation_: Involuntary bodily signals (pulse, pupil dilation, muscle tension) derived from the dynamics engine.
-- **Affirmative Physicality & Momentum**: Non-physical entities describe presence, never absence (what _is_, rather than what _is not_). Every response must end on an active physical beat, tension, or unanswered hook-never a conversational dead-end.
-
-### Stage 3: Asynchronous Context Consolidation (Memory Forge)
-
-_Source: [`src/intelligence/prompts.js`](../../../src/intelligence/prompts.js) & [`src/intelligence/temporal.js`](../../../src/intelligence/temporal.js)_
-
-**The Mental Model: Context Consolidation & Long-Term Memory.** Dumping raw chat history into an LLM causes catastrophic forgetting, context bloat, and narrative dilution. Context consolidation runs asynchronously in the background _after_ a turn completes:
-
-- **Consolidation over Accumulation**: Instead of saving 50 turns of dialogue, the process distills durable facts into compact vector memories.
-- **Strategic Trajectory Rewriting**: An entity's `future` trajectory is rewritten wholesale each cycle to represent their current active motivation.
-- **Provenance Protection**: Memories created by the user or lore specs (`usr_` prefix) are origin-protected (`is_origin: true`) and immune to automated eviction. Session memories (`ai_` prefix) roll with a strict cap of 20 vectors within the 200 total ceiling.
+1. **Ground**: Read [PITFALLS.md](./PITFALLS.md) and the target `src/engine/` module(s).
+2. **Preserve Prefix & Agency**: Keep `<SYSTEM>` / `<AXIOMATIC_CONSTITUTION>` byte-identical across turns and never emit user-persona speech/thoughts.
+3. **Verify Epistemic & Visual Filters**: Ensure `filter_epistemic_brackets` / `format_clean_brackets` (`src/data/parser.js`) and `build_aesthetic_map` (`src/media/optics.js`) remain intact.
+4. **In-Folder Imports**: Use relative `./file.js` imports inside `src/engine/` (never `@engine`).
+5. **Test**: Run `npm run audit:simulation` and `npm run test:unit` after edits.
 
 ---
 
-## 4.0 PROMPT ECONOMICS: PREFIX CACHING ARCHITECTURE
+## 3. Counter-Rationalization Table
 
-Modern LLM inference relies heavily on **Key-Value (KV) Prefix Caching**. If a prompt's opening tokens change every turn, the cache misses, leading to slow Time-To-First-Token (TTFT) and high compute costs.
-
-**RPGlitch strictly enforces Prompt Bifurcation:**
-
-1. **The Static Prefix (`system`)**:
-   - Must be **byte-identical across rounds**.
-   - Contains immutable universe laws, character eternal archetypes, narrative style guides, and protocol rules.
-   - Achieves near-100% KV-cache hit rate.
-2. **The Dynamic Suffix (`task`)**:
-   - Contains all volatile turn state: current round number, dynamic slider values, recent user input, and the Director's staging notes.
-   - Appended at the very end of the prompt payload so it never invalidates the frozen system prefix.
-
-### 4.2 Structured JSON Schema Design (Contract vs. Intent)
-
-When instructing models to output structured JSON (e.g., Director Quick Shot, Memory Forge):
-
-- **Separate Intent from Contract**:
-  - **Protocols & Task Prose**: Define the "Why" and "How"-causality laws, domain rules, and reasoning criteria.
-  - **Schema Contract**: Defines the "What"-keys, types, concise pipe enums (`'AI_CHARACTER' | 'FRACTAL'`), and compact format/length constraints.
-- **Zero Duplication**: Never recite multi-sentence behavioral instructions inside JSON placeholder strings if they are already declared in the protocols.
-- **Lean Placeholders**: Keep placeholder values purely structural (e.g., `"directors_note": "<1-3 lines of unseen acting/staging directives, or empty string>"`).
-- **Last-Mile Placement**: Place the schema at the bottom of the `<TASK>` prompt directly before generation to leverage recency attention.
-
-### 4.3 Constitutional Single-Sourcing (The Sovereignty Standard)
-
-When defining invariant simulation boundaries (e.g., Player Agency, Physical Truth, Epistemic Walls), **single-source them strictly into `<AXIOMATIC_CONSTITUTION>`** rather than distributing ad-hoc, fragmented micro-directives across disparate prompt layers:
-
-- **Single Authority**: Establish the invariant rule once in constitutional law (e.g., Law L3 Sovereignty). Never sprinkle redundant, conflicting micro-prohibitions across task directives, role templates, or schemas (e.g., avoid duplicating `<AGENCY>`, `<USER_PERSONA_LOCK>`, or per-role warnings).
-- **Universal Precedence**: Mount `<AXIOMATIC_CONSTITUTION>` universally at the highest system level across all simulation passes (Director Shot 1, Storyteller Shot 2, Epilogue, etc.).
-- **Total Prohibition Across All Perspectives**: Prohibit unauthorized puppeteering in _any_ grammatical person or tense (1st, 2nd, or 3rd person); mandate describing protagonist actions strictly as observed from the outside.
-- **Zero Token Waste**: Eliminate redundant ad-hoc warnings to keep token economics lean and prevent conflicting instruction weights in LLM attention.
+| Excuse                                             | Reality                                                                                    |
+| :------------------------------------------------- | :----------------------------------------------------------------------------------------- |
+| "I'll just put the round number in `<SYSTEM>`."    | Breaks provider KV-cache prefix reuse. Put volatile state after the static prefix.         |
+| "I'll import from `@engine` inside `src/engine/`." | Causes circular barrel imports. Use relative `./file.js` inside `src/engine/`.             |
+| "It's just a small prompt tweak, no test needed."  | Prompt structure is contract-tested. Run `npm run audit:simulation` and `prompts.test.js`. |
 
 ---
 
-## 5.0 SIMULATION DRIFT & FAILURE MODES
+## 4. Verification Checklist
 
-When authoring or modifying prompt architectures, watch for these common psychological failures in model output:
-
-### 1. Assistant-Drift (The "Yes-Man" Trap)
-
-- _Symptom_: The AI character becomes overly polite, agreeable, apologetic, or helpful, even when their profile is gruff, hostile, or aloof.
-- _Root Cause_: Foundation models are RLHF-trained to be helpful assistants.
-- _Engine Antidote_: Protocol `AGENCY.DRIFT_AUDIT`. The prompt explicitly instructs the model to hold friction, refuse unearned comfort, and prioritize personal goals over player pleasing.
-
-### 2. Omniscience-Drift (Telepathy)
-
-- _Symptom_: The AI character comments on the user's hidden feelings, notices an invisible weapon under a heavy coat, or answers an unvoiced thought.
-- _Root Cause_: Leaking user metadata into the character's context.
-- _Engine Antidote_: Epistemic Partitioning (`strip_epistemic_tags`). Private user tags are physically purged before prompt compilation.
-
-### 3. Pacing Collapse (Rushing the Climax)
-
-- _Symptom_: The AI resolves a major quest conflict, declares eternal love, or defeats a nemesis within the first 3 rounds.
-- _Root Cause_: Standard completion bias aiming for narrative closure.
-- _Engine Antidote_: Protocol `PACING_AND_MOMENTUM`. Fractured goals must be pursued through intermediate obstacles. The Director explicitly cues gradual tension building.
-
----
-
-## 6.0 CODEBASE MAPPING & IMPLEMENTATION POINTERS
-
-When implementing changes, consult the canonical source files rather than duplicating schemas here:
-
-| Domain | Canonical Source File | Primary Responsibility |
-| :-- | :-- | :-- |
-| **Simulation Lifecycle** | `src/engine/runs.js` + `src/engine/lifecycle.js` (Kernel in `src/engine/kernel.svelte.js`) | Round counter, stasis lock, atomic turn dispatch (`send`, `retry`, `continue`), prologue/epilogue. |
-| **Turn Pipeline (Orchestrator)** | `src/engine/turns.js` | Pure turn orchestration: Turn 1 Director, Turn 2 Character/Continue, Turn 3 Caretaker, Visualizer, Structuring. |
-| **Director & Story Prompts** | `src/engine/prompts.js` | Unified 11-block Spatial Spine + 4 live Purpose Cores (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER). |
-| **Dynamics & Settlement** | `src/engine/dynamics.js` (physics) + `src/definitions/dynamics-registry.js` (registries) | 0-100 slider math, gravity, entropy, write-back. |
-| **Temporal Memory & Compaction** | `src/engine/sieve.js` (Two-Tier Sieve RAG) + caretaker core in `src/engine/turns.js` | Vector scoring, origin protection, tier floors, past/future sync. |
-| **Universal XML & Compaction** | `src/utils/xml.js` | `render_atom_xml` universal compiler, `render_profile_field_block` attribute compactor. |
-| **Prompt Complexity Triage** | `.agents/skills/simulation/scripts/lib/triage.js` | D1–D5 scoring, R1 parameter density risk, and tier ceilings for prompt layer tuning. |
-| **Engine-Native Check** | `.agents/skills/simulation/scripts/sim-check.js` (`npm run audit:simulation`) | Turn smoke + live-core prompt contract + sieve memory stress. |
-
-> Historical note: earlier revisions of this table cited `src/state/chrono.svelte.js` and `src/intelligence/*` - the pre-demolition tree. Those paths are intentionally absent above. The live verification suite is `sim-check.js`, not the retired scripts.
-
----
-
-## 7.0 UNCOMMITTED PROPOSAL INCUBATOR (`references/`)
-
-The `.agents/skills/simulation/references/` directory serves as the local idea incubator for uncommitted proposals and exploratory mechanics:
-
-1. **Attachment Style Archetypes:** [`suggestion-attachment-style-archetypes.md`](./references/suggestion-attachment-style-archetypes.md) - 4 attachment schemas, threat responses, defense curves. _(Status: KEEP, re-point at the live taxonomy in `src/definitions/profile-taxonomy.js` when promoted.)_
-2. **Composable Style Entities:** [`suggestion-composable-style-entities.md`](./references/suggestion-composable-style-entities.md) - First-class editable `StyleCard` entities in Dexie.js, hot-swappable narrative and visual styles from the Storyboard deck. _(Status: KEEP as-is.)_
-3. **D20 Micro-Resolution Engine:** [`suggestion-d20-stat-resolution.md`](./references/suggestion-d20-stat-resolution.md) - Pure functional `evaluate_stat_check`, DC difficulty ladder, and success-with-a-cost thresholds. _(Status: IMPLEMENTABLE as `src/utils/dice.js` when promoted - pure, dependency-free.)_
-4. **Climax Fate Branching & Choices:** [`suggestion-fate-branching-choices.md`](./references/suggestion-fate-branching-choices.md) - Triad of Fate Paths (High, Middle, Low), Director `<choices>` XML format, and action chips. _(Status: KEEP, re-point at `src/engine/runs.js` + `Console.svelte` when promoted.)_
-5. **Gambit 21 Push-Your-Luck Engine:** [`suggestion-gambit-blackjack-engine.md`](./references/suggestion-gambit-blackjack-engine.md) - Multi-turn Blackjack macro state machine (target 21) for sustained encounter pacing. _(Status: KEEP, needs an owner - no live counterpart yet.)_
-6. **Model Overlays & Feature Catalog:** [`suggestion-model-overlays-and-features.md`](./references/suggestion-model-overlays-and-features.md) - Presets shelf, modular structural lenses cross-referenced with `narrative-styles.js`, dynamic recall tiering, and future `FEATURES.md` tour. _(Status: KEEP as docs task alongside `FEATURES.md`.)_
-7. **Mystery Mode:** [`mystery-mode-suggestion.md`](./references/mystery-mode-suggestion.md) - _(Status: KEEP, re-point at the live engine cores in `src/engine/prompts.js` when promoted.)_
-
-> [!TIP] **Idea Promotion Lifecycle**: These proposals represent exploratory possibilities. When an initiative is **promoted** to a planned milestone or active sprint, it is **migrated directly into [ROADMAP.md](../../../ROADMAP.md) and pruned from this directory**.
-
----
-
-> "We do not ask the model to invent reality. We build the physics; the model merely opens its eyes."
+- [ ] `npm run audit:simulation` passes (`sim-check.test.js`).
+- [ ] `npm run audit:layers` reports 0 layer boundary violations.
+- [ ] `npm run test:unit` passes with 0 regressions.
