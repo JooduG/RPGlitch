@@ -1,11 +1,11 @@
+import { AVAILABLE_KEYWORDS, DYNAMICS_RULES, PHYSICS_PROTOCOLS } from "@definitions";
 import { describe, expect, it } from "vitest";
-import { PHYSICS_PROTOCOLS, AVAILABLE_KEYWORDS, DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
 import {
   apply_dynamics_gravity,
-  extract_entity_dynamics_baselines,
   compute_dynamics_deltas,
-  evaluate_subtext_protocols,
   evaluate_dynamics_rules,
+  evaluate_subtext_protocols,
+  extract_entity_dynamics_baselines,
   reduce_dynamics,
 } from "./dynamics.js";
 

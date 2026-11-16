@@ -5,9 +5,9 @@
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch UI.
    */
+  import { VISUAL_STYLES } from "@definitions";
   import { extract_aesthetic_traits, get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, sanitize_visual_text, SIGNATURE_COLORS } from "@media";
   import { Button, Dropdown, Label, SourceField, TextField, Toggle, tooltip } from "@primitives";
-  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
   import { app } from "./interface.svelte.js";
 
   /**

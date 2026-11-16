@@ -1,6 +1,6 @@
 import { SPEAKING_STYLES } from "@config";
+import { NARRATIVE_STYLES } from "@definitions";
 import { describe, expect, it } from "vitest";
-import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
 import "../definitions/speaking-styles.js";
 import { audit_macro_shape, cap_somatic_markers, lint_narrative_slop, resolve_speaking_style, resolve_style } from "./styles.js";
 

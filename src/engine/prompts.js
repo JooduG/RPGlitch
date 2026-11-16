@@ -20,7 +20,7 @@
 
 import { DYNAMICS, TEMPO_ROUNDS } from "@config";
 import { format_clean_brackets } from "@data";
-import { caretaker_brief } from "../definitions/profile-taxonomy.js";
+import { caretaker_brief } from "@definitions";
 
 /**
  * Renders the thinking mode requirements block (Character Immersion vs. Pure Analysis).

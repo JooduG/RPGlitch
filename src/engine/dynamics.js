@@ -14,8 +14,8 @@
  */
 
 import { DYNAMICS } from "@config";
+import { DYNAMICS_RULES } from "@definitions";
 import { clamp } from "@utils";
-import { DYNAMICS_RULES } from "../definitions/dynamics-registry.js";
 
 /**
  * Pure functional dynamics reducer: applies caller-supplied deltas to a

@@ -14,7 +14,7 @@
   import { extract_entity_relationships, list_entities } from "@data";
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
-  import { ALL_PREMADES } from "../definitions/premades.js";
+  import { ALL_PREMADES } from "@definitions";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   /**

@@ -9,8 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## `[Unreleased]`
 
 - **EGM Drift Audit & Barrel Import Fix**:
-  - Audited all 8 `README.md` contracts under `src/` into `2026-11-16_DRIFT_REPORT.md`.
+  - Audited all 8 `README.md` contracts under `src/` into `2026-11-16_DRIFT_REPORT.md` and refreshed all `README.md`s (including root `README.md`).
   - Fixed self-referential `@engine` barrel import in `src/engine/chrono.svelte.js` to use `./turns.js`.
+  - Fixed trailing-quote syntax typos on `@definitions` imports in `src/media/audio.test.js`, `src/ui/Profile.svelte`, and `src/ui/RelationalGraph.svelte`.
 
 - **Profile UI, Premades Relocation, Time-Travel Scrub Bar & RelationalGraph Redesign**:
   - Relocated `src/data/presets.js` to `src/definitions/premades.js`, purged dead `NARRATIVE_PRESETS`, `get_narrative_preset`, `get_starter_entities`, and `get_starter_entity_by_id`, and added `src/definitions/premades.test.js`.

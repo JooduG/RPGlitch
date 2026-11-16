@@ -18,7 +18,7 @@
 
 import Dexie from "dexie";
 import { normalize_entity } from "./entities.js";
-import { ALL_PREMADES } from "../definitions/premades.js";
+import { ALL_PREMADES } from "@definitions";
 
 /** Durably stored active session key in kv_settings */
 export const SESSION_ID_KEY = "active_session_id";

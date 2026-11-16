@@ -13,23 +13,23 @@
     update_entity,
     upsert_entity,
   } from "@data";
+  import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
   import { runtime, simulation_state } from "@engine";
   import { get_signature_color } from "@media";
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
-  import StyleBadge from "./StyleBadge.svelte";
   import { ProfilePicture } from "@ui";
   import { auto_resize, click_outside, download_json_file, generate_uuid, resolve_display_macro_segments, safe_parse_pseudo_json } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
   import { fade } from "svelte/transition";
-  import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
-  import { ALL_PREMADES } from "../definitions/premades.js";
-  import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "../definitions/profile-taxonomy.js";
-  import { VISUAL_STYLES, get_visual_style } from "../definitions/visual-styles.js";
+  import { NARRATIVE_STYLES, get_narrative_style } from "@definitions";
+  import { ALL_PREMADES } from "@definitions";
+  import { VISUAL_STYLES, get_visual_style } from "@definitions";
   import AudioWing from "./AudioWing.svelte";
   import DevWing from "./DevWing.svelte";
   import MacroText from "./MacroText.svelte";
   import { ProfileState } from "./Profile.svelte.js";
   import RelationalGraph from "./RelationalGraph.svelte";
+  import StyleBadge from "./StyleBadge.svelte";
   import VisualWing from "./VisualWing.svelte";
   import { app } from "./interface.svelte.js";
   const entities = { upsert: upsert_entity, update: update_entity };

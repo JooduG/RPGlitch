@@ -10,9 +10,8 @@
  */
 
 import { DYNAMICS } from "@config";
+import { canonicalize_field_key, default_dynamics_for_scope } from "@definitions";
 import { generate_uuid, state_bridge } from "@utils";
-import { default_dynamics_for_scope } from "../definitions/dynamics-registry.js";
-import { canonicalize_field_key } from "../definitions/profile-taxonomy.js";
 import { append_ledger_entries, get_story, update_cast, update_entity, upsert_entity } from "./db.js";
 import { format_clean_brackets } from "./parser.js";
 

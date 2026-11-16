@@ -12,11 +12,10 @@
    * never darkens. Hovering fades the wash (300ms), revealing the original
    * portrait.
    */
+  import { NARRATIVE_STYLES, VISUAL_STYLES } from "@definitions";
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
   import { compute_initials } from "@utils";
-  import { NARRATIVE_STYLES } from "../definitions/narrative-styles.js";
-  import { VISUAL_STYLES } from "../definitions/visual-styles.js";
 
   /**
    * `layout` controls badge sizing & interaction:
