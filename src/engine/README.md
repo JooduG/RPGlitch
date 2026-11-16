@@ -10,7 +10,7 @@ Headless, reactive simulation kernel, state runtime, and turn orchestration pipe
 
 ## Interface
 
-The package exposes its primary public interface via [`index.js`](./index.js), plus direct-import utilities in [`dynamics.js`](./dynamics.js) and [`caretaker-compaction-template.md`](./caretaker-compaction-template.md).
+The package exposes its primary public interface via [`index.js`](./index.js), plus direct-import utilities in [`dynamics.js`](./dynamics.js), [`caretaker-compaction-template.md`](./caretaker-compaction-template.md), and test fixtures in [`fixtures.test-util.js`](./fixtures.test-util.js).
 
 ### 1. Session Lifecycle, Runs & Reactive State
 
@@ -18,10 +18,12 @@ The package exposes its primary public interface via [`index.js`](./index.js), p
   - `ChronoEngine`, `chrono_engine`: Reactive session/turn controller (`error` `$state`) exposing `start(selection)`, `send(text)`, `retry()`, `continue(target_id)`, `advance_turn(input, options)`, and `stop()`.
 - [`runtime.svelte.js`](./runtime.svelte.js) (barrel):
   - `RuntimeEngineStore`, `RuntimeEngine` (alias of `RuntimeEngineStore`), `runtime`: Authoritative Svelte 5 entity/story store (`active_user`, `active_ai`, `active_fractal`, `active_npcs`, `round`, `turn_type`, `story_id`, `active_story`, `ai`, `fractal`, `last_director_beat_round`, `last_dynamics_beat_round`, `last_director_ms`, `director_ms_pool`, `director_p50_ms`, `director_p95_ms`, `stagnation_turns`, `last_semantic_drift`, `structural_errors`, `back_shot_cursor`, `last_prompt_token_snapshot`, `prompt_snapshots_by_mode`, `is_ready`, `is_foreground_generating`, `is_background_generating`, `snapshot_entities`, `snapshot_npcs`, plus setters for `active_npcs`, `ai`, `fractal`, and `story_id`) with `init_effects()`, `teardown_effects()`, `sync(active_story_id)`, `save(round)`, `save_entity(type, entity)`, `update_entity(type, id, data)`, `delete_entity(type, id)`, `restore_story_title()`, `reset_story_title()`, `record_director_latency(ms)`, `record_turn_drift(drift)`, `acquire_foreground_generation()`, `release_foreground_generation()`, `acquire_background_generation()`, `release_background_generation()`, `can_start_background_generation()`, and `_debug_inject(mock_data)`.
-- [`status.svelte.js`](./status.svelte.js) (barrel):
-  - `simulation_state` (`SimulationStateStore`), `ui_state` (`UIStateStore`), `streaming` (`StreamingStore`), `force_recover_simulation(reason)`, `install_freeze_watchdog()`: Simulation phase/thinking-stage store (`phase`, `role`, `intent_active`, `director_thinking`, `speaker_thinking`, `media_generating`, `busy`, `is_consolidating`, `generating_entity_type`, `generating_entity_name`, `generating_entity_avatar`, `generating_entity_color`, setters for `phase`, `role`, and `intent_active`, plus `start_generation`, `start_typing`, `stop_typing`, `complete`, `start_director_stage`, `set_delegated_speaker`, `start_media_stage`, `start_stream_stage`, `lock`, `unlock`, `set_intent_active`, `set_generating_entity`, `clear_generating_entity`), UI loading state (`loading`, `set_loading`), active stream buffer/abort handle (`active`, `content`, `node_id`, `role`, `abort_controller`, `start_stream`, `update_stream`, `end_stream`, `trigger_interrupt`), and tiered hang recovery.
+- [`status.svelte.js`](./status.svelte.js):
+  - Barrel: `simulation_state`, `ui_state`, `streaming`, `force_recover_simulation(reason)`, `install_freeze_watchdog()`.
+  - Direct module exports: `SimulationStateStore`, `UIStateStore`, `StreamingStore`.
+  - Simulation phase/thinking-stage store (`phase`, `role`, `intent_active`, `director_thinking`, `speaker_thinking`, `media_generating`, `busy`, `is_consolidating`, `generating_entity_type`, `generating_entity_name`, `generating_entity_avatar`, `generating_entity_color`, setters for `phase`, `role`, and `intent_active`, plus `start_generation`, `start_typing`, `stop_typing`, `complete`, `start_director_stage`, `set_delegated_speaker`, `start_media_stage`, `start_stream_stage`, `lock`, `unlock`, `set_intent_active`, `set_generating_entity`, `clear_generating_entity`), UI loading state (`loading`, `set_loading`), active stream buffer/abort handle (`active`, `content`, `node_id`, `role`, `abort_controller`, `start_stream`, `update_stream`, `end_stream`, `trigger_interrupt`), and tiered hang recovery.
 - [`kernel.svelte.js`](./kernel.svelte.js) (barrel):
-  - `Kernel`: Reactive headless turn state machine (`user`, `ai`, `fractal`, `round`, `phase`, `history`, `error`, `director_enabled`, `transport`) exposing `submit_turn(userText, options)`, `continue_turn(target, options)`, `rewind_to_round(targetRound)`, `retry(options)`, and `continue(options)`.
+  - `Kernel`: Reactive headless turn state machine (`user`, `ai`, `fractal`, `round`, `phase`, `history`, `error`, `director_enabled`, `transport`) exposing `submit_turn(userText, options)`, `continue_turn({ target_prose, target_think, target_round, target_history_index }, options = {})`, `rewind_to_round(targetRound)`, `retry(options)`, and `continue(options)`.
 - [`runs.js`](./runs.js):
   - Barrel: `execute_turn(user_input, _options)`, `execute_continue(target_entry, _options)`.
   - Direct module exports: `open_turn_session(app, runtime, feed)`, `write_back_kernel_state(kernel, outcome, live_transport, options)`, `dispatch_caretaker_consolidation(kernel, transport, signal)`.
@@ -58,9 +60,15 @@ The package exposes its primary public interface via [`index.js`](./index.js), p
   - Barrel: `get_transport()`, `get_mock_message()`.
   - Direct module exports: `create_live_stream_fn()`, `reset_transport()`, `generate_text(payload, options)`, `enhance_text(payload)`.
 
+### 5. Test Utilities & Contract Fixtures
+
+- [`fixtures.test-util.js`](./fixtures.test-util.js) (direct module export, not in [`index.js`](./index.js)):
+  - `create_contract_fixtures()`: Deterministic entity (`AI`, `USER`, `FRACTAL`, `npc`), dynamics snapshots, and message history fixtures for engine unit test suites.
+
 ## Invariants
 
 - **Svelte 5 Purity**: All reactive state in `.svelte.js` modules uses Svelte 5 runes and reactive collections (`$state`, `$effect.root`, `SvelteSet`, with derived state exposed via class getters), and zero legacy Svelte 4 stores (`writable`, `readable`).
+- **In-Folder Relative Import Discipline**: All modules in `src/engine/` import internal siblings using local relative paths (`./turns.js`, `./lifecycle.js`, `./runs.js`) rather than self-referential barrel imports via `@engine`.
 - **Single-Flight Priority Gate & Preemption**: [`gate.js`](./gate.js) runs at most one LLM job at a time sorted by `(priority DESC, seq ASC)`. Foreground jobs (`LLM_PRIORITY.FOREGROUND = 10`) abort active background jobs (`LLM_PRIORITY.BACKGROUND = 1`) and schedule forced slot release after `TIMING_MS.INTERACTION`.
 - **Prompt Envelope & Epistemic Wall**: [`compile_prompt`](./prompts.js) enforces the 11-block Spatial State Spine opening with `<SYSTEM identity="...">` and closing with `</SYSTEM>`, capping `<RECENT>` at `TEMPO_ROUNDS.STANDARD` rounds and enforcing `see_hidden` visibility (`"all"` for `DIRECTOR`/`CARETAKER`, `"own"` for `CHARACTER`, `"none"` with inventory stripping for `VISUALIZER`). [`verify_system_envelope`](./verifier.js) validates `<SYSTEM` ... `</SYSTEM>` boundaries and [`verify_prompt_hygiene`](./verifier.js) rejects empty prompts or unparsed `{{...}}` mustache macros.
 - **Quadrant Partitioning & Caretaker Cursor**: [`execute_turn_3_caretaker`](./turns.js) parses `eternal`, `present`, `future`, and `past` quadrants along `CARETAKER_ROTATION` (`["AI", "USER", "FRACTAL"]`, plus `NPC` if passed in `entities.NPC`), while [`dispatch_caretaker_consolidation`](./runs.js) rotates across `{ AI, USER, FRACTAL }` and persists `present` (`physical` / `non_physical`), `future`, and `past` deltas. `runtime.back_shot_cursor` advances only after successful parsing and target persistence.
@@ -73,7 +81,7 @@ The package exposes its primary public interface via [`index.js`](./index.js), p
 
 - **Boot Registration & Browser Globals**: [`index.js`](./index.js) injects `_execute_visualizer_envision` into `@media`; [`runtime.svelte.js`](./runtime.svelte.js) attaches `window.runtime` and mounts an auto-save `$effect.root` when `window` is defined; [`install_freeze_watchdog`](./status.svelte.js) starts a single `window.setInterval` heartbeat at `TIMING_MS.HEARTBEAT`.
 - **IndexedDB Persistence**: [`RuntimeEngineStore`](./runtime.svelte.js), [`runs.js`](./runs.js), [`lifecycle.js`](./lifecycle.js), and [`chrono.svelte.js`](./chrono.svelte.js) read and mutate Dexie tables (`db.stories`, `db.kv_settings`, `db.simulation_log`, `entities`, `append_ledger_entries`, `log_message`, `session_driver`).
-- **External LLM & Media Dispatch**: [`transport.js`](./transport.js) probes host `window`/`window.parent` Perchance text plugins under [`gate.js`](./gate.js) queuing/preemption and updates `stream_bridge`; [`runs.js`](./runs.js) and [`lifecycle.js`](./lifecycle.js) trigger detached image beats (`spawn_image_beat`, `visual_engine.visualize`).
+- **External LLM & Media Dispatch**: [`transport.js`](./transport.js) probes host `window`/`window.parent` Perchance text plugins under [`gate.js`](./gate.js) queuing/preemption and updates `stream_bridge`; [`runs.js`](./runs.js) dispatches detached image beats via `spawn_image_beat`, and [`lifecycle.js`](./lifecycle.js) triggers prologue visual generation via `visual_engine.visualize`.
 - **Web Speech Audio & Telemetry**: [`StreamingStore`](./status.svelte.js) drives `Audio.voice` streaming/interruption; [`status.svelte.js`](./status.svelte.js), [`runs.js`](./runs.js), [`lifecycle.js`](./lifecycle.js), and [`chrono.svelte.js`](./chrono.svelte.js) emit diagnostics to `developer_log` (`../data/log.svelte.js`), `app.log`, and `console`.
 
 ## Verification

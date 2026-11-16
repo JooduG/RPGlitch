@@ -2,7 +2,7 @@
 
 ## Overview
 
-`src/data/` is the Rank 2 persistence, state-modeling, and text-tokenization package for **RPGlitch**. It owns the IndexedDB schema via Dexie (`"rpglitch"`), the canonical 4-quadrant entity schema (`eternal`, `present`, `future`, `past`), bracketed pseudo-JSON delta parsing and epistemic filtering, TavernAI character card and PNG metadata conversion, premade character/fractal blueprints and narrative presets, active session lifecycle management, and Svelte 5 reactive simulation and developer log stores.
+`src/data/` is the Rank 2 persistence, state-modeling, and text-tokenization package for **RPGlitch**. It owns the IndexedDB schema via Dexie (`"rpglitch"`), the canonical 4-quadrant entity schema (`eternal`, `present`, `future`, `past`), bracketed pseudo-JSON delta parsing and epistemic filtering, TavernAI character card and PNG metadata conversion, active session lifecycle management, and Svelte 5 reactive simulation and developer log stores (with premade blueprints migrated to `../definitions/premades.js` and narrative styles to `../definitions/narrative-styles.js`).
 
 ## Interface
 
@@ -10,7 +10,7 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 
 ### 1. Barrel Entry Point (`index.js`)
 
-- [`index.js`](./index.js): Re-exports the public surface of `parser.js`, `presets.js`, `entities.js`, `card-conversion.js`, `db.js`, `sessions.svelte.js`, and `log.svelte.js`. Profile field taxonomy (`PROFILE_FIELDS` and leaf mappings) lives in `../definitions/profile-taxonomy.js` rather than this barrel.
+- [`index.js`](./index.js): Re-exports the public surface of `parser.js`, `entities.js`, `card-conversion.js`, `db.js`, `sessions.svelte.js`, and `log.svelte.js`. Profile field taxonomy lives in `../definitions/profile-taxonomy.js`, premade blueprints in `../definitions/premades.js`, and narrative styles in `../definitions/narrative-styles.js` rather than this barrel.
 
 ### 2. Dexie Persistence, Mutation Ledger & Checkpoints (`db.js`)
 
@@ -27,7 +27,8 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 - Simulation Logs & Sessions ([`db.js`](./db.js)):
   - `append_log_entry(entry)`, `delete_log_entry(id)`, `edit_log_entry(id, new_text)`, `update_log_attachment(id, attachment_index, new_attachment)`, `delete_log_attachment(id, attachment_index)`, `get_story_log(story_id)`, `delete_story_log(story_id)`.
   - `record_session_access(session_id)`, `get_recent_sessions(limit = 10)`, `get_active_session_id()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
-  - Direct module exports not in `index.js`: `log_message(text, role, character_name, options)`, `_find_log_entry(id)`, `require_active()`.
+  - `log_message(text, role, character_name, options)`.
+  - Direct module exports not in `index.js`: `_find_log_entry(id)`, `require_active()`.
 - Mutation Ledger & Deterministic Replay ([`db.js`](./db.js)):
   - `append_ledger_entry(entry)`, `append_ledger_entries(entries)`, `get_story_ledger(story_id)`, `query_entity_history(entity_id, field = null)`, `query_story_snapshot(story_id, max_round = Infinity, max_seq = Infinity)`, `replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity)`, `replay_full_entity_at_round(entity_id, up_to_round = Infinity)`.
 - Reload Checkpoints ([`db.js`](./db.js)):
@@ -64,15 +65,7 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
   - `extract_card_from_png(binary_buffer)`: Scans binary PNG chunks for the `"chara"` `tEXt` chunk and decodes Base64 UTF-8 JSON.
   - `serialize_character_card(entity)`, `serialize_rpglitch_entity(entity)`.
 
-### 6. Premade Archetypes & Narrative Presets (`presets.js`)
-
-- Blueprints & Presets ([`presets.js`](./presets.js)):
-  - `PREMADE_CHARACTERS` (7 frozen character blueprints), `PREMADE_FRACTALS` (3 frozen fractal blueprints), `ALL_PREMADES` (10 combined blueprints).
-  - `NARRATIVE_PRESETS` (5 frozen presets: `cormac_mccarthy`, `william_gibson`, `anais_nin`, `david_lynch`, `arthur_morgan`).
-  - `get_starter_entities(type)`, `get_starter_entity_by_id(id)`, `get_narrative_preset(id)`.
-  - Direct module exports not in `index.js`: `PREMADE_ENTITY_MAP`, `get_premade_entity_by_id(id)`, `has_premade_entity(id)`, `get_premade_characters()`, `get_premade_fractals()`.
-
-### 7. Session Driver & Reactive Log Stores (`sessions.svelte.js`, `log.svelte.js`)
+### 6. Session Driver & Reactive Log Stores (`sessions.svelte.js`, `log.svelte.js`)
 
 - Active Session Controller ([`sessions.svelte.js`](./sessions.svelte.js)):
   - `session_driver`: Exposes `active_id` getter and `require_active()`, `set_active(id)`, `restore_active(id)`, `clear_active()`, `create_from_selection(selection)`, `send(text)`, `regenerate()`, `delete_log_entry(id)`, `edit_log_entry(id, new_text)`, `update_log_attachment(id, attachment_index, new_attachment)`, `delete_log_attachment(id, attachment_index)`, `log_message(text, role, character_name, options)`, `load_log(story_id)`, `log_system_entry(text, role, meta, story_id, round)`.
@@ -93,7 +86,6 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 - **Round-Bounded Regeneration & Empty Attachment Cleanup (`sessions.svelte.js:session_driver.regenerate`, `sessions.svelte.js:session_driver.delete_log_attachment`, `db.js:delete_log_attachment`)**: `regenerate()` stops before rounds earlier than `target_round` and preserves `STORY_START`, `is_prologue`, `is_epilogue`, and earlier telemetry. Deleting the last attachment of an entry with empty trimmed `text` and no prologue/epilogue flag deletes the parent `simulation_log` row.
 - **Bounded Telemetry & Silent Storage Degradation (`log.svelte.js:DeveloperLogStore`)**: `#entries` is capped at `TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES` (500) and all IndexedDB telemetry reads/writes swallow errors so telemetry never interrupts narrative execution.
 - **Cross-Layer Import Exceptions (`log.svelte.js:runtime`, `entities.js:structure_profile`, `entities.js:birth_entity_core`)**: `sessions.svelte.js` avoids upward imports by routing through `state_bridge` and `stories_bridge`, whereas `log.svelte.js` directly imports `runtime` from `@engine` and `entities.js` dynamically imports `@engine` and `@media`.
-- **Fallback Narrative Preset (`presets.js:get_narrative_preset`)**: Missing or unknown preset IDs fall back to `NARRATIVE_PRESETS.cormac_mccarthy`.
 
 ## Side Effects
 

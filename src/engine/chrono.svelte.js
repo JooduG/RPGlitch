@@ -20,7 +20,7 @@
  */
 
 import { session_driver } from "@data";
-import { build_turn_summary } from "@engine";
+import { build_turn_summary } from "./turns.js";
 import { state_bridge } from "@utils";
 import { execute_prologue } from "./lifecycle.js";
 import { execute_continue, execute_turn } from "./runs.js";

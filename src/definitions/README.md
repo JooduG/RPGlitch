@@ -2,7 +2,7 @@
 
 ## Overview
 
-`src/definitions/` holds the declarative rules, taxonomies, and style catalogs for **RPGlitch**: dynamics equilibrium protocols and trigger predicates, literary narrative style catalogs, the 4-layer character/fractal profile taxonomy, regex-based speaking-style and anti-AI prose detox dictionaries, and diffusion visual style specifications. This directory intentionally has no `index.js` barrel; consumers import directly from the individual definition modules.
+`src/definitions/` holds the declarative rules, taxonomies, and style catalogs for **RPGlitch**: dynamics equilibrium protocols and trigger predicates, literary narrative style catalogs, the 4-layer character/fractal profile taxonomy, starter character and fractal blueprints, regex-based speaking-style and anti-AI prose detox dictionaries, and diffusion visual style specifications. This directory intentionally has no `index.js` barrel; consumers import directly from the individual definition modules.
 
 ## Interface
 
@@ -56,19 +56,32 @@
   - `resolve_portrait_visual_style_key(entity = {})`: Resolves entity portrait style via `resolve_style(..., "none")`.
   - `resolve_story_visual_style_key(fractal = null, fallback_fractal = null)`: Resolves story beat visual style prioritizing `fractal?.visual_style` over `fallback_fractal?.visual_style`, defaulting to `"none"`.
 
+### 6. Premade Entities & Blueprints (`premades.js`, `premades.test.js`)
+
+- [`premades.js`](./premades.js) (accompanied by unit test suite [`premades.test.js`](./premades.test.js)):
+  - `PREMADE_CHARACTERS`: Frozen array of 7 starter character blueprints (`orion`, `glitch`, `silvers`, `hank`, `elias`, `beast`, `julien`).
+  - `PREMADE_FRACTALS`: Frozen array of 3 starter fractal blueprints (`nova_city`, `ashenweald`, `project_tartarus`).
+  - `ALL_PREMADES`: Consolidated frozen array of all 10 starter blueprints.
+  - `PREMADE_ENTITY_MAP`: `Map` indexing all starter blueprints by ID.
+  - `get_premade_entity_by_id(id)`: Retrieves a premade blueprint by ID (or `null` if not found).
+  - `has_premade_entity(id)`: Boolean check whether an ID exists in the premade catalog.
+  - `get_premade_characters()`: Returns `PREMADE_CHARACTERS`.
+  - `get_premade_fractals()`: Returns `PREMADE_FRACTALS`.
+
 ## Invariants
 
-- **No Barrel & Strictly Downward Imports**: `src/definitions/` intentionally omits `index.js`; modules import solely from `@config`, `@utils`, and `../media/tokens.js` (`profile-taxonomy.js`).
+- **No Barrel & Strictly Downward Imports**: `src/definitions/` intentionally omits `index.js`; modules import solely from `@config`, `@utils`, and `@media` (`profile-taxonomy.js`).
 - **Dynamics Axis & Rule Alignment (`dynamics-registry.js`)**: All 27 `DYNAMICS_RULES` IDs exist in `PHYSICS_PROTOCOLS` and default missing axes to `50` (`?? 50`); `AVAILABLE_KEYWORDS` contains only the 12 somatic archetype keys (3 of which — `ABANDONMENT`, `DOMINANCE`, `DECEPTION` — have no threshold rule in `DYNAMICS_RULES`).
 - **Narrative Style Key & Voice Integrity (`narrative-styles.js`)**: Every entry in `NARRATIVE_STYLES` enforces `key === record.id` and `speaking_style` in `{"casual", "lyrical", "primal", "clinical"}`. `get_style_keywords()` returns fresh array copies; `extract_style_dna()` always returns strings (`internal_ratio` defaults to `"0.50"`).
 - **Symmetric 4-Layer Schema & Merge Semantics (`profile-taxonomy.js`)**: Only `character` and `fractal` temporal layers become `FIELD_ATOMS` (excluding `name`, `description`, `signature_color`, `pov`); `merge` is `"append"` exclusively for `past` and `"replace"` for all other layers. `canonicalize_field_key()` checks `fractal` aliases before `character` aliases when `entity_type === "fractal"` (otherwise checking `character` aliases only) and requires string inputs.
 - **Four-Style Rule Completeness & Ordering (`speaking-styles.js`)**: Every non-callback rule in `SPEAKING_STYLE_RULES` supplies all 4 canonical speaking style keys (`casual`, `lyrical`, `primal`, `clinical`), retains identical `pattern` and `regex` `/gi` `RegExp` references, and maintains specific-before-generic ordering across concatenated categories.
 - **Visual Style Engine Mutual Exclusion (`visual-styles.js`)**: `"none"` omits `engine` and sets `llm_refine: false`; all 25 styled entries define `medium`, `palette`, `texture`, and strictly one of `camera` or `composition` (never both).
+- **Premade Blueprint Freezing & Map Indexing (`premades.js`)**: All 10 starter blueprints across `PREMADE_CHARACTERS` and `PREMADE_FRACTALS` are deeply frozen; `ALL_PREMADES` aggregates them; `PREMADE_ENTITY_MAP` indexes them case-insensitively; and query helpers gracefully handle non-string or missing identifiers.
 
 ## Side Effects
 
 - **Rule & Word Registry Hydration (`speaking-styles.js`)**: Evaluating `speaking-styles.js` executes three top-level calls (`register_speaking_rules(SPEAKING_STYLE_RULES)`, `register_anti_ai_rules(ANTI_AI_REPLACEMENTS)`, `register_cluster_words(TIER_2_CLUSTER_WORDS)`) that populate registries inside `@utils`.
-- **Pure Definitions Elsewhere**: `dynamics-registry.js`, `narrative-styles.js`, `profile-taxonomy.js`, and `visual-styles.js` perform no external I/O, storage writes, or cross-module mutations.
+- **Pure Definitions Elsewhere**: `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, and `visual-styles.js` perform no external I/O, storage writes, or cross-module mutations.
 
 ## Verification
 

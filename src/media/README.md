@@ -2,20 +2,20 @@
 
 ## Overview
 
-Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling). This package encapsulates procedural Web Audio sound effect synthesis, browser Web Speech voice fallback, unified Svelte 5 kinetic motion and card-flight physics, pure optics tier taxonomy, Perchance stateless image generation dispatching, design tokens, and transitional compatibility facades.
+Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling). This package encapsulates procedural Web Audio sound effect synthesis, browser Web Speech voice fallback, unified Svelte 5 kinetic motion and card-flight physics, pure optics tier taxonomy, Perchance stateless image generation dispatching, design tokens and synchronized stylesheet (`design.css`), and transitional compatibility facades.
 
 ### Parallel Coexistence & Migration Architecture
 
 `src/media/` is built as the **sovereign sensory presentation layer** running alongside legacy consumers:
 
-- **Zero Upward Dependencies**: Imports downward strictly from `@utils`, `@config`, `../definitions/visual-styles.js`, and `svelte/easing` / `svelte/motion`. Never imports from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`.
+- **Zero Upward Dependencies (Runtime)**: Production modules import downward strictly from `@utils`, `@config`, `../definitions/visual-styles.js`, and `svelte/easing` / `svelte/motion`. Never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui` (test code `visual.test.js` imports `execute_visualizer_envision` from `../engine/lifecycle.js` solely to mirror application boot registration).
 - **Procedural SFX (Zero Remote Audio Assets)**: All UI sound effects are procedurally synthesized using Web Audio oscillators (`OscillatorNode`), noise buffers (`AudioBufferSourceNode`), and gain envelopes (`GainNode`). Zero remote `.wav` file downloads or network dependencies.
 - **Excised Kokoro Neural Stack**: In-browser speech synthesis is handled cleanly via the standard Web Speech API (`window.speechSynthesis`) rather than an ONNX/WebGPU neural voice pipeline, protecting the 4.00 MB bundle ceiling and 50 MiB iframe memory boundary.
 - **Unified Kinetic Engine & Transitional Facades**: [`motion.svelte.js`](./motion.svelte.js) unifies reduced-motion detection, kinetic hover actions, Svelte transitions, and storyboard card flights, while [`audio.svelte.js`](./audio.svelte.js) (`Audio`, `AudioEngine`, `audio_engine`) and [`visual.svelte.js`](./visual.svelte.js) (`visual_engine`, `VisualEngine`) preserve facade compatibility.
 
 ## Interface
 
-The package exposes its public interface via [`index.js`](./index.js):
+The package exposes its public interface via [`index.js`](./index.js), plus the synchronized stylesheet in [`design.css`](./design.css):
 
 ### 1. Procedural Web Audio SFX & Web Speech API Voice (`audio.svelte.js`)
 
@@ -52,23 +52,25 @@ The package exposes its public interface via [`index.js`](./index.js):
   - `normalize_image_tier(target_type)`, `get_resolution(mode)`, `get_resolution_string(mode)`, `get_tier_guidance_scale(mode)`, `resolve_image_trigger(parameters)`.
   - `resolve_visual_engine_tokens(visual_style_key)`, `build_aesthetic_map(entity = {})`, `flatten_aesthetic_map(entity = {})`, `extract_aesthetic_traits(entity = {})`, `render_optics_fallback(parameters)`.
 
-### 5. Visual Color Palettes & Signature Tokens (`palette.js`, `tokens.js`)
+### 5. Visual Color Palettes, Signature Tokens & Stylesheet (`palette.js`, `tokens.js`, `design.css`)
 
 - [`palette.js`](./palette.js):
   - `get_signature_color(entity, fallback = "var(--color-frozen)")`, `get_signature_label(entity)`, `ensure_theme_tokens()`.
   - Direct module exports not in `index.js`: `resolve_token(color)`, `get_deterministic_color(seed = "default")`, `get_color_name(color_value)`.
 - [`tokens.js`](./tokens.js):
-  - `SIGNATURE_COLORS` (15 labels), `PALETTE` (28 frozen color-to-hex entries), `PALETTE_CSS_VARIABLES` (28 frozen hex-to-CSS-var entries), `TOKENS` (90 frozen design-system tokens generated from `DESIGN.md`).
+  - `SIGNATURE_COLORS` (15 labels), `PALETTE` (28 frozen color-to-hex entries), `PALETTE_CSS_VARIABLES` (28 frozen hex-to-CSS-var entries), `TOKENS` (92 frozen design-system tokens generated from `DESIGN.md`).
+- [`design.css`](./design.css):
+  - Synchronized design-token stylesheet defining `@theme` variables (`--color-*`, `--font-*`, `--spacing-*`, `--radius-*`, `--blur-*`, `--motion-*`, `--opacity-*`, `--scale-*`, `--shadow-*`, `--spring-*`, `--transition-duration-*`, `--z-index-*`) generated from `DESIGN.md` via `npm run sync:css`.
 
 ## Invariants
 
-- **Zero Upward Layer Violations**: `src/media/` must never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`; `VisualEngine.envision` requires runtime dependency injection via `set_visualizer_envision_impl(fn)`.
+- **Zero Upward Layer Violations**: Runtime modules in `src/media/` must never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui`; `VisualEngine.envision` requires runtime dependency injection via `set_visualizer_envision_impl(fn)` (registered by `@engine` at boot; test suite `visual.test.js` imports `execute_visualizer_envision` from `../engine/lifecycle.js` to mirror boot wiring).
 - **Silent Boot & User Gesture Audio (`audio.svelte.js`)**: `AudioContext` is never constructed at module evaluation, `is_muted` and `VoiceEngine.enabled` boot disabled, `init_audio_on_gesture()` races `context.resume()` against a 1500ms timeout, and every procedural SFX node detaches `source.onended = null` and disconnects on completion.
 - **Accessibility & Card-Flight Locking (`motion.svelte.js`)**: `motion.is_reduced` tracks `(prefers-reduced-motion: reduce)`, suppressing kinetic actions (`pulse`, `roll`, `shimmy`, `stab`), collapsing transition durations to `0`, and bypassing `fly_storyboard_cards_into_prologue`; `_begin_flight_running` prevents overlapping prologue flights.
 - **Bounded Queue & Stale Ghost Sweep (`visual.svelte.js`)**: Active pending image beats and queue depth are capped at `IMAGE_POLICY.MAX_PENDING_IMAGES` (`5`), overflowing queues evict and fail the oldest placeholder, and `sweep_stale_ghosts()` sweeps unresolved entries older than `TIMING_MS.CEILING` (`120000` ms) while sparing `_in_flight_image_generations`.
 - **Template Syntax Hygiene & Fault Insulation (`visual.svelte.js`)**: `sanitize_visual_text()` strips `{`, `}`, `[`, `]`, and `@` from `@TARGET` tokens before Perchance evaluation; `dispatch_visual_generation()` enforces `visual_circuit_breaker` (`failure_threshold: 3`, `success_threshold: 2`, `recovery_timeout: 30000` ms) and `visual_retryer` (`max_attempts: 3`, `initial_delay: 2500` ms, `max_delay: 15000` ms).
 - **Calibrated Guidance Scales & Trigger Arbitration (`optics.js`)**: `get_tier_guidance_scale()` returns `IMAGE_POLICY.GUIDANCE.SCENE` (`7`) for `"story_scene"` and `IMAGE_POLICY.GUIDANCE.CHARACTER` (`9`) for character/group tiers; `resolve_image_trigger()` enforces at most 1 image beat per round with independent `IMAGE_POLICY.COOLDOWN_ROUNDS` (`3`) cooldowns and Director preemption over Dynamics.
-- **Generated Token Artifacts (`tokens.js`)**: `tokens.js` is generated from `DESIGN.md` via `npm run sync:css`; edit `DESIGN.md` rather than hand-editing generated values.
+- **Generated Design Artifacts (`tokens.js`, `design.css`)**: `tokens.js` and `design.css` are generated from `DESIGN.md` via `npm run sync:css`; edit `DESIGN.md` rather than hand-editing generated values.
 
 ## Side Effects
 

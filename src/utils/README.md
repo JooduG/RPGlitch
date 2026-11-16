@@ -4,31 +4,37 @@
 
 Rank-0 shared utilities package for **RPGlitch**, providing pure data codecs, text and bracket-state parsers, entity-aware macro resolution, XML/Markdown compilers, prose detoxification and style auditing, HTML sanitization and web fetching, math/vector quantization and cryptographic primitives, ONNX mutex/embedding inference, resilience runners, Svelte DOM actions, and decoupled cross-layer registries.
 
-- **Barrel Entry Point**: [`index.js`](./index.js) re-exports `*` from 17 modules in this package (`actions.js`, `detox.js`, `embeddings.svelte.js`, `field-path.js`, `html.js`, `job-queue.js`, `macros.js`, `markdown.js`, `math.js`, `onnx.js`, `registries.js`, `resilience.js`, `story-export.js`, `styles.js`, `text.js`, `ui-helpers.js`, `xml.js`).
-- **Legacy Bridge Exclusion**: [`bridges.js`](./bridges.js) is retained on disk without callers and is intentionally excluded from [`index.js`](./index.js); [`registries.js`](./registries.js) supersedes it while exporting the same bridge symbols (`state_bridge`, `stream_bridge`, `stories_bridge`, `register_state_accessors`, `register_stream_handlers`).
+- **Barrel Entry Point**: [`index.js`](./index.js) re-exports `*` from 18 modules in this package (`actions.js`, `alternations.js`, `detox.js`, `embeddings.svelte.js`, `field-path.js`, `html.js`, `job-queue.js`, `macros.js`, `markdown.js`, `math.js`, `onnx.js`, `registries.js`, `resilience.js`, `story-export.js`, `styles.js`, `text.js`, `ui-helpers.js`, `xml.js`).
 - **Dependency Boundary**: Modules import only intra-package helpers, `@config`, `dompurify`, `svelte/reactivity`, and a dynamic ESM import of `@huggingface/transformers@3.5.2` inside [`embeddings.svelte.js`](./embeddings.svelte.js), avoiding upward imports from `@ui`, `@state`, `@intelligence`, `@data`, `@platform`, or `@media`.
 
 ## Interface
 
 ### 1. Barrel & Cross-Layer Registries
 
-- [`index.js`](./index.js): Central barrel re-exporting `*` from all active `src/utils/` modules except [`bridges.js`](./bridges.js).
+- [`index.js`](./index.js): Central barrel re-exporting `*` from all 18 active `src/utils/` modules.
 - [`registries.js`](./registries.js): Cell-backed cross-layer registries sharing an internal `create_cell(label, { noisy })` factory:
   - `register_state_accessors(accessors)` and `state_bridge` (`app`, `runtime`, `simulation_state`, `simulation_log`, `session_driver`, `record_prompt_token_snapshot(snapshot)`).
   - `register_stream_handlers(handlers)` and `stream_bridge` (`is_active()`, `start(node_id, role = "ai")`, `update(chunk)`, `end()`).
   - `stories_bridge` (`register_bump(fn)`, `bump()`).
   - `reset_registries_for_testing()`: Resets all 11 module-level cells and warning flags to initial blank state.
-- [`bridges.js`](./bridges.js): Unreferenced predecessor to [`registries.js`](./registries.js) with plain object stores exporting `register_state_accessors(accessors)`, `state_bridge`, `register_stream_handlers(handlers)`, `stream_bridge`, `stories_bridge`, and `reset_bridges_for_testing()`.
 
 ### 2. Text, Bracket State & History Codecs
 
-- [`text.js`](./text.js): Stateless string, pseudo-JSON, history, alternation, and LLM output utilities:
-  - Token & key sets: `CLEAR_TOKENS` (9 lowercase clearing tokens), `AGGREGATE_KEYS` (`"INVENTORY"`, `"STASH"`), `VISUAL_EXCLUDED_KEYS` (`"INVENTORY"`, `"STASH"`, `"SECRET"`, `"PLAN"`, `"STATUS"`), `NAME_PREFIXES` (25-item frozen list), `NAME_PREFIX_STEMS` (`NAME_PREFIXES` without trailing `.`), `ALTERNATION_PATTERN` (`/{([^{}]+(?:\|[^{}]+)+)}/g`).
+- [`alternations.js`](./alternations.js): Perchance alternation syntax `{Option A|Option B}` parsing, resolution, diffing, and stripping:
+  - `ALTERNATION_PATTERN`: Regex `/{([^{}]+(?:\|[^{}]+)+)}/g` matching pipe-delimited alternation groups.
+  - `extract_alternations(text)`: Extracts all alternation groups `{ raw, options }`.
+  - `has_alternations(text)`: Boolean check for any resolvable alternation groups.
+  - `resolve_alternations(text, opts = {})`: Resolves groups to a single pick via uniform random or deterministic seed, reporting via `onPick`.
+  - `diff_alternation_picks(source, resolved)`: Detects which option a committed/resolved string selected from source braces.
+  - `strip_alternation_braces(text)`: Strips alternation syntax by deterministically falling back to the first option.
+  - `alternation_field_label(text, raw)`: Identifies the enclosing `[KEY: ...]` bracket label for an alternation group.
+- [`text.js`](./text.js): Stateless string, pseudo-JSON, history, and LLM output utilities (re-exporting `*` from [`alternations.js`](./alternations.js)):
+  - Token & key sets: `CLEAR_TOKENS` (9 lowercase clearing tokens), `AGGREGATE_KEYS` (`"INVENTORY"`, `"STASH"`), `VISUAL_EXCLUDED_KEYS` (`"INVENTORY"`, `"STASH"`, `"SECRET"`, `"PLAN"`, `"STATUS"`), `NAME_PREFIXES` (25-item frozen list), `NAME_PREFIX_STEMS` (`NAME_PREFIXES` without trailing `.`).
   - Cleaning & truncation: `strip_cognition_blocks(text)`, `collapse_whitespace(text)`, `truncate_at_word(text, limit = 200, options = {})`, `truncate_at_boundary(text, limit = 200, options = {})`, `estimate_tokens(text)`, `clean_text(text, limit = 500)`, `first_sentence(text, max_len = 160)`, `indent_continuation(text, spaces)`, `normalize_comma_spacing(str)`, `match_case(original, replacement)`, `format_key_as_label(key)`, `format_datetime(ts)`.
   - JSON & bracket state codecs: `extract_json_block(raw)`, `escape_unescaped_json_quotes(json_string)`, `safe_parse_pseudo_json(raw)`, `safe_parse_json(raw, options = {})`, `merge_prose_into_field(current_field_value, new_prose)`, `strip_visual_excluded(raw_parameter_string)`, `balance_brackets(raw)`, `has_bracket_bond(entity, target_identifier_or_entity)`.
-  - Relational vectors & initials: `parse_relational_vector(vector_str)`, `format_relational_vector(source_name, target_name, dynamic = "")`, `derive_vector_title(text, max_len = 38)`, `get_style_initials(name)`, `compute_initials(text, stop_words = NAME_PREFIX_STEMS)`, `decompose_story_title(title, entities = {})`.
+  - Relational vectors & initials: `parse_relational_vector(vector_str)`, `format_relational_vector(source_name, target_name, dynamic = "")`, `derive_vector_title(text, max_len = 38)`, `compute_initials(text, stop_words = NAME_PREFIX_STEMS)`, `decompose_story_title(title, entities = {})`.
   - History & roles: `role_display_label(role)`, `canonicalize_role(role)`, `normalize_history_beat(entry, options = {})`, `is_narrative_role(role)`, `collapse_history(messages, options = {})`, `filter_narrative_messages(messages, options = {})`, `format_history_entries(messages, options = {})`.
-  - Alternations & LLM payload helpers: `extract_alternations(text)`, `has_alternations(text)`, `resolve_alternations(text, opts = {})`, `diff_alternation_picks(source, resolved)`, `strip_alternation_braces(text)`, `alternation_field_label(text, raw)`, `match_keyword_pattern(pattern, haystack)`, `looks_truncated(text)`, `raw_to_text(raw)`, `raw_stop_reason(raw)`, `sanitize_llm(text)`.
+  - LLM payload helpers: `match_keyword_pattern(pattern, haystack)`, `looks_truncated(text)`, `raw_to_text(raw)`, `raw_stop_reason(raw)`, `sanitize_llm(text)`.
 
 ### 3. Macro Expansion & XML Prompt Serialization
 
@@ -68,7 +74,7 @@ Rank-0 shared utilities package for **RPGlitch**, providing pure data codecs, te
 ### 6. HTML Sanitization, Media Validation & Web Fetching
 
 - [`html.js`](./html.js): DOMPurify wrappers, Perchance iframe error hardening, image validation, URL validation, and web content extraction:
-  - Hardening & sanitization: `is_perchance_frame_error(target)`, `install_environment_hardening()`, `sanitize(dirty)`, `sanitize_to_fragment(dirty)`, `escape_html(str)`, `security` (`{ sanitize, sanitize_to_fragment, escape_html, validate_image, install_environment_hardening }`).
+  - Hardening & sanitization: `is_perchance_frame_error(target)`, `install_environment_hardening()`, `sanitize(dirty)`, `sanitize_to_fragment(dirty)`, `escape_html(str)`.
   - Image & binary codecs: `IMAGE_SIGNATURE_VALIDATORS` (`image/jpeg`, `image/png`, `image/gif`, `image/webp`, `image/avif`), `validate_image(file, options = {})`, `blob_to_data_url(blob)`.
   - Web fetching & plain-text extraction: `get_super_fetch_engine()`, `validate_url(raw_url, options = {})`, `fetch_web(raw_url, options = {})`, `BLOCK_LEVEL_TAGS` (28 tags), `NOISE_SELECTORS` (16 tags), `decode_html_entities(text)`, `html_to_plain_text(html, options = {})`, `truncate_readable(text, max_chars = LENGTH_THRESHOLDS.INGESTION, ellipsis = "…")`.
 
@@ -110,7 +116,7 @@ Rank-0 shared utilities package for **RPGlitch**, providing pure data codecs, te
 ## Invariants
 
 - **Prototype Pollution Guard** ([`field-path.js`](./field-path.js)): `get_value` and `set_value` reject any dot-path segment present in frozen `UNSAFE_PATH_KEYS` (`__proto__`, `prototype`, `constructor`). `get_value` returns `""` on missing, nullish, non-object, or unsafe paths; `set_value` allocates `{}` for missing or non-object intermediate nodes.
-- **Cross-Layer Registry Semantics** ([`registries.js`](./registries.js), [`bridges.js`](./bridges.js)): `state_bridge`, `stream_bridge`, and `stories_bridge` never throw when unregistered (returning `null` / `false` or no-oping). In [`registries.js`](./registries.js), the five noisy state cells (`app`, `runtime`, `simulation_state`, `simulation_log`, `session_driver`) emit `console.warn` at most once per registration lifecycle outside Vitest (`process.env.VITEST`), and `reset_registries_for_testing()` resets all 11 cells including `_snapshot_recorder` (whereas legacy [`bridges.js`](./bridges.js) `reset_bridges_for_testing()` omits `_accessors.record_prompt_token_snapshot`). Fallback `record_prompt_token_snapshot` only overwrites `runtime.last_prompt_token_snapshot` when empty, `snapshot.total >= current.total`, or `current.round !== snapshot.round`.
+- **Cross-Layer Registry Semantics** ([`registries.js`](./registries.js)): `state_bridge`, `stream_bridge`, and `stories_bridge` never throw when unregistered (returning `null` / `false` or no-oping). The five noisy state cells (`app`, `runtime`, `simulation_state`, `simulation_log`, `session_driver`) emit `console.warn` at most once per registration lifecycle outside Vitest (`process.env.VITEST`), and `reset_registries_for_testing()` resets all 11 cells including `_snapshot_recorder`. Fallback `record_prompt_token_snapshot` only overwrites `runtime.last_prompt_token_snapshot` when empty, `snapshot.total >= current.total`, or `current.round !== snapshot.round`.
 - **Pseudo-JSON & Present-Field Ceiling** ([`text.js`](./text.js)): `safe_parse_pseudo_json` executes four ordered tiers (flat `[KEY: VALUE]` segments, quoted `"KEY": "VALUE"`, unbracketed uppercase `KEY: VALUE`, and `{ __raw_prose__ }` fallback). `merge_prose_into_field` caps output at `2000` trailing characters, deletes keys on `CLEAR_TOKENS`, clears all `CLOTHING_KEYS` on `[CLOTHING: <clear_token>]`, deduplicates `AGGREGATE_KEYS` case-insensitively, aliases `CLOTHING`/`SHIRT` to the existing key, and preserves `| hide` on overwrite unless `| show` or `| hide` arrives.
 - **XML Escaping & Relational Immunity** ([`xml.js`](./xml.js)): `escape_xml` escapes `&`, `"`, `'`, `<`, `>`, `[`, and `]`, whereas `prompt_escape` escapes strictly `<` and `>`. `render_profile_field_block` only compacts `key="..."` rows into attributes, leaving `<RELATION>` rows immune as indented child elements. `normalize_physical_entries` skips `__raw_prose__`, remaps `PHYSICAL_KEY_ALIASES`, and prioritizes canonical keys over alias collisions.
 - **Macro Perspective & Cycle Safety** ([`macros.js`](./macros.js)): `expand_entity_macros` guards cyclic entity graphs with a `WeakSet`. `create_relational_context` freezes the context and copied `witnesses` array. `parse_macros` prioritizes explicit `RelationalContext` objects and preserves unrecognized `@tokens` verbatim.
@@ -130,9 +136,9 @@ Rank-0 shared utilities package for **RPGlitch**, providing pure data codecs, te
 - **Network, WASM Inference & File Reads** ([`embeddings.svelte.js`](./embeddings.svelte.js), [`html.js`](./html.js)):
   - [`embeddings.svelte.js`](./embeddings.svelte.js): `load_model` dynamically imports `@huggingface/transformers@3.5.2` from `esm.sh`, downloads `Xenova/all-MiniLM-L6-v2` weights, mutates `transformers.env.backends.onnx.wasm`, updates Svelte `$state` runes (`_load_progress`, `_is_loading`, `_model_ready`), and logs warnings/errors to `console`.
   - [`html.js`](./html.js): `fetch_web` performs outbound HTTP/plugin requests via `get_super_fetch_engine()` or `fetch()`; `validate_image` reads slices of `File` bytes; `blob_to_data_url` invokes `FileReader.readAsDataURL`.
-- **Module-Level Mutable State & Regexes** ([`registries.js`](./registries.js), [`bridges.js`](./bridges.js), [`detox.js`](./detox.js), [`styles.js`](./styles.js), [`onnx.js`](./onnx.js), [`embeddings.svelte.js`](./embeddings.svelte.js), [`ui-helpers.js`](./ui-helpers.js), [`markdown.js`](./markdown.js), [`text.js`](./text.js)):
+- **Module-Level Mutable State & Regexes** ([`registries.js`](./registries.js), [`alternations.js`](./alternations.js), [`detox.js`](./detox.js), [`styles.js`](./styles.js), [`onnx.js`](./onnx.js), [`embeddings.svelte.js`](./embeddings.svelte.js), [`ui-helpers.js`](./ui-helpers.js), [`markdown.js`](./markdown.js), [`text.js`](./text.js)):
   - Mutate module-level registry cells/accessors, rule/cluster caches (`_cached_speaking_rules`, `_cached_anti_ai_rules`, `_cached_cluster_words`), `onnx_mutex` and `_ort_ready` promise, `_embedding_cache` (`SvelteMap`), and `_transition_state.active`.
-  - [`markdown.js`](./markdown.js) (`INLINE_TOKEN_REGEX`) and [`text.js`](./text.js) (`ALTERNATION_PATTERN`) use `/g` flags with mutable `lastIndex`.
+  - [`markdown.js`](./markdown.js) (`INLINE_TOKEN_REGEX`) and [`alternations.js`](./alternations.js) (`ALTERNATION_PATTERN`) use `/g` flags with mutable `lastIndex`.
 - **In-Place Mutations, Timers, CSPRNG & System Clock** ([`field-path.js`](./field-path.js), [`embeddings.svelte.js`](./embeddings.svelte.js), [`job-queue.js`](./job-queue.js), [`resilience.js`](./resilience.js), [`onnx.js`](./onnx.js), [`math.js`](./math.js), [`story-export.js`](./story-export.js), [`text.js`](./text.js)):
   - [`field-path.js`](./field-path.js) `set_value` mutates `obj` in place; [`embeddings.svelte.js`](./embeddings.svelte.js) `ensure_embedding` assigns or deletes `vector._embedding`; [`registries.js`](./registries.js) `record_prompt_token_snapshot` mutates `runtime` snapshot fields.
   - [`resilience.js`](./resilience.js) and [`onnx.js`](./onnx.js) schedule `setTimeout` timers, attach `AbortSignal` listeners, and mutate `CircuitBreaker` internal state; [`job-queue.js`](./job-queue.js) schedules microtasks via `Promise.resolve().then(...)`.

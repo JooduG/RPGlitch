@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **EGM Drift Audit & Barrel Import Fix**:
+  - Audited all 8 `README.md` contracts under `src/` into `2026-11-16_DRIFT_REPORT.md`.
+  - Fixed self-referential `@engine` barrel import in `src/engine/chrono.svelte.js` to use `./turns.js`.
+
 - **Profile UI, Premades Relocation, Time-Travel Scrub Bar & RelationalGraph Redesign**:
   - Relocated `src/data/presets.js` to `src/definitions/premades.js`, purged dead `NARRATIVE_PRESETS`, `get_narrative_preset`, `get_starter_entities`, and `get_starter_entity_by_id`, and added `src/definitions/premades.test.js`.
   - Set `pov: "1st_person"` on all 7 premade characters and `pov: "3rd_person"` on all 3 premade fractals; updated `normalize_entity()` and `create_entity()` in `src/data/entities.js` and backfilled existing IndexedDB premade characters in `src/data/db.js`.
