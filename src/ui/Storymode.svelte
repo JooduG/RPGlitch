@@ -895,6 +895,6 @@
     top: 0;
     bottom: 0;
     height: 100dvh;
-    z-index: 9999;
+    z-index: var(--z-index-max);
   }
 </style>

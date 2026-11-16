@@ -298,7 +298,7 @@
   : ''}
     {is_launching ?
     `
-      z-50
+      z-elevated
       animate-[rack-pull-eject_0.35s_cubic-bezier(0.4,0,0.2,1)_forwards]
     `
   : ''}
@@ -542,7 +542,9 @@
   </div>
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
-    <div data-card-badge class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-tight">
+    <div
+      data-card-badge
+      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-elevated flex flex-col gap-tight">
       <StyleBadge {entity} class="flex flex-col gap-tight" />
     </div>
   {/if}

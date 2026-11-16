@@ -40,7 +40,7 @@
   <ScrollArea.Scrollbar
     {orientation}
     class="
-      z-50
+      z-elevated
       flex
       touch-none
       bg-zinc-900/40

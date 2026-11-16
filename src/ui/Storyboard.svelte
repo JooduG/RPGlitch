@@ -973,7 +973,7 @@
         right-0
         bottom-0
         left-0
-        z-50
+        z-elevated
         flex
         h-dvh
         w-screen
@@ -1035,7 +1035,7 @@
             h-[calc(var(--spacing-row-unit)*2.8)]
             w-[calc(var(--spacing-column-unit)*0.85)]
 
-            hover:z-50!
+            hover:z-elevated!
           "
           role="presentation"
           style:transform="rotate({import_angle + fan_rotation}deg) translateY(0)"
@@ -1091,7 +1091,7 @@
             h-[calc(var(--spacing-row-unit)*2.8)]
             w-[calc(var(--spacing-column-unit)*0.85)]
 
-            hover:z-50!
+            hover:z-elevated!
           "
           role="presentation"
           style:transform="rotate({create_angle + fan_rotation}deg) translateY(0)"
@@ -1150,7 +1150,7 @@
               h-[calc(var(--spacing-row-unit)*2.8)]
               w-[calc(var(--spacing-column-unit)*0.85)]
 
-              hover:z-50!
+              hover:z-elevated!
             "
             role="presentation"
             data-entity-id={entity.id}

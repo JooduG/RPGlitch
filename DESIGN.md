@@ -113,6 +113,7 @@ theme:
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
+  z-index-elevated: "50"
   z-index-modal: "100"
   z-index-popover: "200"
   z-index-tooltip: "300"
