@@ -588,7 +588,22 @@ export function handle_planning_handoff(payload) {
         .trim()
         .replace(/\\/g, "/"),
     );
-    const has_substantive_source_changes = changed_files.some((file) => file.startsWith("src/") && /\.(js|ts|svelte|css)$/.test(file));
+    const has_source_files = changed_files.some((file) => file.startsWith("src/") && /\.(js|ts|svelte|css)$/.test(file));
+    let changed_line_count = 0;
+    if (has_source_files) {
+      try {
+        const numstat = execSync("git diff --numstat HEAD -- src/", { cwd: repo_root, encoding: "utf8" });
+        for (const row of numstat.split("\n")) {
+          const match = row.match(/^(\d+)\s+(\d+)\s+(.+)$/);
+          if (match && /\.(js|ts|svelte|css)$/.test(match[3].trim())) {
+            changed_line_count += Number(match[1]) + Number(match[2]);
+          }
+        }
+      } catch {
+        changed_line_count = 25;
+      }
+    }
+    const has_substantive_source_changes = has_source_files && changed_line_count >= 25;
     const has_handoff_recorded = changed_files.some((file) => file === "CHANGELOG.md" || file === "ROADMAP.md");
 
     if (has_substantive_source_changes && !has_handoff_recorded) {

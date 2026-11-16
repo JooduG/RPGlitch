@@ -163,7 +163,7 @@ const is_main_execution = process.argv[1] && fileURLToPath(import.meta.url) === 
 if (is_main_execution) {
   const flag = process.argv[2];
   if (flag === "--dump") {
-    const out_path = process.argv[3] || path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "hooks.json");
+    const out_path = process.argv[3] || path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "hooks.json");
     fs.writeFileSync(out_path, JSON.stringify(render_hooks_json(), null, 2) + "\n");
     console.log(`GATE_TABLE dumped to ${out_path} (${GATE_TABLE.length} gates).`);
   } else if (flag === "--list") {
