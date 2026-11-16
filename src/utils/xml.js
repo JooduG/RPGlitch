@@ -10,7 +10,7 @@
  *     verbatim (pseudo-JSON `[KEY: value]` state tags reach the model unpolluted).
  * - Physical State XML Serialization (`physical_to_xml`): Compiles entity physical/non-physical state
  *   (either bracket pseudo-JSON or plain prose) into structured, indented XML prompt nodes.
- * - Canonical Clothing Taxonomy (`CLOTHING_KEYS`): Shared taxonomy for clothing overrides, visual strip maps,
+ * - Clothing taxonomy now lives in `./tags.js` (`CLOTHING_KEYS` re-exported via the `@utils` barrel).
  *   and undress/redress state mechanics.
  * - Template Hygiene (`clean_xml`): Trims trailing line whitespace and trims blank boundary lines.
  *
@@ -32,45 +32,6 @@ const TOKEN_PATTERN = /\{([a-z0-9_]+)\}/g;
 export function interpolate_tokens(template, values = {}) {
   return String(template ?? "").replace(TOKEN_PATTERN, (match, token) => (values[token] != null ? String(values[token]) : ""));
 }
-
-// ============================================================================
-// [SECTION 1: CONSTANTS & CLOTHING KEYS]
-// ============================================================================
-
-/**
- * Canonical clothing tag keys - shared across the engine for clothing overrides,
- * visual strip filters, and state mutations.
- * @type {ReadonlyArray<string>}
- */
-export const CLOTHING_KEYS = Object.freeze([
-  "SHIRT",
-  "PANTS",
-  "SUIT",
-  "JACKET",
-  "DRESS",
-  "SKIRT",
-  "COAT",
-  "SHOES",
-  "BOOTS",
-  "GLOVES",
-  "HAT",
-  "ARMOR",
-  "ROBE",
-  "ROBES",
-  "APPAREL",
-  "UNDERWEAR",
-  "OUTFIT",
-  "CLOTHING",
-  "CLOAK",
-  "BOTTOMS",
-  "TOPS",
-  "ACCESSORIES",
-  "HARNESS",
-  "SCRUBS",
-  "HARDWARE",
-  "EQUIPMENT",
-  "GEAR",
-]);
 
 // ============================================================================
 // [SECTION 2: XML ESCAPING PIPELINE]
@@ -110,61 +71,6 @@ export const prompt_escape = (str) => {
   if (typeof str !== "string") return "";
   return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 };
-
-// ============================================================================
-// [SECTION 3: PHYSICAL STATE XML BUILDER]
-// ============================================================================
-
-/**
- * Canonical remaps for physical-state keys the Director may write as variants of
- * the shared vocabulary. Canonically-named keys always win over these aliases.
- * @type {Readonly<Record<string, string>>}
- */
-export const PHYSICAL_KEY_ALIASES = Object.freeze({ SHORTS: "APPAREL", SOMA: "SOMATIC", POSE: "POSTURE" });
-
-/**
- * Strips a duplicated "KEY:" prefix echoed inside its own value (e.g. the value
- * "STATE: protective" for key "STATE"). Matches whole underscore-or-space keys.
- * @param {string | null | undefined} value
- * @param {string | string[]} keys
- * @returns {string}
- */
-export function strip_leading_key_echo(value, keys = []) {
-  const text = String(value ?? "");
-  const patterns = (Array.isArray(keys) ? keys : [keys]).filter(Boolean).map((k) =>
-    String(k)
-      .replace(/[^A-Za-z0-9_]/g, "")
-      .replace(/_/g, "[_ ]"),
-  );
-  if (!patterns.length) return text.trim();
-  return text.replace(new RegExp("^\\s*(?:" + patterns.join("|") + ")\\s*:\\s*", "i"), "").trim();
-}
-
-/**
- * Canonicalizes parsed physical/non-physical keys: known aliases remap to their
- * canonical SCREAMING_SNAKE name, other keys keep their original casing, echoed
- * "KEY:" value prefixes are stripped, and duplicate keys collapse (the
- * canonically-named entry wins over an alias).
- * @param {Record<string, any>} parsed
- * @returns {Record<string, string>}
- */
-export function normalize_physical_entries(parsed) {
-  const out = {};
-  for (const [k, v] of Object.entries(parsed || {})) {
-    if (k === "__raw_prose__") continue;
-    const raw_key = String(k).replace(/\s+/g, "_").trim();
-    if (!raw_key) continue;
-    const upper_key = raw_key.toUpperCase();
-    const canonical = PHYSICAL_KEY_ALIASES[upper_key] || raw_key;
-    const value = Array.isArray(v) ? v.join(", ") : String(v);
-    const cleaned = strip_leading_key_echo(value, [raw_key, upper_key, canonical]);
-    if (!cleaned) continue;
-    if (out[canonical] === undefined || raw_key === canonical) {
-      out[canonical] = cleaned;
-    }
-  }
-  return out;
-}
 
 /**
  * Renders a profile field block (<APPEARANCE>, <CURRENT_LOOK>, <PERSONALITY>, <STATE>, etc.)

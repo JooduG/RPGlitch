@@ -1,15 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  clean_xml,
-  CLOTHING_KEYS,
-  dedent_all,
-  escape_xml,
-  prompt_escape,
-  render_atom_xml,
-  render_profile_field_block,
-  render_xml_tag,
-  strip_leading_key_echo,
-} from "./xml.js";
+import { CLOTHING_KEYS, strip_leading_key_echo } from "./tags.js";
+import { clean_xml, dedent_all, escape_xml, prompt_escape, render_atom_xml, render_profile_field_block, render_xml_tag } from "./xml.js";
 
 describe("escape_xml", () => {
   it("escapes special characters including quotes and brackets", () => {

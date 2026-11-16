@@ -189,7 +189,8 @@
    * Unified message chassis consolidating message headers, narrative prose,
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
-  import { parse_bracket_entries, parse_think_block, simulation_log, strip_bracket_engine_flags } from "@data";
+  import { simulation_log } from "@data";
+  import { parse_bracket_entries, parse_think_block, strip_bracket_engine_flags } from "@utils";
   import { runtime, simulation_state } from "@engine";
   import { Audio, get_cadence_rate, get_resolution, get_signature_color, render_optics_fallback, resolve_voice_uri } from "@media";
   import { Accordion, Button, Shimmer, TextField, tooltip } from "@primitives";

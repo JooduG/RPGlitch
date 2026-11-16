@@ -19,6 +19,7 @@
 import Dexie from "dexie";
 import { normalize_entity } from "./entities.js";
 import { ALL_PREMADES } from "@definitions";
+import { is_empty_narrative_message, parse_bracket_entries } from "@utils";
 
 /** Durably stored active session key in kv_settings */
 export const SESSION_ID_KEY = "active_session_id";
@@ -609,16 +610,7 @@ export async function log_message(
     }
   }
 
-  const is_telemetry_meta =
-    meta?.type === "DYNAMICS_DELTA" ||
-    meta?.type === "STORY_START" ||
-    meta?.type === "VECTOR_RESOLUTION" ||
-    meta?.type === "CONTINUUM_FORMATION" ||
-    meta?.type === "MEMORY_FORMATION" ||
-    Boolean(meta?.is_telemetry);
-
-  const is_empty =
-    typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue && !is_telemetry_meta;
+  const is_empty = is_empty_narrative_message(text, { attachments, meta });
 
   if (is_empty) {
     return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };
@@ -816,7 +808,6 @@ export async function query_story_snapshot(story_id, max_round = Infinity, max_s
  * }>}
  */
 export async function replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity) {
-  const { parse_bracket_entries } = await import("./parser.js");
   const history = await query_entity_history(entity_id, field);
   const key_values = new Map();
   const entries_map = new Map();

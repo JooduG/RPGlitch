@@ -14,21 +14,7 @@
  */
 
 // 1. Bracket Parser, Delta Merging & Epistemic Wall
-export {
-  apply_bracket_deltas,
-  clean_image_prompts,
-  extract_entity_relationships,
-  extract_memory_candidates,
-  filter_epistemic_brackets,
-  format_clean_brackets,
-  parse_bracket_entries,
-  parse_bracket_token,
-  parse_brackets,
-  parse_profile_json,
-  parse_think_block,
-  strip_bracket_engine_flags,
-  strip_covert_directives,
-} from "./parser.js";
+// (moved to @utils/tags.js + @utils/llm-sanitize.js in Phase 1; import from there)
 
 // 2. Profile Fields, Leaf Mapping & Enhancers
 // (retired - single home is now ../definitions/profile-taxonomy.js; import from there)

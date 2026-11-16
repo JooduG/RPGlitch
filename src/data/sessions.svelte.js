@@ -18,7 +18,7 @@
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { has_bracket_bond, state_bridge, stories_bridge } from "@utils";
+import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta, state_bridge, stories_bridge } from "@utils";
 import { append_ledger_entries, db, SESSION_ID_KEY } from "./db.js";
 
 /**
@@ -306,13 +306,6 @@ export const session_driver = {
 
     for (let index = logs.length - 1; index >= 0; index--) {
       const entry = logs[index];
-      const is_telemetry_meta =
-        entry.meta?.type === "DYNAMICS_DELTA" ||
-        entry.meta?.type === "STORY_START" ||
-        entry.meta?.type === "VECTOR_RESOLUTION" ||
-        entry.meta?.type === "CONTINUUM_FORMATION" ||
-        entry.meta?.type === "MEMORY_FORMATION" ||
-        Boolean(entry.meta?.is_telemetry);
       const is_protected_init = entry.meta?.type === "STORY_START" || entry.meta?.is_prologue || entry.meta?.is_epilogue;
       // Never walk past the round being regenerated once a target is known.
       if (target_round != null && entry.round != null && entry.round < target_round) break;
@@ -324,7 +317,7 @@ export const session_driver = {
         }
         // Delete trailing same-round turn telemetry (director/caretaker cards) so a
         // retry replaces the round instead of stacking a duplicate card per attempt.
-        if (is_telemetry_meta && !is_protected_init) {
+        if (is_telemetry_meta(entry.meta) && !is_protected_init) {
           if (target_round == null || entry.round === target_round) {
             await db.simulation_log.delete(entry.id);
             state_bridge.simulation_log?.remove?.(entry.id);
@@ -332,19 +325,13 @@ export const session_driver = {
           }
         }
         // Preserve prior telemetry entries even if placed near trailing turns
-        if (is_telemetry_meta) {
+        if (is_telemetry_meta(entry.meta)) {
           continue;
         }
         await db.simulation_log.delete(entry.id);
         state_bridge.simulation_log?.remove?.(entry.id);
       } else {
-        const is_empty_stale =
-          typeof entry.text === "string" &&
-          !entry.text.trim() &&
-          (!entry.attachments || entry.attachments.length === 0) &&
-          !entry.meta?.is_prologue &&
-          !entry.meta?.is_epilogue &&
-          !is_telemetry_meta;
+        const is_empty_stale = is_empty_narrative_message(entry.text, { attachments: entry.attachments, meta: entry.meta });
 
         if (is_empty_stale) {
           await db.simulation_log.delete(entry.id);
@@ -458,16 +445,7 @@ export const session_driver = {
         return { id: meta?.id || `skip-${Date.now()}`, story_id: null, role, text: "", character_name, turn_type, meta };
       }
     }
-    const is_telemetry_meta =
-      meta?.type === "DYNAMICS_DELTA" ||
-      meta?.type === "STORY_START" ||
-      meta?.type === "VECTOR_RESOLUTION" ||
-      meta?.type === "CONTINUUM_FORMATION" ||
-      meta?.type === "MEMORY_FORMATION" ||
-      Boolean(meta?.is_telemetry);
-
-    const is_empty =
-      typeof text === "string" && !text.trim() && (!attachments || attachments.length === 0) && !meta?.is_prologue && !meta?.is_epilogue && !is_telemetry_meta;
+    const is_empty = is_empty_narrative_message(text, { attachments, meta });
 
     if (is_empty) {
       return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };

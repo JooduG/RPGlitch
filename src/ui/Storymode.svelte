@@ -6,7 +6,8 @@
    * markdown/dialogue rendering pipeline, streaming typewriter follow,
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
-  import { clean_image_prompts, filter_epistemic_brackets, parse_think_block, session_driver, strip_covert_directives } from "@data";
+  import { session_driver } from "@data";
+  import { clean_image_prompts, filter_epistemic_brackets, parse_think_block, strip_covert_directives } from "@utils";
   import { get_mock_message, runtime, simulation_state } from "@engine";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
   import { ProfilePicture, run_image_regeneration } from "@ui";

@@ -1,18 +1,23 @@
 /**
- * src/data/parser.js
+ * src/utils/tags.js
  * ============================================================================
- * 📜 CANONICAL BRACKET TOKENIZER & EPISTEMIC WALL
+ * Shared tagged-entry `[KEY: VALUE | flags]` tokenizer + tag helpers.
+ * Pure, stateless, domain-agnostic. No upward imports.
+ * Phase 1 unification: moved verbatim from src/data/parser.js (bracket core),
+ * src/utils/text.js (pseudo-JSON / merge / repair / bond / key sets) and
+ * src/utils/xml.js (physical/clothing key normalization).
  * ============================================================================
- *
- * Single source of truth for bracket tokenization, metadata flag parsing,
- * Epistemic Wall filtering, delta merging, and memory candidate extraction.
- *
+ */
+
+import { collapse_whitespace } from "./text.js";
+import { strip_cognition_blocks } from "./llm-sanitize.js";
+
+/**
  * Bracket Format: [KEY: VALUE | flags]
  * Flags: | hide, | show, | w: <1-10>, | is_origin
  *
  * Invariant: Pipes inside `{Option A | Option B}` alternation scopes are NOT
  * treated as metadata flag separators.
- * ============================================================================
  */
 
 /**
@@ -501,92 +506,542 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
   return relationships;
 }
 
-import { safe_parse_json } from "@utils";
+// ============================================================================
+// [SECTION 1: CONSTANTS & TOKEN SETS]
+// ============================================================================
 
 /**
- * Parses a raw LLM profile-sorting response into a structured object.
- * Strips cognition blocks and code fences, isolates the outermost JSON object,
- * and returns null on any failure (no braces, malformed JSON).
- *
- * @param {string} raw
- * @returns {Object|null}
+ * Universal atomic-clearing tokens - emitting `[KEY: one of these]` deletes KEY
+ * from the present-state dictionary (e.g. `[HELD: none]`, `[INJURY: healed]`,
+ * `[STATUS: normal]`, `[SECRET: cleared]`).
+ * @type {ReadonlySet<string>}
  */
-export function parse_profile_json(raw) {
-  if (typeof raw !== "string") {
-    if (raw == null) return null;
-    const coerced = typeof raw.text === "string" ? raw.text : String(raw);
-    if (!coerced || coerced === "[object Object]") return null;
-    raw = coerced;
+export const CLEAR_TOKENS = Object.freeze(new Set(["none", "bare", "naked", "off", "removed", "disrobed", "healed", "cleared", "normal"]));
+
+/**
+ * Keys whose repeated brackets aggregate into a single multi-item array.
+ * @type {ReadonlySet<string>}
+ */
+export const AGGREGATE_KEYS = Object.freeze(new Set(["INVENTORY", "STASH"]));
+
+/**
+ * Keys that must NEVER reach an image-generation prompt (private state or physical inventory).
+ * @type {ReadonlySet<string>}
+ */
+export const VISUAL_EXCLUDED_KEYS = Object.freeze(new Set(["INVENTORY", "STASH", "SECRET", "PLAN", "STATUS"]));
+
+/**
+ * Splits a bracket body into its constituent `KEY: value` segments, so a value
+ * that swallowed a following key (e.g. `[HAIR: … temples DENTAL_FEATURES: …]`)
+ * never merges keys or loses a key's opening bracket.
+ * @param {string} content - Inner text of a `[...]` block.
+ * @returns {{ key: string, value: string }[]}
+ */
+function _split_key_value_segments(content) {
+  const text = String(content || "").trim();
+  const lead = text.match(/^([^:[\]]+?)\s*:\s*/);
+  if (!lead) return [];
+  const segments = [{ key: lead[1], value: "" }];
+  const rest = text.slice(lead[0].length);
+  PSEUDO_JSON_KEY_REGEX.lastIndex = 0;
+  const marks = [];
+  let match;
+  while ((match = PSEUDO_JSON_KEY_REGEX.exec(rest)) !== null) {
+    if (rest.slice(PSEUDO_JSON_KEY_REGEX.lastIndex, PSEUDO_JSON_KEY_REGEX.lastIndex + 2) === "//") continue;
+    marks.push({ key: match[1], start: match.index, value_start: PSEUDO_JSON_KEY_REGEX.lastIndex });
   }
-  const clean = raw
-    .replace(/<think>[\s\S]*?<\/think>/gi, "")
-    .replace(/```json\n?|```/g, "")
-    .trim();
-  return safe_parse_json(clean);
+  segments[0].value = (marks.length ? rest.slice(0, marks[0].start) : rest).trim();
+  for (let i = 0; i < marks.length; i++) {
+    const end = i + 1 < marks.length ? marks[i + 1].start : rest.length;
+    segments.push({ key: marks[i].key, value: rest.slice(marks[i].value_start, end).trim() });
+  }
+  return segments;
 }
 
 /**
- * Removes <image_prompt> tags, <image> tags, and Markdown images from text.
+ * Stores a parsed pseudo-JSON entry, applying universal atomic clearing
+ * (`CLEAR_TOKENS`) and multi-item aggregation (`AGGREGATE_KEYS`).
+ * @param {Record<string, string | string[]>} target
+ * @param {string} k
+ * @param {string} v
+ */
+function _store_parsed_entry(target, k, v) {
+  if (!k || !v) return;
+  if (CLEAR_TOKENS.has(v.toLowerCase())) {
+    delete target[k];
+    return;
+  }
+  if (AGGREGATE_KEYS.has(k) || k.startsWith("@")) {
+    const items =
+      AGGREGATE_KEYS.has(k) ?
+        v
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [v];
+    const existing = target[k];
+    const list =
+      Array.isArray(existing) ? existing
+      : existing ? [existing]
+      : [];
+    for (const item of items) {
+      if (item && !list.includes(item)) list.push(item);
+    }
+    target[k] = list;
+    return;
+  }
+  target[k] = v;
+}
+const PSEUDO_JSON_KEY_REGEX = /\b([A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*)\s*:/g;
+
+// ============================================================================
+// [SECTION 3: PSEUDO-JSON & FIELD MERGING]
+// ============================================================================
+
+/**
+ * High-fidelity parser that extracts pseudo-JSON configurations.
+ * Exclusively parses bracketed `[KEY: VALUE]` parameters.
+ * @param {string | null | undefined} raw - Raw input text.
+ * @returns {Record<string, string | string[]>} Extracted key-value pairs.
+ */
+export const safe_parse_pseudo_json = (raw) => {
+  if (!raw || typeof raw !== "string") return {};
+  const clean_raw = strip_cognition_blocks(raw).trim();
+  if (!clean_raw) return {};
+
+  // Tier 1: Process bracketed configuration [KEY: VALUE] or [KEY: VALUE] [KEY2: VALUE2]
+  if (clean_raw.includes("[") && clean_raw.includes("]")) {
+    /** @type {Record<string, string | string[]>} */
+    const bracket_extracted = {};
+    const bracket_regex = /\[([^[\]]+)\]/g;
+    let match;
+    let matched_any = false;
+
+    while ((match = bracket_regex.exec(clean_raw)) !== null) {
+      for (const segment of _split_key_value_segments(match[1])) {
+        matched_any = true;
+        const k = segment.key.replace(/["']/g, "").trim().replace(/\s+/g, "_");
+        const v = segment.value.replace(/^["']|["']$/g, "").trim();
+        _store_parsed_entry(bracket_extracted, k, v);
+      }
+    }
+
+    if (matched_any) return bracket_extracted;
+  }
+
+  // Tier 2: Process quoted key-value pairs "KEY": "VALUE" or JSON {"KEY": "VALUE"}
+  if (clean_raw.includes('"') && clean_raw.includes(":")) {
+    /** @type {Record<string, string | string[]>} */
+    const quoted_extracted = {};
+    const quoted_regex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
+    let match;
+    while ((match = quoted_regex.exec(clean_raw)) !== null) {
+      const k = match[1].trim().replace(/\s+/g, "_");
+      const v = match[2].trim();
+      if (k && v) quoted_extracted[k] = v;
+    }
+    if (Object.keys(quoted_extracted).length > 0) return quoted_extracted;
+  }
+
+  // Tier 2.5: Process unbracketed uppercase key-value pairs KEY: VALUE (e.g. "CLOTHING: tight tank top EXPRESSION: grin")
+  if (clean_raw.includes(":")) {
+    const unbracketed_regex = /\b([A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*)\s*:\s*([^:]+?)(?=\s+[A-Z][A-Z0-9_]*(?:\s+[A-Z][A-Z0-9_]*)*\s*:|$)/g;
+    /** @type {Record<string, string | string[]>} */
+    const unbracketed_extracted = {};
+    let match;
+    while ((match = unbracketed_regex.exec(clean_raw)) !== null) {
+      const k = match[1].trim().replace(/\s+/g, "_");
+      const v = match[2].trim();
+      _store_parsed_entry(unbracketed_extracted, k, v);
+    }
+    if (Object.keys(unbracketed_extracted).length > 0) return unbracketed_extracted;
+  }
+
+  // Tier 3: No structured keys found - preserve raw prose sentinel.
+  return { __raw_prose__: clean_raw };
+};
+
+/**
+ * Pure simulation function that merges newly emitted [KEY: VALUE] bracket directives
+ * into an entity's present physical/non-physical state field.
+ * @param {string | null | undefined} current_field_value - Current field string.
+ * @param {string | null | undefined} new_prose - Newly emitted mutations.
+ * @returns {string} Reconciled state field string.
+ */
+export function merge_prose_into_field(current_field_value, new_prose) {
+  if (!new_prose || !new_prose.trim()) return current_field_value || "";
+
+  const MAX_FIELD_CHARS = 2000;
+  const parsed = safe_parse_pseudo_json(current_field_value);
+  const clean_new_prose = new_prose.trim();
+
+  // Plain prose field (no structured keys, or raw-prose sentinel)
+  if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) {
+    const existing = (current_field_value || "").trim();
+    if (!existing) return clean_new_prose;
+
+    const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
+    const existing_lines = existing
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const existing_norm = new Set(existing_lines.map(normalize));
+
+    const incoming_lines = clean_new_prose
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const retained_new = incoming_lines.filter((l) => !existing_norm.has(normalize(l)));
+
+    if (retained_new.length === 0) {
+      return existing;
+    }
+
+    let result = `${existing}\n${retained_new.join("\n")}`;
+    if (result.length > MAX_FIELD_CHARS) {
+      result = result.substring(result.length - MAX_FIELD_CHARS);
+    }
+    return result;
+  }
+
+  // 1. Extract bracketed [KEY: Value] directives first
+  const bracketed_regex = /\[([A-Z_ ]{3,25}):\s*([\s\S]*?)\]/g;
+  let match;
+  const key_updates = [];
+
+  while ((match = bracketed_regex.exec(clean_new_prose)) !== null) {
+    const raw_key = match[1].toUpperCase().replace(/\s+/g, "_");
+    const raw_val = match[2].trim();
+    if (raw_val) {
+      key_updates.push({ key: raw_key, val: raw_val });
+    }
+  }
+
+  // Strip all bracketed directives cleanly in one pass to prevent string mutation drift
+  let remaining_prose = clean_new_prose.replace(bracketed_regex, "").trim();
+
+  // 2. Extract unbracketed KEY: Value segments if any
+  const unbracketed_regex = /(?:^|,\s*|\s*)([A-Z_]{3,15}):\s*([^,[\]]+(?:\s+[^,[\]]+)*)/g;
+  while ((match = unbracketed_regex.exec(remaining_prose)) !== null) {
+    const raw_key = match[1].toUpperCase();
+    const raw_val = match[2].trim();
+    if (raw_val) {
+      key_updates.push({ key: raw_key, val: raw_val });
+    }
+  }
+
+  // Strip all unbracketed directives cleanly in one pass
+  remaining_prose = remaining_prose
+    .replace(unbracketed_regex, "")
+    .replace(/^[\s,;[\]]+|[\s,;[\]]+$/g, "")
+    .replace(/,\s*,+/g, ",")
+    .trim();
+
+  // Apply structured key updates in sequence
+  for (const { key, val: incoming_val } of key_updates) {
+    let target_key = key;
+    let val = incoming_val;
+    const is_clear_token = CLEAR_TOKENS.has(val.toLowerCase());
+
+    // Wildcard purge: [CLOTHING: none] strips every clothing key at once.
+    if (key === "CLOTHING" && is_clear_token) {
+      for (const ck of CLOTHING_KEYS) delete parsed[ck];
+      continue;
+    }
+
+    if (CLOTHING_KEYS.includes(key) && is_clear_token) {
+      delete parsed[key];
+      continue;
+    }
+
+    if (is_clear_token) {
+      delete parsed[key];
+      continue;
+    }
+
+    if (AGGREGATE_KEYS.has(key)) {
+      const incoming = val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const existing = parsed[key];
+      const list =
+        Array.isArray(existing) ? existing
+        : existing ?
+          String(existing)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+      const existing_norm = new Set(list.map((item) => collapse_whitespace(String(item)).toLowerCase()));
+      for (const item of incoming) {
+        const item_norm = collapse_whitespace(item).toLowerCase();
+        if (item && !existing_norm.has(item_norm)) {
+          list.push(item);
+          existing_norm.add(item_norm);
+        }
+      }
+      parsed[key] = list;
+      continue;
+    }
+
+    if (key === "CLOTHING" && parsed.SHIRT) target_key = "SHIRT";
+    if (key === "SHIRT" && parsed.CLOTHING) target_key = "CLOTHING";
+
+    // E2: Concealment preservation on structured key overwrite
+    const existing_val = typeof parsed[target_key] === "string" ? parsed[target_key] : "";
+    const existing_had_hide = /\|\s*hide\b/i.test(existing_val);
+    const incoming_has_show = /\|\s*show\b/i.test(val);
+    const incoming_has_hide = /\|\s*hide\b/i.test(val);
+    if (existing_had_hide && !incoming_has_show && !incoming_has_hide) {
+      val = `${val} | hide`;
+    } else if (incoming_has_show) {
+      val = val.replace(/\|\s*show\b/gi, "").trim();
+    }
+
+    parsed[target_key] = val;
+  }
+
+  // Append any remaining unstructured prose to CONDITION
+  if (remaining_prose) {
+    const cond_key =
+      parsed.CONDITION ? "CONDITION"
+      : parsed.condition ? "condition"
+      : "CONDITION";
+    if (parsed[cond_key]) {
+      const clean_existing = String(parsed[cond_key])
+        .replace(/^[\s,]+|[\s,]+$/g, "")
+        .replace(/,\s*,+/g, ", ");
+      const existing_phrases = clean_existing
+        .split(",")
+        .map((s) => collapse_whitespace(s).toLowerCase())
+        .filter(Boolean);
+      const incoming_phrases = remaining_prose
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const new_phrases = incoming_phrases.filter((phrase) => !existing_phrases.includes(collapse_whitespace(phrase).toLowerCase()));
+      if (new_phrases.length > 0) {
+        parsed[cond_key] = `${clean_existing}, ${new_phrases.join(", ")}`;
+      }
+    } else {
+      parsed[cond_key] = remaining_prose;
+    }
+  }
+
+  // Clean up double commas inside all values of parsed
+  for (const k in parsed) {
+    if (typeof parsed[k] === "string") {
+      parsed[k] = parsed[k].replace(/^[\s,]+|[\s,]+$/g, "").replace(/,\s*,+/g, ", ");
+    }
+  }
+
+  let lines = Object.entries(parsed)
+    .map(([k, v]) => `[${k}: ${String(Array.isArray(v) ? v.join(", ") : v).replace(/[[]]/g, "")}]`)
+    .join(" ");
+
+  if (lines.length > MAX_FIELD_CHARS) {
+    lines = lines.substring(lines.length - MAX_FIELD_CHARS);
+  }
+
+  return lines;
+}
+
+/**
+ * Strips non-visual pseudo-JSON keys from a raw parameter string for image generation prompts.
  *
- * @param {string|null|undefined} text
+ * @param {string | null | undefined} raw_parameter_string
+ * @returns {string} Sanitized visual parameter string
+ */
+export function strip_visual_excluded(raw_parameter_string) {
+  if (!raw_parameter_string) return "";
+  const parsed_parameters = safe_parse_pseudo_json(raw_parameter_string);
+  if (parsed_parameters.__raw_prose__) return raw_parameter_string;
+
+  const retained_entries = Object.entries(parsed_parameters)
+    .filter(([key]) => !VISUAL_EXCLUDED_KEYS.has(key))
+    .map(([key, value]) => `[${key}: ${Array.isArray(value) ? value.join(", ") : String(value).replace(/[[\]]/g, "")}]`);
+
+  return retained_entries.join(" ");
+}
+
+/**
+ * Repairs unclosed or unopened brackets in state strings and directives.
+ * Fixes malformed strings such as:
+ * - "foo | w: 8]\n[BAR: baz" -> "[foo | w: 8]\n[BAR: baz]"
+ * - "ANOMALY: alert" -> "[ANOMALY: alert]"
+ *
+ * @param {string | null | undefined} raw - Input string with potentially malformed brackets
+ * @returns {string} Clean string where every bracket predicate is properly enclosed
+ */
+export function balance_brackets(raw) {
+  if (!raw || typeof raw !== "string") return "";
+  const lines = raw.split(/\r?\n/);
+  const repaired_lines = lines.map((line) => {
+    let trimmed = line.trim();
+    if (!trimmed) return "";
+
+    // Case 1: Line ends with ']' but does not start with '['
+    if (trimmed.endsWith("]") && !trimmed.startsWith("[")) {
+      trimmed = `[${trimmed}`;
+    }
+
+    // Case 2: Line starts with '[' but does not end with ']'
+    if (trimmed.startsWith("[") && !trimmed.endsWith("]")) {
+      trimmed = `${trimmed}]`;
+    }
+
+    // Case 3: Line has no brackets at all, but looks like a key-value or weight directive
+    // e.g. "ANOMALY: alert | w: 8" or "@DR_TARIQ: hostile | hide"
+    if (!trimmed.includes("[") && !trimmed.includes("]")) {
+      const is_predicate = /^(@?[A-Z][A-Z0-9_]{1,24}:|[^:|]+\|\s*(?:w:\s*\d+|show|hide)\b)/.test(trimmed);
+      if (is_predicate) {
+        trimmed = `[${trimmed}]`;
+      }
+    }
+
+    return trimmed;
+  });
+
+  return repaired_lines.join("\n").trim();
+}
+
+/**
+ * Checks whether an entity has a directed bracket bond ([@target: ...]) or key targeting
+ * another entity's id or name (case-insensitively).
+ *
+ * @param {any} entity - The source entity
+ * @param {any|string} target_identifier_or_entity - Target entity object or identifier string
+ * @returns {boolean}
+ */
+export function has_bracket_bond(entity, target_identifier_or_entity) {
+  if (!entity || !target_identifier_or_entity) return false;
+
+  const target_ids = new Set();
+  if (typeof target_identifier_or_entity === "object") {
+    if (target_identifier_or_entity.id) target_ids.add(String(target_identifier_or_entity.id).trim().toLowerCase());
+    if (target_identifier_or_entity.name) target_ids.add(String(target_identifier_or_entity.name).trim().toLowerCase());
+  } else {
+    target_ids.add(String(target_identifier_or_entity).trim().toLowerCase());
+  }
+
+  const layers = [
+    entity?.eternal?.non_physical,
+    entity?.present?.non_physical,
+    entity?.eternal?.physical,
+    entity?.present?.physical,
+    ...(Array.isArray(entity?.past) ? entity.past.map((item) => (typeof item === "string" ? item : item?.text)) : []),
+    typeof entity?.future === "string" ? entity.future : "",
+  ];
+
+  for (const text of layers) {
+    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
+    const matches = text.matchAll(/\[@?([^\]:]+):/g);
+    for (const match of matches) {
+      const parsed_target = String(match[1] || "")
+        .trim()
+        .toLowerCase();
+      if (target_ids.has(parsed_target)) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+// ============================================================================
+// [SECTION 1: CONSTANTS & CLOTHING KEYS]
+// ============================================================================
+
+/**
+ * Canonical clothing tag keys - shared across the engine for clothing overrides,
+ * visual strip filters, and state mutations.
+ * @type {ReadonlyArray<string>}
+ */
+export const CLOTHING_KEYS = Object.freeze([
+  "SHIRT",
+  "PANTS",
+  "SUIT",
+  "JACKET",
+  "DRESS",
+  "SKIRT",
+  "COAT",
+  "SHOES",
+  "BOOTS",
+  "GLOVES",
+  "HAT",
+  "ARMOR",
+  "ROBE",
+  "ROBES",
+  "APPAREL",
+  "UNDERWEAR",
+  "OUTFIT",
+  "CLOTHING",
+  "CLOAK",
+  "BOTTOMS",
+  "TOPS",
+  "ACCESSORIES",
+  "HARNESS",
+  "SCRUBS",
+  "HARDWARE",
+  "EQUIPMENT",
+  "GEAR",
+]);
+
+// ============================================================================
+// [SECTION 3: PHYSICAL STATE XML BUILDER]
+// ============================================================================
+
+/**
+ * Canonical remaps for physical-state keys the Director may write as variants of
+ * the shared vocabulary. Canonically-named keys always win over these aliases.
+ * @type {Readonly<Record<string, string>>}
+ */
+export const PHYSICAL_KEY_ALIASES = Object.freeze({ SHORTS: "APPAREL", SOMA: "SOMATIC", POSE: "POSTURE" });
+
+/**
+ * Strips a duplicated "KEY:" prefix echoed inside its own value (e.g. the value
+ * "STATE: protective" for key "STATE"). Matches whole underscore-or-space keys.
+ * @param {string | null | undefined} value
+ * @param {string | string[]} keys
  * @returns {string}
  */
-export function clean_image_prompts(text) {
-  if (!text) return "";
-  let clean = text.replace(/<image_prompt>[\s\S]*?<\/image_prompt>/gi, "");
-  clean = clean.replace(/<image>[\s\S]*?<\/image>/gi, "");
-  clean = clean.replace(/!\[.*?\]\(.*?\)/g, "");
-  return clean.trim();
+export function strip_leading_key_echo(value, keys = []) {
+  const text = String(value ?? "");
+  const patterns = (Array.isArray(keys) ? keys : [keys]).filter(Boolean).map((k) =>
+    String(k)
+      .replace(/[^A-Za-z0-9_]/g, "")
+      .replace(/_/g, "[_ ]"),
+  );
+  if (!patterns.length) return text.trim();
+  return text.replace(new RegExp("^\\s*(?:" + patterns.join("|") + ")\\s*:\\s*", "i"), "").trim();
 }
 
 /**
- * Extracts <think> blocks from text.
- * Handles partial tags during streaming and merges multiple blocks cleanly.
- *
- * @param {string|null|undefined} text
- * @returns {{ content: string, think: string|null }}
+ * Canonicalizes parsed physical/non-physical keys: known aliases remap to their
+ * canonical SCREAMING_SNAKE name, other keys keep their original casing, echoed
+ * "KEY:" value prefixes are stripped, and duplicate keys collapse (the
+ * canonically-named entry wins over an alias).
+ * @param {Record<string, any>} parsed
+ * @returns {Record<string, string>}
  */
-export function parse_think_block(text) {
-  if (!text) return { content: "", think: null, prose: "" };
-
-  const think_accumulator = [];
-
-  // 1. Match and extract closed <think>...</think> blocks
-  const closed_think_regex = /<think>([\s\S]*?)<\/think>/gi;
-  let match;
-  while ((match = closed_think_regex.exec(text)) !== null) {
-    const raw_block = match[1].replace(/<\/?think>/gi, "").trim();
-    if (raw_block) {
-      think_accumulator.push(raw_block);
+export function normalize_physical_entries(parsed) {
+  const out = {};
+  for (const [k, v] of Object.entries(parsed || {})) {
+    if (k === "__raw_prose__") continue;
+    const raw_key = String(k).replace(/\s+/g, "_").trim();
+    if (!raw_key) continue;
+    const upper_key = raw_key.toUpperCase();
+    const canonical = PHYSICAL_KEY_ALIASES[upper_key] || raw_key;
+    const value = Array.isArray(v) ? v.join(", ") : String(v);
+    const cleaned = strip_leading_key_echo(value, [raw_key, upper_key, canonical]);
+    if (!cleaned) continue;
+    if (out[canonical] === undefined || raw_key === canonical) {
+      out[canonical] = cleaned;
     }
   }
-
-  // Clean closed <think>...</think> blocks from content
-  let content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
-
-  // 2. Check for an unclosed partial block (streaming)
-  const think_openers = (text.match(/<think>/gi) || []).length;
-  const think_closers = (text.match(/<\/think>/gi) || []).length;
-
-  if (think_openers > think_closers) {
-    const lower_text = text.toLowerCase();
-    const last_think_index = lower_text.lastIndexOf("<think>");
-    if (last_think_index !== -1) {
-      const partial_think = text
-        .slice(last_think_index)
-        .replace(/<\/?think>/gi, "")
-        .trim();
-      if (partial_think) {
-        think_accumulator.push(partial_think);
-      }
-      content = text.slice(0, last_think_index);
-    }
-  }
-
-  const think_string = think_accumulator.length > 0 ? think_accumulator.join("\n\n") : null;
-  const cleaned_content = content.trim();
-
-  return { content: cleaned_content, prose: cleaned_content, think: think_string || "" };
+  return out;
 }
 
 /**
@@ -634,20 +1089,6 @@ export function filter_epistemic_brackets(text, perspective = "other") {
   }
 
   return working_text;
-}
-
-/**
- * Strips private directive brackets across entity boundaries.
- *
- * @param {string|null|undefined} text
- * @returns {string}
- */
-export function strip_covert_directives(text) {
-  if (!text || typeof text !== "string") return "";
-  return text
-    .replace(/\[(?:covert|secret|private|hidden)\s*:[^\]]*\]/gi, "")
-    .replace(/«(?:covert|secret|private|hidden)(?::[^»]*)?»/gi, "")
-    .replace(/[ \t]{2,}/g, " ");
 }
 
 /**

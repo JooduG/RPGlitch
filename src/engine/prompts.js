@@ -19,7 +19,7 @@
  */
 
 import { DYNAMICS, TEMPO_ROUNDS } from "@config";
-import { format_clean_brackets } from "@data";
+import { format_clean_brackets } from "@utils";
 import { caretaker_brief } from "@definitions";
 
 /**

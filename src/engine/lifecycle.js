@@ -10,7 +10,8 @@
  * and the opening turn through runs.js.
  */
 
-import { normalize_entity, parse_think_block } from "@data";
+import { normalize_entity } from "@data";
+import { parse_think_block } from "@utils";
 import { state_bridge } from "@utils";
 import { execute_turn } from "./runs.js";
 import { enhance_text, generate_text, get_transport } from "./transport.js";
@@ -271,7 +272,6 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
 
   const response = await generate_text({ system: prompt, role: "fractal", node_id });
 
-  const { parse_think_block } = await import("../data/parser.js");
   const { detox_prose } = await import("../utils/detox.js");
   const cleaned_prose = detox_prose(parse_think_block(response || "").prose);
 

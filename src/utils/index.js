@@ -79,6 +79,8 @@ export * from "./registries.js";
 
 export * from "./text.js";
 export * from "./alternations.js";
+export * from "./tags.js";
+export * from "./llm-sanitize.js";
 
 // ============================================================================
 // Circuit Breaker & Exponential Backoff Resilience

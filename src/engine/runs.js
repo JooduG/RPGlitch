@@ -13,7 +13,8 @@
  */
 
 import { IMAGE_POLICY } from "@config";
-import { append_ledger_entries, apply_bracket_deltas, db, log_message, normalize_entity, parse_bracket_entries, parse_think_block } from "@data";
+import { append_ledger_entries, db, log_message, normalize_entity } from "@data";
+import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "@utils";
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
 import { state_bridge } from "@utils";
 import { Kernel } from "./kernel.svelte.js";

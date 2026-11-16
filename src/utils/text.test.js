@@ -1,21 +1,26 @@
 import { CHARS_PER_TOKEN } from "@config";
 import { describe, expect, it } from "vitest";
+import { escape_unescaped_json_quotes, extract_json_block, safe_parse_json, strip_cognition_blocks } from "./llm-sanitize.js";
 import {
   AGGREGATE_KEYS,
-  alternation_field_label,
   balance_brackets,
-  clean_text,
   CLEAR_TOKENS,
+  merge_prose_into_field,
+  safe_parse_pseudo_json,
+  strip_visual_excluded,
+  VISUAL_EXCLUDED_KEYS,
+} from "./tags.js";
+import {
+  alternation_field_label,
+  clean_text,
   collapse_history,
   collapse_whitespace,
   compute_initials,
   decompose_story_title,
   derive_vector_title,
   diff_alternation_picks,
-  escape_unescaped_json_quotes,
   estimate_tokens,
   extract_alternations,
-  extract_json_block,
   filter_narrative_messages,
   first_sentence,
   format_datetime,
@@ -26,20 +31,14 @@ import {
   indent_continuation,
   is_narrative_role,
   match_case,
-  merge_prose_into_field,
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
   parse_relational_vector,
   resolve_alternations,
   role_display_label,
-  safe_parse_json,
-  safe_parse_pseudo_json,
   strip_alternation_braces,
-  strip_cognition_blocks,
-  strip_visual_excluded,
   truncate_at_boundary,
   truncate_at_word,
-  VISUAL_EXCLUDED_KEYS,
 } from "./text.js";
 
 describe("safe_parse_json", () => {
