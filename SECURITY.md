@@ -18,15 +18,18 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 ## 2. Active Security Controls
 
 ### 2.1 URL & Web Ingestion (`src/utils/html.js`)
+
 - **`validate_url(url)`**: Enforces an explicit protocol allowlist, blocking dangerous schemes (`javascript:`, `data:`, `file:`) before `fetch_web` or `get_super_fetch_engine` executes.
 - **`validate_image(file)` / `IMAGE_SIGNATURE_VALIDATORS`**: Inspects raw binary magic-byte headers (`image/jpeg`, `image/png`, `image/gif`, `image/webp`) before ingesting uploaded image files.
 
 ### 2.2 HTML Sanitization & Markdown Rendering
+
 - **AST-Based Markdown (`src/utils/markdown.js`, `src/ui/primitives/TextField.svelte`)**: Markdown is parsed into an AST token array and rendered via native Svelte snippets (`{@render token_content(...)}`) without evaluating HTML strings.
 - **DOMPurify (`src/utils/html.js`)**: `sanitize()` and `sanitize_to_fragment()` enforce `{ SANITIZE_NAMED_PROPS: true, SANITIZE_DOM: true }` to prevent XSS and DOM clobbering (verified by `SECURITY_DOMPURIFY_CONFIG` in `npm run audit:hygiene`).
 - **Known Gap**: `src/ui/Typewriter.svelte` uses `{@html sliced_html}` for structural character slicing without calling `sanitize()`.
 
 ### 2.3 LLM Response & Domain Bounds
+
 - **Whitelisted Extraction (`src/engine/turns.js`)**: `execute_turn_1_director` parses JSON via `safe_parse_json` and extracts only whitelisted fields (`_thought_process`, `next_action`, `directors_note`, `dynamics_deltas`, `camera_note`).
 - **Resource & Numeric Caps**: `clamp` (`@utils`) and `DYNAMICS.DELTA.CLIP` (`src/config.js`) bound dynamics values (`[0, 100]` in `reduce_dynamics`, `[5, 95]` in `Kernel.submit_turn`), and `PAST_VECTOR_CAP = 20` caps session memory vectors.
 
