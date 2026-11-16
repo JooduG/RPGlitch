@@ -130,7 +130,11 @@ export function normalize_entity(raw = {}) {
     profile_picture: typeof src.profile_picture === "string" ? src.profile_picture.trim() : "",
     signature_color: typeof src.signature_color === "string" ? src.signature_color.trim() : "",
     visual_style: typeof src.visual_style === "string" ? src.visual_style.trim() : "none",
-    pov: src.pov === "1st_person" ? "1st_person" : "3rd_person",
+    pov:
+      src.pov === "1st_person" ? "1st_person"
+      : src.pov === "3rd_person" ? "3rd_person"
+      : entity_type === "fractal" ? "3rd_person"
+      : "1st_person",
     speaking_style: typeof src.speaking_style === "string" ? src.speaking_style.trim() : "casual",
     narrative_style: typeof src.narrative_style === "string" ? src.narrative_style.trim() : "cormac_mccarthy",
     tags: Array.isArray(src.tags) ? src.tags.map((t) => String(t).trim()).filter(Boolean) : [],
@@ -181,7 +185,7 @@ export function create_entity(type = "character", overrides = {}) {
     profile_picture: "",
     signature_color: "",
     visual_style: "none",
-    pov: "3rd_person",
+    pov: entity_type === "fractal" ? "3rd_person" : "1st_person",
     speaking_style: "casual",
     narrative_style: "cormac_mccarthy",
     tags: [],

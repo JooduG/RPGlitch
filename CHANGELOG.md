@@ -8,6 +8,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **Profile UI, Premades Relocation, Time-Travel Scrub Bar & RelationalGraph Redesign**:
+  - Relocated `src/data/presets.js` to `src/definitions/premades.js`, purged dead `NARRATIVE_PRESETS`, `get_narrative_preset`, `get_starter_entities`, and `get_starter_entity_by_id`, and added `src/definitions/premades.test.js`.
+  - Set `pov: "1st_person"` on all 7 premade characters and `pov: "3rd_person"` on all 3 premade fractals; updated `normalize_entity()` and `create_entity()` in `src/data/entities.js` and backfilled existing IndexedDB premade characters in `src/data/db.js`.
+  - Fixed `@ID · POV` validation & `sync()` draft-wipe bug in `src/ui/Profile.svelte.js` (`ID_PATTERN` 2–36 chars, no forced uppercase mutation on pristine drafts), and relocated `@ID · POV` to the left side of the frosted footer bar in `src/ui/Profile.svelte` with consistent header alignment and Pitfall 4 contrast-safe field headers.
+  - Replaced both history modals (`Mutation Ledger Inspector` & `Profile Timeline Scrubber`) with an in-place Time-Travel Scrub Bar (`R0..RN`) above the Profile footer and an inline `Mutation Ledger` feed inside `src/ui/DevWing.svelte`, plus fixed the stray comma artifact in `replay_entity_field()` (`src/data/db.js`).
+  - Moved `RelationalGraph.svelte` below the 4 quadrants in `src/ui/Profile.svelte`, removed the floating `selected_dossier` card and emoji tooltips, added a CardHand-sized hover preview card (`relational-hover-card`), enabled direct profile navigation on node click, and updated `src/ui/RelationalGraph.test.js`.
+
 - **Utils Layer Surgical Refactor (EGM Review)**:
   - Deleted orphaned `src/utils/bridges.js` (superseded by `src/utils/registries.js`).
   - Removed unused `security` shim object from `src/utils/html.js`.

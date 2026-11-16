@@ -7,7 +7,6 @@
   import {
     normalize_entity as normalize,
     query_entity_history,
-    replay_entity_field,
     replay_full_entity_at_round,
     serialize_character_card,
     serialize_rpglitch_entity,
@@ -19,15 +18,7 @@
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
   import { ProfilePicture } from "@ui";
-  import {
-    auto_resize,
-    click_outside,
-    download_json_file,
-    format_datetime,
-    generate_uuid,
-    resolve_display_macro_segments,
-    safe_parse_pseudo_json,
-  } from "@utils";
+  import { auto_resize, click_outside, download_json_file, generate_uuid, resolve_display_macro_segments, safe_parse_pseudo_json } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "../definitions/narrative-styles.js";
@@ -60,44 +51,10 @@
   let previous_scroll_top = $state(0);
   /** Export chooser (edit-mode footer) - picks V2 Card or native RPGlitch JSON. */
   let show_export_modal = $state(false);
-  /** Mutation Ledger Field History Inspector */
-  let show_field_history_modal = $state(false);
-  let history_target_field = $state("present.non_physical");
-  /** Full Profile Timeline Scrubber & Branching Mode */
-  let show_timeline_modal = $state(false);
+  /** In-place Time-Travel Scrub Bar */
+  let is_time_traveling = $state(false);
 
-  // --- FIELD HISTORY STATE ---
-  let is_field_history_loading = $state(false);
-  /** @type {Array<any>} */
-  let field_history_records = $state([]);
-  let reconstructed_brackets = $state("");
-  let reconstructed_prose = $state("");
-  let field_history_active_tab = $state("timeline"); // "timeline" | "reconstructed"
-
-  $effect(() => {
-    if (show_field_history_modal && profile_state.char?.id) {
-      load_field_history();
-    }
-  });
-
-  async function load_field_history() {
-    if (!profile_state.char?.id) return;
-    is_field_history_loading = true;
-    try {
-      const records = await query_entity_history(profile_state.char.id, history_target_field);
-      field_history_records = records.reverse();
-      const replay_result = await replay_entity_field(profile_state.char.id, history_target_field);
-      reconstructed_brackets = replay_result.reconstructed_brackets;
-      reconstructed_prose = replay_result.raw_prose;
-    } catch (err) {
-      console.error("[Profile:FieldHistory] Failed to load history:", err);
-      field_history_records = [];
-    } finally {
-      is_field_history_loading = false;
-    }
-  }
-
-  // --- TIMELINE MODAL STATE ---
+  // --- TIME-TRAVEL SCRUB BAR STATE ---
   let is_timeline_loading = $state(false);
   let is_performing_timeline_action = $state(false);
   /** @type {Array<number>} */
@@ -105,11 +62,9 @@
   let selected_timeline_round = $state(0);
   /** @type {any} */
   let reconstructed_timeline_state = $state(null);
-  /** @type {Array<any>} */
-  let timeline_round_events = $state([]);
 
   $effect(() => {
-    if (show_timeline_modal && profile_state.char?.id) {
+    if (is_time_traveling && profile_state.char?.id) {
       load_timeline_data();
     }
   });
@@ -128,7 +83,7 @@
       }
       available_timeline_rounds = Array.from(rounds_set).sort((a, b) => a - b);
       selected_timeline_round = available_timeline_rounds[available_timeline_rounds.length - 1] ?? 0;
-      await fetch_timeline_round_state(selected_timeline_round, history);
+      await fetch_timeline_round_state(selected_timeline_round);
     } catch (err) {
       console.error("[Profile:Timeline] Failed to load entity timeline:", err);
       available_timeline_rounds = [0];
@@ -143,11 +98,9 @@
    * @param {number} round
    * @param {Array<any>} [provided_history]
    */
-  async function fetch_timeline_round_state(round, provided_history = null) {
+  async function fetch_timeline_round_state(round) {
     if (!profile_state.char?.id) return;
     try {
-      const history = provided_history || (await query_entity_history(profile_state.char.id));
-      timeline_round_events = history.filter((e) => e.round === round);
       reconstructed_timeline_state = await replay_full_entity_at_round(profile_state.char.id, round);
     } catch (err) {
       console.error("[Profile:Timeline] Failed to replay entity at round:", err);
@@ -186,7 +139,7 @@
       profile_state.char = normalized;
       if (app.editing_entity?.id === normalized.id) app.editing_entity = normalized;
 
-      show_timeline_modal = false;
+      is_time_traveling = false;
     } catch (err) {
       console.error("[Profile:Timeline] Failed to revert entity state:", err);
     } finally {
@@ -215,7 +168,7 @@
 
       await entities.upsert(entity_type, new_entity);
       await app.load_entities();
-      show_timeline_modal = false;
+      is_time_traveling = false;
     } catch (err) {
       console.error("[Profile:Timeline] Failed to clone entity branch:", err);
     } finally {
@@ -652,15 +605,7 @@
 
 <svelte:window
   onkeydown={(e) => {
-    if (
-      !profile_state.char ||
-      profile_state.show_delete_confirm ||
-      profile_state.pending_swap_confirm ||
-      show_export_modal ||
-      show_field_history_modal ||
-      show_timeline_modal
-    )
-      return;
+    if (!profile_state.char || profile_state.show_delete_confirm || profile_state.pending_swap_confirm || show_export_modal) return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
       if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable || target.closest("[data-wings-container]")) return;
@@ -831,59 +776,6 @@
               class="flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-tight {entity_type === 'fractal' && !app.viewport.mobile ? 'pr-44 pl-10' : ''}"
               data-testid="profile-header"
               role="banner">
-              {#if profile_state.is_editing}
-                <div class="mt-tight flex items-center gap-tight font-mono text-xs opacity-80" style="color: {signature_color};">
-                  <span aria-hidden="true">@</span>
-                  <input
-                    type="text"
-                    value={profile_state.draft_id ?? profile_state.char.id ?? ""}
-                    placeholder="SLUG"
-                    pattern={"^[A-Za-z0-9_-]{2,20}$"}
-                    maxlength="20"
-                    class="border-b border-white/20 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider uppercase outline-none focus:border-white/60"
-                    style="color: {signature_color};"
-                    oninput={(event) => {
-                      profile_state.draft_id = event.currentTarget.value
-                        .toUpperCase()
-                        .replace(/[^A-Z0-9_-]/g, "")
-                        .slice(0, 20);
-                      profile_state.identity_error = "";
-                      profile_state.mark_mutated();
-                    }}
-                    onblur={() => {
-                      if (!profile_state.commit_draft_id()) {
-                        profile_state.identity_error = "ID must be 2–20 chars (A–Z, 0–9, _ or -).";
-                      }
-                      profile_state.set_active_field("", "");
-                    }}
-                    onfocus={() => profile_state.set_active_field("id", "Entity Handle")} />
-                  {#if entity_type !== "fractal"}
-                    <span class="text-slate-400" aria-hidden="true">·</span>
-                    <button
-                      type="button"
-                      class="cursor-pointer tracking-wider uppercase transition-colors outline-none hover:opacity-100"
-                      onclick={() => {
-                        profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
-                        profile_state.mark_mutated();
-                      }}
-                      onfocus={() => profile_state.set_active_field("pov", "Perspective")}
-                      onblur={() => profile_state.set_active_field("", "")}>
-                      {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
-                    </button>
-                  {/if}
-                </div>
-                {#if profile_state.is_editing && profile_state.identity_error}
-                  <div role="alert" class="mt-tight font-mono text-[11px] tracking-wide text-red-300/90">
-                    {profile_state.identity_error}
-                  </div>
-                {/if}
-              {:else if profile_state.char.id}
-                <div class="mt-tight font-mono text-xs opacity-60 {entity_type === 'fractal' ? 'text-left' : 'text-right'}" style="color: {signature_color};">
-                  @{profile_state.char.id.toUpperCase()}{#if entity_type !== "fractal"}
-                    · {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}{/if}
-                </div>
-              {/if}
-
               <div class="w-full min-w-0 shrink-0">
                 {#if profile_state.is_editing}
                   <div class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
@@ -897,7 +789,7 @@
                       border-none
                       bg-transparent
                       p-standard
-                      text-left
+                      {entity_type === 'fractal' ? 'text-left' : 'text-right'}
                       font-heading
                       text-4xl
                       leading-none
@@ -1051,6 +943,58 @@
             </main>
           </div>
 
+          {#if is_time_traveling}
+            <div
+              data-testid="profile-time-travel-bar"
+              class="relative z-20 flex flex-wrap items-center justify-between gap-tight border-t px-standard py-tight backdrop-blur-lg"
+              style:border-color="color-mix(in srgb, var(--signature-color) 25%, transparent)"
+              style:background-color="color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken))"
+              style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}>
+              <div
+                class={"flex flex-wrap items-center gap-tight" +
+                  (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}>
+                <span class="font-mono text-[11px] font-bold tracking-wider uppercase tabular-nums" style="color: {signature_color};">
+                  R{selected_timeline_round}
+                </span>
+                <div class="flex flex-wrap items-center gap-1">
+                  {#each available_timeline_rounds as r (r)}
+                    <button
+                      type="button"
+                      class="cursor-pointer rounded-md px-2 py-0.5 font-mono text-[11px] tabular-nums transition-colors"
+                      style:background-color={selected_timeline_round === r ?
+                        "color-mix(in srgb, var(--signature-color) 25%, var(--color-glass-sunken))"
+                      : "rgba(0,0,0,0.3)"}
+                      style:border={selected_timeline_round === r ?
+                        "1px solid color-mix(in srgb, var(--signature-color) 60%, transparent)"
+                      : "1px solid rgba(255,255,255,0.08)"}
+                      style:color={selected_timeline_round === r ? "var(--color-frisk)" : "rgb(148 163 184)"}
+                      onclick={() => handle_select_timeline_round(r)}>
+                      R{r}
+                    </button>
+                  {/each}
+                </div>
+              </div>
+
+              <div class="flex items-center gap-tight">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  disabled={is_performing_timeline_action || is_timeline_loading}
+                  onclick={handle_timeline_clone_from_point}>
+                  {is_performing_timeline_action ? "Branching..." : "Branch"}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  disabled={is_performing_timeline_action || is_timeline_loading}
+                  onclick={handle_timeline_update_from_point}>
+                  {is_performing_timeline_action ? "Reverting..." : "Revert"}
+                </Button>
+                <Button variant="invisible" size="small" onclick={() => (is_time_traveling = false)}>Done</Button>
+              </div>
+            </div>
+          {/if}
+
           <footer
             bind:this={footer_el}
             tabindex="-1"
@@ -1079,107 +1023,162 @@
             </div>
 
             <div
-              class={"relative z-10 flex max-w-full flex-row items-center justify-end gap-tight" +
+              class={"relative z-10 flex w-full max-w-full flex-row items-center justify-between gap-tight" +
                 // Footer frost is full-bleed (pulled under the portrait by -2 column units),
                 // but the buttons must stay in the info column: the sticky avatar (z-20)
                 // would otherwise paint over + eat clicks on anything under it.
                 (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}>
-              {#if profile_state.is_editing}
-                <Button
-                  variant="primary"
-                  square={true}
-                  actions={[tooltip]}
-                  aria-label="Enhance Profile with AI - overwrites all fields (macros preserved)"
-                  disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
-                  onclick={() => {
-                    profile_state.enhance_profile(entity_type);
-                  }}
-                  class="touch-target-coarse">
-                  <svg
-                    viewBox="0 0 24 24"
-                    class={(Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt") ? "animate-pulse " : "") +
-                      "h-5 w-5 fill-none stroke-current"}
-                    style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                    <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
-                  </svg>
-                </Button>
-                <Button
-                  variant="primary"
-                  square={true}
-                  actions={[tooltip]}
-                  aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
-                  disabled={profile_state.is_saving}
-                  onclick={() => (show_export_modal = true)}
-                  class="touch-target-coarse">
-                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                    <polyline points="7 10 12 15 17 10"></polyline>
-                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                  </svg>
-                </Button>
-                <Button
-                  variant="secondary"
-                  square={true}
-                  actions={[tooltip]}
-                  aria-label="Discard unsaved edits and exit editing"
-                  disabled={profile_state.is_saving}
-                  onclick={() => {
-                    profile_state.cancel();
-                  }}
-                  class="touch-target-coarse">
-                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                  </svg>
-                </Button>
-                <Button
-                  variant="danger"
-                  square={true}
-                  actions={[tooltip]}
-                  aria-label="Delete this entity"
-                  onclick={() => {
-                    profile_state.show_delete_confirm = true;
-                  }}
-                  class="touch-target-coarse">
-                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  </svg>
-                </Button>
-              {:else}
-                <Button
-                  variant="secondary"
-                  square={true}
-                  actions={[tooltip]}
-                  aria-label="Inspect historical rounds and branch or revert entity state"
-                  onclick={() => (show_timeline_modal = true)}
-                  class="touch-target-coarse">
-                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                </Button>
-                <Button
-                  variant="secondary"
-                  square={true}
-                  actions={[tooltip]}
-                  disabled={simulation_state.busy || !profile_state.can_edit}
-                  aria-label={!profile_state.can_edit ? "Edit locked - entity is in an active story. Enable DevMode to override." : "Edit"}
-                  onclick={() => {
-                    if (!profile_state.can_edit) return;
-                    previous_scroll_top = info_container_el?.scrollTop || 0;
-                    profile_state.start_editing();
-                    setTimeout(() => {
-                      if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
-                    }, 0);
-                  }}
-                  class="touch-target-coarse">
-                  <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                  </svg>
-                </Button>
-              {/if}
+              <!-- Left: Paired @ID · POV -->
+              <div class="flex min-w-0 flex-col gap-0.5">
+                {#if profile_state.is_editing}
+                  <div class="flex items-center gap-tight font-mono text-xs" style="color: {signature_color};">
+                    <span aria-hidden="true" class="opacity-70">@</span>
+                    <input
+                      type="text"
+                      value={profile_state.draft_id ?? profile_state.char.id ?? ""}
+                      placeholder="SLUG"
+                      maxlength="36"
+                      aria-label="Entity Handle"
+                      class="w-28 border-b border-white/25 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider text-slate-100 uppercase outline-none focus:border-white/60"
+                      oninput={(event) => {
+                        profile_state.draft_id = event.currentTarget.value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 36);
+                        profile_state.identity_error = "";
+                        profile_state.mark_mutated();
+                      }}
+                      onblur={() => {
+                        if (!profile_state.commit_draft_id()) {
+                          profile_state.identity_error = "ID must be 2–36 chars (A–Z, a–z, 0–9, _ or -).";
+                        }
+                        profile_state.set_active_field("", "");
+                      }}
+                      onfocus={() => profile_state.set_active_field("id", "Entity Handle")} />
+                    <span class="text-slate-400" aria-hidden="true">·</span>
+                    <button
+                      type="button"
+                      class="cursor-pointer rounded-md border border-white/15 bg-black/25 px-2 py-0.5 font-mono text-[11px] tracking-wider text-slate-200 uppercase transition-colors outline-none hover:border-white/35"
+                      onclick={() => {
+                        profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
+                        profile_state.mark_mutated();
+                      }}
+                      onfocus={() => profile_state.set_active_field("pov", "Perspective")}
+                      onblur={() => profile_state.set_active_field("", "")}>
+                      {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
+                    </button>
+                  </div>
+                  {#if profile_state.identity_error}
+                    <div role="alert" class="font-mono text-[10px] tracking-wide text-red-300/95">
+                      {profile_state.identity_error}
+                    </div>
+                  {/if}
+                {:else if profile_state.char.id}
+                  <div
+                    class="flex items-center gap-tight rounded-md border border-white/10 bg-black/25 px-2.5 py-1 font-mono text-[11px] tracking-wider text-slate-200 uppercase">
+                    <span style="color: {signature_color};">@{profile_state.char.id.toUpperCase()}</span>
+                    <span class="text-slate-500" aria-hidden="true">·</span>
+                    <span class="text-slate-300">{profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}</span>
+                  </div>
+                {/if}
+              </div>
+
+              <!-- Right: Action Buttons -->
+              <div class="flex shrink-0 flex-row items-center justify-end gap-tight">
+                {#if profile_state.is_editing}
+                  <Button
+                    variant="primary"
+                    square={true}
+                    actions={[tooltip]}
+                    aria-label="Enhance Profile with AI - overwrites all fields (macros preserved)"
+                    disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
+                    onclick={() => {
+                      profile_state.enhance_profile(entity_type);
+                    }}
+                    class="touch-target-coarse">
+                    <svg
+                      viewBox="0 0 24 24"
+                      class={(Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt") ? "animate-pulse " : "") +
+                        "h-5 w-5 fill-none stroke-current"}
+                      style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
+                    </svg>
+                  </Button>
+                  <Button
+                    variant="primary"
+                    square={true}
+                    actions={[tooltip]}
+                    aria-label={`Export ${entity_type === "fractal" ? "Fractal" : "Character"} (V2 Card or RPGlitch JSON)`}
+                    disabled={profile_state.is_saving}
+                    onclick={() => (show_export_modal = true)}
+                    class="touch-target-coarse">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    square={true}
+                    actions={[tooltip]}
+                    aria-label="Discard unsaved edits and exit editing"
+                    disabled={profile_state.is_saving}
+                    onclick={() => {
+                      profile_state.cancel();
+                    }}
+                    class="touch-target-coarse">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                      <polyline points="1 4 1 10 7 10"></polyline>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                    </svg>
+                  </Button>
+                  <Button
+                    variant="danger"
+                    square={true}
+                    actions={[tooltip]}
+                    aria-label="Delete this entity"
+                    onclick={() => {
+                      profile_state.show_delete_confirm = true;
+                    }}
+                    class="touch-target-coarse">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </Button>
+                {:else}
+                  <Button
+                    variant="secondary"
+                    square={true}
+                    actions={[tooltip]}
+                    aria-label="Inspect historical rounds and branch or revert entity state"
+                    onclick={() => (is_time_traveling = !is_time_traveling)}
+                    class="touch-target-coarse">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    square={true}
+                    actions={[tooltip]}
+                    disabled={simulation_state.busy || !profile_state.can_edit}
+                    aria-label={!profile_state.can_edit ? "Edit locked - entity is in an active story. Enable DevMode to override." : "Edit"}
+                    onclick={() => {
+                      if (!profile_state.can_edit) return;
+                      previous_scroll_top = info_container_el?.scrollTop || 0;
+                      profile_state.start_editing();
+                      setTimeout(() => {
+                        if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
+                      }, 0);
+                    }}
+                    class="touch-target-coarse">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </Button>
+                {/if}
+              </div>
             </div>
           </footer>
         </div>
@@ -1208,350 +1207,23 @@
               transition:fade={{ duration: 250 }}>
               <AudioWing {profile_state} />
               {#if app.settings.dev_mode}
-                <DevWing
-                  {profile_state}
-                  on_inspect_history={(field) => {
-                    history_target_field = field;
-                    show_field_history_modal = true;
-                  }} />
+                <DevWing {profile_state} />
               {/if}
             </div>
           {:else if app.settings.dev_mode}
             <div style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""} class={app.viewport.mobile ? "max-w-sm" : "w-full"}>
-              <DevWing
-                {profile_state}
-                on_inspect_history={(field) => {
-                  history_target_field = field;
-                  show_field_history_modal = true;
-                }} />
+              <DevWing {profile_state} />
             </div>
           {/if}
         </div>
       </aside>
     </div>
   </Modal>
-
-  <!-- Field History Inspector Modal (Inlined) -->
-  {#if show_field_history_modal && profile_state.char?.id}
-    <Modal
-      bind:open={show_field_history_modal}
-      variant="bare"
-      z_index="400"
-      class="relative flex max-h-[85dvh] w-[clamp(28rem,90vw,48rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
-      on_close={() => {
-        show_field_history_modal = false;
-      }}>
-      <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
-        <!-- Header -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-standard">
-          <div class="flex flex-col">
-            <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Mutation Ledger Inspector</h4>
-            <span class="font-mono text-xs text-slate-400">
-              {profile_state.char.name} &bull; <span class="text-cyan-200">{history_target_field}</span>
-            </span>
-          </div>
-
-          <div class="flex items-center gap-tight">
-            <div class="flex rounded-lg bg-black/40 p-0.5">
-              <button
-                type="button"
-                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab === 'timeline' ?
-                  'bg-cyan-500/20 text-cyan-300'
-                : 'text-slate-400 hover:text-slate-200'}"
-                onclick={() => (field_history_active_tab = "timeline")}>
-                Timeline ({field_history_records.length})
-              </button>
-              <button
-                type="button"
-                class="cursor-pointer rounded-md px-2.5 py-1 font-mono text-[11px] font-medium transition-colors {field_history_active_tab === 'reconstructed' ?
-                  'bg-cyan-500/20 text-cyan-300'
-                : 'text-slate-400 hover:text-slate-200'}"
-                onclick={() => (field_history_active_tab = "reconstructed")}>
-                Reconstructed State
-              </button>
-            </div>
-
-            <Button variant="invisible" size="small" square={true} onclick={() => (show_field_history_modal = false)} aria-label="Close">
-              <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </Button>
-          </div>
-        </div>
-
-        <!-- Body -->
-        <div class="flex flex-1 flex-col overflow-y-auto pb-tight">
-          {#if is_field_history_loading}
-            <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Replaying ledger stream...</div>
-          {:else if field_history_active_tab === "timeline"}
-            {#if field_history_records.length === 0}
-              <div class="flex h-48 flex-col items-center justify-center gap-tight font-mono text-xs text-slate-500">
-                <span>No ledger events recorded for this field.</span>
-                <span class="text-[10px] text-slate-600">Mutations during genesis or turns will appear here.</span>
-              </div>
-            {:else}
-              <div class="flex flex-col gap-tight py-1">
-                {#each field_history_records as record (record.id || record.timestamp + "-" + record.round + "-" + record.seq)}
-                  <div
-                    class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard text-xs transition-colors hover:border-cyan-500/20">
-                    <div class="flex items-center justify-between font-mono text-[10px] text-slate-400">
-                      <div class="flex items-center gap-tight">
-                        <span class="rounded bg-cyan-950/60 px-1.5 py-0.5 font-bold text-cyan-400">
-                          R{record.round}:S{record.seq}
-                        </span>
-                        <span class="text-slate-300 capitalize">{record.writer}</span>
-                        {#if record.decider && record.decider !== record.writer}
-                          <span class="text-slate-500">via {record.decider}</span>
-                        {/if}
-                      </div>
-                      <span>{format_datetime(record.timestamp)}</span>
-                    </div>
-
-                    <div class="flex items-start gap-tight pt-0.5">
-                      {#if record.key}
-                        <span class="shrink-0 font-mono text-xs font-semibold text-cyan-300">
-                          [{record.key}]
-                        </span>
-                      {/if}
-
-                      <div class="flex flex-1 flex-col gap-tight">
-                        {#if record.new_value === null}
-                          <span class="font-mono text-xs text-red-400 italic">cleared (null)</span>
-                        {:else}
-                          <span class="font-mono text-xs text-slate-200">
-                            {record.new_value}
-                          </span>
-                        {/if}
-
-                        {#if record.old_value != null && record.old_value !== record.new_value}
-                          <span class="font-mono text-[10px] text-slate-500 line-through">
-                            was: {record.old_value}
-                          </span>
-                        {/if}
-                      </div>
-
-                      {#if record.visibility || record.weight}
-                        <div class="flex shrink-0 items-center gap-tight font-mono text-[10px]">
-                          {#if record.visibility === "hide"}
-                            <span class="rounded bg-red-950/40 px-1.5 py-0.5 text-red-400">hide</span>
-                          {/if}
-                          {#if record.weight && record.weight !== 5}
-                            <span class="rounded bg-amber-950/40 px-1.5 py-0.5 text-amber-300">w:{record.weight}</span>
-                          {/if}
-                        </div>
-                      {/if}
-                    </div>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-          {:else}
-            <!-- Reconstructed Tab -->
-            <div class="flex flex-col gap-standard py-1">
-              <div class="flex flex-col gap-tight">
-                <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Bracket Predicates </span>
-                <div class="min-h-24 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs leading-relaxed wrap-break-word text-cyan-200">
-                  {reconstructed_brackets || "(empty state)"}
-                </div>
-              </div>
-
-              {#if reconstructed_prose}
-                <div class="flex flex-col gap-tight">
-                  <span class="font-mono text-[11px] font-bold tracking-wider text-slate-300 uppercase"> Replayed Raw Prose </span>
-                  <div class="min-h-16 rounded-xl border border-white/10 bg-black/40 p-standard font-mono text-xs text-slate-300">
-                    {reconstructed_prose}
-                  </div>
-                </div>
-              {/if}
-            </div>
-          {/if}
-        </div>
-      </div>
-    </Modal>
-  {/if}
-
-  <!-- Timeline Scrubber & Branching Modal (Inlined) -->
-  {#if show_timeline_modal && profile_state.char?.id}
-    <Modal
-      bind:open={show_timeline_modal}
-      variant="bare"
-      z_index="400"
-      class="relative flex max-h-[88dvh] w-[clamp(30rem,92vw,54rem)] flex-col rounded-2xl bg-glass-elevated p-5 shadow-[0_20px_50px_rgba(0,0,0,0.85)] [backdrop-filter:var(--blur-mist)]"
-      on_close={() => {
-        show_timeline_modal = false;
-      }}>
-      <div class="flex h-full flex-col gap-standard overflow-hidden font-sans">
-        <!-- Header -->
-        <div class="flex items-center justify-between border-b border-white/10 pb-standard">
-          <div class="flex flex-col">
-            <h4 class="m-0 text-sm font-bold tracking-wider text-cyan-400 uppercase">Profile Timeline Scrubber</h4>
-            <span class="font-mono text-xs text-slate-400">
-              {profile_state.char.name || "Entity"} &bull; <span class="text-cyan-200">Timeline Branching & Historical Reversion</span>
-            </span>
-          </div>
-
-          <Button variant="invisible" size="small" square={true} onclick={() => (show_timeline_modal = false)} aria-label="Close">
-            <svg viewBox="0 0 24 24" class="size-4 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </Button>
-        </div>
-
-        <!-- Scrubber Bar -->
-        <div class="flex flex-col gap-tight rounded-xl border border-white/10 bg-black/40 p-standard">
-          <div class="flex items-center justify-between">
-            <span class="font-mono text-xs font-semibold text-slate-300"> SELECT TIMELINE POINT </span>
-            <span class="rounded bg-cyan-950/70 px-tight py-0.5 font-mono text-xs font-bold text-cyan-400">
-              Round {selected_timeline_round}
-              {selected_timeline_round === 0 ? "(Genesis Baseline)" : ""}
-            </span>
-          </div>
-
-          <!-- Round Selector Strip -->
-          <div class="flex flex-wrap items-center gap-tight pb-tight">
-            {#each available_timeline_rounds as r (r)}
-              <button
-                type="button"
-                class="cursor-pointer rounded-lg px-standard py-1 font-mono text-xs font-medium transition {selected_timeline_round === r ?
-                  'bg-cyan-500 font-bold text-black shadow-[0_0_12px_rgba(6,182,212,0.6)]'
-                : 'border border-white/10 bg-white/5 text-slate-300 hover:border-cyan-400/50 hover:bg-white/10'}"
-                onclick={() => handle_select_timeline_round(r)}>
-                R{r}
-              </button>
-            {/each}
-          </div>
-        </div>
-
-        <!-- Snapshot Replay Body -->
-        <div class="flex flex-1 flex-col gap-standard overflow-y-auto pb-tight">
-          {#if is_timeline_loading}
-            <div class="flex h-48 animate-pulse items-center justify-center font-mono text-xs text-cyan-400">Reconstructing Four-Quadrant Matrix...</div>
-          {:else if reconstructed_timeline_state}
-            <div class="grid grid-cols-1 gap-standard md:grid-cols-2">
-              <!-- Present Quadrant -->
-              <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
-                <span class="font-mono text-xs font-bold text-cyan-300">PRESENT QUADRANT</span>
-                <div class="flex flex-col gap-tight font-mono text-xs">
-                  <span class="text-[10px] text-slate-400 uppercase">Physical:</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight text-slate-300">
-                    {reconstructed_timeline_state.present.physical || "<empty>"}
-                  </div>
-                  <span class="text-[10px] text-slate-400 uppercase">Non-Physical:</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight text-slate-300">
-                    {reconstructed_timeline_state.present.non_physical || "<empty>"}
-                  </div>
-                </div>
-              </div>
-
-              <!-- Past & Future Quadrants -->
-              <div class="flex flex-col gap-standard">
-                <!-- Past Quadrant -->
-                <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
-                  <span class="font-mono text-xs font-bold text-cyan-300">PAST</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight font-mono text-slate-300">
-                    {reconstructed_timeline_state.past || "<empty>"}
-                  </div>
-                </div>
-
-                <!-- Future / Standing Trajectory -->
-                <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/25 p-standard">
-                  <span class="font-mono text-xs font-bold text-cyan-300">FUTURE (STANDING AGENDA)</span>
-                  <div class="max-h-24 overflow-y-auto rounded bg-black/40 p-tight font-mono text-slate-300">
-                    {reconstructed_timeline_state.future || "<empty>"}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Recorded mutations in this specific round -->
-            {#if timeline_round_events.length > 0}
-              <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-standard">
-                <span class="font-mono text-[11px] font-semibold text-slate-400">
-                  Round {selected_timeline_round} Mutations ({timeline_round_events.length})
-                </span>
-                <div class="flex max-h-32 flex-col gap-tight overflow-y-auto font-mono text-[11px] text-slate-300">
-                  {#each timeline_round_events as ev (ev.id || `${ev.field}-${ev.round}-${ev.seq || 0}-${ev.timestamp}`)}
-                    <div class="flex items-center justify-between gap-tight border-b border-white/5 py-0.5">
-                      <div class="flex items-center gap-tight truncate">
-                        <span class="text-cyan-400">[{ev.field}]</span>
-                        {#if ev.key}
-                          <span class="text-slate-200">[{ev.key}] &rarr; {ev.new_value ?? "cleared"}</span>
-                        {:else}
-                          <span class="truncate text-slate-400">{ev.new_value}</span>
-                        {/if}
-                      </div>
-                      <span class="shrink-0 text-[10px] text-slate-500">{format_datetime(ev.timestamp)}</span>
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-          {/if}
-        </div>
-
-        <!-- Actions Footer -->
-        <div class="flex items-center justify-between border-t border-white/10 pt-standard">
-          <div class="font-mono text-[11px] text-slate-500">Reverting alters current profile. Cloning branches a separate entity into census.</div>
-
-          <div class="flex items-center gap-tight">
-            <Button
-              variant="secondary"
-              size="medium"
-              disabled={is_performing_timeline_action || is_timeline_loading}
-              onclick={handle_timeline_clone_from_point}
-              aria-label="Clone from this point into a new entity"
-              actions={[tooltip]}>
-              {is_performing_timeline_action ? "Cloning..." : "Clone from this point"}
-            </Button>
-
-            <Button
-              variant="primary"
-              size="medium"
-              disabled={is_performing_timeline_action || is_timeline_loading}
-              onclick={handle_timeline_update_from_point}
-              aria-label="Revert entity in-place to this historical round"
-              actions={[tooltip]}>
-              {is_performing_timeline_action ? "Reverting..." : "Update from this point"}
-            </Button>
-          </div>
-        </div>
-      </div>
-    </Modal>
-  {/if}
 {/if}
 
 {#snippet EntityBody()}
   <div class={entity_body_class} style:grid-template-columns={entity_body_grid_cols} data-testid="profile-fragments">
-    <!-- Profile order: Name → Description → ID+POV strip (header) → Relationships → quadrant sections -->
-    <div
-      class={get_section_class()}
-      style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
-      data-section="relationships"
-      role="presentation">
-      <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
-        <h6
-          class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
-          style="color: var(--signature-color); text-shadow: none;">
-          <span
-            class={get_label_span_class()}
-            style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
-            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span>
-        </h6>
-      </div>
-    </div>
-
-    <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch">
-      <RelationalGraph
-        entity={profile_state.char}
-        on_select_entity={(selected) => {
-          if (selected) {
-            app.open_profile(selected);
-          }
-        }} />
-    </div>
-
+    <!-- Profile order: Name → Description → quadrant sections → Relationships -->
     {#each active_sections as section (section.id)}
       <div
         class={get_section_class()}
@@ -1582,7 +1254,16 @@
       <div class={get_fields_container_class(section.fields.length)}>
         {#each section.fields as field (field.key)}
           {@const field_id = `field-${field.key.replace(".", "-")}`}
-          {@const raw_val = profile_state.get_safe_value(field.key)}
+          {@const raw_val =
+            is_time_traveling && reconstructed_timeline_state ?
+              field.key === "eternal.physical" ? reconstructed_timeline_state.eternal?.physical
+              : field.key === "eternal.non_physical" ? reconstructed_timeline_state.eternal?.non_physical
+              : field.key === "present.physical" ? reconstructed_timeline_state.present?.physical
+              : field.key === "present.non_physical" ? reconstructed_timeline_state.present?.non_physical
+              : field.key === "past" ? reconstructed_timeline_state.past
+              : field.key === "future" ? reconstructed_timeline_state.future
+              : profile_state.get_safe_value(field.key)
+            : profile_state.get_safe_value(field.key)}
           {@const raw =
             typeof raw_val === "string" ? raw_val
             : Array.isArray(raw_val) ?
@@ -1622,20 +1303,20 @@
                 data-sync-id={section.label}>
                 {#if field.label}
                   <header
-                    style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; border-radius: 0.75rem; background-color: var(--color-dev-accent); padding: 0.175rem 0.75rem; opacity: 1; min-height: 1.5rem; height: auto; --color-dev-accent: {signature_color};"
+                    style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; border-radius: 0.75rem; background-color: color-mix(in srgb, var(--signature-color) 14%, var(--color-glass-sunken)); border: 1px solid color-mix(in srgb, var(--signature-color) 30%, transparent); padding: 0.175rem 0.75rem; opacity: 1; min-height: 1.5rem; height: auto;"
                     class="relative w-full overflow-hidden">
                     {#if profile_state.busy_fields.has(field.key)}
                       <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
                     {/if}
                     <div style="margin-right: 0.5rem; display: flex; align-items: center; flex: 1 1 0%; min-width: 0; overflow: hidden;">
                       <span
-                        class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
+                        class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-slate-100 opacity-95"
                         use:tooltip
                         aria-label={field.description}>{field.label}</span>
                     </div>
                     <div class="ml-auto flex h-full shrink-0 items-center gap-tight">
                       {#if field.description}
-                        <span class="flex cursor-help items-center text-white/60 hover:text-white" use:tooltip aria-label={field.description}>
+                        <span class="flex cursor-help items-center text-slate-300/75 hover:text-slate-100" use:tooltip aria-label={field.description}>
                           <svg
                             viewBox="0 0 24 24"
                             class="size-icon-small fill-none stroke-current stroke-2"
@@ -1646,25 +1327,6 @@
                           </svg>
                         </span>
                       {/if}
-                      <Button
-                        variant="invisible"
-                        size="small"
-                        square={true}
-                        aria-label="Inspect Field History"
-                        actions={[tooltip]}
-                        onclick={() => {
-                          history_target_field = field.key;
-                          show_field_history_modal = true;
-                        }}
-                        class="cursor-pointer text-slate-400 hover:text-cyan-300">
-                        <svg
-                          viewBox="0 0 24 24"
-                          class="size-icon-small fill-none stroke-current stroke-2"
-                          style="stroke-linecap: round; stroke-linejoin: round;">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                      </Button>
                     </div>
                   </header>
                 {/if}
@@ -1732,22 +1394,6 @@
                       </svg>
                     </span>
                   {/if}
-                  <Button
-                    variant="invisible"
-                    size="small"
-                    square={true}
-                    aria-label="Inspect Field History"
-                    actions={[tooltip]}
-                    onclick={() => {
-                      history_target_field = field.key;
-                      show_field_history_modal = true;
-                    }}
-                    class="cursor-pointer text-slate-400 hover:text-cyan-300">
-                    <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                  </Button>
 
                   {#if profile_state.is_editing}
                     <Button
@@ -1782,6 +1428,33 @@
         {/each}
       </div>
     {/each}
+
+    <div
+      class={get_section_class()}
+      style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
+      data-section="relationships"
+      role="presentation">
+      <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
+        <h6
+          class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
+          style="color: var(--signature-color); text-shadow: none;">
+          <span
+            class={get_label_span_class()}
+            style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
+            style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>Relationships</span>
+        </h6>
+      </div>
+    </div>
+
+    <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch">
+      <RelationalGraph
+        entity={profile_state.char}
+        on_select_entity={(selected) => {
+          if (selected) {
+            app.open_profile(selected);
+          }
+        }} />
+    </div>
   </div>
 {/snippet}
 

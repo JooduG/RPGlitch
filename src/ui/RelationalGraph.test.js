@@ -48,7 +48,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(await screen.findByText("Lord Benedict Silvers")).toBeTruthy();
   });
 
-  it("allows selecting a satellite node to trigger on_select_entity callback", async () => {
+  it("shows a CardHand-sized hover card on mouseover and opens profile directly on click", async () => {
     const mock_entity = {
       id: "hank",
       name: "Hank",
@@ -61,15 +61,13 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     render(RelationalGraph, { props: { entity: mock_entity, on_select_entity } });
 
     const satellite_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
+    await fireEvent.mouseEnter(satellite_btn);
+
+    const hover_card = await screen.findByTestId("relational-hover-card");
+    expect(hover_card).toBeTruthy();
+    expect(screen.queryByTestId("relational-dossier-card")).toBeNull();
+
     await fireEvent.click(satellite_btn);
-
-    // Clicking satellite opens 360 dossier card
-    const dossier = await screen.findByTestId("relational-dossier-card");
-    expect(dossier).toBeTruthy();
-
-    const open_profile_btn = await screen.findByRole("button", { name: /open full profile/i });
-    await fireEvent.click(open_profile_btn);
-
     expect(on_select_entity).toHaveBeenCalledWith(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
   });
 
@@ -82,41 +80,6 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(await screen.findByText("Lord Benedict Silvers")).toBeTruthy();
     // Satellite node harvested from bracket
     expect(await screen.findByText("Hank")).toBeTruthy();
-  });
-
-  it("opens 360° relational dossier showing 4 quadrants and epistemic lock for hidden brackets", async () => {
-    const mock_entity = {
-      id: "silvers",
-      name: "Lord Benedict Silvers",
-      type: "character",
-      eternal: { physical: "Scarred hands", non_physical: "Former military officer" },
-      present: { non_physical: "[@HANK: secret arms smuggling | hide | w: 9]" },
-      past: ["Survived the Siege of Erebos"],
-      future: "Secure a monopoly on munitions",
-    };
-
-    render(RelationalGraph, { props: { entity: mock_entity } });
-
-    const center_node = await screen.findByRole("button", { name: /inspect central entity/i });
-    await fireEvent.click(center_node);
-
-    const dossier = await screen.findByTestId("relational-dossier-card");
-    expect(dossier).toBeTruthy();
-    expect(screen.getByText(/@SILVERS/i)).toBeTruthy();
-
-    // 4 quadrants
-    expect(screen.getByText(/Former military officer/i)).toBeTruthy();
-    expect(screen.getByText(/secret arms smuggling/i)).toBeTruthy();
-    expect(screen.getByText(/Survived the Siege of Erebos/i)).toBeTruthy();
-    expect(screen.getByText(/Secure a monopoly on munitions/i)).toBeTruthy();
-
-    // Omniscient Observer Mode: secret / epistemic lock indicator displayed
-    expect(screen.getByText(/epistemic lock/i)).toBeTruthy();
-
-    // Close button dismisses dossier
-    const close_btn = screen.getByRole("button", { name: /close dossier/i });
-    await fireEvent.click(close_btn);
-    expect(screen.queryByTestId("relational-dossier-card")).toBeNull();
   });
 });
 

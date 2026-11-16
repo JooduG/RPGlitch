@@ -18,7 +18,7 @@
 
 import Dexie from "dexie";
 import { normalize_entity } from "./entities.js";
-import { ALL_PREMADES } from "./presets.js";
+import { ALL_PREMADES } from "../definitions/premades.js";
 
 /** Durably stored active session key in kv_settings */
 export const SESSION_ID_KEY = "active_session_id";
@@ -296,17 +296,21 @@ export async function seed_premades() {
 
   try {
     const existing_records = await db.entities.toArray();
-    const existing_ids = new Set(existing_records.map((r) => r.id));
+    const existing_by_id = new Map(existing_records.map((r) => [r.id, r]));
 
-    const to_add = [];
+    const to_put = [];
     for (const premade of ALL_PREMADES) {
-      if (!existing_ids.has(premade.id)) {
-        to_add.push(normalize_entity(premade));
+      const existing = existing_by_id.get(premade.id);
+      if (!existing) {
+        to_put.push(normalize_entity(premade));
+      } else if (premade.type === "character" && existing.pov !== "1st_person") {
+        // Backfill premade characters that were seeded with the legacy 3rd_person default
+        to_put.push(normalize_entity({ ...existing, pov: "1st_person" }));
       }
     }
 
-    if (to_add.length > 0) {
-      await db.entities.bulkPut(to_add);
+    if (to_put.length > 0) {
+      await db.entities.bulkPut(to_put);
     }
   } finally {
     _is_seeding_active = false;
@@ -853,7 +857,10 @@ export async function replay_entity_field(entity_id, field, up_to_round = Infini
             weight: typeof resolved_weight === "number" ? resolved_weight : 5,
           });
         }
-        const unbracketed = entry.new_value.replace(/\[[^\]:]+:[^\]]+\]/g, "").trim();
+        const unbracketed = entry.new_value
+          .replace(/\[[^\]:]+:[^\]]+\]/g, "")
+          .replace(/^[\s,]+|[\s,]+$/g, "")
+          .trim();
         if (unbracketed) raw_prose = unbracketed;
       } else {
         raw_prose = entry.new_value;

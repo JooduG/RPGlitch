@@ -1,11 +1,10 @@
 /**
- * src/data/presets.js
+ * src/definitions/premades.js
  * ============================================================================
- * 📋 SOVEREIGN PREMADE ENTITIES & AUTHOR NARRATIVE PRESETS
+ * 📋 SOVEREIGN PREMADE ENTITIES
  * ============================================================================
  *
- * Single source of truth for starter characters (7), starter fractals (3),
- * and inlined author narrative styles.
+ * Single source of truth for starter characters (7) and starter fractals (3).
  * ============================================================================
  */
 
@@ -14,6 +13,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "orion",
     name: "Orion the Pink Protector",
     type: "character",
+    pov: "1st_person",
     description: "Colossal pink-haired dumb himbo superhero and fitness influencer known as the Pink Protector.",
     dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
     profile_picture: "https://user.uploads.dev/file/7d2b5ea429ac42ecd0017cc45009b6e1.png",
@@ -37,6 +37,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "glitch",
     name: "Glitch",
     type: "character",
+    pov: "1st_person",
     description: "Bratty cyan-haired twunk hacker who sneaks up from the Nova City underground to pull chaotic shenanigans in the high-end districts.",
     dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
     profile_picture: "https://user.uploads.dev/file/f8d14dcf7fb84ac7fa9959458678a61c.jpg",
@@ -61,6 +62,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "silvers",
     name: "Lord Benedict Silvers",
     type: "character",
+    pov: "1st_person",
     description:
       "Ancient high-elf vampire billionaire and corporate mastermind utilizing hypnotic suggestion, lavish spoiling, and aesthetic conditioning to claim absolute possession over robust men across any realm.",
     dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
@@ -85,6 +87,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "hank",
     name: "Hank 'Rust' Brawley",
     type: "character",
+    pov: "1st_person",
     description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
     dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
     profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
@@ -109,6 +112,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "elias",
     name: "Dr. Elias Tariq",
     type: "character",
+    pov: "1st_person",
     description:
       "Brilliant, unhinged human mad scientist obsessed with biochemical bimbofication, extreme muscle growth serums, and authoritative medical play.",
     dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
@@ -133,6 +137,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "julien",
     name: "Julien the Banished Prince",
     type: "character",
+    pov: "1st_person",
     description:
       "Delicate, eager-to-please high-elf scholar and banished prince wearing minimalist silk apparel, entirely driven by a raw desire to serve authoritative men.",
     dynamics: { chaos: 40, intensity: 40, openness: 60, affinity: 60 },
@@ -157,6 +162,7 @@ export const PREMADE_CHARACTERS = Object.freeze([
     id: "beast",
     name: "Beast",
     type: "character",
+    pov: "1st_person",
     description: "Massive bio-engineered male orc combat experiment and feral breeding fighter built for absolute physical control.",
     dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
     profile_picture: "https://user.uploads.dev/file/7c98486700073678e43b5588d765ea0e.jpg",
@@ -186,6 +192,7 @@ export const PREMADE_FRACTALS = Object.freeze([
     id: "nova",
     name: "Nova City",
     type: "fractal",
+    pov: "3rd_person",
     description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly known as Ytic'avon.",
     dynamics: { velocity: 56, entropy: 54 },
     narrative_style: "samuel_delany",
@@ -209,6 +216,7 @@ export const PREMADE_FRACTALS = Object.freeze([
     id: "ashenweald",
     name: "Ashenweald",
     type: "fractal",
+    pov: "3rd_person",
     description: "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
     dynamics: { velocity: 42, entropy: 58 },
     narrative_style: "anais_nin",
@@ -232,6 +240,7 @@ export const PREMADE_FRACTALS = Object.freeze([
     id: "tartarus",
     name: "Project Tartarus",
     type: "fractal",
+    pov: "3rd_person",
     description:
       "Sterile, high-security orbital research facility operating as Dr. Elias Tariq's personal sandbox for radical biochemical transformations and clinical muscle-growth experiments.",
     dynamics: { velocity: 45, entropy: 55 },
@@ -346,89 +355,3 @@ export function get_premade_fractals() {
  *   (2) Upgraded past memories with semantic `usr_<entity>_<slug>` IDs and pruned redundant `meta: { origin: true }`;
  *   (3) Maintained paired eternal/present states and anchored past vector pools at blueprint bottom.
  * ============================================================================ */
-
-export const NARRATIVE_PRESETS = Object.freeze({
-  cormac_mccarthy: {
-    id: "cormac_mccarthy",
-    name: "Cormac McCarthy",
-    portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
-    description: "Biblical, sparse, and unpunctuated wasteland realism stripped of moralizing or soft sentiment.",
-    directive: `<NARRATIVE_STYLE id="cormac_mccarthy">
-  <PROSE_RHYTHM>Polysyndetic, biblical, stark, and repetitive cadence with minimal punctuation.</PROSE_RHYTHM>
-  <SENSORY_HIERARCHY>Touch (Heat/Dust/Blood) > Sound > Sight > Scent</SENSORY_HIERARCHY>
-  <GROUNDING>Elemental and indifferent. Man under an empty sun surrounded by bone and stone.</GROUNDING>
-  <RATIO internal="0.3" action="0.7" />
-  <KEYWORDS>wasteland, biblical_cadence, visceral_trauma, sparse_prose, elemental</KEYWORDS>
-</NARRATIVE_STYLE>`,
-  },
-  william_gibson: {
-    id: "william_gibson",
-    name: "William Gibson",
-    portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
-    description: "Dense, clipped cyberpunk realism focused on technological debris, corporate intrusion, and neon atmospheric grit.",
-    directive: `<NARRATIVE_STYLE id="william_gibson">
-  <PROSE_RHYTHM>Cool, detached, rhythmic, and dense with industrial jargon and neon sensory blur.</PROSE_RHYTHM>
-  <SENSORY_HIERARCHY>Sight (Neon/Shadow) > Sound (Data hum/Static) > Touch > Scent</SENSORY_HIERARCHY>
-  <GROUNDING>Technological and bodily. The human nervous system colliding with machine infrastructure.</GROUNDING>
-  <RATIO internal="0.5" action="0.5" />
-  <KEYWORDS>cyberpunk, technofetishism, corporate_decay, neon_grit, dense_cadence</KEYWORDS>
-</NARRATIVE_STYLE>`,
-  },
-  anais_nin: {
-    id: "anais_nin",
-    name: "Anaïs Nin",
-    portrait: "https://user.uploads.dev/file/2042eb833ffec77376c94aa3bb519a4e.png",
-    description: "Lyrical, psychoanalytic intimacy mapping subliminal longing, sensory nuance, and poetic self-discovery.",
-    directive: `<NARRATIVE_STYLE id="anais_nin">
-  <PROSE_RHYTHM>Fluid, poetic, rhythmic, and associative with deep psychological introspection.</PROSE_RHYTHM>
-  <SENSORY_HIERARCHY>Touch (Skin/Temperature) > Scent > Sound > Sight</SENSORY_HIERARCHY>
-  <GROUNDING>Psychoanalytic and emotional. Intimacy and vulnerability exploring secret longings.</GROUNDING>
-  <RATIO internal="0.7" action="0.3" />
-  <KEYWORDS>lyrical, poetic, psychological_intimacy, emotional_depth, sensuality</KEYWORDS>
-</NARRATIVE_STYLE>`,
-  },
-  david_lynch: {
-    id: "david_lynch",
-    name: "David Lynch",
-    portrait: "https://user.uploads.dev/file/c82db6fa80879612019fe0e736a445d4.png",
-    description: "Surreal, ominous mystery where mundane Americana masks vibrating supernatural dread and uncanny logic.",
-    directive: `<NARRATIVE_STYLE id="david_lynch">
-  <PROSE_RHYTHM>Hypnotic, deliberate, lingering on domestic details that feel vibrating with dread.</PROSE_RHYTHM>
-  <SENSORY_HIERARCHY>Sound (Low drone/Electrical buzz) > Sight (Strobe/Shadow) > Touch > Scent</SENSORY_HIERARCHY>
-  <GROUNDING>Uncanny and surreal. Hidden darkness pulsing beneath polished ordinary surfaces.</GROUNDING>
-  <RATIO internal="0.6" action="0.4" />
-  <KEYWORDS>surrealism, dread, electrical_hum, uncanny, psychological_mystery</KEYWORDS>
-</NARRATIVE_STYLE>`,
-  },
-  arthur_morgan: {
-    id: "arthur_morgan",
-    name: "Arthur Morgan",
-    portrait: "https://user.uploads.dev/file/e6f1f45dc2fc025c889a7442157a53c3.png",
-    description: "Grounded, weathered frontier grit delivered with laconic weary pragmatism, honor, and raw survival cadence.",
-    directive: `<NARRATIVE_STYLE id="arthur_morgan">
-  <PROSE_RHYTHM>Weathered, direct, laconic, and tactile cadence rooted in physical survival.</PROSE_RHYTHM>
-  <SENSORY_HIERARCHY>Touch (Cold rain/Gunmetal/Leather) > Sound (Hoofbeats/Wind) > Sight > Scent</SENSORY_HIERARCHY>
-  <GROUNDING>Frontier realism and physical endurance. A dying way of life faced with weary honor.</GROUNDING>
-  <RATIO internal="0.4" action="0.6" />
-  <KEYWORDS>frontier, outlaw_honor, weathered_grit, survival, laconic_prose</KEYWORDS>
-</NARRATIVE_STYLE>`,
-  },
-});
-
-export function get_starter_entities(type) {
-  if (type === "character") return PREMADE_CHARACTERS;
-  if (type === "fractal") return PREMADE_FRACTALS;
-  return ALL_PREMADES;
-}
-
-export function get_starter_entity_by_id(id) {
-  if (!id) return null;
-  return ALL_PREMADES.find((entity) => entity.id === id) || null;
-}
-
-export function get_narrative_preset(id) {
-  if (!id || !NARRATIVE_PRESETS[id]) {
-    return NARRATIVE_PRESETS.cormac_mccarthy;
-  }
-  return NARRATIVE_PRESETS[id];
-}

@@ -33,16 +33,8 @@ export {
 // 2. Profile Fields, Leaf Mapping & Enhancers
 // (retired - single home is now ../definitions/profile-taxonomy.js; import from there)
 
-// 3. Premades & Author Narrative Presets
-export {
-  ALL_PREMADES,
-  get_narrative_preset,
-  get_starter_entities,
-  get_starter_entity_by_id,
-  NARRATIVE_PRESETS,
-  PREMADE_CHARACTERS,
-  PREMADE_FRACTALS,
-} from "./presets.js";
+// 3. Premades
+// (retired - single home is now ../definitions/premades.js; import from there)
 
 // 4. 4-Quadrant Entity Model & Normalizer
 export {

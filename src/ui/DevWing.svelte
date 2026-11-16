@@ -6,6 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { DYNAMICS } from "@config";
+  import { query_entity_history } from "@data";
   import { runtime } from "@engine";
   import { Accordion, Button, tooltip } from "@primitives";
   import Meter from "./Meter.svelte";
@@ -14,13 +15,32 @@
   /**
    * @typedef {Object} Props
    * @property {import('./Profile.svelte.js').ProfileState} profile_state - The profile state controller
-   * @property {(field: string) => void} [on_inspect_history] - Callback to inspect field history
    */
 
   /** @type {Props} */
-  let { profile_state, on_inspect_history = () => {} } = $props();
+  let { profile_state } = $props();
 
   let show_token_details = $state(false);
+  let show_ledger_feed = $state(false);
+  /** @type {Array<any>} */
+  let ledger_records = $state([]);
+  let is_ledger_loading = $state(false);
+
+  $effect(() => {
+    if (show_ledger_feed && profile_state.char?.id) {
+      is_ledger_loading = true;
+      query_entity_history(profile_state.char.id)
+        .then((records) => {
+          ledger_records = records.slice().reverse().slice(0, 30);
+        })
+        .catch(() => {
+          ledger_records = [];
+        })
+        .finally(() => {
+          is_ledger_loading = false;
+        });
+    }
+  });
 
   /**
    * Dynamically computes which dynamics are available on the current character.
@@ -148,19 +168,41 @@
     </div>
   </Accordion>
 
-  <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-standard">
+  <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-standard text-left">
     <div class="flex items-center justify-between">
       <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase"> Mutation Ledger </span>
       <Button
         variant="bare"
         size="small"
-        onclick={() => {
-          on_inspect_history("present.non_physical");
-        }}
+        onclick={() => (show_ledger_feed = !show_ledger_feed)}
         class="cursor-pointer font-mono text-[11px] text-cyan-300 hover:text-cyan-200">
-        Inspect History &rarr;
+        {show_ledger_feed ? "Hide ▲" : "Inspect ▼"}
       </Button>
     </div>
+
+    {#if show_ledger_feed}
+      {#if is_ledger_loading}
+        <span class="font-mono text-[10px] text-slate-400">Loading ledger...</span>
+      {:else if ledger_records.length === 0}
+        <span class="font-mono text-[10px] text-slate-500">No ledger events recorded.</span>
+      {:else}
+        <div class="flex max-h-56 flex-col gap-1 overflow-y-auto pt-1 font-mono text-[10px]">
+          {#each ledger_records as rec (rec.id || `${rec.round}-${rec.seq}-${rec.timestamp}`)}
+            <div class="flex flex-col gap-0.5 rounded border border-white/5 bg-black/30 p-1.5 text-left">
+              <div class="flex items-center justify-between text-slate-400">
+                <span class="font-bold text-cyan-400">R{rec.round}:S{rec.seq} · {rec.field}</span>
+                <span class="text-[9px] text-slate-500">{format_datetime(rec.timestamp)}</span>
+              </div>
+              <div class="text-slate-200">
+                {#if rec.key}<span class="text-cyan-300">[{rec.key}]</span>
+                {/if}
+                {rec.new_value ?? "cleared (null)"}
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    {/if}
   </div>
 
   <!-- META FOOTER -->

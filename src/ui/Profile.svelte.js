@@ -13,8 +13,8 @@ import { app } from "./interface.svelte.js";
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
 
-/** Identity rule: IDs are 2-20 chars of A-Z, 0-9, _ or -. */
-const ID_PATTERN = /^[A-Z0-9_-]{2,20}$/;
+/** Identity rule: IDs are 2-36 chars of A-Z, a-z, 0-9, _ or - (supports handles and UUIDs). */
+const ID_PATTERN = /^[A-Za-z0-9_-]{2,36}$/;
 
 export class ProfileState {
   is_editing = $state(false);
@@ -90,18 +90,15 @@ export class ProfileState {
    */
   commit_draft_id() {
     if (this.draft_id === null || this.draft_id === undefined) return true;
-    const user_edited = this.draft_id !== this._original_id;
     const cleaned = String(this.draft_id)
-      .toUpperCase()
-      .replace(/[^A-Z0-9_-]/g, "")
-      .slice(0, 20);
+      .trim()
+      .replace(/[^A-Za-z0-9_-]/g, "")
+      .slice(0, 36);
     if (cleaned !== this.draft_id) this.draft_id = cleaned;
     if (!ID_PATTERN.test(cleaned)) return false;
     if (this.char && this.char.id !== cleaned) {
       this.char.id = cleaned;
-      // Pristine drafts only carry system canonicalization (e.g. lowercase
-      // premade ids): apply it, but don't read it as a user edit.
-      if (user_edited) this._user_mutated = true;
+      this._user_mutated = true;
     }
     return true;
   }
@@ -137,11 +134,12 @@ export class ProfileState {
   canonical_copy(char) {
     const snap = JSON.parse(JSON.stringify(char));
     if (snap) {
-      if (typeof snap.id === "string")
+      if (typeof snap.id === "string") {
         snap.id = snap.id
-          .toUpperCase()
-          .replace(/[^A-Z0-9_-]/g, "")
-          .slice(0, 20);
+          .trim()
+          .replace(/[^A-Za-z0-9_-]/g, "")
+          .slice(0, 36);
+      }
       const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
       if (v) {
         const vkey = v.name || v.uri || "Cinematic Narrator";
@@ -395,7 +393,7 @@ export class ProfileState {
   async save(entity_type) {
     this.commit_identity_drafts();
     if (!this.identity_valid) {
-      this.identity_error = !this.id_valid ? "ID must be 2–20 chars (A–Z, 0–9, _ or -)." : "Name is required.";
+      this.identity_error = !this.id_valid ? "ID must be 2–36 chars (A–Z, a–z, 0–9, _ or -)." : "Name is required.";
       this.is_editing = true;
       this.is_saving = false;
       return false;
