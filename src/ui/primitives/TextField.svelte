@@ -264,10 +264,10 @@
       rounded-t-xl
       bg-(--color-dev-accent)
       px-3
-      py-0.5
+      py-1
       whitespace-nowrap
       opacity-100
-      {collapsed ? 'rounded-b-xl' : 'border-b border-white/10'}
+      {collapsed ? 'rounded-b-xl' : ''}
       {variant === 'bare' ? 'hidden!' : ''}
       {onheaderclick ? 'cursor-pointer' : 'cursor-default'}
     ">

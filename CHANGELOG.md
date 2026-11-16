@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Fixed `@ID · POV` validation & `sync()` draft-wipe bug in `src/ui/Profile.svelte.js` (`ID_PATTERN` 2–36 chars, no forced uppercase mutation on pristine drafts), and relocated `@ID · POV` to the left side of the frosted footer bar in `src/ui/Profile.svelte` with consistent header alignment and Pitfall 4 contrast-safe field headers.
   - Replaced both history modals (`Mutation Ledger Inspector` & `Profile Timeline Scrubber`) with an in-place Time-Travel Scrub Bar (`R0..RN`) above the Profile footer and an inline `Mutation Ledger` feed inside `src/ui/DevWing.svelte`, plus fixed the stray comma artifact in `replay_entity_field()` (`src/data/db.js`).
   - Moved `RelationalGraph.svelte` below the 4 quadrants in `src/ui/Profile.svelte`, removed the floating `selected_dossier` card and emoji tooltips, added a CardHand-sized hover preview card (`relational-hover-card`), enabled direct profile navigation on node click, and updated `src/ui/RelationalGraph.test.js`.
+  - Unified view-mode bracketed fields in `src/ui/Profile.svelte` to use the full signature-color borderless header and borderless divided rows, and codified the Purposeful Borders & Zero Nested Cards rule in `DESIGN.md`.
 
 - **Utils Layer Surgical Refactor (EGM Review)**:
   - Deleted orphaned `src/utils/bridges.js` (superseded by `src/utils/registries.js`).

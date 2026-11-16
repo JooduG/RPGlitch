@@ -351,6 +351,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 
 - **Border Radii**: `--radius-sharp` (`--spacing-unit`, `0.25rem`) for micro controls, badges, code pills, and terminal boxes; `--radius-standard` (`--spacing-standard`, `1rem`) for modal shells, inputs, and entity cards.
 - **Masked Gradient Hairlines**: Active panels and inputs use `@utility mask-border-solid` (XOR CSS masking) rather than opaque inner fills so translucency stays unbroken across stacked backgrounds.
+- **Purposeful Borders & Zero Nested Cards**: Group content via surface shifts, spacing, and typography rather than `1px` borders. Decorative borders are reserved for a small number of intentional cases (e.g., active focus rings, top-level modal/card shells, or `terminal-box`). Items _inside_ a field or panel (such as parsed `[KEY: VALUE]` bracket entries) must never be wrapped in individual bordered boxes or pills.
 
 ## Components
 

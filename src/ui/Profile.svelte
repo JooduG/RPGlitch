@@ -1190,7 +1190,7 @@
         class={"relative isolate z-0 flex scrollbar-none gap-standard [&::-webkit-scrollbar]:hidden " +
           (app.viewport.mobile ?
             "col-span-full w-full items-start overflow-x-visible"
-          : "col-[9/12] row-start-1 min-h-0 flex-col items-center [justify-content:safe_center] overflow-y-auto")}
+          : "col-[9/12] row-start-1 min-h-0 flex-col items-center justify-center-safe overflow-y-auto")}
         bind:this={wings_ref}
         style:pointer-events={has_wings ? "auto" : "none"}>
         <div class={"flex gap-standard " + (app.viewport.mobile ? "w-fit flex-row px-standard" : "w-full flex-col")}>
@@ -1296,46 +1296,34 @@
             {#if !profile_state.is_editing && parsed}
               <div
                 id={field_id}
-                class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-[border-color,height] duration-300"
+                class="glass-input relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border-transparent bg-(--signature-color)/6 transition-[height] duration-300 before:bg-[linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)] before:opacity-100"
                 role="region"
                 aria-label={field.label}
                 use:auto_resize={{ sync_id: section.label }}
                 data-sync-id={section.label}>
                 {#if field.label}
                   <header
-                    style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; border-radius: 0.75rem; background-color: color-mix(in srgb, var(--signature-color) 14%, var(--color-glass-sunken)); border: 1px solid color-mix(in srgb, var(--signature-color) 30%, transparent); padding: 0.175rem 0.75rem; opacity: 1; min-height: 1.5rem; height: auto;"
+                    style="position: relative; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; background-color: var(--signature-color); padding: 0.25rem 0.75rem; min-height: 1.5rem; height: auto;"
                     class="relative w-full overflow-hidden">
                     {#if profile_state.busy_fields.has(field.key)}
                       <Shimmer color={signature_color || "var(--color-amber-gold, #f59e0b)"} class="rounded-[inherit]" />
                     {/if}
                     <div style="margin-right: 0.5rem; display: flex; align-items: center; flex: 1 1 0%; min-width: 0; overflow: hidden;">
                       <span
-                        class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-slate-100 opacity-95"
+                        class="block max-w-full truncate font-sans text-xs font-medium tracking-normal whitespace-nowrap text-white {field.description ?
+                          'cursor-help'
+                        : 'cursor-default'}"
                         use:tooltip
                         aria-label={field.description}>{field.label}</span>
                     </div>
-                    <div class="ml-auto flex h-full shrink-0 items-center gap-tight">
-                      {#if field.description}
-                        <span class="flex cursor-help items-center text-slate-300/75 hover:text-slate-100" use:tooltip aria-label={field.description}>
-                          <svg
-                            viewBox="0 0 24 24"
-                            class="size-icon-small fill-none stroke-current stroke-2"
-                            style="stroke-linecap: round; stroke-linejoin: round;">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="12" y1="16" x2="12" y2="12"></line>
-                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                          </svg>
-                        </span>
-                      {/if}
-                    </div>
                   </header>
                 {/if}
-                <div class="pt-tight">
+                <div class="px-3 py-2.5">
                   {#if profile_state.busy_fields.has(field.key)}
                     <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
                   {:else}
                     {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
-                    <div class="flex flex-wrap gap-tight">
+                    <div class="flex flex-col divide-y divide-white/5">
                       {#each sorted_entries as [k, v] (k)}
                         {@const raw_val = String(v ?? "")}
                         {@const is_hidden = /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val)}
@@ -1343,15 +1331,17 @@
                           .replace(/\s*\|\s*(?:hide|show|private)\b/gi, "")
                           .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
                           .trim()}
+                        {@const target_id = k.startsWith("@") ? k.slice(1).trim().toLowerCase() : null}
+                        {@const target_entity =
+                          target_id ? [...(app.characters || []), ...(app.fractals || [])].find((e) => String(e?.id || "").toLowerCase() === target_id) : null}
+                        {@const key_color = target_entity ? get_signature_color(target_entity, null) : null}
                         {#if clean_val}
-                          <div
-                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl px-2.5 py-1.5 transition-colors {is_hidden ?
-                              'border border-dashed border-slate-700/60 bg-slate-900/40 opacity-55'
-                            : 'border border-(--signature-color)/15 bg-(--signature-color)/5'}">
+                          <div class="flex flex-col items-start gap-0.5 py-1.5 first:pt-0 last:pb-0 {is_hidden ? 'opacity-55' : ''}">
                             <span
-                              class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden ? 'text-slate-400 opacity-70' : (
-                                'text-(--signature-color) opacity-85'
-                              )}">{k}</span>
+                              style={key_color && !is_hidden ? `color: ${key_color};` : undefined}
+                              class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden ? 'text-slate-400'
+                              : key_color ? ''
+                              : 'text-(--signature-color)'}">{k}</span>
                             <span class="text-left text-xs leading-normal {is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
                               {@render RenderFormattedValue(clean_val)}
                             </span>
@@ -1378,23 +1368,17 @@
                 {#snippet status()}
                   {#if field.label}
                     <span
-                      class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
+                      class="block max-w-full truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 {(
+                        field.description
+                      ) ?
+                        'cursor-help'
+                      : 'cursor-default'}"
                       use:tooltip
                       aria-label={field.description}>{field.label}</span>
                   {/if}
                 {/snippet}
 
                 {#snippet header_actions()}
-                  {#if field.description}
-                    <span class="flex cursor-help items-center text-white/60 hover:text-white" use:tooltip aria-label={field.description}>
-                      <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="16" x2="12" y2="12"></line>
-                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                      </svg>
-                    </span>
-                  {/if}
-
                   {#if profile_state.is_editing}
                     <Button
                       variant="invisible"
