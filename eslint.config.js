@@ -51,6 +51,8 @@ export default defineConfig([
       "**/test-results/**",
       "**/yarn.lock",
       "**/tmp/**",
+      "**/.graph-it/**",
+      "**/graphit.architecture.json",
       "**/.prettiercache",
       "**/.stylelintcache"
     ],

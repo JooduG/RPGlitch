@@ -32,14 +32,15 @@
   "files.encoding": "utf8",
   "files.eol": "\n",
   "files.exclude": {
-    "**/.agents/skills/**/templates": true,
     "**/.DS_Store": true,
     "**/bun.lockb": true,
     "**/node_modules/**": true,
     "**/pnpm-lock.yaml": true,
     "**/src/**/index.js": true,
     "**/Thumbs.db": true,
-    "**/yarn.lock": true
+    "**/yarn.lock": true,
+    "**/.graph-it/**": true,
+    "**/graphit.architecture.json": true
   },
   "files.insertFinalNewline": true,
   "files.trimFinalNewlines": true,
@@ -91,5 +92,6 @@
     "**/.gemini/**",
     "**/tmp/**"
   ],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "graph-it-live.branchWatch.enabled": true
 }

@@ -36,6 +36,8 @@
     "**/test-results/**",
     "**/yarn.lock",
     "**/tmp/**",
+    "**/.graph-it/**",
+    "**/graphit.architecture.json",
     "**/.prettiercache",
     "**/.stylelintcache"
   ],
@@ -63,14 +65,15 @@
   "vitest": { "exclude": ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/tmp/**", "**/archive/**"] },
   "vscode": {
     "files.exclude": {
-      "**/.agents/skills/**/templates": true,
       "**/.DS_Store": true,
       "**/bun.lockb": true,
       "**/node_modules/**": true,
       "**/pnpm-lock.yaml": true,
       "**/src/**/index.js": true,
       "**/Thumbs.db": true,
-      "**/yarn.lock": true
+      "**/yarn.lock": true,
+      "**/.graph-it/**": true,
+      "**/graphit.architecture.json": true
     }
   }
 }
