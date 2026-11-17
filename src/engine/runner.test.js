@@ -6,7 +6,6 @@ import { app, runtime, session_driver, simulation_log, simulation_state } from "
 import * as simulation_module from "@simulation";
 import { build_turn_summary, calculate_turn_tempo, reconstruct_history_from_feed, resolve_caretaker_target, step_dynamics } from "@simulation";
 import {
-  apply_dynamics_step,
   continue_generation_step,
   continue_turn,
   dispatch_consolidation,
@@ -679,20 +678,14 @@ Routing: Present physical gets lockpick, mood vigilant.
     });
   });
 
-  describe("apply_dynamics_step (canonical step_dynamics settling direction)", () => {
+  describe("step_dynamics settling direction (canonical @simulation)", () => {
     it("settles toward baselines via gravity instead of naive addition", () => {
-      const ai = { dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 } };
-      const fractal = { dynamics: { velocity: 50, entropy: 50 } };
       const baselines_ai = { chaos: 50, intensity: 50, openness: 50, affinity: 50 };
       const { next } = step_dynamics({ chaos: 50 }, baselines_ai, { chaos: 10 }, { entropy: 50, scope: "somatic" });
 
-      apply_dynamics_step(ai, fractal, { chaos: 10 });
       // Gravity pulls the +10 delta back toward baseline: settled below naive 60, above 50.
-      expect(ai.dynamics.chaos).toBe(next.chaos);
-      expect(ai.dynamics.chaos).toBeLessThan(60);
-      expect(ai.dynamics.chaos).toBeGreaterThan(50);
-      // Untouched axes stay at baseline.
-      expect(ai.dynamics.intensity).toBe(50);
+      expect(next.chaos).toBeLessThan(60);
+      expect(next.chaos).toBeGreaterThan(50);
     });
   });
 });

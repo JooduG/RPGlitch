@@ -39,7 +39,6 @@ import { IMAGE_POLICY } from "@config";
 import { append_ledger_entries, db, normalize_entity } from "@data";
 import {
   apply_tagged_field_deltas,
-  build_turn_summary,
   calculate_turn_tempo,
   compile_prompt,
   extract_metric_baselines,
@@ -56,43 +55,20 @@ import { get_image_generation_queue, spawn_image_beat } from "@media";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { get_transport } from "./transport.js";
 
-// build_turn_summary is re-exported for barrel stability (canonical home is
-// @simulation; chrono imports it from there directly).
-export { build_turn_summary };
-
 // ============================================================================
 // Section 1 — Stateless LLM Step Executors
 // ============================================================================
 
 /**
  * Normalizes prefilled startWith markers, parses <think>...</think> cognition,
- * and extracts the remainder body.
+ * and extracts the remainder body via canonical `@simulation` `parse_think_block`.
  *
  * @param {string} raw - Raw model output
  * @param {string} [start_with=""] - The startWith prefix sent to transport
  * @returns {{ think: string, body: string }}
  */
-export function extract_think_and_body(raw, start_with = "") {
-  if (!raw || typeof raw !== "string") {
-    return { think: "", body: "" };
-  }
-
-  let text = raw;
-
-  // Reconcile startWith prefix if stripped by transport or echoed by model
-  if (start_with && !text.includes("<think>")) {
-    // If the mock/model returned raw output without any <think> tags, check if it's pure prose/body
-    // Only prepend start_with if the output already looks like it was continuing mid-stream, or close the think tag
-    if (text.includes("</think>")) {
-      text = `${start_with}${text}`;
-    } else {
-      text = `${start_with}</think>\n${text}`;
-    }
-  } else if (start_with && !text.trimStart().startsWith("<think>")) {
-    text = `${start_with}${text}`;
-  }
-
-  const { think, prose } = parse_think_block(text);
+function extract_think_and_body(raw, start_with = "") {
+  const { think, prose } = parse_think_block(raw, start_with);
   return { think: think || "", body: (prose || "").trim() };
 }
 
@@ -711,11 +687,11 @@ export async function persist_turn_rows({ prose, think, outcome, ai_name, story_
  * AI steps somatic axes, fractal steps fractal axes; each call's deltas are
  * the director's full payload filtered to that side's axes.
  *
- * @param {object|null} ai_entity - AI quadrant entity (mutated in place)
- * @param {object|null} fractal_entity - Fractal quadrant entity (mutated in place)
+ * @param {object|null} ai_entity - AI quadrant entity
+ * @param {object|null} fractal_entity - Fractal quadrant entity
  * @param {object|null} deltas - Director dynamics deltas
  */
-export function apply_dynamics_step(ai_entity, fractal_entity, deltas) {
+function apply_dynamics_step(ai_entity, fractal_entity, deltas) {
   if (!deltas) return;
   const entropy = Number(fractal_entity?.dynamics?.entropy ?? 50);
   if (ai_entity && typeof ai_entity.dynamics === "object") {

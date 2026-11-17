@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Post-Execution Architecture, Symbol & Barrel Audit for the 6-Rank DAG Refactor.
+  Post-Execution Architecture, Symbol & Strict Barrel Audit for the 6-Rank DAG Refactor.
 #>
 [CmdletBinding()]
 param(
@@ -44,6 +44,8 @@ $DeletedFiles = @(
     "src/utils/job-queue.js",
     "src/utils/job-queue.test.js",
     "src/media/optics.js",
+    "src/media/policy.js",
+    "src/media/policy.test.js",
     "src/media/visual.svelte.js",
     "src/media/tokens.js",
     "src/media/palette.js",
@@ -74,7 +76,7 @@ foreach ($file in $DeletedFiles) {
 # ---------------------------------------------------------------------------
 # 2. TARGET STRUCTURE: Files That Must Exist
 # ---------------------------------------------------------------------------
-Section "2. Target File Presence (Ranks 0-4 & Barrels)"
+Section "2. Target File Presence (Ranks 0-5 & Barrels)"
 
 $RequiredFiles = @(
     "src/config.js",
@@ -122,7 +124,6 @@ $RequiredFiles = @(
     "src/data/card-codec.js",
     "src/data/exporters.js",
     "src/media/index.js",
-    "src/media/policy.js",
     "src/media/image-generation.js",
     "src/media/audio.svelte.js",
     "src/media/motion.svelte.js",
@@ -138,7 +139,8 @@ $RequiredFiles = @(
     "src/engine/transport.js",
     "src/engine/runner.js",
     "src/engine/lifecycle.js",
-    "src/engine/chrono.svelte.js"
+    "src/engine/chrono.svelte.js",
+    "src/ui/index.js"
 )
 
 foreach ($file in $RequiredFiles) {
@@ -201,7 +203,7 @@ foreach ($rule in $BannedPatterns) {
 }
 
 # ---------------------------------------------------------------------------
-# 4. MODULE SYMBOL CONTRACTS & ARCHITECTURAL INVARIANTS
+# 4. MODULE SYMBOL CONTRACTS & BOUNDARY INVARIANTS
 # ---------------------------------------------------------------------------
 Section "4. Module Symbol Contracts & Boundary Invariants"
 
@@ -235,7 +237,7 @@ $ModuleContracts = @{
         MustNotHave = @("\`$state", "\`$derived", "\`$effect")
     }
     "src/simulation/llm-output.js" = @{
-        MustHave    = @("parse_think_block", "strip_cognition_blocks", "safe_parse_json", "sanitize_llm", "strip_covert_directives", "clean_generated_prose|detox_prose", "resolve_speaking_style", "resolve_style", "lint_narrative_slop", "cap_somatic_markers", "audit_macro_shape")
+        MustHave    = @("parse_think_block", "strip_cognition_blocks", "safe_parse_json", "sanitize_llm", "strip_covert_directives", "clean_generated_prose|detox_prose", "resolve_speaking_style", "lint_narrative_slop", "cap_somatic_markers", "audit_macro_shape")
         MustNotHave = @("register_speaking_rules", "register_anti_ai_rules", "register_cluster_words", "\`$state")
     }
     "src/simulation/history.js" = @{
@@ -243,7 +245,7 @@ $ModuleContracts = @{
         MustNotHave = @("\`$state", "\`$derived")
     }
     "src/simulation/dynamics.js" = @{
-        MustHave    = @("step_dynamics", "evaluate_dynamics_directives", "extract_metric_baselines|extract_entity_dynamics_baselines", "CARETAKER_ROTATION", "resolve_caretaker_target")
+        MustHave    = @("step_dynamics", "evaluate_dynamics_directives", "evaluate_image_trigger", "extract_metric_baselines|extract_entity_dynamics_baselines", "CARETAKER_ROTATION", "resolve_caretaker_target")
         MustNotHave = @("\`$state", "\`$derived")
     }
     "src/simulation/retrieval.js" = @{
@@ -251,16 +253,12 @@ $ModuleContracts = @{
         MustNotHave = @("\`$state", "\`$derived")
     }
     "src/simulation/prompts.js" = @{
-        MustHave    = @("render_thinking_mode", "compile_prompt", "extract_tag_sequence", "verify_tag_balance", "verify_system_envelope", "verify_tag_order", "verify_prompt_hygiene", "verify_compiled_prompt", "sanitize_visual_text", "ORDERED_VISUAL_STYLE_KEYS", "resolve_visual_engine_tokens", "build_aesthetic_map", "flatten_aesthetic_map", "extract_aesthetic_traits", "render_optics_fallback", "resolve_story_beat_style", "compose_story_beat_prompt")
+        MustHave    = @("IMAGE_TIERS", "TIER_RESOLUTIONS", "normalize_image_tier", "get_resolution", "get_resolution_string", "get_tier_guidance_scale", "resolve_image_trigger", "render_thinking_mode", "compile_prompt", "extract_tag_sequence", "verify_tag_balance", "verify_system_envelope", "verify_tag_order", "verify_prompt_hygiene", "verify_compiled_prompt", "sanitize_visual_text", "ORDERED_VISUAL_STYLE_KEYS", "resolve_visual_engine_tokens", "build_aesthetic_map", "flatten_aesthetic_map", "extract_aesthetic_traits", "render_optics_fallback", "resolve_story_beat_style", "compose_story_beat_prompt")
         MustNotHave = @("state_bridge", "\`$state")
     }
     "src/data/session.js" = @{
         MustHave    = @("SESSION_ID_KEY", "get_active_session_id", "require_active", "set_active_session_id", "clear_active_session_id", "record_session_access", "get_recent_sessions", "create_from_selection", "resolve_log_entity_id", "resolve_story_round", "log_message|append_log_entry", "send", "regenerate", "load_log|get_story_log", "delete_log_entry", "edit_log_entry", "update_log_attachment", "delete_log_attachment", "delete_story_log")
         MustNotHave = @("\`$state", "\`$derived", "\`$effect")
-    }
-    "src/media/policy.js" = @{
-        MustHave    = @("IMAGE_TIERS", "TIER_RESOLUTIONS", "normalize_image_tier", "get_resolution", "get_resolution_string", "get_tier_guidance_scale", "evaluate_image_trigger", "resolve_image_trigger")
-        MustNotHave = @("\`$state")
     }
     "src/media/image-generation.js" = @{
         MustHave    = @("find_image_engine", "reset_cached_image_engine", "dispatch_visual_generation", "mark_generation_in_flight", "clear_generation_in_flight", "is_generation_in_flight", "reset_generation_in_flight", "get_image_generation_queue", "reset_image_generation_queue", "count_pending_ghosts", "ImageService|VisualEngine", "visual_engine")
@@ -291,7 +289,7 @@ $ModuleContracts = @{
         MustNotHave = @()
     }
     "src/engine/transport.js" = @{
-        MustHave    = @("get_mock_message", "create_stream_transport|create_live_stream_fn", "get_transport", "reset_transport", "complete_text|generate_text", "transform_text|enhance_text")
+        MustHave    = @("get_mock_message", "create_live_stream_fn", "get_transport", "reset_transport", "generate_text", "enhance_text")
         MustNotHave = @("stream_bridge")
     }
     "src/engine/runner.js" = @{
@@ -342,9 +340,9 @@ foreach ($entry in $ModuleContracts.GetEnumerator()) {
 }
 
 # ---------------------------------------------------------------------------
-# 5. BARREL EXPORT COMPLETENESS & ORPHAN EXPORT AUDIT
+# 5. STRICT BARREL PURITY, ZERO CROSS-BARRELS & ORPHAN EXPORT AUDIT
 # ---------------------------------------------------------------------------
-Section "5. Barrel Export Completeness & Orphaned Exports"
+Section "5. Strict Barrel Purity, Zero Cross-Barrels & Orphaned Exports"
 
 $BarrelDirs = @(
     "src/utils",
@@ -353,7 +351,8 @@ $BarrelDirs = @(
     "src/data",
     "src/media",
     "src/state",
-    "src/engine"
+    "src/engine",
+    "src/ui"
 )
 
 foreach ($dir in $BarrelDirs) {
@@ -365,14 +364,38 @@ foreach ($dir in $BarrelDirs) {
 
     $barrelCode = Remove-JsComments (Get-Content $barrelPath -Raw)
 
-    $pathMatches = [regex]::Matches($barrelCode, 'from\s+["''](\./[^"'']+)["'']')
-    foreach ($m in $pathMatches) {
-        $relTarget = $m.Groups[1].Value -replace "^\./", ""
-        $fullTarget = Join-Path $dir $relTarget
-        if (-not (Test-Path $fullTarget)) {
-            Fail "${barrelPath}: Re-exports non-existent file './$relTarget'"
+    # 5a. Ensure barrel contains ONLY export statements (no side-effect code or imports)
+    $statements = ($barrelCode -split ";") | Where-Object { $_.Trim() -ne "" }
+    $nonExports = $statements | Where-Object { $_ -notmatch "^\s*export\b" }
+    if ($nonExports.Count -gt 0) {
+        Fail "${barrelPath}: Contains non-export statements (side effects): $($nonExports -join ' | ')"
+    } else {
+        Pass "${barrelPath}: Pure side-effect-free barrel"
+    }
+
+    # 5b. Ban cross-barrel / parent-directory re-exports (must only re-export ./...)
+    $allSources = [regex]::Matches($barrelCode, 'from\s+["'']([^"'']+)["'']')
+    $crossExports = @()
+    foreach ($m in $allSources) {
+        $specifier = $m.Groups[1].Value
+        if ($specifier -notmatch "^\./") {
+            $crossExports += $specifier
+        } else {
+            $relTarget = $specifier -replace "^\./", ""
+            $fullTarget = Join-Path $dir $relTarget
+            if (-not (Test-Path $fullTarget)) {
+                Fail "${barrelPath}: Re-exports non-existent local file './$relTarget'"
+            }
         }
     }
+    if ($crossExports.Count -gt 0) {
+        Fail "${barrelPath}: Cross-barrel re-export(s) forbidden: $($crossExports -join ', ')"
+    } else {
+        Pass "${barrelPath}: Zero cross-barrel re-exports (local ./ only)"
+    }
+
+    # 5c. For Ranks 0-4, ensure every non-test JS module's exports are re-exported
+    if ($dir -eq "src/ui") { continue }
 
     $moduleFiles = Get-ChildItem -Path $dir -File | Where-Object {
         ($_.Name -like "*.js" -or $_.Name -like "*.svelte.js") -and
@@ -446,16 +469,6 @@ foreach ($dir in $BarrelDirs) {
     }
 }
 
-# 5c. Verify src/engine/index.js has zero non-export statements (multi-line export aware)
-$EngineBarrel = Remove-JsComments (Get-Content "src/engine/index.js" -Raw)
-$EngineStatements = ($EngineBarrel -split ";") | Where-Object { $_.Trim() -ne "" }
-$NonExportStatements = $EngineStatements | Where-Object { $_ -notmatch "^\s*export\b" }
-if ($NonExportStatements.Count -gt 0) {
-    Fail "src/engine/index.js contains non-export statements (side effects): $($NonExportStatements -join ' | ')"
-} else {
-    Pass "src/engine/index.js is a pure, side-effect-free barrel"
-}
-
 # ---------------------------------------------------------------------------
 # 6. CONFIG, ALIAS & LAYER GATE AUDIT
 # ---------------------------------------------------------------------------
@@ -489,10 +502,10 @@ foreach ($cfg in @("vite.config.js", "vitest.config.js", "jsconfig.json", "types
 }
 
 # ---------------------------------------------------------------------------
-# 7. OPTIONAL: RUN REPOSITORY VERIFICATION GATES
+# 7. OPTIONAL: RUN REPOSITORY VERIFICATION GATES & BUILD
 # ---------------------------------------------------------------------------
 if ($RunGates) {
-    Section "7. Executing Repository Gates (test:hooks & verify)"
+    Section "7. Executing Repository Gates (test:hooks, verify, build)"
     & npm run test:hooks
     if ($LASTEXITCODE -ne 0) { Fail "npm run test:hooks failed with exit code $LASTEXITCODE" }
     else { Pass "npm run test:hooks passed" }
@@ -500,6 +513,10 @@ if ($RunGates) {
     & npm run verify
     if ($LASTEXITCODE -ne 0) { Fail "npm run verify failed with exit code $LASTEXITCODE" }
     else { Pass "npm run verify passed" }
+
+    & npm run build
+    if ($LASTEXITCODE -ne 0) { Fail "npm run build failed with exit code $LASTEXITCODE" }
+    else { Pass "npm run build passed" }
 }
 
 # ---------------------------------------------------------------------------
