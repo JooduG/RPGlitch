@@ -15,14 +15,26 @@
 import fs from "fs";
 import path from "path";
 
-export const LAYER_HIERARCHY = Object.freeze({ "src/ui": 4, "src/engine": 2, "src/data": 2, "src/media": 1, "src/utils": 1 });
+export const LAYER_HIERARCHY = Object.freeze({
+  "src/ui": 5,
+  "src/engine": 4,
+  "src/state": 3,
+  "src/data": 2,
+  "src/media": 2,
+  "src/simulation": 1,
+  "src/definitions": 0,
+  "src/utils": 0,
+});
 
 export const ALIAS_LAYER_MAP = Object.freeze({
   "@ui": "src/ui",
   "@primitives": "src/ui",
-  "@data": "src/data",
   "@engine": "src/engine",
+  "@state": "src/state",
+  "@data": "src/data",
   "@media": "src/media",
+  "@simulation": "src/simulation",
+  "@definitions": "src/definitions",
   "@utils": "src/utils",
 });
 

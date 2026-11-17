@@ -608,6 +608,13 @@ export function handle_planning_handoff(payload) {
         changed_line_count = 25;
       }
     }
+
+    // Guard: If no files in src/ were modified in this working tree or diff line count is 0, allow stop
+    if (!has_source_files || changed_line_count === 0) {
+      send_hook_response({ decision: "stop" });
+      return;
+    }
+
     const has_substantive_source_changes = has_source_files && changed_line_count >= 25;
     const has_handoff_recorded = changed_files.some((file) => file === "CHANGELOG.md" || file === "ROADMAP.md");
 

@@ -24,6 +24,12 @@
       "@media/*": [
         "./src/media/*"
       ],
+      "@simulation/*": [
+        "./src/simulation/*"
+      ],
+      "@state/*": [
+        "./src/state/*"
+      ],
       "@primitives/*": [
         "./src/ui/primitives/*"
       ],

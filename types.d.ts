@@ -127,4 +127,14 @@ declare module "dexie" {
   }
 }
 
+declare module "@simulation" {
+  const content: Record<string, unknown>;
+  export default content;
+}
+
+declare module "@state" {
+  const content: Record<string, unknown>;
+  export default content;
+}
+
 export {};
