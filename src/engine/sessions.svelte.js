@@ -1,16 +1,20 @@
 /**
  * src/engine/sessions.svelte.js
- * 📜 SESSION DRIVER — story sessions & simulation-log orchestration
+ * 📜 SESSION DRIVER - story sessions & simulation-log orchestration (facade)
  *
- * Owns the active story pointer, story creation, and all simulation-log
- * writes. Strict one-way DAG: this module NEVER imports `runtime`
+ * Thin reactive shell over the pure persistence service (`src/data/session.js`,
+ * Rank 2). Owns the RAM-held active pointer, the Svelte-rune boundary
+ * ($state.snapshot lives HERE, never in data/), and the composition-root
+ * bindings. All IndexedDB I/O and log writers live in session.js.
+ *
+ * Strict one-way DAG: this module NEVER imports `runtime`
  * (nor `simulation_log`/`status`). Runtime context arrives as parameters
  * (`snapshots`, `story_id`, `round`); when omitted, pure-DB fallbacks apply
  * (story row snapshots/round, entity name scan). Reactive-feed notification
  * and runtime sync travel through bindings installed by the composition root
  * (`bind_session_driver` in `src/main.js`), never through direct imports.
  *
- * DOMAINS:
+ * DOMAINS (implementations in src/data/session.js):
  *   1. Session Pointer Management (`active_id`, `set_active`, `clear_active`, `restore_active`, `require_active`)
  *   2. Story Session Creation (`create_from_selection`)
  *   3. Simulation Log Orchestration (`send`, `log_message`, `load_log`, `edit_log_entry`, `delete_log_entry`, `update_log_attachment`, `delete_log_attachment`, `regenerate`)
@@ -18,158 +22,55 @@
  * RULES FOR MODIFICATION:
  *   - Never import `runtime` or `simulation_log` (directly or via `state_bridge`).
  *   - Same-layer `simulation_state` is imported directly; bridge use is limited
- *     to the `stories_bridge` bump.
- *   - Use `$state.snapshot()` before persisting plain objects to IndexedDB via Dexie.
+ *     to the `stories_bridge` bump (inside session.js).
+ *   - `$state.snapshot()` calls stay in THIS file before crossing into data/.
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta } from "@simulation";
-import { stories_bridge } from "@utils";
-import { append_ledger_entries, db, SESSION_ID_KEY } from "@data";
+import {
+  bind_session_store,
+  clear_active_session_id as clear_persisted_active_session,
+  create_from_selection as create_story_from_selection,
+  delete_log_attachment as remove_log_attachment,
+  delete_log_entry as remove_log_entry,
+  edit_log_entry as edit_stored_log_entry,
+  load_log as load_story_log,
+  log_message as write_log_message,
+  record_session_access,
+  regenerate as regenerate_trailing_turns,
+  send as send_user_turn,
+  set_active_session_id as persist_active_session,
+  update_log_attachment as update_stored_log_attachment,
+} from "@data";
 import { simulation_state } from "./status.svelte.js";
+
+export { match_speaker_snapshots, resolve_log_entity_id } from "@data";
 
 /**
  * Bound environment installed once by the composition root (`src/main.js`):
  * reactive-feed notification goes through `log_store`, runtime sync through
  * the set/clear hooks — never through direct engine imports.
- * @type {{ log_store: any, on_set_active: ((id: string) => Promise<void>) | null, on_clear_active: (() => Promise<void>) | null }}
+ * @type {{ log_store: any, on_set_active: ((id: string) => Promise<void>) | null, on_clear_active: (() => void) | null }}
  */
 let _environment = { log_store: null, on_set_active: null, on_clear_active: null };
 
 /**
  * Installs the reactive-feed store and runtime sync hooks. Invoked once at boot.
- * @param {{ log_store?: any, on_set_active?: ((id: string) => Promise<void>) | null, on_clear_active?: (() => Promise<void>) | null }} environment
+ * Forwards the feed sink into the pure session store.
+ * @param {{ log_store?: any, on_set_active?: ((id: string) => Promise<void>) | null, on_clear_active?: (() => void) | null }} environment
  */
 export function bind_session_driver(environment = {}) {
   if (environment.log_store !== undefined) _environment.log_store = environment.log_store ?? null;
   if (environment.on_set_active !== undefined) _environment.on_set_active = environment.on_set_active ?? null;
   if (environment.on_clear_active !== undefined) _environment.on_clear_active = environment.on_clear_active ?? null;
-}
-
-/**
- * Matches a speaker name against snapshot entities (trio + NPC cast, case-insensitive).
- * Single shared core for log-time stamping (sessions) and feed-time stamping (log store).
- * @param {{ AI?: any, USER?: any, FRACTAL?: any, NPCS?: any }} [snapshots]
- * @param {string} key - lowercased trimmed speaker name
- * @returns {string|null} canonical entity id
- */
-export function match_speaker_snapshots(snapshots, key) {
-  if (!key || !snapshots || typeof snapshots !== "object") return null;
-  for (const candidate of [snapshots.AI, snapshots.USER, snapshots.FRACTAL]) {
-    if (candidate?.name && String(candidate.name).toLowerCase().trim() === key && candidate?.id) return String(candidate.id);
-  }
-  const npcs = snapshots.NPCS;
-  const npc_list =
-    Array.isArray(npcs) ? npcs
-    : npcs && typeof npcs === "object" ? Object.values(npcs)
-    : [];
-  for (const npc of npc_list) {
-    if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
-  }
-  return null;
-}
-
-/**
- * Resolves a log speaker to its canonical entity id at creation:
- * explicit ids win; otherwise `character_name` matches the trio (+ NPC cast
- * when snapshots carry them, else a story-fallback scan), falling back to
- * role-keyed trio ids.
- * @param {string} role
- * @param {string} character_name
- * @param {{ AI?: any, USER?: any, FRACTAL?: any, NPCS?: any } | null} [snapshots=null]
- * @param {string|number|null} [story_id=null] - story row used for DB fallbacks
- * @returns {Promise<string|null>}
- */
-export async function resolve_log_entity_id(role, character_name, snapshots = null, story_id = null) {
-  const key = String(character_name || "")
-    .toLowerCase()
-    .trim();
-  const direct = match_speaker_snapshots(snapshots, key);
-  if (direct) return direct;
-
-  let trio = null;
-  if (story_id != null) {
-    try {
-      const story = await db.stories.get(story_id);
-      trio = story?.entity_snapshots ?? null;
-      if (key && (!trio || !match_speaker_snapshots({ ...trio, NPCS: [] }, key))) {
-        const npc_match = await db.entities
-          .filter(
-            (entity) =>
-              String(entity?.name || "")
-                .toLowerCase()
-                .trim() === key,
-          )
-          .first();
-        if (npc_match?.id) return String(npc_match.id);
-      }
-    } catch {
-      /* DB fallback is best-effort; fall through to null */
-    }
-  }
-  const effective_trio = snapshots ?? trio;
-  if (key) {
-    const snap_match = match_speaker_snapshots(effective_trio, key);
-    if (snap_match) return snap_match;
-  }
-  const trio_entry =
-    role === "user" ? effective_trio?.USER
-    : role === "fractal" ? effective_trio?.FRACTAL
-    : role === "ai" ? effective_trio?.AI
-    : null;
-  return trio_entry?.id ? String(trio_entry.id) : null;
-}
-
-/**
- * Resolves the round for a log write when the caller passes none: the story
- * row's round (maintained by `runtime.save` every turn).
- * @param {string|number|null} story_id
- * @returns {Promise<number>}
- */
-async function resolve_story_round(story_id) {
-  if (story_id == null) return 0;
-  try {
-    const story = await db.stories.get(story_id);
-    return typeof story?.round === "number" ? story.round : 0;
-  } catch {
-    return 0;
-  }
+  bind_session_store({ log_store: _environment.log_store });
 }
 
 /** @type {string | null} */
 let _active_id = null;
 
 // ============================================================================
-// INTERNAL QUERY HELPERS
-// ============================================================================
-
-/**
- * Resolves a simulation log entry by exact ID or feed metadata reference.
- * @param {string | number} id
- * @param {Array<any> | null} [feed=null] - reactive feed for metadata matches (defaults to bound store)
- * @returns {Promise<any | null>}
- */
-async function _find_log_entry(id, feed = null) {
-  const numeric_key = isNaN(Number(id)) ? null : Number(id);
-  let entry = numeric_key != null ? await db.simulation_log.get(numeric_key) : null;
-  if (!entry && typeof id === "string") {
-    entry = await db.simulation_log.get(id);
-  }
-  if (!entry) {
-    const feed_list = feed ?? _environment.log_store?.feed ?? [];
-    const feed_match = feed_list.find((message) => message.id === id || message.meta?.id === id || String(message.id) === String(id));
-    if (feed_match) {
-      entry = await db.simulation_log.get(feed_match.id);
-    }
-  }
-  if (!entry) {
-    entry = await db.simulation_log.filter((message) => message.meta?.id === id).first();
-  }
-  return entry || null;
-}
-
-// ============================================================================
-// SESSION DRIVER
+// SESSION DRIVER (reactive shell; persistence lives in @data/session.js)
 // ============================================================================
 
 export const session_driver = {
@@ -199,8 +100,8 @@ export const session_driver = {
   async set_active(id) {
     _active_id = id;
     if (typeof window !== "undefined") {
-      await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
-      await db.sessions.add({ session_id: id, timestamp: Date.now() });
+      await persist_active_session(id);
+      await record_session_access(id);
     }
     if (_environment.on_set_active) {
       await _environment.on_set_active(id);
@@ -224,7 +125,7 @@ export const session_driver = {
     _active_id = null;
     simulation_state?.unlock?.();
     if (typeof window !== "undefined") {
-      await db.kv_settings.put({ key: SESSION_ID_KEY, value: null });
+      await clear_persisted_active_session();
     }
     if (_environment.on_clear_active) {
       await _environment.on_clear_active();
@@ -238,129 +139,7 @@ export const session_driver = {
    * @returns {Promise<string>}
    */
   async create_from_selection(selection) {
-    const ai_entity = selection.ai_id ? await db.entities.get(selection.ai_id) : null;
-    const user_entity = selection.user_id ? await db.entities.get(selection.user_id) : null;
-    const fractal_entity = selection.fractal_id ? await db.entities.get(selection.fractal_id) : null;
-
-    const visual_style = selection.visual_style || selection.fractal?.visual_style || fractal_entity?.visual_style;
-    const narrative_style = selection.narrative_style || selection.fractal?.narrative_style || fractal_entity?.narrative_style;
-
-    const excluded_ids = new Set([String(selection.ai_id), String(selection.user_id)].filter(Boolean));
-    const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String).filter((id) => !excluded_ids.has(id)) : []);
-
-    try {
-      const all_characters = await db.entities
-        .where("type")
-        .equals("character")
-        .toArray()
-        .catch(() => []);
-
-      for (const character of all_characters) {
-        const character_id = String(character.id);
-        if (excluded_ids.has(character_id)) continue;
-
-        // 1. Check if Character is a Wanderer
-        if (character.is_wanderer) {
-          initial_npc_ids.add(character_id);
-          continue;
-        }
-
-        // 2. Check if Fractal has an outgoing bracket bond to this Character
-        // (Track 1.4: universal predicates replace the legacy relationships array)
-        const has_fractal_bond = has_bracket_bond(fractal_entity, character);
-        if (has_fractal_bond) {
-          initial_npc_ids.add(character_id);
-          continue;
-        }
-
-        // 3. Check if Character has an outgoing bracket bond to this Fractal
-        const has_character_to_fractal_bond = fractal_entity ? has_bracket_bond(character, fractal_entity) : false;
-        if (has_character_to_fractal_bond) {
-          initial_npc_ids.add(character_id);
-        }
-      }
-    } catch (error) {
-      console.warn("[Session] Auto-seeding fractal roster failed, falling back to selection:", error);
-    }
-
-    const id = await db.stories.add({
-      title: selection.story_title || "New Story",
-      ai_id: selection.ai_id,
-      user_id: selection.user_id,
-      fractal_id: selection.fractal_id,
-      visual_style,
-      narrative_style,
-      entity_snapshots: {
-        ai: ai_entity ? structuredClone($state.snapshot(ai_entity)) : { dynamics: {} },
-        user: user_entity ? structuredClone($state.snapshot(user_entity)) : { dynamics: {} },
-        fractal: fractal_entity ? structuredClone($state.snapshot(fractal_entity)) : { dynamics: {}, visual_style, narrative_style },
-      },
-      npc_ids: Array.from(initial_npc_ids),
-      created_at: Date.now(),
-      updated_at: Date.now(),
-      round: 0,
-    });
-
-    const story_id = String(id);
-    stories_bridge.bump();
-    await session_driver.set_active(story_id);
-
-    // Initial system entry for story start
-    const entry = {
-      story_id,
-      role: "system",
-      type: "text",
-      text: `Story Started: ${selection.story_title}`,
-      turn_type: "SYSTEM_TURN",
-      round: 0,
-      meta: { type: "STORY_START" },
-      created_at: Date.now(),
-    };
-    entry.id = await db.simulation_log.add(entry);
-    _environment.log_store?.add?.(entry);
-
-    try {
-      const cast_records = [
-        ["ai", ai_entity],
-        ["user", user_entity],
-        ["fractal", fractal_entity],
-      ];
-      const genesis_lines = [];
-      for (const [, record] of cast_records) {
-        if (!record || record.id == null) continue;
-        const fields = {
-          "eternal.physical": record.eternal?.physical,
-          "eternal.non_physical": record.eternal?.non_physical,
-          "present.physical": record.present?.physical,
-          "present.non_physical": record.present?.non_physical,
-          past: record.past,
-          future: record.future,
-        };
-        for (const [field_path, value] of Object.entries(fields)) {
-          if (value == null) continue;
-          const string_value =
-            Array.isArray(value) ? JSON.stringify(value)
-            : typeof value === "object" ? JSON.stringify(value)
-            : String(value);
-          if (!string_value.trim() || string_value === "[]" || string_value === "{}") continue;
-          genesis_lines.push({
-            story_id,
-            round: 0,
-            seq: 0,
-            entity_id: String(record.id),
-            field: field_path,
-            new_value: string_value,
-            writer: "genesis",
-            decider: "genesis",
-          });
-        }
-      }
-      if (genesis_lines.length > 0) await append_ledger_entries(genesis_lines);
-    } catch (error) {
-      console.warn("[Session] Story genesis ledger backfill failed:", error);
-    }
-
-    return story_id;
+    return await create_story_from_selection(selection, { log_store: _environment.log_store, set_active: (id) => session_driver.set_active(id) });
   },
 
   /**
@@ -370,17 +149,7 @@ export const session_driver = {
    * @returns {Promise<any>}
    */
   async send(text) {
-    let speaker_name = "User";
-    let round = 0;
-    try {
-      const story_id = session_driver.require_active();
-      const story = await db.stories.get(story_id);
-      speaker_name = story?.entity_snapshots?.user?.name || "User";
-      round = typeof story?.round === "number" ? story.round : 0;
-    } catch {
-      /* No active story: fall through to the sessionless sentinel in log_message */
-    }
-    return await this.log_message(text, "user", speaker_name, { turn_type: "USER_TURN", round });
+    return await send_user_turn(text, { active_id: _active_id, log_store: _environment.log_store });
   },
 
   /**
@@ -389,76 +158,27 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async regenerate() {
-    const story_id = session_driver.require_active();
-    const logs = await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
-    // Round-bounded prune: capture the tail round first so a Continue-then-Regenerate
-    // (rounds without a preceding user message) can't cross into the prior round.
-    const tail = logs.length > 0 ? logs[logs.length - 1] : null;
-    const target_round = tail?.round ?? null;
-    let found_user_turn = false;
-
-    for (let index = logs.length - 1; index >= 0; index--) {
-      const entry = logs[index];
-      const is_protected_init = entry.meta?.type === "STORY_START" || entry.meta?.is_prologue || entry.meta?.is_epilogue;
-      // Never walk past the round being regenerated once a target is known.
-      if (target_round != null && entry.round != null && entry.round < target_round) break;
-
-      if (!found_user_turn) {
-        if (entry.role === "user") {
-          found_user_turn = true;
-          continue;
-        }
-        // Delete trailing same-round turn telemetry (director/caretaker cards) so a
-        // retry replaces the round instead of stacking a duplicate card per attempt.
-        if (is_telemetry_meta(entry.meta) && !is_protected_init) {
-          if (target_round == null || entry.round === target_round) {
-            await db.simulation_log.delete(entry.id);
-            _environment.log_store?.remove?.(entry.id);
-            continue;
-          }
-        }
-        // Preserve prior telemetry entries even if placed near trailing turns
-        if (is_telemetry_meta(entry.meta)) {
-          continue;
-        }
-        await db.simulation_log.delete(entry.id);
-        _environment.log_store?.remove?.(entry.id);
-      } else {
-        const is_empty_stale = is_empty_narrative_message(entry.text, { attachments: entry.attachments, meta: entry.meta });
-
-        if (is_empty_stale) {
-          await db.simulation_log.delete(entry.id);
-          _environment.log_store?.remove?.(entry.id);
-        }
-      }
-    }
+    return await regenerate_trailing_turns({ active_id: _active_id, log_store: _environment.log_store });
   },
 
   /**
-   * Deletes a single simulation log entry by ID.
+   * Deletes a single simulation log entry by ID or metadata reference.
    * @param {string | number} id
    * @returns {Promise<void>}
    */
   async delete_log_entry(id) {
-    const key = isNaN(Number(id)) ? id : Number(id);
-    await db.simulation_log.delete(key);
-    _environment.log_store?.remove?.(key);
+    return await remove_log_entry(id, { log_store: _environment.log_store });
   },
 
   /**
-   * Updates text for an existing simulation log entry.
+   * Updates text for an existing simulation log entry, with optional meta merge.
    * @param {string | number} id
    * @param {string} new_text
+   * @param {Record<string, any> | null} [meta_patch=null]
    * @returns {Promise<void>}
    */
-  async edit_log_entry(id, new_text) {
-    const entry = await _find_log_entry(id);
-    const key =
-      entry ? entry.id
-      : isNaN(Number(id)) ? id
-      : Number(id);
-    await db.simulation_log.update(key, { text: new_text });
-    _environment.log_store?.update?.(id, { text: new_text });
+  async edit_log_entry(id, new_text, meta_patch = null) {
+    return await edit_stored_log_entry(id, new_text, meta_patch, { log_store: _environment.log_store });
   },
 
   /**
@@ -469,16 +189,7 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async update_log_attachment(id, attachment_index, new_attachment) {
-    const entry = await _find_log_entry(id);
-    if (entry) {
-      if (!Array.isArray(entry.attachments)) {
-        entry.attachments = [];
-      }
-      entry.attachments[attachment_index] = $state.snapshot(new_attachment);
-      const plain_entry = $state.snapshot(entry);
-      await db.simulation_log.put(plain_entry);
-      _environment.log_store?.update?.(id, { attachments: plain_entry.attachments });
-    }
+    return await update_stored_log_attachment(id, attachment_index, $state.snapshot(new_attachment), { log_store: _environment.log_store });
   },
 
   /**
@@ -488,24 +199,7 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   async delete_log_attachment(id, attachment_index) {
-    const entry = await _find_log_entry(id);
-    if (entry && Array.isArray(entry.attachments)) {
-      entry.attachments.splice(attachment_index, 1);
-      const is_empty_image_bubble =
-        !entry.text?.trim() && !entry.meta?.is_prologue && !entry.meta?.is_epilogue && (!entry.attachments || entry.attachments.length === 0);
-      if (is_empty_image_bubble) {
-        const key =
-          entry.id != null ? entry.id
-          : isNaN(Number(id)) ? id
-          : Number(id);
-        await db.simulation_log.delete(key);
-        _environment.log_store?.remove?.(key);
-      } else {
-        const plain_entry = $state.snapshot(entry);
-        await db.simulation_log.put(plain_entry);
-        _environment.log_store?.update?.(id, { attachments: plain_entry.attachments });
-      }
-    }
+    return await remove_log_attachment(id, attachment_index, { log_store: _environment.log_store });
   },
 
   /**
@@ -532,47 +226,21 @@ export const session_driver = {
     character_name,
     { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null, round = null, snapshots = null } = {},
   ) {
-    let effective_story_id = story_id ?? null;
-    if (effective_story_id == null) {
-      try {
-        effective_story_id = session_driver.require_active();
-      } catch {
-        // Sessionless write (story wiped/ended while a fire-and-forget
-        // background job - image beat, caretaker, telemetry - was in flight):
-        // degrade to a no-op sentinel instead of throwing an unhandled
-        // rejection at the user. Foreground flows should check active_id first.
-        return { id: meta?.id || `skip-${Date.now()}`, story_id: null, role, text: "", character_name, turn_type, meta };
-      }
-    }
-    const is_empty = is_empty_narrative_message(text, { attachments, meta });
-
-    if (is_empty) {
-      return { id: meta?.id || `skip-${Date.now()}`, story_id: effective_story_id, role, text: "", character_name, turn_type, meta };
-    }
-    /** @type {any} */
-    const entry = {
-      story_id: effective_story_id,
-      role,
-      type: "text",
+    return await write_log_message(
       text,
+      role,
       character_name,
-      entity_id: entity_id ?? (await resolve_log_entity_id(role, character_name, snapshots, effective_story_id)),
-      turn_type,
-      round: round != null ? round : await resolve_story_round(effective_story_id),
-      meta: $state.snapshot(meta),
-      created_at: Date.now(),
-    };
-    if (attachments && attachments.length > 0) {
-      entry.attachments = $state.snapshot(attachments);
-    }
-    if (meta && meta.id) {
-      entry.id = meta.id;
-      await db.simulation_log.put(entry);
-    } else {
-      entry.id = await db.simulation_log.add(entry);
-    }
-    _environment.log_store?.add?.(entry, snapshots);
-    return entry;
+      {
+        turn_type,
+        meta: meta ? $state.snapshot(meta) : meta,
+        attachments: attachments && attachments.length > 0 ? $state.snapshot(attachments) : attachments,
+        story_id,
+        entity_id,
+        round,
+        snapshots: snapshots ? $state.snapshot(snapshots) : snapshots,
+      },
+      { log_store: _environment.log_store },
+    );
   },
 
   /**
@@ -581,8 +249,6 @@ export const session_driver = {
    * @returns {Promise<any[]>}
    */
   async load_log(story_id) {
-    if (!story_id) return [];
-    const normalized_ids = [...new Set([String(story_id), isNaN(Number(story_id)) ? story_id : Number(story_id)])];
-    return await db.simulation_log.where("story_id").anyOf(normalized_ids).sortBy("created_at");
+    return await load_story_log(story_id);
   },
 };

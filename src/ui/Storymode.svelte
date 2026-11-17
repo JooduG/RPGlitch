@@ -159,7 +159,7 @@
         attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, refined_prompt, kind, { subject, entity, negative_prompt: enhanced_negative });
+      const result = await visual_engine.visualize(refined_prompt, kind, { subject, entity, negative_prompt: enhanced_negative });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -211,7 +211,7 @@
         attachments: [{ src: null, metadata: { mode: "story_entities", prompt: group_prompt } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, group_prompt, "story_entities");
+      const result = await visual_engine.visualize(group_prompt, "story_entities");
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {

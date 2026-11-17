@@ -198,14 +198,14 @@ export async function execute_prologue(story_id) {
       release_prologue_image = resolve;
     });
 
-    const { visual_engine } = await import("../media/visual.svelte.js");
+    const { visual_engine } = await import("../media/image-generation.js");
     if (visual_engine) {
       (async () => {
-        const { mark_generation_in_flight, clear_generation_in_flight } = await import("../media/visual.svelte.js");
+        const { mark_generation_in_flight, clear_generation_in_flight } = await import("../media/image-generation.js");
         mark_generation_in_flight?.(node_id, 0);
         await prologue_image_gate;
         try {
-          const img_result = await visual_engine.visualize(story_id, prologue_text, "story_scene", { silent: true });
+          const img_result = await visual_engine.visualize(prologue_text, "story_scene", { silent: true });
           if (img_result?.imageUrl) {
             await session_driver.update_log_attachment(node_id, 0, {
               src: img_result.imageUrl,

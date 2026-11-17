@@ -71,7 +71,9 @@ export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "@utils
 export {
   IMAGE_TIERS,
   ORDERED_VISUAL_STYLE_KEYS,
+  TIER_RESOLUTIONS,
   build_aesthetic_map,
+  evaluate_image_trigger,
   flatten_aesthetic_map,
   resolve_visual_engine_tokens,
   normalize_image_tier,
@@ -79,9 +81,21 @@ export {
   get_resolution_string,
   get_tier_guidance_scale,
   resolve_image_trigger,
+  resolve_story_beat_style,
+  compose_story_beat_prompt,
+  rescue_visual_prose,
+  sanitize_visual_text,
   extract_aesthetic_traits,
   render_optics_fallback,
 } from "@simulation";
+
+// ============================================================================
+// Image Policy Surface (trigger + tier/optics vocabulary, media-facing)
+// Canonical implementations live in @simulation; import the policy module
+// directly (or via the `policy` namespace) for the media-owned surface.
+// ============================================================================
+
+export * as policy from "./policy.js";
 
 // ============================================================================
 // Stateless Visual Generation & Queue Lifecycle
@@ -106,8 +120,4 @@ export {
   VisualEngine,
   visual_engine,
   set_visualizer_envision_impl,
-  rescue_visual_prose,
-  sanitize_visual_text,
-  resolve_story_beat_style,
-  compose_story_beat_prompt,
-} from "./visual.svelte.js";
+} from "./image-generation.js";

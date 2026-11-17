@@ -568,28 +568,6 @@ export function cap_somatic_markers(text) {
 // ============================================================================
 
 /**
- * Resolves an active style key across an explicit entity override and a
- * caller-provided app-level choice. Pure: callers pass the app value
- * explicitly (no bridge reads — Rank 1 stays stateless).
- * @param {string | undefined} explicit_style - Explicit style key from entity/fractal.
- * @param {string | null | undefined} app_style - Caller-resolved app-level choice (or null).
- * @param {Record<string, any>} [registry={}] - Registry dictionary for validating key existence.
- * @param {string} [fallback=""] - Fallback key when no active style is found.
- * @returns {string} Resolved style identifier.
- */
-export function resolve_style(explicit_style, app_style, registry = {}, fallback = "") {
-  if (explicit_style && explicit_style !== "default" && explicit_style !== "" && registry?.[explicit_style]) {
-    return explicit_style;
-  }
-
-  if (app_style && app_style !== "default" && registry?.[app_style]) {
-    return app_style;
-  }
-
-  return fallback;
-}
-
-/**
  * Resolves the active speaking style based on entity and narrative style hierarchy.
  * Priority: Entity Speaking Style > Narrative Style Preset > "casual" (default).
  * @param {Record<string, any> | null} [entity=null] - Active character or user entity.

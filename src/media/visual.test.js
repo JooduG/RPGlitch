@@ -6,7 +6,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   clear_generation_in_flight,
-  compose_story_beat_prompt,
   dispatch_visual_generation,
   find_image_engine,
   is_generation_in_flight,
@@ -14,10 +13,10 @@ import {
   reset_cached_image_engine,
   reset_generation_in_flight,
   reset_image_generation_queue,
-  resolve_story_beat_style,
   set_visualizer_envision_impl,
   visual_engine,
-} from "./visual.svelte.js";
+} from "./image-generation.js";
+import { compose_story_beat_prompt, resolve_story_beat_style } from "@simulation";
 import { execute_visualizer_envision } from "../engine/lifecycle.js";
 
 describe("visual.js - Stateless Perchance Image Dispatcher", () => {

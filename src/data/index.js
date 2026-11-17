@@ -8,7 +8,8 @@
  * zero `state_bridge`, zero upward imports):
  * - 4-Quadrant Entity Records (`records.js`)
  * - Character Card Codec (`card-codec.js`)
- * - Dexie Persistence Engine (`db.js`)
+ * - Dexie Persistence Engine (`db.js`: stories, entities, schema, seeding)
+ * - Session Tracking, Story Sessions & Simulation Log (`session.js`)
  * - Mutation Ledger & Event-Sourced Provenance (`ledger.js`)
  * - 3-Tier Session Checkpoint (`checkpoint.js`)
  * - Story Markdown Transcript & Export (`exporters.js`)
@@ -23,42 +24,55 @@ export { apply_profile_to_entity, create_entity, filter_entity_epistemics, norma
 // 2. Character Card Conversion Codec & PNG Metadata
 export { detect_card_format, extract_card_from_png, parse_character_card, serialize_character_card, serialize_rpglitch_entity } from "./card-codec.js";
 
-// 3. Dexie Persistence Engine
+// 3. Dexie Persistence Engine (stories, entities, schema, seeding)
 export {
   active_entity_ids,
-  append_log_entry,
-  clear_active_session_id,
   coerce_story_key,
   conclude_story,
   create_story,
   db,
   delete_entity,
-  delete_log_attachment,
-  delete_log_entry,
   delete_story,
-  delete_story_log,
-  edit_log_entry,
   entities,
-  get_active_session_id,
   get_entity,
-  get_recent_sessions,
   get_story,
-  get_story_log,
   init_db,
   list_entities,
-  record_session_access,
-  require_active,
-  SESSION_ID_KEY,
   seed_premades,
-  set_active_session_id,
   set_versionchange_quiesce,
   stories,
   update_cast,
   update_entity,
-  update_log_attachment,
   update_story,
   upsert_entity,
 } from "./db.js";
+
+// 3b. Session Tracking, Story Sessions & Simulation Log (pure Rank 2 service)
+export {
+  SESSION_ID_KEY,
+  _find_log_entry,
+  bind_session_store,
+  clear_active_session_id,
+  create_from_selection,
+  delete_log_attachment,
+  delete_log_entry,
+  delete_story_log,
+  edit_log_entry,
+  get_active_session_id,
+  get_recent_sessions,
+  get_story_log,
+  load_log,
+  log_message,
+  match_speaker_snapshots,
+  record_session_access,
+  regenerate,
+  require_active,
+  resolve_log_entity_id,
+  resolve_story_round,
+  send,
+  set_active_session_id,
+  update_log_attachment,
+} from "./session.js";
 
 // 4. Mutation Ledger & Event-Sourced Provenance
 export {

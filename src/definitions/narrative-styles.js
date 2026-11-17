@@ -21,7 +21,7 @@
  * ============================================================================
  */
 
-import { resolve_style } from "../simulation/llm-output.js";
+import { resolve_style } from "../utils/style-resolve.js";
 
 // ============================================================================
 // 1. Type Definitions

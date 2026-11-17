@@ -46,12 +46,15 @@ export {
   lint_narrative_slop,
   parse_think_block,
   resolve_speaking_style,
-  resolve_style,
   safe_parse_json,
   sanitize_llm,
   strip_cognition_blocks,
   strip_covert_directives,
 } from "./llm-output.js";
+
+// Style-key hierarchy resolver: Rank 0 leaf in `@utils` (re-exported here so
+// existing `@simulation` consumers keep a single import surface).
+export { resolve_style } from "../utils/style-resolve.js";
 
 // Turn history: role canonicalization, beat normalization, collapse/filter/
 // format, speaker matching, write-guard predicates, turn tempo + summaries.
@@ -74,7 +77,14 @@ export {
 } from "./history.js";
 
 // Turn physics: pure reducer, baselines, directive evaluation, caretaker rotation.
-export { CARETAKER_ROTATION, evaluate_dynamics_directives, extract_metric_baselines, resolve_caretaker_target, step_dynamics } from "./dynamics.js";
+export {
+  CARETAKER_ROTATION,
+  evaluate_dynamics_directives,
+  evaluate_image_trigger,
+  extract_metric_baselines,
+  resolve_caretaker_target,
+  step_dynamics,
+} from "./dynamics.js";
 
 // Retrieval: memory candidates, origin-weighted ranking, two-tier sieve,
 // ephemeral vector cache.
@@ -87,6 +97,7 @@ export {
   IMAGE_TIERS,
   ORDERED_VISUAL_STYLE_KEYS,
   PURPOSE_CORES,
+  TIER_RESOLUTIONS,
   build_aesthetic_map,
   clean_image_prompts,
   compile_prompt,
