@@ -15,14 +15,14 @@
 import { execute_round, execute_turn_2_continue } from "./turns.js";
 
 export class Kernel {
-  user = $state(null);
-  ai = $state(null);
-  fractal = $state(null);
-  round = $state(0);
-  phase = $state("idle"); // "idle" | "generating" | "locked"
-  history = $state([]);
-  error = $state(null);
-  director_enabled = $state(false);
+  user = null;
+  ai = null;
+  fractal = null;
+  round = 0;
+  phase = "idle"; // "idle" | "generating" | "locked"
+  history = [];
+  error = null;
+  director_enabled = false;
 
   constructor(options = {}) {
     this.user = options.user || null;

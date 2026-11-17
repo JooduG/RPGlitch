@@ -156,7 +156,7 @@ describe("runtime.sync checkpoint restore", () => {
     const { story_id } = await seed_story(3);
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
 
-    const { session_driver } = await import("@data");
+    const { session_driver } = await import("@engine");
 
     await runtime.sync();
 

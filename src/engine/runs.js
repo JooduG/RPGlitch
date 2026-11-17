@@ -13,11 +13,14 @@
  */
 
 import { IMAGE_POLICY } from "@config";
-import { append_ledger_entries, db, log_message, normalize_entity } from "@data";
+import { append_ledger_entries, db, normalize_entity } from "@data";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "@utils";
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
 import { state_bridge } from "@utils";
 import { Kernel } from "./kernel.svelte.js";
+import { simulation_log } from "./log.svelte.js";
+import { runtime } from "./runtime.svelte.js";
+import { session_driver } from "./sessions.svelte.js";
 import { get_transport } from "./transport.js";
 import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
 
@@ -61,10 +64,11 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
   // Director turn first (C1: chronology over stability - accepted devmode jump on commit).
   let logged_delta = null;
   if (outcome.director_staging?.dynamics_deltas) {
-    logged_delta = await log_message("", "system", "Director", {
+    logged_delta = await session_driver.log_message("", "system", "Director", {
       turn_type: "SYSTEM_TURN",
       round,
       story_id,
+      snapshots: { AI: kernel?.ai, USER: kernel?.user, FRACTAL: kernel?.fractal },
       meta: {
         type: "DYNAMICS_DELTA",
         deltas: outcome.director_staging.dynamics_deltas,
@@ -74,20 +78,15 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
         thoughts: outcome.director_staging._thought_process || "",
       },
     });
-    if (logged_delta && state_bridge.simulation_log?.add) {
-      state_bridge.simulation_log.add(logged_delta);
-    }
   }
 
-  const logged_entry = await log_message(prose, "ai", ai_name, {
+  const logged_entry = await session_driver.log_message(prose, "ai", ai_name, {
     turn_type: "AI_TURN",
     round,
     story_id,
+    snapshots: { AI: kernel?.ai, USER: kernel?.user, FRACTAL: kernel?.fractal },
     meta: { think, director_staging: outcome.director_staging },
   });
-  if (logged_entry && state_bridge.simulation_log?.add) {
-    state_bridge.simulation_log.add(logged_entry);
-  }
 
   // Force explicit ordering so same-ms Date.now() ties can't flip on reload
   // (load_log sorts by created_at; live feed already appended delta-first).
@@ -96,7 +95,7 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
       const fixed = logged_entry.created_at - 1;
       await db.simulation_log.update(logged_delta.id, { created_at: fixed });
       logged_delta.created_at = fixed;
-      state_bridge.simulation_log?.update?.(logged_delta.id, { created_at: fixed });
+      simulation_log?.update?.(logged_delta.id, { created_at: fixed });
     } catch {
       // Ordering is best-effort; insertion order already holds live.
     }
@@ -161,12 +160,11 @@ async function maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fra
  * @returns {Promise<object>} Outcome containing character_turn, director_staging, etc.
  */
 export async function execute_turn(user_input, _options = {}) {
-  const runtime = state_bridge.runtime;
   const app = state_bridge.app;
 
   // 1-3. Quadrants, shared transport, Kernel, and multi-role history in one session
   const live_transport = get_transport();
-  const { kernel, ai_quadrant, fractal_quadrant } = open_turn_session(app, runtime, state_bridge.simulation_log?.feed || []);
+  const { kernel, ai_quadrant, fractal_quadrant } = open_turn_session(app, runtime, simulation_log?.feed || []);
 
   // 4. Begin UI streaming indicator
   const message_node_id = `msg-${Date.now()}`;
@@ -232,14 +230,14 @@ export async function execute_turn(user_input, _options = {}) {
  * @returns {Promise<object>} The continuation outcome
  */
 export async function execute_continue(target_entry, _options = {}) {
-  const { app, runtime } = state_bridge;
+  const app = state_bridge.app;
 
   if (!target_entry || !target_entry.id) {
     throw new Error("Target message entry required for continuation.");
   }
 
   // 1-3. Quadrants, shared transport, Kernel, history scoped to the target message
-  const feed = state_bridge.simulation_log?.feed || [];
+  const feed = simulation_log?.feed || [];
   const target_index_in_feed = feed.findIndex((e) => String(e.id) === String(target_entry.id));
 
   // Slice raw feed before target message so telemetry/empty entries don't skew index alignment
@@ -315,8 +313,8 @@ export async function execute_continue(target_entry, _options = {}) {
     const fused_think = outcome?.think || target_think;
 
     // 5. Commit fused continuation to persistence and active feed
-    if (state_bridge.simulation_log && typeof state_bridge.simulation_log.edit_entry === "function") {
-      await state_bridge.simulation_log.edit_entry(target_entry.id, fused_prose);
+    if (simulation_log && typeof simulation_log.edit_entry === "function") {
+      await simulation_log.edit_entry(target_entry.id, fused_prose);
       // Update entry meta think in-memory if present
       const entry = feed.find((e) => String(e.id) === String(target_entry.id));
       if (entry) {
@@ -346,7 +344,6 @@ export async function execute_continue(target_entry, _options = {}) {
  * @returns {Promise<void>}
  */
 export async function write_back_kernel_state(kernel, outcome, live_transport, options = {}) {
-  const runtime = state_bridge.runtime;
   if (!runtime) return;
 
   // 1-3. Write back quadrant dynamics (AI/Fractal mirror into setter, active, and physics; User writes active only)
@@ -407,7 +404,6 @@ export async function write_back_kernel_state(kernel, outcome, live_transport, o
  */
 export async function dispatch_caretaker_consolidation(kernel, transport, signal = null) {
   if (signal?.aborted) return;
-  const runtime = state_bridge.runtime;
   if (!runtime) return;
 
   try {
@@ -518,10 +514,11 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
       if (runtime.story_id) {
         try {
           const present_combined = [caretaker_outcome.present_physical, caretaker_outcome.present_non_physical].filter(Boolean).join(" ");
-          const logged_continuum = await log_message("", "system", "Caretaker", {
+          await session_driver.log_message("", "system", "Caretaker", {
             turn_type: "SYSTEM_TURN",
             round,
             story_id: runtime.story_id,
+            snapshots: { AI: kernel?.ai, USER: kernel?.user, FRACTAL: kernel?.fractal },
             meta: {
               type: "CONTINUUM_FORMATION",
               target: target_key,
@@ -531,9 +528,6 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
               thought_process: caretaker_outcome._thought_process || "",
             },
           });
-          if (logged_continuum && state_bridge.simulation_log?.add) {
-            state_bridge.simulation_log.add(logged_continuum);
-          }
         } catch (card_err) {
           console.warn("[Bridge] Failed to emit caretaker telemetry card:", card_err);
         }

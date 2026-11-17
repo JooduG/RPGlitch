@@ -19,9 +19,11 @@
  * - `@utils` (`state_bridge`): Decoupled bridge to `app`, `runtime`, `simulation_state`, and `simulation_log`.
  */
 
-import { session_driver } from "@data";
 import { build_turn_summary } from "./turns.js";
 import { state_bridge } from "@utils";
+import { simulation_log } from "./log.svelte.js";
+import { runtime } from "./runtime.svelte.js";
+import { session_driver } from "./sessions.svelte.js";
 import { execute_prologue } from "./lifecycle.js";
 import { execute_continue, execute_turn } from "./runs.js";
 
@@ -69,7 +71,7 @@ export class ChronoEngine {
 
     try {
       // Clear stale story title from previous stories before session creation
-      state_bridge.runtime?.reset_story_title?.();
+      runtime?.reset_story_title?.();
       const story_title = state_bridge.app.story_title || `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
 
       // 1. Create Core Session in persistence
@@ -84,7 +86,7 @@ export class ChronoEngine {
       });
 
       // 2. Synchronize Runtime State with the new session
-      await state_bridge.runtime.sync(story_id);
+      await runtime.sync(story_id);
 
       // 3. Begin-story card choreography: hold cards in prologue mode and suppress morph
       state_bridge.app.suppress_card_transitions = true;
@@ -165,13 +167,13 @@ export class ChronoEngine {
   async continue(target_id = null) {
     if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
     try {
-      if (!state_bridge.simulation_log?.feed?.length && typeof state_bridge.simulation_log?.refresh === "function") {
-        await state_bridge.simulation_log.refresh();
+      if (!simulation_log?.feed?.length && typeof simulation_log?.refresh === "function") {
+        await simulation_log.refresh();
       }
 
       // If target_id specified, run surgical continue-in-place
       if (target_id) {
-        const feed = state_bridge.simulation_log?.feed || [];
+        const feed = simulation_log?.feed || [];
         const target_entry = feed.find((e) => String(e.id) === String(target_id));
         if (target_entry) {
           state_bridge.simulation_state.set_intent_active(true);
@@ -208,18 +210,18 @@ export class ChronoEngine {
    * @param {AdvanceTurnOptions} [options={}]
    */
   async advance_turn(input, options = {}) {
-    const story_id = state_bridge.runtime.story_id;
+    const story_id = runtime.story_id;
     if (!story_id) return;
 
     // 1. STASIS: System Lock & Double-Click Gate
     state_bridge.simulation_state.set_intent_active(true);
     state_bridge.app.simulation.loading = true;
 
-    const previous_round = Number(state_bridge.runtime.round || 0);
+    const previous_round = Number(runtime.round || 0);
     const final_input = input;
 
     // 2. SYNTHESIS: Generate Narrative (round is owned by the Kernel)
-    state_bridge.app.log(`LLM synthesizing turn ${state_bridge.runtime.round}...`, "ai");
+    state_bridge.app.log(`LLM synthesizing turn ${runtime.round}...`, "ai");
     const controller = new AbortController();
     state_bridge.app.streaming.abort_controller = controller;
     state_bridge.app.streaming.active = true;
@@ -243,7 +245,7 @@ export class ChronoEngine {
           state_bridge.app.log("Generation complete.", "system");
 
           try {
-            state_bridge.app.log(build_turn_summary(state_bridge.simulation_log?.feed || [], state_bridge.runtime.round), "system");
+            state_bridge.app.log(build_turn_summary(simulation_log?.feed || [], runtime.round), "system");
           } catch {
             /* Telemetry logging must never break turn progression */
           }
@@ -268,7 +270,7 @@ export class ChronoEngine {
         state_bridge.app.log("Recording continuum...", "db");
 
         // 4. ANCHOR: Persist the timeline
-        await state_bridge.runtime.save(state_bridge.runtime.round);
+        await runtime.save(runtime.round);
         state_bridge.simulation_state.unlock();
         return true;
       } catch (err) {
@@ -276,7 +278,7 @@ export class ChronoEngine {
         const is_aborted = error.name === "AbortError" || error.message?.includes("aborted") || controller.signal.aborted;
         if (is_aborted) {
           state_bridge.app.log("Generation interrupted cleanly.", "system");
-          state_bridge.runtime.round = previous_round;
+          runtime.round = previous_round;
 
           // 🛡️ ABORT CLEANUP: Purge orphaned unresponded user turn row from IndexedDB and feed
           if (final_input && story_id) {
@@ -286,7 +288,7 @@ export class ChronoEngine {
               if (last_message?.role === "user" && last_message.id != null) {
                 // Store-level delete: removes the DB row AND the in-memory feed entry
                 // (bare delete_log_entry left a ghost in the feed until refresh).
-                await state_bridge.simulation_log.delete_entry(last_message.id);
+                await simulation_log.delete_entry(last_message.id);
               }
             } catch (cleanup_err) {
               console.warn("[Chrono] Failed to purge aborted user message:", cleanup_err);
@@ -297,10 +299,10 @@ export class ChronoEngine {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);
 
-          state_bridge.runtime.round = previous_round;
+          runtime.round = previous_round;
 
           // 🛡️ ORPHANED-TURN GUARD: If user message was recorded but AI reply failed, retry once
-          const round_after_failure = state_bridge.runtime.round;
+          const round_after_failure = runtime.round;
           let retry_landed = false;
 
           try {
@@ -335,19 +337,25 @@ export class ChronoEngine {
 
           // Durable system entry for forensic auditing
           try {
-            await session_driver.log_system_entry(
+            await session_driver.log_message(
               `A turn failed after the message was recorded${
                 retry_landed ? " (recovered by automatic retry)" : " - no reply was generated"
               }. Round ${round_after_failure}. (${error.message || "Unknown error"})`,
               "system",
-              { type: "TURN_ORPHANED", round: round_after_failure, recovered: retry_landed },
+              "System",
+              {
+                turn_type: "SYSTEM_TURN",
+                round: round_after_failure,
+                story_id,
+                meta: { type: "TURN_ORPHANED", round: round_after_failure, recovered: retry_landed },
+              },
             );
           } catch (log_err) {
             console.error("[Chrono] Failed to persist orphan marker:", log_err);
           }
 
           if (!retry_landed) {
-            state_bridge.simulation_log.add({
+            simulation_log.add({
               id: `err-${Date.now()}`,
               role: "system",
               text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
@@ -376,8 +384,8 @@ export class ChronoEngine {
    * @returns {Promise<void>}
    */
   async stop() {
-    if (state_bridge.runtime?.story_id) {
-      await state_bridge.runtime.save();
+    if (runtime?.story_id) {
+      await runtime.save();
     }
     await session_driver.clear_active();
   }

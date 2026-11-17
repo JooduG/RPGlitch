@@ -1,6 +1,6 @@
 /**
- * src/utils/story-export.js
- * 📚 STORY MARKDOWN TRANSCRIPT & EXPORT ENGINE
+ * src/data/exporters.js
+ * 📚 STORY MARKDOWN TRANSCRIPT & EXPORT ENGINE (pure, no runes)
  *
  * Core Responsibilities:
  * - Compiles a story session record and its chronological simulation-log entries into clean, portable markdown.
@@ -13,15 +13,15 @@
  * - Generates sanitized, timestamped download filenames (`story-{slug}-{YYYY-MM-DD}.md`).
  *
  * Consumed by:
- * - `src/ui/story/StoryManager.svelte` (Story archive download).
- * - `src/ui/console/Console.svelte` (Dev console story export).
+ * - `src/ui/Console.svelte` (Dev console story export).
+ * ============================================================================
  */
 
 import { CANONICAL_ROLES, NARRATOR_ROLES } from "@config";
-import { filter_narrative_messages, format_datetime, normalize_history_beat } from "./text.js";
+import { filter_narrative_messages, format_datetime, normalize_history_beat } from "../utils/text.js";
 
 // ============================================================================
-// [SECTION 1: CONSTANTS & NARRATOR ROLES]
+// [SECTION 1: JSDOC SCHEMAS]
 // ============================================================================
 
 /**
@@ -32,7 +32,7 @@ import { filter_narrative_messages, format_datetime, normalize_history_beat } fr
 /**
  * @typedef {Object} StoryBeatEntry
  * @property {string} [role] - Log entry turn role (e.g. user, assistant, fractal, system).
- * @property {string} [character_name] - Name of the speaking entity.
+ * @property {string} [character_name] - Name of speaking entity.
  * @property {string} [text] - Primary narrative text.
  * @property {string} [content] - Fallback content text.
  */
@@ -161,10 +161,7 @@ export function build_story_export_filename(story = {}, date = new Date()) {
 
 /**
  * CHANGELOG:
+ * - Phase 2: relocated from `src/utils/story-export.js` (no behavior change).
  * - Track 2: Simulation Log Pipeline Harmonization - refactored `format_story_beat` to consume `normalize_history_beat` and `CANONICAL_ROLES` from `history.js`, eliminating duplicated cognition stripping and ad-hoc role handling.
  * - 2026-10-03: Image preservation in story markdown exports - format_story_beat now supports attachments with image src URLs and renders markdown images (![prompt](src)), preventing image loss on empty-text fractal rows.
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, exported frozen NARRATOR_ROLES collection, defined StoryRecord/Beat
- *   JSDoc schemas, and verified 100% test pass.
- * - 2026-06-15: Initial story markdown compilation and filename builder implementation.
  */

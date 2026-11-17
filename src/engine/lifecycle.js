@@ -10,10 +10,11 @@
  * and the opening turn through runs.js.
  */
 
-import { normalize_entity } from "@data";
-import { parse_think_block } from "@utils";
-import { state_bridge } from "@utils";
+import { append_ledger_entries, apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
+import { parse_think_block, state_bridge } from "@utils";
 import { execute_turn } from "./runs.js";
+import { runtime } from "./runtime.svelte.js";
+import { session_driver } from "./sessions.svelte.js";
 import { enhance_text, generate_text, get_transport } from "./transport.js";
 import { execute_turn_structuring, execute_turn_visualizer } from "./turns.js";
 
@@ -34,7 +35,6 @@ export async function execute_visualizer_envision(text, type = "character", enti
 
   const { get_resolution_string } = await import("../media/optics.js");
   const { get_visual_style } = await import("../definitions/visual-styles.js");
-  const runtime = state_bridge.runtime || {};
   const app = state_bridge.app || {};
 
   const app_choice = app_style || app.settings?.visual_style;
@@ -142,7 +142,6 @@ export async function structure_profile(raw, type = "character", signal = null) 
  * @returns {Promise<any>}
  */
 export async function execute_prologue(story_id) {
-  const runtime = state_bridge.runtime;
   const app = state_bridge.app;
   if (!runtime || !story_id) return null;
 
@@ -163,7 +162,7 @@ export async function execute_prologue(story_id) {
     runtime.last_dynamics_beat_round = 0;
 
     // 1. Establish the empty fractal role prologue entry
-    await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
+    await session_driver.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
       meta: { id: node_id, round: 0, is_prologue: true },
@@ -185,15 +184,12 @@ export async function execute_prologue(story_id) {
     const { think: prologue_think, prose: prologue_body } = parse_think_block(raw_prologue);
     const prologue_text = (prologue_body || raw_prologue || "").trim();
 
-    await state_bridge.session_driver.edit_log_entry(node_id, prologue_text, { think: prologue_think });
+    await session_driver.edit_log_entry(node_id, prologue_text, { think: prologue_think });
     app.log("Prologue scene established.", "system");
 
     // 3. Register deferred prologue scene image
     const prologue_image_requested_at = Date.now();
-    await state_bridge.session_driver.update_log_attachment(node_id, 0, {
-      src: null,
-      metadata: { mode: "story_scene", requested_at: prologue_image_requested_at },
-    });
+    await session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene", requested_at: prologue_image_requested_at } });
 
     let release_prologue_image = () => {};
     const prologue_image_gate = new Promise((resolve) => {
@@ -209,7 +205,7 @@ export async function execute_prologue(story_id) {
         try {
           const img_result = await visual_engine.visualize(story_id, prologue_text, "story_scene", { silent: true });
           if (img_result?.imageUrl) {
-            await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+            await session_driver.update_log_attachment(node_id, 0, {
               src: img_result.imageUrl,
               metadata: {
                 ...(img_result.metadata || {}),
@@ -254,7 +250,6 @@ export async function execute_prologue(story_id) {
  * @returns {Promise<string | null>}
  */
 export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED") {
-  const runtime = state_bridge.runtime;
   const app = state_bridge.app;
 
   app.log(`Generating epilogue (${conclusion_status})...`, "system");
@@ -275,19 +270,160 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
   const { detox_prose } = await import("../utils/detox.js");
   const cleaned_prose = detox_prose(parse_think_block(response || "").prose);
 
-  if (state_bridge.session_driver?.log_message) {
-    await state_bridge.session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
-      turn_type: "SYSTEM_TURN",
-      story_id,
-      meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
-    });
-  }
+  await session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
+    turn_type: "SYSTEM_TURN",
+    story_id,
+    meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
+  });
 
   app.end_stream?.();
   if (typeof state_bridge.simulation_state !== "undefined") {
     state_bridge.simulation_state.phase = "locked";
   }
   return cleaned_prose;
+}
+/**
+ * Common birth core shared across spawn paths and ImportModal.
+ * Runs structuring (if prose), maps profile leaves, saves to DB,
+ * writes genesis ledger entries, and chains post-save portrait generation.
+ *
+ * @param {'character' | 'fractal'} type
+ * @param {Object} draft
+ * @param {Object} [options]
+ * @returns {Promise<any>}
+ */
+export async function birth_entity_core(type, draft = {}, options = {}) {
+  const entity_type = type === "fractal" ? "fractal" : "character";
+  const name = String(draft?.name || "").trim();
+  const raw_color = String(draft?.signature_color || "").trim();
+  const description = String(draft?.description || "").trim();
+  const scene_context = String(draft?.scene_context || "").trim();
+
+  // Canonical init: fractals get velocity/entropy dynamics and "" past via
+  // create_entity; the description seeds the quadrant prefill (overwritten
+  // below when the draft already carries quadrants).
+  let entity = create_entity(entity_type, {
+    ...(name ? { name } : {}),
+    ...(description ? { description } : {}),
+    ...(raw_color ? { signature_color: raw_color } : {}),
+    ...(draft?.speaking_style ? { speaking_style: draft.speaking_style } : {}),
+    eternal: { physical: description, non_physical: "" },
+    present: { physical: description, non_physical: "" },
+    future: "",
+    past: "",
+  });
+  // Orchestration-only extras the normalizer drops (same as pre-move behavior).
+  entity.dynamics_baseline = { ...entity.dynamics };
+  entity.is_wanderer = false;
+
+  // Run structuring if rich synthesis text is provided
+  if (options.run_sorter || (!draft?.eternal && !draft?.present && (name || description))) {
+    try {
+      const synthesis_source = [
+        `Entity Name: ${entity.name}`,
+        description ? `Core Concept: ${description}` : "",
+        raw_color ? `Signature Color: ${raw_color}` : "",
+        scene_context ? `Scene Context & Atmosphere: ${scene_context}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const rich_profile = await structure_profile(synthesis_source, entity_type);
+      if (rich_profile && typeof rich_profile === "object") {
+        entity = apply_profile_to_entity(entity, rich_profile);
+      }
+    } catch (error) {
+      state_bridge.app?.log?.(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
+    }
+  } else if (draft && typeof draft === "object") {
+    entity = apply_profile_to_entity(entity, draft);
+  }
+
+  if (name) entity.name = name;
+  if (raw_color) entity.signature_color = raw_color;
+
+  const saved_entity = await upsert_entity(entity);
+
+  // Write Genesis Ledger Entries for all populated quadrant fields
+  const story_id = options.story_id ?? runtime.story_id ?? null;
+  const ledger_lines = [];
+
+  const record_genesis_field = (field_path, value) => {
+    if (!value) return;
+    const string_value =
+      Array.isArray(value) ? JSON.stringify(value)
+      : typeof value === "object" ? JSON.stringify(value)
+      : String(value);
+    if (!string_value.trim()) return;
+    ledger_lines.push({
+      story_id,
+      round: 0,
+      seq: 0,
+      entity_id: saved_entity.id,
+      field: field_path,
+      new_value: string_value,
+      writer: "genesis",
+      decider: "genesis",
+    });
+  };
+
+  record_genesis_field("eternal.physical", saved_entity.eternal?.physical);
+  record_genesis_field("eternal.non_physical", saved_entity.eternal?.non_physical);
+  record_genesis_field("present.physical", saved_entity.present?.physical);
+  record_genesis_field("present.non_physical", saved_entity.present?.non_physical);
+  if (Array.isArray(saved_entity.past) ? saved_entity.past.length > 0 : saved_entity.past) {
+    record_genesis_field("past", saved_entity.past);
+  }
+  record_genesis_field("future", saved_entity.future);
+
+  if (ledger_lines.length > 0) {
+    try {
+      await append_ledger_entries(ledger_lines);
+    } catch (err) {
+      void err;
+    }
+  }
+
+  // Register NPC on active story if spawned during a story session
+  if (entity_type === "character" && story_id && story_id !== "debug") {
+    try {
+      const story = await get_story(story_id);
+      const existing_npcs = Array.isArray(story?.npc_ids) ? story.npc_ids : [];
+      const updated_npcs = [...new Set([...existing_npcs, saved_entity.id])];
+      if (updated_npcs.length !== existing_npcs.length) {
+        await update_cast(story_id, updated_npcs);
+      }
+    } catch (err) {
+      state_bridge.app?.log?.(`[Storage] Failed to register NPC on story ${story_id}: ${err?.message || err}`, "warn");
+    }
+  }
+
+  // Chained post-save portrait generation (fire-and-forget)
+  if (options.generate_portrait !== false && entity_type === "character") {
+    const { visual_engine } = await import("@media");
+    if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
+      try {
+        const portrait_promise = visual_engine
+          .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
+          .then(async (image_url) => {
+            if (image_url && saved_entity.id) {
+              const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
+              await update_entity(saved_entity.id, { profile_picture: data_url });
+              await runtime.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+            }
+          });
+        if (portrait_promise && typeof portrait_promise.catch === "function") {
+          portrait_promise.catch((error) =>
+            state_bridge.app?.log?.(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
+          );
+        }
+      } catch (_error) {
+        /* portrait failure must never break genesis */
+      }
+    }
+  }
+
+  return saved_entity;
 }
 /**
  * CHANGELOG:

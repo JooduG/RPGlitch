@@ -25,7 +25,7 @@
  */
 
 import { TIMING_MS } from "@config";
-import { developer_log } from "@data";
+import { developer_log } from "./log.svelte.js";
 import { Audio } from "@media";
 import { get_llm_gate_status } from "./gate.js";
 

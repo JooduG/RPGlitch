@@ -25,8 +25,8 @@
  * ============================================================================
  */
 
-import { db, developer_log, entities, normalize_entity as normalize, stories } from "@data";
-import { install_freeze_watchdog, runtime, simulation_state, streaming as streaming_store, ui_state } from "@engine";
+import { db, entities, normalize_entity as normalize, stories } from "@data";
+import { developer_log, install_freeze_watchdog, runtime, simulation_state, streaming as streaming_store, ui_state } from "@engine";
 import { get_signature_color, visual_engine } from "@media";
 import { embeddings_engine, guarded_transition, resolve_px, stories_bridge } from "@utils";
 import { flushSync } from "svelte";

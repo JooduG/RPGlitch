@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { register_state_accessors } from "@utils";
-import { session_driver } from "@data";
+import { session_driver } from "./sessions.svelte.js";
+import { runtime as real_runtime } from "./runtime.svelte.js";
+import { simulation_log as real_log } from "./log.svelte.js";
 import { execute_turn } from "./runs.js";
 import { execute_prologue } from "./lifecycle.js";
 
-vi.mock("@data", async (importOriginal) => {
+vi.mock("./sessions.svelte.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
@@ -13,9 +15,10 @@ vi.mock("@data", async (importOriginal) => {
       create_from_selection: vi.fn().mockResolvedValue("story-123"),
       send: vi.fn().mockResolvedValue({}),
       regenerate: vi.fn().mockResolvedValue({}),
-      continue: vi.fn().mockResolvedValue({}),
       record_system_marker: vi.fn().mockResolvedValue(undefined),
       load_log: vi.fn().mockResolvedValue([]),
+      log_message: vi.fn().mockResolvedValue({ id: 1, created_at: Date.now() }),
+      clear_active: vi.fn().mockResolvedValue(undefined),
     },
   };
 });
@@ -74,6 +77,16 @@ describe("ChronoEngine", () => {
     mock_simulation_log = { feed: [], add: vi.fn(), delete_entry: vi.fn().mockResolvedValue(undefined) };
 
     register_state_accessors({ app: mock_app, simulation_state: mock_simulation_state, runtime: mock_runtime, simulation_log: mock_simulation_log });
+
+    // Chrono uses direct engine imports for runtime/session_driver/simulation_log
+    // (not the bridge), so drive the real singletons with the per-test mocks.
+    real_runtime.story_id = mock_runtime.story_id;
+    real_runtime.round = mock_runtime.round;
+    real_runtime.sync = mock_runtime.sync;
+    real_runtime.save = mock_runtime.save;
+    real_log.feed = mock_simulation_log.feed;
+    real_log.add = mock_simulation_log.add;
+    real_log.delete_entry = mock_simulation_log.delete_entry;
   });
 
   it("exports a singleton chrono_engine instance", () => {
@@ -119,6 +132,7 @@ describe("ChronoEngine", () => {
     it("purges orphaned user turn row from IndexedDB when a turn is aborted", async () => {
       mock_app.settings = {};
       mock_runtime.story_id = "story-123";
+      real_runtime.story_id = "story-123";
       session_driver.load_log.mockResolvedValueOnce([{ id: 42, role: "user", text: "Aborted user message" }]);
       execute_turn.mockImplementationOnce(() => {
         const err = new Error("Generation interrupted");

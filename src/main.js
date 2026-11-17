@@ -20,8 +20,8 @@ ensure_theme_tokens();
 // the @utils bridges (state_bridge / stream_bridge) so non-UI modules
 // can interact without upward imports. Must run before app_bootstrap.init().
 import App from "@/App.svelte";
-import { normalize_entity, save_session_checkpoint, seed_premades, session_driver, set_versionchange_quiesce, simulation_log } from "@data";
-import { runtime, simulation_state } from "@engine";
+import { normalize_entity, save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
+import { bind_session_driver, runtime, session_driver, simulation_log, simulation_state } from "@engine";
 import { Audio, ensure_theme_tokens, sweep_stale_ghosts } from "@media";
 import { app } from "@ui";
 import {
@@ -35,6 +35,16 @@ import {
 import { mount } from "svelte";
 
 register_state_accessors({ app, runtime, simulation_state, simulation_log, session_driver });
+bind_session_driver({
+  log_store: simulation_log,
+  on_set_active: async (id) => {
+    await runtime.sync(id);
+    await simulation_log.refresh(id);
+  },
+  on_clear_active: async () => {
+    simulation_log.clear();
+  },
+});
 register_stream_handlers({
   start: (id, role) => app.start_stream(id, role),
   update: (chunk) => app.update_stream(chunk),

@@ -26,10 +26,11 @@
  */
 
 import { TELEMETRY_CAPS } from "@config";
-import { clear_session_checkpoint, coerce_story_key, db, entities, load_session_checkpoint, session_driver, SESSION_ID_KEY } from "@data";
+import { clear_session_checkpoint, coerce_story_key, db, entities, load_session_checkpoint, SESSION_ID_KEY } from "@data";
 import { default_dynamics_for_scope } from "@definitions";
 import { get_signature_color } from "@media";
 import { decompose_story_title, state_bridge } from "@utils";
+import { session_driver } from "./sessions.svelte.js";
 import { SvelteSet } from "svelte/reactivity";
 
 /**
@@ -192,19 +193,7 @@ export class RuntimeEngineStore {
         const _stagnation_turns = this.stagnation_turns;
         const _last_drift = this.last_semantic_drift;
         if (this.is_ready && this.#story_id) {
-          db.stories
-            .update(coerce_story_key(this.#story_id), {
-              round: _round,
-              last_played: Date.now(),
-              updated_at: Date.now(),
-              ai_dynamics: $state.snapshot(_ai),
-              fractal_dynamics: $state.snapshot(_fractal),
-              last_director_beat_round: _director_beat,
-              last_dynamics_beat_round: _dynamics_beat,
-              stagnation_turns: _stagnation_turns,
-              last_semantic_drift: _last_drift,
-            })
-            .catch((err) => console.error("[Data] Auto-save failed:", err));
+          this.#persist_story_snapshot(_round).catch((err) => console.error("[Data] Auto-save failed:", err));
         }
       });
     });
@@ -505,19 +494,34 @@ export class RuntimeEngineStore {
    * Persists story round and dynamics state to IndexedDB.
    * @param {number | null} [round]
    */
+  /**
+   * Single shared story-snapshot writer: the reactive auto-save effect and
+   * explicit save() both persist through here so the row shape can't drift.
+   * @param {number} target_round
+   * @returns {Promise<boolean>} false when no story is loaded
+   */
+  async #persist_story_snapshot(target_round) {
+    if (!this.#story_id) return false;
+    await db.stories.update(coerce_story_key(this.#story_id), {
+      round: target_round,
+      last_played: Date.now(),
+      updated_at: Date.now(),
+      ai_dynamics: $state.snapshot(this.#ai_physics),
+      fractal_dynamics: $state.snapshot(this.#fractal_physics),
+      last_director_beat_round: this.last_director_beat_round,
+      last_dynamics_beat_round: this.last_dynamics_beat_round,
+      stagnation_turns: this.stagnation_turns,
+      last_semantic_drift: this.last_semantic_drift,
+    });
+    return true;
+  }
+
   async save(round = null) {
     if (!this.#story_id) return;
     try {
       const target_round = typeof round === "number" ? round : this.round;
-      await db.stories.update(coerce_story_key(this.#story_id), {
-        round: target_round,
-        last_played: Date.now(),
-        updated_at: Date.now(),
-        ai_dynamics: $state.snapshot(this.#ai_physics),
-        fractal_dynamics: $state.snapshot(this.#fractal_physics),
-        last_director_beat_round: this.last_director_beat_round,
-        last_dynamics_beat_round: this.last_dynamics_beat_round,
-      });
+      const wrote = await this.#persist_story_snapshot(target_round);
+      if (!wrote) return;
       const target_app = get_app();
       if (target_app) target_app.stories_version++;
     } catch (err) {

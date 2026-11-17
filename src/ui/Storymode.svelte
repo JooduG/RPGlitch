@@ -6,9 +6,8 @@
    * markdown/dialogue rendering pipeline, streaming typewriter follow,
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
-  import { session_driver } from "@data";
   import { clean_image_prompts, filter_epistemic_brackets, parse_think_block, strip_covert_directives } from "@utils";
-  import { get_mock_message, runtime, simulation_state } from "@engine";
+  import { get_mock_message, runtime, session_driver, simulation_state } from "@engine";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
   import { ProfilePicture, run_image_regeneration } from "@ui";
   import { detox_prose, sanitize } from "@utils";
@@ -316,8 +315,7 @@
 </script>
 
 <script>
-  import { simulation_log } from "@data";
-  import { chrono_engine } from "@engine";
+  import { chrono_engine, simulation_log } from "@engine";
   import { clear_card_location, item_in, motion, update_card_scrub } from "@media";
   import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
   import { onDestroy, tick } from "svelte";

@@ -6,7 +6,7 @@
    * three entity selection slots (AI Character, Fractal, User Persona),
    * orbital card-fan hand overlay, shuffle deal choreography, and begin-story flight.
    */
-  import { active_entity_ids, simulation_log } from "@data";
+  import { active_entity_ids } from "@data";
   import { NARRATIVE_STYLES, VISUAL_STYLES } from "@definitions";
   import { chrono_engine } from "@engine";
   import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, get_signature_color, motion } from "@media";
@@ -279,15 +279,8 @@
 </script>
 
 <script>
-  import {
-    birth_entity_core,
-    create_entity as create_new,
-    detect_card_format,
-    normalize_entity as normalize,
-    parse_character_card,
-    upsert_entity,
-  } from "@data";
-  import { runtime, simulation_state } from "@engine";
+  import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@data";
+  import { birth_entity_core, runtime, simulation_log, simulation_state } from "@engine";
   import { Audio, rect_of } from "@media";
   import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
   import { EntityCard } from "@ui";
