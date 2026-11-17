@@ -8,7 +8,7 @@ import { runtime, structure_profile } from "@engine";
 import { resolve_voice_name, resolve_voice_uri } from "@media";
 import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
-import { app } from "./interface.svelte.js";
+import { app } from "@state";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];

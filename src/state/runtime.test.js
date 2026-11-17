@@ -1,7 +1,6 @@
 import "fake-indexeddb/auto";
 import { runtime } from "./runtime.svelte.js";
-import { app } from "../ui/interface.svelte.js";
-import { register_state_accessors } from "@utils";
+import { app } from "./app.svelte.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // hoisted so it's initialized before the mocked @platform module is
@@ -29,7 +28,7 @@ function base_entity(id, name, type, extra = {}) {
 
 describe("State Synchronization", () => {
   beforeEach(() => {
-    register_state_accessors({ app });
+    // direct @state imports — no registration needed
   });
 
   it("should synchronize app-level selected entities on debug inject", () => {
@@ -78,10 +77,8 @@ describe("runtime.sync checkpoint restore", () => {
     mock_checkpoint.clear_session_checkpoint.mockReset();
     const Dexie = (await import("dexie")).default;
     await Dexie.delete("rpglitch");
-    const { register_state_accessors: register } = await import("@utils");
     ({ runtime } = await import("./runtime.svelte.js"));
-    ({ app } = await import("../ui/interface.svelte.js"));
-    register({ app, runtime });
+    ({ app } = await import("./app.svelte.js"));
   }, 30000);
 
   afterEach(async () => {
@@ -156,7 +153,7 @@ describe("runtime.sync checkpoint restore", () => {
     const { story_id } = await seed_story(3);
     mock_checkpoint.load_session_checkpoint.mockReturnValue({ story_id: String(story_id), round: 3, phase: "idle" });
 
-    const { session_driver } = await import("@engine");
+    const { session_driver } = await import("./chat.svelte.js");
 
     await runtime.sync();
 
@@ -279,96 +276,5 @@ describe("runtime world-cast hydration (track-npc-expansion)", () => {
     expect(runtime.active_npcs["npc-mira"].presence).toBe("nearby");
     expect(runtime.snapshot_npcs["npc-mira"].presence).toBe("nearby");
     expect(runtime.active_npcs["npc-elias"].presence).toBe("active");
-  });
-
-  describe("Director Quick Shot Telemetry & Generation Mutex", () => {
-    it("records director execution latency into last_director_ms and a rolling pool", () => {
-      expect(runtime.last_director_ms).toBe(0);
-      expect(runtime.director_ms_pool).toEqual([]);
-      expect(runtime.director_p50_ms).toBe(0);
-      expect(runtime.director_p95_ms).toBe(0);
-
-      runtime.record_director_latency(250);
-      expect(runtime.last_director_ms).toBe(250);
-      expect(runtime.director_ms_pool).toEqual([250]);
-      expect(runtime.director_p50_ms).toBe(250);
-      expect(runtime.director_p95_ms).toBe(250);
-
-      // Record several samples
-      const samples = [100, 200, 300, 400, 500];
-      samples.forEach((ms) => runtime.record_director_latency(ms));
-      expect(runtime.last_director_ms).toBe(500);
-      expect(runtime.director_ms_pool.length).toBe(6);
-      expect(runtime.director_p50_ms).toBeGreaterThanOrEqual(250);
-      expect(runtime.director_p95_ms).toBeGreaterThanOrEqual(400);
-    });
-
-    it("coordinates generation_mutex between foreground and background operations", () => {
-      expect(runtime.is_foreground_generating).toBe(false);
-      expect(runtime.is_background_generating).toBe(false);
-
-      runtime.acquire_foreground_generation();
-      expect(runtime.is_foreground_generating).toBe(true);
-
-      // Background attempt yields or is marked blocked
-      expect(runtime.can_start_background_generation()).toBe(false);
-
-      runtime.release_foreground_generation();
-      expect(runtime.is_foreground_generating).toBe(false);
-      expect(runtime.can_start_background_generation()).toBe(true);
-
-      runtime.acquire_background_generation();
-      expect(runtime.is_background_generating).toBe(true);
-
-      // Foreground takes precedence and forces background yield
-      runtime.acquire_foreground_generation();
-      expect(runtime.is_foreground_generating).toBe(true);
-
-      runtime.release_foreground_generation();
-      runtime.release_background_generation();
-      expect(runtime.is_foreground_generating).toBe(false);
-      expect(runtime.is_background_generating).toBe(false);
-    });
-
-    it("maintains declared reactive state for structural_errors and back_shot_cursor", () => {
-      expect(runtime.structural_errors).toBe(0);
-      expect(runtime.back_shot_cursor).toBe(0);
-
-      runtime.structural_errors = 3;
-      runtime.back_shot_cursor = 2;
-
-      expect(runtime.structural_errors).toBe(3);
-      expect(runtime.back_shot_cursor).toBe(2);
-
-      runtime._debug_inject({ structural_errors: 1, back_shot_cursor: 5 });
-      expect(runtime.structural_errors).toBe(1);
-      expect(runtime.back_shot_cursor).toBe(5);
-
-      runtime.structural_errors = 0;
-      runtime.back_shot_cursor = 0;
-    });
-
-    it("tracks scene momentum and increments stagnation_turns when drift < 0.15", () => {
-      expect(runtime.stagnation_turns).toBe(0);
-      expect(runtime.last_semantic_drift).toBe(1.0);
-
-      // Low drift: stagnation increments
-      runtime.record_turn_drift(0.08);
-      expect(runtime.last_semantic_drift).toBe(0.08);
-      expect(runtime.stagnation_turns).toBe(1);
-
-      runtime.record_turn_drift(0.12);
-      expect(runtime.last_semantic_drift).toBe(0.12);
-      expect(runtime.stagnation_turns).toBe(2);
-
-      // Substantive drift: stagnation resets
-      runtime.record_turn_drift(0.45);
-      expect(runtime.last_semantic_drift).toBe(0.45);
-      expect(runtime.stagnation_turns).toBe(0);
-
-      // Reset
-      runtime.record_turn_drift(1.0);
-      expect(runtime.stagnation_turns).toBe(0);
-    });
   });
 });

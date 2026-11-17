@@ -1,6 +1,7 @@
 /**
  * src/state/status.svelte.js
- * 👑 SIMULATION STATUS & ENGINE STATE STORE: Lifecycle, Streaming, & Freeze Recovery
+ * 👑 SIMULATION STATUS STORE: Lifecycle, UI Locks & Freeze Recovery
+ * (Rank 3, state)
  *
  * Core Responsibilities:
  * - Tracks macro simulation execution phase (`idle`, `generating`, `locked`).
@@ -9,8 +10,6 @@
  *   `generating_entity_avatar`, `generating_entity_color`) for live UI speaker attribution.
  * - Exposes derived state flags (`busy`, `is_consolidating`).
  * - Provides lightweight UI status store (`ui_state.loading`).
- * - Accumulates real-time streamed LLM text chunks (`content`) during turn generation (`streaming`).
- * - Bridges stream chunks to the Kokoro Neural TTS audio pipeline (`Audio.voice`).
  * - Monitors the simulation state machine and streaming lifecycle for hung or deadlocked states (`freeze-watchdog`).
  * - Enforces multi-tier diagnostic freeze recovery and provides unified `force_recover_simulation(reason)`.
  *
@@ -20,12 +19,14 @@
  * - `locked`: System is processing an atomic state transition or awaiting stasis release.
  *
  * Dependencies & Layer Boundaries:
- * - `@media` (`Audio`): Voice pipeline control and role-based audio playback checks.
- * - `log.svelte.js` (`developer_log`): Diagnostic telemetry logging.
+ * - `@media` (`Audio`): Voice pipeline teardown on forced recovery.
+ * - `./devlog.svelte.js` (`developer_log`): Diagnostic telemetry logging.
+ * - `./streaming.svelte.js` (`streaming`): Stream reset on forced recovery.
  */
 
 import { TIMING_MS } from "@config";
-import { developer_log } from "./log.svelte.js";
+import { developer_log } from "./devlog.svelte.js";
+import { streaming } from "./streaming.svelte.js";
 import { Audio } from "@media";
 import { get_queue_status } from "@utils";
 
@@ -39,10 +40,6 @@ import { get_queue_status } from "@utils";
 
 /**
  * @typedef {"ai" | "system" | "fractal" | "user" | "npc" | string | null} TurnRole
- */
-
-/**
- * @typedef {"ai" | "user" | "fractal" | "system" | "npc" | string | null} StreamingRole
  */
 
 /**
@@ -303,91 +300,24 @@ export class UIStateStore {
 }
 
 // ============================================================================
-// [SECTION 4: STREAMING COORDINATOR & LLM TOKEN ACCUMULATOR STORE]
-// ============================================================================
-
-export class StreamingStore {
-  /** @type {boolean} */
-  active = $state(false);
-
-  /** @type {string} */
-  content = $state("");
-
-  /** @type {string | null} */
-  node_id = $state(null);
-
-  /** @type {StreamingRole} */
-  role = $state("ai");
-
-  /** @type {AbortController | null} */
-  abort_controller = $state(null);
-
-  /**
-   * Initializes an active stream for a specific node and role.
-   * @param {string | null} id - Node identifier or message target ID.
-   * @param {StreamingRole} [role="ai"] - Role of the speaking entity.
-   */
-  start_stream(id, role = "ai") {
-    this.active = true;
-    this.content = "";
-    this.node_id = id;
-    this.role = role;
-
-    Audio.voice?.apply_stream_role?.(role, id);
-  }
-
-  /**
-   * Appends an incoming text chunk to the accumulator and queues completed sentences for TTS.
-   * @param {string} chunk - Text delta from the LLM stream.
-   */
-  update_stream(chunk) {
-    this.content += chunk;
-
-    if (Audio.is_role_enabled?.(this.role)) {
-      Audio.voice?.queue_stream_sentence?.(this.content);
-    }
-  }
-
-  /**
-   * Concludes the active stream, flushes trailing TTS audio sentences, and resets state.
-   */
-  end_stream() {
-    if (this.active && Audio.is_role_enabled?.(this.role)) {
-      Audio.voice?.flush_stream_remainder?.(this.content);
-    }
-
-    this.active = false;
-    this.content = "";
-    this.node_id = null;
-    this.role = "ai";
-    Audio.voice?.reset_stream?.();
-  }
-
-  /**
-   * Aborts the in-flight HTTP request or worker stream via the active AbortController.
-   */
-  trigger_interrupt() {
-    if (this.abort_controller) {
-      try {
-        this.abort_controller.abort();
-      } catch (err) {
-        console.error("[StreamingStore] Failed to abort streaming:", err);
-      }
-    }
-    // An interrupted turn must not keep talking: drop any queued speech.
-    try {
-      Audio.voice?.stop?.();
-    } catch {
-      /* voice teardown is best-effort */
-    }
-  }
-}
-
-// ============================================================================
 // [SECTION 5: FORCE RECOVERY ENGINE & FREEZE WATCHDOG]
 // ============================================================================
 
 let _freeze_watchdog_started = false;
+
+/** @type {number | null} */
+let _freeze_watchdog_timer = null;
+
+/**
+ * Stops the background freeze watchdog timer (test teardown / hot paths).
+ */
+export function uninstall_freeze_watchdog() {
+  if (_freeze_watchdog_timer != null) {
+    clearInterval(_freeze_watchdog_timer);
+    _freeze_watchdog_timer = null;
+  }
+  _freeze_watchdog_started = false;
+}
 
 /**
  * Forcefully recovers the simulation state machine from a frozen or hung condition.
@@ -414,19 +344,21 @@ export function force_recover_simulation(reason) {
   }
 
   ui_state.set_loading(false);
-  streaming.end_stream();
-  streaming.active = false;
-  streaming.content = "";
-  streaming.node_id = null;
 
-  if (streaming.abort_controller) {
-    try {
-      streaming.abort_controller.abort();
-    } catch {
-      /* Request already aborted */
-    }
-    streaming.abort_controller = null;
+  try {
+    streaming.abort_controller?.abort?.();
+  } catch {
+    /* Request already aborted */
   }
+  streaming.abort_controller = null;
+
+  try {
+    Audio.voice?.stop?.();
+  } catch {
+    /* Voice teardown is best-effort */
+  }
+
+  streaming.end_stream();
 }
 
 /**
@@ -444,7 +376,7 @@ export function install_freeze_watchdog() {
   let last_chunk_ts = 0;
   let ever_streamed = false;
 
-  const timer_id = window.setInterval(() => {
+  _freeze_watchdog_timer = window.setInterval(() => {
     const phase = simulation_state.phase;
     const intent_active = simulation_state.intent_active;
     const generating = phase === "generating";
@@ -458,6 +390,7 @@ export function install_freeze_watchdog() {
     const stuck = (generating || locked || consolidating) && (intent_active || ever_streamed);
     if (!stuck) {
       stuck_since = 0;
+      ever_streamed = false;
       last_stream_len = stream_len;
       last_chunk_ts = streaming_active ? Date.now() : 0;
       return;
@@ -523,7 +456,7 @@ export function install_freeze_watchdog() {
     }
   }, TIMING_MS.HEARTBEAT);
 
-  return timer_id;
+  return _freeze_watchdog_timer;
 }
 
 // ============================================================================
@@ -532,4 +465,3 @@ export function install_freeze_watchdog() {
 
 export const simulation_state = new SimulationStateStore();
 export const ui_state = new UIStateStore();
-export const streaming = new StreamingStore();

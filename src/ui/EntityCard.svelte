@@ -13,7 +13,7 @@
   import { flushSync } from "svelte";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
-  import { app } from "./interface.svelte.js";
+  import { app } from "@state";
   import MacroText from "./MacroText.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
 

@@ -51,7 +51,6 @@ export {
 export {
   SESSION_ID_KEY,
   _find_log_entry,
-  bind_session_store,
   clear_active_session_id,
   create_from_selection,
   delete_log_attachment,
@@ -64,6 +63,7 @@ export {
   load_log,
   log_message,
   match_speaker_snapshots,
+  on_stories_changed,
   record_session_access,
   regenerate,
   require_active,

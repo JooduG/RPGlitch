@@ -16,20 +16,15 @@
  * into runtime. A failed turn discards the copies and restores the round, so
  * live stores are never left half-mutated.
  *
- * Cross-layer contact: `app` streaming/log calls still ride `state_bridge`
- * (engine cannot statically import the UI layer). Same-layer stores are
- * imported directly — no bridge cells for engine internals.
+ * Cross-layer contact: `app` streaming/log calls arrive via direct `@state`
+ * imports (Rank 4 → Rank 3, downward). No bridge cells remain.
  */
 
 import { IMAGE_POLICY } from "@config";
 import { append_ledger_entries, db, normalize_entity } from "@data";
 import { apply_tagged_field_deltas as apply_bracket_deltas, parse_tagged_fields as parse_bracket_entries, parse_think_block } from "@simulation";
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
-import { state_bridge } from "@utils";
-import { simulation_log } from "./log.svelte.js";
-import { runtime } from "./runtime.svelte.js";
-import { session_driver } from "./sessions.svelte.js";
-import { simulation_state } from "./status.svelte.js";
+import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { get_transport } from "./transport.js";
 import { execute_turn_2_continue, execute_turn_3_caretaker, execute_round, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
 
@@ -185,12 +180,16 @@ async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, fractal_qua
       if (is_image_trigger_active && image_tier) {
         const queue = get_image_generation_queue();
         if (Array.isArray(queue) && queue.length < IMAGE_POLICY.MAX_PENDING_IMAGES) {
-          spawn_image_beat(image_tier, {
-            explicit: resolved_image.director_explicit,
-            source: resolved_image.source || "dynamics",
-            prompt: prose,
-            visual_staging: outcome.director_staging?.camera_note || "",
-          }).catch((image_err) => {
+          spawn_image_beat(
+            image_tier,
+            {
+              explicit: resolved_image.director_explicit,
+              source: resolved_image.source || "dynamics",
+              prompt: prose,
+              visual_staging: outcome.director_staging?.camera_note || "",
+            },
+            { app, runtime, session_driver, simulation_log },
+          ).catch((image_err) => {
             console.warn("[Bridge] Automatic image beat dispatch error:", image_err);
           });
         }
@@ -210,7 +209,6 @@ async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, fractal_qua
  * @returns {Promise<object>} Outcome containing character_turn, director_staging, etc.
  */
 export async function execute_turn(user_input, _options = {}) {
-  const app = state_bridge.app;
   const resubmitting = Boolean(_options.is_retry || _options.is_continue);
   const trimmed_input = typeof user_input === "string" ? user_input.trim() : "";
   if (!resubmitting && !trimmed_input) return null;
@@ -317,8 +315,6 @@ export async function execute_turn(user_input, _options = {}) {
  * @returns {Promise<object>} The continuation outcome
  */
 export async function execute_continue(target_entry, _options = {}) {
-  const app = state_bridge.app;
-
   if (!target_entry || !target_entry.id) {
     throw new Error("Target message entry required for continuation.");
   }
@@ -526,7 +522,7 @@ export async function dispatch_caretaker_consolidation({ ai, user, fractal, hist
     if (!caretaker_outcome?.target) return;
 
     if (!caretaker_outcome.parse_succeeded) {
-      state_bridge.app?.log?.(`[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} - keeping cursor on target.`, "warn");
+      app?.log?.(`[Caretaker] Caretaker response unparseable after retry for ${caretaker_outcome.target} - keeping cursor on target.`, "warn");
       return;
     }
 
@@ -644,7 +640,7 @@ export async function dispatch_caretaker_consolidation({ ai, user, fractal, hist
       runtime.back_shot_cursor = (Number(runtime.back_shot_cursor) || 0) + 1;
     }
   } catch (caretaker_err) {
-    state_bridge.app?.log?.(`[Caretaker] Caretaker execution warning: ${caretaker_err?.message || caretaker_err}`, "warn");
+    app?.log?.(`[Caretaker] Caretaker execution warning: ${caretaker_err?.message || caretaker_err}`, "warn");
     console.warn("[Bridge] Caretaker write-back non-fatal warning:", caretaker_err);
   }
 }

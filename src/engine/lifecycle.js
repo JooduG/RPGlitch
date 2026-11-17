@@ -12,11 +12,8 @@
 
 import { append_ledger_entries, apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
 import { clean_generated_prose, parse_think_block } from "@simulation";
-import { state_bridge } from "@utils";
-import { simulation_state } from "./status.svelte.js";
+import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { execute_turn } from "./runs.js";
-import { runtime } from "./runtime.svelte.js";
-import { session_driver } from "./sessions.svelte.js";
 import { enhance_text, generate_text, get_transport } from "./transport.js";
 import { execute_turn_structuring, execute_turn_visualizer } from "./turns.js";
 
@@ -37,7 +34,6 @@ export async function execute_visualizer_envision(text, type = "character", enti
 
   const { get_resolution_string } = await import("@simulation");
   const { get_visual_style } = await import("../definitions/visual-styles.js");
-  const app = state_bridge.app || {};
 
   const app_choice = app_style || app.settings?.visual_style;
   let style_key = "none";
@@ -144,7 +140,6 @@ export async function structure_profile(raw, type = "character", signal = null) 
  * @returns {Promise<any>}
  */
 export async function execute_prologue(story_id) {
-  const app = state_bridge.app;
   if (!runtime || !story_id) return null;
 
   app.busy = true;
@@ -205,7 +200,7 @@ export async function execute_prologue(story_id) {
         mark_generation_in_flight?.(node_id, 0);
         await prologue_image_gate;
         try {
-          const img_result = await visual_engine.visualize(prologue_text, "story_scene", { silent: true });
+          const img_result = await visual_engine.visualize(prologue_text, "story_scene", { silent: true }, { app, runtime, session_driver, simulation_log });
           if (img_result?.imageUrl) {
             await session_driver.update_log_attachment(node_id, 0, {
               src: img_result.imageUrl,
@@ -250,8 +245,6 @@ export async function execute_prologue(story_id) {
  * @returns {Promise<string | null>}
  */
 export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED") {
-  const app = state_bridge.app;
-
   app.log(`Generating epilogue (${conclusion_status})...`, "system");
   const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
   const fractal_name = runtime?.active_fractal?.name || "Fractal Entity";
@@ -330,7 +323,7 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
         entity = apply_profile_to_entity(entity, rich_profile);
       }
     } catch (error) {
-      state_bridge.app?.log?.(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
+      app?.log?.(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
     }
   } else if (draft && typeof draft === "object") {
     entity = apply_profile_to_entity(entity, draft);
@@ -391,7 +384,7 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
         await update_cast(story_id, updated_npcs);
       }
     } catch (err) {
-      state_bridge.app?.log?.(`[Storage] Failed to register NPC on story ${story_id}: ${err?.message || err}`, "warn");
+      app?.log?.(`[Storage] Failed to register NPC on story ${story_id}: ${err?.message || err}`, "warn");
     }
   }
 
@@ -410,9 +403,7 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
             }
           });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
-          portrait_promise.catch((error) =>
-            state_bridge.app?.log?.(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"),
-          );
+          portrait_promise.catch((error) => app?.log?.(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"));
         }
       } catch (_error) {
         /* portrait failure must never break genesis */

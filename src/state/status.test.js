@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { force_recover_simulation, SimulationStateStore, simulation_state, StreamingStore, streaming, UIStateStore, ui_state } from "./status.svelte.js";
+import {
+  force_recover_simulation,
+  SimulationStateStore,
+  simulation_state,
+  UIStateStore,
+  ui_state,
+  install_freeze_watchdog,
+  uninstall_freeze_watchdog,
+} from "./status.svelte.js";
+import { StreamingStore, streaming } from "./streaming.svelte.js";
 import { TIMING_MS } from "@config";
 import { Audio } from "@media";
 
@@ -282,5 +291,11 @@ describe("Freeze Watchdog & Recovery", () => {
     expect(streaming.node_id).toBeNull();
     expect(mock_abort).toHaveBeenCalled();
     expect(streaming.abort_controller).toBeNull();
+  });
+  describe("freeze watchdog lifecycle", () => {
+    it("installs and uninstalls without throwing", () => {
+      expect(() => install_freeze_watchdog()).not.toThrow();
+      expect(() => uninstall_freeze_watchdog()).not.toThrow();
+    });
   });
 });

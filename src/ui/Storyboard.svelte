@@ -12,7 +12,7 @@
   import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, get_signature_color, motion } from "@media";
   import { compute_initials, pick_random } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
-  import { app } from "./interface.svelte.js";
+  import { app } from "@state";
   import { parse_message } from "./Storymode.svelte";
   const stories = { active_entity_ids };
 

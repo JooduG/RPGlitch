@@ -7,12 +7,13 @@
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
   import { clean_generated_prose, clean_image_prompts, format_tagged_fields, parse_think_block, strip_covert_directives } from "@simulation";
-  import { get_mock_message, runtime, session_driver, simulation_state } from "@engine";
+  import { get_mock_message } from "@engine";
+  import { runtime, session_driver, simulation_log, simulation_state } from "@state";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
   import { ProfilePicture, run_image_regeneration } from "@ui";
   import { sanitize } from "@utils";
   import MarkdownIt from "markdown-it";
-  import { app } from "./interface.svelte.js";
+  import { app } from "@state";
 
   // --- STORYMODE SHARED STATE ---
   class StorymodeState {
@@ -159,7 +160,12 @@
         attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
       });
 
-      const result = await visual_engine.visualize(refined_prompt, kind, { subject, entity, negative_prompt: enhanced_negative });
+      const result = await visual_engine.visualize(
+        refined_prompt,
+        kind,
+        { subject, entity, negative_prompt: enhanced_negative },
+        { app, runtime, session_driver, simulation_log },
+      );
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -211,7 +217,7 @@
         attachments: [{ src: null, metadata: { mode: "story_entities", prompt: group_prompt } }],
       });
 
-      const result = await visual_engine.visualize(group_prompt, "story_entities");
+      const result = await visual_engine.visualize(group_prompt, "story_entities", {}, { app, runtime, session_driver, simulation_log });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -315,7 +321,7 @@
 </script>
 
 <script>
-  import { chrono_engine, simulation_log } from "@engine";
+  import { chrono_engine } from "@engine";
   import { clear_card_location, item_in, motion, update_card_scrub } from "@media";
   import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
   import { onDestroy, tick } from "svelte";

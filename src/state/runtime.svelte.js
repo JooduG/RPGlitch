@@ -1,6 +1,7 @@
 /**
- * src/engine/runtime.svelte.js
+ * src/state/runtime.svelte.js
  * ⚡ RUNTIME ENGINE STORE: Reactive Simulation State & Entity Kernel
+ * (Rank 3, state)
  *
  * Core Responsibilities:
  * - Owns the reactive Svelte 5 Runes representing active simulation state:
@@ -13,14 +14,12 @@
  *   - Telemetry Ring Buffer: Director turn latency tracking (`last_director_ms`, `p50`, `p95`).
  * - Manages bi-directional synchronization with IndexedDB persistence via `@data` repositories.
  * - Manages reactive auto-save effect root (`init_effects`, `teardown_effects`).
+ * - Imports sibling state stores directly (`app`, `chat`) — no callback bridge.
  *
  * Dependencies & Layer Boundaries:
- * - `@data`: `db`, `entities`, `coerce_story_key`, `session_driver`, `SESSION_ID_KEY`.
- * - `@platform`: `load_session_checkpoint`, `clear_session_checkpoint`.
- * - `@utils`: `decompose_story_title`.
- * - `@media`: `get_signature_color`.
- * - `./interface.svelte.js`: `app` (selection synchronization, story title decomposition).
- * - `./status.svelte.js`: `simulation_state` (phase updates during stasis and reset).
+ * - `@data`: `db`, `entities`, checkpoints, session driver persistence.
+ * - `./app.svelte.js`: `app` (selection synchronization, story title decomposition).
+ * - `./chat.svelte.js`: `session_driver` (active session pointer).
  *
  * ============================================================================
  */
@@ -30,16 +29,9 @@ import { clear_session_checkpoint, coerce_story_key, db, entities, load_session_
 import { default_dynamics_for_scope } from "@definitions";
 import { get_signature_color } from "@media";
 import { decompose_story_title } from "@simulation";
-import { state_bridge } from "@utils";
-import { session_driver } from "./sessions.svelte.js";
+import { app } from "./app.svelte.js";
+import { session_driver } from "./chat.svelte.js";
 import { SvelteSet } from "svelte/reactivity";
-
-/**
- * Resolves the app interface state via state_bridge without upward import from @ui.
- */
-function get_app() {
-  return state_bridge.app;
-}
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -100,12 +92,9 @@ function get_app() {
  * @param {any} [fractal]
  */
 function apply_story_title(story, ai = null, user = null, fractal = null) {
-  if (!story?.title) return;
-  const target_app = get_app();
-  if (target_app) {
-    target_app.story_title = story.title;
-    target_app.story_title_parts = decompose_story_title(story.title, { ai, user, fractal, get_color: get_signature_color });
-  }
+  if (!story?.title || !app) return;
+  app.story_title = story.title;
+  app.story_title_parts = decompose_story_title(story.title, { ai, user, fractal, get_color: get_signature_color });
 }
 
 /**
@@ -182,6 +171,12 @@ export class RuntimeEngineStore {
   // Lifecycle & Effects
   // --------------------------------------------------------------------------
 
+  /**
+   * Held while sync() hydrates state so the trailing is_ready flip does not
+   * trigger a redundant writeback of the row that was just read.
+   * @type {boolean} */
+  #auto_save_suspended = false;
+
   init_effects() {
     if (this.#runtime_cleanup) return;
     this.#runtime_cleanup = $effect.root(() => {
@@ -193,7 +188,7 @@ export class RuntimeEngineStore {
         const _dynamics_beat = this.last_dynamics_beat_round;
         const _stagnation_turns = this.stagnation_turns;
         const _last_drift = this.last_semantic_drift;
-        if (this.is_ready && session_driver?.active_id) {
+        if (this.is_ready && !this.#auto_save_suspended && session_driver?.active_id) {
           this.#persist_story_snapshot(_round).catch((err) => console.error("[Data] Auto-save failed:", err));
         }
       });
@@ -291,16 +286,22 @@ export class RuntimeEngineStore {
   // Telemetry Ring Buffer Accessors & Mutators
   // --------------------------------------------------------------------------
 
-  get director_p50_ms() {
+  /**
+   * Shared percentile reader over the director latency ring buffer.
+   * @param {number} p - Quantile in [0, 1].
+   */
+  #percentile(p) {
     if (!this.director_ms_pool.length) return 0;
     const sorted = [...this.director_ms_pool].sort((a, b) => a - b);
-    return sorted[Math.floor(sorted.length * 0.5)] || 0;
+    return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] || 0;
+  }
+
+  get director_p50_ms() {
+    return this.#percentile(0.5);
   }
 
   get director_p95_ms() {
-    if (!this.director_ms_pool.length) return 0;
-    const sorted = [...this.director_ms_pool].sort((a, b) => a - b);
-    return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))] || 0;
+    return this.#percentile(0.95);
   }
 
   /**
@@ -333,30 +334,6 @@ export class RuntimeEngineStore {
   }
 
   // --------------------------------------------------------------------------
-  // Generation Concurrency Mutex
-  // --------------------------------------------------------------------------
-
-  acquire_foreground_generation() {
-    this.is_foreground_generating = true;
-  }
-
-  release_foreground_generation() {
-    this.is_foreground_generating = false;
-  }
-
-  acquire_background_generation() {
-    this.is_background_generating = true;
-  }
-
-  release_background_generation() {
-    this.is_background_generating = false;
-  }
-
-  can_start_background_generation() {
-    return !this.is_foreground_generating;
-  }
-
-  // --------------------------------------------------------------------------
   // Database Synchronization & Entity Persistence
   // --------------------------------------------------------------------------
 
@@ -365,114 +342,118 @@ export class RuntimeEngineStore {
    * @param {string | number | null} [active_story_id]
    */
   async sync(active_story_id = null) {
-    let resolved_id = active_story_id ? String(active_story_id) : (session_driver?.active_id ?? null);
+    this.#auto_save_suspended = true;
+    try {
+      let resolved_id = active_story_id ? String(active_story_id) : (session_driver?.active_id ?? null);
 
-    const checkpoint = !resolved_id ? load_session_checkpoint() : null;
-    if (!resolved_id) {
-      if (checkpoint?.story_id) {
-        resolved_id = checkpoint.story_id;
-      } else {
-        try {
-          const entry = await db.kv_settings.get(SESSION_ID_KEY);
-          if (entry?.value) resolved_id = entry.value;
-          else return;
-        } catch {
-          return;
+      const checkpoint = !resolved_id ? load_session_checkpoint() : null;
+      if (!resolved_id) {
+        if (checkpoint?.story_id) {
+          resolved_id = checkpoint.story_id;
+        } else {
+          try {
+            const entry = await db.kv_settings.get(SESSION_ID_KEY);
+            if (entry?.value) resolved_id = entry.value;
+            else return;
+          } catch {
+            return;
+          }
         }
       }
-    }
 
-    // Publish the resolved pointer through its single owner before loading.
-    session_driver?.restore_active?.(String(resolved_id));
-    const active_id = session_driver?.active_id ?? String(resolved_id);
+      // Publish the resolved pointer through its single owner before loading.
+      session_driver?.restore_active?.(String(resolved_id));
+      const active_id = session_driver?.active_id ?? String(resolved_id);
 
-    try {
-      const db_key = coerce_story_key(active_id);
-      const story = await db.stories.get(db_key);
-      if (!story) {
+      try {
+        const db_key = coerce_story_key(active_id);
+        const story = await db.stories.get(db_key);
+        if (!story) {
+          clear_session_checkpoint();
+          return;
+        }
+
+        if (story.round != null) this.round = story.round;
+        if (typeof checkpoint?.round === "number" && checkpoint.round > (story.round ?? 0)) {
+          this.round = checkpoint.round;
+        }
+        this.last_director_beat_round = typeof story.last_director_beat_round === "number" ? story.last_director_beat_round : -1;
+        this.last_dynamics_beat_round = typeof story.last_dynamics_beat_round === "number" ? story.last_dynamics_beat_round : -1;
+        this.stagnation_turns = typeof story.stagnation_turns === "number" ? story.stagnation_turns : 0;
+        this.last_semantic_drift = typeof story.last_semantic_drift === "number" ? story.last_semantic_drift : 1.0;
+
+        const [user_data, ai_data, fractal_data] = await Promise.all([
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.ai_id || "unknown_ai")),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get("fractal", story.fractal_id)),
+        ]);
+
+        if (user_data) {
+          this.active_user = { ...user_data };
+        }
+
+        if (ai_data) {
+          this.active_ai = ai_data;
+          this.#ai_physics =
+            story.ai_dynamics ? { ...story.ai_dynamics }
+            : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics }
+            : { ...ai_data.dynamics };
+        }
+
+        if (fractal_data) {
+          const effective_visual_style = story.visual_style || story.entity_snapshots?.fractal?.visual_style || fractal_data.visual_style;
+          const effective_narrative_style = story.narrative_style || story.entity_snapshots?.fractal?.narrative_style || fractal_data.narrative_style;
+
+          this.active_fractal = {
+            ...fractal_data,
+            ...(effective_visual_style ? { visual_style: effective_visual_style } : {}),
+            ...(effective_narrative_style ? { narrative_style: effective_narrative_style } : {}),
+          };
+          this.#fractal_physics =
+            story.fractal_dynamics ? { ...story.fractal_dynamics }
+            : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics }
+            : { ...fractal_data.dynamics };
+        }
+
+        // Dynamics baselines
+        if (story.entity_snapshots?.ai?.dynamics && this.active_ai) {
+          this.active_ai.dynamics_baseline = { ...story.entity_snapshots.ai.dynamics };
+        }
+        if (story.entity_snapshots?.fractal?.dynamics && this.active_fractal) {
+          this.active_fractal.dynamics_baseline = { ...story.entity_snapshots.fractal.dynamics };
+        }
+
+        // NPC World Cast hydration (Track 1.3: presence enum owns staging)
+        const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
+        if (npc_ids.length) {
+          const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
+          this.#active_npcs = Object.fromEntries(npc_list.map((n) => [String(n.id), { ...n, presence: "active" }]));
+        } else {
+          this.#active_npcs = {};
+        }
+
+        // Sync selections to app store
+        if (app) {
+          app.selected_ai = this.active_ai;
+          app.selected_user = this.active_user;
+          app.selected_fractal = this.active_fractal;
+        }
+
+        // Story title decomposition
+        apply_story_title(story, this.active_ai, this.active_user, this.active_fractal);
+
+        this.#story.by_id[db_key] = story;
+        if (String(db_key) !== String(active_id)) {
+          this.#story.by_id[active_id] = story;
+        }
+
+        this.is_ready = true;
         clear_session_checkpoint();
-        return;
+      } catch (err) {
+        console.warn("[Data] Sync Failed:", err);
       }
-
-      if (story.round != null) this.round = story.round;
-      if (typeof checkpoint?.round === "number" && checkpoint.round > (story.round ?? 0)) {
-        this.round = checkpoint.round;
-      }
-      this.last_director_beat_round = typeof story.last_director_beat_round === "number" ? story.last_director_beat_round : -1;
-      this.last_dynamics_beat_round = typeof story.last_dynamics_beat_round === "number" ? story.last_dynamics_beat_round : -1;
-      this.stagnation_turns = typeof story.stagnation_turns === "number" ? story.stagnation_turns : 0;
-      this.last_semantic_drift = typeof story.last_semantic_drift === "number" ? story.last_semantic_drift : 1.0;
-
-      const [user_data, ai_data, fractal_data] = await Promise.all([
-        /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
-        /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.ai_id || "unknown_ai")),
-        /** @type {Promise<SimulationEntity | null>} */ (entities.get("fractal", story.fractal_id)),
-      ]);
-
-      if (user_data) {
-        this.active_user = { ...user_data };
-      }
-
-      if (ai_data) {
-        this.active_ai = ai_data;
-        this.#ai_physics =
-          story.ai_dynamics ? { ...story.ai_dynamics }
-          : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics }
-          : { ...ai_data.dynamics };
-      }
-
-      if (fractal_data) {
-        const effective_visual_style = story.visual_style || story.entity_snapshots?.fractal?.visual_style || fractal_data.visual_style;
-        const effective_narrative_style = story.narrative_style || story.entity_snapshots?.fractal?.narrative_style || fractal_data.narrative_style;
-
-        this.active_fractal = {
-          ...fractal_data,
-          ...(effective_visual_style ? { visual_style: effective_visual_style } : {}),
-          ...(effective_narrative_style ? { narrative_style: effective_narrative_style } : {}),
-        };
-        this.#fractal_physics =
-          story.fractal_dynamics ? { ...story.fractal_dynamics }
-          : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics }
-          : { ...fractal_data.dynamics };
-      }
-
-      // Dynamics baselines
-      if (story.entity_snapshots?.ai?.dynamics && this.active_ai) {
-        this.active_ai.dynamics_baseline = { ...story.entity_snapshots.ai.dynamics };
-      }
-      if (story.entity_snapshots?.fractal?.dynamics && this.active_fractal) {
-        this.active_fractal.dynamics_baseline = { ...story.entity_snapshots.fractal.dynamics };
-      }
-
-      // NPC World Cast hydration (Track 1.3: presence enum owns staging)
-      const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
-      if (npc_ids.length) {
-        const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
-        this.#active_npcs = Object.fromEntries(npc_list.map((n) => [String(n.id), { ...n, presence: "active" }]));
-      } else {
-        this.#active_npcs = {};
-      }
-
-      // Sync selections to app store
-      const target_app = get_app();
-      if (target_app) {
-        target_app.selected_ai = this.active_ai;
-        target_app.selected_user = this.active_user;
-        target_app.selected_fractal = this.active_fractal;
-      }
-
-      // Story title decomposition
-      apply_story_title(story, this.active_ai, this.active_user, this.active_fractal);
-
-      this.#story.by_id[db_key] = story;
-      if (String(db_key) !== String(active_id)) {
-        this.#story.by_id[active_id] = story;
-      }
-
-      this.is_ready = true;
-      clear_session_checkpoint();
-    } catch (err) {
-      console.warn("[Data] Sync Failed:", err);
+    } finally {
+      this.#auto_save_suspended = false;
     }
   }
 
@@ -494,11 +475,9 @@ export class RuntimeEngineStore {
    * Resets story title and parts on app store to prevent title bleed across stories.
    */
   reset_story_title() {
-    const target_app = get_app();
-    if (target_app) {
-      target_app.story_title = "";
-      target_app.story_title_parts = [];
-    }
+    if (!app) return;
+    app.story_title = "";
+    app.story_title_parts = [];
   }
 
   /**
@@ -534,8 +513,7 @@ export class RuntimeEngineStore {
       const target_round = typeof round === "number" ? round : this.round;
       const wrote = await this.#persist_story_snapshot(target_round);
       if (!wrote) return;
-      const target_app = get_app();
-      if (target_app) target_app.stories_version++;
+      if (app) app.stories_version++;
     } catch (err) {
       console.error("[Data] Story Save Failed:", err);
     }
@@ -559,8 +537,8 @@ export class RuntimeEngineStore {
       if (this.active_fractal?.id === entity.id) {
         Object.assign(this.active_fractal, entity);
       }
-      if (this.#active_npcs[entity.id]) {
-        this.#active_npcs[entity.id] = entity;
+      if (this.#active_npcs[String(entity.id)]) {
+        this.#active_npcs[String(entity.id)] = entity;
       }
     } catch (err) {
       console.error("[Data] Entity Save Failed:", err);
@@ -578,10 +556,11 @@ export class RuntimeEngineStore {
     try {
       if (type === "story") {
         await db.stories.update(coerce_story_key(id), data);
-        const target_app = get_app();
-        if (target_app) target_app.stories_version++;
+        if (app) app.stories_version++;
         if (session_driver?.active_id != null && String(session_driver.active_id) === String(id)) {
-          Object.assign(this.#story.by_id[id] || {}, data);
+          for (const key of [id, coerce_story_key(id)]) {
+            if (this.#story.by_id[key] != null) Object.assign(this.#story.by_id[key], data);
+          }
         }
       } else {
         let unproxied_data = data;
@@ -596,8 +575,8 @@ export class RuntimeEngineStore {
         targets.forEach((t) => {
           if (t && t.id === id) Object.assign(t, payload);
         });
-        if (this.#active_npcs[id]) {
-          this.#active_npcs[id] = { ...this.#active_npcs[id], ...payload };
+        if (this.#active_npcs[String(id)]) {
+          this.#active_npcs[String(id)] = { ...this.#active_npcs[String(id)], ...payload };
         }
         if (payload.dynamics) {
           if (this.active_ai && id === this.active_ai.id) {
@@ -630,9 +609,9 @@ export class RuntimeEngineStore {
         if (this.active_fractal?.id === id) this.active_fractal = null;
       }
 
-      if (this.#active_npcs[id]) {
+      if (this.#active_npcs[String(id)]) {
         const next_npcs = { ...this.#active_npcs };
-        delete next_npcs[id];
+        delete next_npcs[String(id)];
         this.#active_npcs = next_npcs;
       }
     } catch (err) {
@@ -649,18 +628,17 @@ export class RuntimeEngineStore {
    * @param {SimulationEntity} [mock_data.fractal]
    */
   _debug_inject(mock_data) {
-    const target_app = get_app();
     if (mock_data.user) {
       this.active_user = mock_data.user;
-      if (target_app) target_app.selected_user = mock_data.user;
+      if (app) app.selected_user = mock_data.user;
     }
     if (mock_data.ai) {
       this.active_ai = mock_data.ai;
-      if (target_app) target_app.selected_ai = mock_data.ai;
+      if (app) app.selected_ai = mock_data.ai;
     }
     if (mock_data.fractal) {
       this.active_fractal = mock_data.fractal;
-      if (target_app) target_app.selected_fractal = mock_data.fractal;
+      if (app) app.selected_fractal = mock_data.fractal;
     }
     if (mock_data.structural_errors !== undefined) {
       this.structural_errors = mock_data.structural_errors;

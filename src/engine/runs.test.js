@@ -1,18 +1,16 @@
 import * as dataModule from "@data";
 import * as media_module from "@media";
-import { register_state_accessors, reset_registries_for_testing } from "@utils";
+// Phase 4: direct @state singletons — no registries.
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { simulation_log } from "./log.svelte.js";
-import { runtime } from "./runtime.svelte.js";
+import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { dispatch_caretaker_consolidation, execute_continue, execute_turn, reset_turn_scope_for_testing, write_back_turn_state } from "./runs.js";
-import { session_driver } from "./sessions.svelte.js";
-import { simulation_state } from "./status.svelte.js";
+// (state imports consolidated above)
 import { reconstruct_history_from_feed } from "./turns.js";
 
 describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
-    reset_registries_for_testing();
+    // no registries to reset
     runtime.active_ai = null;
     runtime.active_user = null;
     runtime.active_fractal = null;
@@ -56,7 +54,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
   describe("Gap 3: director_enabled toggle from app settings", () => {
     it("respects app.settings.director_enabled flag", async () => {
       const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
-      register_state_accessors({ app: mock_app });
+      Object.assign(app, mock_app);
 
       const outcome = await execute_turn("Move forward");
 
@@ -69,7 +67,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
   describe("B03: Turn stage transitions on Director and Speaker", () => {
     it("invokes set_delegated_speaker and start_stream_stage during execute_turn", async () => {
       const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
-      register_state_accessors({ app: mock_app });
+      Object.assign(app, mock_app);
       const speaker_spy = vi.spyOn(simulation_state, "set_delegated_speaker").mockImplementation(() => {});
       const stage_spy = vi.spyOn(simulation_state, "start_stream_stage").mockImplementation(() => {});
 
@@ -200,7 +198,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
       simulation_log.feed = [target_entry];
       const edit_entry_spy = vi.spyOn(simulation_log, "edit_entry").mockResolvedValue(true);
 
-      register_state_accessors({ app: mock_app });
+      Object.assign(app, mock_app);
 
       try {
         const outcome = await execute_continue(target_entry);
@@ -226,7 +224,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
       simulation_log.feed = [target_entry];
       vi.spyOn(simulation_log, "edit_entry").mockResolvedValue(true);
 
-      register_state_accessors({ app: mock_app });
+      Object.assign(app, mock_app);
       const speaker_spy2 = vi.spyOn(simulation_state, "set_delegated_speaker").mockImplementation(() => {});
       const stage_spy2 = vi.spyOn(simulation_state, "start_stream_stage").mockImplementation(() => {});
 
@@ -255,7 +253,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
       vi.spyOn(runtime, "save_entity").mockResolvedValue(true);
       vi.spyOn(runtime, "save").mockResolvedValue(true);
 
-      register_state_accessors({ app: mock_app });
+      Object.assign(app, mock_app);
 
       const log_spy = vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1 });
       const spawn_spy = vi.spyOn(media_module, "spawn_image_beat").mockResolvedValue({ id: "img-1" });
@@ -294,6 +292,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
             prompt: "The dust hangs frozen in the air.",
             visual_staging: "Wide establishing shot of the overgrown observatory.",
           }),
+          expect.objectContaining({ app: expect.anything(), runtime: expect.anything(), session_driver: expect.anything(), simulation_log: expect.anything() }),
         );
 
         // Verify DYNAMICS_DELTA log message includes director thoughts
@@ -320,7 +319,7 @@ describe("src/engine/runs.js - Engine Runs Unit Tests", () => {
       vi.spyOn(runtime, "save_entity").mockResolvedValue(true);
       vi.spyOn(runtime, "save").mockResolvedValue(true);
 
-      register_state_accessors({ app: mock_app });
+      Object.assign(app, mock_app);
 
       vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1 });
       vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character", source: "dynamics" });

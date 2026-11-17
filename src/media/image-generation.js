@@ -13,9 +13,10 @@
  * bookkeeping, beat orchestration, and the VisualEngine facade.
  *
  * Cross-cutting context (runtime settings, session driver, feed) arrives as
- * an explicit `ctx` parameter defaulting to the bound `state_bridge`, so
- * every entry point stays injectable for tests without changing prod call
- * sites. Media never imports `@engine` - not even lazily.
+ * an explicit required `ctx` parameter (`{ app, runtime, session_driver,
+ * simulation_log }`, built by the caller from `@state`), so every entry
+ * point stays injectable for tests. Media never imports `@engine` - not
+ * even lazily - and never imports `@state` (Rank 2 cannot import Rank 3).
  */
 
 import { IMAGE_POLICY, TIMING_MS } from "@config";
@@ -27,7 +28,7 @@ import {
   resolve_story_beat_style,
   sanitize_visual_text,
 } from "@simulation";
-import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, state_bridge } from "@utils";
+import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed } from "@utils";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY]
@@ -220,7 +221,7 @@ export function _remove_from_image_generation_queue(id) {
   if (index !== -1) _image_generation_queue.splice(index, 1);
 }
 
-export async function count_pending_ghosts(ctx = state_bridge) {
+export async function count_pending_ghosts(ctx) {
   try {
     const story_id = ctx.runtime?.story_id;
     if (!story_id) return 0;
@@ -243,7 +244,7 @@ export async function count_pending_ghosts(ctx = state_bridge) {
   }
 }
 
-export async function mark_placeholder_failed(id, metadata = {}, ctx = state_bridge) {
+export async function mark_placeholder_failed(id, metadata = {}, ctx) {
   if (!id) return;
   clear_generation_in_flight(id, 0);
   try {
@@ -284,7 +285,7 @@ export async function mark_placeholder_failed(id, metadata = {}, ctx = state_bri
   }
 }
 
-export async function sweep_stale_ghosts(ctx = state_bridge) {
+export async function sweep_stale_ghosts(ctx) {
   try {
     const story_id = ctx.runtime?.story_id;
     if (!story_id) return;
@@ -343,7 +344,7 @@ export class VisualEngine {
     return { ...dispatched, url: dispatched.image_url };
   }
 
-  async visualize(text, tier, options = {}, ctx = state_bridge) {
+  async visualize(text, tier, options = {}, ctx) {
     const base_prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
     const tier_resolution = get_resolution_string(tier);
     // Story beats previously never inherited the solo-portrait "empty background"
@@ -449,7 +450,7 @@ export function set_visualizer_envision_impl(fn) {
 
 export const visual_engine = new VisualEngine();
 
-export async function spawn_image_beat(tier, options = {}, ctx = state_bridge) {
+export async function spawn_image_beat(tier, options = {}, ctx) {
   const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
   if (!tier || !IMAGE_TIERS.includes(tier)) return;
 

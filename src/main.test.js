@@ -5,14 +5,16 @@ const { _mock_app, _mock_runtime } = vi.hoisted(() => ({
   _mock_runtime: { sync: vi.fn(), is_ready: false },
 }));
 
-vi.mock("@ui", async (importOriginal) => {
+vi.mock("@state", async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, app: _mock_app };
-});
-
-vi.mock("@engine", async (importOriginal) => {
-  const actual = await importOriginal();
-  return { ...actual, runtime: _mock_runtime, simulation_state: {} };
+  return {
+    ...actual,
+    app: _mock_app,
+    runtime: _mock_runtime,
+    session_driver: { active_id: null, sync: async () => {}, refresh: async () => {}, clear: () => {} },
+    simulation_log: { refresh: async () => {}, clear: () => {} },
+    simulation_state: {},
+  };
 });
 
 vi.mock("@data", async (importOriginal) => {
@@ -27,21 +29,9 @@ vi.mock("@media", async (importOriginal) => {
   return { ...actual, Audio: _mock_audio };
 });
 
-// Mock the state bridge so main.js/boot can access app/runtime without pulling real @state
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    embeddings_engine: { load_model: vi.fn().mockResolvedValue() },
-    state_bridge: {
-      get app() {
-        return _mock_app;
-      },
-      get runtime() {
-        return _mock_runtime;
-      },
-    },
-  };
+  return { ...actual, embeddings_engine: { load_model: vi.fn().mockResolvedValue() } };
 });
 
 vi.mock("@data", async (importOriginal) => {

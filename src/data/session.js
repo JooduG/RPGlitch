@@ -6,9 +6,10 @@
  *
  * Pure Promise-based session tracking, story-session creation and simulation
  * log CRUD over the Dexie `db` (same layer, ./db.js). Zero Svelte runes, zero
- * upward imports: reactive-feed notification travels through an explicitly
- * bound `log_store` (see bind_session_store), runtime sync through caller
- * hooks — never through direct engine imports.
+ * upward imports: reactive-feed notification travels through an explicit
+ * `log_store` passed per-call (see `on_stories_changed` for story-archive
+ * notifications), runtime sync through caller hooks — never through direct
+ * engine imports.
  *
  * Phase 3 consolidation: session/log logic moved out of `src/data/db.js`
  * (Sections 3 & 4) and the pure DB operations absorbed from
@@ -26,7 +27,6 @@
  */
 
 import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta } from "@simulation";
-import { stories_bridge } from "@utils";
 import { coerce_story_key, db } from "./db.js";
 import { append_ledger_entries } from "./ledger.js";
 
@@ -35,18 +35,39 @@ export const SESSION_ID_KEY = "active_session_id";
 
 /**
  * Bound notification sink, installed once by the composition root via the
- * engine driver facade (`bind_session_driver` forwards here).
+ * state driver facade passes `{ log_store }` per call.
  * Plain object - no runes - so this module stays a pure data service.
  * @type {{ log_store: any }}
  */
-const _session_env = { log_store: null };
+/**
+ * Story-archive change subscribers (Rank 3 `app.stories_version` bump lives
+ * in the state layer; data/ never imports @state).
+ * @type {Set<(story_id: string | null) => void>}
+ */
+const _stories_listeners = new Set();
 
 /**
- * Installs the reactive-feed sink used for feed notifications after writes.
- * @param {{ log_store?: any }} [environment]
+ * Subscribes to story-archive mutations. Returns an unsubscribe function.
+ * @param {(story_id: string | null) => void} fn
+ * @returns {() => void}
  */
-export function bind_session_store(environment = {}) {
-  if (environment.log_store !== undefined) _session_env.log_store = environment.log_store ?? null;
+export function on_stories_changed(fn) {
+  if (typeof fn === "function") _stories_listeners.add(fn);
+  return () => _stories_listeners.delete(fn);
+}
+
+/**
+ * Notifies story-archive subscribers (best-effort, never throws).
+ * @param {string | null} [story_id=null]
+ */
+function _notify_stories_changed(story_id = null) {
+  for (const fn of _stories_listeners) {
+    try {
+      fn(story_id);
+    } catch {
+      /* subscriber errors never break persistence */
+    }
+  }
 }
 
 // ============================================================================
@@ -276,7 +297,7 @@ export async function log_message(
   role,
   character_name,
   { turn_type = "USER_TURN", meta = {}, attachments = [], story_id = null, entity_id = null, round = null, snapshots = null } = {},
-  env = _session_env,
+  env = null,
 ) {
   let effective_story_id = story_id ?? null;
   if (effective_story_id == null) {
@@ -360,7 +381,7 @@ export async function delete_story_log(story_id) {
  * @param {{ log_store?: any }} [env] - notification sink (defaults to bound store)
  * @returns {Promise<void>}
  */
-export async function delete_log_entry(id, env = _session_env) {
+export async function delete_log_entry(id, env = null) {
   const entry = await _find_log_entry(id, env?.log_store?.feed);
   const key =
     entry?.id != null ? entry.id
@@ -379,7 +400,7 @@ export async function delete_log_entry(id, env = _session_env) {
  * @param {{ log_store?: any }} [env] - notification sink (defaults to bound store)
  * @returns {Promise<void>}
  */
-export async function edit_log_entry(id, new_text, meta_patch = null, env = _session_env) {
+export async function edit_log_entry(id, new_text, meta_patch = null, env = null) {
   const entry = await _find_log_entry(id, env?.log_store?.feed);
   const key =
     entry ? entry.id
@@ -401,7 +422,7 @@ export async function edit_log_entry(id, new_text, meta_patch = null, env = _ses
  * @param {{ log_store?: any }} [env] - notification sink (defaults to bound store)
  * @returns {Promise<void>}
  */
-export async function update_log_attachment(id, attachment_index, new_attachment, env = _session_env) {
+export async function update_log_attachment(id, attachment_index, new_attachment, env = null) {
   const entry = await _find_log_entry(id, env?.log_store?.feed);
   if (entry) {
     if (!Array.isArray(entry.attachments)) {
@@ -422,7 +443,7 @@ export async function update_log_attachment(id, attachment_index, new_attachment
  * @param {{ log_store?: any }} [env] - notification sink (defaults to bound store)
  * @returns {Promise<void>}
  */
-export async function delete_log_attachment(id, attachment_index, env = _session_env) {
+export async function delete_log_attachment(id, attachment_index, env = null) {
   const entry = await _find_log_entry(id, env?.log_store?.feed);
   if (entry && Array.isArray(entry.attachments)) {
     entry.attachments.splice(attachment_index, 1);
@@ -521,7 +542,7 @@ export async function create_from_selection(selection, deps = {}) {
   });
 
   const story_id = String(id);
-  stories_bridge.bump();
+  _notify_stories_changed(story_id);
   if (typeof deps.set_active === "function") {
     await deps.set_active(story_id);
   }

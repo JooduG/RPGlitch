@@ -23,7 +23,7 @@
   import { build_story_export_filename, export_story_markdown } from "@data";
   import { click_outside, download_text_file } from "@utils";
   import { tick } from "svelte";
-  import { app } from "./interface.svelte.js";
+  import { app } from "@state";
   import StoryCard from "./StoryCard.svelte";
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---

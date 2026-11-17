@@ -32,7 +32,7 @@
   import RelationalGraph from "./RelationalGraph.svelte";
   import StyleBadge from "./StyleBadge.svelte";
   import VisualWing from "./VisualWing.svelte";
-  import { app } from "./interface.svelte.js";
+  import { app } from "@state";
   const entities = { upsert: upsert_entity, update: update_entity };
 
   /** @type {{ entity_type?: "character" | "fractal" }} */

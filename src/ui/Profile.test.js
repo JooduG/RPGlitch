@@ -17,16 +17,20 @@ vi.mock("@engine", async (importOriginal) => {
 });
 
 // Mock imports
-vi.mock("./interface.svelte.js", () => ({
-  app: {
-    editing_entity: null,
-    load_entities: vi.fn(),
-    ai_list: [],
-    fractal_list: [],
-    settings: { dev_mode: false },
-    claimed_entity_ids: { has: vi.fn(() => false) },
-  },
-}));
+vi.mock("@state", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    app: {
+      editing_entity: null,
+      load_entities: vi.fn(),
+      ai_list: [],
+      fractal_list: [],
+      settings: { dev_mode: false },
+      claimed_entity_ids: { has: vi.fn(() => false) },
+    },
+  };
+});
 
 vi.mock("@data", async (importOriginal) => {
   const actual = await importOriginal();
@@ -104,7 +108,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("blocks start_editing while the entity is claimed by an active story", async () => {
-    const { app } = await import("./interface.svelte.js");
+    const { app } = await import("@state");
     app.settings.dev_mode = false;
     app.claimed_entity_ids.has = vi.fn(() => true);
 
@@ -117,7 +121,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("allows editing when the entity is unclaimed", async () => {
-    const { app } = await import("./interface.svelte.js");
+    const { app } = await import("@state");
     app.settings.dev_mode = false;
     app.claimed_entity_ids.has = vi.fn(() => false);
 
@@ -129,7 +133,7 @@ describe("ProfileState story editing lock", () => {
   });
 
   it("bypasses the lock when DevMode is enabled", async () => {
-    const { app } = await import("./interface.svelte.js");
+    const { app } = await import("@state");
     app.settings.dev_mode = true;
     app.claimed_entity_ids.has = vi.fn(() => true);
 

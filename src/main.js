@@ -16,35 +16,28 @@ install_environment_hardening();
 ensure_theme_tokens();
 
 // 🚀 BOOTSTRAP
-// Composition root: publish accessors and stream handlers into
-// the @utils bridges (state_bridge / stream_bridge) so non-UI modules
-// can interact without upward imports. Must run before app_bootstrap.init().
+// Composition root: direct singleton wiring (Rank 3 @state owns all reactive
+// stores; no bridge registries). Session hooks installed below run before
+// app_bootstrap.init().
 import App from "@/App.svelte";
 import { normalize_entity, save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
-import { bind_session_driver, runtime, session_driver, simulation_log, simulation_state } from "@engine";
+import { runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { Audio, ensure_theme_tokens, sweep_stale_ghosts } from "@media";
-import { app } from "@ui";
-import { embeddings_engine, install_environment_hardening, register_state_accessors, register_stream_handlers, sanitize_to_fragment } from "@utils";
+import { app } from "@state";
+import { embeddings_engine, install_environment_hardening, sanitize_to_fragment } from "@utils";
 import { mount } from "svelte";
 
-register_state_accessors({ app, runtime, simulation_log, session_driver });
-bind_session_driver({
-  log_store: simulation_log,
-  on_set_active: async (id) => {
-    await runtime.sync(id);
-    await simulation_log.refresh(id);
-  },
-  on_clear_active: async () => {
-    // The driver already nulled the single-owned pointer; just drop the feed.
-    simulation_log.clear();
-  },
-});
-register_stream_handlers({
-  start: (id, role) => app.start_stream(id, role),
-  update: (chunk) => app.update_stream(chunk),
-  end: () => app.end_stream(),
-  is_active: () => app.streaming.active,
-});
+// Direct wiring: the session driver (Rank 3, via @engine barrel) owns the
+// active pointer; runtime sync + feed refresh hook in here. Transport talks
+// to the streaming singleton directly, so no handler registration remains.
+session_driver.on_set_active = async (id) => {
+  await runtime.sync(id);
+  await simulation_log.refresh(id);
+};
+session_driver.on_clear_active = () => {
+  // The driver already nulled the single-owned pointer; just drop the feed.
+  simulation_log.clear();
+};
 
 /************************************************************************************
  * BOOT SEQUENCE (app_bootstrap)

@@ -42,8 +42,10 @@ export { birth_entity_core, execute_epilogue, execute_prologue, execute_visualiz
 export { apply_director_deltas_to_dynamics, execute_continue, execute_turn, write_back_turn_state } from "./runs.js";
 
 // Session driver & simulation/developer logs (moved in from src/data/)
-export { bind_session_driver, match_speaker_snapshots, resolve_log_entity_id, session_driver } from "./sessions.svelte.js";
-export { DEVELOPER_TELEMETRY_STORAGE_KEY, developer_log, resolve_entity_id_by_name, simulation_log } from "./log.svelte.js";
+export { match_speaker_snapshots, resolve_log_entity_id } from "@data";
+export { session_driver } from "../state/chat.svelte.js";
+export { DEVELOPER_TELEMETRY_STORAGE_KEY, developer_log } from "../state/devlog.svelte.js";
+export { resolve_entity_id_by_name, simulation_log } from "../state/chat.svelte.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
 export { PURPOSE_CORES, compile_prompt } from "@simulation";
@@ -60,10 +62,11 @@ export {
 } from "@simulation";
 
 // Simulation Runtime & Entity Chronology
-export { RuntimeEngineStore as RuntimeEngine, RuntimeEngineStore, runtime } from "./runtime.svelte.js";
+export { RuntimeEngineStore as RuntimeEngine, RuntimeEngineStore, runtime } from "../state/runtime.svelte.js";
 
 // Simulation Phase, UI Locks, Streaming & Stasis Recovery
-export { force_recover_simulation, install_freeze_watchdog, simulation_state, streaming, ui_state } from "./status.svelte.js";
+export { force_recover_simulation, install_freeze_watchdog, simulation_state, ui_state } from "../state/status.svelte.js";
+export { streaming, StreamingStore } from "../state/streaming.svelte.js";
 
 // Chrono Engine (Turn Orchestration & Physics Loop)
 export { ChronoEngine, chrono_engine } from "./chrono.svelte.js";

@@ -199,7 +199,7 @@
   import { get_percentage, safe_html } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
-  import { app } from "./interface.svelte.js";
+  import { app } from "@state";
   import { parse_message } from "./Storymode.svelte";
   import Typewriter from "./Typewriter.svelte";
 

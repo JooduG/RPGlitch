@@ -1,35 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
-import { register_state_accessors } from "@utils";
-import { session_driver } from "./sessions.svelte.js";
-import { runtime as real_runtime } from "./runtime.svelte.js";
-import { simulation_log as real_log } from "./log.svelte.js";
+import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { execute_turn } from "./runs.js";
 import { execute_prologue } from "./lifecycle.js";
-import { simulation_state as real_state } from "./status.svelte.js";
-
-vi.mock("./sessions.svelte.js", async (importOriginal) => {
-  const actual = await importOriginal();
-  const drv = {
-    create_from_selection: vi.fn().mockResolvedValue("story-123"),
-    send: vi.fn().mockResolvedValue({}),
-    regenerate: vi.fn().mockResolvedValue({}),
-    record_system_marker: vi.fn().mockResolvedValue(undefined),
-    load_log: vi.fn().mockResolvedValue([]),
-    log_message: vi.fn().mockResolvedValue({ id: 1, created_at: Date.now() }),
-    clear_active: vi.fn().mockImplementation(async () => {
-      drv.active_id = null;
-    }),
-    restore_active: vi.fn().mockImplementation(async (id) => {
-      if (id != null) drv.active_id = id;
-    }),
-    set_active: vi.fn().mockImplementation(async (id) => {
-      if (id != null) drv.active_id = id;
-    }),
-  };
-  drv.active_id = "story-123";
-  return { ...actual, session_driver: drv };
-});
 
 vi.mock("./runs.js", () => ({ execute_turn: vi.fn().mockResolvedValue({}), execute_continue: vi.fn().mockResolvedValue({}) }));
 
@@ -41,67 +14,37 @@ vi.mock("./lifecycle.js", () => ({
 }));
 
 describe("ChronoEngine", () => {
-  let mock_app;
-  let mock_simulation_state;
-  let mock_runtime;
-  let mock_simulation_log;
-
   beforeEach(() => {
-    vi.clearAllMocks();
-    session_driver.active_id = "story-123";
-    real_state.set_intent_active(false);
+    vi.restoreAllMocks();
+    simulation_state.set_intent_active(false);
     try {
-      real_state.unlock();
+      simulation_state.unlock();
     } catch {
       /* real singleton starts unlocked */
     }
-    mock_app = {
-      simulation: { loading: false },
-      story_title: "Test Story",
-      suppress_card_transitions: false,
-      begin_story_pending: false,
-      _begin_flight_assets: null,
-      view: "storyboard",
-      set_view: vi.fn(),
-      log: vi.fn(),
-      start_stream: vi.fn(),
-      update_stream: vi.fn(),
-      end_stream: vi.fn(),
-      streaming: { active: false, abort_controller: null, content: "", node_id: null, role: "ai" },
-    };
-    mock_simulation_state = {
-      phase: "idle",
-      intent_active: false,
-      set_intent_active: vi.fn((val) => {
-        mock_simulation_state.intent_active = val;
-      }),
-      start_generation: vi.fn(),
-      start_director_stage: vi.fn(),
-      set_delegated_speaker: vi.fn(),
-      start_stream_stage: vi.fn(),
-      set_generating_entity: vi.fn(),
-      complete: vi.fn(),
-      lock: vi.fn(() => {
-        mock_simulation_state.phase = "locked";
-      }),
-      unlock: vi.fn(() => {
-        mock_simulation_state.phase = "idle";
-      }),
-    };
-    mock_runtime = { story_id: "story-123", round: 1, sync: vi.fn().mockResolvedValue({}), save: vi.fn().mockResolvedValue({}) };
-    mock_simulation_log = { feed: [], add: vi.fn(), delete_entry: vi.fn().mockResolvedValue(undefined) };
+    try {
+      simulation_state.complete();
+    } catch {
+      /* noop */
+    }
+    app.simulation.loading = false;
+    simulation_log.clear();
+    simulation_log.active_id = "story-123";
+    runtime.round = 1;
 
-    register_state_accessors({ app: mock_app, simulation_state: mock_simulation_state, runtime: mock_runtime, simulation_log: mock_simulation_log });
-
-    // Chrono uses direct engine imports for runtime/session_driver/simulation_log
-    // (not the bridge), so drive the real singletons with the per-test mocks.
-    real_runtime.story_id = mock_runtime.story_id;
-    real_runtime.round = mock_runtime.round;
-    real_runtime.sync = mock_runtime.sync;
-    real_runtime.save = mock_runtime.save;
-    real_log.feed = mock_simulation_log.feed;
-    real_log.add = mock_simulation_log.add;
-    real_log.delete_entry = mock_simulation_log.delete_entry;
+    vi.spyOn(session_driver, "create_from_selection").mockResolvedValue("story-123");
+    vi.spyOn(session_driver, "send").mockResolvedValue({});
+    vi.spyOn(session_driver, "regenerate").mockResolvedValue({});
+    vi.spyOn(session_driver, "load_log").mockResolvedValue([]);
+    vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1, created_at: Date.now() });
+    vi.spyOn(simulation_log, "delete_entry").mockResolvedValue(undefined);
+    vi.spyOn(app, "log").mockImplementation(() => {});
+    vi.spyOn(app, "start_stream").mockImplementation(() => {});
+    vi.spyOn(app, "update_stream").mockImplementation(() => {});
+    vi.spyOn(app, "end_stream").mockImplementation(() => {});
+    vi.spyOn(app, "set_view").mockImplementation(() => {});
+    vi.spyOn(runtime, "sync").mockResolvedValue({});
+    vi.spyOn(runtime, "save").mockResolvedValue({});
   });
 
   it("exports a singleton chrono_engine instance", () => {
@@ -116,14 +59,14 @@ describe("ChronoEngine", () => {
     });
 
     it("rejects when simulation is already loading", async () => {
-      mock_app.simulation.loading = true;
+      app.simulation.loading = true;
       const result = await chrono_engine.send("Hello");
       expect(result).toBe(false);
       expect(session_driver.send).not.toHaveBeenCalled();
     });
 
     it("rejects when intent is locked", async () => {
-      real_state.set_intent_active(true);
+      simulation_state.set_intent_active(true);
       const result = await chrono_engine.send("Hello");
       expect(result).toBe(false);
       expect(session_driver.send).not.toHaveBeenCalled();
@@ -137,7 +80,7 @@ describe("ChronoEngine", () => {
     });
 
     it("persists a user-role row when engine is on and dispatches execute_turn", async () => {
-      mock_app.settings = {};
+      app.settings = { ...(app.settings || {}), director_enabled: true };
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");
@@ -145,9 +88,7 @@ describe("ChronoEngine", () => {
     });
 
     it("purges orphaned user turn row from IndexedDB when a turn is aborted", async () => {
-      mock_app.settings = {};
-      mock_runtime.story_id = "story-123";
-      real_runtime.story_id = "story-123";
+      simulation_log.active_id = "story-123";
       session_driver.load_log.mockResolvedValueOnce([{ id: 42, role: "user", text: "Aborted user message" }]);
       execute_turn.mockImplementationOnce(() => {
         const err = new Error("Generation interrupted");
@@ -157,8 +98,8 @@ describe("ChronoEngine", () => {
 
       const result = await chrono_engine.send("Aborted user message");
       expect(result).toBe(false);
-      expect(mock_simulation_log.delete_entry).toHaveBeenCalledWith(42);
-      expect(mock_app.log).toHaveBeenCalledWith("Generation interrupted cleanly.", "system");
+      expect(simulation_log.delete_entry).toHaveBeenCalledWith(42);
+      expect(app.log).toHaveBeenCalledWith("Generation interrupted cleanly.", "system");
     });
   });
 
@@ -173,9 +114,9 @@ describe("ChronoEngine", () => {
       await chrono_engine.start(selection);
 
       expect(session_driver.create_from_selection).toHaveBeenCalledWith(expect.objectContaining({ ai_id: "ai-1", user_id: "usr-1", fractal_id: "fr-1" }));
-      expect(mock_runtime.sync).toHaveBeenCalledWith("story-123");
+      expect(runtime.sync).toHaveBeenCalledWith("story-123");
       expect(execute_prologue).toHaveBeenCalledWith("story-123");
-      expect(mock_app.suppress_card_transitions).toBe(false);
+      expect(app.suppress_card_transitions).toBe(false);
     });
   });
 
@@ -187,10 +128,10 @@ describe("ChronoEngine", () => {
     });
 
     it("advances turn on continue without incrementing round again if continue option is set", async () => {
-      const initial_round = mock_runtime.round;
+      const initial_round = runtime.round;
       await chrono_engine.continue();
       expect(execute_turn).toHaveBeenCalledWith("", expect.objectContaining({ is_continue: true }));
-      expect(mock_runtime.round).toBe(initial_round);
+      expect(runtime.round).toBe(initial_round);
     });
   });
 });

@@ -20,7 +20,8 @@
  * generate_text keeps mock-or-throw policy and AbortError-to-"" mapping.
  */
 
-import { merge_abort_signals, stream_bridge } from "@utils";
+import { merge_abort_signals } from "@utils";
+import { streaming } from "@state";
 import { sanitize_llm } from "@simulation";
 import { resolve_priority, enqueue_llm_job } from "@utils";
 
@@ -67,11 +68,11 @@ async function run_mock_generation(payload, options = {}) {
 
     if (options.onChunk) options.onChunk(chunk);
     if (!options.silent) {
-      if (!stream_bridge.is_active()) {
+      if (!streaming.active) {
         const role = payload.role || "ai";
-        stream_bridge.start(payload.node_id || "temp", role);
+        streaming.start_stream(payload.node_id || "temp", role);
       }
-      stream_bridge.update(chunk);
+      streaming.update_stream(chunk);
     }
 
     index = end;
@@ -246,13 +247,13 @@ async function direct_completion(ai_engine, payload, options, gate_signal) {
 
     if (!options.silent) {
       const role = payload.role || "ai";
-      stream_bridge.start(payload.node_id || "temp", role);
+      streaming.start_stream(payload.node_id || "temp", role);
     }
 
     // Dedup guard (transport core parity): once onToken fires, onChunk echoes are skipped.
     let token_streamed = false;
     const bridge_update = (piece) => {
-      if (!options.silent) stream_bridge.update(piece);
+      if (!options.silent) streaming.update_stream(piece);
     };
 
     const raw_result = await invoke_with_retry(ai_engine, () => instruction, gen_options, {
@@ -265,12 +266,12 @@ async function direct_completion(ai_engine, payload, options, gate_signal) {
         if (token_streamed) return;
         const text_piece = to_piece(chunk);
         if (options.onToken) options.onToken(text_piece);
-        if (!options.silent) stream_bridge.update(text_piece);
+        if (!options.silent) streaming.update_stream(text_piece);
       },
     });
 
     if (!options.silent) {
-      stream_bridge.end();
+      streaming.end_stream();
     }
 
     const normalized = normalize_direct_result(raw_result);
@@ -282,7 +283,7 @@ async function direct_completion(ai_engine, payload, options, gate_signal) {
     return sanitize_llm(normalized);
   } catch (err) {
     if (!options.silent) {
-      stream_bridge.end();
+      streaming.end_stream();
     }
     if (err.name === "AbortError" || options.signal?.aborted) {
       return "";

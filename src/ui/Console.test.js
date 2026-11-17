@@ -5,7 +5,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, act } from "@testing-library/svelte";
 
-import { app } from "./interface.svelte.js";
+import { app } from "@state";
 import { runtime } from "@engine";
 import { session_driver } from "@engine";
 import Console from "./Console.svelte";
