@@ -1,5 +1,5 @@
 /**
- * src/engine/fixtures.test-util.js
+ * src/simulation/fixtures.test-util.js
  * ============================================================================
  * 📜 CANONICAL ENGINE TEST FIXTURES
  * ============================================================================

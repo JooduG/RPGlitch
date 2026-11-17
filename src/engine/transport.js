@@ -20,7 +20,8 @@
  * generate_text keeps mock-or-throw policy and AbortError-to-"" mapping.
  */
 
-import { merge_abort_signals, sanitize_llm, stream_bridge } from "@utils";
+import { merge_abort_signals, stream_bridge } from "@utils";
+import { sanitize_llm } from "@simulation";
 import { resolve_priority, enqueue_llm_job } from "@utils";
 
 export function get_mock_message() {

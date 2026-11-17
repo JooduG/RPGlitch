@@ -9,7 +9,7 @@
  * ============================================================================
  */
 
-import { parse_bracket_entries } from "@utils";
+import { parse_tagged_fields as parse_bracket_entries } from "@simulation";
 import { coerce_story_key, db } from "./db.js";
 
 // ============================================================================

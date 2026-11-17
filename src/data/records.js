@@ -13,7 +13,8 @@
 
 import { DYNAMICS } from "@config";
 import { canonicalize_field_key, default_dynamics_for_scope } from "@definitions";
-import { format_clean_brackets, generate_uuid } from "@utils";
+import { format_tagged_fields } from "@simulation";
+import { generate_uuid } from "@utils";
 
 /**
  * Clamps a dynamics number to an integer between 1 and 100.
@@ -214,10 +215,10 @@ export function create_entity(type = "character", overrides = {}) {
 export function filter_entity_epistemics(entity, options = {}) {
   const copy = normalize_entity(entity);
 
-  copy.eternal = { physical: format_clean_brackets(copy.eternal.physical, options), non_physical: format_clean_brackets(copy.eternal.non_physical, options) };
-  copy.present = { physical: format_clean_brackets(copy.present.physical, options), non_physical: format_clean_brackets(copy.present.non_physical, options) };
-  copy.future = format_clean_brackets(copy.future, options);
-  copy.past = format_clean_brackets(copy.past, options);
+  copy.eternal = { physical: format_tagged_fields(copy.eternal.physical, options), non_physical: format_tagged_fields(copy.eternal.non_physical, options) };
+  copy.present = { physical: format_tagged_fields(copy.present.physical, options), non_physical: format_tagged_fields(copy.present.non_physical, options) };
+  copy.future = format_tagged_fields(copy.future, options);
+  copy.past = format_tagged_fields(copy.past, options);
 
   return copy;
 }

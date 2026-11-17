@@ -18,7 +18,8 @@
   import { get_signature_color } from "@media";
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { ProfilePicture } from "@ui";
-  import { auto_resize, click_outside, download_json_file, generate_uuid, resolve_display_macro_segments, safe_parse_pseudo_json } from "@utils";
+  import { safe_parse_pseudo_json } from "@simulation";
+  import { auto_resize, click_outside, download_json_file, generate_uuid, resolve_display_macro_segments } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "@definitions";

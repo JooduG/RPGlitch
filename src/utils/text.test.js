@@ -1,46 +1,47 @@
 import { CHARS_PER_TOKEN } from "@config";
 import { describe, expect, it } from "vitest";
-import { escape_unescaped_json_quotes, extract_json_block, safe_parse_json, strip_cognition_blocks } from "./llm-sanitize.js";
 import {
   AGGREGATE_KEYS,
   balance_brackets,
   CLEAR_TOKENS,
-  merge_prose_into_field,
+  derive_vector_title,
+  format_relational_vector,
+  format_tagged_fields,
+  parse_relational_vector,
+  safe_parse_json,
   safe_parse_pseudo_json,
-  strip_visual_excluded,
+  strip_cognition_blocks,
   VISUAL_EXCLUDED_KEYS,
-} from "./tags.js";
+} from "@simulation";
+import {
+  collapse_history,
+  decompose_story_title,
+  filter_narrative_messages,
+  first_sentence,
+  format_history_entries,
+  is_narrative_role,
+  role_display_label,
+} from "@simulation";
 import {
   alternation_field_label,
   clean_text,
-  collapse_history,
   collapse_whitespace,
   compute_initials,
-  decompose_story_title,
-  derive_vector_title,
-  diff_alternation_picks,
   count_tokens,
+  diff_alternation_picks,
   extract_alternations,
-  filter_narrative_messages,
-  first_sentence,
   format_datetime,
-  format_history_entries,
   format_key_as_label,
-  format_relational_vector,
   has_alternations,
   indent_continuation,
-  is_narrative_role,
   match_case,
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
-  parse_relational_vector,
   resolve_alternations,
-  role_display_label,
   strip_alternation_braces,
-  truncate_at_boundary,
   truncate_at_word,
+  truncate_at_boundary,
 } from "./text.js";
-
 describe("safe_parse_json", () => {
   it("extracts embedded JSON object from surrounding text", () => {
     const raw = `Here is your prompt: {"prompt": "cyberpunk alley", "negative_prompt": "blurry"} Hope you like it!`;
@@ -148,62 +149,6 @@ describe("safe_parse_pseudo_json", () => {
   });
 });
 
-describe("merge_prose_into_field", () => {
-  it("merges new bracket directives into existing structured field", () => {
-    const current = "[SHIRT: tunic] [PANTS: trousers]";
-    const result = merge_prose_into_field(current, "[SHIRT: armored vest] [HELD: sword]");
-    expect(result).toContain("[SHIRT: armored vest]");
-    expect(result).toContain("[PANTS: trousers]");
-    expect(result).toContain("[HELD: sword]");
-  });
-
-  it("clears clothing keys on [CLOTHING: none]", () => {
-    const current = "[SHIRT: tunic] [PANTS: jeans] [BOOTS: leather]";
-    const result = merge_prose_into_field(current, "[CLOTHING: none]");
-    expect(result).not.toContain("SHIRT");
-    expect(result).not.toContain("PANTS");
-    expect(result).not.toContain("BOOTS");
-  });
-
-  it("appends raw prose to existing raw prose fields", () => {
-    const current = "A weathered nomad.";
-    const result = merge_prose_into_field(current, "Carries a bronze locket.");
-    expect(result).toBe("A weathered nomad.\nCarries a bronze locket.");
-  });
-
-  it("deduplicates case-variant raw prose lines (M1 regression)", () => {
-    const current = "Gash across chest\nBruised ribs";
-    const result = merge_prose_into_field(current, "gash across chest\nBroken arm");
-    expect(result).toBe("Gash across chest\nBruised ribs\nBroken arm");
-  });
-
-  it("deduplicates case-variant prose when appending to CONDITION (M1 regression)", () => {
-    const current = "[SHIRT: tunic] [CONDITION: Gash across chest]";
-    const result = merge_prose_into_field(current, "gash across chest");
-    expect(result).toContain("[CONDITION: Gash across chest]");
-    expect(result).not.toContain("gash across chest, gash across chest");
-  });
-
-  it("deduplicates case-variant items in aggregate keys (INVENTORY/STASH)", () => {
-    const current = "[INVENTORY: Iron Dagger, Map]";
-    const result = merge_prose_into_field(current, "[INVENTORY: iron dagger, Rations]");
-    expect(result).toContain("[INVENTORY: Iron Dagger, Map, Rations]");
-  });
-
-  it("preserves | hide concealment when updating structured bracket keys (E2 regression)", () => {
-    const current = "[DAGGER: silver blade | hide] [SHIRT: linen tunic]";
-    const result = merge_prose_into_field(current, "[DAGGER: silver stiletto]");
-    expect(result).toContain("[DAGGER: silver stiletto | hide]");
-    expect(result).toContain("[SHIRT: linen tunic]");
-  });
-
-  it("allows explicit | show reveal to override | hide concealment", () => {
-    const current = "[DAGGER: silver blade | hide]";
-    const result = merge_prose_into_field(current, "[DAGGER: drawn stiletto | show]");
-    expect(result).toBe("[DAGGER: drawn stiletto]");
-  });
-});
-
 describe("indent_continuation", () => {
   it("indents multi-line string content with specified spaces", () => {
     const text = "line1\nline2\nline3";
@@ -289,18 +234,6 @@ describe("clean_text", () => {
 
   it("respects character limits with ellipsis", () => {
     expect(clean_text("Long text string that will be trimmed", 10)).toBe("Long text...");
-  });
-});
-
-describe("extract_json_block", () => {
-  it("extracts JSON object substring ignoring markdown fences", () => {
-    const raw = '```json\n{\n  "action": "attack"\n}\n```';
-    expect(extract_json_block(raw)).toBe('{\n  "action": "attack"\n}');
-  });
-
-  it("returns null when no braces exist", () => {
-    expect(extract_json_block("No JSON here")).toBeNull();
-    expect(extract_json_block(null)).toBeNull();
   });
 });
 
@@ -505,31 +438,6 @@ describe("parse_relational_vector & format_relational_vector", () => {
   });
 });
 
-describe("escape_unescaped_json_quotes", () => {
-  it("should escape unescaped interior double-quotes in JSON strings", () => {
-    const input = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said "Hello" to me" } } }`;
-    const expected = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said \\"Hello\\" to me" } } }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(expected);
-  });
-
-  it("should leave already escaped quotes untouched", () => {
-    const input = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said \\"Hello\\" to me" } } }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(input);
-  });
-
-  it("should handle nested commas inside quotes correctly by not stopping at them", () => {
-    const input = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said "Hello, friend" to me", "vector_resolve": [] } } }`;
-    const expected = `{ "mutations": { "AI_CHARACTER": { "state_append": "He said \\"Hello, friend\\" to me", "vector_resolve": [] } } }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(expected);
-  });
-
-  it("should handle unescaped quotes with trailing braces or brackets", () => {
-    const input = `{ "directive": "Say "hello"" }`;
-    const expected = `{ "directive": "Say \\"hello\\"" }`;
-    expect(escape_unescaped_json_quotes(input)).toBe(expected);
-  });
-});
-
 describe("decompose_story_title", () => {
   it("decomposes standard title into colored entity segments", () => {
     const entities = {
@@ -701,7 +609,7 @@ describe("alternation macros (selectable options & dice resolution)", () => {
   });
 });
 
-describe("strip_visual_excluded & VISUAL_EXCLUDED_KEYS", () => {
+describe("visual exclusion via format_tagged_fields & VISUAL_EXCLUDED_KEYS", () => {
   it("exports frozen VISUAL_EXCLUDED_KEYS set", () => {
     expect(VISUAL_EXCLUDED_KEYS).toBeInstanceOf(Set);
     expect(VISUAL_EXCLUDED_KEYS.has("INVENTORY")).toBe(true);
@@ -713,19 +621,19 @@ describe("strip_visual_excluded & VISUAL_EXCLUDED_KEYS", () => {
   });
 
   it("returns empty string for falsey inputs", () => {
-    expect(strip_visual_excluded("")).toBe("");
-    expect(strip_visual_excluded(null)).toBe("");
-    expect(strip_visual_excluded(undefined)).toBe("");
+    expect(format_tagged_fields("", { visual_only: true })).toBe("");
+    expect(format_tagged_fields(null, { visual_only: true })).toBe("");
+    expect(format_tagged_fields(undefined, { visual_only: true })).toBe("");
   });
 
   it("preserves raw prose if no pseudo-JSON brackets are parsed", () => {
     const raw = "A lone figure stands in the rain";
-    expect(strip_visual_excluded(raw)).toBe(raw);
+    expect(format_tagged_fields(raw, { visual_only: true })).toBe(raw);
   });
 
   it("strips visual excluded keys and retains visual keys", () => {
     const input = "[SHIRT: red tunic] [INVENTORY: dagger, potion] [HAIR: raven] [SECRET: knows the truth] [STATUS: bleeding]";
-    const result = strip_visual_excluded(input);
+    const result = format_tagged_fields(input, { visual_only: true });
     expect(result).toContain("[SHIRT: red tunic]");
     expect(result).toContain("[HAIR: raven]");
     expect(result).not.toContain("INVENTORY");

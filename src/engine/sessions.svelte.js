@@ -23,7 +23,8 @@
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta, stories_bridge } from "@utils";
+import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta } from "@simulation";
+import { stories_bridge } from "@utils";
 import { append_ledger_entries, db, SESSION_ID_KEY } from "@data";
 import { simulation_state } from "./status.svelte.js";
 

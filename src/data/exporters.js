@@ -18,7 +18,8 @@
  */
 
 import { CANONICAL_ROLES, NARRATOR_ROLES } from "@config";
-import { filter_narrative_messages, format_datetime, normalize_history_beat } from "../utils/text.js";
+import { filter_narrative_messages, normalize_history_beat } from "@simulation";
+import { format_datetime } from "../utils/text.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS]

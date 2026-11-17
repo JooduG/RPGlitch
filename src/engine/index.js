@@ -46,20 +46,18 @@ export { bind_session_driver, match_speaker_snapshots, resolve_log_entity_id, se
 export { DEVELOPER_TELEMETRY_STORAGE_KEY, developer_log, resolve_entity_id_by_name, simulation_log } from "./log.svelte.js";
 
 // Unified prompt pipeline & 4 Purpose Cores
-export { PURPOSE_CORES, compile_prompt } from "./prompts.js";
+export { PURPOSE_CORES, compile_prompt } from "@simulation";
 
 // Structural verification anchor
-export {
-  extract_tag_sequence,
-  verify_compiled_prompt,
-  verify_prompt_hygiene,
-  verify_system_envelope,
-  verify_tag_balance,
-  verify_tag_order,
-} from "./verifier.js";
+export { extract_tag_sequence, verify_compiled_prompt, verify_prompt_hygiene, verify_system_envelope, verify_tag_balance, verify_tag_order } from "@simulation";
 
 // Two-Tier Sieve RAG & vector math
-export { cosine_similarity, count_text_tokens, create_ephemeral_vector_cache, score_and_rank_memories, two_tier_sieve_rag } from "./sieve.js";
+export { cosine_similarity, count_text_tokens } from "@utils";
+export {
+  create_vector_cache as create_ephemeral_vector_cache,
+  rank_memories as score_and_rank_memories,
+  select_context_memories as two_tier_sieve_rag,
+} from "@simulation";
 
 // Simulation Runtime & Entity Chronology
 export { RuntimeEngineStore as RuntimeEngine, RuntimeEngineStore, runtime } from "./runtime.svelte.js";

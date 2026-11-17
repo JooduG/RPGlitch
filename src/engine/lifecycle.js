@@ -11,7 +11,8 @@
  */
 
 import { append_ledger_entries, apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
-import { parse_think_block, state_bridge } from "@utils";
+import { clean_generated_prose, parse_think_block } from "@simulation";
+import { state_bridge } from "@utils";
 import { simulation_state } from "./status.svelte.js";
 import { execute_turn } from "./runs.js";
 import { runtime } from "./runtime.svelte.js";
@@ -34,7 +35,7 @@ export async function execute_visualizer_envision(text, type = "character", enti
     return { prompt: "", negative_prompt: "" };
   }
 
-  const { get_resolution_string } = await import("../media/optics.js");
+  const { get_resolution_string } = await import("@simulation");
   const { get_visual_style } = await import("../definitions/visual-styles.js");
   const app = state_bridge.app || {};
 
@@ -171,7 +172,7 @@ export async function execute_prologue(story_id) {
     });
 
     // 2. Stream Fractal prologue scene setting via Character core (is_character: false)
-    const { compile_prompt } = await import("./prompts.js");
+    const { compile_prompt } = await import("@simulation");
     const prologue_prompt = compile_prompt({
       core: "CHARACTER",
       round: 0,
@@ -255,7 +256,7 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
   const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
   const fractal_name = runtime?.active_fractal?.name || "Fractal Entity";
 
-  const { compile_prompt } = await import("./prompts.js");
+  const { compile_prompt } = await import("@simulation");
 
   const prompt = compile_prompt({
     core: "CHARACTER",
@@ -266,8 +267,7 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
 
   const response = await generate_text({ system: prompt, role: "fractal", node_id });
 
-  const { detox_prose } = await import("../utils/detox.js");
-  const cleaned_prose = detox_prose(parse_think_block(response || "").prose);
+  const cleaned_prose = clean_generated_prose(parse_think_block(response || "").prose);
 
   await session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
     turn_type: "SYSTEM_TURN",

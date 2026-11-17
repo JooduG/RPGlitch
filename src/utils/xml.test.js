@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CLOTHING_KEYS, strip_leading_key_echo } from "./tags.js";
+import { CLOTHING_KEYS, strip_leading_key_echo } from "@simulation";
 import { clean_xml, dedent_all, escape_xml, prompt_escape, render_atom_xml, render_profile_field_block, render_xml_tag } from "./xml.js";
 
 describe("escape_xml", () => {

@@ -12,7 +12,7 @@
 -->
 <script>
   import { list_entities } from "@data";
-  import { extract_entity_relationships } from "@utils";
+  import { extract_entity_relationships } from "@simulation";
   import { get_signature_color } from "@media";
   import { tooltip } from "@primitives";
   import { ALL_PREMADES } from "@definitions";

@@ -1,56 +1,65 @@
 /**
- * src/engine/sieve.js
+ * src/simulation/retrieval.js
  * ============================================================================
- * 📜 TWO-TIER SIEVE RAG & VECTOR RETRIEVAL ENGINE
+ * 📜 TWO-TIER RETRIEVAL & VECTOR MEMORY ENGINE (Rank 1, pure simulation)
  * ============================================================================
  *
- * Algorithmic core for episodic memory retrieval, guaranteed participant floors,
- * and gravity-weighted overflow pools over normalized 384-d vectors.
+ * Algorithmic core for episodic memory retrieval, guaranteed participant
+ * floors, and gravity-weighted overflow pools over normalized 384-d vectors.
  *
- * Architecture:
- * - Pure character-based budgeting across the application.
- * - Tier 1: Guaranteed per-entity character floor (5,000 characters per primary participant).
- * - Tier 2: Universal gravity-weighted overflow pool for secondary cast and world lore.
- * - Ephemeral Vector Cache Adapter interface (in-memory Map by default).
+ * Phase 2 unification: from `src/engine/sieve.js` (`score_and_rank_memories`
+ * as `rank_memories`, `two_tier_sieve_rag` as `select_context_memories`,
+ * `create_ephemeral_vector_cache` as `create_vector_cache`) +
+ * `tags.js#extract_memory_candidates`.
+ *
+ * The cosine-similarity local re-export and the legacy `count_text_tokens`
+ * wrapper are deleted: the canonicals live in `@utils` (`vectors.js`,
+ * `text.js`) and every consumer imports them from there.
+ *
+ * Pure character-based budgeting across the application.
+ * Imports only Rank 0 (`@config`, `@utils`).
  * ============================================================================
  */
 
-import { EMBEDDING_SPECS, FIELD_FLOORS } from "@config";
-import { count_tokens, cosine_similarity } from "@utils";
+import { FIELD_FLOORS } from "@config";
+import { cosine_similarity } from "@utils";
+import { parse_tagged_fields } from "./brackets.js";
 
-/** Origin protection multiplier boosting author canon and immutable memories (single consumer - lives here, not on the dashboard) */
+/** Origin protection multiplier boosting author canon and immutable memories */
 const ORIGIN_SCORE_MULTIPLIER = 1.5;
 
 /** Total guaranteed character floor across all 6 profile fields (sum: 1700 chars) */
 export const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce((sum, floor) => sum + floor, 0);
 
 /**
- * Native Perchance tokenizer with headless character-ratio fallback.
- * Delegates to the unified `@utils` token counter (single implementation).
+ * Converts a canonical past multiline tagged-field string into candidate memory objects
+ * ready for retrieval scoring.
  *
- * @param {string} text
- * @returns {number}
+ * @param {string} past_text - multiline [KEY: VALUE | flags] string
+ * @returns {Array<{ id: string, text: string, is_origin: boolean, weight: number, key: string }>}
  */
-export function count_text_tokens(text) {
-  return count_tokens(text);
+export function extract_memory_candidates(past_text) {
+  const entries = parse_tagged_fields(past_text);
+  if (!entries || entries.length === 0) return [];
+
+  return entries.map((entry, entry_index) => ({
+    id: `mem_${entry_index}_${entry.key.toLowerCase()}`,
+    text: entry.value,
+    is_origin: Boolean(entry.is_origin),
+    weight: typeof entry.weight === "number" ? entry.weight : 5,
+    key: entry.key,
+  }));
 }
 
 /**
- * Cosine similarity re-exported from the unified `@utils` vector home.
- * Kept here so the engine barrel surface is unchanged.
- */
-export { cosine_similarity };
-
-/**
- * Creates an in-memory ephemeral vector cache adapter for Gate 1.
- * Pluggable interface to be swapped with Dexie IndexedDB in Gate 2.
+ * Creates an in-memory ephemeral vector cache adapter.
+ * Evicts the oldest entry (FIFO) when full — including when the write is an
+ * update to an existing key (no silent over-capacity growth).
  *
- * NOTE: This is an in-memory development adapter only. Gate 2 replaces this
- * with persistent Dexie.js IndexedDB tables for long-term vector storage.
- *
+ * @param {number} [max_entries=200] - Memory ceiling
  * @returns {{ get: (id: string) => Promise<Float32Array | null>, set: (id: string, vector: Float32Array) => Promise<void>, clear: () => Promise<void> }}
  */
-export function create_ephemeral_vector_cache() {
+export function create_vector_cache(max_entries = 200) {
   const store = new Map();
 
   return {
@@ -58,7 +67,7 @@ export function create_ephemeral_vector_cache() {
       return store.get(id) || null;
     },
     async set(id, vector) {
-      if (store.size >= EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS) {
+      if (!store.has(id) && store.size >= max_entries) {
         // Evict oldest entry (FIFO) to enforce memory ceiling
         const first_key = store.keys().next().value;
         if (first_key !== undefined) {
@@ -74,18 +83,18 @@ export function create_ephemeral_vector_cache() {
 }
 
 /**
- * Scores candidate memory items against a query vector and applies
- * origin-protection multiplier.
+ * Scores candidate memory items against a query vector and applies the
+ * `is_origin` protection multiplier.
  *
  * NOTE: Recency decay is handled dynamically during working memory query
  * construction (weighting newer messages over older turns in the active window),
- * so candidate scoring remains clean: pure semantic similarity * origin multiplier.
+ * so candidate scoring stays clean: pure semantic similarity * origin multiplier.
  *
  * @param {Array<{ id: string, text: string, vector?: number[], is_origin?: boolean }>} candidates
  * @param {number[]} queryVector
  * @returns {Array<{ item: any, score: number, length: number }>}
  */
-export function score_and_rank_memories(candidates, queryVector) {
+export function rank_memories(candidates, queryVector) {
   if (!Array.isArray(candidates) || candidates.length === 0) return [];
 
   const scored = [];
@@ -110,11 +119,10 @@ export function score_and_rank_memories(candidates, queryVector) {
 }
 
 /**
- * Two-Tier Sieve RAG Allocation in Pure Characters:
- * - Tier 1: Evaluates candidate items for a field/persona with RAG relevance and fills
- *   up to the guaranteed lean floor (FIELD_GUARANTEED_FLOORS).
- * - Tier 2: Any leftover candidates spill into the universal gravity-weighted overflow pool
- *   where they compete via RAG scoring until the total memory budget is filled.
+ * Two-Tier context-memory allocation in pure characters:
+ * - Tier 1: Guaranteed per-entity character floor for primary participants.
+ * - Tier 2: Universal gravity-weighted overflow pool for secondary cast and
+ *   world lore, competing via retrieval scoring until the total budget fills.
  *
  * @param {object} params
  * @param {Array<any>} params.primary_memories - Memories / brackets belonging to main character
@@ -124,15 +132,15 @@ export function score_and_rank_memories(candidates, queryVector) {
  * @param {number} [params.guaranteed_floor_characters=FIELD_FLOORS.PAST]
  * @returns {{ selected: any[], total_characters: number, tier1_count: number, tier2_count: number }}
  */
-export function two_tier_sieve_rag({
+export function select_context_memories({
   primary_memories = [],
   lore_memories = [],
   query_vector = null,
   total_budget_characters = TOTAL_FIELD_FLOORS_CHARACTERS,
   guaranteed_floor_characters = FIELD_FLOORS.PAST,
 }) {
-  const ranked_primary = score_and_rank_memories(primary_memories, query_vector);
-  const ranked_lore = score_and_rank_memories(lore_memories, query_vector);
+  const ranked_primary = rank_memories(primary_memories, query_vector);
+  const ranked_lore = rank_memories(lore_memories, query_vector);
 
   const selected = [];
   let current_characters = 0;

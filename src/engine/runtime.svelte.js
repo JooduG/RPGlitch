@@ -29,7 +29,8 @@ import { TELEMETRY_CAPS } from "@config";
 import { clear_session_checkpoint, coerce_story_key, db, entities, load_session_checkpoint, SESSION_ID_KEY } from "@data";
 import { default_dynamics_for_scope } from "@definitions";
 import { get_signature_color } from "@media";
-import { decompose_story_title, state_bridge } from "@utils";
+import { decompose_story_title } from "@simulation";
+import { state_bridge } from "@utils";
 import { session_driver } from "./sessions.svelte.js";
 import { SvelteSet } from "svelte/reactivity";
 

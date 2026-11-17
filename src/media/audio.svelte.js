@@ -7,7 +7,7 @@
  */
 
 import { VOICE_CADENCE } from "@config";
-import { strip_cognition_blocks } from "@utils";
+import { strip_cognition_blocks } from "@simulation";
 
 // ============================================================================
 // [SECTION 1: HARDWARE AUDIOCONTEXT & MASTER GAIN]

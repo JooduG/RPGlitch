@@ -10,7 +10,7 @@
 import { IMAGE_POLICY, TIMING_MS } from "@config";
 import { get_visual_style } from "@definitions";
 import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, state_bridge } from "@utils";
-import { get_resolution_string, IMAGE_TIERS } from "./optics.js";
+import { get_resolution_string, IMAGE_TIERS } from "@simulation";
 
 // ============================================================================
 // Visual prompt hygiene.

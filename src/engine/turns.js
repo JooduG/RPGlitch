@@ -18,9 +18,9 @@
 
 import { LENGTH_THRESHOLDS } from "@config";
 import { normalize_entity } from "@data";
-import { parse_brackets, parse_think_block } from "@utils";
-import { safe_parse_json } from "@utils";
-import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
+import { parse_tagged_fields as parse_brackets, parse_think_block } from "@simulation";
+import { safe_parse_json } from "@simulation";
+import { compile_prompt, PURPOSE_CORES } from "@simulation";
 
 /**
  * Normalizes prefilled startWith markers, parses <think>...</think> cognition,

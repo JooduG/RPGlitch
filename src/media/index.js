@@ -81,7 +81,7 @@ export {
   resolve_image_trigger,
   extract_aesthetic_traits,
   render_optics_fallback,
-} from "./optics.js";
+} from "@simulation";
 
 // ============================================================================
 // Stateless Visual Generation & Queue Lifecycle

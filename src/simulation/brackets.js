@@ -1,135 +1,48 @@
 /**
- * src/utils/tags.js
+ * src/simulation/brackets.js
  * ============================================================================
- * Shared tagged-entry `[KEY: VALUE | flags]` tokenizer + tag helpers.
- * Pure, stateless, domain-agnostic. No upward imports.
- * Phase 1 unification: moved verbatim from src/data/parser.js (bracket core),
- * src/utils/text.js (pseudo-JSON / merge / repair / bond / key sets) and
- * src/utils/xml.js (physical/clothing key normalization).
+ * 🏷️ TAGGED-FIELD BRACKET ENGINE (Rank 1, pure simulation)
+ * ============================================================================
+ *
+ * Canonical home for the `[KEY: VALUE | flags]` tagged-field language:
+ * brace-aware parsing, epistemic formatting, delta application, memory
+ * harvesting, relational constellation harvesting, pseudo-JSON recovery,
+ * and the shared token constants.
+ *
+ * Phase 2 unification: merged from `src/utils/tags.js`
+ * (`parse_bracket_token` + `parse_brackets` + `parse_bracket_entries` into
+ * `parse_tagged_fields`; `format_clean_brackets` + `filter_epistemic_brackets`
+ * + `strip_bracket_engine_flags` + `strip_visual_excluded` into
+ * `format_tagged_fields`; `apply_bracket_deltas` + `merge_prose_into_field`
+ * into `apply_tagged_field_deltas`) plus the relational vector codecs from
+ * `src/utils/text.js`.
+ *
+ * Pure, stateless, domain-agnostic. No Svelte runes, no IndexedDB, no DOM.
+ * Imports only Rank 0 (`@utils`) and the sibling `llm-output.js`.
  * ============================================================================
  */
 
-import { collapse_whitespace } from "./text.js";
-import { strip_cognition_blocks } from "./llm-sanitize.js";
+import { collapse_whitespace, truncate_at_word } from "@utils";
+import { strip_cognition_blocks } from "./llm-output.js";
 
 /**
  * Bracket Format: [KEY: VALUE | flags]
- * Flags: | hide, | show, | w: <1-10>, | is_origin
+ * Flags: | hide, | show, | is_origin, | w: <1-10>
  *
  * Invariant: Pipes inside `{Option A | Option B}` alternation scopes are NOT
  * treated as metadata flag separators.
  */
 
 /**
- * Parses a single bracket token string like "[KEY: value | hide | w: 8]".
- * Key is normalized to uppercase.
- * Safely isolates pipes inside `{A | B}` alternation scopes.
- *
- * @param {string} bracket_string
- * @returns {{ key: string, value: string, flags: { hide: boolean, show: boolean, is_origin: boolean, weight?: number }, raw: string } | null}
- */
-export function parse_bracket_token(bracket_string) {
-  if (!bracket_string || typeof bracket_string !== "string") return null;
-
-  const trimmed = bracket_string.trim();
-  if (!trimmed.startsWith("[") || !trimmed.endsWith("]")) return null;
-
-  const inner = trimmed.slice(1, -1).trim();
-  const colon_index = inner.indexOf(":");
-  if (colon_index === -1) return null;
-
-  const raw_key = inner.slice(0, colon_index).trim();
-  const key = raw_key.toUpperCase();
-  const payload = inner.slice(colon_index + 1).trim();
-
-  // Walk payload character-by-character to locate top-level pipes outside { ... }
-  const segments = [];
-  let current_segment = "";
-  let brace_depth = 0;
-
-  for (let i = 0; i < payload.length; i++) {
-    const character = payload[i];
-    if (character === "{") {
-      brace_depth++;
-      current_segment += character;
-    } else if (character === "}") {
-      brace_depth = Math.max(0, brace_depth - 1);
-      current_segment += character;
-    } else if (character === "|" && brace_depth === 0) {
-      segments.push(current_segment.trim());
-      current_segment = "";
-    } else {
-      current_segment += character;
-    }
-  }
-  segments.push(current_segment.trim());
-
-  const value = segments[0] || "";
-  const flags = { hide: false, show: false, is_origin: false, weight: undefined };
-
-  for (let j = 1; j < segments.length; j++) {
-    const flag = segments[j].toLowerCase();
-    if (flag === "hide") {
-      flags.hide = true;
-    } else if (flag === "show") {
-      flags.show = true;
-    } else if (flag === "is_origin" || flag === "origin") {
-      flags.is_origin = true;
-    } else if (flag.startsWith("w:") || flag.startsWith("weight:")) {
-      const parts = flag.split(":");
-      const parsed_number = parseInt(parts[1]?.trim(), 10);
-      if (!isNaN(parsed_number)) {
-        flags.weight = Math.min(10, Math.max(1, parsed_number));
-      }
-    }
-  }
-
-  return { key, value, flags, raw: trimmed };
-}
-
-/**
- * Extracts all top-level bracket tokens from a multiline string.
- *
- * @param {string} text
- * @returns {Array<ReturnType<typeof parse_bracket_token>>}
- */
-export function parse_brackets(text) {
-  if (!text || typeof text !== "string") return [];
-
-  const tokens = [];
-  let bracket_depth = 0;
-  let start_index = -1;
-
-  for (let i = 0; i < text.length; i++) {
-    const character = text[i];
-    if (character === "[") {
-      if (bracket_depth === 0) {
-        start_index = i;
-      }
-      bracket_depth++;
-    } else if (character === "]") {
-      if (bracket_depth > 0) {
-        bracket_depth--;
-        if (bracket_depth === 0 && start_index !== -1) {
-          const raw = text.slice(start_index, i + 1);
-          const parsed = parse_bracket_token(raw);
-          if (parsed) tokens.push(parsed);
-          start_index = -1;
-        }
-      }
-    }
-  }
-
-  return tokens;
-}
-
-/**
- * Parses all [KEY: value | flags] bracket entries from a text string with token positions.
+ * Parses all top-level tagged-field entries from a text string with token positions.
+ * Brace-aware: pipes inside `{...}` alternation scopes never split flags.
+ * Single entry point replacing `parse_bracket_token` / `parse_brackets` /
+ * `parse_bracket_entries`.
  *
  * @param {string|null|undefined} text
- * @returns {Array<{ key: string, original_key: string, value: string, visibility: 'show'|'hide', weight: number, status: 'active'|'superseded', raw: string, start_index: number, end_index: number }>}
+ * @returns {Array<{ key: string, original_key: string, value: string, visibility: 'show'|'hide', is_origin: boolean, weight: number, status: 'active'|'superseded', raw: string, start_index: number, end_index: number }>}
  */
-export function parse_bracket_entries(text) {
+export function parse_tagged_fields(text) {
   if (!text || typeof text !== "string") return [];
 
   const entries = [];
@@ -190,6 +103,7 @@ export function parse_bracket_entries(text) {
 
           const value = segments[0] || "";
           let visibility = "show";
+          let is_origin = false;
           let weight = 5;
           let status = "active";
 
@@ -199,6 +113,8 @@ export function parse_bracket_entries(text) {
               visibility = "hide";
             } else if (flag === "show") {
               visibility = "show";
+            } else if (flag === "is_origin" || flag === "origin") {
+              is_origin = true;
             } else if (flag === "superseded") {
               status = "superseded";
             } else if (flag.startsWith("w:") || flag.startsWith("weight:")) {
@@ -209,7 +125,19 @@ export function parse_bracket_entries(text) {
             }
           }
 
-          entries.push({ key, original_key, value, visibility, weight, status, raw, start_index, end_index: end_index + 1 });
+          entries.push({
+            key,
+            original_key,
+            value,
+            visibility,
+            is_origin,
+            weight,
+            status,
+            raw,
+            start_index,
+            end_index: end_index + 1,
+            flags: { weight, visibility, is_origin },
+          });
         }
 
         index = end_index + 1;
@@ -223,149 +151,327 @@ export function parse_bracket_entries(text) {
 }
 
 /**
- * Filters brackets based on visibility and strips internal flags for clean prompt rendering.
+ * Formats a parsed entry back into a clean `[KEY: value]` string,
+ * preserving the `| hide` secrecy signal when requested.
  *
- * @param {string} brackets_text - multiline brackets string
+ * @param {{ key: string, value: string, visibility?: string }} entry
+ * @param {boolean} [keep_hide_signal=false]
+ * @returns {string}
+ */
+function _format_entry_clean(entry, keep_hide_signal = false) {
+  if (!entry) return "";
+  const suffix = keep_hide_signal && entry.visibility === "hide" ? " | hide" : "";
+  return `[${entry.key}: ${entry.value}${suffix}]`;
+}
+
+/**
+ * Formats tagged fields through the Epistemic Wall for clean prompt rendering.
+ * Merges `format_clean_brackets` + `filter_epistemic_brackets` +
+ * `strip_bracket_engine_flags` + `strip_visual_excluded`.
+ *
+ * In-place span surgery (not a rebuild): kept entries are replaced with their
+ * cleaned form at their original span; dropped entries are excised via
+ * _drop_span so surrounding prose survives (display paths pass full prose).
+ * Prose-safe: text without tagged fields is returned unchanged (never wiped
+ * to `""`).
+ *
+ * @param {string|null|undefined} text - multiline tagged-field string (or prose)
  * @param {object} [options]
  * @param {"all" | "own" | "none"} [options.see_hidden="own"]
  * @param {boolean} [options.is_counterpart=false] - whether this entity is counterpart across Epistemic Wall
- * @param {boolean} [options.strip_inventory=false] - whether to strip INVENTORY and STASH brackets
- * @returns {string} clean brackets string without metadata flags
+ * @param {boolean} [options.strip_inventory=false] - whether to strip INVENTORY and STASH containers
+ * @param {boolean} [options.visual_only=false] - whether to drop VISUAL_EXCLUDED_KEYS (image-prompt path)
+ * @param {boolean} [options.reveal_hidden=false] - keep hidden entries with flags stripped (telemetry display path)
+ * @returns {string} clean tagged-field string
  */
-export function format_clean_brackets(brackets_text, options = {}) {
-  const { see_hidden = "own", is_counterpart = false, strip_inventory = false } = options;
-  const parsed = parse_brackets(brackets_text);
+export function format_tagged_fields(text, options = {}) {
+  if (!text || typeof text !== "string") return "";
+  const { see_hidden = "own", is_counterpart = false, strip_inventory = false, visual_only = false, reveal_hidden = false } = options;
 
-  const kept = [];
+  const entries = parse_tagged_fields(text);
+  if (entries.length === 0) return text;
 
-  for (const token of parsed) {
-    if (!token) continue;
+  let working_text = text;
 
-    // Visual/diffusion filter: strip inventory and stash containers if requested or if see_hidden === "none"
-    if (strip_inventory || see_hidden === "none") {
-      const upper_key = token.key.toUpperCase();
-      if (upper_key === "INVENTORY" || upper_key === "STASH") {
+  for (let index = entries.length - 1; index >= 0; index--) {
+    const entry = entries[index];
+    const { start_index, end_index } = entry;
+
+    // Aggregate-container filter (inventory/stash never reach prompts or vectors on request)
+    if ((strip_inventory || see_hidden === "none") && AGGREGATE_KEYS.has(entry.key)) {
+      working_text = _drop_span(working_text, start_index, end_index);
+      continue;
+    }
+
+    // Visual filter (private state / physical inventory never reach image prompts)
+    if (visual_only && VISUAL_EXCLUDED_KEYS.has(entry.key)) {
+      working_text = _drop_span(working_text, start_index, end_index);
+      continue;
+    }
+
+    if (entry.visibility === "hide") {
+      if (reveal_hidden) {
+        const clean_replacement = _format_entry_clean(entry, false);
+        working_text = working_text.slice(0, start_index) + clean_replacement + working_text.slice(end_index);
         continue;
       }
+      // Epistemic Wall rules:
+      // - see_hidden "none": strip all hidden entries
+      // - see_hidden "own" + counterpart: strip hidden entries
+      // - see_hidden "own" + owner: keep with `| hide` secrecy signal
+      // - see_hidden "all": keep with `| hide` secrecy signal
+      if (see_hidden === "none") {
+        working_text = _drop_span(working_text, start_index, end_index);
+        continue;
+      }
+      if (see_hidden === "own" && is_counterpart) {
+        working_text = _drop_span(working_text, start_index, end_index);
+        continue;
+      }
+      const secret_replacement = _format_entry_clean(entry, true);
+      working_text = working_text.slice(0, start_index) + secret_replacement + working_text.slice(end_index);
+    } else {
+      // Show entry: strip all internal engine flags for clean rendered output
+      const clean_replacement = _format_entry_clean(entry, false);
+      working_text = working_text.slice(0, start_index) + clean_replacement + working_text.slice(end_index);
     }
-
-    // Epistemic Wall rules:
-    // If see_hidden is "none": strip all hidden brackets
-    // If see_hidden is "own": strip hidden brackets if is_counterpart is true
-    // If see_hidden is "all": keep everything
-    if (token.flags.hide) {
-      if (see_hidden === "none") continue;
-      if (see_hidden === "own" && is_counterpart) continue;
-    }
-
-    // Strip internal control flags for clean rendered output
-    kept.push(`[${token.key}: ${token.value}]`);
   }
 
-  return kept.join(", ");
+  return working_text;
 }
 
 /**
- * Reconstructs a clean, normalized bracket string [KEY: value | flags].
- * Ensures the key is always uppercase and flags are properly formatted.
+ * Excises the span [start_index, end_index) from working_text, cleaning up
+ * the joint so no orphan separators survive. Back-to-front safe.
  *
- * @param {ReturnType<typeof parse_bracket_token>} token
+ * Rules:
+ * - both sides blank → ""
+ * - before blank → after stripped of leading [\s,]+
+ * - after blank → before stripped of trailing [\s,]+
+ * - trailing-comma-before + leading-comma-after → drop before's comma run
+ * - newline doubling at the joint → single \n
+ * - space doubling at the joint → single space
+ *
+ * @param {string} working_text
+ * @param {number} start_index
+ * @param {number} end_index
  * @returns {string}
  */
-function reconstruct_bracket_string(token) {
-  if (!token) return "";
-  const flags = [];
-  if (token.flags?.hide) flags.push("hide");
-  if (token.flags?.show) flags.push("show");
-  if (token.flags?.is_origin) flags.push("is_origin");
-  if (typeof token.flags?.weight === "number" && !isNaN(token.flags.weight)) {
-    flags.push(`w: ${token.flags.weight}`);
+function _drop_span(working_text, start_index, end_index) {
+  const before = working_text.slice(0, start_index);
+  const after = working_text.slice(end_index);
+
+  if (!before.trim() && !after.trim()) return "";
+  if (!before.trim()) return after.replace(/^[\s,]+/, "");
+  if (!after.trim()) return before.replace(/[\s,]+$/, "");
+
+  let kept_before = before;
+  let kept_after = after;
+
+  // Trailing-comma-before + leading-comma-after → drop before's comma run
+  // ("[A: 1], [DROP], [B: 2]" must rejoin as "[A: 1], [B: 2]", not "[A: 1],, [B: 2]").
+  if (/[ \t]*,[ \t,]*$/.test(kept_before) && /^[ \t,]*,/.test(kept_after)) {
+    kept_before = kept_before.replace(/[ \t]*,[ \t,]*$/, "");
   }
-  const flag_part = flags.length > 0 ? ` | ${flags.join(" | ")}` : "";
-  return `[${token.key}: ${token.value}${flag_part}]`;
+
+  // Trailing spaces before a newline start → drop them ("Line one ⏎" not "Line one ⏎").
+  if (/[ \t]+$/.test(kept_before) && /^\n/.test(kept_after)) {
+    kept_before = kept_before.replace(/[ \t]+$/, "");
+  }
+
+  // Newline doubling at the joint → single \n (joint-local only: never touch
+  // paragraph breaks elsewhere in the prose).
+  if (/[ \t]*\n[ \t\n]*$/.test(kept_before) && /^[ \t\n]*\n/.test(kept_after)) {
+    kept_before = kept_before.replace(/[ \t]*\n[ \t\n]*$/, "\n");
+    kept_after = kept_after.replace(/^[ \t\n]*\n/, "\n");
+    kept_after = kept_after.replace(/^\n/, "");
+  }
+
+  // Space doubling at the joint → single space (joint-local only).
+  if (/[ \t]$/.test(kept_before) && /^[ \t]/.test(kept_after)) {
+    kept_after = kept_after.replace(/^[ \t]+/, "");
+    kept_before = kept_before.replace(/[ \t]+$/, " ");
+  }
+
+  // Comma debris at the joint (", ," from adjacent drops) → single comma.
+  let joined = kept_before + kept_after;
+  const boundary = kept_before.length;
+  const window_start = Math.max(0, boundary - 12);
+  const window_end = boundary + 12;
+  const window_text = joined.slice(window_start, window_end).replace(/,[ \t]*,/g, ",");
+  joined = joined.slice(0, window_start) + window_text + joined.slice(window_end);
+
+  return joined;
 }
 
 /**
- * Merges delta brackets into an existing bracket text.
- * - Single-value keys overwrite existing entries.
- * - Multi-entry keys (INVENTORY, STASH) append to existing entries.
- * - Keys with value "none" or "cleared" delete the key.
- * - New keys append to the end.
- * - All saved/merged bracket keys are normalized to uppercase.
+ * Reconstructs a normalized `[KEY: value | flags]` string for a parsed entry,
+ * preserving origin / weight / hide signals across delta merges.
  *
- * @param {string} existing_text - existing multiline bracket string
- * @param {string} delta_text - delta multiline bracket string
- * @returns {string} merged multiline bracket string
+ * @param {{ key: string, value: string, visibility?: string, is_origin?: boolean, weight?: number }} entry
+ * @returns {string}
  */
-export function apply_bracket_deltas(existing_text, delta_text) {
-  const existing_tokens = parse_brackets(existing_text);
-  const delta_tokens = parse_brackets(delta_text);
+function _reconstruct_entry(entry) {
+  if (!entry) return "";
+  const flags = [];
+  if (entry.visibility === "hide") flags.push("hide");
+  if (entry.is_origin) flags.push("is_origin");
+  if (typeof entry.weight === "number" && !isNaN(entry.weight) && entry.weight !== 5) {
+    flags.push(`w: ${entry.weight}`);
+  }
+  const flag_part = flags.length > 0 ? ` | ${flags.join(" | ")}` : "";
+  return `[${entry.key}: ${entry.value}${flag_part}]`;
+}
 
-  if (delta_tokens.length === 0) {
-    return existing_text ? existing_text.trim() : "";
+/**
+ * Merges tagged-field delta directives into an existing tagged-field string,
+ * appending any non-bracket prose remainder with line-level dedup.
+ * Merges `apply_bracket_deltas` + `merge_prose_into_field`.
+ * - Single-value keys overwrite existing entries.
+ * - Multi-value keys (AGGREGATE_KEYS, or `options.multi_keys`) append.
+ * - CLEAR_TOKENS values (`none`, `cleared`, ...) delete the key; a
+ *   `[CLOTHING: <clear>]` directive purges every clothing key at once.
+ * - New keys append to the end. All keys normalize to uppercase.
+ *
+ * @param {string|null|undefined} existing_text - existing multiline tagged-field string
+ * @param {string|null|undefined} delta_text - delta directives (brackets and/or prose)
+ * @param {object} [options]
+ * @param {Set<string>|string[]} [options.multi_keys=AGGREGATE_KEYS] - keys that aggregate instead of overwrite
+ * @returns {string} merged multiline tagged-field string
+ */
+export function apply_tagged_field_deltas(existing_text, delta_text, options = {}) {
+  const multi_keys = options.multi_keys instanceof Set ? options.multi_keys : new Set(options.multi_keys || AGGREGATE_KEYS);
+  const MAX_FIELD_CHARS = 2000;
+
+  const existing_entries = parse_tagged_fields(existing_text || "");
+  const delta_entries = parse_tagged_fields(delta_text || "");
+
+  // Split the delta into bracket directives + unstructured prose remainder.
+  let prose_remainder = String(delta_text || "");
+  for (const entry of delta_entries) {
+    prose_remainder = prose_remainder.replace(entry.raw, " ");
+  }
+  prose_remainder = prose_remainder.replace(/[\s,;[\]]+/g, " ").trim();
+  // A remainder that is only flag debris (e.g. "| hide") is not prose.
+  if (/^[|\s\w:;-]*$/.test(prose_remainder) && !/[a-zA-Z]{3,}/.test(prose_remainder)) prose_remainder = "";
+
+  if (delta_entries.length === 0) {
+    const base = existing_text ? existing_text.trim() : "";
+    if (!prose_remainder) return base;
+    return _append_prose_remainder(base, prose_remainder, MAX_FIELD_CHARS);
   }
 
-  // Track multi-entry keys
-  const multi_entry_keys = new Set(["INVENTORY", "STASH"]);
+  const current = existing_entries.map((entry) => ({ key: entry.key, raw: _reconstruct_entry(entry), value: entry.value }));
 
-  // Build mutable entries list from existing tokens
-  // Each entry: { key: string, raw: string, value: string }
-  const current_entries = existing_tokens.map((token) => ({ key: token.key, raw: reconstruct_bracket_string(token), value: token.value }));
-
-  for (const delta of delta_tokens) {
+  for (const delta of delta_entries) {
     const delta_key = delta.key;
     const lower_value = delta.value.trim().toLowerCase();
 
-    // Check for deletion
-    if (lower_value === "none" || lower_value === "cleared") {
-      for (let i = current_entries.length - 1; i >= 0; i--) {
-        if (current_entries[i].key === delta_key) {
-          current_entries.splice(i, 1);
+    // Atomic clearing: `[KEY: none]` deletes the key; `[CLOTHING: <clear>]`
+    // purges every clothing key at once.
+    if (CLEAR_TOKENS.has(lower_value)) {
+      if (delta_key === "CLOTHING") {
+        for (let i = current.length - 1; i >= 0; i--) {
+          if (current[i].key === delta_key || CLOTHING_KEYS.includes(current[i].key)) current.splice(i, 1);
+        }
+      } else {
+        for (let i = current.length - 1; i >= 0; i--) {
+          if (current[i].key === delta_key) current.splice(i, 1);
         }
       }
       continue;
     }
 
-    const normalized_raw = reconstruct_bracket_string(delta);
+    const normalized_raw = _reconstruct_entry(delta);
 
-    // Multi-entry keys append
-    if (multi_entry_keys.has(delta_key)) {
-      current_entries.push({ key: delta_key, raw: normalized_raw, value: delta.value });
+    // Multi-value keys aggregate
+    if (multi_keys.has(delta_key) || delta_key.startsWith("@")) {
+      const incoming = delta.value
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const existing_index = current.findIndex((entry) => entry.key === delta_key);
+      if (existing_index !== -1 && incoming.length > 0) {
+        const merged = _merge_aggregate_value(current[existing_index].value, incoming);
+        current[existing_index] = { key: delta_key, raw: `[${delta_key}: ${merged}]`, value: merged };
+      } else {
+        current.push({ key: delta_key, raw: normalized_raw, value: delta.value });
+      }
       continue;
     }
 
-    // Single-value keys overwrite or append
-    const existing_index = current_entries.findIndex((entry) => entry.key === delta_key);
+    // Single-value keys overwrite or append, preserving concealment:
+    // an existing `| hide` survives unless the delta shows or hides explicitly.
+    const existing_index = current.findIndex((entry) => entry.key === delta_key);
     if (existing_index !== -1) {
-      current_entries[existing_index] = { key: delta_key, raw: normalized_raw, value: delta.value };
+      const existing_had_hide = /\|\s*hide\b/i.test(current[existing_index].raw);
+      const incoming_has_show = /\|\s*show\b/i.test(normalized_raw);
+      const incoming_has_hide = /\|\s*hide\b/i.test(normalized_raw);
+      let final_raw = normalized_raw;
+      let final_value = delta.value;
+      if (existing_had_hide && !incoming_has_show && !incoming_has_hide) {
+        final_value = `${delta.value} | hide`;
+        final_raw = _reconstruct_entry({ key: delta_key, value: final_value, visibility: "hide", is_origin: delta.is_origin, weight: delta.weight });
+      } else if (incoming_has_show) {
+        final_value = delta.value.replace(/\|\s*show\b/gi, "").trim();
+        final_raw = _reconstruct_entry({ key: delta_key, value: final_value, visibility: "show", is_origin: delta.is_origin, weight: delta.weight });
+      }
+      current[existing_index] = { key: delta_key, raw: final_raw, value: final_value };
     } else {
-      current_entries.push({ key: delta_key, raw: normalized_raw, value: delta.value });
+      current.push({ key: delta_key, raw: normalized_raw, value: delta.value });
     }
   }
 
-  return current_entries.map((entry) => entry.raw).join(", ");
+  let merged = current.map((entry) => entry.raw).join(", ");
+  if (prose_remainder) merged = _append_prose_remainder(merged, prose_remainder, MAX_FIELD_CHARS);
+
+  if (merged.length > MAX_FIELD_CHARS) {
+    merged = merged.substring(merged.length - MAX_FIELD_CHARS);
+  }
+  return merged;
 }
 
 /**
- * Converts a canonical past multiline bracket string into candidate memory objects
- * ready for Sieve RAG vector cosine similarity scoring.
- *
- * @param {string} past_text - multiline [KEY: VALUE | flags] string
- * @returns {Array<{ id: string, text: string, is_origin: boolean, weight: number, key: string }>}
+ * Appends unstructured prose to a tagged-field string with line-level dedup
+ * and a trailing-window character cap. Shared by the delta merge above.
  */
-export function extract_memory_candidates(past_text) {
-  const tokens = parse_brackets(past_text);
-  if (!tokens || tokens.length === 0) return [];
+function _append_prose_remainder(base, prose, max_chars) {
+  const existing = (base || "").trim();
+  const incoming = String(prose || "").trim();
+  if (!incoming) return existing;
+  if (!existing) return incoming;
+  const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
+  const existing_lines = existing
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const existing_norm = new Set(existing_lines.map(normalize));
+  const retained = incoming
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .filter((l) => !existing_norm.has(normalize(l)));
+  if (retained.length === 0) return existing;
+  let result = `${existing}\n${retained.join("\n")}`;
+  if (result.length > max_chars) result = result.substring(result.length - max_chars);
+  return result;
+}
 
-  return tokens.map((token, index) => {
-    return {
-      id: `mem_${index}_${token.key.toLowerCase()}`,
-      text: token.value,
-      is_origin: Boolean(token.flags.is_origin),
-      weight: typeof token.flags.weight === "number" ? token.flags.weight : 5,
-      key: token.key,
-    };
-  });
+/** Merges aggregate string values with case-insensitive dedup. */
+function _merge_aggregate_value(existing_value, incoming_items) {
+  const list = String(existing_value || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const seen = new Set(list.map((item) => collapse_whitespace(String(item)).toLowerCase()));
+  for (const item of incoming_items) {
+    const norm = collapse_whitespace(item).toLowerCase();
+    if (item && !seen.has(norm)) {
+      list.push(item);
+      seen.add(norm);
+    }
+  }
+  return list.join(", ");
 }
 
 // ============================================================================
@@ -446,8 +552,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
 
   const is_visible = (entry) => {
     if (perspective === "owner" || perspective === "omniscient") return true;
-    const is_hidden = entry.flags ? entry.flags.hide : entry.visibility === "hide";
-    return !is_hidden;
+    return entry.visibility !== "hide";
   };
 
   const process_value = (value, target_name) => {
@@ -464,7 +569,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
 
   const scan_field = (text, field_name) => {
     if (!text || typeof text !== "string") return;
-    const entries = parse_bracket_entries(text);
+    const entries = parse_tagged_fields(text);
     for (const entry of entries) {
       let key = entry.key;
       const starts_with_at = entry.original_key?.startsWith("@") || key.startsWith("@");
@@ -631,7 +736,7 @@ export const safe_parse_pseudo_json = (raw) => {
 
   // Tier 2: Process quoted key-value pairs "KEY": "VALUE" or JSON {"KEY": "VALUE"}
   if (clean_raw.includes('"') && clean_raw.includes(":")) {
-    /** @type {Record<string, string | string[]>} */
+    /** @type {Record<string, string[]>} */
     const quoted_extracted = {};
     const quoted_regex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
     let match;
@@ -660,210 +765,6 @@ export const safe_parse_pseudo_json = (raw) => {
   // Tier 3: No structured keys found - preserve raw prose sentinel.
   return { __raw_prose__: clean_raw };
 };
-
-/**
- * Pure simulation function that merges newly emitted [KEY: VALUE] bracket directives
- * into an entity's present physical/non-physical state field.
- * @param {string | null | undefined} current_field_value - Current field string.
- * @param {string | null | undefined} new_prose - Newly emitted mutations.
- * @returns {string} Reconciled state field string.
- */
-export function merge_prose_into_field(current_field_value, new_prose) {
-  if (!new_prose || !new_prose.trim()) return current_field_value || "";
-
-  const MAX_FIELD_CHARS = 2000;
-  const parsed = safe_parse_pseudo_json(current_field_value);
-  const clean_new_prose = new_prose.trim();
-
-  // Plain prose field (no structured keys, or raw-prose sentinel)
-  if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) {
-    const existing = (current_field_value || "").trim();
-    if (!existing) return clean_new_prose;
-
-    const normalize = (t) => collapse_whitespace(String(t || "").toLowerCase());
-    const existing_lines = existing
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    const existing_norm = new Set(existing_lines.map(normalize));
-
-    const incoming_lines = clean_new_prose
-      .split("\n")
-      .map((l) => l.trim())
-      .filter(Boolean);
-    const retained_new = incoming_lines.filter((l) => !existing_norm.has(normalize(l)));
-
-    if (retained_new.length === 0) {
-      return existing;
-    }
-
-    let result = `${existing}\n${retained_new.join("\n")}`;
-    if (result.length > MAX_FIELD_CHARS) {
-      result = result.substring(result.length - MAX_FIELD_CHARS);
-    }
-    return result;
-  }
-
-  // 1. Extract bracketed [KEY: Value] directives first
-  const bracketed_regex = /\[([A-Z_ ]{3,25}):\s*([\s\S]*?)\]/g;
-  let match;
-  const key_updates = [];
-
-  while ((match = bracketed_regex.exec(clean_new_prose)) !== null) {
-    const raw_key = match[1].toUpperCase().replace(/\s+/g, "_");
-    const raw_val = match[2].trim();
-    if (raw_val) {
-      key_updates.push({ key: raw_key, val: raw_val });
-    }
-  }
-
-  // Strip all bracketed directives cleanly in one pass to prevent string mutation drift
-  let remaining_prose = clean_new_prose.replace(bracketed_regex, "").trim();
-
-  // 2. Extract unbracketed KEY: Value segments if any
-  const unbracketed_regex = /(?:^|,\s*|\s*)([A-Z_]{3,15}):\s*([^,[\]]+(?:\s+[^,[\]]+)*)/g;
-  while ((match = unbracketed_regex.exec(remaining_prose)) !== null) {
-    const raw_key = match[1].toUpperCase();
-    const raw_val = match[2].trim();
-    if (raw_val) {
-      key_updates.push({ key: raw_key, val: raw_val });
-    }
-  }
-
-  // Strip all unbracketed directives cleanly in one pass
-  remaining_prose = remaining_prose
-    .replace(unbracketed_regex, "")
-    .replace(/^[\s,;[\]]+|[\s,;[\]]+$/g, "")
-    .replace(/,\s*,+/g, ",")
-    .trim();
-
-  // Apply structured key updates in sequence
-  for (const { key, val: incoming_val } of key_updates) {
-    let target_key = key;
-    let val = incoming_val;
-    const is_clear_token = CLEAR_TOKENS.has(val.toLowerCase());
-
-    // Wildcard purge: [CLOTHING: none] strips every clothing key at once.
-    if (key === "CLOTHING" && is_clear_token) {
-      for (const ck of CLOTHING_KEYS) delete parsed[ck];
-      continue;
-    }
-
-    if (CLOTHING_KEYS.includes(key) && is_clear_token) {
-      delete parsed[key];
-      continue;
-    }
-
-    if (is_clear_token) {
-      delete parsed[key];
-      continue;
-    }
-
-    if (AGGREGATE_KEYS.has(key)) {
-      const incoming = val
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const existing = parsed[key];
-      const list =
-        Array.isArray(existing) ? existing
-        : existing ?
-          String(existing)
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean)
-        : [];
-      const existing_norm = new Set(list.map((item) => collapse_whitespace(String(item)).toLowerCase()));
-      for (const item of incoming) {
-        const item_norm = collapse_whitespace(item).toLowerCase();
-        if (item && !existing_norm.has(item_norm)) {
-          list.push(item);
-          existing_norm.add(item_norm);
-        }
-      }
-      parsed[key] = list;
-      continue;
-    }
-
-    if (key === "CLOTHING" && parsed.SHIRT) target_key = "SHIRT";
-    if (key === "SHIRT" && parsed.CLOTHING) target_key = "CLOTHING";
-
-    // E2: Concealment preservation on structured key overwrite
-    const existing_val = typeof parsed[target_key] === "string" ? parsed[target_key] : "";
-    const existing_had_hide = /\|\s*hide\b/i.test(existing_val);
-    const incoming_has_show = /\|\s*show\b/i.test(val);
-    const incoming_has_hide = /\|\s*hide\b/i.test(val);
-    if (existing_had_hide && !incoming_has_show && !incoming_has_hide) {
-      val = `${val} | hide`;
-    } else if (incoming_has_show) {
-      val = val.replace(/\|\s*show\b/gi, "").trim();
-    }
-
-    parsed[target_key] = val;
-  }
-
-  // Append any remaining unstructured prose to CONDITION
-  if (remaining_prose) {
-    const cond_key =
-      parsed.CONDITION ? "CONDITION"
-      : parsed.condition ? "condition"
-      : "CONDITION";
-    if (parsed[cond_key]) {
-      const clean_existing = String(parsed[cond_key])
-        .replace(/^[\s,]+|[\s,]+$/g, "")
-        .replace(/,\s*,+/g, ", ");
-      const existing_phrases = clean_existing
-        .split(",")
-        .map((s) => collapse_whitespace(s).toLowerCase())
-        .filter(Boolean);
-      const incoming_phrases = remaining_prose
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const new_phrases = incoming_phrases.filter((phrase) => !existing_phrases.includes(collapse_whitespace(phrase).toLowerCase()));
-      if (new_phrases.length > 0) {
-        parsed[cond_key] = `${clean_existing}, ${new_phrases.join(", ")}`;
-      }
-    } else {
-      parsed[cond_key] = remaining_prose;
-    }
-  }
-
-  // Clean up double commas inside all values of parsed
-  for (const k in parsed) {
-    if (typeof parsed[k] === "string") {
-      parsed[k] = parsed[k].replace(/^[\s,]+|[\s,]+$/g, "").replace(/,\s*,+/g, ", ");
-    }
-  }
-
-  let lines = Object.entries(parsed)
-    .map(([k, v]) => `[${k}: ${String(Array.isArray(v) ? v.join(", ") : v).replace(/[[]]/g, "")}]`)
-    .join(" ");
-
-  if (lines.length > MAX_FIELD_CHARS) {
-    lines = lines.substring(lines.length - MAX_FIELD_CHARS);
-  }
-
-  return lines;
-}
-
-/**
- * Strips non-visual pseudo-JSON keys from a raw parameter string for image generation prompts.
- *
- * @param {string | null | undefined} raw_parameter_string
- * @returns {string} Sanitized visual parameter string
- */
-export function strip_visual_excluded(raw_parameter_string) {
-  if (!raw_parameter_string) return "";
-  const parsed_parameters = safe_parse_pseudo_json(raw_parameter_string);
-  if (parsed_parameters.__raw_prose__) return raw_parameter_string;
-
-  const retained_entries = Object.entries(parsed_parameters)
-    .filter(([key]) => !VISUAL_EXCLUDED_KEYS.has(key))
-    .map(([key, value]) => `[${key}: ${Array.isArray(value) ? value.join(", ") : String(value).replace(/[[\]]/g, "")}]`);
-
-  return retained_entries.join(" ");
-}
 
 /**
  * Repairs unclosed or unopened brackets in state strings and directives.
@@ -990,7 +891,7 @@ export const CLOTHING_KEYS = Object.freeze([
 ]);
 
 // ============================================================================
-// [SECTION 3: PHYSICAL STATE XML BUILDER]
+// [SECTION 3: PHYSICAL STATE NORMALIZATION]
 // ============================================================================
 
 /**
@@ -1044,70 +945,58 @@ export function normalize_physical_entries(parsed) {
   return out;
 }
 
+// ============================================================================
+// [SECTION 4: RELATIONAL VECTOR CODECS]
+// ============================================================================
+
 /**
- * Filters [KEY: value | flags] bracket tokens through the Epistemic Wall.
- *
- * @param {string|null|undefined} text
- * @param {'owner'|'other'|'vision'} [perspective='other']
- * @returns {string}
+ * Parses a directed relational vector string: `"[Source] → [Target]: [Dynamic]"`.
+ * Tolerates various arrow notations (`→`, `->`, `—>`, `=>`, `—`).
+ * @param {string | null | undefined} vector_str
+ * @returns {{ source_name: string, target_name: string, dynamic: string, raw: string } | null}
  */
-export function filter_epistemic_brackets(text, perspective = "other") {
-  if (!text || typeof text !== "string") return "";
+export function parse_relational_vector(vector_str) {
+  if (!vector_str || typeof vector_str !== "string") return null;
+  const raw = vector_str.trim();
+  if (!raw) return null;
 
-  let working_text = text;
+  // Match: Source → Target: Dynamic (or Source -> Target: Dynamic)
+  const match = raw.match(/^([^\n→—=>:]+?)\s*(?:→|->|—>|=>|—)\s*([^\n:]+?)(?:\s*:\s*([\s\S]*))?$/);
+  if (!match) return null;
 
-  const entries = parse_bracket_entries(working_text);
-  if (entries.length === 0) return working_text;
+  const source_name = (match[1] || "").trim();
+  const target_name = (match[2] || "").trim();
+  const dynamic = (match[3] || "").trim();
 
-  // Process backwards to preserve character indices
-  for (let index = entries.length - 1; index >= 0; index--) {
-    const entry = entries[index];
+  if (!source_name || !target_name) return null;
 
-    if (entry.visibility === "hide") {
-      if (perspective === "owner") {
-        // Secrecy signal: keep entry formatted cleanly with '| hide'
-        const secret_replacement = `[${entry.original_key}: ${entry.value} | hide]`;
-        working_text = working_text.slice(0, entry.start_index) + secret_replacement + working_text.slice(entry.end_index);
-      } else {
-        // Omit completely for 'other' and 'vision'
-        const before = working_text.slice(0, entry.start_index);
-        let after = working_text.slice(entry.end_index);
-
-        if (before.endsWith("\n") && after.startsWith("\n")) {
-          after = after.slice(1);
-        } else if (before.endsWith(" ") && after.startsWith(" ")) {
-          after = after.slice(1);
-        }
-
-        working_text = before + after;
-      }
-    } else {
-      // Show entry: strip all internal engine flags (hide, show, w: N) before prompt sees it
-      const clean_replacement = `[${entry.original_key}: ${entry.value}]`;
-      working_text = working_text.slice(0, entry.start_index) + clean_replacement + working_text.slice(entry.end_index);
-    }
-  }
-
-  return working_text;
+  return { source_name, target_name, dynamic, raw };
 }
 
 /**
- * Strips internal engine flags (| hide, | show, | w: N) from bracketed entries
- * for clean vector embedding calculations, eliminating false semantic collisions.
- *
- * @param {string|null|undefined} text
- * @returns {string} Clean text suitable for embedding models
+ * Formats a canonical directed relational vector string.
+ * @param {string} source_name
+ * @param {string} target_name
+ * @param {string} [dynamic=""]
+ * @returns {string}
  */
-export function strip_bracket_engine_flags(text) {
-  if (!text || typeof text !== "string") return "";
-  const entries = parse_bracket_entries(text);
-  if (entries.length === 0) return text;
+export function format_relational_vector(source_name, target_name, dynamic = "") {
+  const src = (source_name || "").trim();
+  const tgt = (target_name || "").trim();
+  const dyn = (dynamic || "").trim();
+  if (!src || !tgt) return "";
+  return dyn ? `${src} → ${tgt}: ${dyn}` : `${src} → ${tgt}`;
+}
 
-  let working_text = text;
-  for (let index = entries.length - 1; index >= 0; index--) {
-    const entry = entries[index];
-    const stripped = `[${entry.original_key}: ${entry.value}]`;
-    working_text = working_text.slice(0, entry.start_index) + stripped + working_text.slice(entry.end_index);
-  }
-  return working_text;
+/**
+ * Derives a punchy single-line header title from directive text.
+ * @param {string | null | undefined} text - Raw directive text.
+ * @param {number} [max_len=38] - Target maximum length.
+ * @returns {string}
+ */
+export function derive_vector_title(text, max_len = 38) {
+  if (!text || typeof text !== "string") return "";
+  const cleaned = collapse_whitespace(text.replace(/^["'“”«»]+|["'“”«»]+$/g, ""));
+  if (!cleaned) return "";
+  return truncate_at_word(cleaned, max_len, { min_bound_chars: 15, strip_trailing_punctuation: true });
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { create_contract_fixtures } from "./fixtures.test-util.js";
+import { create_contract_fixtures } from "../simulation/fixtures.test-util.js";
 import {
   build_turn_summary,
   calculate_turn_tempo,

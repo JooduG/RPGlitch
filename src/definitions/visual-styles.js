@@ -16,7 +16,7 @@
  * - No "default" tags (reserved sentinel).
  */
 
-import { resolve_style } from "@utils";
+import { resolve_style } from "../simulation/llm-output.js";
 
 // ============================================================================
 // 1. TYPE DEFINITIONS
@@ -574,7 +574,7 @@ export function get_visual_style(style_key = "none") {
  * @returns {string} Resolved visual style key
  */
 export function resolve_portrait_visual_style_key(entity = {}) {
-  return resolve_style(entity?.visual_style, "visual_style", VISUAL_STYLES, "none");
+  return resolve_style(entity?.visual_style, null, VISUAL_STYLES, "none");
 }
 
 /**
@@ -586,7 +586,7 @@ export function resolve_portrait_visual_style_key(entity = {}) {
  */
 export function resolve_story_visual_style_key(fractal = null, fallback_fractal = null) {
   const explicit = fractal?.visual_style || fallback_fractal?.visual_style;
-  return resolve_style(explicit, "visual_style", VISUAL_STYLES, "none");
+  return resolve_style(explicit, null, VISUAL_STYLES, "none");
 }
 
 /**

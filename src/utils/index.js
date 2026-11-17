@@ -85,13 +85,11 @@ export * from "./xml.js";
 export * from "./registries.js";
 
 // ============================================================================
-// Text, Cognition Stripping & Relational Graph Codecs
+// Text Utilities (tag/bracket, LLM-output, style codecs live in @simulation)
 // ============================================================================
 
 export * from "./text.js";
 export * from "./alternations.js";
-export * from "./tags.js";
-export * from "./llm-sanitize.js";
 
 // ============================================================================
 // Circuit Breaker & Exponential Backoff Resilience
@@ -104,13 +102,6 @@ export * from "./resilience.js";
 // ============================================================================
 
 export * from "./queue.js";
-
-// ============================================================================
-// Style Hierarchy Resolution & AI Prose Detoxification
-// ============================================================================
-
-export * from "./detox.js";
-export * from "./styles.js";
 
 // ============================================================================
 // Entity-Aware Macro Resolution & Profile-Field Text Codecs

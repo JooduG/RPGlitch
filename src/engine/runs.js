@@ -23,7 +23,7 @@
 
 import { IMAGE_POLICY } from "@config";
 import { append_ledger_entries, db, normalize_entity } from "@data";
-import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "@utils";
+import { apply_tagged_field_deltas as apply_bracket_deltas, parse_tagged_fields as parse_bracket_entries, parse_think_block } from "@simulation";
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
 import { state_bridge } from "@utils";
 import { simulation_log } from "./log.svelte.js";

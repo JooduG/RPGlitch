@@ -140,7 +140,7 @@ describe("visual.js - Stateless Perchance Image Dispatcher", () => {
 
     it("exposes bare prefill from the visualizer start hook when camera_note has no style cues or is empty", async () => {
       // Direct unit check on PURPOSE_CORES.VISUALIZER.start_with
-      const { PURPOSE_CORES } = await import("../engine/prompts.js");
+      const { PURPOSE_CORES } = await import("../simulation/prompts.js");
       expect(PURPOSE_CORES.VISUALIZER.start_with()).toBe("<think>\n");
       expect(PURPOSE_CORES.VISUALIZER.start_with({})).toBe("<think>\n");
       expect(PURPOSE_CORES.VISUALIZER.start_with({ camera_note: "" })).toBe("<think>\n");

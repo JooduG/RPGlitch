@@ -6,11 +6,11 @@
    * markdown/dialogue rendering pipeline, streaming typewriter follow,
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
-  import { clean_image_prompts, filter_epistemic_brackets, parse_think_block, strip_covert_directives } from "@utils";
+  import { clean_generated_prose, clean_image_prompts, format_tagged_fields, parse_think_block, strip_covert_directives } from "@simulation";
   import { get_mock_message, runtime, session_driver, simulation_state } from "@engine";
   import { Audio, render_optics_fallback, visual_engine } from "@media";
   import { ProfilePicture, run_image_regeneration } from "@ui";
-  import { detox_prose, sanitize } from "@utils";
+  import { sanitize } from "@utils";
   import MarkdownIt from "markdown-it";
   import { app } from "./interface.svelte.js";
 
@@ -83,10 +83,10 @@
     text = think_result.content;
 
     // 3. Anti-Cliche Layer
-    text = detox_prose(text, register);
+    text = clean_generated_prose(text, register);
     // Epistemic filter: strip covert directives and [KEY: ... | hide] brackets from public display text
-    text = filter_epistemic_brackets(strip_covert_directives(text), "other");
-    const detoxed_think = think_result.think ? detox_prose(think_result.think, register) : null;
+    text = format_tagged_fields(strip_covert_directives(text), { see_hidden: "none" });
+    const detoxed_think = think_result.think ? clean_generated_prose(think_result.think, register) : null;
     const detoxed_text = text;
 
     // 4. Render Markdown

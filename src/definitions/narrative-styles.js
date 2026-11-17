@@ -21,7 +21,7 @@
  * ============================================================================
  */
 
-import { resolve_style } from "@utils";
+import { resolve_style } from "../simulation/llm-output.js";
 
 // ============================================================================
 // 1. Type Definitions
@@ -906,7 +906,7 @@ export function get_style_keywords(style_key = "") {
  * @returns {string}
  */
 export function resolve_active_style_key(explicit_narrative_style = "") {
-  return resolve_style(explicit_narrative_style, "narrative_style", NARRATIVE_STYLES, "");
+  return resolve_style(explicit_narrative_style, null, NARRATIVE_STYLES, "");
 }
 
 // ============================================================================
