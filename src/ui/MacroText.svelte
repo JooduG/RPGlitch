@@ -10,7 +10,7 @@
    * Pass either `text` + `owner` + `entities` (to resolve inline), or a
    * precomputed `segment` from `resolve_display_macro_segments`.
    */
-  import { get_signature_color } from "@media";
+  import { get_signature_color } from "@utils";
   import { resolve_display_macro_segments } from "@utils";
 
   let { text = "", owner = null, entities = {}, segment = null, fallback_color = "var(--color-frozen)" } = $props();

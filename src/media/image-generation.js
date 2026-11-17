@@ -6,8 +6,7 @@
  * across window/iframe boundaries, exponential backoff, circuit breaking,
  * cancellation via AbortSignal, and queue / in-flight bookkeeping.
  *
- * Phase 3 consolidation: prompt builders (`rescue_visual_prose`,
- * `sanitize_visual_text`, `resolve_story_beat_style`,
+ * Prompt builders (`sanitize_visual_text`, `resolve_story_beat_style`,
  * `compose_story_beat_prompt`) and tier/optics vocabulary live canonically
  * in `@simulation` and are imported here - this module keeps only dispatch,
  * bookkeeping, beat orchestration, and the VisualEngine facade.
@@ -15,8 +14,8 @@
  * Cross-cutting context (runtime settings, session driver, feed) arrives as
  * an explicit required `ctx` parameter (`{ app, runtime, session_driver,
  * simulation_log }`, built by the caller from `@state`), so every entry
- * point stays injectable for tests. Media never imports `@engine` - not
- * even lazily - and never imports `@state` (Rank 2 cannot import Rank 3).
+ * point stays injectable for tests. Media never imports `@engine` or `@state`
+ * (Rank 2 cannot import Rank 3 or Rank 4).
  */
 
 import { IMAGE_POLICY, TIMING_MS } from "@config";
@@ -131,13 +130,14 @@ export async function dispatch_visual_generation(payload, options = {}) {
     guidance_scale: explicit_guidance,
     seed: explicit_seed,
   } = payload || {};
+
   // The host image plugin evaluates prompt text as Perchance template syntax
   // (`{...}` / `[...]` are structural). Sanitize first so a persisted raw-JSON
   // blob or stray braces can never throw a curly-bracket mismatch downstream.
   const prompt = sanitize_visual_text(raw_prompt);
   const negative_prompt = sanitize_visual_text(raw_negative_prompt);
   const guidance_scale = explicit_guidance ?? get_tier_guidance_scale(mode ?? options.mode);
-  const seed = explicit_seed != null ? explicit_seed : generate_secure_seed();
+  const seed = explicit_seed ?? generate_secure_seed();
   const [width_str, height_str] = String(resolution).split("x");
   const width = parseInt(width_str, 10) || 512;
   const height = parseInt(height_str, 10) || 768;
@@ -146,14 +146,12 @@ export async function dispatch_visual_generation(payload, options = {}) {
     throw new DOMException("Aborted", "AbortError");
   }
 
-  // Check circuit breaker
   if (visual_circuit_breaker.is_open) {
     throw new Error("CIRCUIT_BREAKER_OPEN: Visual generation temporarily disabled due to consecutive failures.");
   }
 
   const raw_engine = options.engine || find_image_engine();
 
-  // If no host engine available, return test fallback
   if (!raw_engine) {
     return { image_url: create_offline_svg(prompt, width, height), seed, metadata: { offline: true, resolution, guidance_scale } };
   }
@@ -178,8 +176,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
     return { image_url, seed, metadata: { resolution, guidance_scale, offline: false } };
   };
 
-  const response = await visual_circuit_breaker.execute(() => visual_retryer.retry(execute_attempt));
-  return response;
+  return await visual_circuit_breaker.execute(() => visual_retryer.retry(execute_attempt));
 }
 
 // ============================================================================
@@ -347,18 +344,12 @@ export class VisualEngine {
   async visualize(text, tier, options = {}, ctx) {
     const base_prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
     const tier_resolution = get_resolution_string(tier);
-    // Story beats previously never inherited the solo-portrait "empty background"
-    // guard - characters belong in scenes here. Style resolves from explicit
-    // options first, then the bound app/fractal context (story-level coherence
-    // wins: a story-wide monochrome stays monochrome), then the subject entity.
     const style_key = resolve_story_beat_style({
       style: options.style,
       app_style: options.app_style ?? ctx.app?.settings?.visual_style,
       fractal_style: options.fractal_style ?? ctx.runtime?.active_fractal?.visual_style,
       entity: options.entity,
     });
-    // Compose everything here so all callers (beats, prologue/finale scenes,
-    // manual photos) are covered: prose + staging directive + style tokens.
     const staged = [base_prompt, options.visual_staging].filter((part) => part && String(part).trim()).join(" ");
     const composed = compose_story_beat_prompt(staged, style_key, options.negative_prompt || "");
     const dispatched = await dispatch_visual_generation(
@@ -405,50 +396,23 @@ export class VisualEngine {
     const settled = await Promise.all(attempts);
     return settled.filter(Boolean);
   }
-
-  /**
-   * Refines draft prompt text via the Visualizer Purpose Core.
-   * If style has `llm_refine === false`, bypasses the LLM and returns the prompt untouched.
-   *
-   * Style Precedence:
-   * 1. Explicit app_style (if provided and != "none" / "default") wins as the user's active camera choice.
-   * 2. Otherwise entity.visual_style (if != "none" / "default").
-   * 3. Otherwise active_fractal.visual_style (if != "none" / "default").
-   * 4. Otherwise "none" (Unstyled Draft).
-   *
-   * @param {string} text - Raw natural language intent or draft prompt
-   * @param {string} [type="character"] - Entity type or generation mode ("character", "fractal", "story_scene", etc.)
-   * @param {object} [entity=null] - Target entity snapshot (if available)
-   * @param {string|null} [app_style=null] - User-selected app-level visual style (e.g. from app.settings.visual_style)
-   * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
-   */
-  async envision(text, type = "character", entity = null, app_style = null) {
-    if (!text || typeof text !== "string") {
-      return { prompt: "", negative_prompt: "" };
-    }
-
-    if (typeof visualizer_envision_impl !== "function") {
-      throw new Error(
-        "[VisualEngine.envision] no visualizer implementation registered — engine must call set_visualizer_envision_impl(refine_image_prompt) at boot",
-      );
-    }
-    return visualizer_envision_impl(text, type, entity, app_style);
-  }
-}
-
-/**
- * Visualizer delegation slot (media -> engine inversion).
- *
- * The engine registers its visualizer turn here at boot (see
- * src/engine/index.js). Media never imports @engine — not even lazily —
- * so the layer boundary stays clean in both directions.
- */
-let visualizer_envision_impl = null;
-export function set_visualizer_envision_impl(fn) {
-  visualizer_envision_impl = typeof fn === "function" ? fn : null;
 }
 
 export const visual_engine = new VisualEngine();
+
+/**
+ * Runs a promise against the ceiling timeout and clears the timer on settlement.
+ * @template T
+ * @param {Promise<T>} work
+ * @returns {Promise<T>}
+ */
+function with_resolve_timeout(work) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING);
+  });
+  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
+}
 
 export async function spawn_image_beat(tier, options = {}, ctx) {
   const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
@@ -489,10 +453,7 @@ export async function spawn_image_beat(tier, options = {}, ctx) {
 
         let result;
         if (active_engine?.visualize) {
-          result = await Promise.race([
-            active_engine.visualize(visual_prompt, tier, { silent: true, visual_staging }, ctx),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING)),
-          ]);
+          result = await with_resolve_timeout(active_engine.visualize(visual_prompt, tier, { silent: true, visual_staging }, ctx));
         } else {
           const fallback_style = resolve_story_beat_style({
             app_style: ctx.app?.settings?.visual_style,
@@ -502,10 +463,9 @@ export async function spawn_image_beat(tier, options = {}, ctx) {
             [visual_prompt, visual_staging].filter((part) => part && String(part).trim()).join(" "),
             fallback_style,
           );
-          const dispatched = await Promise.race([
+          const dispatched = await with_resolve_timeout(
             dispatch_visual_generation({ prompt: fallback_composed.prompt, negative_prompt: fallback_composed.negative_prompt }),
-            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING)),
-          ]);
+          );
           result = { imageUrl: dispatched.image_url, metadata: { ...dispatched.metadata, style_key: fallback_style }, refinedPrompt: fallback_composed.prompt };
         }
 

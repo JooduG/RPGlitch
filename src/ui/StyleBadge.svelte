@@ -13,7 +13,7 @@
    * portrait.
    */
   import { NARRATIVE_STYLES, VISUAL_STYLES } from "@definitions";
-  import { get_signature_color } from "@media";
+  import { get_signature_color } from "@utils";
   import { tooltip } from "@primitives";
   import { compute_initials } from "@utils";
 

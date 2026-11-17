@@ -22,9 +22,9 @@ ensure_theme_tokens();
 import App from "@/App.svelte";
 import { normalize_entity, save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
 import { runtime, session_driver, simulation_log, simulation_state } from "@state";
-import { Audio, ensure_theme_tokens, sweep_stale_ghosts } from "@media";
+import { Audio, sweep_stale_ghosts } from "@media";
 import { app } from "@state";
-import { embeddings_engine, install_environment_hardening, sanitize_to_fragment } from "@utils";
+import { embeddings_engine, install_environment_hardening, sanitize_to_fragment, ensure_theme_tokens } from "@utils";
 import { mount } from "svelte";
 
 // Direct wiring: the session driver (Rank 3, via @engine barrel) owns the

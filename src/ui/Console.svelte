@@ -6,14 +6,14 @@
    * storyboard controls, storymode input composer, settings control panel, and conclusion modals.
    */
   import { db, stories } from "@data";
-  import { chrono_engine, force_recover_simulation, generate_closing, generate_user_draft, get_transport } from "@engine";
-  import { Audio, get_signature_color, item_in, pulse, roll, shimmy, stab } from "@media";
+  import { chrono_engine, generate_closing, generate_user_draft, get_transport } from "@engine";
+  import { Audio, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { install_begin_flight_effect, storyboard } from "@ui";
   import { build_story_export_filename, export_story_markdown } from "@data";
-  import { click_outside, download_text_file } from "@utils";
+  import { click_outside, download_text_file, get_signature_color } from "@utils";
   import { tick } from "svelte";
-  import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
+  import { app, runtime, session_driver, simulation_log, simulation_state, force_recover_simulation } from "@state";
   import StoryCard from "./StoryCard.svelte";
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---

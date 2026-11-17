@@ -102,3 +102,4 @@ export * from "./queue.js";
 // ============================================================================
 
 export * from "./macros.js";
+export * from "./style-resolve.js";

@@ -1,6 +1,6 @@
 <script>
   import { runtime } from "@state";
-  import { get_resolution } from "@media";
+  import { get_resolution } from "@simulation";
   import { Backdrop, Button, Dropdown, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";

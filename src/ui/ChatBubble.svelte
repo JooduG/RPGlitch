@@ -189,14 +189,14 @@
    * Unified message chassis consolidating message headers, narrative prose,
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
-  import { format_tagged_fields, parse_tagged_fields as parse_bracket_entries, parse_think_block } from "@simulation";
-  import { runtime, simulation_log, simulation_state } from "@state";
-  import { Audio, get_cadence_rate, get_resolution, get_signature_color, render_optics_fallback, resolve_voice_uri } from "@media";
+  import { format_tagged_fields, parse_tagged_fields as parse_bracket_entries, parse_think_block, get_resolution, render_optics_fallback } from "@simulation";
+  import { runtime, simulation_log, simulation_state, image_picker, open_picker } from "@state";
+  import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
   import { Accordion, Button, Shimmer, TextField, tooltip } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
-  import { EntityCard, ProfilePicture, image_picker, open_picker } from "@ui";
+  import { EntityCard, ProfilePicture } from "@ui";
   import { parse_relational_vector, resolve_speaking_style } from "@simulation";
-  import { get_percentage, safe_html } from "@utils";
+  import { get_percentage, safe_html, get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
   import { app } from "@state";

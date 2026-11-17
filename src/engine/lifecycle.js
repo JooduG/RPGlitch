@@ -176,7 +176,12 @@ export async function generate_opening(story_id) {
         mark_generation_in_flight?.(node_id, 0);
         await prologue_image_gate;
         try {
-          const img_result = await visual_engine.visualize(prologue_text, "story_scene", { silent: true }, { app, runtime, session_driver, simulation_log });
+          const img_result = await visual_engine.visualize(
+            prologue_text,
+            "story_scene",
+            { silent: true, refine_prompt: refine_image_prompt },
+            { app, runtime, session_driver, simulation_log },
+          );
           if (img_result?.imageUrl) {
             await session_driver.update_log_attachment(node_id, 0, {
               src: img_result.imageUrl,

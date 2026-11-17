@@ -3,6 +3,7 @@ import * as media_module from "@media";
 // Phase 5: runner.js merges turns.js + runs.js; canonical turn physics/history live in @simulation.
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
+import * as simulation_module from "@simulation";
 import { build_turn_summary, calculate_turn_tempo, reconstruct_history_from_feed, resolve_caretaker_target, step_dynamics } from "@simulation";
 import {
   apply_dynamics_step,
@@ -527,7 +528,7 @@ Routing: Present physical gets lockpick, mood vigilant.
       const spawn_spy = vi.spyOn(media_module, "spawn_image_beat").mockResolvedValue({ id: "img-1" });
       const queue_spy = vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
       const trigger_spy = vi
-        .spyOn(media_module, "resolve_image_trigger")
+        .spyOn(simulation_module, "resolve_image_trigger")
         .mockReturnValue({ active: true, tier: "story_scene", source: "director", director_explicit: true, next_director_round: 1 });
 
       const original_gen = window.generate_text;
@@ -595,7 +596,7 @@ Routing: Present physical gets lockpick, mood vigilant.
       Object.assign(app, mock_app);
 
       vi.spyOn(session_driver, "log_message").mockResolvedValue({ id: 1 });
-      vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character", source: "dynamics" });
+      vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character", source: "dynamics" });
       vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
       vi.spyOn(media_module, "spawn_image_beat").mockRejectedValue(new Error("Visual plugin timeout"));
 
@@ -611,7 +612,7 @@ Routing: Present physical gets lockpick, mood vigilant.
     });
 
     it("forwards entity-keyed prev_dynamics through maybe_spawn_turn_image", async () => {
-      const trigger_spy = vi.spyOn(media_module, "resolve_image_trigger").mockReturnValue({ active: false, tier: null, source: null });
+      const trigger_spy = vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: false, tier: null, source: null });
       vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
       runtime.story_id = "story-prev-shape";
       runtime.last_director_beat_round = -1;

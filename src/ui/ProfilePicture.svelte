@@ -7,7 +7,7 @@
    */
   import { Avatar } from "@primitives";
   import { compute_initials } from "@utils";
-  import { get_signature_color } from "@media";
+  import { get_signature_color } from "@utils";
 
   let {
     // Data

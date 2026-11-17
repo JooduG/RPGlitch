@@ -9,8 +9,8 @@
   import { active_entity_ids } from "@data";
   import { NARRATIVE_STYLES, VISUAL_STYLES } from "@definitions";
   import { chrono_engine } from "@engine";
-  import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, get_signature_color, motion } from "@media";
-  import { compute_initials, pick_random } from "@utils";
+  import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, motion } from "@media";
+  import { compute_initials, pick_random, get_signature_color } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
   import { app, runtime, simulation_log, simulation_state } from "@state";
   import { parse_message } from "./Storymode.svelte";

@@ -45,6 +45,7 @@ export {
   update_entity,
   update_story,
   upsert_entity,
+  list_stories,
 } from "./db.js";
 
 // 3b. Session Tracking, Story Sessions & Simulation Log (pure Rank 2 service)

@@ -7,10 +7,10 @@
    * while Storyboard and Storymode own their respective stage regions inside the
    * persistent 12-column root grid.
    */
-  import { runtime } from "@state";
+  import { runtime, app } from "@state";
   import { Audio, motion } from "@media";
   import { Tooltip } from "@primitives";
-  import { app, Console, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
+  import { Console, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 

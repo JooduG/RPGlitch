@@ -50,8 +50,9 @@ import {
   resolve_caretaker_target,
   safe_parse_json,
   step_dynamics,
+  resolve_image_trigger,
 } from "@simulation";
-import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
+import { get_image_generation_queue, spawn_image_beat } from "@media";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { get_transport } from "./transport.js";
 
@@ -301,7 +302,7 @@ export async function continue_generation_step({
  * @param {boolean} [params.retry=true] - Retry once when parsing fails
  * @returns {Promise<{ raw: string, think: string, body: string, parsed: any }>}
  */
-export async function run_caretaker_json_step({ transport, prompt, start_prefix, signal = null, retry = true }) {
+async function run_caretaker_json_step({ transport, prompt, start_prefix, signal = null, retry = true }) {
   let raw = await transport.stream(prompt, { startWith: start_prefix, signal, priority: "background", silent: true });
   let { think, body } = extract_think_and_body(raw, start_prefix);
   let parsed = safe_parse_json(body) || safe_parse_json(raw, { prefix: start_prefix });

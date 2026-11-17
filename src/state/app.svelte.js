@@ -33,8 +33,8 @@ import { developer_log } from "./devlog.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { install_freeze_watchdog, simulation_state, ui_state } from "./status.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
-import { get_signature_color, visual_engine } from "@media";
-import { embeddings_engine, guarded_transition, resolve_px } from "@utils";
+import { visual_engine } from "@media";
+import { embeddings_engine, guarded_transition, resolve_px, get_signature_color } from "@utils";
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 

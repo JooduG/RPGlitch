@@ -52,10 +52,6 @@ export {
   strip_covert_directives,
 } from "./llm-output.js";
 
-// Style-key hierarchy resolver: Rank 0 leaf in `@utils` (re-exported here so
-// existing `@simulation` consumers keep a single import surface).
-export { resolve_style } from "../utils/style-resolve.js";
-
 // Turn history: role canonicalization, beat normalization, collapse/filter/
 // format, speaker matching, write-guard predicates, turn tempo + summaries.
 export {

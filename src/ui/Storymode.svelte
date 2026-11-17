@@ -6,11 +6,18 @@
    * markdown/dialogue rendering pipeline, streaming typewriter follow,
    * soft-delete undo timers, and contextual storymode action dispatches.
    */
-  import { clean_generated_prose, clean_image_prompts, format_tagged_fields, parse_think_block, strip_covert_directives } from "@simulation";
-  import { get_mock_message } from "@engine";
-  import { runtime, session_driver, simulation_log, simulation_state } from "@state";
-  import { Audio, render_optics_fallback, visual_engine } from "@media";
-  import { ProfilePicture, run_image_regeneration } from "@ui";
+  import {
+    clean_generated_prose,
+    clean_image_prompts,
+    format_tagged_fields,
+    parse_think_block,
+    strip_covert_directives,
+    render_optics_fallback,
+  } from "@simulation";
+  import { get_mock_message, refine_image_prompt } from "@engine";
+  import { runtime, session_driver, simulation_log, simulation_state, run_image_regeneration } from "@state";
+  import { Audio, visual_engine } from "@media";
+  import { ProfilePicture } from "@ui";
   import { sanitize } from "@utils";
   import MarkdownIt from "markdown-it";
   import { app } from "@state";
@@ -144,7 +151,7 @@
         const configured_style = app.settings?.visual_style;
         const story_style = runtime.active_fractal?.visual_style;
         const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
-        const enhanced = await visual_engine.envision(prompt, subject, entity, app_style);
+        const enhanced = await refine_image_prompt(prompt, subject, entity, app_style);
         if (enhanced?.prompt) {
           refined_prompt = enhanced.prompt;
         }

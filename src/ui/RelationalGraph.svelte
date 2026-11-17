@@ -13,7 +13,7 @@
 <script>
   import { list_entities } from "@data";
   import { extract_entity_relationships } from "@simulation";
-  import { get_signature_color } from "@media";
+  import { get_signature_color } from "@utils";
   import { tooltip } from "@primitives";
   import { ALL_PREMADES } from "@definitions";
   import ProfilePicture from "./ProfilePicture.svelte";
