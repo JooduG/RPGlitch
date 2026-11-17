@@ -5,31 +5,37 @@
  * Replaces simulation-audit.js, prompt-contract.test.js, and
  * consolidation-stress.test.js, which pinned the eradicated src/intelligence/*
  * tree and deleted config keys (DEFAULT_PROMPT_CEILING, PAST_VECTOR_CAP).
- * This module talks ONLY to live post-demolition APIs:
+ * This module talks ONLY to live post-Phase-5 APIs:
  *
  * - prompt contract: compile_prompt({ core, ... }) over the 4 live purpose
- *   cores in src/engine/prompts.js (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER).
- * - turn smoke: execute_turn_1_director / execute_turn_2_character /
- *   execute_turn_3_caretaker / execute_turn_visualizer / execute_turn_structuring
- *   from src/engine/turns.js against an injected mock transport.
- * - memory stress: two_tier_sieve_rag + score_and_rank_memories + cosine_similarity
- *   from src/engine/sieve.js (the real Two-Tier Sieve).
+ *   cores in src/simulation/prompts.js (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER).
+ * - turn smoke: run_planner_step / run_generation_step /
+ *   run_memory_consolidation_step / run_image_prompt_step /
+ *   run_schema_extraction_step from src/engine/runner.js against an injected
+ *   mock transport, plus resolve_caretaker_target from
+ *   src/simulation/dynamics.js.
+ * - memory stress: rank_memories + select_context_memories + cosine_similarity
+ *   from src/simulation/retrieval.js + src/utils/vectors.js (the real
+ *   Two-Tier Sieve), token counting via count_text_tokens from
+ *   src/utils/text.js.
  *
  * No byte pins: prompt bytes are environment truth (generated tokens.js, DESIGN
  * churn) and re-pin on every intentional prompt change - the contract asserts
  * SHAPE (close tags, single TASK, core markers), not bytes.
  */
 
-import { compile_prompt } from "../../../../src/engine/prompts.js";
-import { cosine_similarity, count_text_tokens, score_and_rank_memories, two_tier_sieve_rag } from "../../../../src/engine/sieve.js";
+import { compile_prompt } from "../../../../src/simulation/prompts.js";
+import { cosine_similarity } from "../../../../src/utils/vectors.js";
+import { count_text_tokens } from "../../../../src/utils/text.js";
+import { rank_memories, select_context_memories } from "../../../../src/simulation/retrieval.js";
 import {
-  execute_turn_1_director,
-  execute_turn_2_character,
-  execute_turn_3_caretaker,
-  execute_turn_structuring,
-  execute_turn_visualizer,
-  resolve_caretaker_target,
-} from "../../../../src/engine/turns.js";
+  run_generation_step,
+  run_image_prompt_step,
+  run_memory_consolidation_step,
+  run_planner_step,
+  run_schema_extraction_step,
+} from "../../../../src/engine/runner.js";
+import { resolve_caretaker_target } from "../../../../src/simulation/dynamics.js";
 
 export const LIVE_CORES = Object.freeze(["DIRECTOR", "CHARACTER", "CARETAKER", "VISUALIZER"]);
 
@@ -155,7 +161,8 @@ export const CANNED = Object.freeze({
 });
 
 /**
- * Runs the turn smoke: director -> character -> caretaker -> visualizer -> structuring.
+ * Runs the turn smoke: planner -> generation -> consolidation -> image prompt
+ * -> schema extraction (the Phase 5 runner verbs).
  *
  * @returns {Promise<{ director: any, character: any, caretaker: any, visual: any, structuring: any }>}
  */
@@ -163,16 +170,16 @@ export async function run_turn_smoke() {
   const transport = mock_transport_for(CANNED);
   const entities = { ...MINIMAL_ENTITIES };
   const history = [{ role: "user", origin: "Glitch", text: "Hold the line.", round: 1 }];
-  const director = await execute_turn_1_director({ transport, round: 1, entities, history });
-  const character = await execute_turn_2_character({ transport, round: 1, entities, history, directors_note: director.directors_note });
-  const caretaker = await execute_turn_3_caretaker({ transport, round: 1, entities, history });
-  const visual = await execute_turn_visualizer({ transport, round: 1, entities, camera_note: director.camera_note });
+  const director = await run_planner_step({ transport, round: 1, entities, history });
+  const character = await run_generation_step({ transport, round: 1, entities, history, directors_note: director.directors_note });
+  const caretaker = await run_memory_consolidation_step({ transport, round: 1, entities, history });
+  const visual = await run_image_prompt_step({ transport, round: 1, entities, camera_note: director.camera_note });
   const structuring_transport = {
     async stream() {
       return CANNED.STRUCTURING;
     },
   };
-  const structuring = await execute_turn_structuring({ transport: structuring_transport, input_data: "wary scout", type: "character" });
+  const structuring = await run_schema_extraction_step({ transport: structuring_transport, input_data: "wary scout", type: "character" });
   return { director, character, caretaker, visual, structuring };
 }
 
@@ -198,7 +205,7 @@ export function run_memory_stress() {
     { id: "usr_secret_weapon", text: "[CONCEALED: poison phial | hide]", vector: null, is_origin: true },
   );
   const query = new Array(384).fill(0.1);
-  const ranked = score_and_rank_memories(candidates, query);
+  const ranked = rank_memories(candidates, query);
   if (ranked.length !== candidates.length) problems.push("sieve dropped candidates during ranking");
   if (!ranked[0] || ranked[0].item.is_origin !== true) problems.push("origin protection did not float an origin memory first");
   const query_text = candidates.map((c) => c.text).join(" ");
@@ -207,7 +214,7 @@ export function run_memory_stress() {
 
   const primary = candidates.filter((c) => c.id.startsWith("usr_")).map((c) => ({ ...c, text: c.text }));
   const lore = candidates.filter((c) => c.id.startsWith("ai_")).map((c) => ({ ...c, text: c.text }));
-  const sieved = two_tier_sieve_rag({ primary_memories: primary, lore_memories: lore, query_vector: query });
+  const sieved = select_context_memories({ primary_memories: primary, lore_memories: lore, query_vector: query });
   if (!(sieved.selected.length > 0)) problems.push("sieve selected nothing under a 100-round load");
   return {
     selected_count: sieved.selected.length,
@@ -251,4 +258,10 @@ if (process.argv[1] && String(process.argv[1]).endsWith("sim-check.js")) {
  * 2026-11-10: Created - replaces simulation-audit.js (eradicated intelligence/* imports), the
  *   prompt-contract byte pins (environment truth, not contract), and consolidation-stress
  *   (deleted config keys). Asserts live shape + behavior only.
+ * 2026-11-17: Phase 5 cutover - imports repointed to live homes (compile_prompt from
+ *   @simulation/prompts, sieve via rank_memories/select_context_memories from
+ *   @simulation/retrieval, cosine_similarity from @utils/vectors,
+ *   count_text_tokens from @utils/text, turn verbs from @engine/runner,
+ *   resolve_caretaker_target from @simulation/dynamics). Structuring step now
+ *   returns the parsed object directly.
  */
