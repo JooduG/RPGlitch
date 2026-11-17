@@ -2,7 +2,7 @@
 
 ## Overview
 
-`src/data/` is the Rank 2 persistence, state-modeling, and text-tokenization package for **RPGlitch**. It owns the IndexedDB schema via Dexie (`"rpglitch"`), the canonical 4-quadrant entity schema (`eternal`, `present`, `future`, `past`), bracketed pseudo-JSON delta parsing and epistemic filtering, TavernAI character card and PNG metadata conversion, active session lifecycle management, and Svelte 5 reactive simulation and developer log stores (with premade blueprints migrated to `../definitions/premades.js` and narrative styles to `../definitions/narrative-styles.js`).
+`src/data/` is the pure persistence and data-modeling package for **RPGlitch** (zero Svelte runes, zero `state_bridge`, zero upward imports). It owns the IndexedDB schema via Dexie (`"rpglitch"`), the canonical 4-quadrant entity schema (`eternal`, `present`, `future`, `past`), TavernAI V2/V3 character card and PNG metadata codecs, the event-sourced mutation ledger and deterministic replay, synchronous 3-tier session reload checkpoints, and story Markdown transcript exports. Premade blueprints, profile taxonomies, and style catalogs live in `../definitions/`, bracket parsing lives in `@utils`, and session/log orchestration lives in `@engine`.
 
 ## Interface
 
@@ -10,13 +10,31 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 
 ### 1. Barrel Entry Point (`index.js`)
 
-- [`index.js`](./index.js): Re-exports the public surface of `parser.js`, `entities.js`, `card-conversion.js`, `db.js`, `sessions.svelte.js`, and `log.svelte.js`. Profile field taxonomy lives in `../definitions/profile-taxonomy.js`, premade blueprints in `../definitions/premades.js`, and narrative styles in `../definitions/narrative-styles.js` rather than this barrel.
+- [`index.js`](./index.js) (`@data`): Re-exports the public surface of `records.js`, `card-codec.js`, `db.js` (including `require_active()`), `ledger.js`, `checkpoint.js`, and `exporters.js`. Contains zero Svelte runes, zero `state_bridge`, and zero upward imports.
 
-### 2. Dexie Persistence, Mutation Ledger & Checkpoints (`db.js`)
+### 2. 4-Quadrant Entity Records (`records.js`)
 
-- Database & Keys ([`db.js`](./db.js)):
+- [`records.js`](./records.js):
+  - `normalize_entity(raw = {})`: Normalizes defaults, dynamics axes, voice config, visual modifiers (`prompt`, `negative_prompt`, `flipped`, `profile_picture_seed`, `last_generated_seed`), and all 4 quadrant strings (`eternal`, `present`, `future`, `past`) with uppercase `[@TARGET: ...]` prefixes.
+  - `create_entity(type = "character", overrides = {})`: Creates a normalized `"character"` or `"fractal"` with scope-appropriate defaults (`default_dynamics_for_scope("somatic" | "fractal")`, `"1st_person"` for characters, `"3rd_person"` for fractals).
+  - `filter_entity_epistemics(entity, options = {})`: Non-mutating clone filtering all 4 quadrant bracket strings via `format_clean_brackets` (`see_hidden`, `is_counterpart`, `strip_inventory`).
+  - `serialize_entity_for_export(entity)`: Normalizes and strips `id`, `created_at`, `updated_at`, and `origin_id`.
+  - `apply_profile_to_entity(entity, profile)`: Mutates and returns `entity`, mapping flat profile fields onto the 4-quadrant schema via `canonicalize_field_key` (appending `past`, replacing `future`, capping `tags` at 30, truncating `name` at 80, and skipping `profile_picture`, `image`, `id`, `type`).
+
+### 3. Character Card Codec & PNG Metadata (`card-codec.js`)
+
+- [`card-codec.js`](./card-codec.js):
+  - `detect_card_format(payload_json)`: Returns `"v2" | "rpglitch" | "unknown"`.
+  - `parse_character_card(payload_json)`: Maps TavernAI V2/V3 card fields into a flat RPGlitch profile.
+  - `extract_card_from_png(binary_buffer)`: Scans binary PNG chunks for the `"chara"` `tEXt` chunk and decodes Base64 UTF-8 JSON.
+  - `serialize_character_card(entity)`: Serializes an entity into a `chara_card_v2` JSON payload.
+  - `serialize_rpglitch_entity(entity)`: Normalizes and delegates to `serialize_entity_for_export`.
+
+### 4. Dexie Persistence Engine (`db.js`)
+
+- Database & Lifecycle ([`db.js`](./db.js)):
   - `db`: Shared `Dexie("rpglitch")` instance.
-  - `SESSION_ID_KEY` (`"active_session_id"`), `CHECKPOINT_KEY` (`"rpglitch.session_checkpoint"`), `WINDOW_NAME_CHECKPOINT_PREFIX` (`"__RPGLITCH_CHECKPOINT__:"`).
+  - `SESSION_ID_KEY` (`"active_session_id"`).
   - `init_db()`, `set_versionchange_quiesce(quiesce_callback)`, `coerce_story_key(id)`.
 - Stories & Cast ([`db.js`](./db.js)):
   - `stories`: Facade `{ list, get, create, update, update_cast, active_entity_ids, conclude, delete }`.
@@ -24,75 +42,48 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 - Entities ([`db.js`](./db.js)):
   - `entities`: Polymorphic facade `{ list, get, upsert, update, delete, remove }`.
   - `seed_premades()`, `list_entities(type)`, `get_entity(id, expected_type = null)`, `upsert_entity(entity)`, `update_entity(id, changes)`, `delete_entity(id)`.
-- Simulation Logs & Sessions ([`db.js`](./db.js)):
+- Simulation Logs & Session Pointers ([`db.js`](./db.js)):
   - `append_log_entry(entry)`, `delete_log_entry(id)`, `edit_log_entry(id, new_text)`, `update_log_attachment(id, attachment_index, new_attachment)`, `delete_log_attachment(id, attachment_index)`, `get_story_log(story_id)`, `delete_story_log(story_id)`.
-  - `record_session_access(session_id)`, `get_recent_sessions(limit = 10)`, `get_active_session_id()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
-  - `log_message(text, role, character_name, options)`.
-  - Direct module exports not in `index.js`: `_find_log_entry(id)`, `require_active()`.
-- Mutation Ledger & Deterministic Replay ([`db.js`](./db.js)):
-  - `append_ledger_entry(entry)`, `append_ledger_entries(entries)`, `get_story_ledger(story_id)`, `query_entity_history(entity_id, field = null)`, `query_story_snapshot(story_id, max_round = Infinity, max_seq = Infinity)`, `replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity)`, `replay_full_entity_at_round(entity_id, up_to_round = Infinity)`.
-- Reload Checkpoints ([`db.js`](./db.js)):
-  - `save_session_checkpoint(checkpoint)`, `load_session_checkpoint()`, `clear_session_checkpoint()`.
+  - `record_session_access(session_id)`, `get_recent_sessions(limit = 10)`, `get_active_session_id()`, `require_active()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
+  - Direct module export not in `index.js`: `_find_log_entry(id)`.
 
-### 3. 4-Quadrant Entity Model & Genesis (`entities.js`)
+### 5. Mutation Ledger & Event-Sourced Provenance (`ledger.js`)
 
-- Entity Lifecycle ([`entities.js`](./entities.js)):
-  - `normalize_entity(raw = {})`: Normalizes defaults, dynamics axes, voice config, modifiers, and all 4 quadrant strings (`eternal`, `present`, `future`, `past`) with uppercase `[@TARGET: ...]` prefixes.
-  - `create_entity(type = "character", overrides = {})`: Creates a normalized `"character"` or `"fractal"` with scope-appropriate defaults.
-  - `filter_entity_epistemics(entity, options = {})`: Non-mutating clone filtering quadrant brackets via `format_clean_brackets`.
-  - `serialize_entity_for_export(entity)`: Normalizes and strips `id`, `created_at`, `updated_at`, and `origin_id`.
-  - `structure_profile(raw, type = "character")`: Async Caretaker sorter wrapper delegating to `@engine`.
-  - `apply_profile_to_entity(entity, profile)`: Maps flat profile fields onto the 4-quadrant schema via `canonicalize_field_key`.
-  - `birth_entity_core(type, draft = {}, options = {})`: Full genesis flow (optional sorting, Dexie persistence, round-0 genesis ledger entries, story cast registration, and background portrait generation).
+- [`ledger.js`](./ledger.js):
+  - `append_ledger_entry(entry)`, `append_ledger_entries(entries)`: Appends state mutation diffs to `db.mutation_ledger`, skipping identical mutations and defaulting `writer`/`decider` to `"kernel"`.
+  - `get_story_ledger(story_id)`, `query_entity_history(entity_id, field = null)`, `query_story_snapshot(story_id, max_round = Infinity, max_seq = Infinity)`.
+  - `replay_entity_field(entity_id, field, up_to_round = Infinity, up_to_seq = Infinity)`: Reconstructs `{ key_values, entries_map, reconstructed_brackets, raw_prose }` up to `(up_to_round, up_to_seq)` using static `parse_bracket_entries` from `@utils`.
+  - `replay_full_entity_at_round(entity_id, up_to_round = Infinity)`: Replays `eternal`, `present`, `past`, and `future` in parallel.
 
-### 4. Bracket Parser, Delta Merging & Epistemic Wall (`parser.js`)
+### 6. 3-Tier Session Checkpoint (`checkpoint.js`)
 
-- Tokenization & Deltas ([`parser.js`](./parser.js)):
-  - `parse_bracket_token(bracket_string)`: Parses `[KEY: VALUE | flags]` into `{ key, value, flags: { hide, show, is_origin, weight }, raw } | null`.
-  - `parse_brackets(text)`, `parse_bracket_entries(text)`: Extract balanced `[...]` tokens and positional metadata (`visibility`, `weight`, `status`, `start_index`, `end_index`).
-  - `format_clean_brackets(brackets_text, options = {})`: Filters `INVENTORY`/`STASH` and `hide` entries by perspective (`see_hidden`, `is_counterpart`, `strip_inventory`) and strips flags.
-  - `apply_bracket_deltas(existing_text, delta_text)`: Merges delta tokens onto existing brackets (deletes on `none`/`cleared`, appends `INVENTORY`/`STASH`, overwrites single-value keys in-place).
-- Extraction & Sanitization ([`parser.js`](./parser.js)):
-  - `extract_memory_candidates(past_text)`, `extract_entity_relationships(entity, known_entities = [], perspective = "owner", ambient_entities = {})`.
-  - `parse_profile_json(raw)`, `clean_image_prompts(text)`, `parse_think_block(text)`.
-  - `filter_epistemic_brackets(text, perspective = "other")`, `strip_covert_directives(text)`, `strip_bracket_engine_flags(text)`.
+- [`checkpoint.js`](./checkpoint.js):
+  - `CHECKPOINT_KEY` (`"rpglitch.session_checkpoint"`), `WINDOW_NAME_CHECKPOINT_PREFIX` (`"__RPGLITCH_CHECKPOINT__::"`).
+  - `save_session_checkpoint(checkpoint)`, `load_session_checkpoint()`, `clear_session_checkpoint()`: Synchronous 3-tier reload survival across in-memory RAM (`_in_memory_checkpoint`), `window.sessionStorage`, and `window.name`.
 
-### 5. Character Card Conversion & PNG Metadata (`card-conversion.js`)
+### 7. Story Markdown Transcript & Export (`exporters.js`)
 
-- Import & Export ([`card-conversion.js`](./card-conversion.js)):
-  - `detect_card_format(payload_json)`: Returns `"v2" | "rpglitch" | "unknown"`.
-  - `parse_character_card(payload_json)`: Maps TavernAI V2/V3 card fields into a flat RPGlitch profile.
-  - `extract_card_from_png(binary_buffer)`: Scans binary PNG chunks for the `"chara"` `tEXt` chunk and decodes Base64 UTF-8 JSON.
-  - `serialize_character_card(entity)`, `serialize_rpglitch_entity(entity)`.
-
-### 6. Session Driver & Reactive Log Stores (`sessions.svelte.js`, `log.svelte.js`)
-
-- Active Session Controller ([`sessions.svelte.js`](./sessions.svelte.js)):
-  - `session_driver`: Exposes `active_id` getter and `require_active()`, `set_active(id)`, `restore_active(id)`, `clear_active()`, `create_from_selection(selection)`, `send(text)`, `regenerate()`, `delete_log_entry(id)`, `edit_log_entry(id, new_text)`, `update_log_attachment(id, attachment_index, new_attachment)`, `delete_log_attachment(id, attachment_index)`, `log_message(text, role, character_name, options)`, `load_log(story_id)`, `log_system_entry(text, role, meta, story_id, round)`.
-- Reactive Stores ([`log.svelte.js`](./log.svelte.js)):
-  - `DEVELOPER_TELEMETRY_STORAGE_KEY` (`"dev_telemetry"`).
-  - `SimulationLogStore`, singleton `simulation_log` (`feed` state + `refresh`, `add`, `update`, `remove`, `delete_entry`, `delete_attachment`, `edit_entry`, `get_recent_window`, `clear`).
-  - `DeveloperLogStore`, singleton `developer_log` (`entries` getter + `flush`, `log`, `hydrate`, `clear`).
-  - Direct module export not in `index.js`: `resolve_entity_id_by_name(name)`.
+- [`exporters.js`](./exporters.js):
+  - `format_story_beat(entry, options = {})`: Formats a simulation-log entry via `normalize_history_beat` into Markdown (`> ...` blockquotes for narrator/fractal beats, `**Name:** ...` for user/character beats, `_..._` for system notes when `options.include_system` is enabled, and `![prompt](src)` for image attachments), stripping `<think>` cognition blocks.
+  - `export_story_markdown(story = {}, entries = [], options = {})`: Compiles a story record and chronological log entries into a Markdown transcript with title and state metadata header.
+  - `build_story_export_filename(story = {}, date = new Date())`: Generates a sanitized download filename (`story-{slug}-{YYYY-MM-DD}.md`, slug capped at 48 characters).
 
 ## Invariants
 
+- **Pure Persistence Layer & Downward-Only Imports (`index.js`, `records.js`, `card-codec.js`, `db.js`, `ledger.js`, `checkpoint.js`, `exporters.js`)**: `src/data/` contains zero Svelte runes, zero `state_bridge`, and zero upward imports; modules import solely from `dexie`, `@config`, `@definitions`, `@utils` (and `../utils/text.js` in `exporters.js`).
 - **Dexie Schema Freeze (`db.js:db`)**: The IndexedDB `"rpglitch"` schema remains fixed at `version(2)` (`version(1)` defines `entities`, `stories`, `simulation_log`, `kv_settings`, `sessions`, `audio_prefs`; `version(2)` adds `mutation_ledger`) to prevent `versionchange` reload storms during parallel coexistence.
-- **Single-Fire Versionchange & Seeding Locks (`db.js:db.on('versionchange')`, `db.js:seed_premades`)**: `_is_versionchange_pending` ensures quiesce, `db.close()`, and reload run at most once; `_is_seeding_active` prevents concurrent premade seeding races.
-- **Ledger Deduplication & Deterministic Replay (`db.js:append_ledger_entry`, `db.js:replay_entity_field`, `db.js:replay_full_entity_at_round`)**: Identical mutations are skipped (`is_identical_mutation`); entries default `writer`/`decider` to `"kernel"` and require `entity_id` and `field`. Replay stops at `(up_to_round, up_to_seq)`, deletes keys on `new_value === null` or `supersedes`, and omits default `visibility === "show"` and `weight === 5` when reconstructing brackets.
-- **Adapt-on-Read & Clamped Dynamics (`entities.js:normalize_entity`, `db.js:list_entities`, `db.js:get_entity`)**: Entity reads normalize via `normalize_entity`; dynamics axes are rounded and clamped to `[DYNAMICS.SCALE.MIN, DYNAMICS.SCALE.MAX]` (defaulting to `50`) across 4 character axes (`chaos`, `intensity`, `openness`, `affinity`) or 2 fractal axes (`velocity`, `entropy`).
-- **Round-0 Genesis & Error Isolation (`entities.js:birth_entity_core`)**: Genesis ledger entries are emitted strictly at `round: 0, seq: 0, writer: "genesis", decider: "genesis"`; cast registration applies only when `type === "character" && story_id && story_id !== "debug"`; portrait generation failures never abort entity creation.
-- **Brace-Safe Bracket Parsing & Epistemic Isolation (`parser.js:parse_bracket_token`, `parser.js:parse_bracket_entries`, `parser.js:filter_epistemic_brackets`)**: Top-level `|` delimiters inside `{ ... }` alternation blocks (`brace_depth > 0`) are ignored. `format_clean_brackets` strips `INVENTORY`/`STASH` when `strip_inventory || see_hidden === "none"` and omits `hide` entries unless owned by the caller.
-- **Round-Bounded Regeneration & Empty Attachment Cleanup (`sessions.svelte.js:session_driver.regenerate`, `sessions.svelte.js:session_driver.delete_log_attachment`, `db.js:delete_log_attachment`)**: `regenerate()` stops before rounds earlier than `target_round` and preserves `STORY_START`, `is_prologue`, `is_epilogue`, and earlier telemetry. Deleting the last attachment of an entry with empty trimmed `text` and no prologue/epilogue flag deletes the parent `simulation_log` row.
-- **Bounded Telemetry & Silent Storage Degradation (`log.svelte.js:DeveloperLogStore`)**: `#entries` is capped at `TELEMETRY_CAPS.DEVELOPER_LOG_ENTRIES` (500) and all IndexedDB telemetry reads/writes swallow errors so telemetry never interrupts narrative execution.
-- **Cross-Layer Import Exceptions (`log.svelte.js:runtime`, `entities.js:structure_profile`, `entities.js:birth_entity_core`)**: `sessions.svelte.js` avoids upward imports by routing through `state_bridge` and `stories_bridge`, whereas `log.svelte.js` directly imports `runtime` from `@engine` and `entities.js` dynamically imports `@engine` and `@media`.
+- **Single-Fire Versionchange & Seeding Locks (`db.js:db.on('versionchange')`, `db.js:seed_premades`)**: `_is_versionchange_pending` ensures quiesce, `db.close()`, and reload run at most once; `_is_seeding_active` prevents concurrent premade seeding races; `seed_premades()` also backfills premade characters with `pov !== "1st_person"`.
+- **Empty Attachment Cleanup (`db.js:delete_log_attachment`)**: Deleting the last attachment of an entry with empty trimmed `text` and neither `meta.is_prologue` nor `meta.is_epilogue` deletes the parent `simulation_log` row.
+- **Ledger Deduplication & Deterministic Replay (`ledger.js:append_ledger_entry`, `ledger.js:replay_entity_field`, `ledger.js:replay_full_entity_at_round`)**: Identical mutations are skipped (`is_identical_mutation`); entries default `writer`/`decider` to `"kernel"` and require `entity_id` and `field`. Replay stops at `(up_to_round, up_to_seq)`, deletes keys on `new_value === null` or `supersedes`, parses unkeyed bracket values statically via `parse_bracket_entries`, and omits default `visibility === "show"` and `weight === 5` when reconstructing brackets.
+- **Adapt-on-Read & Clamped Dynamics (`records.js:normalize_entity`, `db.js:list_entities`, `db.js:get_entity`)**: Entity reads normalize via `normalize_entity`; dynamics axes are rounded and clamped to `[DYNAMICS.SCALE.MIN, DYNAMICS.SCALE.MAX]` (defaulting to `50`) across 4 character axes (`chaos`, `intensity`, `openness`, `affinity`) or 2 fractal axes (`velocity`, `entropy`). `normalize_relational_brackets` uppercases `[@target: ...]` prefixes; `past` wraps bare non-empty strings in `[MEMORY: ...]` and `future` wraps bare non-empty strings in `[AGENDA: ...]`.
+- **3-Tier Checkpoint Fallback & Prefix Match (`checkpoint.js:save_session_checkpoint`, `checkpoint.js:load_session_checkpoint`, `checkpoint.js:clear_session_checkpoint`)**: Saves to RAM and `window.sessionStorage` (returning early if stored), falling back to `window.name` prefixed with `WINDOW_NAME_CHECKPOINT_PREFIX` (`"__RPGLITCH_CHECKPOINT__::"`); reads in the same tier order and clears all three tiers when the prefix matches.
+- **Export Cognition Stripping & System Filtering (`exporters.js:format_story_beat`, `exporters.js:export_story_markdown`)**: Strips `<think>` cognition blocks (`include_cognition: false`), omits system entries unless `options.include_system` is truthy, and preserves resolved image rows via `keep_resolved_image_rows: true`.
 
 ## Side Effects
 
-- **IndexedDB Persistence (`db.js`, `sessions.svelte.js`, `log.svelte.js`)**: Module initialization opens `Dexie("rpglitch")` handlers (`blocked`, `versionchange`); CRUD operations read/write/delete across `entities`, `stories`, `simulation_log`, `kv_settings`, `sessions`, and `mutation_ledger`.
-- **Browser Storage & Global Navigation (`db.js`)**: `save_session_checkpoint` / `load_session_checkpoint` / `clear_session_checkpoint` mutate in-memory checkpoint state, `window.sessionStorage`, and `window.name`; `db.on('versionchange')` invokes `_versionchange_quiesce` and `window.location.reload()`.
-- **Svelte Reactive State & Timers (`log.svelte.js`, `sessions.svelte.js`)**: Instantiating `simulation_log` and `developer_log` creates reactive `$state` / `SvelteSet` stores, registers `window` `"pagehide"` and `document` `"visibilitychange"` listeners, and schedules 500ms `setTimeout` persistence flushes into `db.kv_settings`.
-- **State Bridges & Dynamic Cross-Layer Jobs (`entities.js`, `sessions.svelte.js`)**: `sessions.svelte.js` mutates `state_bridge.runtime`, `state_bridge.simulation_state`, `state_bridge.simulation_log`, and `stories_bridge`; `entities.js` invokes Caretaker LLM sorting (`@engine`), fire-and-forget portrait synthesis (`@media`), and `state_bridge.app?.log` / `console.warn` diagnostics; `db.js:replay_entity_field` dynamically imports `./parser.js` at runtime.
+- **IndexedDB Persistence (`db.js`, `ledger.js`)**: Module initialization registers `"blocked"` and `"versionchange"` handlers on `Dexie("rpglitch")`; CRUD and ledger helpers read/write/delete across `entities`, `stories`, `simulation_log`, `kv_settings`, `sessions`, and `mutation_ledger`.
+- **Browser Storage & Global Navigation (`checkpoint.js`, `db.js`)**: `save_session_checkpoint` / `load_session_checkpoint` / `clear_session_checkpoint` mutate module-local `_in_memory_checkpoint`, `window.sessionStorage`, and `window.name`; `db.on("versionchange")` invokes `_versionchange_quiesce` and `window.location.reload()`.
+- **No Reactive State, Timers, or LLM Calls**: `src/data/` registers no Svelte stores, DOM event listeners, timers, or `@engine`/`@media` jobs.
 
 ## Verification
 

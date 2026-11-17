@@ -8,7 +8,7 @@ Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling).
 
 `src/media/` is built as the **sovereign sensory presentation layer** running alongside legacy consumers:
 
-- **Zero Upward Dependencies (Runtime)**: Production modules import downward strictly from `@utils`, `@config`, `../definitions/visual-styles.js`, and `svelte/easing` / `svelte/motion`. Never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui` (test code `visual.test.js` imports `execute_visualizer_envision` from `../engine/lifecycle.js` solely to mirror application boot registration).
+- **Zero Upward Dependencies (Runtime)**: Production modules import downward strictly from `@utils`, `@config`, `@definitions` (`../definitions/index.js`), and `svelte/easing` / `svelte/motion`. Never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui` (test code `visual.test.js` imports `execute_visualizer_envision` from `../engine/lifecycle.js` solely to mirror application boot registration).
 - **Procedural SFX (Zero Remote Audio Assets)**: All UI sound effects are procedurally synthesized using Web Audio oscillators (`OscillatorNode`), noise buffers (`AudioBufferSourceNode`), and gain envelopes (`GainNode`). Zero remote `.wav` file downloads or network dependencies.
 - **Excised Kokoro Neural Stack**: In-browser speech synthesis is handled cleanly via the standard Web Speech API (`window.speechSynthesis`) rather than an ONNX/WebGPU neural voice pipeline, protecting the 4.00 MB bundle ceiling and 50 MiB iframe memory boundary.
 - **Unified Kinetic Engine & Transitional Facades**: [`motion.svelte.js`](./motion.svelte.js) unifies reduced-motion detection, kinetic hover actions, Svelte transitions, and storyboard card flights, while [`audio.svelte.js`](./audio.svelte.js) (`Audio`, `AudioEngine`, `audio_engine`) and [`visual.svelte.js`](./visual.svelte.js) (`visual_engine`, `VisualEngine`) preserve facade compatibility.
@@ -24,7 +24,7 @@ The package exposes its public interface via [`index.js`](./index.js), plus the 
   - `init_audio_on_gesture()`, `suspend_audio()`, `close_audio_context()`, `get_audio_context()`, `get_master_gain()`: Hardware `AudioContext` and `GainNode` lifecycle management.
   - `set_master_volume(level)`, `toggle_mute()`: Master gain and mute controls.
   - `VoiceEngine`: Web Speech API voice synthesis controller (`enabled`, `selected_voice`, `rate`, `volume`, `is_speaking`, `active_message_id`, `entity_voice`, `voices`, `_stream_role`, `_stream_emitted_length`) exposing `is_role_enabled()`, `load_voices()`, `preview()`, `resume_context()`, `set_volume()`, `speak()`, `stop()`, `pause()`, `resume()`, `toggle_pause()`, `destroy()`, `apply_stream_role()`, `queue_stream_sentence()`, `flush_stream_remainder()`, and `reset_stream()`.
-  - Pure Voice Helpers & Cadences: `VOICE_CADENCES`, `CADENCE_RATES` (direct export in `audio.svelte.js`, not re-exported by `index.js`), `voice_role_key(role)`, `normalize_role(role, options)`, `resolve_voice_uri(name_or_uri)`, `resolve_voice_name(name_or_uri)`, `get_cadence_rate(cadence, dynamics_value = 50)`.
+  - Pure Voice Helpers & Cadences: `VOICE_CADENCES` (re-exported by `index.js`), `CADENCE_RATES` (direct export in `audio.svelte.js`, not re-exported by `index.js`), `voice_role_key(role)`, `normalize_role(role, options)`, `resolve_voice_uri(name_or_uri)`, `resolve_voice_name(name_or_uri)`, `get_cadence_rate(cadence, dynamics_value = 50)`.
   - Transitional Facades: `AudioEngine`, `Audio` (exported in `audio.svelte.js` and re-exported by `index.js`), and `audio_engine` (direct export in `audio.svelte.js`, not re-exported by `index.js`), exposing `voice`, `notifications_enabled`, `volume`, `is_muted`, `voice_enabled`, `entity_voice`, `is_role_enabled(role)`, `set_entity_voice(role, is_enabled)`, `toggle_entity_voice(role)`, `play(sound_key)`, `init()`, and `destroy()`.
 
 ### 2. Unified Kinetic & Motion Physics Engine (`motion.svelte.js`)
@@ -42,7 +42,7 @@ The package exposes its public interface via [`index.js`](./index.js), plus the 
   - Visual Prompt Hygiene: `rescue_visual_prose(text)`, `sanitize_visual_text(text)`, `resolve_story_beat_style(options)`, `compose_story_beat_prompt(prompt_text, style_key, base_negative = "")`.
   - In-Flight Set & Queue Bookkeeping: `_in_flight_image_generations`, `_image_generation_queue`, `mark_generation_in_flight(id, attachment_index = 0)`, `clear_generation_in_flight(id, attachment_index = 0)`, `is_generation_in_flight(id, attachment_index = 0)`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`, `_remove_from_image_generation_queue(id)` (direct export in `visual.svelte.js`, not re-exported by `index.js`).
   - Ghost & Beat Lifecycle: `spawn_image_beat(tier, options = {})`, `sweep_stale_ghosts()`, `count_pending_ghosts()`, `mark_placeholder_failed(id, metadata = {})`.
-  - Host Plugin Discovery & Facades: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`is_loading`, `generate(target, options)`, `visualize(story_id, text, tier, options)`, `generate_candidates(prompt, options)`, `envision(text, type, entity, app_style)`), `visual_engine`, `set_visualizer_envision_impl(fn)`.
+  - Host Plugin Discovery & Facades: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`is_loading = false`, `error = null`, `attempts = 0`, `is_offline = false`, `generate(target, options)`, `visualize(story_id, text, tier, options)`, `generate_candidates(prompt, options)`, `envision(text, type, entity, app_style)`), `visual_engine`, `set_visualizer_envision_impl(fn)`.
 
 ### 4. Pure Optics Taxonomy & Guidance Scale (`optics.js`)
 
@@ -60,7 +60,7 @@ The package exposes its public interface via [`index.js`](./index.js), plus the 
 - [`tokens.js`](./tokens.js):
   - `SIGNATURE_COLORS` (15 labels), `PALETTE` (28 frozen color-to-hex entries), `PALETTE_CSS_VARIABLES` (28 frozen hex-to-CSS-var entries), `TOKENS` (92 frozen design-system tokens generated from `DESIGN.md`).
 - [`design.css`](./design.css):
-  - Synchronized design-token stylesheet defining `@theme` variables (`--color-*`, `--font-*`, `--spacing-*`, `--radius-*`, `--blur-*`, `--motion-*`, `--opacity-*`, `--scale-*`, `--shadow-*`, `--spring-*`, `--transition-duration-*`, `--z-index-*`) generated from `DESIGN.md` via `npm run sync:css`.
+  - Synchronized design-token stylesheet defining `@theme` variables (`--color-*`, `--empty-fill`, `--signature-color`, `--font-*`, `--radius-*`, `--spacing-*`, `--blur-*`, `--brightness-*`, `--ease-*`, `--motion-*`, `--noise-url`, `--opacity-*`, `--scale-*`, `--shadow-*`, `--signature-glow`, `--spring-*`, `--state-*`, `--transition-duration-*`, `--z-index-*`, `--breakpoint-mobile`) generated from `DESIGN.md` via `npm run sync:css`.
 
 ## Invariants
 
