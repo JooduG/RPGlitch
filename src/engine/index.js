@@ -40,6 +40,7 @@ export {
 // Bridge affordances
 export { birth_entity_core, execute_epilogue, execute_prologue, execute_visualizer_envision, structure_profile } from "./lifecycle.js";
 export { apply_director_deltas_to_dynamics, execute_continue, execute_turn, write_back_turn_state } from "./runs.js";
+
 // Session driver & simulation/developer logs (moved in from src/data/)
 export { bind_session_driver, match_speaker_snapshots, resolve_log_entity_id, session_driver } from "./sessions.svelte.js";
 export { DEVELOPER_TELEMETRY_STORAGE_KEY, developer_log, resolve_entity_id_by_name, simulation_log } from "./log.svelte.js";

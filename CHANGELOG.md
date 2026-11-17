@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+### Added
+- `engine-atoms.md`: Stage 1 Goldfish atom inventory for `src/engine/` and coupled `@utils` modules.
+
 ## `[0.2.0]` - 2026-11-16
 
 - Full pre-beta architecture refactor, UI/primitives cleanup, design-system alignment, and EGM `README.md` contract sync.

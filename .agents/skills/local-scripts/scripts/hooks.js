@@ -572,6 +572,11 @@ export function handle_svelte_stop_gate(payload) {
  * @param {any} payload Hook payload from stdin.
  */
 export function handle_planning_handoff(payload) {
+  if (payload?.stop_hook_active) {
+    send_hook_response({ decision: "stop" });
+    return;
+  }
+
   const repo_root = resolve_repo_root(payload);
 
   try {
@@ -629,8 +634,8 @@ export function handle_planning_handoff(payload) {
         const drift_files = src_modifications.filter((file) => !active_plan_content.includes(file) && !active_plan_content.includes(path.basename(file)));
         if (drift_files.length > 0) {
           send_hook_response({
-            decision: "continue",
-            reason: `Spec-to-Code Drift Warning: Modified files (${drift_files.join(", ")}) are not declared in ROADMAP.md active blueprint. Either update the architectural blueprint in \`ROADMAP.md\` to reflect this scope or revert unintended changes.`,
+            decision: "stop",
+            reason: `Spec-to-Code Drift Warning: Modified files (${drift_files.join(", ")}) are not declared in ROADMAP.md active blueprint.`,
           });
           return;
         }
