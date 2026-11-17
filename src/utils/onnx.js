@@ -14,7 +14,7 @@
  * - `src/media/audio.svelte.js` (Kokoro-82M TTS model loading and speech synthesis).
  */
 
-import { create_job_queue } from "./job-queue.js";
+import { create_job_queue } from "./queue.js";
 
 // ============================================================================
 // [SECTION 1: ONNX MUTEX SERIALIZATION ENGINE]

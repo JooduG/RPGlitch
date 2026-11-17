@@ -61,8 +61,8 @@ export {
 // Visual Color Palettes & Signature Tokens
 // ============================================================================
 
-export { get_signature_color, get_signature_label, ensure_theme_tokens } from "./palette.js";
-export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "./tokens.js";
+export { get_signature_color, get_signature_label, ensure_theme_tokens } from "@utils";
+export { SIGNATURE_COLORS, PALETTE, PALETTE_CSS_VARIABLES, TOKENS } from "@utils";
 
 // ============================================================================
 // Pure Visual Optics (Taxonomy, Triggers & Guidance Scales)

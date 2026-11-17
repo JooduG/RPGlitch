@@ -19,7 +19,7 @@ import {
   decompose_story_title,
   derive_vector_title,
   diff_alternation_picks,
-  estimate_tokens,
+  count_tokens,
   extract_alternations,
   filter_narrative_messages,
   first_sentence,
@@ -734,25 +734,25 @@ describe("strip_visual_excluded & VISUAL_EXCLUDED_KEYS", () => {
   });
 });
 
-describe("estimate_tokens & CHARS_PER_TOKEN calibration", () => {
+describe("count_tokens & CHARS_PER_TOKEN calibration", () => {
   it("exports calibrated CHARS_PER_TOKEN constant (3.35)", () => {
     expect(CHARS_PER_TOKEN).toBe(3.35);
   });
 
   it("returns 0 for blank or null inputs", () => {
-    expect(estimate_tokens("")).toBe(0);
-    expect(estimate_tokens(null)).toBe(0);
-    expect(estimate_tokens(undefined)).toBe(0);
+    expect(count_tokens("")).toBe(0);
+    expect(count_tokens(null)).toBe(0);
+    expect(count_tokens(undefined)).toBe(0);
   });
 
   it("calibrates token estimation using Math.ceil(length / CHARS_PER_TOKEN)", () => {
     // 335 chars should be exactly 100 tokens
     const sample = "a".repeat(335);
-    expect(estimate_tokens(sample)).toBe(100);
+    expect(count_tokens(sample)).toBe(100);
     // 10 chars is ceil(10 / 3.35) = ceil(2.985) = 3 tokens
-    expect(estimate_tokens("1234567890")).toBe(3);
+    expect(count_tokens("1234567890")).toBe(3);
     // Minimum 1 token for non-empty string
-    expect(estimate_tokens("x")).toBe(1);
+    expect(count_tokens("x")).toBe(1);
   });
 });
 

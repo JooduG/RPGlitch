@@ -137,16 +137,26 @@ export function truncate_at_boundary(text, limit = 200, options = {}) {
 }
 
 /**
- * Heuristic token estimator for prompt budgeting (Track 2.2: 6k cliff guard).
- * Inference servers bill and truncate on tokens; prose averages ~3.35 characters
- * per token in BPE tokenizers when structured prompt XML and pseudo-JSON brackets are present.
+ * Unified token counter for prompt budgeting (Track 2.2: 6k cliff guard).
+ * Prefers the native Perchance tokenizer when available; otherwise budgets on
+ * prose averaging ~3.35 characters per token in BPE tokenizers when structured
+ * prompt XML and pseudo-JSON brackets are present.
  * @param {string} text
- * @returns {number} Estimated token count (0 for blank input).
+ * @returns {number} Token count (0 for blank input).
  */
-export function estimate_tokens(text) {
-  const length = String(text ?? "").length;
-  if (length === 0) return 0;
-  return Math.max(1, Math.ceil(length / CHARS_PER_TOKEN));
+export function count_tokens(text) {
+  if (!text || typeof text !== "string" || text.length === 0) return 0;
+  if (typeof window !== "undefined" && typeof window.generateText === "function") {
+    try {
+      const meta = window.generateText({ getMetaObject: true });
+      if (meta && typeof meta.countTokens === "function") {
+        return meta.countTokens(text);
+      }
+    } catch {
+      // Fall through to the character-ratio fallback below.
+    }
+  }
+  return Math.max(1, Math.ceil(text.length / CHARS_PER_TOKEN));
 }
 
 /**
@@ -616,7 +626,7 @@ export function decompose_story_title(title, entities = {}) {
  * @param {string} str
  * @returns {string}
  */
-export const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
+export const normalize_comma_spacing = (str) => String(str ?? "").replace(/,([^\s])/g, ", $1");
 
 export * from "./alternations.js";
 
@@ -634,14 +644,16 @@ export function match_keyword_pattern(pattern, haystack) {
   if (!needle || !text) return Object.freeze({ hit: false, pass: "none" });
   if (needle.length > 2 && needle.startsWith("/") && needle.lastIndexOf("/") > 0) {
     const last_slash = needle.lastIndexOf("/");
+    let regex = null;
     try {
-      if (new RegExp(needle.slice(1, last_slash), needle.slice(last_slash + 1)).test(text)) {
-        return Object.freeze({ hit: true, pass: "regex" });
-      }
+      regex = new RegExp(needle.slice(1, last_slash), needle.slice(last_slash + 1));
     } catch {
-      /* invalid regex falls through to literal matching */
+      /* invalid regex falls through to glob/word matching below */
     }
-    return Object.freeze({ hit: false, pass: "none" });
+    if (regex) {
+      const hit = regex.test(text);
+      return Object.freeze({ hit, pass: hit ? "regex" : "none" });
+    }
   }
   if (needle.includes("*") || needle.includes("?")) {
     const glob = needle

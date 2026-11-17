@@ -12,12 +12,12 @@
  * Architecture:
  * - Declarative Rule System: Maps regex triggers to 4-style replacement buckets
  *   ('casual', 'lyrical', 'primal', 'clinical').
- * - Dynamic Decoupled Registration: Rules are registered into the text detox
- *   pipeline via `register_speaking_rules` without cyclic dependencies.
+ * - Static Consumption: Consumers import the frozen tables directly from
+ *   `@definitions` — no registration step, no import-order dependence.
  * - Taxonomy Validation: Strict validation functions and frozen array constants.
  *
  * Layer Hierarchy:
- * - Belongs to `src/data/definitions/` (Data Layer).
+ * - Belongs to `src/definitions/` (declarative Rank 0 layer).
  * - Imports exclusively from platform/utility modules (`@utils`).
  *
  * Modification Rules:
@@ -28,7 +28,7 @@
  */
 
 import { SPEAKING_STYLES } from "@config";
-import { match_case, register_anti_ai_rules, register_cluster_words, register_speaking_rules } from "@utils";
+import { match_case } from "@utils";
 
 // ============================================================================
 // 1. Declarative Rule Builder Primitive
@@ -986,9 +986,6 @@ export const COMMUNITY_RULES = Object.freeze(COMMUNITY_RULES_LIST);
 
 export const SPEAKING_STYLE_RULES = Object.freeze([...VOCAL_RULES, ...SOUND_RULES, ...SENSORY_RULES, ...METAPHOR_RULES, ...COMMUNITY_RULES]);
 
-// Dynamically register canonical rules with the styles detox engine
-register_speaking_rules(SPEAKING_STYLE_RULES);
-
 // ============================================================================
 // 8. Canonical Anti-AI Word Tiers & Clarity Dictionaries (Track 3.5)
 // ============================================================================
@@ -1105,9 +1102,6 @@ export const ANTI_AI_REPLACEMENTS = Object.freeze([
   { pattern: /\bat\s+its\s+core\b\s*/gi, replace: () => "" },
 ]);
 
-// Register Tier 1 substitution rules with the detox engine
-register_anti_ai_rules(ANTI_AI_REPLACEMENTS);
-
 /**
  * Tier 2 Cluster Words: Words legitimate on their own, but flagged when 2 or more appear together.
  */
@@ -1150,9 +1144,6 @@ export const TIER_2_CLUSTER_WORDS = Object.freeze([
   "overarching",
   "underpinnings",
 ]);
-
-// Register Tier 2 cluster words with the styles macro shape auditor
-register_cluster_words(TIER_2_CLUSTER_WORDS);
 
 // ============================================================================
 // 9. Canonical Taxonomy & Validation (style ids live in config - views re-exported above)

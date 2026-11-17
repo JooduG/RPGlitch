@@ -1,4 +1,5 @@
 import { SPEAKING_STYLES } from "@config";
+import { ANTI_AI_REPLACEMENTS, SPEAKING_STYLE_RULES } from "@definitions";
 import { stable_pick } from "./math.js";
 import { match_case } from "./text.js";
 
@@ -88,27 +89,6 @@ function pick_replacement(match, pool, exact_voice = "casual", fallback_voice = 
 // [SECTION 4: PROSE DETOX ENGINE & RULE REGISTRATION]
 // ============================================================================
 
-/** @type {Array<DetoxRule> | null} */
-let _cached_speaking_rules = null;
-
-/**
- * Registers default speaking style rules for detox_prose without hardcoding circular dependencies.
- * @param {Array<DetoxRule>} rules
- */
-export function register_speaking_rules(rules) {
-  _cached_speaking_rules = rules;
-}
-
-let _cached_anti_ai_rules = null;
-
-/**
- * Registers canonical Tier 1 anti-AI substitution rules without hardcoding word lists in utils.
- * @param {Array<{ pattern: RegExp, replace: (match: string, ...args: any[]) => string }>} rules
- */
-export function register_anti_ai_rules(rules) {
-  _cached_anti_ai_rules = rules;
-}
-
 /**
  * Intercepts and scrubs clichéd AI tropes and purple prose from text using speaking style vocabulary.
  * @param {string | null | undefined} raw_text - Raw incoming narrative prose.
@@ -122,7 +102,7 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   const exact_voice = SPEAKING_STYLES.includes(speaking_style) ? speaking_style : "casual";
   const fallback_voice = exact_voice === "lyrical" ? "lyrical" : "casual";
 
-  const rules_to_run = custom_rules || _cached_speaking_rules || [];
+  const rules_to_run = custom_rules || SPEAKING_STYLE_RULES;
 
   let clean_text = raw_text;
 
@@ -238,8 +218,8 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
   // Naming the subtext ("a gesture of ownership", "a display of dominance", etc.)
   clean_text = clean_text.replace(/,\s*(?:a\s+|an\s+)?(?:gesture|act|display|show|performance)\s+of\s+(?:ownership|dominance|possession|control)\b/gi, "");
 
-  // 13. Dynamic Anti-AI Replacements (Tier 1A & Tier 1B Dictionary Rules from @data)
-  const anti_ai_rules = _cached_anti_ai_rules || [];
+  // 13. Dynamic Anti-AI Replacements (Tier 1A & Tier 1B Dictionary Rules from @definitions)
+  const anti_ai_rules = ANTI_AI_REPLACEMENTS || [];
   for (const rule of anti_ai_rules) {
     clean_text = clean_text.replace(rule.pattern, rule.replace);
   }
@@ -249,6 +229,8 @@ export function detox_prose(raw_text, speaking_style = "casual", custom_rules = 
 
 /**
  * CHANGELOG
+ * - 2026-11-17: Phase 1 Rank 0 — rule tables imported statically from @definitions
+ *   (register_* caches removed; no import-order dependence).
  * - Track 3.2: Implemented fatal syntactic construction rewrites (not quite X more like Y, didn't X she Y, purple weather, naming subtext).
  * - Track 3.5: Implemented Tier 1A frequency markers and Tier 1B clarity rewrites (utilize -> use, in order to -> to, delve -> dig into, etc.).
  * - Harmonized Architecture: Decoupled hardcoded word lists into data definitions via register_anti_ai_rules, keeping detox.js as a pure broom.

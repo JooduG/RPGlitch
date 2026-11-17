@@ -27,7 +27,7 @@
 import { TIMING_MS } from "@config";
 import { developer_log } from "./log.svelte.js";
 import { Audio } from "@media";
-import { get_llm_gate_status } from "./gate.js";
+import { get_queue_status } from "@utils";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -466,7 +466,7 @@ export function install_freeze_watchdog() {
     // The foreground turn may simply be queued behind the global LLM gate while
     // background enrichment holds the slot. That is back-pressure, not a freeze -
     // let the gate preempt the background job instead of killing a healthy turn.
-    if (get_llm_gate_status().foreground_queued > 0) {
+    if (get_queue_status().foreground_queued > 0) {
       stuck_since = 0;
       last_stream_len = stream_len;
       last_chunk_ts = streaming_active ? Date.now() : 0;

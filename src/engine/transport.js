@@ -21,7 +21,7 @@
  */
 
 import { merge_abort_signals, sanitize_llm, stream_bridge } from "@utils";
-import { resolve_priority, run_llm_job } from "./gate.js";
+import { resolve_priority, enqueue_llm_job } from "@utils";
 
 export function get_mock_message() {
   return `<think>Evaluating physical variables and drafting response vector.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
@@ -204,7 +204,7 @@ export function create_live_stream_fn() {
 
     const priority = resolve_priority(options.priority);
 
-    return run_llm_job((gate_signal) => transport_completion(ai_engine, prompt, options, gate_signal), priority);
+    return enqueue_llm_job((gate_signal) => transport_completion(ai_engine, prompt, options, gate_signal), priority);
   };
 }
 
@@ -310,7 +310,7 @@ export async function generate_text(payload, options = {}) {
   }
 
   const priority = resolve_priority(options.priority);
-  return run_llm_job((gate_signal) => direct_completion(ai_engine, payload, options, gate_signal), priority);
+  return enqueue_llm_job((gate_signal) => direct_completion(ai_engine, payload, options, gate_signal), priority);
 }
 
 export async function enhance_text(payload) {

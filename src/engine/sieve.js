@@ -15,7 +15,8 @@
  * ============================================================================
  */
 
-import { CHARS_PER_TOKEN, EMBEDDING_SPECS, FIELD_FLOORS } from "@config";
+import { EMBEDDING_SPECS, FIELD_FLOORS } from "@config";
+import { count_tokens, cosine_similarity } from "@utils";
 
 /** Origin protection multiplier boosting author canon and immutable memories (single consumer - lives here, not on the dashboard) */
 const ORIGIN_SCORE_MULTIPLIER = 1.5;
@@ -25,50 +26,20 @@ export const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce(
 
 /**
  * Native Perchance tokenizer with headless character-ratio fallback.
+ * Delegates to the unified `@utils` token counter (single implementation).
  *
  * @param {string} text
  * @returns {number}
  */
 export function count_text_tokens(text) {
-  if (!text || typeof text !== "string") return 0;
-  if (typeof window !== "undefined" && typeof window.generateText === "function") {
-    try {
-      const meta = window.generateText({ getMetaObject: true });
-      if (meta && typeof meta.countTokens === "function") {
-        return meta.countTokens(text);
-      }
-    } catch (_err) {
-      // Fallback to offline ratio
-    }
-  }
-  return Math.ceil(text.length / CHARS_PER_TOKEN);
+  return count_tokens(text);
 }
 
 /**
- * Computes cosine similarity between two normalized 384-d float vectors.
- *
- * @param {number[] | Float32Array} vecA
- * @param {number[] | Float32Array} vecB
- * @returns {number} cosine similarity in [-1, 1]
+ * Cosine similarity re-exported from the unified `@utils` vector home.
+ * Kept here so the engine barrel surface is unchanged.
  */
-export function cosine_similarity(vecA, vecB) {
-  if (!vecA || !vecB || vecA.length !== vecB.length) return 0;
-
-  let dot = 0;
-  let normA = 0;
-  let normB = 0;
-
-  for (let i = 0; i < vecA.length; i++) {
-    dot += vecA[i] * vecB[i];
-    normA += vecA[i] * vecA[i];
-    normB += vecB[i] * vecB[i];
-  }
-
-  const denominator = Math.sqrt(normA) * Math.sqrt(normB);
-  if (denominator === 0) return 0;
-
-  return dot / denominator;
-}
+export { cosine_similarity };
 
 /**
  * Creates an in-memory ephemeral vector cache adapter for Gate 1.

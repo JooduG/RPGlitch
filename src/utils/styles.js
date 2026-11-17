@@ -9,7 +9,8 @@
  * - AI Prose Detoxification (`detox_prose`): Intercepts and scrubs purple prose clichés, overused sensory crutches,
  *   and formulaic LLM sentence structures (denial-then-affirmation, self-answering dialogue, binary comparisons).
  * - Verb Conjugation & Case Preservation: Maps matching grammatical suffixes (-ed, -ing, -s, -es, -ly) and matches source casing.
- * - Decoupled Registry Integration: Rules are registered dynamically via `register_speaking_rules` to prevent circular dependencies.
+ * - Static Registry Consumption: Rule tables are imported directly from
+ *   `@definitions/speaking-styles.js` — no registration step, no import-order dependence.
  *
  * Consumed by:
  * - `src/intelligence/story-pipeline.js` (Prose cleanup before log persistence and streaming).
@@ -18,6 +19,7 @@
  */
 
 import { SPEAKING_STYLES } from "@config";
+import { TIER_2_CLUSTER_WORDS } from "@definitions";
 import { state_bridge } from "./registries.js";
 
 // ============================================================================
@@ -223,7 +225,7 @@ export function audit_macro_shape(text) {
   if (door_slam_closer) violations.push("door-slam-closer");
 
   // 5. Tier 2 vocabulary cluster (>= 2 cluster words in single response)
-  const cluster_words = _cached_cluster_words || [];
+  const cluster_words = TIER_2_CLUSTER_WORDS || [];
   let cluster_hit_count = 0;
   for (const word of cluster_words) {
     const word_regex = new RegExp(`\\b${word}(?:s|ed|ing|ly)?\\b`, "i");
@@ -246,19 +248,10 @@ export function audit_macro_shape(text) {
   });
 }
 
-/** @type {ReadonlyArray<string> | null} */
-let _cached_cluster_words = null;
-
-/**
- * Registers Tier 2 cluster words with the styles macro shape auditor.
- * @param {ReadonlyArray<string>} words
- */
-export function register_cluster_words(words) {
-  _cached_cluster_words = words;
-}
-
 /**
  * CHANGELOG
+ * - 2026-11-17: Phase 1 Rank 0 — cluster words imported statically from @definitions
+ *   (register_cluster_words removed; no import-order dependence).
  * - Track 3.3: Expanded SOMATIC_MARKERS with stock faces (smirks, whispers, clenched fists, etc.) capped at 1 per reply.
  * - Track 3.4: Added audit_macro_shape auditing as-if-overuse (> 2), every-para-question, familiar-closer, and door-slam-closer.
  * - Track 3.5: Added Tier 2 vocabulary cluster linter (>= 2 cluster words per reply) via register_cluster_words.

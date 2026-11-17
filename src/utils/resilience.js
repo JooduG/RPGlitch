@@ -57,7 +57,11 @@ export function merge_abort_signals(caller, secondary) {
     return AbortSignal.any([caller, secondary]);
   }
   const controller = new AbortController();
-  const relay = (event) => controller.abort(event?.target?.reason);
+  const relay = (event) => {
+    caller.removeEventListener("abort", relay);
+    secondary.removeEventListener("abort", relay);
+    controller.abort(event?.target?.reason);
+  };
   caller.addEventListener("abort", relay, { once: true });
   secondary.addEventListener("abort", relay, { once: true });
   return controller.signal;
@@ -84,16 +88,17 @@ export class ExponentialBackoffRetryer {
    * @returns {Promise<T>} Output of the successful invocation.
    */
   async retry(fn, on_retry = () => {}) {
+    const max_attempts = Math.max(1, Number(this.max_attempts) || 1);
     let last_error;
     let delay = this.initial_delay;
 
-    for (let attempt = 1; attempt <= this.max_attempts; attempt++) {
+    for (let attempt = 1; attempt <= max_attempts; attempt++) {
       try {
         return await fn();
       } catch (err) {
         last_error = err;
 
-        if (attempt === this.max_attempts) break;
+        if (attempt === max_attempts) break;
 
         on_retry(attempt, last_error);
 
@@ -155,7 +160,12 @@ export class CircuitBreaker {
     this.#failure_count = 0;
     this.#success_count = 0;
     this.#last_failure_time = 0;
-    this.#queue.length = 0;
+    // Settle pending queued promises before dropping them: a reset must never
+    // leave callers hanging on work that will never run.
+    const pending = this.#queue.splice(0, this.#queue.length);
+    for (const item of pending) {
+      item?.reject(new Error("Circuit breaker reset. Dropping queued request."));
+    }
   }
 
   /** @returns {boolean} True if the breaker is CLOSED (healthy). */

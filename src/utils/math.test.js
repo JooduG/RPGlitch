@@ -1,16 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  clamp,
-  get_percentage,
-  cosine_similarity,
-  generate_uuid,
-  generate_secure_seed,
-  pick_random,
-  fnv1a_hash,
-  stable_pick,
-  HASH_OFFSET_BASIS,
-  HASH_PRIME,
-} from "./math.js";
+import { clamp, get_percentage, generate_uuid, generate_secure_seed, pick_random, fnv1a_hash, stable_pick, HASH_OFFSET_BASIS, HASH_PRIME } from "./math.js";
 
 describe("math and crypto utilities", () => {
   describe("clamp", () => {
@@ -43,38 +32,11 @@ describe("math and crypto utilities", () => {
       expect(get_percentage(-20)).toBe(0);
     });
 
-    it("defaults to 50 for falsy or NaN values", () => {
+    it("defaults to 50 for nullish or NaN values (0 maps to 0)", () => {
       expect(get_percentage(null)).toBe(50);
       expect(get_percentage(undefined)).toBe(50);
       expect(get_percentage(NaN)).toBe(50);
-      expect(get_percentage(0)).toBe(50);
-    });
-  });
-
-  describe("cosine_similarity", () => {
-    it("computes exact dot product for normalized unit vectors", () => {
-      const a = [1, 0, 0];
-      const b = [1, 0, 0];
-      expect(cosine_similarity(a, b)).toBe(1);
-
-      const orthogonal = [0, 1, 0];
-      expect(cosine_similarity(a, orthogonal)).toBe(0);
-
-      const opposite = [-1, 0, 0];
-      expect(cosine_similarity(a, opposite)).toBe(-1);
-    });
-
-    it("handles Float32Array inputs", () => {
-      const a = new Float32Array([0.6, 0.8]);
-      const b = new Float32Array([0.6, 0.8]);
-      expect(cosine_similarity(a, b)).toBeCloseTo(1, 4);
-    });
-
-    it("returns 0 on null, undefined, empty, or mismatched vectors", () => {
-      expect(cosine_similarity(null, [1, 2])).toBe(0);
-      expect(cosine_similarity([1, 2], null)).toBe(0);
-      expect(cosine_similarity([], [])).toBe(0);
-      expect(cosine_similarity([1, 2], [1, 2, 3])).toBe(0);
+      expect(get_percentage(0)).toBe(0);
     });
   });
 

@@ -21,7 +21,7 @@
 
 import { EMBEDDING_SPECS } from "@config";
 import { SvelteMap } from "svelte/reactivity";
-import { cosine_similarity, deserialize_embedding } from "./math.js";
+import { cosine_similarity, deserialize_embedding } from "./vectors.js";
 import { mark_ort_ready, onnx_mutex } from "./onnx.js";
 
 // ============================================================================

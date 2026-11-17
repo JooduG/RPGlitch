@@ -12,7 +12,7 @@ export const PATHS = {
   src: path.resolve(__dirname, "../../../../src"),
   designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
   designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
-  jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
+  jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/utils/tokens.js"),
 };
 
 export const AUTHORITATIVE_CATEGORIES = ["colors", "typography", "rounded", "spacing", "components"];
@@ -114,7 +114,7 @@ function flattenFrontmatter(data) {
 }
 
 /**
- * Serializes DESIGN.md into src/media/tokens.js (TOKENS, PALETTE, SIGNATURE_COLORS).
+ * Serializes DESIGN.md into src/utils/tokens.js (TOKENS, PALETTE, SIGNATURE_COLORS).
  * Written in full - there is no hand-maintained section anymore.
  * @param {Record<string, Record<string, string> | string[]>} flat_data - Per-category token map.
  */
@@ -158,7 +158,7 @@ function buildJsBridge(flat_data) {
     })
     .sort();
 
-  const tokens_output = `${generatedHeader("src/media/tokens.js")}
+  const tokens_output = `${generatedHeader("src/utils/tokens.js")}
 
 export const SIGNATURE_COLORS = ${JSON.stringify(signature_names, null, 2)};
 
@@ -172,7 +172,7 @@ export const TOKENS = Object.freeze(${JSON.stringify(tokens, null, 2)});
 }
 
 /**
- * Forward sync: reads DESIGN.md frontmatter and writes src/media/design.css + src/media/tokens.js.
+ * Forward sync: reads DESIGN.md frontmatter and writes src/media/design.css + src/utils/tokens.js.
  */
 export function syncToCss() {
   const { data, body } = parseMarkdownDoc();
@@ -205,7 +205,7 @@ if (process.argv[1] && process.argv[1].replace(/\\/g, "/").endsWith(".agents/ski
 
 Compiles DESIGN.md YAML frontmatter and fenced CSS blocks into:
   - src/media/design.css (override via CSS_PATH)
-  - src/media/tokens.js  (override via JS_BRIDGE_PATH)
+  - src/utils/tokens.js  (override via JS_BRIDGE_PATH)
   Source path override:    DESIGN_MD_PATH`);
     process.exit(0);
   }
