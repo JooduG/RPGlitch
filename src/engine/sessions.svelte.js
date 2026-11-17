@@ -16,14 +16,16 @@
  *   3. Simulation Log Orchestration (`send`, `log_message`, `load_log`, `edit_log_entry`, `delete_log_entry`, `update_log_attachment`, `delete_log_attachment`, `regenerate`)
  *
  * RULES FOR MODIFICATION:
- *   - Never import `runtime`, `simulation_log`, or `status` (directly or via `state_bridge`).
- *   - `state_bridge` use is limited to `simulation_state` unlock + `stories_bridge` bump.
+ *   - Never import `runtime` or `simulation_log` (directly or via `state_bridge`).
+ *   - Same-layer `simulation_state` is imported directly; bridge use is limited
+ *     to the `stories_bridge` bump.
  *   - Use `$state.snapshot()` before persisting plain objects to IndexedDB via Dexie.
  *   - Adhere strictly to P4: Zero Backwards Compatibility and full descriptive naming.
  */
 
-import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta, state_bridge, stories_bridge } from "@utils";
+import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta, stories_bridge } from "@utils";
 import { append_ledger_entries, db, SESSION_ID_KEY } from "@data";
+import { simulation_state } from "./status.svelte.js";
 
 /**
  * Bound environment installed once by the composition root (`src/main.js`):
@@ -219,7 +221,7 @@ export const session_driver = {
    */
   async clear_active() {
     _active_id = null;
-    state_bridge.simulation_state?.unlock?.();
+    simulation_state?.unlock?.();
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: null });
     }

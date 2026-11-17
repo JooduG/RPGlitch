@@ -18,8 +18,7 @@ set_visualizer_envision_impl(_execute_visualizer_envision);
 
 // Authoritative simulation state class
 export { LLM_PRIORITY, get_llm_gate_status, resolve_priority, run_llm_job } from "./gate.js";
-// Turn-session core (Phase 3 prod path) + Kernel compat holder over the same transactions
-export { apply_director_deltas_to_dynamics, continue_turn_transaction, create_turn_session, Kernel, submit_turn_transaction } from "./kernel.svelte.js";
+// Folded turn core (Phase 3): direct-store transactions live in runs.js
 export { get_mock_message, get_transport } from "./transport.js";
 
 // Pure headless turn orchestration
@@ -40,7 +39,7 @@ export {
 
 // Bridge affordances
 export { birth_entity_core, execute_epilogue, execute_prologue, execute_visualizer_envision, structure_profile } from "./lifecycle.js";
-export { execute_continue, execute_turn } from "./runs.js";
+export { apply_director_deltas_to_dynamics, execute_continue, execute_turn, write_back_turn_state } from "./runs.js";
 // Session driver & simulation/developer logs (moved in from src/data/)
 export { bind_session_driver, match_speaker_snapshots, resolve_log_entity_id, session_driver } from "./sessions.svelte.js";
 export { DEVELOPER_TELEMETRY_STORAGE_KEY, developer_log, resolve_entity_id_by_name, simulation_log } from "./log.svelte.js";

@@ -24,6 +24,7 @@ import { state_bridge } from "@utils";
 import { simulation_log } from "./log.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "./sessions.svelte.js";
+import { simulation_state } from "./status.svelte.js";
 import { execute_prologue } from "./lifecycle.js";
 import { execute_continue, execute_turn } from "./runs.js";
 
@@ -65,8 +66,8 @@ export class ChronoEngine {
    * @param {StorySelection} selection
    */
   async start(selection) {
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
-    state_bridge.simulation_state.set_intent_active(true);
+    if (state_bridge.app.simulation.loading || simulation_state.intent_active) return;
+    simulation_state.set_intent_active(true);
     state_bridge.app.simulation.loading = true;
 
     try {
@@ -94,7 +95,7 @@ export class ChronoEngine {
       state_bridge.app._begin_flight_assets = null;
 
       // 4. Trigger Prologue Generation
-      state_bridge.simulation_state.start_generation("fractal");
+      simulation_state.start_generation("fractal");
       try {
         await execute_prologue(story_id);
         state_bridge.app.log("Prologue generated and opening turn executed.", "system");
@@ -103,7 +104,7 @@ export class ChronoEngine {
         state_bridge.app.log("Error: Prologue Failed.", "error");
         throw e;
       } finally {
-        state_bridge.simulation_state.complete();
+        simulation_state.complete();
         state_bridge.app.end_stream();
       }
 
@@ -123,7 +124,7 @@ export class ChronoEngine {
       this.error = /** @type {Error} */ (e).message;
     } finally {
       state_bridge.app.simulation.loading = false;
-      state_bridge.simulation_state.set_intent_active(false);
+      simulation_state.set_intent_active(false);
     }
   }
 
@@ -138,7 +139,7 @@ export class ChronoEngine {
    * @returns {Promise<boolean>}
    */
   async send(text) {
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text?.trim()) {
+    if (state_bridge.app.simulation.loading || simulation_state.intent_active || !text?.trim()) {
       return false;
     }
     const result = await this.advance_turn(text);
@@ -149,7 +150,7 @@ export class ChronoEngine {
    * Retries the last AI turn by rolling back session state and re-advancing.
    */
   async retry() {
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
+    if (state_bridge.app.simulation.loading || simulation_state.intent_active) return;
     try {
       await session_driver.regenerate();
       await this.advance_turn(null, { is_retry: true });
@@ -165,7 +166,7 @@ export class ChronoEngine {
    * @param {string} [target_id]
    */
   async continue(target_id = null) {
-    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
+    if (state_bridge.app.simulation.loading || simulation_state.intent_active) return;
     try {
       if (!simulation_log?.feed?.length && typeof simulation_log?.refresh === "function") {
         await simulation_log.refresh();
@@ -176,7 +177,7 @@ export class ChronoEngine {
         const feed = simulation_log?.feed || [];
         const target_entry = feed.find((e) => String(e.id) === String(target_id));
         if (target_entry) {
-          state_bridge.simulation_state.set_intent_active(true);
+          simulation_state.set_intent_active(true);
           state_bridge.app.simulation.loading = true;
           const controller = new AbortController();
           state_bridge.app.streaming.abort_controller = controller;
@@ -186,7 +187,7 @@ export class ChronoEngine {
             await execute_continue(target_entry, { signal: controller.signal });
             state_bridge.app.log("Continuation complete.", "system");
           } finally {
-            state_bridge.simulation_state.set_intent_active(false);
+            simulation_state.set_intent_active(false);
             state_bridge.app.simulation.loading = false;
             state_bridge.app.streaming.active = false;
           }
@@ -214,13 +215,13 @@ export class ChronoEngine {
     if (!story_id) return;
 
     // 1. STASIS: System Lock & Double-Click Gate
-    state_bridge.simulation_state.set_intent_active(true);
+    simulation_state.set_intent_active(true);
     state_bridge.app.simulation.loading = true;
 
     const previous_round = Number(runtime.round || 0);
     const final_input = input;
 
-    // 2. SYNTHESIS: Generate Narrative (round is owned by the Kernel)
+    // 2. SYNTHESIS: Generate Narrative (round is owned by runtime)
     state_bridge.app.log(`LLM synthesizing turn ${runtime.round}...`, "ai");
     const controller = new AbortController();
     state_bridge.app.streaming.abort_controller = controller;
@@ -237,10 +238,10 @@ export class ChronoEngine {
           }
         }
 
-        state_bridge.simulation_state.start_director_stage();
+        simulation_state.start_director_stage();
 
         try {
-          state_bridge.app.log("Executing turn via Sovereign Engine (Kernel)...", "system");
+          state_bridge.app.log("Executing turn via Sovereign Engine...", "system");
           await execute_turn(final_input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
           state_bridge.app.log("Generation complete.", "system");
 
@@ -261,17 +262,17 @@ export class ChronoEngine {
           }
           throw e;
         } finally {
-          state_bridge.simulation_state.complete();
+          simulation_state.complete();
           state_bridge.app.end_stream();
         }
 
         // 3. PAST: Commit to Continuum (Echo)
-        state_bridge.simulation_state.lock();
+        simulation_state.lock();
         state_bridge.app.log("Recording continuum...", "db");
 
         // 4. ANCHOR: Persist the timeline
         await runtime.save(runtime.round);
-        state_bridge.simulation_state.unlock();
+        simulation_state.unlock();
         return true;
       } catch (err) {
         const error = /** @type {any} */ (err);
@@ -318,7 +319,7 @@ export class ChronoEngine {
 
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn - retrying generation once...", "warn");
-                    state_bridge.simulation_state.start_generation(options.role || "ai");
+                    simulation_state.start_generation(options.role || "ai");
                     await execute_turn(final_input, { signal: controller.signal });
                     retry_landed = true;
                     state_bridge.app.log("Orphaned turn recovered.", "system");
@@ -373,8 +374,8 @@ export class ChronoEngine {
         state_bridge.app.streaming.node_id = null;
         state_bridge.app.streaming.role = "ai";
         state_bridge.app.simulation.loading = false;
-        state_bridge.simulation_state.unlock();
-        state_bridge.simulation_state.set_intent_active(false);
+        simulation_state.unlock();
+        simulation_state.set_intent_active(false);
       }
     })();
   }

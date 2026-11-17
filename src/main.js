@@ -27,7 +27,7 @@ import { app } from "@ui";
 import { embeddings_engine, install_environment_hardening, register_state_accessors, register_stream_handlers, sanitize_to_fragment } from "@utils";
 import { mount } from "svelte";
 
-register_state_accessors({ app, runtime, simulation_state, simulation_log, session_driver });
+register_state_accessors({ app, runtime, simulation_log, session_driver });
 bind_session_driver({
   log_store: simulation_log,
   on_set_active: async (id) => {
@@ -35,9 +35,8 @@ bind_session_driver({
     await simulation_log.refresh(id);
   },
   on_clear_active: async () => {
+    // The driver already nulled the single-owned pointer; just drop the feed.
     simulation_log.clear();
-    // Keep the runtime story pointer from going stale behind the cleared driver.
-    runtime.story_id = null;
   },
 });
 register_stream_handlers({
@@ -64,11 +63,7 @@ let has_initialized = false;
 // never be able to take down module evaluation.
 if (typeof set_versionchange_quiesce === "function") {
   set_versionchange_quiesce(() => {
-    save_session_checkpoint({
-      story_id: runtime?.story_id ?? session_driver?.active_id ?? null,
-      round: runtime?.round ?? 0,
-      phase: simulation_state?.phase ?? "idle",
-    });
+    save_session_checkpoint({ story_id: session_driver?.active_id ?? null, round: runtime?.round ?? 0, phase: simulation_state?.phase ?? "idle" });
   });
 }
 

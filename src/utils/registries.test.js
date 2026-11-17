@@ -10,7 +10,6 @@ describe("registries.js (Cross-Layer Decoupling Registries)", () => {
     it("returns null properties before registration", () => {
       expect(state_bridge.app).toBeNull();
       expect(state_bridge.runtime).toBeNull();
-      expect(state_bridge.simulation_state).toBeNull();
       expect(state_bridge.simulation_log).toBeNull();
       expect(state_bridge.session_driver).toBeNull();
     });
@@ -18,21 +17,13 @@ describe("registries.js (Cross-Layer Decoupling Registries)", () => {
     it("registers and delegates to accessors correctly", () => {
       const mock_app = { id: "app" };
       const mock_runtime = { id: "runtime" };
-      const mock_simulation_state = { id: "simulation_state" };
       const mock_simulation_log = { id: "simulation_log" };
       const mock_session_driver = { id: "session_driver" };
 
-      register_state_accessors({
-        app: mock_app,
-        runtime: mock_runtime,
-        simulation_state: mock_simulation_state,
-        simulation_log: mock_simulation_log,
-        session_driver: mock_session_driver,
-      });
+      register_state_accessors({ app: mock_app, runtime: mock_runtime, simulation_log: mock_simulation_log, session_driver: mock_session_driver });
 
       expect(state_bridge.app).toBe(mock_app);
       expect(state_bridge.runtime).toBe(mock_runtime);
-      expect(state_bridge.simulation_state).toBe(mock_simulation_state);
       expect(state_bridge.simulation_log).toBe(mock_simulation_log);
       expect(state_bridge.session_driver).toBe(mock_session_driver);
     });

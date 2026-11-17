@@ -1,17 +1,24 @@
 /**
  * src/engine/runs.js
  * ============================================================================
- * 🏃 ENGINE RUNS - SESSION TURN PIPELINE
+ * 🏃 ENGINE RUNS - SESSION TURN PIPELINE (PHASE 3: DIRECT-STORE FOLD)
  * ============================================================================
  *
- * Session-aware wrappers around the turn session: opens a turn session (quadrants,
- * transport, history), runs foreground turns and continuations, commits rows,
- * writes back dynamics, and dispatches background maintenance.
+ * Turn execution operates DIRECTLY on the owning stores — there is no Kernel
+ * session object and no state mirroring:
+ * - `runtime` owns user / ai / fractal / round (+ dynamics mirrors + beat fields)
+ * - `simulation_log.feed` owns history (context is reconstructed per turn)
+ * - `simulation_state` (status) owns phase / intent (plus a module in-flight
+ *   guard below for re-entrancy while a turn streams)
  *
- * Turn execution lives in the pure kernel transactions; the Kernel class remains
- * only as the test-compat holder over the same core. Owns all state_bridge
- * contact for the turn path; the mechanics in turns.js
- * stay pure (parameters in, outcomes out).
+ * Turn-scoped working copies (normalized quadrants) are function-local
+ * transients: director deltas apply to them, then write-back copies dynamics
+ * into runtime. A failed turn discards the copies and restores the round, so
+ * live stores are never left half-mutated.
+ *
+ * Cross-layer contact: `app` streaming/log calls still ride `state_bridge`
+ * (engine cannot statically import the UI layer). Same-layer stores are
+ * imported directly — no bridge cells for engine internals.
  */
 
 import { IMAGE_POLICY } from "@config";
@@ -19,34 +26,77 @@ import { append_ledger_entries, db, normalize_entity } from "@data";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "@utils";
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
 import { state_bridge } from "@utils";
-import { create_turn_session } from "./kernel.svelte.js";
 import { simulation_log } from "./log.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "./sessions.svelte.js";
+import { simulation_state } from "./status.svelte.js";
 import { get_transport } from "./transport.js";
-import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
+import { execute_turn_2_continue, execute_turn_3_caretaker, execute_round, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
 
 /**
- * Opens a turn session: adapts active entities to quadrants, builds a plain
- * turn session on the shared transport, and reconstructs multi-role history from a feed.
+ * Applies Turn 1 director dynamics deltas to entity dynamics with [5, 95] clamping.
+ * Pure helper: operates on the passed quadrant objects only.
+ *
+ * @param {object|null} ai_entity - AI quadrant entity (mutated in place)
+ * @param {object|null} fractal_entity - Fractal quadrant entity (mutated in place)
+ * @param {object|null} deltas - Director dynamics deltas
  */
-export function open_turn_session(app, runtime, feed = []) {
+export function apply_director_deltas_to_dynamics(ai_entity, fractal_entity, deltas) {
+  if (!deltas) return;
+  if (ai_entity && typeof ai_entity.dynamics === "object") {
+    for (const key of ["chaos", "intensity", "openness", "affinity"]) {
+      if (deltas[key] !== undefined && ai_entity.dynamics[key] !== undefined) {
+        const current = Number(ai_entity.dynamics[key]) || 50;
+        ai_entity.dynamics[key] = Math.max(5, Math.min(95, current + deltas[key]));
+      }
+    }
+  }
+  if (fractal_entity && typeof fractal_entity.dynamics === "object") {
+    for (const key of ["velocity", "entropy"]) {
+      if (deltas[key] !== undefined && fractal_entity.dynamics[key] !== undefined) {
+        const current = Number(fractal_entity.dynamics[key]) || 50;
+        fractal_entity.dynamics[key] = Math.max(5, Math.min(95, current + deltas[key]));
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Turn re-entrancy guard (replaces the old per-session phase field — phase
+// itself remains solely owned by simulation_state; this flag only guards
+// overlapping execute_turn / execute_continue calls on this module).
+// ---------------------------------------------------------------------------
+
+let _turn_in_flight = false;
+
+/**
+ * Resets the turn re-entrancy guard. Test-only: call from beforeEach alongside
+ * reset_registries_for_testing so a failed turn never wedges the suite.
+ */
+export function reset_turn_scope_for_testing() {
+  _turn_in_flight = false;
+}
+
+function _begin_turn_scope() {
+  if (_turn_in_flight) throw new Error("Simulation is locked or actively generating.");
+  _turn_in_flight = true;
+}
+
+function _end_turn_scope() {
+  _turn_in_flight = false;
+}
+
+/**
+ * Builds transient turn context: normalized quadrant copies for the LLM call
+ * plus history reconstructed from the owned feed. Nothing here is stored —
+ * callers persist rows and write back explicitly on success.
+ */
+function build_turn_context(app, feed) {
   const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
   const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
-
-  const kernel = create_turn_session({
-    user: user_quadrant,
-    ai: ai_quadrant,
-    fractal: fractal_quadrant,
-    round: Number(runtime.round || 0),
-    transport: get_transport(),
-    director_enabled: Boolean(app?.settings?.director_enabled),
-  });
-
-  kernel.history = reconstruct_history_from_feed(feed, { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
-
-  return { kernel, user_quadrant, ai_quadrant, fractal_quadrant };
+  const history = reconstruct_history_from_feed(feed, { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
+  return { user_quadrant, ai_quadrant, fractal_quadrant, history };
 }
 
 /**
@@ -54,14 +104,13 @@ export function open_turn_session(app, runtime, feed = []) {
  * row first, then the character-turn AI row (chronological cause-before-effect).
  * Caretaker consolidation still appends last via dispatch_caretaker_consolidation.
  */
-async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, round, kernel }) {
+async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, round, dynamics_ai, dynamics_fractal, snapshots }) {
   if (!prose || !story_id) return;
 
   // A2: snapshot post-clamp axis levels alongside signed deltas so gauges render
   // true 0..100 fullness + (±delta) badges. Legacy rows without `levels` fall back
   // to delta-magnitude bars in ChatBubble.
-  const levels =
-    kernel && (kernel.ai?.dynamics || kernel.fractal?.dynamics) ? { ...(kernel.ai?.dynamics || {}), ...(kernel.fractal?.dynamics || {}) } : undefined;
+  const levels = dynamics_ai || dynamics_fractal ? { ...(dynamics_ai || {}), ...(dynamics_fractal || {}) } : undefined;
 
   // Director turn first (C1: chronology over stability - accepted devmode jump on commit).
   let logged_delta = null;
@@ -70,7 +119,7 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
       turn_type: "SYSTEM_TURN",
       round,
       story_id,
-      snapshots: { AI: kernel?.ai, USER: kernel?.user, FRACTAL: kernel?.fractal },
+      snapshots,
       meta: {
         type: "DYNAMICS_DELTA",
         deltas: outcome.director_staging.dynamics_deltas,
@@ -86,7 +135,7 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
     turn_type: "AI_TURN",
     round,
     story_id,
-    snapshots: { AI: kernel?.ai, USER: kernel?.user, FRACTAL: kernel?.fractal },
+    snapshots,
     meta: { think, director_staging: outcome.director_staging },
   });
 
@@ -108,16 +157,15 @@ async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, rou
  * Evaluates the automatic image trigger after a turn and spawns the beat
  * without ever blocking the turn. Honors the configured pending cap.
  */
-async function maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fractal_quadrant, runtime }) {
+async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, fractal_quadrant, turn_round }) {
   // B19: Wire automatic visual synthesis into turn (fire-and-forget, non-blocking)
   if (prose && runtime.story_id) {
     try {
-      const turn_round = Number(kernel.round || 0);
       const last_director_beat_round = runtime.last_director_beat_round ?? -1;
       const last_dynamics_beat_round = runtime.last_dynamics_beat_round ?? -1;
       const resolved_image = resolve_image_trigger({
         snapshot: { ai: ai_quadrant, fractal: fractal_quadrant },
-        prev_dynamics: kernel.ai?.dynamics ? { ...kernel.ai.dynamics } : null,
+        prev_dynamics: ai_quadrant.dynamics ? { ...ai_quadrant.dynamics } : null,
         director_data: outcome.director_staging || {},
         turn_round,
         last_director_beat_round,
@@ -154,7 +202,7 @@ async function maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fra
 }
 
 /**
- * Executes a simulation turn via the Kernel.
+ * Executes a simulation turn directly against the owning stores.
  *
  * @param {string} user_input - The submitted user message text.
  * @param {object} options
@@ -163,66 +211,103 @@ async function maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fra
  */
 export async function execute_turn(user_input, _options = {}) {
   const app = state_bridge.app;
+  const resubmitting = Boolean(_options.is_retry || _options.is_continue);
+  const trimmed_input = typeof user_input === "string" ? user_input.trim() : "";
+  if (!resubmitting && !trimmed_input) return null;
 
-  // 1-3. Quadrants, shared transport, Kernel, and multi-role history in one session
-  const live_transport = get_transport();
-  const { kernel, ai_quadrant, fractal_quadrant } = open_turn_session(app, runtime, simulation_log?.feed || []);
+  _begin_turn_scope();
+
+  // Transient working copies + reconstructed context (owned stores untouched).
+  const { user_quadrant, ai_quadrant, fractal_quadrant, history } = build_turn_context(app, simulation_log?.feed || []);
+
+  // A direct call without a prior session_driver.send (tests, prologue opening
+  // turn) still needs the prompt text in context — feed-backed calls dedupe it.
+  if (trimmed_input) {
+    const last_entry = history[history.length - 1];
+    if (!(last_entry && last_entry.role === "user" && last_entry.text === trimmed_input)) {
+      history.push({ role: "user", text: trimmed_input, round: Number(runtime.round || 0) + (resubmitting ? 0 : 1) });
+    }
+  }
+
+  const previous_round = Number(runtime.round || 0);
+  if (!resubmitting) runtime.round = previous_round + 1;
+  const turn_round = Number(runtime.round || 0);
 
   // 4. Begin UI streaming indicator
   const message_node_id = `msg-${Date.now()}`;
   app.start_stream(message_node_id, "ai");
 
   let first_chunk = true;
+  const stage_ai_speaker = () => {
+    simulation_state.set_delegated_speaker({
+      type: "ai",
+      name: ai_quadrant.name || "AI",
+      avatar: ai_quadrant.profile_picture || null,
+      color: ai_quadrant.signature_color || null,
+    });
+    simulation_state.start_stream_stage();
+  };
 
   try {
-    const outcome = await kernel.submit_turn(user_input, {
-      signal: _options.signal,
-      is_retry: _options.is_retry,
-      is_continue: _options.is_continue,
+    const outcome = await execute_round({
+      transport: get_transport(),
+      round: turn_round,
+      entities: { AI: ai_quadrant, USER: user_quadrant, FRACTAL: fractal_quadrant },
+      history,
+      director_enabled: Boolean(app?.settings?.director_enabled),
       onChunk: (chunk) => {
         if (first_chunk) {
           first_chunk = false;
-          state_bridge.simulation_state?.set_delegated_speaker?.({
-            type: "ai",
-            name: ai_quadrant.name || "AI",
-            avatar: ai_quadrant.profile_picture || null,
-            color: ai_quadrant.signature_color || null,
-          });
-          state_bridge.simulation_state?.start_stream_stage?.();
+          stage_ai_speaker();
         }
         app.update_stream(chunk);
       },
+      signal: _options.signal,
     });
 
     // If onChunk never fired (e.g. non-streaming transport or mock without chunks), ensure stages transition cleanly
     if (first_chunk) {
-      state_bridge.simulation_state?.set_delegated_speaker?.({
-        type: "ai",
-        name: ai_quadrant.name || "AI",
-        avatar: ai_quadrant.profile_picture || null,
-        color: ai_quadrant.signature_color || null,
-      });
-      state_bridge.simulation_state?.start_stream_stage?.();
+      first_chunk = false;
+      stage_ai_speaker();
     }
 
     const prose = outcome?.character_turn?.prose || "";
     const think = outcome?.character_turn?.think || "";
 
+    // Apply director deltas to the transient copies first; write-back copies
+    // them into runtime only after the rows below commit. A failure anywhere
+    // above discards the copies — live dynamics are never half-mutated.
+    apply_director_deltas_to_dynamics(ai_quadrant, fractal_quadrant, outcome.director_staging?.dynamics_deltas);
+
     // 5. Commit generated turn to IndexedDB log and reactive feed
-    await persist_turn_rows({ prose, think, outcome, ai_name: ai_quadrant.name || "AI", story_id: runtime.story_id, round: kernel.round, kernel });
+    await persist_turn_rows({
+      prose,
+      think,
+      outcome,
+      ai_name: ai_quadrant.name || "AI",
+      story_id: runtime.story_id,
+      round: turn_round,
+      dynamics_ai: ai_quadrant.dynamics,
+      dynamics_fractal: fractal_quadrant.dynamics,
+      snapshots: { AI: ai_quadrant, USER: user_quadrant, FRACTAL: fractal_quadrant },
+    });
 
     // Resolves Gap 4: Write back updated dynamics, macro round, and caretaker deltas
-    await write_back_kernel_state(kernel, outcome, live_transport, _options);
+    await write_back_turn_state({ ai: ai_quadrant, fractal: fractal_quadrant, user: user_quadrant, round: turn_round, outcome, options: _options });
 
-    await maybe_spawn_turn_image({ prose, outcome, kernel, ai_quadrant, fractal_quadrant, runtime });
+    await maybe_spawn_turn_image({ prose, outcome, ai_quadrant, fractal_quadrant, turn_round });
 
     return outcome;
+  } catch (err) {
+    runtime.round = previous_round;
+    throw err;
   } finally {
+    _end_turn_scope();
     app.end_stream();
   }
 }
 /**
- * Continues an existing message using the Sovereign Engine Kernel.
+ * Continues an existing message in place, operating directly on the owned feed.
  * Formulates startWith from the target message's think-block and prose, streams
  * the continuation, and fuses the result directly onto the target message.
  *
@@ -238,46 +323,57 @@ export async function execute_continue(target_entry, _options = {}) {
     throw new Error("Target message entry required for continuation.");
   }
 
-  // 1-3. Quadrants, shared transport, Kernel, history scoped to the target message
-  const feed = simulation_log?.feed || [];
-  const target_index_in_feed = feed.findIndex((e) => String(e.id) === String(target_entry.id));
-
-  // Slice raw feed before target message so telemetry/empty entries don't skew index alignment
-  const prior_feed = target_index_in_feed >= 0 ? feed.slice(0, target_index_in_feed) : feed;
-  const { kernel, ai_quadrant } = open_turn_session(app, runtime, prior_feed);
-
-  // Extract existing think and prose from target entry, robustly handling embedded <think>/<THINK> blocks
-  let target_prose = target_entry.text || "";
-  let target_think = target_entry.meta?.think || "";
-
-  if (target_prose.includes("<think>") || target_prose.includes("<THINK>")) {
-    const extracted = parse_think_block(target_prose);
-    target_prose = extracted.prose;
-    if (!target_think && extracted.think) {
-      target_think = extracted.think;
-    }
-  }
-
-  // 4. Begin UI streaming indicator targeting this message, seeded with existing prose so continuation appends smoothly
-  app.start_stream(target_entry.id, "ai");
-  const clean_target_prose = target_prose.trim();
-  const ends_with_terminal = /[.!?…"”'’*)\]]$/.test(clean_target_prose);
-  const stream_seed_separator = ends_with_terminal ? "\n\n" : " ";
-  if (clean_target_prose) {
-    app.update_stream(`${clean_target_prose}${stream_seed_separator}`);
-  }
-
-  let first_chunk = true;
+  _begin_turn_scope();
 
   try {
-    const outcome = await kernel.continue_turn(
-      {
+    // 1-3. Transient quadrants + history scoped to the target message
+    const feed = simulation_log?.feed || [];
+    const target_index_in_feed = feed.findIndex((e) => String(e.id) === String(target_entry.id));
+
+    // Slice raw feed before target message so telemetry/empty entries don't skew index alignment
+    const prior_feed = target_index_in_feed >= 0 ? feed.slice(0, target_index_in_feed) : feed;
+    const { user_quadrant, ai_quadrant, fractal_quadrant, history } = build_turn_context(app, prior_feed);
+
+    // Extract existing think and prose from target entry, robustly handling embedded <think>/<THINK> blocks
+    let target_prose = target_entry.text || "";
+    let target_think = target_entry.meta?.think || "";
+
+    if (target_prose.includes("<think>") || target_prose.includes("<THINK>")) {
+      const extracted = parse_think_block(target_prose);
+      target_prose = extracted.prose;
+      if (!target_think && extracted.think) {
+        target_think = extracted.think;
+      }
+    }
+
+    // 4. Begin UI streaming indicator targeting this message, seeded with existing prose so continuation appends smoothly
+    app.start_stream(target_entry.id, "ai");
+    const clean_target_prose = target_prose.trim();
+    const ends_with_terminal = /[.!?…"”'’*)\]]$/.test(clean_target_prose);
+    const stream_seed_separator = ends_with_terminal ? "\n\n" : " ";
+    if (clean_target_prose) {
+      app.update_stream(`${clean_target_prose}${stream_seed_separator}`);
+    }
+
+    let first_chunk = true;
+    const stage_ai_speaker = () => {
+      simulation_state.set_delegated_speaker({
+        type: "ai",
+        name: ai_quadrant.name || "AI",
+        avatar: ai_quadrant.profile_picture || null,
+        color: ai_quadrant.signature_color || null,
+      });
+      simulation_state.start_stream_stage();
+    };
+
+    try {
+      const outcome = await execute_turn_2_continue({
+        transport: get_transport(),
+        round: target_entry.round || runtime.round,
+        entities: { AI: ai_quadrant, USER: user_quadrant, FRACTAL: fractal_quadrant },
+        history,
         target_prose,
         target_think,
-        target_round: target_entry.round || kernel.round,
-        target_history_index: null, // Context is already cleanly scoped in kernel.history
-      },
-      {
         signal: _options.signal,
         onChunk: (chunk) => {
           if (!chunk) return;
@@ -287,89 +383,86 @@ export async function execute_continue(target_entry, _options = {}) {
           }
           if (first_chunk) {
             first_chunk = false;
-            state_bridge.simulation_state?.set_delegated_speaker?.({
-              type: "ai",
-              name: ai_quadrant.name || "AI",
-              avatar: ai_quadrant.profile_picture || null,
-              color: ai_quadrant.signature_color || null,
-            });
-            state_bridge.simulation_state?.start_stream_stage?.();
+            stage_ai_speaker();
           }
           app.update_stream(chunk);
         },
-      },
-    );
-
-    // If onChunk never fired (e.g. non-streaming or mock without chunks), ensure stages transition cleanly
-    if (first_chunk) {
-      state_bridge.simulation_state?.set_delegated_speaker?.({
-        type: "ai",
-        name: ai_quadrant.name || "AI",
-        avatar: ai_quadrant.profile_picture || null,
-        color: ai_quadrant.signature_color || null,
       });
-      state_bridge.simulation_state?.start_stream_stage?.();
-    }
 
-    const fused_prose = outcome?.prose || target_prose;
-    const fused_think = outcome?.think || target_think;
-
-    // 5. Commit fused continuation to persistence and active feed
-    if (simulation_log && typeof simulation_log.edit_entry === "function") {
-      await simulation_log.edit_entry(target_entry.id, fused_prose);
-      // Update entry meta think in-memory if present
-      const entry = feed.find((e) => String(e.id) === String(target_entry.id));
-      if (entry) {
-        entry.meta = entry.meta || {};
-        entry.meta.think = fused_think;
+      // If onChunk never fired (e.g. non-streaming or mock without chunks), ensure stages transition cleanly
+      if (first_chunk) {
+        first_chunk = false;
+        stage_ai_speaker();
       }
-    }
 
-    return outcome;
+      const fused_prose = outcome?.prose || target_prose;
+      const fused_think = outcome?.think || target_think;
+
+      // 5. Commit fused continuation to persistence and active feed
+      if (simulation_log && typeof simulation_log.edit_entry === "function") {
+        await simulation_log.edit_entry(target_entry.id, fused_prose);
+        // Update entry meta think in-memory if present
+        const entry = feed.find((e) => String(e.id) === String(target_entry.id));
+        if (entry) {
+          entry.meta = entry.meta || {};
+          entry.meta.think = fused_think;
+        }
+      }
+
+      return outcome;
+    } finally {
+      _end_turn_scope();
+    }
   } finally {
     app.end_stream();
   }
 }
 /**
- * Writes back Kernel execution outcomes into active stores and IndexedDB.
+ * Writes back turn outcomes into active stores and IndexedDB.
  *
  * Resolves Gap 4:
- * 1. Synchronizes updated AI dynamics into runtime.active_ai and runtime.ai_physics.
- * 2. Synchronizes updated Fractal dynamics into runtime.active_fractal and runtime.fractal_physics.
- * 3. Advances runtime.round to match Kernel.round.
- * 4. Persists the updated entities and story round into IndexedDB via runtime.save_entity and runtime.save.
+ * 1. Synchronizes updated AI dynamics into runtime.active_ai and ai mirrors.
+ * 2. Synchronizes updated Fractal dynamics into runtime.active_fractal and fractal mirrors.
+ * 3. Confirms runtime.round (already advanced by the turn).
+ * 4. Persists the updated entities & story round into IndexedDB via runtime.save_entity and runtime.save.
  * 5. Runs Turn 3 Caretaker background consolidation and records state diffs.
  *
- * @param {object} kernel - Turn session (plain session or Kernel instance, same shape)
- * @param {object} outcome
- * @param {object} live_transport
+ * @param {object} turn - Folded turn output ({ ai, fractal, user, round, outcome })
+ * @param {object} turn.ai - Post-delta AI quadrant (transient copy)
+ * @param {object} turn.fractal - Post-delta fractal quadrant (transient copy)
+ * @param {object} turn.user - User quadrant (transient copy)
+ * @param {number} turn.round - The round just executed
+ * @param {object} turn.outcome - execute_round outcome
+ * @param {object} [turn.options={}] - Abort signal carrier ({ signal })
  * @returns {Promise<void>}
  */
-export async function write_back_kernel_state(kernel, outcome, live_transport, options = {}) {
+export async function write_back_turn_state({ ai, fractal, user, round, outcome, options = {} } = {}) {
   if (!runtime) return;
 
   // 1-3. Write back quadrant dynamics (AI/Fractal mirror into setter, active, and physics; User writes active only)
+  const dynamics = { ai: ai?.dynamics, fractal: fractal?.dynamics };
   for (const role of ["ai", "fractal"]) {
-    const dynamics = kernel[role]?.dynamics;
-    if (!dynamics) continue;
+    const role_dynamics = dynamics[role];
+    if (!role_dynamics) continue;
     if (role in runtime) {
-      runtime[role] = { ...dynamics };
+      runtime[role] = { ...role_dynamics };
     }
     const active = role === "ai" ? runtime.active_ai : runtime.active_fractal;
     if (active) {
-      active.dynamics = { ...dynamics };
+      active.dynamics = { ...role_dynamics };
     }
     const physics = role === "ai" ? runtime.ai_physics : runtime.fractal_physics;
     if (physics) {
-      Object.assign(physics, dynamics);
+      Object.assign(physics, role_dynamics);
     }
   }
-  if (kernel.user?.dynamics && runtime.active_user) {
-    runtime.active_user.dynamics = { ...kernel.user.dynamics };
+  if (user?.dynamics && runtime.active_user) {
+    runtime.active_user.dynamics = { ...user.dynamics };
   }
 
-  // 4. Synchronize macro round counter
-  runtime.round = kernel.round;
+  // 4. Confirm macro round counter (advanced pre-generation; re-asserted here so
+  // write-back is the single place the round lands).
+  if (typeof round === "number") runtime.round = round;
 
   // 5. Persist updated entities & story round into IndexedDB
   const save_promises = [];
@@ -390,7 +483,7 @@ export async function write_back_kernel_state(kernel, outcome, live_transport, o
   // Gate execution on non-empty character prose and non-aborted signal (fizzle-path hygiene)
   const prose = outcome?.character_turn?.prose || "";
   if (prose.trim() && !options.signal?.aborted) {
-    dispatch_caretaker_consolidation(kernel, live_transport, options.signal).catch((err) => {
+    dispatch_caretaker_consolidation({ ai, user, fractal, round: Number(runtime.round ?? 0) }, get_transport(), options.signal).catch((err) => {
       console.warn("[Bridge] Caretaker background execution error:", err);
     });
   }
@@ -399,23 +492,33 @@ export async function write_back_kernel_state(kernel, outcome, live_transport, o
  * Runs Turn 3 Caretaker maintenance in the background and commits full 4-quadrant bracket updates
  * (present.physical, present.non_physical, future, and past) to active entity state and IndexedDB.
  *
- * @param {object} kernel - Turn session (plain session or Kernel instance, same shape)
+ * Context is explicit: transient quadrants plus an optional history array.
+ * When history is omitted it is reconstructed from the owned feed.
+ *
+ * @param {object} turn - Turn context ({ ai, user, fractal, history?, round? })
  * @param {object} transport
- * @param {AbortSignal} [signal]
+ * @param {AbortSignal} [signal=null]
  * @returns {Promise<void>}
  */
-export async function dispatch_caretaker_consolidation(kernel, transport, signal = null) {
+export async function dispatch_caretaker_consolidation({ ai, user, fractal, history, round } = {}, transport, signal = null) {
   if (signal?.aborted) return;
   if (!runtime) return;
 
+  const entities = { AI: ai ?? runtime.active_ai, USER: user ?? runtime.active_user, FRACTAL: fractal ?? runtime.active_fractal };
+  const context_history =
+    Array.isArray(history) ? history : (
+      reconstruct_history_from_feed(simulation_log?.feed || [], { user: entities.USER, ai: entities.AI, fractal: entities.FRACTAL })
+    );
+  const context_round = typeof round === "number" ? round : Number(runtime.round ?? 0);
+
   try {
-    const target_entity_key = resolve_caretaker_target(runtime.back_shot_cursor ?? 0, { AI: kernel.ai, USER: kernel.user, FRACTAL: kernel.fractal }, true);
+    const target_entity_key = resolve_caretaker_target(runtime.back_shot_cursor ?? 0, entities, true);
 
     const caretaker_outcome = await execute_turn_3_caretaker({
       transport,
-      round: kernel.round,
-      entities: { AI: kernel.ai, USER: kernel.user, FRACTAL: kernel.fractal },
-      history: kernel.history,
+      round: context_round,
+      entities,
+      history: context_history,
       target_entity_key,
       signal,
     });
@@ -438,7 +541,7 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
     let has_changes = false;
     const ledger_entries = [];
     const story_id = runtime.story_id ?? null;
-    const round = Number(kernel.round ?? 0);
+    const entry_round = Number(context_round ?? 0);
     const entity_id = String(target_entity.id || target_key.toLowerCase());
 
     const helper_record_ledger = (field, delta_text) => {
@@ -447,7 +550,7 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
       for (const item of parsed_items) {
         ledger_entries.push({
           story_id,
-          round,
+          round: entry_round,
           seq: 3, // Caretaker continuum phase
           entity_id,
           field,
@@ -518,9 +621,9 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
           const present_combined = [caretaker_outcome.present_physical, caretaker_outcome.present_non_physical].filter(Boolean).join(" ");
           await session_driver.log_message("", "system", "Caretaker", {
             turn_type: "SYSTEM_TURN",
-            round,
+            round: entry_round,
             story_id: runtime.story_id,
-            snapshots: { AI: kernel?.ai, USER: kernel?.user, FRACTAL: kernel?.fractal },
+            snapshots: { AI: entities.AI, USER: entities.USER, FRACTAL: entities.FRACTAL },
             meta: {
               type: "CONTINUUM_FORMATION",
               target: target_key,
@@ -547,10 +650,12 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
 }
 /**
  * CHANGELOG:
- * - Phase 3: prod path builds a plain turn session via create_turn_session (no
- *   class); Kernel remains as the test-compat holder over the same transactions.
- * - 2026-11-10: Created from bridge.js run atoms: open_turn_session owns the
- *   quadrant/Kernel/history preamble; persist_turn_rows owns row commits;
- *   maybe_spawn_turn_image owns the visual beat (cap via IMAGE_POLICY);
- *   write_back folds the three dynamics mirrors into one loop. bridge.js dies.
+ * - Phase 3: kernel.svelte.js deleted. Turn transactions fold into this module
+ *   operating directly on runtime / simulation_log / simulation_state — no
+ *   session object, no Kernel class, no state mirroring. Round/dynamics
+ *   rollback restores the owning stores; history is reconstructed per turn.
+ * - Phase 3 prep: prod path built a plain turn session via create_turn_session
+ *   (removed); Kernel compat holder removed with it.
+ * - 2026-11-10: Created from bridge.js run atoms: quadrant/history preamble,
+ *   row commits, visual beat, write-back triple mirror, caretaker dispatch.
  */

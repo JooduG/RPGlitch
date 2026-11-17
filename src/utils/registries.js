@@ -10,8 +10,9 @@
  *   the strict unidirectional downward layer hierarchy
  *   (`ui` -> `state` -> `intelligence` -> `data` -> `platform`).
  * - Exposes:
- *   1. `state_bridge`: Engine/utils access to live `app`, `runtime`,
- *      `simulation_state`, `simulation_log`, and `session_driver`.
+ *   1. `state_bridge`: Cross-layer reads that cannot be static imports —
+ *      `app` (UI) for engine/media/utils, plus engine-owned stores for the
+ *      media layer (`runtime`, `simulation_log`, `session_driver`).
  *   2. `stream_bridge`: Platform/LLM access to typewriter text streaming hooks
  *      (`start`, `update`, `end`, `is_active`).
  *   3. `stories_bridge`: Data repository access to notify reactive stores of
@@ -36,7 +37,6 @@
  * @typedef {Object} StateAccessors
  * @property {any} [app] - Main UI & ephemeral state store.
  * @property {any} [runtime] - Reactive entity kernel & simulation chronology store.
- * @property {any} [simulation_state] - State machine & intent lock store.
  * @property {any} [simulation_log] - Reactive message dialogue feed store.
  * @property {any} [session_driver] - Session log persistence driver.
  * @property {((snapshot: any) => void)} [record_prompt_token_snapshot] - Live compiler token budget recorder.
@@ -90,7 +90,6 @@ function create_cell(label, { noisy = false } = {}) {
 
 const _app = create_cell("app", { noisy: true });
 const _runtime = create_cell("runtime", { noisy: true });
-const _simulation_state = create_cell("simulation_state", { noisy: true });
 const _simulation_log = create_cell("simulation_log", { noisy: true });
 const _session_driver = create_cell("session_driver", { noisy: true });
 const _snapshot_recorder = create_cell("prompt token snapshot recorder");
@@ -102,7 +101,6 @@ const _snapshot_recorder = create_cell("prompt token snapshot recorder");
 export function register_state_accessors(accessors) {
   _app.register(accessors.app);
   _runtime.register(accessors.runtime);
-  _simulation_state.register(accessors.simulation_state);
   _simulation_log.register(accessors.simulation_log);
   _session_driver.register(accessors.session_driver);
   _snapshot_recorder.register(accessors.record_prompt_token_snapshot);
@@ -118,9 +116,6 @@ export const state_bridge = {
   },
   get runtime() {
     return _runtime.read();
-  },
-  get simulation_state() {
-    return _simulation_state.read();
   },
   get simulation_log() {
     return _simulation_log.read();
@@ -220,7 +215,6 @@ export const stories_bridge = {
 export function reset_registries_for_testing() {
   _app.reset();
   _runtime.reset();
-  _simulation_state.reset();
   _simulation_log.reset();
   _session_driver.reset();
   _snapshot_recorder.reset();

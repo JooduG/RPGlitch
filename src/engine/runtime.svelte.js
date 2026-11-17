@@ -1,5 +1,5 @@
 /**
- * src/state/runtime.svelte.js
+ * src/engine/runtime.svelte.js
  * ⚡ RUNTIME ENGINE STORE: Reactive Simulation State & Entity Kernel
  *
  * Core Responsibilities:
@@ -130,11 +130,11 @@ export class RuntimeEngineStore {
   #active_npcs = $state({});
 
   // --- Chronology & Session State ---
+  // Single source of truth for the active story pointer is session_driver
+  // (session_driver.active_id); this store keeps only the row cache below.
   is_ready = $state(false);
-  /** @type {string | null} */
-  #story_id = $state(null);
-  /** @type {{ by_id: Record<string, any>, active_id: string | null }} */
-  #story = $state({ by_id: {}, active_id: null });
+  /** @type {{ by_id: Record<string, any> }} */
+  #story = $state({ by_id: {} });
   round = $state(0);
   turn_type = $state("USER_TURN");
 
@@ -192,7 +192,7 @@ export class RuntimeEngineStore {
         const _dynamics_beat = this.last_dynamics_beat_round;
         const _stagnation_turns = this.stagnation_turns;
         const _last_drift = this.last_semantic_drift;
-        if (this.is_ready && this.#story_id) {
+        if (this.is_ready && session_driver?.active_id) {
           this.#persist_story_snapshot(_round).catch((err) => console.error("[Data] Auto-save failed:", err));
         }
       });
@@ -265,26 +265,25 @@ export class RuntimeEngineStore {
   // --------------------------------------------------------------------------
 
   get story_id() {
-    // Single read authority with driver fallback: covers the transient window
-    // where session_driver.set_active ran but the bound on_set_active hook has
-    // not synced runtime yet. Writes always mirror (see setter).
-    return this.#story_id ?? session_driver?.active_id ?? null;
+    // Single source of truth: session_driver owns the active pointer (RAM +
+    // kv_settings persistence). This getter is a pure derived view — all
+    // switches flow through set_active / restore_active / clear_active.
+    return session_driver?.active_id ?? null;
   }
   set story_id(id) {
-    this.#story_id = id;
-    this.#story.active_id = id;
-    // Mirror into the session driver so the durable pointer can't drift from
-    // runtime reads. restore_active carries no hooks, so no loop is possible.
+    // Sync RAM-only mirror for contexts that assign the pointer directly
+    // (tests, boot restore). Durable switches use set_active/clear_active.
     try {
-      if (session_driver && session_driver.active_id !== id) session_driver.restore_active(id);
+      session_driver?.restore_active?.(id);
     } catch {
-      /* mirror is best-effort; the driver remains readable directly */
+      /* driver remains readable directly */
     }
   }
 
   get active_story() {
-    if (!this.#story_id) return null;
-    return this.#story.by_id[this.#story_id] ?? this.#story.by_id[coerce_story_key(this.#story_id)] ?? null;
+    const active_id = session_driver?.active_id ?? null;
+    if (active_id == null) return null;
+    return this.#story.by_id[active_id] ?? this.#story.by_id[coerce_story_key(active_id)] ?? null;
   }
 
   // --------------------------------------------------------------------------
@@ -365,16 +364,16 @@ export class RuntimeEngineStore {
    * @param {string | number | null} [active_story_id]
    */
   async sync(active_story_id = null) {
-    if (active_story_id) this.#story_id = String(active_story_id);
+    let resolved_id = active_story_id ? String(active_story_id) : (session_driver?.active_id ?? null);
 
-    const checkpoint = !this.#story_id ? load_session_checkpoint() : null;
-    if (!this.#story_id) {
+    const checkpoint = !resolved_id ? load_session_checkpoint() : null;
+    if (!resolved_id) {
       if (checkpoint?.story_id) {
-        this.#story_id = checkpoint.story_id;
+        resolved_id = checkpoint.story_id;
       } else {
         try {
           const entry = await db.kv_settings.get(SESSION_ID_KEY);
-          if (entry?.value) this.#story_id = entry.value;
+          if (entry?.value) resolved_id = entry.value;
           else return;
         } catch {
           return;
@@ -382,16 +381,16 @@ export class RuntimeEngineStore {
       }
     }
 
+    // Publish the resolved pointer through its single owner before loading.
+    session_driver?.restore_active?.(String(resolved_id));
+    const active_id = session_driver?.active_id ?? String(resolved_id);
+
     try {
-      const db_key = coerce_story_key(this.#story_id);
+      const db_key = coerce_story_key(active_id);
       const story = await db.stories.get(db_key);
       if (!story) {
         clear_session_checkpoint();
         return;
-      }
-
-      if (session_driver?.restore_active) {
-        session_driver.restore_active(String(this.#story_id));
       }
 
       if (story.round != null) this.round = story.round;
@@ -465,8 +464,8 @@ export class RuntimeEngineStore {
       apply_story_title(story, this.active_ai, this.active_user, this.active_fractal);
 
       this.#story.by_id[db_key] = story;
-      if (String(db_key) !== String(this.#story_id)) {
-        this.#story.by_id[this.#story_id] = story;
+      if (String(db_key) !== String(active_id)) {
+        this.#story.by_id[active_id] = story;
       }
 
       this.is_ready = true;
@@ -484,8 +483,9 @@ export class RuntimeEngineStore {
    * mount during boot leaves the lobby placeholder as the prologue header.
    */
   restore_story_title() {
-    if (!this.#story_id) return;
-    const story = this.#story.by_id[this.#story_id] ?? this.#story.by_id[coerce_story_key(this.#story_id)] ?? null;
+    const active_id = session_driver?.active_id ?? null;
+    if (active_id == null) return;
+    const story = this.#story.by_id[active_id] ?? this.#story.by_id[coerce_story_key(active_id)] ?? null;
     apply_story_title(story, this.active_ai, this.active_user, this.active_fractal);
   }
 
@@ -511,8 +511,9 @@ export class RuntimeEngineStore {
    * @returns {Promise<boolean>} false when no story is loaded
    */
   async #persist_story_snapshot(target_round) {
-    if (!this.#story_id) return false;
-    await db.stories.update(coerce_story_key(this.#story_id), {
+    const active_id = session_driver?.active_id ?? null;
+    if (active_id == null) return false;
+    await db.stories.update(coerce_story_key(active_id), {
       round: target_round,
       last_played: Date.now(),
       updated_at: Date.now(),
@@ -527,7 +528,7 @@ export class RuntimeEngineStore {
   }
 
   async save(round = null) {
-    if (!this.#story_id) return;
+    if (session_driver?.active_id == null) return;
     try {
       const target_round = typeof round === "number" ? round : this.round;
       const wrote = await this.#persist_story_snapshot(target_round);
@@ -578,7 +579,7 @@ export class RuntimeEngineStore {
         await db.stories.update(coerce_story_key(id), data);
         const target_app = get_app();
         if (target_app) target_app.stories_version++;
-        if (this.#story_id === id) {
+        if (session_driver?.active_id != null && String(session_driver.active_id) === String(id)) {
           Object.assign(this.#story.by_id[id] || {}, data);
         }
       } else {

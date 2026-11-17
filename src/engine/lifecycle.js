@@ -12,6 +12,7 @@
 
 import { append_ledger_entries, apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
 import { parse_think_block, state_bridge } from "@utils";
+import { simulation_state } from "./status.svelte.js";
 import { execute_turn } from "./runs.js";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "./sessions.svelte.js";
@@ -237,9 +238,7 @@ export async function execute_prologue(story_id) {
   } finally {
     app.busy = false;
     app.end_stream();
-    if (typeof state_bridge.simulation_state !== "undefined") {
-      state_bridge.simulation_state.phase = "idle";
-    }
+    simulation_state.phase = "idle";
   }
 }
 /**
@@ -277,9 +276,7 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
   });
 
   app.end_stream?.();
-  if (typeof state_bridge.simulation_state !== "undefined") {
-    state_bridge.simulation_state.phase = "locked";
-  }
+  simulation_state.phase = "locked";
   return cleaned_prose;
 }
 /**

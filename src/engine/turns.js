@@ -19,7 +19,7 @@
 import { LENGTH_THRESHOLDS } from "@config";
 import { normalize_entity } from "@data";
 import { parse_brackets, parse_think_block } from "@utils";
-import { safe_parse_json, state_bridge } from "@utils";
+import { safe_parse_json } from "@utils";
 import { compile_prompt, PURPOSE_CORES } from "./prompts.js";
 
 /**
@@ -583,18 +583,18 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
  * @param {AbortSignal} [signal=null] - Optional abort signal
  * @param {((chunk: string, is_full_replace: boolean) => void) | null} [on_token=null] - Live token callback
  * @param {object} [context={}] - Explicit caller context ({ runtime, app, feed });
- *   falls back to the state_bridge cells when omitted (media/UI callers unchanged).
+ *   all three are required (no bridge fallback — engine internals stay direct).
  * @returns {Promise<string>} Cleaned narrative prose
  */
 export async function execute_ghostwriter(transport, input_text = "", signal = null, on_token = null, context = {}) {
-  const runtime_source = context.runtime || state_bridge.runtime || {};
-  const app_source = context.app || state_bridge.app || {};
+  const runtime_source = context.runtime || {};
+  const app_source = context.app || {};
 
   const user_quadrant = normalize_entity(runtime_source.active_user || app_source.selected_user || {});
   const ai_quadrant = normalize_entity(runtime_source.active_ai || app_source.selected_ai || {});
   const fractal_quadrant = normalize_entity(runtime_source.active_fractal || app_source.selected_fractal || {});
 
-  const feed = context.feed || state_bridge.simulation_log?.feed || [];
+  const feed = context.feed || [];
   const history = reconstruct_history_from_feed(feed, { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
 
   if (input_text && input_text.trim()) {

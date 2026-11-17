@@ -204,7 +204,7 @@
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    execute_ghostwriter(get_transport(), previous_text)
+    execute_ghostwriter(get_transport(), previous_text, null, null, { runtime, app, feed: simulation_log.feed })
       .then(async (generated_text) => {
         if (generated_text && generated_text.trim()) {
           value = generated_text;

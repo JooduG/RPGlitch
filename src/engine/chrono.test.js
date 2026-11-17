@@ -6,21 +6,29 @@ import { runtime as real_runtime } from "./runtime.svelte.js";
 import { simulation_log as real_log } from "./log.svelte.js";
 import { execute_turn } from "./runs.js";
 import { execute_prologue } from "./lifecycle.js";
+import { simulation_state as real_state } from "./status.svelte.js";
 
 vi.mock("./sessions.svelte.js", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    session_driver: {
-      create_from_selection: vi.fn().mockResolvedValue("story-123"),
-      send: vi.fn().mockResolvedValue({}),
-      regenerate: vi.fn().mockResolvedValue({}),
-      record_system_marker: vi.fn().mockResolvedValue(undefined),
-      load_log: vi.fn().mockResolvedValue([]),
-      log_message: vi.fn().mockResolvedValue({ id: 1, created_at: Date.now() }),
-      clear_active: vi.fn().mockResolvedValue(undefined),
-    },
+  const drv = {
+    create_from_selection: vi.fn().mockResolvedValue("story-123"),
+    send: vi.fn().mockResolvedValue({}),
+    regenerate: vi.fn().mockResolvedValue({}),
+    record_system_marker: vi.fn().mockResolvedValue(undefined),
+    load_log: vi.fn().mockResolvedValue([]),
+    log_message: vi.fn().mockResolvedValue({ id: 1, created_at: Date.now() }),
+    clear_active: vi.fn().mockImplementation(async () => {
+      drv.active_id = null;
+    }),
+    restore_active: vi.fn().mockImplementation(async (id) => {
+      if (id != null) drv.active_id = id;
+    }),
+    set_active: vi.fn().mockImplementation(async (id) => {
+      if (id != null) drv.active_id = id;
+    }),
   };
+  drv.active_id = "story-123";
+  return { ...actual, session_driver: drv };
 });
 
 vi.mock("./runs.js", () => ({ execute_turn: vi.fn().mockResolvedValue({}), execute_continue: vi.fn().mockResolvedValue({}) }));
@@ -40,6 +48,13 @@ describe("ChronoEngine", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    session_driver.active_id = "story-123";
+    real_state.set_intent_active(false);
+    try {
+      real_state.unlock();
+    } catch {
+      /* real singleton starts unlocked */
+    }
     mock_app = {
       simulation: { loading: false },
       story_title: "Test Story",
@@ -108,7 +123,7 @@ describe("ChronoEngine", () => {
     });
 
     it("rejects when intent is locked", async () => {
-      mock_simulation_state.intent_active = true;
+      real_state.set_intent_active(true);
       const result = await chrono_engine.send("Hello");
       expect(result).toBe(false);
       expect(session_driver.send).not.toHaveBeenCalled();
