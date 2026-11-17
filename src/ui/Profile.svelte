@@ -14,7 +14,7 @@
     upsert_entity,
   } from "@data";
   import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
-  import { runtime, simulation_state } from "@engine";
+  import { runtime, simulation_state } from "@state";
   import { get_signature_color } from "@media";
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { ProfilePicture } from "@ui";

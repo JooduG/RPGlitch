@@ -5,9 +5,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, act } from "@testing-library/svelte";
 
-import { app } from "@state";
-import { runtime } from "@engine";
-import { session_driver } from "@engine";
+import { app, runtime, session_driver } from "@state";
 import Console from "./Console.svelte";
 import * as engine from "@engine";
 
@@ -38,7 +36,7 @@ describe("Console & Settings State", () => {
   });
 
   it("triggers ghostwriter exactly once per request and prevents loop", async () => {
-    const ghostwriter_spy = vi.spyOn(engine, "execute_ghostwriter").mockResolvedValue("Generated ghost text");
+    const ghostwriter_spy = vi.spyOn(engine, "generate_user_draft").mockResolvedValue("Generated ghost text");
     app.view = "storymode";
     app.ghostwrite_request = 0;
 

@@ -1,18 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ProfileState } from "./Profile.svelte.js";
 
-// Mock engine module
+// Mock engine module (Rank 4 verbs: parse_entity_profile)
 let resolveEnhanceFn;
 vi.mock("@engine", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    structure_profile: vi.fn(() => {
+    parse_entity_profile: vi.fn(() => {
       return new Promise((resolve) => {
         resolveEnhanceFn = resolve;
       });
     }),
-    runtime: { active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" }, save_entity: vi.fn(), update_entity: vi.fn() },
   };
 });
 
@@ -29,6 +28,7 @@ vi.mock("@state", async (importOriginal) => {
       settings: { dev_mode: false },
       claimed_entity_ids: { has: vi.fn(() => false) },
     },
+    runtime: { active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" }, save_entity: vi.fn(), update_entity: vi.fn() },
   };
 });
 
@@ -53,7 +53,7 @@ describe("ProfileState setImage", () => {
 
     // Assert persistence
     const { db } = await import("@data");
-    const { runtime } = await import("@engine");
+    const { runtime } = await import("@state");
 
     expect(db.entities.update).toHaveBeenCalledWith("test-char", { profile_picture: "data:image/png;base64,trimmed123", updated_at: expect.any(Number) });
 

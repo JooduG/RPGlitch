@@ -6,24 +6,14 @@
    * storyboard controls, storymode input composer, settings control panel, and conclusion modals.
    */
   import { db, stories } from "@data";
-  import {
-    chrono_engine,
-    execute_epilogue,
-    execute_ghostwriter,
-    force_recover_simulation,
-    get_transport,
-    runtime,
-    session_driver,
-    simulation_log,
-    simulation_state,
-  } from "@engine";
+  import { chrono_engine, force_recover_simulation, generate_closing, generate_user_draft, get_transport } from "@engine";
   import { Audio, get_signature_color, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { install_begin_flight_effect, storyboard } from "@ui";
   import { build_story_export_filename, export_story_markdown } from "@data";
   import { click_outside, download_text_file } from "@utils";
   import { tick } from "svelte";
-  import { app } from "@state";
+  import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
   import StoryCard from "./StoryCard.svelte";
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---
@@ -204,7 +194,7 @@
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    execute_ghostwriter(get_transport(), previous_text, null, null, { runtime, app, feed: simulation_log.feed })
+    generate_user_draft(get_transport(), previous_text, null, null, { runtime, app, feed: simulation_log.feed })
       .then(async (generated_text) => {
         if (generated_text && generated_text.trim()) {
           value = generated_text;
@@ -380,7 +370,7 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      await execute_epilogue(runtime.story_id);
+      await generate_closing(runtime.story_id);
       if (runtime.story_id) {
         await stories.conclude(runtime.story_id);
         await app.load_entities();

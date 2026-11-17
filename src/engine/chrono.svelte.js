@@ -1,6 +1,8 @@
 /**
- * src/state/chrono.svelte.js
- * ⏳ CHRONO: The Heartbeat of Time & Turn Orchestration
+ * src/engine/chrono.svelte.js
+ * ============================================================================
+ * ⏳ CHRONO: The Heartbeat of Time & Turn Orchestration (PHASE 5)
+ * ============================================================================
  *
  * Core Responsibilities:
  * - Manages the strict turn-based progression and temporal heartbeat of the simulation.
@@ -8,21 +10,24 @@
  * - Dispatches user inputs (`send`), regenerative rerolls (`retry`), and narrative extensions (`continue`).
  * - Executes the atomic 5-phase Turn Advancement cycle:
  *     1. STASIS: System Lock & Intent Gate (sub-millisecond double-click protection).
- *     2. SYNTHESIS: Background LLM Stream Synthesis via Gamemaster.
+ *     2. SYNTHESIS: Background LLM Stream Synthesis via the turn runner.
  *     3. PAST: Echo & Continuum formation.
  *     4. ANCHOR: Timeline persistence into IndexedDB via Runtime.
  *     5. UNIFIED CLEANUP: Stream release, error handling, and orphaned-turn self-healing.
  *
  * Dependencies & Cross-Module Invariants:
- * - `@data` (`session_driver`): Creates sessions, persists user inputs, loads logs, and logs durable markers.
- * - `@intelligence` (`gamemaster`, `build_turn_summary`): AI narrative synthesis and round summaries.
- * - `@state` (`app`): Direct application interface store import.
+ * - `@state`: session_driver (persistence), simulation_log (feed), runtime,
+ *   simulation_state (phase/intent), app (streaming/log).
+ * - `@simulation` (`build_turn_summary`): round telemetry that must never
+ *   break turn progression.
+ * - `./runner.js` (`run_turn`, `continue_turn`): turn execution.
+ * - `./lifecycle.js` (`generate_opening`): prologue choreography.
  */
 
-import { build_turn_summary } from "./turns.js";
+import { build_turn_summary } from "@simulation";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
-import { execute_prologue } from "./lifecycle.js";
-import { execute_continue, execute_turn } from "./runs.js";
+import { generate_opening } from "./lifecycle.js";
+import { continue_turn, run_turn } from "./runner.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -52,6 +57,46 @@ export class ChronoEngine {
   /** @type {boolean} */
   _orphan_retry_in_flight = false;
 
+  /**
+   * Single busy predicate for every public entry gate (loading flag or
+   * an intent already holding the simulation lock).
+   * @returns {boolean}
+   */
+  #is_busy() {
+    return app.simulation.loading || simulation_state.intent_active;
+  }
+
+  /**
+   * Runs fn under the stream lock: intent + loading + a fresh
+   * AbortController wired into the streaming store. Teardown always
+   * releases the controller, the streaming buffer, and the intent —
+   * no action duplicates this block anymore.
+   * @param {(controller: AbortController) => Promise<any>} fn
+   * @returns {Promise<any>}
+   */
+  async #with_stream_lock(fn) {
+    simulation_state.set_intent_active(true);
+    app.simulation.loading = true;
+    const controller = new AbortController();
+    app.streaming.abort_controller = controller;
+    app.streaming.active = true;
+    try {
+      return await fn(controller);
+    } finally {
+      // Unified Cleanup Framework
+      if (app.streaming.abort_controller === controller) {
+        app.streaming.abort_controller = null;
+      }
+      app.streaming.active = false;
+      app.streaming.content = "";
+      app.streaming.node_id = null;
+      app.streaming.role = "ai";
+      app.simulation.loading = false;
+      simulation_state.unlock();
+      simulation_state.set_intent_active(false);
+    }
+  }
+
   // ============================================================================
   // [SECTION 3: SESSION STARTUP & PROLOGUE CHOREOGRAPHY]
   // ============================================================================
@@ -62,7 +107,8 @@ export class ChronoEngine {
    * @param {StorySelection} selection
    */
   async start(selection) {
-    if (app.simulation.loading || simulation_state.intent_active) return;
+    this.error = null;
+    if (this.#is_busy()) return;
     simulation_state.set_intent_active(true);
     app.simulation.loading = true;
 
@@ -93,7 +139,7 @@ export class ChronoEngine {
       // 4. Trigger Prologue Generation
       simulation_state.start_generation("fractal");
       try {
-        await execute_prologue(story_id);
+        await generate_opening(story_id);
         app.log("Prologue generated and opening turn executed.", "system");
       } catch (e) {
         console.error("[Chrono] Prologue Failed:", e);
@@ -135,18 +181,20 @@ export class ChronoEngine {
    * @returns {Promise<boolean>}
    */
   async send(text) {
-    if (app.simulation.loading || simulation_state.intent_active || !text?.trim()) {
+    this.error = null;
+    if (this.#is_busy() || !text?.trim()) {
       return false;
     }
     const result = await this.advance_turn(text);
-    return result !== false;
+    return Boolean(result);
   }
 
   /**
    * Retries the last AI turn by rolling back session state and re-advancing.
    */
   async retry() {
-    if (app.simulation.loading || simulation_state.intent_active) return;
+    this.error = null;
+    if (this.#is_busy()) return;
     try {
       await session_driver.regenerate();
       await this.advance_turn(null, { is_retry: true });
@@ -159,10 +207,11 @@ export class ChronoEngine {
    * Continues the story without user input (AI extends the active scene).
    * If target_id is provided, continues that specific message in-place.
    *
-   * @param {string} [target_id]
+   * @param {string} [target_id=null]
    */
   async continue(target_id = null) {
-    if (app.simulation.loading || simulation_state.intent_active) return;
+    this.error = null;
+    if (this.#is_busy()) return;
     try {
       if (!simulation_log?.feed?.length && typeof simulation_log?.refresh === "function") {
         await simulation_log.refresh();
@@ -173,20 +222,10 @@ export class ChronoEngine {
         const feed = simulation_log?.feed || [];
         const target_entry = feed.find((e) => String(e.id) === String(target_id));
         if (target_entry) {
-          simulation_state.set_intent_active(true);
-          app.simulation.loading = true;
-          const controller = new AbortController();
-          app.streaming.abort_controller = controller;
-          app.streaming.active = true;
-
-          try {
-            await execute_continue(target_entry, { signal: controller.signal });
+          await this.#with_stream_lock(async (controller) => {
+            await continue_turn(target_entry, { signal: controller.signal });
             app.log("Continuation complete.", "system");
-          } finally {
-            simulation_state.set_intent_active(false);
-            app.simulation.loading = false;
-            app.streaming.active = false;
-          }
+          });
           return;
         }
       }
@@ -207,23 +246,18 @@ export class ChronoEngine {
    * @param {AdvanceTurnOptions} [options={}]
    */
   async advance_turn(input, options = {}) {
+    this.error = null;
     const story_id = runtime.story_id;
     if (!story_id) return;
 
-    // 1. STASIS: System Lock & Double-Click Gate
-    simulation_state.set_intent_active(true);
-    app.simulation.loading = true;
-
-    const previous_round = Number(runtime.round || 0);
     const final_input = input;
 
-    // 2. SYNTHESIS: Generate Narrative (round is owned by runtime)
-    app.log(`LLM synthesizing turn ${runtime.round}...`, "ai");
-    const controller = new AbortController();
-    app.streaming.abort_controller = controller;
-    app.streaming.active = true;
+    return this.#with_stream_lock(async (controller) => {
+      const previous_round = Number(runtime.round || 0);
 
-    return (async () => {
+      // 2. SYNTHESIS: Generate Narrative (round is owned by runtime)
+      app.log(`LLM synthesizing turn ${runtime.round}...`, "ai");
+
       try {
         if (final_input) {
           try {
@@ -238,7 +272,7 @@ export class ChronoEngine {
 
         try {
           app.log("Executing turn via Sovereign Engine...", "system");
-          await execute_turn(final_input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
+          await run_turn(final_input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
           app.log("Generation complete.", "system");
 
           try {
@@ -316,7 +350,7 @@ export class ChronoEngine {
                   if (!has_reply_after) {
                     app.log("Detected orphaned turn - retrying generation once...", "warn");
                     simulation_state.start_generation(options.role || "ai");
-                    await execute_turn(final_input, { signal: controller.signal });
+                    await run_turn(final_input, { signal: controller.signal });
                     retry_landed = true;
                     app.log("Orphaned turn recovered.", "system");
                   }
@@ -351,29 +385,23 @@ export class ChronoEngine {
             console.error("[Chrono] Failed to persist orphan marker:", log_err);
           }
 
-          if (!retry_landed) {
-            simulation_log.add({
-              id: `err-${Date.now()}`,
-              role: "system",
-              text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
-              timestamp: Date.now(),
-            });
+          if (retry_landed) {
+            // Orphan-retry success commits like a normal turn: the runner
+            // re-advanced the round and wrote back state; anchor it durably.
+            await runtime.save(runtime.round);
+            return true;
           }
+
+          this.error = error.message || "Unknown Time Fracture";
+          simulation_log.add({
+            id: `err-${Date.now()}`,
+            role: "system",
+            text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
+            timestamp: Date.now(),
+          });
         }
-      } finally {
-        // Unified Cleanup Framework
-        if (app.streaming.abort_controller === controller) {
-          app.streaming.abort_controller = null;
-        }
-        app.streaming.active = false;
-        app.streaming.content = "";
-        app.streaming.node_id = null;
-        app.streaming.role = "ai";
-        app.simulation.loading = false;
-        simulation_state.unlock();
-        simulation_state.set_intent_active(false);
       }
-    })();
+    });
   }
 
   /**
@@ -381,6 +409,7 @@ export class ChronoEngine {
    * @returns {Promise<void>}
    */
   async stop() {
+    this.error = null;
     if (runtime?.story_id) {
       await runtime.save();
     }

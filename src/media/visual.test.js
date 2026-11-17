@@ -17,12 +17,12 @@ import {
   visual_engine,
 } from "./image-generation.js";
 import { compose_story_beat_prompt, resolve_story_beat_style } from "@simulation";
-import { execute_visualizer_envision } from "../engine/lifecycle.js";
+import { refine_image_prompt } from "../engine/lifecycle.js";
 
 describe("visual.js - Stateless Perchance Image Dispatcher", () => {
   beforeEach(() => {
     // Mirror prod boot (src/engine/index.js): envision delegates to the engine impl.
-    set_visualizer_envision_impl(execute_visualizer_envision);
+    set_visualizer_envision_impl(refine_image_prompt);
     reset_cached_image_engine();
     reset_generation_in_flight();
     reset_image_generation_queue();

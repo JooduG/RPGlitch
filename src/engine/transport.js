@@ -10,13 +10,16 @@
  *
  * - One engine probe (window then parent frame).
  * - One mock runner (chunked think-block message, same pipeline as live).
- * - One chunk pipeline (accumulate, onToken/onChunk dedup, abort merge,
- *   cross-origin clone retry, result normalization).
- * - Two thin contracts over the core: foreground streaming (transport) and
- *   direct generation with stream-bridge side effects (generate_text).
+ * - One chunk pipeline (run_completion): accumulate, onToken/onChunk dedup,
+ *   abort merge, cross-origin clone retry, result normalization. Drives the
+ *   `streaming` store directly when `!options.silent`; silent callers own
+ *   streaming themselves (turn runner forwards chunks via app.*).
+ * - Two thin contracts over the core: foreground streaming (transport,
+ *   throws on abort) and direct generation with stream side effects
+ *   (generate_text, maps aborts to "").
  *
  * Blast radius note: create_live_stream_fn keeps its exact pinned behavior
- * (prompt function-or-string, startWith/stopSequences passthrough, dedup);
+ * (prompt function-or-string, startWith/stopSequences passthrough, dedup).
  * generate_text keeps mock-or-throw policy and AbortError-to-"" mapping.
  */
 
@@ -49,40 +52,55 @@ function resolve_ai_engine() {
   return null;
 }
 
+/**
+ * Mock runner: streams the pinned think-block message in fixed chunks.
+ * Each chunk is delivered exactly once (onChunk preferred, onToken
+ * fallback) so callers never see double-delivery. Drives `streaming`
+ * when `!options.silent`, with end_stream() in a finally.
+ */
 async function run_mock_generation(payload, options = {}) {
   const text = get_mock_message();
   const chunk_size = 4;
   let index = 0;
 
-  while (index < text.length) {
-    if (options.signal?.aborted) {
-      const err = new Error("Generation aborted by caller.");
-      err.name = "AbortError";
-      throw err;
-    }
-
-    const end = Math.min(index + chunk_size, text.length);
-    const chunk = text.slice(index, end);
-
-    if (options.onToken) options.onToken(chunk);
-
+  const deliver = (chunk) => {
     if (options.onChunk) options.onChunk(chunk);
-    if (!options.silent) {
-      if (!streaming.active) {
-        const role = payload.role || "ai";
-        streaming.start_stream(payload.node_id || "temp", role);
+    else if (options.onToken) options.onToken(chunk);
+  };
+
+  if (!options.silent) {
+    const role = payload.role || "ai";
+    streaming.start_stream(payload.node_id || "temp", role);
+  }
+  try {
+    while (index < text.length) {
+      if (options.signal?.aborted) {
+        const err = new Error("Generation aborted by caller.");
+        err.name = "AbortError";
+        throw err;
       }
-      streaming.update_stream(chunk);
+
+      const end = Math.min(index + chunk_size, text.length);
+      const chunk = text.slice(index, end);
+
+      deliver(chunk);
+      if (!options.silent) {
+        streaming.update_stream(chunk);
+      }
+
+      index = end;
+      await new Promise((resolve) => setTimeout(resolve, 15));
     }
 
-    index = end;
-    await new Promise((resolve) => setTimeout(resolve, 15));
+    if (typeof text === "string" && !options.raw) {
+      return sanitize_llm(text);
+    }
+    return text;
+  } finally {
+    if (!options.silent) {
+      streaming.end_stream();
+    }
   }
-
-  if (typeof text === "string" && !options.raw) {
-    return sanitize_llm(text);
-  }
-  return text;
 }
 
 /** Extracts the text piece from a streamed chunk (string or { textChunk }). */
@@ -90,111 +108,148 @@ function to_piece(chunk) {
   return typeof chunk === "string" ? chunk : chunk?.textChunk || "";
 }
 
-/**
- * Invokes the model once, retrying without streaming callbacks when a
- * cross-origin function proxy rejects streaming (DataCloneError).
- */
-async function invoke_with_retry(ai_engine, instruction, gen_options, handlers) {
+/** True when the engine rejected a streaming-callback proxy (cross-origin function clone). */
+function is_clone_error(err) {
+  const err_msg = err?.message || "";
+  return err_msg.includes("DataCloneError") || err_msg.includes("clone") || err_msg.includes("could not be cloned") || err_msg.includes("cross-origin");
+}
+
+/** Result precedence for completion: explicit text wins, then generatedText,
+ * then what we accumulated. A non-text result object with empty accumulation
+ * passes through untouched (enhance_text pins this for exotic engine shapes). */
+function normalize_completion_result(res, accumulated) {
+  if (typeof res === "string") return res;
+  if (res?.text || res?.generatedText) return res.text || res.generatedText;
+  if (accumulated) return accumulated;
+  if (res != null && typeof res === "object") return res;
+  return "";
+}
+
+function is_abort_error(err, signal) {
+  return err?.name === "AbortError" || String(err?.message || "").includes("aborted") || signal?.aborted;
+}
+
+function safe_stop_generation(generation) {
   try {
-    return await ai_engine({ instruction, ...gen_options, ...handlers });
-  } catch (err) {
-    const err_msg = err?.message || "";
-    const is_clone_error =
-      err_msg.includes("DataCloneError") || err_msg.includes("clone") || err_msg.includes("could not be cloned") || err_msg.includes("cross-origin");
-    if (is_clone_error) {
-      return await ai_engine({ instruction, ...gen_options });
-    }
-    throw err;
+    generation.stop();
+  } catch {
+    /* engine teardown is best-effort */
   }
 }
 
-/** Result precedence for foreground streaming: explicit text wins, then generatedText, then what we accumulated. */
-function normalize_transport_result(res, accumulated) {
-  return typeof res === "string" ? res : res?.text || res?.generatedText || accumulated;
-}
-
-/** Result precedence for direct generation: generatedText wins, then text, then raw. */
-function normalize_direct_result(res) {
-  return typeof res === "string" ? res : String(res?.generatedText ?? res?.text ?? res ?? "");
-}
-
 /**
- * Foreground streaming completion: accumulates chunks, guards against
+ * Unified completion core: accumulates chunks, guards against
  * onToken/onChunk double-delivery, merges abort signals, wires .stop().
- * Never touches the stream bridge - callers forward chunks themselves.
+ *
+ * - Drives `streaming` (start/update/end) when `!options.silent`; silent
+ *   callers own streaming themselves.
+ * - `options.throw_on_abort` selects the abort contract: foreground
+ *   streaming throws so chrono can roll back; direct generation resolves ""
+ *   so background callers never throw on cancellation.
  */
-function transport_completion(ai_engine, prompt, options, gate_signal) {
-  return new Promise((resolve, reject) => {
-    const effective_signal = merge_abort_signals(options.signal, gate_signal);
+async function run_completion(ai_engine, job, options = {}, gate_signal = null) {
+  const effective_signal = merge_abort_signals(options.signal, gate_signal);
 
-    if (effective_signal?.aborted) {
-      reject(new Error("Stream aborted by user."));
-      return;
+  const fail_from_abort = () => {
+    const err = new Error("Stream aborted by user.");
+    err.name = "AbortError";
+    if (options.throw_on_abort) throw err;
+    return "";
+  };
+
+  if (effective_signal?.aborted) {
+    return fail_from_abort();
+  }
+
+  const system_text = typeof job.system === "string" ? job.system : "";
+  const prompt_text = typeof job.prompt === "string" ? job.prompt : "";
+  const instruction = () => {
+    if (typeof job.prompt === "function") return job.prompt();
+    if (typeof job.system === "function") return job.system();
+    return system_text.trim() || prompt_text || String(job.prompt ?? job.system ?? "");
+  };
+  const role = job.role || "ai";
+  const node_id = job.node_id || "temp";
+
+  let accumulated = "";
+
+  // Deduplication guard: once onToken fires, onChunk echoes are skipped.
+  let token_streamed = false;
+
+  const handle_chunk = (chunk) => {
+    const piece = to_piece(chunk);
+    if (!piece) return;
+    accumulated += piece;
+    if (!options.silent) streaming.update_stream(piece);
+    if (options.onChunk) {
+      options.onChunk(piece);
     }
-    let accumulated = "";
+  };
 
-    // Deduplication guard: once onToken fires, onChunk echoes are skipped.
-    let token_streamed = false;
-
-    const handle_chunk = (chunk) => {
-      const piece = to_piece(chunk);
-      if (!piece) return;
-      accumulated += piece;
-      if (options.onChunk) {
-        options.onChunk(piece);
+  const gen_options = {
+    startWith: options.startWith != null ? String(options.startWith) : "",
+    stopSequences: options.stopSequences || options.stop_sequences || [],
+    stop_sequences: options.stopSequences || options.stop_sequences || [],
+    signal: effective_signal,
+  };
+  const handlers = {
+    onToken: (chunk) => {
+      token_streamed = true;
+      handle_chunk(chunk);
+    },
+    onChunk: (chunk) => {
+      // Only handle if onToken is not actively processing to prevent double-counting
+      if (!token_streamed) {
+        handle_chunk(chunk);
       }
-    };
+    },
+  };
 
-    const instruction = () => (typeof prompt === "function" ? prompt() : String(prompt || ""));
-
+  if (!options.silent) {
+    streaming.start_stream(node_id, role);
+  }
+  try {
+    // Invoke WITHOUT awaiting so the engine's .stop() handle survives;
+    // wire it to the effective signal before the first await (the old
+    // async wrapper awaited internally, stripping .stop and leaving the
+    // wiring branch dead).
     let generation;
     try {
-      generation = invoke_with_retry(
-        ai_engine,
-        instruction,
-        {
-          startWith: options.startWith != null ? String(options.startWith) : "",
-          stopSequences: options.stopSequences || options.stop_sequences || [],
-          stop_sequences: options.stopSequences || options.stop_sequences || [],
-          signal: effective_signal,
-        },
-        {
-          onToken: (chunk) => {
-            token_streamed = true;
-            handle_chunk(chunk);
-          },
-          onChunk: (chunk) => {
-            // Only handle if onToken is not actively processing to prevent double-counting
-            if (!token_streamed) {
-              handle_chunk(chunk);
-            }
-          },
-        },
-      );
+      generation = ai_engine({ instruction, ...gen_options, ...handlers });
+    } catch (sync_err) {
+      if (!is_clone_error(sync_err)) throw sync_err;
+      generation = ai_engine({ instruction, ...gen_options });
+    }
+
+    if (effective_signal && generation && typeof generation.stop === "function") {
+      if (effective_signal.aborted) safe_stop_generation(generation);
+      else effective_signal.addEventListener("abort", () => safe_stop_generation(generation), { once: true });
+    }
+
+    let res;
+    try {
+      res = await generation;
     } catch (err) {
-      reject(err);
-      return;
+      if (!is_clone_error(err)) throw err;
+      res = await ai_engine({ instruction, ...gen_options });
     }
-
-    if (effective_signal && typeof generation?.stop === "function") {
-      effective_signal.addEventListener("abort", () => generation.stop(), { once: true });
+    return normalize_completion_result(res, accumulated);
+  } catch (err) {
+    if (is_abort_error(err, effective_signal) && !options.throw_on_abort) {
+      return "";
     }
-
-    if (generation && typeof generation.then === "function") {
-      generation
-        .then((res) => {
-          resolve(normalize_transport_result(res, accumulated));
-        })
-        .catch(reject);
-    } else {
-      resolve(accumulated);
+    throw err;
+  } finally {
+    if (!options.silent) {
+      streaming.end_stream();
     }
-  });
+  }
 }
 
 /**
  * Creates a live browser streaming function backed by window AI plugins.
  * Without an engine it falls back to the mock runner (dev/test).
+ * Foreground contract: throws on abort so callers can roll back.
  */
 export function create_live_stream_fn() {
   return (prompt, options = {}) => {
@@ -206,7 +261,10 @@ export function create_live_stream_fn() {
 
     const priority = resolve_priority(options.priority);
 
-    return enqueue_llm_job((gate_signal) => transport_completion(ai_engine, prompt, options, gate_signal), priority);
+    return enqueue_llm_job(
+      (gate_signal) => run_completion(ai_engine, { prompt, role: options.role, node_id: options.node_id }, { ...options, throw_on_abort: true }, gate_signal),
+      priority,
+    );
   };
 }
 
@@ -230,68 +288,10 @@ export function reset_transport() {
 }
 
 /**
- * Direct generation with stream-bridge lifecycle side effects.
- * Maps aborts to "" so background callers never throw on cancellation.
+ * Direct generation with stream side effects.
+ * Background contract: maps aborts to "" so background callers never throw
+ * on cancellation.
  */
-async function direct_completion(ai_engine, payload, options, gate_signal) {
-  options = { ...options, signal: merge_abort_signals(options.signal, gate_signal) };
-  const instruction = String(payload.system || "").trim();
-
-  try {
-    const gen_options = {
-      stop_sequences: payload.stopSequences || [],
-      startWith: payload.startWith || undefined,
-      signal: options.signal,
-      silent: options.silent,
-    };
-
-    if (!options.silent) {
-      const role = payload.role || "ai";
-      streaming.start_stream(payload.node_id || "temp", role);
-    }
-
-    // Dedup guard (transport core parity): once onToken fires, onChunk echoes are skipped.
-    let token_streamed = false;
-    const bridge_update = (piece) => {
-      if (!options.silent) streaming.update_stream(piece);
-    };
-
-    const raw_result = await invoke_with_retry(ai_engine, () => instruction, gen_options, {
-      onToken: (chunk) => {
-        token_streamed = true;
-        if (options.onToken) options.onToken(chunk);
-        bridge_update(to_piece(chunk));
-      },
-      onChunk: (chunk) => {
-        if (token_streamed) return;
-        const text_piece = to_piece(chunk);
-        if (options.onToken) options.onToken(text_piece);
-        if (!options.silent) streaming.update_stream(text_piece);
-      },
-    });
-
-    if (!options.silent) {
-      streaming.end_stream();
-    }
-
-    const normalized = normalize_direct_result(raw_result);
-
-    if (options.raw) {
-      return raw_result;
-    }
-
-    return sanitize_llm(normalized);
-  } catch (err) {
-    if (!options.silent) {
-      streaming.end_stream();
-    }
-    if (err.name === "AbortError" || options.signal?.aborted) {
-      return "";
-    }
-    throw err;
-  }
-}
-
 export async function generate_text(payload, options = {}) {
   const ai_engine = resolve_ai_engine();
 
@@ -312,12 +312,17 @@ export async function generate_text(payload, options = {}) {
   }
 
   const priority = resolve_priority(options.priority);
-  return enqueue_llm_job((gate_signal) => direct_completion(ai_engine, payload, options, gate_signal), priority);
+  return enqueue_llm_job((gate_signal) => run_completion(ai_engine, payload, { ...options, throw_on_abort: false }, gate_signal), priority);
 }
 
+/**
+ * Silent refinement helper: normalizes { text, generatedText } payloads
+ * before sanitizing so engine result objects never leak through raw.
+ */
 export async function enhance_text(payload) {
   const result = await generate_text(payload, { silent: true, raw: true });
-  return typeof result === "string" ? sanitize_llm(result) : result;
+  const text_value = typeof result === "string" ? result : (result?.text ?? result?.generatedText);
+  return typeof text_value === "string" ? sanitize_llm(text_value) : result;
 }
 
 /**
@@ -326,4 +331,9 @@ export async function enhance_text(payload) {
  *   probe, single mock runner, single chunk pipeline shared by foreground and
  *   direct contracts. Fixes onToken/onChunk double-delivery on the direct path.
  *   Renames get_gate_stream/reset_gate_stream to get_transport/reset_transport.
+ * - Phase 5: Unified transport_completion + direct_completion into a single
+ *   run_completion core (silent-gated streaming drive, .stop() wired before
+ *   the first await, single text-first result normalization). Mock runner
+ *   deduplicates onToken/onChunk and ends the stream in a finally.
+ *   enhance_text normalizes { text, generatedText } before sanitize_llm.
  */

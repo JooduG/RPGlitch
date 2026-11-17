@@ -429,7 +429,7 @@ export class VisualEngine {
 
     if (typeof visualizer_envision_impl !== "function") {
       throw new Error(
-        "[VisualEngine.envision] no visualizer implementation registered — engine must call set_visualizer_envision_impl(execute_visualizer_envision) at boot",
+        "[VisualEngine.envision] no visualizer implementation registered — engine must call set_visualizer_envision_impl(refine_image_prompt) at boot",
       );
     }
     return visualizer_envision_impl(text, type, entity, app_style);

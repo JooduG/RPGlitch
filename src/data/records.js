@@ -5,8 +5,8 @@
  * ============================================================================
  *
  * Canonical entity normalization, factory, epistemic filtering and export.
- * Birth orchestration lives in `src/engine/lifecycle.js` (`birth_entity_core`);
- * profile structuring lives there too (`structure_profile`).
+ * Birth orchestration lives in `src/engine/lifecycle.js` (`create_entity_with_profile`);
+ * profile structuring lives there too (`parse_entity_profile`).
  * Persistence lives in `./db.js`; history in `./ledger.js`.
  * ============================================================================
  */

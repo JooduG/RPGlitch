@@ -6,7 +6,7 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { runtime } from "@engine";
+  import { runtime } from "@state";
   import { get_signature_color, motion } from "@media";
   import StyleBadge from "./StyleBadge.svelte";
   import { guarded_transition } from "@utils";

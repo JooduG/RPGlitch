@@ -1,11 +1,17 @@
 /**
  * src/engine/index.js
  * ============================================================================
- * 📜 SOVEREIGN NUCLEAR ENGINE - BARREL EXPORTS
+ * 📜 SOVEREIGN NUCLEAR ENGINE - BARREL EXPORTS (PHASE 5)
  * ============================================================================
  *
  * Public interface for the RPGlitch simulation engine.
  * Downward consumer layers (src/ui/, App.svelte) import cleanly from this entry point.
+ *
+ * Pure side-effect-free barrel, except the visualizer delegation below: the
+ * engine registers its visualizer turn into media at boot, so media never
+ * imports @engine — not even lazily — and audit-layers stays clean in both
+ * directions. (Kept deliberately: removing it reintroduces the media→engine
+ * edge and breaks the visual boot path. See record.)
  * ============================================================================
  */
 
@@ -13,33 +19,40 @@
 // visualizer turn into media at boot, so media never imports @engine — not
 // even lazily — and audit-layers stays clean in both directions.
 import { set_visualizer_envision_impl } from "@media";
-import { execute_visualizer_envision as _execute_visualizer_envision } from "./lifecycle.js";
-set_visualizer_envision_impl(_execute_visualizer_envision);
+import { refine_image_prompt as _refine_image_prompt } from "./lifecycle.js";
+set_visualizer_envision_impl(_refine_image_prompt);
 
 // Authoritative simulation state class
 export { LLM_PRIORITY, enqueue_llm_job, get_queue_status, resolve_priority } from "@utils";
-// Folded turn core (Phase 3): direct-store transactions live in runs.js
+// Unified streaming & direct LLM transport (Phase 5: single run_completion core)
 export { get_mock_message, get_transport } from "./transport.js";
 
-// Pure headless turn orchestration
+// Turn orchestration (Phase 5: turns.js + runs.js merged into runner.js)
 export {
-  CARETAKER_ROTATION,
-  build_turn_summary,
-  calculate_turn_tempo,
-  execute_ghostwriter,
-  execute_round,
-  execute_turn_1_director,
-  execute_turn_2_character,
-  execute_turn_2_continue,
-  execute_turn_3_caretaker,
-  execute_turn_structuring,
-  execute_turn_visualizer,
-  resolve_caretaker_target,
-} from "./turns.js";
+  apply_dynamics_step,
+  continue_generation_step,
+  continue_turn,
+  dispatch_consolidation,
+  extract_think_and_body,
+  generate_user_draft,
+  maybe_spawn_turn_image,
+  persist_turn_rows,
+  reset_turn_scope_for_testing,
+  run_generation_step,
+  run_image_prompt_step,
+  run_memory_consolidation_step,
+  run_planner_step,
+  run_round,
+  run_schema_extraction_step,
+  run_turn,
+  write_back_turn_state,
+} from "./runner.js";
 
-// Bridge affordances
-export { birth_entity_core, execute_epilogue, execute_prologue, execute_visualizer_envision, structure_profile } from "./lifecycle.js";
-export { apply_director_deltas_to_dynamics, execute_continue, execute_turn, write_back_turn_state } from "./runs.js";
+// Canonical turn physics/history re-exported from @simulation (single home)
+export { build_turn_summary, calculate_turn_tempo, CARETAKER_ROTATION, resolve_caretaker_target } from "@simulation";
+
+// Lifecycle jobs (Rank 4 verbs)
+export { create_entity_with_profile, generate_closing, generate_opening, parse_entity_profile, refine_image_prompt } from "./lifecycle.js";
 
 // Session driver & simulation/developer logs (moved in from src/data/)
 export { match_speaker_snapshots, resolve_log_entity_id } from "@data";

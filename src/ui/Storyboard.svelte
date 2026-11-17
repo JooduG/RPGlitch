@@ -12,7 +12,7 @@
   import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, get_signature_color, motion } from "@media";
   import { compute_initials, pick_random } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
-  import { app } from "@state";
+  import { app, runtime, simulation_log, simulation_state } from "@state";
   import { parse_message } from "./Storymode.svelte";
   const stories = { active_entity_ids };
 
@@ -280,7 +280,7 @@
 
 <script>
   import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@data";
-  import { birth_entity_core, runtime, simulation_log, simulation_state } from "@engine";
+  import { create_entity_with_profile } from "@engine";
   import { Audio, rect_of } from "@media";
   import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
   import { EntityCard } from "@ui";
@@ -519,19 +519,19 @@
   async function import_native_json(type, parsed) {
     const merged = { ...create_new(type), ...normalize(parsed) };
     if (import_image_data) merged.profile_picture = import_image_data;
-    await birth_entity_core(type, merged, { run_sorter: false, generate_portrait: false });
+    await create_entity_with_profile(type, merged, { run_sorter: false, generate_portrait: false });
   }
 
   async function import_card(type, parsed) {
     const flat = parse_character_card(parsed);
     if (import_image_data) flat.profile_picture = import_image_data;
-    await birth_entity_core(type, flat, { generate_portrait: !import_image_data });
+    await create_entity_with_profile(type, flat, { generate_portrait: !import_image_data });
   }
 
   async function import_from_llm(type, raw) {
     const draft = { description: raw };
     if (import_image_data) draft.profile_picture = import_image_data;
-    await birth_entity_core(type, draft, { run_sorter: true, generate_portrait: !import_image_data });
+    await create_entity_with_profile(type, draft, { run_sorter: true, generate_portrait: !import_image_data });
   }
 
   async function execute_entity_import() {

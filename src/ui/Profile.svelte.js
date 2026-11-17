@@ -4,11 +4,11 @@
  */
 import { db, normalize_entity as normalize } from "@data";
 import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "@definitions";
-import { runtime, structure_profile } from "@engine";
+import { parse_entity_profile } from "@engine";
 import { resolve_voice_name, resolve_voice_uri } from "@media";
 import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
-import { app } from "@state";
+import { app, runtime } from "@state";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
@@ -483,7 +483,7 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = resolve_entity_type(this.char?.type);
-      const structured = await structure_profile(`Field: "${key}"\nCurrent Value: "${value || ""}"\nEntity: ${this.char.name || "Entity"} (${type})`, type);
+      const structured = await parse_entity_profile(`Field: "${key}"\nCurrent Value: "${value || ""}"\nEntity: ${this.char.name || "Entity"} (${type})`, type);
       if (structured) {
         const output_key = output_key_for_path(canonicalize_field_key(key, type));
         const field_val = output_key ? structured[output_key] || "" : "";
@@ -512,7 +512,7 @@ export class ProfileState {
     this.busy_fields.add("description");
 
     try {
-      const structured = await structure_profile(this.char, entity_type);
+      const structured = await parse_entity_profile(this.char, entity_type);
       if (structured) {
         for (const path of QUADRANT_PATHS) {
           const output_key = output_key_for_path(path);

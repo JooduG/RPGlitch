@@ -6,19 +6,21 @@
  *
  * Story-lifecycle work that is not a turn: prologue, epilogue, visual
  * envisioning, and profile structuring. Each job brings its own prompt;
- * model contact goes through transport.js, turn mechanics through turns.js,
- * and the opening turn through runs.js.
+ * model contact goes through transport.js, turn mechanics through runner.js.
  */
 
 import { append_ledger_entries, apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
-import { clean_generated_prose, parse_think_block } from "@simulation";
+import { get_visual_style } from "@definitions";
+import { clean_generated_prose, compile_prompt, get_resolution_string, parse_think_block } from "@simulation";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
-import { execute_turn } from "./runs.js";
-import { enhance_text, generate_text, get_transport } from "./transport.js";
-import { execute_turn_structuring, execute_turn_visualizer } from "./turns.js";
+import { mark_generation_in_flight, clear_generation_in_flight, visual_engine } from "@media";
+import { run_turn } from "./runner.js";
+import { get_transport } from "./transport.js";
+import { run_image_prompt_step, run_schema_extraction_step } from "./runner.js";
 
 /**
- * Executes visual prompt envisioning/refinement via the visualizer purpose core.
+ * Refines a draft description or camera note into a visual prompt via the
+ * visualizer purpose core.
  *
  * @param {string} text - Draft description or camera note
  * @param {string} [type="character"] - Generation mode or kind ("character", "fractal", "story_scene", etc.)
@@ -27,13 +29,10 @@ import { execute_turn_structuring, execute_turn_visualizer } from "./turns.js";
  * @param {AbortSignal|null} [signal=null]
  * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
  */
-export async function execute_visualizer_envision(text, type = "character", entity = null, app_style = null, signal = null) {
+export async function refine_image_prompt(text, type = "character", entity = null, app_style = null, signal = null) {
   if (!text || typeof text !== "string") {
     return { prompt: "", negative_prompt: "" };
   }
-
-  const { get_resolution_string } = await import("@simulation");
-  const { get_visual_style } = await import("../definitions/visual-styles.js");
 
   const app_choice = app_style || app.settings?.visual_style;
   let style_key = "none";
@@ -72,17 +71,8 @@ export async function execute_visualizer_envision(text, type = "character", enti
       }
     }
 
-    const live_transport = {
-      stream: async (compiled_prompt, stream_options = {}) => {
-        const response = await generate_text(
-          { system: compiled_prompt, role: "model", startWith: stream_options.startWith != null ? String(stream_options.startWith) : "" },
-          { silent: true, priority: stream_options.priority || "background", signal: stream_options.signal },
-        );
-        return typeof response === "string" ? response : response?.text || "";
-      },
-    };
-    const result = await execute_turn_visualizer({
-      transport: live_transport,
+    const result = await run_image_prompt_step({
+      transport: get_transport(),
       round: Number(runtime.round || 1),
       entities: {
         AI: type !== "fractal" ? normalize_entity(target_entity || {}) : null,
@@ -100,36 +90,26 @@ export async function execute_visualizer_envision(text, type = "character", enti
 
     return { prompt, negative_prompt, resolution: tier_resolution };
   } catch (err) {
-    console.warn("[execute_visualizer_envision] Visualizer refinement failed, using draft:", err);
+    console.warn("[refine_image_prompt] Visualizer refinement failed, using draft:", err);
     return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: tier_resolution };
   }
 }
 /**
- * Executes raw prose structuring via the Caretaker purpose core.
+ * Runs raw prose structuring via the Caretaker purpose core.
  *
  * @param {string} raw - Raw bio, concept, or character prose
  * @param {"character" | "fractal"} [type="character"]
  * @param {AbortSignal|null} [signal=null]
  * @returns {Promise<Record<string, any> | null>}
  */
-export async function structure_profile(raw, type = "character", signal = null) {
+export async function parse_entity_profile(raw, type = "character", signal = null) {
   const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
-  const live_transport = {
-    stream: async (compiled_prompt, stream_options = {}) => {
-      const response = await enhance_text({
-        system: compiled_prompt,
-        role: "model",
-        startWith: stream_options.startWith != null ? String(stream_options.startWith) : "",
-      });
-      return typeof response === "string" ? response : response?.text || "";
-    },
-  };
 
   try {
-    const parsed = await execute_turn_structuring({ transport: live_transport, input_data, type, signal });
+    const parsed = await run_schema_extraction_step({ transport: get_transport(), input_data, type, signal });
     return parsed;
   } catch (err) {
-    console.warn("[structure_profile] Structuring failed:", err);
+    console.warn("[parse_entity_profile] Structuring failed:", err);
     return null;
   }
 }
@@ -139,13 +119,12 @@ export async function structure_profile(raw, type = "character", signal = null) 
  * @param {string} story_id
  * @returns {Promise<any>}
  */
-export async function execute_prologue(story_id) {
+export async function generate_opening(story_id) {
   if (!runtime || !story_id) return null;
 
   app.busy = true;
 
   try {
-    const _ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
     const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
     const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
@@ -167,7 +146,6 @@ export async function execute_prologue(story_id) {
     });
 
     // 2. Stream Fractal prologue scene setting via Character core (is_character: false)
-    const { compile_prompt } = await import("@simulation");
     const prologue_prompt = compile_prompt({
       core: "CHARACTER",
       round: 0,
@@ -193,10 +171,8 @@ export async function execute_prologue(story_id) {
       release_prologue_image = resolve;
     });
 
-    const { visual_engine } = await import("../media/image-generation.js");
     if (visual_engine) {
       (async () => {
-        const { mark_generation_in_flight, clear_generation_in_flight } = await import("../media/image-generation.js");
         mark_generation_in_flight?.(node_id, 0);
         await prologue_image_gate;
         try {
@@ -223,7 +199,7 @@ export async function execute_prologue(story_id) {
     // 4. Execute the opening AI character turn reacting directly to the prologue
     try {
       app.log("Generating opening character turn (Round 1)...", "ai");
-      return await execute_turn(prologue_text, { is_opening_turn: true });
+      return await run_turn(prologue_text, { is_opening_turn: true });
     } finally {
       release_prologue_image();
     }
@@ -244,33 +220,38 @@ export async function execute_prologue(story_id) {
  * @param {"CONCLUDED" | "COLLAPSED"} [conclusion_status="CONCLUDED"]
  * @returns {Promise<string | null>}
  */
-export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED") {
+export async function generate_closing(story_id, conclusion_status = "CONCLUDED") {
   app.log(`Generating epilogue (${conclusion_status})...`, "system");
   const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
-  const fractal_name = runtime?.active_fractal?.name || "Fractal Entity";
+  const fractal_quadrant = normalize_entity(runtime?.active_fractal || {});
+  const ai_quadrant = normalize_entity(runtime?.active_ai || {});
+  const user_quadrant = normalize_entity(runtime?.active_user || {});
+  const fractal_name = fractal_quadrant?.name || "Fractal Entity";
 
-  const { compile_prompt } = await import("@simulation");
+  try {
+    const prompt = compile_prompt({
+      core: "CHARACTER",
+      round: (Number(runtime?.round) || 1) + 1,
+      entities: { FRACTAL: fractal_quadrant, AI: ai_quadrant, USER: user_quadrant },
+      task_options: { speaker_role: "fractal", is_epilogue: true, conclusion_status },
+    });
 
-  const prompt = compile_prompt({
-    core: "CHARACTER",
-    round: (Number(runtime?.round) || 1) + 1,
-    entities: { FRACTAL: runtime?.active_fractal || {}, AI: runtime?.active_ai || {}, USER: runtime?.active_user || {} },
-    task_options: { speaker_role: "fractal", is_epilogue: true, conclusion_status },
-  });
+    const response = await get_transport().stream(prompt, { role: "fractal", node_id, silent: true });
 
-  const response = await generate_text({ system: prompt, role: "fractal", node_id });
+    const fractal_style = typeof fractal_quadrant?.speaking_style === "string" ? fractal_quadrant.speaking_style : "casual";
+    const cleaned_prose = clean_generated_prose(parse_think_block(response || "").prose, fractal_style);
 
-  const cleaned_prose = clean_generated_prose(parse_think_block(response || "").prose);
+    await session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
+      turn_type: "SYSTEM_TURN",
+      story_id,
+      meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
+    });
 
-  await session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
-    turn_type: "SYSTEM_TURN",
-    story_id,
-    meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
-  });
-
-  app.end_stream?.();
-  simulation_state.phase = "locked";
-  return cleaned_prose;
+    simulation_state.phase = "locked";
+    return cleaned_prose;
+  } finally {
+    app.end_stream?.();
+  }
 }
 /**
  * Common birth core shared across spawn paths and ImportModal.
@@ -282,7 +263,7 @@ export async function execute_epilogue(story_id, conclusion_status = "CONCLUDED"
  * @param {Object} [options]
  * @returns {Promise<any>}
  */
-export async function birth_entity_core(type, draft = {}, options = {}) {
+export async function create_entity_with_profile(type, draft = {}, options = {}) {
   const entity_type = type === "fractal" ? "fractal" : "character";
   const name = String(draft?.name || "").trim();
   const raw_color = String(draft?.signature_color || "").trim();
@@ -318,7 +299,7 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
         .filter(Boolean)
         .join("\n");
 
-      const rich_profile = await structure_profile(synthesis_source, entity_type);
+      const rich_profile = await parse_entity_profile(synthesis_source, entity_type);
       if (rich_profile && typeof rich_profile === "object") {
         entity = apply_profile_to_entity(entity, rich_profile);
       }
@@ -390,7 +371,6 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
 
   // Chained post-save portrait generation (fire-and-forget)
   if (options.generate_portrait !== false && entity_type === "character") {
-    const { visual_engine } = await import("@media");
     if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
       try {
         const portrait_promise = visual_engine
@@ -418,4 +398,11 @@ export async function birth_entity_core(type, draft = {}, options = {}) {
  * - 2026-11-10: Created from bridge.js lifecycle atoms (prologue, epilogue,
  *   visualizer envision, profile structuring) unchanged except transport and
  *   opening-turn imports. bridge.js dies.
+ * - Phase 5: Renamed to Rank 4 verbs (refine_image_prompt, parse_entity_profile,
+ *   generate_opening, generate_closing, create_entity_with_profile). Both inline
+ *   live_transport shims replaced with get_transport() (fixing the dropped signal
+ *   + priority in structuring). All dynamic imports replaced with static barrel
+ *   imports (@media/@definitions/@simulation). generate_opening drops the dead
+ *   _ai_quadrant; generate_closing normalizes entities, resolves the fractal
+ *   speaking style into clean_generated_prose, and ends the stream in a finally.
  */

@@ -1,16 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
-import { execute_turn } from "./runs.js";
-import { execute_prologue } from "./lifecycle.js";
+import { run_turn } from "./runner.js";
+import { generate_opening } from "./lifecycle.js";
 
-vi.mock("./runs.js", () => ({ execute_turn: vi.fn().mockResolvedValue({}), execute_continue: vi.fn().mockResolvedValue({}) }));
+vi.mock("./runner.js", () => ({ run_turn: vi.fn().mockResolvedValue({}), continue_turn: vi.fn().mockResolvedValue({}) }));
 
 vi.mock("./lifecycle.js", () => ({
-  execute_prologue: vi.fn().mockResolvedValue({}),
-  execute_epilogue: vi.fn().mockResolvedValue({}),
-  execute_visualizer_envision: vi.fn().mockResolvedValue({ prompt: "", negative_prompt: "" }),
-  structure_profile: vi.fn().mockResolvedValue(null),
+  generate_opening: vi.fn().mockResolvedValue({}),
+  generate_closing: vi.fn().mockResolvedValue({}),
+  refine_image_prompt: vi.fn().mockResolvedValue({ prompt: "", negative_prompt: "" }),
+  parse_entity_profile: vi.fn().mockResolvedValue(null),
 }));
 
 describe("ChronoEngine", () => {
@@ -72,25 +72,25 @@ describe("ChronoEngine", () => {
       expect(session_driver.send).not.toHaveBeenCalled();
     });
 
-    it("accepts valid text and dispatches execute_turn", async () => {
+    it("accepts valid text and dispatches run_turn", async () => {
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");
-      expect(execute_turn).toHaveBeenCalled();
+      expect(run_turn).toHaveBeenCalled();
     });
 
-    it("persists a user-role row when engine is on and dispatches execute_turn", async () => {
+    it("persists a user-role row when engine is on and dispatches run_turn", async () => {
       app.settings = { ...(app.settings || {}), director_enabled: true };
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");
-      expect(execute_turn).toHaveBeenCalledWith("Look around", expect.objectContaining({ is_retry: undefined, is_continue: undefined }));
+      expect(run_turn).toHaveBeenCalledWith("Look around", expect.objectContaining({ is_retry: undefined, is_continue: undefined }));
     });
 
     it("purges orphaned user turn row from IndexedDB when a turn is aborted", async () => {
       simulation_log.active_id = "story-123";
       session_driver.load_log.mockResolvedValueOnce([{ id: 42, role: "user", text: "Aborted user message" }]);
-      execute_turn.mockImplementationOnce(() => {
+      run_turn.mockImplementationOnce(() => {
         const err = new Error("Generation interrupted");
         err.name = "AbortError";
         throw err;
@@ -104,7 +104,7 @@ describe("ChronoEngine", () => {
   });
 
   describe("start", () => {
-    it("creates session, syncs runtime, and executes prologue", async () => {
+    it("creates session, syncs runtime, and executes opening", async () => {
       const selection = {
         ai: { id: "ai-1", name: "Iris" },
         user: { id: "usr-1", name: "Player" },
@@ -115,7 +115,7 @@ describe("ChronoEngine", () => {
 
       expect(session_driver.create_from_selection).toHaveBeenCalledWith(expect.objectContaining({ ai_id: "ai-1", user_id: "usr-1", fractal_id: "fr-1" }));
       expect(runtime.sync).toHaveBeenCalledWith("story-123");
-      expect(execute_prologue).toHaveBeenCalledWith("story-123");
+      expect(generate_opening).toHaveBeenCalledWith("story-123");
       expect(app.suppress_card_transitions).toBe(false);
     });
   });
@@ -124,13 +124,13 @@ describe("ChronoEngine", () => {
     it("calls session_driver.regenerate on retry and advances turn", async () => {
       await chrono_engine.retry();
       expect(session_driver.regenerate).toHaveBeenCalled();
-      expect(execute_turn).toHaveBeenCalled();
+      expect(run_turn).toHaveBeenCalled();
     });
 
     it("advances turn on continue without incrementing round again if continue option is set", async () => {
       const initial_round = runtime.round;
       await chrono_engine.continue();
-      expect(execute_turn).toHaveBeenCalledWith("", expect.objectContaining({ is_continue: true }));
+      expect(run_turn).toHaveBeenCalledWith("", expect.objectContaining({ is_continue: true }));
       expect(runtime.round).toBe(initial_round);
     });
   });
