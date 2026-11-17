@@ -24,14 +24,7 @@ import { normalize_entity, save_session_checkpoint, seed_premades, set_versionch
 import { bind_session_driver, runtime, session_driver, simulation_log, simulation_state } from "@engine";
 import { Audio, ensure_theme_tokens, sweep_stale_ghosts } from "@media";
 import { app } from "@ui";
-import {
-  embeddings_engine,
-  install_environment_hardening,
-  register_state_accessors,
-  register_stream_handlers,
-  sanitize_to_fragment,
-  state_bridge,
-} from "@utils";
+import { embeddings_engine, install_environment_hardening, register_state_accessors, register_stream_handlers, sanitize_to_fragment } from "@utils";
 import { mount } from "svelte";
 
 register_state_accessors({ app, runtime, simulation_state, simulation_log, session_driver });
@@ -43,6 +36,8 @@ bind_session_driver({
   },
   on_clear_active: async () => {
     simulation_log.clear();
+    // Keep the runtime story pointer from going stale behind the cleared driver.
+    runtime.story_id = null;
   },
 });
 register_stream_handlers({
@@ -70,9 +65,9 @@ let has_initialized = false;
 if (typeof set_versionchange_quiesce === "function") {
   set_versionchange_quiesce(() => {
     save_session_checkpoint({
-      story_id: state_bridge.runtime?.story_id ?? state_bridge.session_driver?.active_id ?? null,
-      round: state_bridge.runtime?.round ?? 0,
-      phase: state_bridge.simulation_state?.phase ?? "idle",
+      story_id: runtime?.story_id ?? session_driver?.active_id ?? null,
+      round: runtime?.round ?? 0,
+      phase: simulation_state?.phase ?? "idle",
     });
   });
 }
@@ -93,7 +88,7 @@ export const reset_bootstrap_guard =
 export const app_bootstrap = {
   async init() {
     if (has_initialized) {
-      state_bridge.app.log("[Engine] app_bootstrap.init() called more than once. Guarding.", "system");
+      app.log("[Engine] app_bootstrap.init() called more than once. Guarding.", "system");
       return;
     }
     has_initialized = true;
@@ -107,17 +102,16 @@ export const app_bootstrap = {
       Audio?.voice?.load_model?.()?.catch?.((err) => console.warn("[Boot] Voice pre-download error:", err));
 
       // Parallel Initialization: Reduce critical path for LCP.
-      await Promise.all([state_bridge.runtime.sync(), state_bridge.app.init(), Audio.init()]);
+      await Promise.all([runtime.sync(), app.init(), Audio.init()]);
 
       // Auto-resume active story session & hydrate simulation log feed on page reload
-      const runtime = state_bridge.runtime;
       if (runtime.story_id) {
         try {
-          await state_bridge.simulation_log?.refresh?.();
+          await simulation_log?.refresh?.();
           await sweep_stale_ghosts?.();
-          await state_bridge.app?.load_entities?.();
-          state_bridge.app.stories_version++;
-          state_bridge.app?.set_view?.("storymode");
+          await app?.load_entities?.();
+          app.stories_version++;
+          app?.set_view?.("storymode");
         } catch (syncErr) {
           console.warn("[Boot] Active story auto-resume failed:", syncErr);
         }
@@ -151,10 +145,10 @@ export const app_bootstrap = {
 
       // 6. Tear down boot illusion
       document.getElementById("svelte-root")?.remove();
-      state_bridge.app.log("[Engine] >> System Online.", "system");
+      app.log("[Engine] >> System Online.", "system");
     } catch (err) {
       console.error("[Engine] 🚫 Critical Failure:", err);
-      state_bridge.app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
+      app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
 
       const error_template = `
                 <div style="background:var(--color-chalk); color:var(--color-crimson-red); padding:calc(var(--spacing-unit) * 8); font-family:var(--font-mono); height:100vh; overflow:auto;">

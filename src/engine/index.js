@@ -18,7 +18,8 @@ set_visualizer_envision_impl(_execute_visualizer_envision);
 
 // Authoritative simulation state class
 export { LLM_PRIORITY, get_llm_gate_status, resolve_priority, run_llm_job } from "./gate.js";
-export { Kernel } from "./kernel.svelte.js";
+// Turn-session core (Phase 3 prod path) + Kernel compat holder over the same transactions
+export { apply_director_deltas_to_dynamics, continue_turn_transaction, create_turn_session, Kernel, submit_turn_transaction } from "./kernel.svelte.js";
 export { get_mock_message, get_transport } from "./transport.js";
 
 // Pure headless turn orchestration

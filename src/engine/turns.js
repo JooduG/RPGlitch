@@ -582,17 +582,19 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
  * @param {string} [input_text=""] - Context/seed text to continue or draft
  * @param {AbortSignal} [signal=null] - Optional abort signal
  * @param {((chunk: string, is_full_replace: boolean) => void) | null} [on_token=null] - Live token callback
+ * @param {object} [context={}] - Explicit caller context ({ runtime, app, feed });
+ *   falls back to the state_bridge cells when omitted (media/UI callers unchanged).
  * @returns {Promise<string>} Cleaned narrative prose
  */
-export async function execute_ghostwriter(transport, input_text = "", signal = null, on_token = null) {
-  const runtime = state_bridge.runtime || {};
-  const app = state_bridge.app || {};
+export async function execute_ghostwriter(transport, input_text = "", signal = null, on_token = null, context = {}) {
+  const runtime_source = context.runtime || state_bridge.runtime || {};
+  const app_source = context.app || state_bridge.app || {};
 
-  const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
-  const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
-  const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
+  const user_quadrant = normalize_entity(runtime_source.active_user || app_source.selected_user || {});
+  const ai_quadrant = normalize_entity(runtime_source.active_ai || app_source.selected_ai || {});
+  const fractal_quadrant = normalize_entity(runtime_source.active_fractal || app_source.selected_fractal || {});
 
-  const feed = state_bridge.simulation_log?.feed || [];
+  const feed = context.feed || state_bridge.simulation_log?.feed || [];
   const history = reconstruct_history_from_feed(feed, { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
 
   if (input_text && input_text.trim()) {
@@ -604,7 +606,7 @@ export async function execute_ghostwriter(transport, input_text = "", signal = n
 
   const outcome = await execute_turn_2_character({
     transport,
-    round: Number(runtime.round || 1),
+    round: Number(runtime_source.round || 1),
     entities: { AI: user_quadrant, USER: ai_quadrant, FRACTAL: fractal_quadrant },
     history,
     memories: [],

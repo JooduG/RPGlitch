@@ -265,11 +265,21 @@ export class RuntimeEngineStore {
   // --------------------------------------------------------------------------
 
   get story_id() {
-    return this.#story_id;
+    // Single read authority with driver fallback: covers the transient window
+    // where session_driver.set_active ran but the bound on_set_active hook has
+    // not synced runtime yet. Writes always mirror (see setter).
+    return this.#story_id ?? session_driver?.active_id ?? null;
   }
   set story_id(id) {
     this.#story_id = id;
     this.#story.active_id = id;
+    // Mirror into the session driver so the durable pointer can't drift from
+    // runtime reads. restore_active carries no hooks, so no loop is possible.
+    try {
+      if (session_driver && session_driver.active_id !== id) session_driver.restore_active(id);
+    } catch {
+      /* mirror is best-effort; the driver remains readable directly */
+    }
   }
 
   get active_story() {

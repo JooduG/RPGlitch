@@ -4,11 +4,13 @@
  * 🏃 ENGINE RUNS - SESSION TURN PIPELINE
  * ============================================================================
  *
- * Session-aware wrappers around the Kernel: opens a turn session (quadrants,
+ * Session-aware wrappers around the turn session: opens a turn session (quadrants,
  * transport, history), runs foreground turns and continuations, commits rows,
  * writes back dynamics, and dispatches background maintenance.
  *
- * Owns all state_bridge contact for the turn path; the mechanics in turns.js
+ * Turn execution lives in the pure kernel transactions; the Kernel class remains
+ * only as the test-compat holder over the same core. Owns all state_bridge
+ * contact for the turn path; the mechanics in turns.js
  * stay pure (parameters in, outcomes out).
  */
 
@@ -17,7 +19,7 @@ import { append_ledger_entries, db, normalize_entity } from "@data";
 import { apply_bracket_deltas, parse_bracket_entries, parse_think_block } from "@utils";
 import { get_image_generation_queue, resolve_image_trigger, spawn_image_beat } from "@media";
 import { state_bridge } from "@utils";
-import { Kernel } from "./kernel.svelte.js";
+import { create_turn_session } from "./kernel.svelte.js";
 import { simulation_log } from "./log.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { session_driver } from "./sessions.svelte.js";
@@ -25,15 +27,15 @@ import { get_transport } from "./transport.js";
 import { execute_turn_3_caretaker, reconstruct_history_from_feed, resolve_caretaker_target } from "./turns.js";
 
 /**
- * Opens a turn session: adapts active entities to quadrants, builds a Kernel
- * on the shared transport, and reconstructs multi-role history from a feed.
+ * Opens a turn session: adapts active entities to quadrants, builds a plain
+ * turn session on the shared transport, and reconstructs multi-role history from a feed.
  */
 export function open_turn_session(app, runtime, feed = []) {
   const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
   const ai_quadrant = normalize_entity(runtime.active_ai || app.selected_ai || {});
   const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
 
-  const kernel = new Kernel({
+  const kernel = create_turn_session({
     user: user_quadrant,
     ai: ai_quadrant,
     fractal: fractal_quadrant,
@@ -338,7 +340,7 @@ export async function execute_continue(target_entry, _options = {}) {
  * 4. Persists the updated entities and story round into IndexedDB via runtime.save_entity and runtime.save.
  * 5. Runs Turn 3 Caretaker background consolidation and records state diffs.
  *
- * @param {Kernel} kernel
+ * @param {object} kernel - Turn session (plain session or Kernel instance, same shape)
  * @param {object} outcome
  * @param {object} live_transport
  * @returns {Promise<void>}
@@ -397,7 +399,7 @@ export async function write_back_kernel_state(kernel, outcome, live_transport, o
  * Runs Turn 3 Caretaker maintenance in the background and commits full 4-quadrant bracket updates
  * (present.physical, present.non_physical, future, and past) to active entity state and IndexedDB.
  *
- * @param {Kernel} kernel
+ * @param {object} kernel - Turn session (plain session or Kernel instance, same shape)
  * @param {object} transport
  * @param {AbortSignal} [signal]
  * @returns {Promise<void>}
@@ -545,6 +547,8 @@ export async function dispatch_caretaker_consolidation(kernel, transport, signal
 }
 /**
  * CHANGELOG:
+ * - Phase 3: prod path builds a plain turn session via create_turn_session (no
+ *   class); Kernel remains as the test-compat holder over the same transactions.
  * - 2026-11-10: Created from bridge.js run atoms: open_turn_session owns the
  *   quadrant/Kernel/history preamble; persist_turn_rows owns row commits;
  *   maybe_spawn_turn_image owns the visual beat (cap via IMAGE_POLICY);
