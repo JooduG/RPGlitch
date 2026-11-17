@@ -18,7 +18,7 @@
  *
  * Dependencies & Layer Boundaries:
  * - `@data`: `db`, `entities`, checkpoints, session driver persistence.
- * - `./app.svelte.js`: `app` (selection synchronization, story title decomposition).
+ * - `./interface.svelte.js`: `app` (selection synchronization, story title decomposition).
  * - `./chat.svelte.js`: `session_driver` (active session pointer).
  *
  * ============================================================================
@@ -27,11 +27,11 @@
 import { TELEMETRY_CAPS } from "@config";
 import { clear_session_checkpoint, coerce_story_key, db, entities, load_session_checkpoint, SESSION_ID_KEY } from "@data";
 import { default_dynamics_for_scope } from "@definitions";
-import { get_signature_color } from "@utils";
 import { decompose_story_title } from "@simulation";
-import { app } from "./app.svelte.js";
-import { session_driver } from "./chat.svelte.js";
+import { get_signature_color } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
+import { session_driver } from "./chat.svelte.js";
+import { app } from "./interface.svelte.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

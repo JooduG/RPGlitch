@@ -26,7 +26,7 @@
  * ============================================================================
  */
 
-import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta } from "@simulation";
+import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta, match_speaker_snapshots } from "@simulation";
 import { coerce_story_key, db } from "./db.js";
 import { append_ledger_entries } from "./ledger.js";
 
@@ -146,31 +146,6 @@ export async function clear_active_session_id() {
 function read_trio_snapshot(snapshots, role_key) {
   if (!snapshots || typeof snapshots !== "object") return null;
   return snapshots[role_key] ?? snapshots[role_key.toLowerCase()] ?? null;
-}
-
-/**
- * Matches a speaker name against snapshot entities (trio + NPC cast,
- * case-insensitive). Single shared core for log-time stamping (creation)
- * and feed-time stamping.
- * @param {{ AI?: any, USER?: any, FRACTAL?: any, ai?: any, user?: any, fractal?: any, NPCS?: any, npcs?: any } | null} [snapshots]
- * @param {string} key - lowercased trimmed speaker name
- * @returns {string|null} canonical entity id
- */
-export function match_speaker_snapshots(snapshots, key) {
-  if (!key || !snapshots || typeof snapshots !== "object") return null;
-  for (const role_key of ["AI", "USER", "FRACTAL"]) {
-    const candidate = read_trio_snapshot(snapshots, role_key);
-    if (candidate?.name && String(candidate.name).toLowerCase().trim() === key && candidate?.id) return String(candidate.id);
-  }
-  const npcs = snapshots.NPCS ?? snapshots.npcs;
-  const npc_list =
-    Array.isArray(npcs) ? npcs
-    : npcs && typeof npcs === "object" ? Object.values(npcs)
-    : [];
-  for (const npc of npc_list) {
-    if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
-  }
-  return null;
 }
 
 /**

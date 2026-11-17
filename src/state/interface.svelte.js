@@ -3,7 +3,7 @@
  * RPGlitch State Layer: Application Interface & Navigation Store
  * ============================================================================
  *
- * @file src/state/app.svelte.js
+ * @file src/state/interface.svelte.js
  * @description Central application interface & UI interaction store (Rank 3, state).
  * Moved from `src/ui/interface.svelte.js` plus the reactive image lightbox /
  * picker state from `src/ui/ImagePreview.svelte` so `@state` never imports
@@ -29,14 +29,14 @@
  */
 
 import { db, entities, normalize_entity as normalize, on_stories_changed, stories } from "@data";
+import { visual_engine } from "@media";
+import { embeddings_engine, get_signature_color, guarded_transition, resolve_px } from "@utils";
+import { flushSync } from "svelte";
+import { SvelteSet } from "svelte/reactivity";
 import { developer_log } from "./devlog.svelte.js";
 import { runtime } from "./runtime.svelte.js";
 import { install_freeze_watchdog, simulation_state, ui_state } from "./status.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
-import { visual_engine } from "@media";
-import { embeddings_engine, guarded_transition, resolve_px, get_signature_color } from "@utils";
-import { flushSync } from "svelte";
-import { SvelteSet } from "svelte/reactivity";
 
 // ============================================================================
 // Bridges & JSDoc Type Definitions

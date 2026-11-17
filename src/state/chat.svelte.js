@@ -39,11 +39,8 @@ import {
   set_active_session_id as persist_active_session,
   update_log_attachment as update_stored_log_attachment,
 } from "@data";
-import { match_speaker_snapshots, resolve_entity_id_by_name } from "@simulation";
-import { resolve_log_entity_id } from "@data";
+import { resolve_entity_id_by_name } from "@simulation";
 import { simulation_state } from "./status.svelte.js";
-
-export { match_speaker_snapshots, resolve_entity_id_by_name, resolve_log_entity_id };
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]

@@ -1,7 +1,7 @@
 import "fake-indexeddb/auto";
-import { runtime } from "./runtime.svelte.js";
-import { app } from "./app.svelte.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { app } from "./interface.svelte.js";
+import { runtime } from "./runtime.svelte.js";
 
 // hoisted so it's initialized before the mocked @platform module is
 // first imported (which happens during the top-level runtime import below).
@@ -78,7 +78,7 @@ describe("runtime.sync checkpoint restore", () => {
     const Dexie = (await import("dexie")).default;
     await Dexie.delete("rpglitch");
     ({ runtime } = await import("./runtime.svelte.js"));
-    ({ app } = await import("./app.svelte.js"));
+    ({ app } = await import("./interface.svelte.js"));
   }, 30000);
 
   afterEach(async () => {
