@@ -13,7 +13,7 @@
   import { compute_initials, pick_random, get_signature_color } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
   import { app, runtime, simulation_log, simulation_state } from "@state";
-  import { parse_message } from "./Storymode.svelte";
+  import { parse_message } from "./ChatBubble.svelte";
   const stories = { active_entity_ids };
 
   // ---------------------------------------------------------------------------------------------
@@ -290,7 +290,7 @@
   import { create_entity_with_profile } from "@engine";
   import { Audio, rect_of } from "@media";
   import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
-  import { EntityCard } from "@ui";
+  import EntityCard from "./EntityCard.svelte";
   import { untrack } from "svelte";
 
   // ============================================

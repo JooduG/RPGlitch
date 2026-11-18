@@ -9,7 +9,7 @@
   import { chrono_engine, generate_closing, generate_user_draft, get_transport } from "@engine";
   import { Audio, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Dialog, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
-  import { install_begin_flight_effect, storyboard } from "@ui";
+  import { install_begin_flight_effect, storyboard } from "./Storyboard.svelte";
   import { build_story_export_filename, export_story_markdown } from "@data";
   import { click_outside, download_text_file, get_signature_color } from "@utils";
   import { tick } from "svelte";

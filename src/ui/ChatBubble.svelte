@@ -1,4 +1,80 @@
 <script module>
+  import { clean_generated_prose, clean_image_prompts, format_tagged_fields, parse_think_block, strip_covert_directives } from "@simulation";
+  import { sanitize } from "@utils";
+  import MarkdownIt from "markdown-it";
+
+  const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
+
+  /**
+   * Stateful parser to wrap text inside double quotes with a `<span class="dialogue">` tag.
+   * @param {string} html
+   * @returns {string}
+   */
+  export function wrap_dialogue(html) {
+    if (!html) return "";
+    const parts = html.split(/(<[^>]+>)/);
+    let in_quote = false;
+
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith("<")) {
+        continue;
+      }
+
+      const text = parts[i].replace(/&quot;/g, '"');
+      let new_text = "";
+      let last_index = 0;
+
+      for (let j = 0; j < text.length; j++) {
+        if (text[j] === '"') {
+          new_text += text.substring(last_index, j);
+          if (!in_quote) {
+            new_text += '<span class="dialogue">&ldquo;';
+            in_quote = true;
+          } else {
+            new_text += "&rdquo;</span>";
+            in_quote = false;
+          }
+          last_index = j + 1;
+        }
+      }
+      new_text += text.substring(last_index);
+      parts[i] = new_text;
+    }
+
+    let result = parts.join("");
+    if (in_quote) {
+      result += "</span>";
+    }
+    return result;
+  }
+
+  /**
+   * Master parser that runs image prompt stripping, think block extraction,
+   * cliché detox, markdown rendering, sanitization, and dialogue quote wrapping.
+   * @param {string|null|undefined} rawText
+   * @param {"plain"|"ornate"|"raw"|"clinical"} [register="plain"]
+   * @returns {{ displayText: string, think: string|null, detoxedText: string }}
+   */
+  export function parse_message(rawText, register = "plain") {
+    let text = clean_image_prompts(rawText || "");
+
+    const think_result = parse_think_block(text);
+    text = think_result.content;
+
+    text = clean_generated_prose(text, register);
+    text = format_tagged_fields(strip_covert_directives(text), { see_hidden: "none" });
+    const detoxed_think = think_result.think ? clean_generated_prose(think_result.think, register) : null;
+    const detoxed_text = text;
+
+    let rendered = sanitize(markdown.render(text).trim());
+    rendered = rendered.replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+    rendered = wrap_dialogue(rendered);
+
+    const rendered_think = detoxed_think ? sanitize(markdown.render(detoxed_think).trim()) : null;
+
+    return { displayText: rendered, think: rendered_think, detoxedText: detoxed_text };
+  }
+
   /**
    * 🔭 TELEMETRY FORMATTERS
    * Pure helpers that turn Director/continuum metadata (DYNAMICS_DELTA, telemetry
@@ -189,18 +265,18 @@
    * Unified message chassis consolidating message headers, narrative prose,
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
-  import { format_tagged_fields, parse_tagged_fields as parse_bracket_entries, parse_think_block, get_resolution, render_optics_fallback } from "@simulation";
+  import { parse_tagged_fields as parse_bracket_entries, get_resolution, render_optics_fallback } from "@simulation";
   import { runtime, simulation_log, simulation_state, image_picker, open_picker } from "@state";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
   import { Accordion, Button, Shimmer, TextField, tooltip } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
-  import { EntityCard, ProfilePicture } from "@ui";
+  import EntityCard from "./EntityCard.svelte";
+  import ProfilePicture from "./ProfilePicture.svelte";
   import { parse_relational_vector, resolve_speaking_style } from "@simulation";
   import { get_percentage, safe_html, get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
   import { app } from "@state";
-  import { parse_message } from "./Storymode.svelte";
   import Typewriter from "./Typewriter.svelte";
 
   /**

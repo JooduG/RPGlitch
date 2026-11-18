@@ -4,7 +4,7 @@
    * THE SELECT PRIMITIVE
    * Standalone dropdown select atom using bits-ui/Select and Svelte 5.
    */
-  import { tooltip } from "@primitives";
+  import { tooltip } from "./Tooltip.svelte";
   import { Select } from "bits-ui";
   import { scale } from "svelte/transition";
 

@@ -95,8 +95,8 @@ RPGlitch organizes its source code into clean, isolated subsystems:
 2. **P1 User Agency**: Never speak, act, or think on behalf of the biological User; non-user entities remain third-person limited.
 3. **P4 Zero Backwards Compatibility (Pre-Beta Purity)**: Avoid backwards-compatible fallbacks, legacy aliases, or schema shims; update all downstream consumers directly.
 4. **Epistemic Wall & Anti-Telepathy**: Hidden brackets (`| hide`) belonging to non-owner entities are stripped across the Epistemic Wall (`format_clean_brackets`, `filter_epistemic_brackets`, and `see_hidden: "own"` / `"none"` in `PURPOSE_CORES`).
-5. **Prompt Catalog & Envelope Gate**: Prompts compiled via `compile_prompt` ([src/engine/prompts.js](./src/engine/prompts.js)) open with `<SYSTEM identity="...">`, close with `</SYSTEM>`, assemble frozen atoms via `render_atom_xml`, and pass `verifier.js` checks (`verify_compiled_prompt`, `verify_tag_balance`, `verify_system_envelope`, `verify_prompt_hygiene`).
-6. **Single-Flight LLM Execution**: All LLM jobs flow through [src/engine/gate.js](./src/engine/gate.js) (`max_concurrency: 1`), where `FOREGROUND` (`10`) preempts `BACKGROUND` (`1`) via `AbortController`.
+5. **Prompt Catalog & Envelope Gate**: Prompts compiled via `compile_prompt` ([src/simulation/prompts.js](./src/simulation/prompts.js)) open with `<SYSTEM identity="...">`, close with `</SYSTEM>`, assemble frozen atoms via `render_atom_xml`, and pass `verify_compiled_prompt`, `verify_tag_balance`, `verify_system_envelope`, and `verify_prompt_hygiene` checks.
+6. **Single-Flight LLM Execution**: All LLM jobs flow through [src/engine/transport.js](./src/engine/transport.js) (`max_concurrency: 1`), where `FOREGROUND` (`10`) preempts `BACKGROUND` (`1`) via `AbortController`.
 7. **Dexie Schema Freeze & Reload Safety**: IndexedDB `"rpglitch"` remains at schema `version(2)` with single-fire `versionchange` quiesce checkpoints (`save_session_checkpoint`).
 
 ## Global Side Effects

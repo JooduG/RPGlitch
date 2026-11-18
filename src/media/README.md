@@ -11,7 +11,7 @@ Sensory presentation layer for **RPGlitch** (Rank 1 Sensory / Platform Sibling).
 - **Zero Upward Dependencies (Runtime)**: Production modules import downward strictly from `@utils`, `@config`, `@definitions` (`../definitions/index.js`), and `svelte/easing` / `svelte/motion`. Never import from `@data`, `@engine`, `@intelligence`, `@state`, or `@ui` (test code `visual.test.js` imports `execute_visualizer_envision` from `../engine/lifecycle.js` solely to mirror application boot registration).
 - **Procedural SFX (Zero Remote Audio Assets)**: All UI sound effects are procedurally synthesized using Web Audio oscillators (`OscillatorNode`), noise buffers (`AudioBufferSourceNode`), and gain envelopes (`GainNode`). Zero remote `.wav` file downloads or network dependencies.
 - **Excised Kokoro Neural Stack**: In-browser speech synthesis is handled cleanly via the standard Web Speech API (`window.speechSynthesis`) rather than an ONNX/WebGPU neural voice pipeline, protecting the 4.00 MB bundle ceiling and 50 MiB iframe memory boundary.
-- **Unified Kinetic Engine & Transitional Facades**: [`motion.svelte.js`](./motion.svelte.js) unifies reduced-motion detection, kinetic hover actions, Svelte transitions, and storyboard card flights, while [`audio.svelte.js`](./audio.svelte.js) (`Audio`, `AudioEngine`, `audio_engine`) and [`visual.svelte.js`](./visual.svelte.js) (`visual_engine`, `VisualEngine`) preserve facade compatibility.
+- **Unified Kinetic Engine & Transitional Facades**: [`motion.svelte.js`](./motion.svelte.js) unifies reduced-motion detection, kinetic hover actions, Svelte transitions, and storyboard card flights, while [`audio.svelte.js`](./audio.svelte.js) (`Audio`, `AudioEngine`, `audio_engine`) and [`image-generation.js`](./image-generation.js) (`visual_engine`, `VisualEngine`) preserve facade compatibility.
 
 ## Interface
 
@@ -35,29 +35,29 @@ The package exposes its public interface via [`index.js`](./index.js), plus the 
   - Svelte Transitions: `overlay_in(_node, options)`, `overlay_out(_node, options)`, `item_in(_node, options)`.
   - Card Flight & Scrub Primitives: `fly_card_in(source_el, from_rect, to_rect, options)`, `fly_card_out(source_el, to_rect, options)`, `make_card_clone(el, tag, z)`, `rect_of(el)`, `strip_card_text(el)`, `capture_storyboard_flight(enabled)`, `fly_storyboard_cards_into_prologue(assets, dst_rects)`, `update_card_scrub()`, `clear_card_location()`.
 
-### 3. Stateless Perchance Visual Dispatcher & Queue Bookkeeping (`visual.svelte.js`)
+### 3. Stateless Perchance Visual Dispatcher & Queue Bookkeeping (`image-generation.js`)
 
-- [`visual.svelte.js`](./visual.svelte.js):
+- [`image-generation.js`](./image-generation.js):
   - `dispatch_visual_generation(payload, options = {})`: Dispatches visual generation to the host Perchance image plugin with `AbortSignal` cancellation, `CircuitBreaker` insulation, `ExponentialBackoffRetryer` retries, or offline SVG fallback.
   - Visual Prompt Hygiene: `rescue_visual_prose(text)`, `sanitize_visual_text(text)`, `resolve_story_beat_style(options)`, `compose_story_beat_prompt(prompt_text, style_key, base_negative = "")`.
   - In-Flight Set & Queue Bookkeeping: `_in_flight_image_generations`, `_image_generation_queue`, `mark_generation_in_flight(id, attachment_index = 0)`, `clear_generation_in_flight(id, attachment_index = 0)`, `is_generation_in_flight(id, attachment_index = 0)`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`, `_remove_from_image_generation_queue(id)` (direct export in `visual.svelte.js`, not re-exported by `index.js`).
   - Ghost & Beat Lifecycle: `spawn_image_beat(tier, options = {})`, `sweep_stale_ghosts()`, `count_pending_ghosts()`, `mark_placeholder_failed(id, metadata = {})`.
   - Host Plugin Discovery & Facades: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`is_loading = false`, `error = null`, `attempts = 0`, `is_offline = false`, `generate(target, options)`, `visualize(story_id, text, tier, options)`, `generate_candidates(prompt, options)`, `envision(text, type, entity, app_style)`), `visual_engine`, `set_visualizer_envision_impl(fn)`.
 
-### 4. Pure Optics Taxonomy & Guidance Scale (`optics.js`)
+### 4. Pure Optics Taxonomy & Guidance Scale (`../simulation/prompts.js`)
 
-- [`optics.js`](./optics.js):
+- [`prompts.js`](../simulation/prompts.js):
   - `IMAGE_TIERS`: Canonical frozen tuple `["story_entities", "story_character", "solo_entity", "story_scene"]`.
   - `ORDERED_VISUAL_STYLE_KEYS`: Frozen tuple of `_visual_style_*` trait keys (`medium`, `palette`, `camera`, `composition`, `texture`, `tags`).
   - `normalize_image_tier(target_type)`, `get_resolution(mode)`, `get_resolution_string(mode)`, `get_tier_guidance_scale(mode)`, `resolve_image_trigger(parameters)`.
   - `resolve_visual_engine_tokens(visual_style_key)`, `build_aesthetic_map(entity = {})`, `flatten_aesthetic_map(entity = {})`, `extract_aesthetic_traits(entity = {})`, `render_optics_fallback(parameters)`.
 
-### 5. Visual Color Palettes, Signature Tokens & Stylesheet (`palette.js`, `tokens.js`, `design.css`)
+### 5. Visual Color Palettes, Signature Tokens & Stylesheet (`../utils/palette.js`, `../utils/tokens.js`, `design.css`)
 
-- [`palette.js`](./palette.js):
+- [`palette.js`](../utils/palette.js):
   - `get_signature_color(entity, fallback = "var(--color-frozen)")`, `get_signature_label(entity)`, `ensure_theme_tokens()`.
   - Direct module exports not in `index.js`: `resolve_token(color)`, `get_deterministic_color(seed = "default")`, `get_color_name(color_value)`.
-- [`tokens.js`](./tokens.js):
+- [`tokens.js`](../utils/tokens.js):
   - `SIGNATURE_COLORS` (15 labels), `PALETTE` (28 frozen color-to-hex entries), `PALETTE_CSS_VARIABLES` (28 frozen hex-to-CSS-var entries), `TOKENS` (92 frozen design-system tokens generated from `DESIGN.md`).
 - [`design.css`](./design.css):
   - Synchronized design-token stylesheet defining `@theme` variables (`--color-*`, `--empty-fill`, `--signature-color`, `--font-*`, `--radius-*`, `--spacing-*`, `--blur-*`, `--brightness-*`, `--ease-*`, `--motion-*`, `--noise-url`, `--opacity-*`, `--scale-*`, `--shadow-*`, `--signature-glow`, `--spring-*`, `--state-*`, `--transition-duration-*`, `--z-index-*`, `--breakpoint-mobile`) generated from `DESIGN.md` via `npm run sync:css`.

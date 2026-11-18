@@ -124,7 +124,7 @@ theme:
 
 > "Depth is the ultimate luxury. Precision is the baseline of sovereignty."
 
-This specification is the single source of truth for the RPGlitch visual token system and base stylesheets. YAML frontmatter conforms to the `@google/design.md` specification and compiles into Tailwind CSS v4 tokens ([src/media/design.css](src/media/design.css)) and the JavaScript token bridge ([src/media/tokens.js](src/media/tokens.js)).
+This specification is the single source of truth for the RPGlitch visual token system and base stylesheets. YAML frontmatter conforms to the `@google/design.md` specification and compiles into Tailwind CSS v4 tokens ([src/media/design.css](src/media/design.css)) and the JavaScript token bridge ([src/utils/tokens.js](src/utils/tokens.js)).
 
 ## Overview
 
@@ -324,17 +324,17 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
   button:hover,
   [role="button"]:hover,
   a:hover {
-    transform: none !important;
-    filter: none !important;
+    transform: none;
+    filter: none;
   }
 }
 
 /* Expand opt-in interactive targets to 44px minimum on coarse-pointer devices */
 @media (pointer: coarse) {
   .touch-target-coarse {
-    min-width: 44px !important;
-    min-height: 44px !important;
-    padding: 0.75rem !important;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.75rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -543,8 +543,8 @@ Two-tier motion discipline governs animations:
 ::view-transition-group(card-slot-ai),
 ::view-transition-group(card-slot-user),
 ::view-transition-group(card-slot-fractal) {
-  border-radius: var(--radius-standard) !important;
-  overflow: hidden !important;
+  border-radius: var(--radius-standard);
+  overflow: hidden;
 }
 
 ::view-transition-old(card-slot-ai),
@@ -553,7 +553,7 @@ Two-tier motion discipline governs animations:
 ::view-transition-old(unified-console) {
   animation: none;
   opacity: 0;
-  mix-blend-mode: normal !important;
+  mix-blend-mode: normal;
 }
 
 ::view-transition-new(card-slot-ai),
@@ -562,9 +562,9 @@ Two-tier motion discipline governs animations:
 ::view-transition-new(unified-console) {
   animation: none;
   opacity: 1;
-  mix-blend-mode: normal !important;
-  height: 100% !important;
-  width: 100% !important;
+  mix-blend-mode: normal;
+  height: 100%;
+  width: 100%;
 }
 
 /* Card-swap transitions inside storyboard slots */
@@ -643,8 +643,8 @@ Two-tier motion discipline governs animations:
 html:active-view-transition *,
 html:active-view-transition *::before,
 html:active-view-transition *::after {
-  transition: none !important;
-  animation-duration: 0s !important;
+  transition: none;
+  animation-duration: 0s;
 }
 
 /* --- 3D Profile Flip Transition --- */
@@ -747,15 +747,15 @@ html:active-view-transition *::after {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
   }
 
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
   }
 }
 ```

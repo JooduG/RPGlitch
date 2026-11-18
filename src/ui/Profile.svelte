@@ -17,7 +17,7 @@
   import { runtime, simulation_state } from "@state";
   import { get_signature_color } from "@utils";
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
-  import { ProfilePicture } from "@ui";
+  import ProfilePicture from "./ProfilePicture.svelte";
   import { safe_parse_pseudo_json } from "@simulation";
   import { auto_resize, click_outside, download_json_file, generate_uuid, resolve_display_macro_segments } from "@utils";
   import { SvelteSet } from "svelte/reactivity";

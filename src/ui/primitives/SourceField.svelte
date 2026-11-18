@@ -14,7 +14,9 @@
    * card decoding through an optional `decode_png_card` prop, file/image reading
    * through @utils `blob_to_data_url`. This component only routes sources.
    */
-  import { Button, TextField, tooltip } from "@primitives";
+  import Button from "./Button.svelte";
+  import TextField from "./TextField.svelte";
+  import { tooltip } from "./Tooltip.svelte";
   import { blob_to_data_url, fetch_web, validate_image } from "@utils";
 
   let {

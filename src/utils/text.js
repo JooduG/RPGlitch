@@ -270,8 +270,6 @@ export function format_datetime(ts) {
  */
 export const normalize_comma_spacing = (str) => String(str ?? "").replace(/,([^\s])/g, ", $1");
 
-export * from "./alternations.js";
-
 /**
  * Tests one pattern/key against a haystack. Pass precedence: /regex/ literals
  * first, * ? glob wildcards second, bare strings as case-insensitive

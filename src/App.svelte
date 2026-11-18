@@ -169,7 +169,8 @@
     pointer-events: none;
     z-index: var(--z-index-max);
     opacity: var(--opacity-whisper);
-    border: var(--spacing-pixel) dashed var(--color-frozen);
+    outline: var(--spacing-pixel) dashed var(--color-frozen);
+    outline-offset: calc(-1 * var(--spacing-pixel));
     background-image: radial-gradient(
       circle at 0 0,
       var(--color-frozen) calc(var(--spacing-unit) / 2),

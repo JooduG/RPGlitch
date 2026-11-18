@@ -9,7 +9,9 @@
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { Button, ScrollArea, tooltip } from "@primitives";
+  import Button from "./Button.svelte";
+  import ScrollArea from "./ScrollArea.svelte";
+  import { tooltip } from "./Tooltip.svelte";
   import { auto_resize, parse_markdown, use_actions } from "@utils";
   import { onDestroy } from "svelte";
   import { fade, slide } from "svelte/transition";

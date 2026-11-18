@@ -1,4 +1,4 @@
-import { download_json_file, download_text_file, guarded_transition, resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
+import { download_json_file, download_text_file, guarded_transition, resolve_ms, resolve_number, resolve_px, resolve_string } from "./ui-helpers.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {

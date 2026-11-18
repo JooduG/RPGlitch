@@ -2,21 +2,23 @@ import { CHARS_PER_TOKEN } from "@config";
 import { describe, expect, it } from "vitest";
 import {
   alternation_field_label,
+  diff_alternation_picks,
+  extract_alternations,
+  has_alternations,
+  resolve_alternations,
+  strip_alternation_braces,
+} from "./alternations.js";
+import {
   clean_text,
   collapse_whitespace,
   compute_initials,
   count_tokens,
-  diff_alternation_picks,
-  extract_alternations,
   format_datetime,
   format_key_as_label,
-  has_alternations,
   indent_continuation,
   match_case,
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
-  resolve_alternations,
-  strip_alternation_braces,
   truncate_at_word,
   truncate_at_boundary,
 } from "./text.js";

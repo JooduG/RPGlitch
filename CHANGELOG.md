@@ -17,11 +17,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- `tsconfig.json`: Added root TypeScript/alias config (`"baseUrl": "."` + bare barrel `paths`) so `graph-it-live` resolves all cross-folder `@alias` edges.
+- `.agents/skills/graph-it-live/scripts/scan-dead-code.js` (`npm run audit:dead-code`): Comment-stripped `.svelte`/`.js` filter over `graph-it tool scan_dead_code` to eliminate `.svelte` template and `export *` barrel false positives.
+- `tsconfig.json`: Added root TypeScript/alias config (`"baseUrl": "."` + bare barrel `paths`, `"noEmit": true`) so `graph-it-live` resolves all cross-folder `@alias` edges with 0 `svelte-check` warnings.
 - `engine-atoms.md`: Stage 1 Goldfish atom inventory for `src/engine/` and coupled `@utils` modules.
 - `.github/dependabot.yml`: Weekly `github-actions` update schedule.
 
 ### Changed
+
+- `src/ui/` & `src/utils/ui-helpers.test.js`: Converted 7 self-barrel imports (`@ui`, `@primitives`, `@utils`) to relative `./` sibling paths to eliminate barrel cycles (`ChatBubble.svelte`, `Console.svelte`, `Profile.svelte`, `Storyboard.svelte`, `Storymode.svelte`, `TextField.svelte`, `ui-helpers.test.js`).
+- `src/utils/text.js` & `src/utils/text.test.js`: Removed redundant `export * from "./alternations.js"` pass-through and pointed `text.test.js` directly to `./alternations.js`.
+- `src/App.svelte`: Replaced `[data-dev="grid"]` `border` with `outline` + `outline-offset` to eliminate CSS `boxModel` warnings.
+- `README.md` & `src/{engine,media,ui,utils}/README.md`: Fixed broken file links after module relocations.
 
 - `src/ui/primitives/SourceField.svelte` & `src/ui/Storyboard.svelte`: Decoupled `SourceField` from `@data` via an optional `decode_png_card` prop (`extract_card_from_png` passed from `Storyboard.svelte`), satisfying `rank5-primitives-stateless`.
 - `src/utils/{text,xml}.test.js` → `src/simulation/{brackets,history,llm-output}.test.js`: Relocated `@simulation` test suites out of `src/utils/` so `graph-it check-architecture` passes all 13 rules with 0 violations.
