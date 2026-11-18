@@ -49,6 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- `src/ui/primitives/Tooltip.svelte`: Applied `z-tooltip` (`--z-index-tooltip: 300`) to `Tooltip.Content`'s positioned `wrapperProps` element so tooltips render above modal backdrops (`z-index: 200`).
 - `src/ui/VisualWing.svelte`: Wired `handle_creative_action()`'s Envision prompt button to `refine_image_prompt` from `@engine` (replacing the removed `app.visual.envision` call) and called `profile_state.mark_mutated()` after updating prompt fields.
 - `src/ui/` (`VisualWing.svelte`, `AudioWing.svelte`, `DevWing.svelte`): Scoped `VisualWing` and `AudioWing` to fallback `--color-frozen` (`--signature-color: var(--color-frozen)`, removing entity `signature_color` from `VisualWing` prompt fields) and pinned `DevWing` to `--color-electric-cyan`.
 - `src/ui/DevWing.svelte`: Derived dynamics meter `desc` tooltip from `axis.low` → `axis.high` instead of falling back to `"Metric"`.

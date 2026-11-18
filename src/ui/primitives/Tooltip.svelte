@@ -134,7 +134,7 @@
         <Tooltip.Content customAnchor={tooltip_state.target} side="top" sideOffset={8} align="center" avoidCollisions={true} strategy="fixed" forceMount>
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
-              <div {...wrapperProps}>
+              <div {...wrapperProps} class="{wrapperProps?.class || ''} pointer-events-none z-tooltip">
                 <div
                   {...props}
                   class="{props.class}
