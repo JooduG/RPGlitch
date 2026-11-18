@@ -13,7 +13,7 @@
   import { auto_resize, parse_markdown, use_actions } from "@utils";
   import { onDestroy } from "svelte";
   import { fade, slide } from "svelte/transition";
-  import { Shimmer } from "./index.js";
+  import Shimmer from "./Shimmer.svelte";
 
   let {
     // Data

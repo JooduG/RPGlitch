@@ -43,8 +43,8 @@ Excluded automatically (`--verbose=true` lists reasons): declared `package.json`
 Static analysis misses dynamic dispatch (`obj[methodName]()`) and dynamic imports. Confirm each candidate with both incoming-reference and impact checks:
 
 ```bash
-graph-it tool get_impact_analysis --filePath=/abs/src/engine/turns.js --symbolName=fn --format toon
-graph-it tool find_referencing_files --targetPath=/abs/src/engine/turns.js --format toon
+graph-it tool get_impact_analysis --filePath=/abs/src/engine/runner.js --symbolName=run_turn --format toon
+graph-it tool find_referencing_files --targetPath=/abs/src/engine/runner.js --format toon
 ```
 
 - **Zero `query_call_graph` callers alone** → unconfirmed; never delete on call-site count alone.

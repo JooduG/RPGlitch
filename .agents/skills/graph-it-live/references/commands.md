@@ -12,8 +12,8 @@ Global flags: `--reindex` discards the cached index and rebuilds it; `--no-cache
 
 ```bash
 graph-it context "how does turn execution reach storage" --mode search --scope 'src/**' --depth 2 --detail compact --token-budget 2000 --format toon
-graph-it context --mode impact --seeds 'src/engine/turns.js#handle' --relations CALLS --depth 3 --detail compact --token-budget 4000 --format toon
-graph-it context --from 'src/engine/turns.js#handle' --to 'db' --mode path --detail compact --format toon
+graph-it context --mode impact --seeds 'src/engine/runner.js#run_turn' --relations CALLS --depth 3 --detail compact --token-budget 4000 --format toon
+graph-it context --from 'src/engine/runner.js#run_turn' --to 'db' --mode path --detail compact --format toon
 ```
 
 - `--mode`: `search|neighbors|path|impact|refactor|overview`.
@@ -39,14 +39,14 @@ Every CLI call costs a turn and an index load, so size the budget to answer in o
 
 ```bash
 graph-it summary --format toon                  # workspace overview
-graph-it summary src/engine/turns.js --format toon       # per-file codemap: exports, internals, dependencies, dependents, call flow, cycles
-graph-it explain src/engine/turns.js --format toon       # intra-file call hierarchy: entry points, call tree, internal cycles
-graph-it trace src/main.js#mount --format toon           # call chain from <file>#<symbol>, relative or absolute path
+graph-it summary src/engine/runner.js --format toon       # per-file codemap: exports, internals, dependencies, dependents, call flow, cycles
+graph-it explain src/engine/runner.js --format toon       # intra-file call hierarchy: entry points, call tree, internal cycles
+graph-it trace src/main.js#app_bootstrap --format toon           # call chain from <file>#<symbol>, relative or absolute path
 graph-it path src/main.js --format toon                  # transitive imports from an entry file (--communities path|louvain)
-graph-it path-in src/engine/turns.js --format toon       # who imports this file
-graph-it check-dependencies src/engine/turns.js --format toon   # incoming and outgoing dependencies
-graph-it cycles src/engine/turns.js --format toon        # confirmed dependency cycles for a file
-graph-it check src/engine/turns.js --format toon         # unused exports of one file
+graph-it path-in src/engine/runner.js --format toon       # who imports this file
+graph-it check-dependencies src/engine/runner.js --format toon   # incoming and outgoing dependencies
+graph-it cycles src/engine/runner.js --format toon        # confirmed dependency cycles for a file
+graph-it check src/engine/runner.js --format toon         # unused exports of one file
 ```
 
 ## `graph-it tool <name>`
@@ -56,15 +56,15 @@ graph-it check src/engine/turns.js --format toon         # unused exports of one
 `graph_context`, `analyze_dependencies`, `crawl_dependency_graph`, `find_referencing_files`, `verify_dependency_usage`, `resolve_module_path`, `get_index_status`, `invalidate_files`, `rebuild_index`, `get_symbol_graph`, `find_unused_symbols`, `trace_function_execution`, `analyze_breaking_changes`, `get_impact_analysis`, `generate_codemap`, `query_call_graph`, `scan_dead_code`, `explore_architecture`, `check_architecture`.
 
 ```bash
-graph-it tool analyze_dependencies --filePath=/abs/src/engine/turns.js --format toon
-graph-it tool find_referencing_files --targetPath=/abs/src/engine/turns.js --format toon
-graph-it tool verify_dependency_usage --sourceFile=/abs/src/state/runtime.svelte.js --targetFile=/abs/src/engine/turns.js --format toon
-graph-it tool generate_codemap --filePath=/abs/src/engine/turns.js --format toon
-graph-it tool query_call_graph --filePath=/abs/src/engine/turns.js --symbolName=fn --direction=callers --depth=1 --tokenBudget=2000 --format toon
-graph-it tool get_impact_analysis --filePath=/abs/src/engine/turns.js --symbolName=fn --includeTransitive=true --maxDepth=3 --format toon
-graph-it tool find_unused_symbols --filePath=/abs/src/engine/turns.js --format toon
+graph-it tool analyze_dependencies --filePath=/abs/src/engine/runner.js --format toon
+graph-it tool find_referencing_files --targetPath=/abs/src/engine/runner.js --format toon
+graph-it tool verify_dependency_usage --sourceFile=/abs/src/state/runtime.svelte.js --targetFile=/abs/src/engine/runner.js --format toon
+graph-it tool generate_codemap --filePath=/abs/src/engine/runner.js --format toon
+graph-it tool query_call_graph --filePath=/abs/src/engine/runner.js --symbolName=run_turn --direction=callers --depth=1 --tokenBudget=2000 --format toon
+graph-it tool get_impact_analysis --filePath=/abs/src/engine/runner.js --symbolName=run_turn --includeTransitive=true --maxDepth=3 --format toon
+graph-it tool find_unused_symbols --filePath=/abs/src/engine/runner.js --format toon
 graph-it tool scan_dead_code --scopePath=/abs/src --maxFiles=500 --format toon
-graph-it tool analyze_breaking_changes --args '{"filePath":"/abs/src/engine/turns.js","symbolName":"fn","oldContent":"...","newContent":"..."}' --format toon
+graph-it tool analyze_breaking_changes --args '{"filePath":"/abs/src/engine/runner.js","symbolName":"run_turn","oldContent":"...","newContent":"..."}' --format toon
 ```
 
 - `query_call_graph`: `--direction callers|callees|both` (default `both`), `--depth 1-10` (default `2`), `--includeTypeOnly=true` adds type-only `USES` edges, `--tokenBudget` (default `4000`, `0` = no limit) with `--offset <nextOffset>` paging. A bare name shared by several symbols returns `reason=ambiguous` with candidates; pick one with `--symbolId` or `--startLine`. Call sites are not all symbol references.
@@ -76,7 +76,7 @@ graph-it tool analyze_breaking_changes --args '{"filePath":"/abs/src/engine/turn
 ```bash
 graph-it architecture --level units --format toon              # top-level folders, layers, unit edges, cycles
 graph-it architecture --groups --format toon                   # folder groups, groupEdges, totals
-graph-it architecture --folder "(root)/src" --format toon      # one level below a unit or folder key
+graph-it architecture --folder src --format toon              # one level below a unit or folder key
 graph-it architecture --level units --matrix --format toon     # dependency structure matrix (--format csv for spreadsheet)
 graph-it architecture --maxFiles 300 --format toon             # cap analyzed files
 ```

@@ -39,16 +39,16 @@ Dependency, call-graph, impact, dead-code, PR-review, and architecture analysis 
 ## 3. Core CLI Commands
 
 ```bash
-graph-it path-in src/engine/turns.js --format toon
+graph-it path-in src/engine/runner.js --format toon
 graph-it context "<question>" --mode search --detail compact --token-budget 2000 --format toon
-graph-it context --mode impact --seeds 'src/engine/turns.js#fn' --depth 3 --detail compact --token-budget 4000 --format toon
-graph-it summary src/engine/turns.js --format toon
-graph-it tool query_call_graph --filePath=/abs/src/engine/turns.js --symbolName=fn --direction=callers --depth=1 --format toon
-graph-it tool get_impact_analysis --filePath=/abs/src/engine/turns.js --symbolName=fn --includeTransitive=true --format toon
-graph-it trace src/main.js#mount --format toon
+graph-it context --mode impact --seeds 'src/engine/runner.js#run_turn' --depth 3 --detail compact --token-budget 4000 --format toon
+graph-it summary src/engine/runner.js --format toon
+graph-it tool query_call_graph --filePath=/abs/src/engine/runner.js --symbolName=run_turn --direction=callers --depth=1 --format toon
+graph-it tool get_impact_analysis --filePath=/abs/src/engine/runner.js --symbolName=run_turn --includeTransitive=true --format toon
+graph-it trace src/main.js#app_bootstrap --format toon
 graph-it architecture --level units --format toon
-graph-it cycles src/engine/turns.js --format toon
-graph-it check src/engine/turns.js --format toon
+graph-it cycles src/engine/runner.js --format toon
+graph-it check src/engine/runner.js --format toon
 graph-it review-pr --base origin/main --format toon
 ```
 

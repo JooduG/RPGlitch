@@ -5,7 +5,7 @@
  */
 import "fake-indexeddb/auto";
 import { beforeEach, describe, expect, it } from "vitest";
-import { db } from "../data/db.js";
+import { db } from "@data";
 import { simulation_log, session_driver } from "./chat.svelte.js";
 
 async function clear_all_tables() {

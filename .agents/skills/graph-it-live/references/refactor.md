@@ -11,7 +11,7 @@ Do not edit source, run formatters/codemods, or invoke package managers.
 1. Run one bounded refactor query per target symbol (`--depth 4` catches consumers behind barrels/re-exports):
 
 ```bash
-graph-it context --mode refactor --seeds 'src/engine/turns.js#symbol' --depth 4 --detail compact --token-budget 4000 --format toon
+graph-it context --mode refactor --seeds 'src/engine/runner.js#run_turn' --depth 4 --detail compact --token-budget 4000 --format toon
 ```
 
 If `truncated=true`, rerun once with `--token-budget 16000` and page with `--cursor <nextCursor>` if still truncated. Never plan on a truncated list. If indexing fails or `fresh=false`, stop and report.
@@ -19,8 +19,8 @@ If `truncated=true`, rerun once with `--token-budget 16000` and page with `--cur
 2. Query transitive impact and callers for exported or high fan-in symbols:
 
 ```bash
-graph-it tool get_impact_analysis --filePath=/abs/src/engine/turns.js --symbolName=symbol --includeTransitive=true --format toon
-graph-it tool query_call_graph --filePath=/abs/src/engine/turns.js --symbolName=symbol --direction=callers --depth=2 --format toon
+graph-it tool get_impact_analysis --filePath=/abs/src/engine/runner.js --symbolName=run_turn --includeTransitive=true --format toon
+graph-it tool query_call_graph --filePath=/abs/src/engine/runner.js --symbolName=run_turn --direction=callers --depth=2 --format toon
 ```
 
 3. For moves, deletions, or layer changes, record the baseline against RPGlitch's root `graphit.architecture.json` (which mirrors `local-scripts/scripts/rules/layers.js`) before editing:

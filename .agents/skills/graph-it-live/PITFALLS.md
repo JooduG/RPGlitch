@@ -35,3 +35,11 @@
 - **Trigger**: Falling back from `graph-it` CLI to `graphitlive_*` MCP tools.
 - **Wrong Behavior (Root Cause)**: Passing CLI-only flags (`--format toon`, `--token-budget`) to MCP tools whose JSON schema does not advertise them, causing schema validation errors.
 - **Correct Behavior (Prevention Rule)**: Always read the MCP tool's JSON schema before calling `call_mcp_tool`. Pass `response_format` only when the schema advertises it, and use the exact parameter names (`filePath`, `symbolName`, `targetPath`).
+
+---
+
+### `[PF-005]` Treating `check-architecture` / `scan_dead_code` as Complete Across Bare `@alias` Barrels (Occurrences: 1)
+
+- **Trigger**: Running `graph-it check-architecture`, `scan_dead_code`, or `trace` in RPGlitch where cross-folder imports use bare Vite/jsconfig barrel aliases (`@data`, `@utils`, `@state`, `@engine`, `@media`, `@simulation`, `@definitions`, `@primitives`, `@ui`).
+- **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` treats bare `@alias` imports as `:::external` even when declared in `jsconfig.json`. Consequently, `check-architecture` only validates relative imports (`interGroupEdges` excludes `@alias` edges), `scan_dead_code` marks `src/*/index.js` barrels as unreferenced (`low` confidence) and flags barrel-re-exported symbols as unused (`high` confidence), and `trace` stops at `@alias` boundaries.
+- **Correct Behavior (Prevention Rule)**: Never delete an export flagged by `scan_dead_code` until you verify it is not re-exported by `src/*/index.js` and imported via `@<layer>` (e.g. with `rg` / `Select-String`). Likewise, treat `check-architecture` as covering relative imports only unless alias resolution is confirmed in `architecture --folder src` (`interGroupEdges`) or `trace`.

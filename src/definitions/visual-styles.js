@@ -16,7 +16,7 @@
  * - No "default" tags (reserved sentinel).
  */
 
-import { resolve_style } from "../utils/style-resolve.js";
+import { resolve_style } from "@utils";
 
 // ============================================================================
 // 1. TYPE DEFINITIONS

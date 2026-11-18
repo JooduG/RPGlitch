@@ -32,10 +32,10 @@ Never mark a review complete when `isPartial` is `true` or `limitations` is non-
 Read changed hunks and flagged files directly (bounded), and inspect transitive impact for high-risk symbols:
 
 ```bash
-graph-it tool get_impact_analysis --filePath=/abs/src/engine/turns.js --symbolName=runTurn --format toon
-graph-it tool query_call_graph --filePath=/abs/src/engine/turns.js --symbolName=runTurn --direction=callers --depth=1 --format toon
-graph-it tool query_call_graph --filePath=/abs/src/engine/turns.js --symbolName=runTurn --depth=3 --format toon
-graph-it tool generate_codemap --filePath=/abs/src/engine/turns.js --format toon
+graph-it tool get_impact_analysis --filePath=/abs/src/engine/runner.js --symbolName=run_turn --format toon
+graph-it tool query_call_graph --filePath=/abs/src/engine/runner.js --symbolName=run_turn --direction=callers --depth=1 --format toon
+graph-it tool query_call_graph --filePath=/abs/src/engine/runner.js --symbolName=run_turn --depth=3 --format toon
+graph-it tool generate_codemap --filePath=/abs/src/engine/runner.js --format toon
 ```
 
 Inspect the test candidates reported by `review-pr`. Missing test candidates mean manual test selection is required.

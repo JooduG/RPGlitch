@@ -22,7 +22,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- `.agents/skills/graph-it-live/`: Consolidated the 5 `graph-it-*` skills into 1 RPGlitch-scoped skill (`SKILL.md`, `PITFALLS.md`, and 1-hop `references/`), aligned with `agent-customization`, `agy-customizations`, `deslop`, and `graphit.architecture.json`.
+- `jsconfig.json` & `graphit.architecture.json`: Added bare barrel path aliases (`@data`, `@definitions`, `@engine`, `@media`, `@simulation`, `@state`, `@primitives`, `@ui`, `@utils`) matching `vite.config.js`, and scoped `shell` to `["src/main.js", "src/App.svelte"]`.
+- `src/state/runtime.svelte.js` & `src/state/interface.svelte.js`: Broke circular import via `register_runtime_app_sink(app)` so `@state` dependencies flow one-way (`interface` → `runtime`).
+- `src/ui/primitives/TextField.svelte` & cross-folder barrel imports: Switched `TextField.svelte` to import `./Shimmer.svelte` directly (removing barrel cycle) and converted the 6 relative cross-folder imports (`prompts.js`, `llm-output.test.js`, `narrative-styles.js`, `visual-styles.js`, `exporters.js`, `chat.test.js`) to `@utils` / `@data` (`interEdges=0`).
+- `.agents/skills/graph-it-live/`: Consolidated the 5 `graph-it-*` skills into 1 RPGlitch-scoped skill (`SKILL.md`, `PITFALLS.md`, and 1-hop `references/`), aligned with `agent-customization`, `agy-customizations`, `deslop`, and `graphit.architecture.json`; synced stale example paths to `src/engine/runner.js` / `src/main.js#app_bootstrap` and added `[PF-005]` for bare `@alias` barrel blindness.
 - `.github/workflows/ci.yml`: Added least-privilege `permissions`, SHA-pinned Actions (`checkout`, `setup-node`, `graph-it-review-gate`), dropped `--legacy-peer-deps`, added `<= 4.00 MB` Perchance bundle ceiling check, and added PR-only `graph-review` job.
 - `src/engine/runner.test.js`: Inlined `create_contract_fixtures()` directly into the test suite.
 

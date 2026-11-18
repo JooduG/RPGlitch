@@ -34,7 +34,7 @@ import { embeddings_engine, get_signature_color, guarded_transition, resolve_px 
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { developer_log } from "./devlog.svelte.js";
-import { runtime } from "./runtime.svelte.js";
+import { register_runtime_app_sink, runtime } from "./runtime.svelte.js";
 import { install_freeze_watchdog, simulation_state, ui_state } from "./status.svelte.js";
 import { streaming as streaming_store } from "./streaming.svelte.js";
 
@@ -873,6 +873,7 @@ export async function run_image_regeneration(options = {}) {
 }
 
 export const app = new InterfaceStore();
+register_runtime_app_sink(app);
 
 on_stories_changed(() => {
   app.stories_version++;

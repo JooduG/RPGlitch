@@ -18,7 +18,7 @@
  *
  * Dependencies & Layer Boundaries:
  * - `@data`: `db`, `entities`, checkpoints, session driver persistence.
- * - `./interface.svelte.js`: `app` (selection synchronization, story title decomposition).
+ * - `./interface.svelte.js` registers itself via `register_runtime_app_sink` (no circular import).
  * - `./chat.svelte.js`: `session_driver` (active session pointer).
  *
  * ============================================================================
@@ -31,7 +31,18 @@ import { decompose_story_title } from "@simulation";
 import { get_signature_color } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 import { session_driver } from "./chat.svelte.js";
-import { app } from "./interface.svelte.js";
+
+/** @type {any} */
+let _app_sink = null;
+
+/**
+ * Registers the UI app store sink so runtime updates flow to InterfaceStore
+ * without a circular static import between runtime.svelte.js and interface.svelte.js.
+ * @param {any} sink
+ */
+export function register_runtime_app_sink(sink) {
+  _app_sink = sink;
+}
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS & TYPE DEFINITIONS]
@@ -92,9 +103,9 @@ import { app } from "./interface.svelte.js";
  * @param {any} [fractal]
  */
 function apply_story_title(story, ai = null, user = null, fractal = null) {
-  if (!story?.title || !app) return;
-  app.story_title = story.title;
-  app.story_title_parts = decompose_story_title(story.title, { ai, user, fractal, get_color: get_signature_color });
+  if (!story?.title || !_app_sink) return;
+  _app_sink.story_title = story.title;
+  _app_sink.story_title_parts = decompose_story_title(story.title, { ai, user, fractal, get_color: get_signature_color });
 }
 
 /**
@@ -433,10 +444,10 @@ export class RuntimeEngineStore {
         }
 
         // Sync selections to app store
-        if (app) {
-          app.selected_ai = this.active_ai;
-          app.selected_user = this.active_user;
-          app.selected_fractal = this.active_fractal;
+        if (_app_sink) {
+          _app_sink.selected_ai = this.active_ai;
+          _app_sink.selected_user = this.active_user;
+          _app_sink.selected_fractal = this.active_fractal;
         }
 
         // Story title decomposition
@@ -475,9 +486,9 @@ export class RuntimeEngineStore {
    * Resets story title and parts on app store to prevent title bleed across stories.
    */
   reset_story_title() {
-    if (!app) return;
-    app.story_title = "";
-    app.story_title_parts = [];
+    if (!_app_sink) return;
+    _app_sink.story_title = "";
+    _app_sink.story_title_parts = [];
   }
 
   /**
@@ -513,7 +524,7 @@ export class RuntimeEngineStore {
       const target_round = typeof round === "number" ? round : this.round;
       const wrote = await this.#persist_story_snapshot(target_round);
       if (!wrote) return;
-      if (app) app.stories_version++;
+      if (_app_sink) _app_sink.stories_version++;
     } catch (err) {
       console.error("[Data] Story Save Failed:", err);
     }
@@ -556,7 +567,7 @@ export class RuntimeEngineStore {
     try {
       if (type === "story") {
         await db.stories.update(coerce_story_key(id), data);
-        if (app) app.stories_version++;
+        if (_app_sink) _app_sink.stories_version++;
         if (session_driver?.active_id != null && String(session_driver.active_id) === String(id)) {
           for (const key of [id, coerce_story_key(id)]) {
             if (this.#story.by_id[key] != null) Object.assign(this.#story.by_id[key], data);
@@ -630,15 +641,15 @@ export class RuntimeEngineStore {
   _debug_inject(mock_data) {
     if (mock_data.user) {
       this.active_user = mock_data.user;
-      if (app) app.selected_user = mock_data.user;
+      if (_app_sink) _app_sink.selected_user = mock_data.user;
     }
     if (mock_data.ai) {
       this.active_ai = mock_data.ai;
-      if (app) app.selected_ai = mock_data.ai;
+      if (_app_sink) _app_sink.selected_ai = mock_data.ai;
     }
     if (mock_data.fractal) {
       this.active_fractal = mock_data.fractal;
-      if (app) app.selected_fractal = mock_data.fractal;
+      if (_app_sink) _app_sink.selected_fractal = mock_data.fractal;
     }
     if (mock_data.structural_errors !== undefined) {
       this.structural_errors = mock_data.structural_errors;

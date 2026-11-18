@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parse_think_block, strip_cognition_blocks } from "./llm-output.js";
-import { resolve_style } from "../utils/style-resolve.js";
+import { resolve_style } from "@utils";
 
 describe("resolve_style (pure, no bridge)", () => {
   const registry = { monochrome: { id: "monochrome" }, none: { id: "none" } };

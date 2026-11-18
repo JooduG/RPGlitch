@@ -12,29 +12,56 @@
       "@config": [
         "./src/config.js"
       ],
+      "@data": [
+        "./src/data/index.js"
+      ],
       "@data/*": [
         "./src/data/*"
+      ],
+      "@definitions": [
+        "./src/definitions/index.js"
       ],
       "@definitions/*": [
         "./src/definitions/*"
       ],
+      "@engine": [
+        "./src/engine/index.js"
+      ],
       "@engine/*": [
         "./src/engine/*"
+      ],
+      "@media": [
+        "./src/media/index.js"
       ],
       "@media/*": [
         "./src/media/*"
       ],
+      "@simulation": [
+        "./src/simulation/index.js"
+      ],
       "@simulation/*": [
         "./src/simulation/*"
+      ],
+      "@state": [
+        "./src/state/index.js"
       ],
       "@state/*": [
         "./src/state/*"
       ],
+      "@primitives": [
+        "./src/ui/primitives/index.js"
+      ],
       "@primitives/*": [
         "./src/ui/primitives/*"
       ],
+      "@ui": [
+        "./src/ui/index.js"
+      ],
       "@ui/*": [
         "./src/ui/*"
+      ],
+      "@utils": [
+        "./src/utils/index.js"
       ],
       "@utils/*": [
         "./src/utils/*"

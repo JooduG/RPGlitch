@@ -40,10 +40,9 @@
 
 import { DYNAMICS, IMAGE_POLICY, IMAGE_RESOLUTIONS, TEMPO_ROUNDS } from "@config";
 import { VISUAL_STYLES, caretaker_brief, get_visual_style } from "@definitions";
-import { PALETTE, get_signature_label, normalize_comma_spacing } from "@utils";
+import { PALETTE, get_signature_label, normalize_comma_spacing, resolve_style } from "@utils";
 import { CLEAR_TOKENS, CLOTHING_KEYS, VISUAL_EXCLUDED_KEYS, format_tagged_fields, safe_parse_pseudo_json } from "./brackets.js";
 import { evaluate_dynamics_directives, evaluate_image_trigger } from "./dynamics.js";
-import { resolve_style } from "../utils/style-resolve.js";
 import { extract_memory_candidates, select_context_memories } from "./retrieval.js";
 
 // ============================================================================
