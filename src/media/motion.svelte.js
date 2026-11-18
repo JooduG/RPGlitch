@@ -414,7 +414,7 @@ function ease_out_cubic(t) {
  * @returns {Promise<void>}
  */
 export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
-  const { on_clone, on_land, pickup_ms = 90, glide_ms = 380, set_down_ms = 130, tag = "data-flight-clone", z = "var(--z-index-max)" } = options;
+  const { on_clone, on_land, pickup_ms = 90, glide_ms = 380, set_down_ms = 130, tag = "data-flight-clone", z = "var(--z-index-overlay)" } = options;
   return new Promise((resolve) => {
     const clone = make_card_clone(source_el, tag, z);
     place(clone, from_rect);

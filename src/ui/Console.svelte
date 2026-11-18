@@ -716,7 +716,7 @@
   class="
     pointer-events-none
     relative
-    z-elevated
+    z-sticky
     flex
     w-full
     items-center
@@ -733,7 +733,7 @@
     }}
     class="
       pointer-events-auto
-      z-elevated
+      z-sticky
       flex flex-col
       {app.control_panel_open ? 'justify-end' : 'justify-center'}
       bg-glass-elevated

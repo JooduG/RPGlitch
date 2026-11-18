@@ -81,7 +81,7 @@
     </div>
 
     <div
-      class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating' ?
+      class="pointer-events-none fixed -inset-5 z-overlay bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating' ?
         'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
       : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
       style:animation-play-state={motion.is_reduced ? "paused" : "running"}>
@@ -91,7 +91,7 @@
   <ImagePreview />
 
   <!-- PERSISTENT STAGE GRID: Storyboard / Storymode stage + persistent Console footer -->
-  <div class="fixed inset-0 z-20 m-auto grid overflow-hidden text-white transition-opacity duration-300 {container_class}">
+  <div class="fixed inset-0 z-sticky m-auto grid overflow-hidden text-white transition-opacity duration-300 {container_class}">
     {#if app.view === "storyboard"}
       <Storyboard />
     {:else if app.view === "storymode"}
@@ -99,7 +99,7 @@
     {/if}
 
     <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
-    <footer style="display: flex;" class="pointer-events-none relative z-40 flex justify-center {footer_class}">
+    <footer style="display: flex;" class="pointer-events-none relative z-sticky flex justify-center {footer_class}">
       {#if app.entities_loaded}
         <Console />
       {/if}

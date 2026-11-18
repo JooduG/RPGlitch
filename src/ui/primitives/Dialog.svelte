@@ -74,7 +74,7 @@
     <AlertDialog.Overlay forceMount>
       {#snippet child({ props: overlayProps, open: is_open })}
         {#if is_open}
-          <Backdrop {...overlayProps} onclick={handle_cancel} layer="max" {busy} variant="mini">
+          <Backdrop {...overlayProps} onclick={handle_cancel} layer="modal" {busy} variant="mini">
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div
@@ -82,7 +82,8 @@
                   class="
                     pointer-events-auto
                     relative
-                    z-max
+                    isolate
+                    z-modal
                     flex
                     w-(--dialog-width)
                     cursor-default

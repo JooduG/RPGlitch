@@ -22,7 +22,6 @@
 
     // Design
     variant = "standard",
-    z_index = "200",
     class: className = "",
 
     // Handlers
@@ -80,7 +79,7 @@
                 on_close();
               }
             }}
-            {z_index}
+            layer="modal"
             is_blurred={blur}
             busy={is_busy}
             {is_pass_through}
@@ -109,6 +108,7 @@
                         variant !== "profile" &&
                         `
                           relative
+                          isolate
                           flex
                           h-auto
                           max-h-dvh
@@ -129,7 +129,7 @@
 
                           before:absolute
                           before:inset-0
-                          before:z-[-1]
+                          before:-z-10
                           before:bg-(--noise-url)
                           before:opacity-10
                           before:mix-blend-overlay

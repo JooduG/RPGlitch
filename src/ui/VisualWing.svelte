@@ -213,6 +213,7 @@
 
     <div
       class="
+      isolate
       grid
     grid-cols-5
     gap-tight
@@ -235,7 +236,7 @@
           has-not-disabled:active:scale-sink
           {current_label === name ?
             `
-            z-25
+            z-20
             scale-[1.1]
             cursor-default
             [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--color-swatch-active)]

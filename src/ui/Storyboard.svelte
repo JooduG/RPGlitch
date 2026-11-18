@@ -500,14 +500,6 @@
 
   const import_fetch_type = $derived(import_fractal && !import_character ? "fractal" : "character");
 
-  $effect(() => {
-    if (show_import_modal) {
-      import_character = card_hand_type !== "fractal";
-      import_fractal = card_hand_type === "fractal";
-      import_error_message = "";
-    }
-  });
-
   function handle_import_source(info) {
     if (info.kind === "error") {
       import_error_message = info.message || "Failed to load source.";
@@ -724,6 +716,10 @@
   }
 
   function handle_open_import() {
+    import_character = card_hand_type !== "fractal";
+    import_fractal = card_hand_type === "fractal";
+    import_error_message = "";
+    app.close_card_hand();
     show_import_modal = true;
   }
 
@@ -819,12 +815,12 @@
 <!-- STORYBOARD TITLE HEADER -->
 {#if app.entities_loaded}
   <!-- display:flex inline: unlayered normalize.css v3 resets semantic elements to block, defeating Tailwind's layered flex utility -->
-  <header style="display: flex;" class="pointer-events-none z-30 flex justify-center {header_class}">
+  <header style="display: flex;" class="pointer-events-none z-sticky flex justify-center {header_class}">
     <div class="flex w-full justify-center">
       <h2
         class="
           pointer-events-none
-          z-40
+          z-sticky
           inline-block
           max-w-[90vw]
           cursor-text
@@ -972,7 +968,8 @@
         right-0
         bottom-0
         left-0
-        z-elevated
+        isolate
+        z-overlay
         flex
         h-dvh
         w-screen
@@ -985,7 +982,6 @@
         duration-300
         ease-in-out
 
-        {show_import_modal ? 'pointer-events-none opacity-0 transition-opacity duration-200' : ''}
         {is_visible ?
         `
           translate-y-0
@@ -1034,7 +1030,7 @@
             h-[calc(var(--spacing-row-unit)*2.8)]
             w-[calc(var(--spacing-column-unit)*0.85)]
 
-            hover:z-elevated!
+            hover:z-20!
           "
           role="presentation"
           style:transform="rotate({import_angle + fan_rotation}deg) translateY(0)"
@@ -1090,7 +1086,7 @@
             h-[calc(var(--spacing-row-unit)*2.8)]
             w-[calc(var(--spacing-column-unit)*0.85)]
 
-            hover:z-elevated!
+            hover:z-20!
           "
           role="presentation"
           style:transform="rotate({create_angle + fan_rotation}deg) translateY(0)"
@@ -1149,7 +1145,7 @@
               h-[calc(var(--spacing-row-unit)*2.8)]
               w-[calc(var(--spacing-column-unit)*0.85)]
 
-              hover:z-elevated!
+              hover:z-20!
             "
             role="presentation"
             data-entity-id={entity.id}
@@ -1224,7 +1220,6 @@
   <Modal
     bind:open={show_import_modal}
     variant="bare"
-    z_index="1000"
     class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-standard shadow-standard"
     on_close={() => {
       show_import_modal = false;

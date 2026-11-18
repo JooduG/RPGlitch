@@ -153,7 +153,6 @@
 <Modal
   bind:open={modal_open}
   variant="bare"
-  z_index="500"
   on_close={close_image_preview}
   class="flex max-h-[95dvh] flex-col items-stretch justify-center gap-standard overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-[calc(var(--spacing-column-unit))]">
   <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -175,7 +174,7 @@
 
     {#if preview_state.caption && !preview_state.metadata}
       <div
-        class="z-elevated mt-standard max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+        class="z-10 mt-standard max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
         {preview_state.caption}
       </div>
     {/if}

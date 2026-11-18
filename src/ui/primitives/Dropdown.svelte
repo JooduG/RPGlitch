@@ -133,7 +133,7 @@
             {...props}
             data-dropdown-menu
             class="
-              z-max
+              z-popover
               flex
               {computed_height}
               {dropdownWidth ? dropdownWidth

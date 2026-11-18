@@ -11,7 +11,7 @@ export const PATHS = {
   src: path.resolve(__dirname, "../../../../src"),
   designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
   designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
-  jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
+  jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/utils/tokens.js"),
 };
 
 export const AUTHORITATIVE_CATEGORIES = ["colors", "typography", "rounded", "spacing", "components"];

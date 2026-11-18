@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `.agents/skills/design/scripts/audit-design.js`: Added `LEGACY_Z_INDEX` `HERESY` rule blocking `z-elevated`, `z-backdrop`, `z-5`, `z-25`, `z_index=`, `--z-index-elevated`/`backdrop`, and bracketed `z-[...]`, plus exempted `--z-index-sticky`, `--z-index-overlay`, and `--z-index-toast` from unused-token debt.
 - `src/definitions/orion-nova-glitch.js` & `src/data/db.js` (`seed_premades`): Added a 10-round concluded premade story fixture (`Neon Static & Pink Thunder`) uniting Orion, Glitch, and Nova City with `simulation_log` entries and `mutation_ledger` diffs seeded idempotently on boot.
 - `.agents/skills/graph-it-live/scripts/scan-dead-code.js` (`npm run audit:dead-code`): Comment-stripped `.svelte`/`.js` filter over `graph-it tool scan_dead_code` to eliminate `.svelte` template and `export *` barrel false positives.
 - `tsconfig.json`: Added root TypeScript/alias config (`"baseUrl": "."` + bare barrel `paths`, `"noEmit": true`) so `graph-it-live` resolves all cross-folder `@alias` edges with 0 `svelte-check` warnings.
@@ -25,6 +26,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `DESIGN.md` & UI layering (`Backdrop.svelte`, `Modal.svelte`, `Dialog.svelte`, `ScrollArea.svelte`, `App.svelte`, `motion.svelte.js`, `Storyboard.svelte`, `Profile.svelte`, `ImagePreview.svelte`, `Console.svelte`, `EntityCard.svelte`, `ProfilePicture.svelte`, `VisualWing.svelte`): Consolidated global z-index tokens to the 7-tier scale (`sticky: 100`, `overlay: 200`, `popover: 300`, `modal: 400`, `tooltip: 500`, `toast: 600`, `max: 999`), removed arbitrary `z_index` number overrides (`1000`/`500`/`40`/`50`/`600`), added `isolate` stacking contexts, and normalized local z-classes (`z-5` → `z-10`, `z-25` → `z-20`, `z-elevated` → `z-20`/`z-sticky`/`z-overlay`).
+- `src/ui/Storyboard.svelte`: Pulled back the card hand (`app.close_card_hand()`) when opening the Import modal instead of hiding it in place with `opacity-0`.
 - `src/ui/` (`Toggle.svelte`, `Storyboard.svelte`, `Profile.svelte`, `DevWing.svelte`, `VisualWing.svelte`): Fixed UI visual drift — removed stray `'false'` class and added `border-white/10` on unchecked `Toggle`, standardized Import/Export modals to `rounded-standard` + `shadow-standard`, flattened the Storyboard Import Modal directly onto `SourceField` with `Character`/`Fractal` toggles and the `Import` CTA in its header snippets, unified `profile-time-travel-bar` round pills to `<Button size="small">` with portrait-veil gradient, flattened `DevWing` Token Budget (`rounded-standard bg-glass-sunken p-standard`) and `Mutation Ledger` (`<Accordion>` + `divide-y`) with `wing-item-slide-down`, and bound `VisualWing` prompt headers to entity `signature_color`.
 - `src/ui/` & `src/utils/ui-helpers.test.js`: Converted 7 self-barrel imports (`@ui`, `@primitives`, `@utils`) to relative `./` sibling paths to eliminate barrel cycles (`ChatBubble.svelte`, `Console.svelte`, `Profile.svelte`, `Storyboard.svelte`, `Storymode.svelte`, `TextField.svelte`, `ui-helpers.test.js`).
 - `src/utils/text.js` & `src/utils/text.test.js`: Removed redundant `export * from "./alternations.js"` pass-through and pointed `text.test.js` directly to `./alternations.js`.
@@ -49,7 +52,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
-- `src/ui/primitives/Tooltip.svelte`: Applied `z-tooltip` (`--z-index-tooltip: 300`) to `Tooltip.Content`'s positioned `wrapperProps` element so tooltips render above modal backdrops (`z-index: 200`).
+- `src/ui/primitives/Tooltip.svelte`: Applied `style:z-index="var(--z-index-max)"` (`999`) to `Tooltip.Content`'s positioned `wrapperProps` element (replacing the undefined `z-tooltip` utility class) so tooltips always render above modal backdrops (`z-index: 200`/`600`).
 - `src/ui/VisualWing.svelte`: Wired `handle_creative_action()`'s Envision prompt button to `refine_image_prompt` from `@engine` (replacing the removed `app.visual.envision` call) and called `profile_state.mark_mutated()` after updating prompt fields.
 - `src/ui/` (`VisualWing.svelte`, `AudioWing.svelte`, `DevWing.svelte`): Scoped `VisualWing` and `AudioWing` to fallback `--color-frozen` (`--signature-color: var(--color-frozen)`, removing entity `signature_color` from `VisualWing` prompt fields) and pinned `DevWing` to `--color-electric-cyan`.
 - `src/ui/DevWing.svelte`: Derived dynamics meter `desc` tooltip from `axis.low` → `axis.high` instead of falling back to `"Metric"`.

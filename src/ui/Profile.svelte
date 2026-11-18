@@ -547,8 +547,7 @@
   <Modal
     variant="bare"
     bind:open={show_export_modal}
-    z_index="1000"
-    class="relative w-[clamp(24rem,92vw,38rem)] rounded-standard bg-glass-elevated p-standard shadow-standard [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative isolate w-[clamp(24rem,92vw,38rem)] rounded-standard bg-glass-elevated p-standard shadow-standard [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_export_modal = false;
     }}>

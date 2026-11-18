@@ -72,6 +72,7 @@
   class="
     @container-size
     relative
+    isolate
     flex
     h-full
     w-full
@@ -142,7 +143,7 @@
 
         <!-- Signature Color Glow (shines through transparent foreground images) -->
         <div
-          class="pointer-events-none absolute inset-0 z-5 opacity-25"
+          class="pointer-events-none absolute inset-0 z-10 opacity-25"
           style="background: radial-gradient(circle at center, var(--signature-color) 0%, transparent 70%);">
         </div>
       {/if}

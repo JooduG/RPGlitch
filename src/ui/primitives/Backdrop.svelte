@@ -15,8 +15,7 @@
     is_pass_through = false,
 
     // Design
-    layer = "default",
-    z_index = "100", // Fallback if layer is 'default'
+    layer = "overlay",
     variant = "default",
     class: className = "",
 
@@ -29,11 +28,10 @@
 
   const is_profile = $derived(className === "profile");
   const computed_z_index = $derived(
-    layer === "console" ? "40"
-    : layer === "cardhand" ? "50"
-    : layer === "image" ? "600"
+    layer === "sticky" || layer === "console" || layer === "cardhand" ? "var(--z-index-sticky)"
+    : layer === "modal" || layer === "image" ? "var(--z-index-modal)"
     : layer === "max" ? "var(--z-index-max)"
-    : z_index,
+    : "var(--z-index-overlay)",
   );
 
   /**

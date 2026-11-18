@@ -173,9 +173,11 @@ export const TOKENS = Object.freeze({
   "transition-duration-fast": "150ms",
   "transition-duration-slow": "500ms",
   "transition-duration-standard": "300ms",
-  "z-index-elevated": "50",
   "z-index-max": "999",
-  "z-index-modal": "100",
-  "z-index-popover": "200",
-  "z-index-tooltip": "300"
+  "z-index-modal": "400",
+  "z-index-overlay": "200",
+  "z-index-popover": "300",
+  "z-index-sticky": "100",
+  "z-index-toast": "600",
+  "z-index-tooltip": "500"
 });

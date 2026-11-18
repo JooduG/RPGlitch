@@ -75,6 +75,13 @@ const themeRules = [
     regex: /transition:[^;]*\b(width|height|top|left|margin|padding)\b/,
     message: "❌ Motion Policy: Animating layout properties triggers repaint/reflow. Animate transform or opacity.",
   },
+  {
+    id: "LEGACY_Z_INDEX",
+    severity: "HERESY",
+    regex: /\b(z-elevated|z-backdrop|z-5|z-25|z_index=|--z-index-(elevated|backdrop))\b|(?:^|[:\s"'])z-\[-?\d+\]/,
+    message:
+      "❌ Z-Index Policy: Legacy z-token, non-standard step (z-5/z-25), bracketed z-[...], or z_index= override detected. Use local z-0..z-30 inside `isolate` or global z-sticky/z-overlay/z-popover/z-modal/z-tooltip/z-toast/z-max.",
+  },
 ];
 
 let scanned = 0;
@@ -249,7 +256,16 @@ export function findUnusedTokens() {
   ]);
 
   const signature_tokens = parseSignatureTokens();
-  const EXEMPT_DESIGN_TOKENS = new Set([...signature_tokens, "--color-glass-peak", "--z-index-modal", "--z-index-popover", "--z-index-tooltip"]);
+  const EXEMPT_DESIGN_TOKENS = new Set([
+    ...signature_tokens,
+    "--color-glass-peak",
+    "--z-index-sticky",
+    "--z-index-overlay",
+    "--z-index-modal",
+    "--z-index-popover",
+    "--z-index-tooltip",
+    "--z-index-toast",
+  ]);
 
   const unused = Array.from(definedMap.keys()).filter((token) => {
     if (EXEMPT_DESIGN_TOKENS.has(token)) return false;

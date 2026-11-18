@@ -113,10 +113,12 @@ theme:
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
-  z-index-elevated: "50"
-  z-index-modal: "100"
-  z-index-popover: "200"
-  z-index-tooltip: "300"
+  z-index-sticky: "100"
+  z-index-overlay: "200"
+  z-index-popover: "300"
+  z-index-modal: "400"
+  z-index-tooltip: "500"
+  z-index-toast: "600"
   z-index-max: "999"
 ---
 
@@ -345,7 +347,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 ## Elevation & Depth
 
 - **Tinted Abyssal Shadows**: `--shadow-ghost`, `--shadow-standard`, and `--shadow-ambient` tint drop-shadows with `--color-background-gradient-1` (`#0b101a`) rather than pure `#000` so surfaces merge naturally into the slate stage.
-- **Z-Index Hierarchy**: Stage panels sit below explicit overlay tiers: `--z-index-modal` (`999`, mirrored by legacy `--z-index-max`), `--z-index-popover` (`9999`), and `--z-index-tooltip` (`99999`).
+- **Z-Index Hierarchy**: Stage panels sit below explicit global tiers: `--z-index-sticky` (`100`), `--z-index-overlay` (`200`), `--z-index-popover` (`300`), `--z-index-modal` (`400`), `--z-index-tooltip` (`500`), `--z-index-toast` (`600`), and `--z-index-max` (`999`). Local stacking inside components uses Tailwind's `z-0`–`z-30` inside `isolate` containers.
 - **Backdrop Filtration**: Glass panels pair `--color-glass-sunken` / `--color-glass-elevated` with `--blur-mist` (`1rem`).
 
 ## Shapes
