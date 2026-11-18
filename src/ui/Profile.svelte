@@ -4,23 +4,14 @@
    * 🧪 ENTITY EDITOR - Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import {
-    normalize_entity as normalize,
-    query_entity_history,
-    replay_full_entity_at_round,
-    serialize_character_card,
-    serialize_rpglitch_entity,
-    update_entity,
-    upsert_entity,
-  } from "@data";
+  import { serialize_character_card, serialize_rpglitch_entity } from "@data";
   import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
   import { runtime, simulation_state } from "@state";
   import { get_signature_color } from "@utils";
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import ProfilePicture from "./ProfilePicture.svelte";
   import { safe_parse_pseudo_json } from "@simulation";
-  import { auto_resize, click_outside, download_json_file, generate_uuid, resolve_display_macro_segments } from "@utils";
-  import { SvelteSet } from "svelte/reactivity";
+  import { auto_resize, click_outside, download_json_file, resolve_display_macro_segments } from "@utils";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "@definitions";
   import { ALL_PREMADES } from "@definitions";
@@ -33,7 +24,6 @@
   import StyleBadge from "./StyleBadge.svelte";
   import VisualWing from "./VisualWing.svelte";
   import { app } from "@state";
-  const entities = { upsert: upsert_entity, update: update_entity };
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -53,130 +43,6 @@
   let previous_scroll_top = $state(0);
   /** Export chooser (edit-mode footer) - picks V2 Card or native RPGlitch JSON. */
   let show_export_modal = $state(false);
-  /** In-place Time-Travel Scrub Bar */
-  let is_time_traveling = $state(false);
-
-  // --- TIME-TRAVEL SCRUB BAR STATE ---
-  let is_timeline_loading = $state(false);
-  let is_performing_timeline_action = $state(false);
-  /** @type {Array<number>} */
-  let available_timeline_rounds = $state([]);
-  let selected_timeline_round = $state(0);
-  /** @type {any} */
-  let reconstructed_timeline_state = $state(null);
-
-  $effect(() => {
-    if (is_time_traveling && profile_state.char?.id) {
-      load_timeline_data();
-    }
-  });
-
-  async function load_timeline_data() {
-    if (!profile_state.char?.id) return;
-    is_timeline_loading = true;
-    try {
-      const history = await query_entity_history(profile_state.char.id);
-      const rounds_set = new SvelteSet();
-      rounds_set.add(0);
-      for (const entry of history) {
-        if (typeof entry.round === "number") {
-          rounds_set.add(entry.round);
-        }
-      }
-      available_timeline_rounds = Array.from(rounds_set).sort((a, b) => a - b);
-      selected_timeline_round = available_timeline_rounds[available_timeline_rounds.length - 1] ?? 0;
-      await fetch_timeline_round_state(selected_timeline_round);
-    } catch (err) {
-      console.error("[Profile:Timeline] Failed to load entity timeline:", err);
-      available_timeline_rounds = [0];
-      selected_timeline_round = 0;
-    } finally {
-      is_timeline_loading = false;
-    }
-  }
-
-  /**
-   * Fetches the reconstructed profile state up to the target round.
-   * @param {number} round
-   * @param {Array<any>} [provided_history]
-   */
-  async function fetch_timeline_round_state(round) {
-    if (!profile_state.char?.id) return;
-    try {
-      reconstructed_timeline_state = await replay_full_entity_at_round(profile_state.char.id, round);
-    } catch (err) {
-      console.error("[Profile:Timeline] Failed to replay entity at round:", err);
-    }
-  }
-
-  async function handle_select_timeline_round(round) {
-    if (round === selected_timeline_round) return;
-    selected_timeline_round = round;
-    await fetch_timeline_round_state(round);
-  }
-
-  /**
-   * Reverts the active entity's Four-Quadrant state in-place to this historical snapshot.
-   */
-  async function handle_timeline_update_from_point() {
-    if (!reconstructed_timeline_state || !profile_state.char?.id || is_performing_timeline_action) return;
-    is_performing_timeline_action = true;
-    try {
-      const updated_entity = {
-        ...profile_state.char,
-        eternal: { ...profile_state.char.eternal, ...reconstructed_timeline_state.eternal },
-        present: { ...profile_state.char.present, ...reconstructed_timeline_state.present },
-        past: reconstructed_timeline_state.past,
-        future: reconstructed_timeline_state.future,
-      };
-
-      await entities.upsert(entity_type, updated_entity);
-      await app.load_entities();
-
-      if (runtime.active_ai?.id === profile_state.char.id) runtime.active_ai = updated_entity;
-      if (runtime.active_user?.id === profile_state.char.id) runtime.active_user = updated_entity;
-      if (runtime.active_fractal?.id === profile_state.char.id) runtime.active_fractal = updated_entity;
-
-      const normalized = normalize(updated_entity);
-      profile_state.char = normalized;
-      if (app.editing_entity?.id === normalized.id) app.editing_entity = normalized;
-
-      is_time_traveling = false;
-    } catch (err) {
-      console.error("[Profile:Timeline] Failed to revert entity state:", err);
-    } finally {
-      is_performing_timeline_action = false;
-    }
-  }
-
-  /**
-   * Clones a new timeline branch into the census from this historical snapshot.
-   */
-  async function handle_timeline_clone_from_point() {
-    if (!reconstructed_timeline_state || !profile_state.char || is_performing_timeline_action) return;
-    is_performing_timeline_action = true;
-    try {
-      const branch_id = generate_uuid();
-      const branch_name = `${profile_state.char.name || "Entity"} (R${selected_timeline_round} Branch)`;
-      const new_entity = normalize({
-        ...profile_state.char,
-        id: branch_id,
-        name: branch_name,
-        eternal: { ...profile_state.char.eternal, ...reconstructed_timeline_state.eternal },
-        present: { ...profile_state.char.present, ...reconstructed_timeline_state.present },
-        past: reconstructed_timeline_state.past,
-        future: reconstructed_timeline_state.future,
-      });
-
-      await entities.upsert(entity_type, new_entity);
-      await app.load_entities();
-      is_time_traveling = false;
-    } catch (err) {
-      console.error("[Profile:Timeline] Failed to clone entity branch:", err);
-    } finally {
-      is_performing_timeline_action = false;
-    }
-  }
 
   // --- HEADER REF RUNES ---
   /** @type {HTMLInputElement | undefined} */
@@ -983,53 +849,6 @@
             </main>
           </div>
 
-          {#if is_time_traveling}
-            <div
-              data-testid="profile-time-travel-bar"
-              class="relative z-20 flex flex-wrap items-center justify-between gap-tight px-standard py-tight backdrop-blur-lg"
-              style:background={entity_type !== "fractal" && !app.viewport.mobile ?
-                "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken)) 55%, color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken)) 100%)"
-              : "color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken))"}
-              style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}>
-              <div
-                class={"flex flex-wrap items-center gap-tight" +
-                  (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}>
-                <span class="font-mono text-[11px] font-bold tracking-wider uppercase tabular-nums" style="color: {signature_color};">
-                  R{selected_timeline_round}
-                </span>
-                <div class="flex flex-wrap items-center gap-1">
-                  {#each available_timeline_rounds as r (r)}
-                    <Button
-                      size="small"
-                      variant={selected_timeline_round === r ? "secondary" : "invisible"}
-                      class="font-mono text-[11px] tabular-nums"
-                      onclick={() => handle_select_timeline_round(r)}>
-                      R{r}
-                    </Button>
-                  {/each}
-                </div>
-              </div>
-
-              <div class="flex items-center gap-tight">
-                <Button
-                  variant="secondary"
-                  size="small"
-                  disabled={is_performing_timeline_action || is_timeline_loading}
-                  onclick={handle_timeline_clone_from_point}>
-                  {is_performing_timeline_action ? "Branching..." : "Branch"}
-                </Button>
-                <Button
-                  variant="primary"
-                  size="small"
-                  disabled={is_performing_timeline_action || is_timeline_loading}
-                  onclick={handle_timeline_update_from_point}>
-                  {is_performing_timeline_action ? "Reverting..." : "Revert"}
-                </Button>
-                <Button variant="invisible" size="small" onclick={() => (is_time_traveling = false)}>Done</Button>
-              </div>
-            </div>
-          {/if}
-
           <footer
             bind:this={footer_el}
             tabindex="-1"
@@ -1184,18 +1003,6 @@
                     variant="secondary"
                     square={true}
                     actions={[tooltip]}
-                    aria-label="Inspect historical rounds and branch or revert entity state"
-                    onclick={() => (is_time_traveling = !is_time_traveling)}
-                    class="touch-target-coarse">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                      <circle cx="12" cy="12" r="10"></circle>
-                      <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    square={true}
-                    actions={[tooltip]}
                     disabled={simulation_state.busy || !profile_state.can_edit}
                     aria-label={!profile_state.can_edit ? "Edit locked - entity is in an active story. Enable DevMode to override." : "Edit"}
                     onclick={() => {
@@ -1289,16 +1096,7 @@
       <div class={get_fields_container_class(section.fields.length)}>
         {#each section.fields as field (field.key)}
           {@const field_id = `field-${field.key.replace(".", "-")}`}
-          {@const raw_val =
-            is_time_traveling && reconstructed_timeline_state ?
-              field.key === "eternal.physical" ? reconstructed_timeline_state.eternal?.physical
-              : field.key === "eternal.non_physical" ? reconstructed_timeline_state.eternal?.non_physical
-              : field.key === "present.physical" ? reconstructed_timeline_state.present?.physical
-              : field.key === "present.non_physical" ? reconstructed_timeline_state.present?.non_physical
-              : field.key === "past" ? reconstructed_timeline_state.past
-              : field.key === "future" ? reconstructed_timeline_state.future
-              : profile_state.get_safe_value(field.key)
-            : profile_state.get_safe_value(field.key)}
+          {@const raw_val = profile_state.get_safe_value(field.key)}
           {@const raw =
             typeof raw_val === "string" ? raw_val
             : Array.isArray(raw_val) ?

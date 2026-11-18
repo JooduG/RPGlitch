@@ -43,6 +43,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `src/ui/Profile.svelte`: Removed the clock/time-travel button, inline `profile-time-travel-bar` scrub UI, and timeline replay/branch/revert handlers while keeping `DevWing`'s Mutation Ledger intact.
 - `src/ui/DevWing.svelte`: Removed the Token Budget / Breakdown HUD block and its unused token snapshot derivations.
 - `src/simulation/fixtures.test-util.js`: Removed standalone fixture file after inlining into its sole consumer (`src/engine/runner.test.js`).
 
