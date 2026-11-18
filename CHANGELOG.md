@@ -49,6 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- `src/ui/` (`VisualWing.svelte`, `AudioWing.svelte`, `DevWing.svelte`): Scoped `VisualWing` and `AudioWing` to fallback `--color-frozen` (`--signature-color: var(--color-frozen)`, removing entity `signature_color` from `VisualWing` prompt fields) and pinned `DevWing` to `--color-electric-cyan`.
 - `src/ui/DevWing.svelte`: Derived dynamics meter `desc` tooltip from `axis.low` → `axis.high` instead of falling back to `"Metric"`.
 - `src/ui/Storyboard.svelte`: Matched the Import modal header button to the adjacent `SourceField` upload icon button (`variant="invisible"`, `size="small"`, `square`, `size-icon-small`, `tooltip`) and increased checked `Toggle` contrast against the `--color-frozen` header bar.
 - `.agents/skills/graph-it-{dead-code-hunter,refactor,pr-review,onboarding-express}/`: Removed merged skill directories.

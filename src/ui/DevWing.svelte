@@ -72,7 +72,8 @@
     p-standard
     [backdrop-filter:var(--blur-mist)]
   "
-  style:animation="wing-item-slide-down var(--motion-elastic) forwards">
+  style:animation="wing-item-slide-down var(--motion-elastic) forwards"
+  style:--signature-color="var(--color-electric-cyan)">
   <!-- DYNAMICS GRID -->
   <div
     class="

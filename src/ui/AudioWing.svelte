@@ -81,7 +81,8 @@
     p-standard
     [backdrop-filter:var(--blur-mist)]
   "
-  style:animation="wing-item-slide-down var(--motion-elastic) forwards">
+  style:animation="wing-item-slide-down var(--motion-elastic) forwards"
+  style:--signature-color="var(--color-frozen)">
   <!-- DROPDOWN + PREVIEW + SLIDER (3-col, single row) -->
   <div class="flex flex-col gap-tight">
     <Label for="voice-select">Voice</Label>
