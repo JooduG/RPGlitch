@@ -16,7 +16,6 @@ vi.mock("@media", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,
-    set_visualizer_envision_impl: vi.fn(),
     Audio: {
       voice: { apply_stream_role: vi.fn(), queue_stream_sentence: vi.fn(), flush_stream_remainder: vi.fn(), reset_stream: vi.fn() },
       is_role_enabled: vi.fn(() => true),

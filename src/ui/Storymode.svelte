@@ -380,7 +380,7 @@
     items.push({
       label: photo_label,
       onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "story_scene" : "story_character"),
-      disabled: simulation_state.busy || visual_engine.is_loading,
+      disabled: simulation_state.busy,
     });
     if (type === "fractal") {
       items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: simulation_state.busy || visual_engine.is_loading });
