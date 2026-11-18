@@ -40,12 +40,17 @@ Excluded automatically (`--verbose=true` lists reasons): declared `package.json`
 
 ## Step 3 — Confirm Candidates (Avoid False Positives)
 
-Static analysis misses dynamic dispatch (`obj[methodName]()`) and dynamic imports. Confirm each candidate with both incoming-reference and impact checks:
+Static analysis misses dynamic dispatch (`obj[methodName]()`) and dynamic imports. In RPGlitch, `scan_dead_code` and `get_impact_analysis` also miss symbols imported in `.svelte` files via `export *` barrels when used only in Svelte HTML templates (`onclick={...}`, `use:action`, `in:transition`, `prop={fn}`). Confirm each candidate with both graph checks and a comment-stripped source search:
 
 ```bash
 graph-it tool get_impact_analysis --filePath=/abs/src/engine/runner.js --symbolName=run_turn --format toon
 graph-it tool find_referencing_files --targetPath=/abs/src/engine/runner.js --format toon
 ```
+
+Then for every remaining candidate symbol:
+
+1. **Cross-file code check (`.js` + `.svelte`)**: Strip `//`, `/* ... */`, and `<!-- ... -->` comments and search `src/**/*.{js,svelte}` (excluding the defining file) for `\b<symbol>\b`. Any hit in `.svelte` templates or scripts marks it **active** (false positive); comment-only hits do not count.
+2. **Intra-file check**: Count code hits inside the defining file itself to separate **truly unreferenced** (`1` hit = declaration only) from **internal-only exports** (`2+` hits = only used locally, safe to drop `export`).
 
 - **Zero `query_call_graph` callers alone** → unconfirmed; never delete on call-site count alone.
 - **Incoming references found** → retain or classify as `test-only`.

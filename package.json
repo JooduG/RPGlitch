@@ -31,6 +31,7 @@
     "// --- AUDITS --- //": "",
     "audit": "npm run summarize:parallel audit:backlog audit:design audit:hygiene audit:layers audit:simulation audit:svelte",
     "audit:backlog": "node .agents/skills/local-scripts/scripts/proxy.js sync-backlog",
+    "audit:dead-code": "node .agents/skills/graph-it-live/scripts/scan-dead-code.js",
     "audit:design": "npm run summarize:parallel audit:design:code audit:design:docs",
     "audit:design:code": "node .agents/skills/design/scripts/audit-design.js",
     "audit:design:docs": "node .agents/skills/design/scripts/audit-google-design.js",

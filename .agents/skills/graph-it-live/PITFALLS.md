@@ -43,3 +43,11 @@
 - **Trigger**: Running `graph-it check-architecture`, `scan_dead_code`, or `trace` in RPGlitch where cross-folder imports use bare Vite barrel aliases (`@data`, `@utils`, `@state`, `@engine`, `@media`, `@simulation`, `@definitions`, `@primitives`, `@ui`).
 - **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` does not resolve bare `@alias` imports from `jsconfig.json` alone — it treats them as `:::external`, causing `check-architecture` to skip cross-rank `@alias` edges (`interGroupEdges=0`) and `scan_dead_code` to flag `src/*/index.js` barrels as unreferenced.
 - **Correct Behavior (Prevention Rule)**: Keep root `tsconfig.json` (with `"baseUrl": "."` and bare barrel `paths` matching `vite.config.js`) in sync. If `architecture --folder src` ever drops to `interGroupEdges=0` or `scan_dead_code` flags `src/*/index.js`, check `tsconfig.json` before trusting dead-code or layer-check results.
+
+---
+
+### `[PF-006]` Svelte Template & `export *` Barrel False Positives in `scan_dead_code` (Occurrences: 1)
+
+- **Trigger**: `graph-it tool scan_dead_code` or `get_impact_analysis` reporting a symbol as unused when it is imported into a `.svelte` component through an `@alias` `export *` barrel (`src/*/index.js`) and invoked in the Svelte HTML template (`onclick={...}`, `use:action`, `in:transition`, `prop={fn}`).
+- **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` resolves `@alias` file edges in `.svelte` files, but `scan_dead_code` and `get_impact_analysis` do not trace Svelte HTML template expressions or `export *` barrel bindings for `.svelte` consumers, producing high-confidence false positives (e.g. `open_picker`, `auto_resize`, `overlay_in`, `extract_card_from_png`).
+- **Correct Behavior (Prevention Rule)**: Before deleting any candidate from `scan_dead_code`, strip comments (`//`, `/* ... */`, `<!-- ... -->`) and search `src/**/*.{js,svelte}` (excluding the defining file) for `\b<symbol>\b`. Also check hits inside the defining file to distinguish truly dead code (`1` hit) from internal-only exports (`2+` hits).
