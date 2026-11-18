@@ -7,8 +7,7 @@
    */
   import { DYNAMICS } from "@config";
   import { query_entity_history } from "@data";
-  import { runtime } from "@state";
-  import { Accordion, Button, tooltip } from "@primitives";
+  import { Accordion } from "@primitives";
   import Meter from "./Meter.svelte";
   import { format_datetime } from "@utils";
 
@@ -20,7 +19,6 @@
   /** @type {Props} */
   let { profile_state } = $props();
 
-  let show_token_details = $state(false);
   let show_ledger_feed = $state(false);
   /** @type {Array<any>} */
   let ledger_records = $state([]);
@@ -50,26 +48,17 @@
     const entity = profile_state.char;
     if (entity?.dynamics) {
       for (const key of Object.keys(entity.dynamics)) {
+        const axis = DYNAMICS[key.toUpperCase()];
         list.push({
           source: "dynamics",
           key: key,
-          label: DYNAMICS[key.toUpperCase()]?.label || key.charAt(0).toUpperCase() + key.slice(1),
-          desc: DYNAMICS[key.toUpperCase()]?.desc || "Metric",
+          label: axis?.label || key.charAt(0).toUpperCase() + key.slice(1),
+          desc: axis?.low && axis?.high ? `${axis.low} → ${axis.high}` : "",
         });
       }
     }
     return list;
   });
-
-  const snapshot = $derived(runtime.last_prompt_token_snapshot);
-  const total_tokens = $derived(snapshot?.total ?? 0);
-  const cliff_limit = $derived(snapshot?.cliff_limit ?? 6000);
-  const cliff_percent = $derived(Math.min(100, Math.round((total_tokens / cliff_limit) * 100)));
-  const status_color = $derived(
-    cliff_percent >= 90 ? "text-rose-400 bg-rose-950/40 border-rose-500/30"
-    : cliff_percent >= 75 ? "text-amber-400 bg-amber-950/40 border-amber-500/30"
-    : "text-emerald-400 bg-emerald-950/40 border-emerald-500/30",
-  );
 </script>
 
 <section
@@ -84,72 +73,6 @@
     [backdrop-filter:var(--blur-mist)]
   "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards">
-  <!-- PROMPT TOKEN CLIFF HUD BADGE -->
-  <div class="flex flex-col gap-tight rounded-standard bg-glass-sunken p-standard">
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-tight">
-        <span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Token Budget</span>
-        <span
-          class="rounded-full border px-tight py-0.5 font-mono text-[10px] font-semibold {status_color}"
-          use:tooltip
-          aria-label={`Current compile token load against ${cliff_limit.toLocaleString()} cliff threshold`}>
-          ⚡ {total_tokens.toLocaleString()} / {cliff_limit.toLocaleString()} tok ({cliff_percent}%){snapshot?.mode ? ` [${snapshot.mode.toUpperCase()}]` : ""}
-        </span>
-      </div>
-      <Button
-        variant="invisible"
-        size="small"
-        onclick={() => (show_token_details = !show_token_details)}
-        class="cursor-pointer font-mono text-[10px] text-cyan-400 hover:text-cyan-200">
-        {show_token_details ? "Hide Breakdown ▲" : "Breakdown ▼"}
-      </Button>
-    </div>
-
-    <!-- Progress bar -->
-    <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
-      <div
-        class="h-full transition-[width] duration-300 {cliff_percent >= 90 ? 'bg-rose-500'
-        : cliff_percent >= 75 ? 'bg-amber-400'
-        : 'bg-emerald-400'}"
-        style="width: {cliff_percent}%;">
-      </div>
-    </div>
-
-    {#if show_token_details && snapshot}
-      <div class="mt-tight flex flex-col gap-tight border-t border-white/5 pt-tight text-[10px]">
-        <div class="grid grid-cols-2 gap-x-tight gap-y-1 font-mono text-slate-300">
-          <span class="text-slate-400">Mode:</span>
-          <span class="text-right font-bold text-white uppercase">{snapshot.mode || "prose"}</span>
-          <span class="text-slate-400">System Slot:</span>
-          <span class="text-right text-cyan-300">{snapshot.layers?.system?.toLocaleString() ?? 0} tok</span>
-          <span class="text-slate-400">Entities Slot:</span>
-          <span class="text-right text-purple-300">{snapshot.layers?.entities?.toLocaleString() ?? 0} tok</span>
-          <span class="text-slate-400">History Slot:</span>
-          <span class="text-right text-sky-300">{snapshot.layers?.history?.toLocaleString() ?? 0} tok</span>
-          <span class="text-slate-400">Task Slot:</span>
-          <span class="text-right text-amber-300">{snapshot.layers?.task?.toLocaleString() ?? 0} tok</span>
-        </div>
-        {#if snapshot.entities_breakdown}
-          <div class="mt-tight flex flex-col gap-0.5 border-t border-white/5 pb-tight font-mono text-[9px] text-slate-400">
-            <span class="font-bold tracking-wider text-slate-300 uppercase">Entities Sub-Allocation:</span>
-            <div class="flex justify-between">
-              <span>Actors:</span>
-              <span class="text-slate-200">{snapshot.entities_breakdown.actors?.toLocaleString() ?? 0} tok</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Cast / NPCs:</span>
-              <span class="text-slate-200">{snapshot.entities_breakdown.cast?.toLocaleString() ?? 0} tok</span>
-            </div>
-            <div class="flex justify-between">
-              <span>Past:</span>
-              <span class="text-slate-200">{snapshot.entities_breakdown.past?.toLocaleString() ?? 0} tok</span>
-            </div>
-          </div>
-        {/if}
-      </div>
-    {/if}
-  </div>
-
   <!-- DYNAMICS GRID -->
   <div
     class="

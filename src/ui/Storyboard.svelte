@@ -1225,59 +1225,52 @@
     bind:open={show_import_modal}
     variant="bare"
     z_index="1000"
-    class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-standard bg-glass-elevated p-standard shadow-standard [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-standard shadow-standard"
     on_close={() => {
       show_import_modal = false;
       import_error_message = "";
     }}>
-    <div class="flex h-full flex-col gap-standard font-sans">
-      <div class="flex items-center justify-between">
-        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">Import Entity</h5>
-        <div class="flex items-center gap-standard font-mono text-xs text-slate-300">
-          <Toggle label="Character" bind:value={import_character} disabled={import_loading} />
-          <Toggle label="Fractal" bind:value={import_fractal} disabled={import_loading} />
+    <div class="flex flex-col gap-tight font-sans">
+      {#if import_error_message}
+        <div class="rounded-standard border border-red-500/20 bg-red-500/10 p-standard text-xs text-red-400">
+          {import_error_message}
         </div>
-      </div>
+      {/if}
 
-      <div class="flex flex-1 flex-col">
-        {#if import_error_message}
-          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-standard text-xs text-red-400">
-            {import_error_message}
-          </div>
-        {/if}
-
-        <SourceField
-          bind:value={import_raw_text}
-          bind:image_data={import_image_data}
-          type={import_fetch_type}
-          disabled={import_loading}
-          decode_png_card={extract_card_from_png}
-          on_source={handle_import_source}>
-          {#snippet status()}
+      <SourceField
+        bind:value={import_raw_text}
+        bind:image_data={import_image_data}
+        type={import_fetch_type}
+        disabled={import_loading}
+        decode_png_card={extract_card_from_png}
+        on_source={handle_import_source}>
+        {#snippet status()}
+          <div class="flex items-center gap-standard">
             <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Source Payload</span>
-          {/snippet}
-        </SourceField>
-      </div>
-
-      <div class="flex items-center justify-between">
-        <span class="text-[10px] text-slate-500 italic">
-          Native RPGlitch JSON imports directly; character cards and prose are structured by the AI sorter.
-        </span>
-
-        <Button
-          variant="primary"
-          size="small"
-          onclick={execute_entity_import}
-          busy={import_loading}
-          disabled={import_loading || (!import_character && !import_fractal)}>
-          <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
-        </Button>
-      </div>
+            <div class="flex items-center gap-tight font-mono text-[10px] text-slate-200" style="--signature-color: rgb(255 255 255 / 0.28);">
+              <Toggle size="small" label="Character" bind:value={import_character} disabled={import_loading} />
+              <Toggle size="small" label="Fractal" bind:value={import_fractal} disabled={import_loading} />
+            </div>
+          </div>
+        {/snippet}
+        {#snippet header_actions()}
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label="Import entity"
+            actions={[tooltip]}
+            onclick={execute_entity_import}
+            busy={import_loading}
+            disabled={import_loading || (!import_character && !import_fractal)}>
+            <svg viewBox="0 0 24 24" class="size-icon-small" fill="none">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
+              <polyline points="7 10 12 15 17 10" stroke="currentColor"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"></line>
+            </svg>
+          </Button>
+        {/snippet}
+      </SourceField>
     </div>
   </Modal>
 {/if}

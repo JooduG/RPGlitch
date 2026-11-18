@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `src/definitions/orion-nova-glitch.js` & `src/data/db.js` (`seed_premades`): Added a 10-round concluded premade story fixture (`Neon Static & Pink Thunder`) uniting Orion, Glitch, and Nova City with `simulation_log` entries and `mutation_ledger` diffs seeded idempotently on boot.
 - `.agents/skills/graph-it-live/scripts/scan-dead-code.js` (`npm run audit:dead-code`): Comment-stripped `.svelte`/`.js` filter over `graph-it tool scan_dead_code` to eliminate `.svelte` template and `export *` barrel false positives.
 - `tsconfig.json`: Added root TypeScript/alias config (`"baseUrl": "."` + bare barrel `paths`, `"noEmit": true`) so `graph-it-live` resolves all cross-folder `@alias` edges with 0 `svelte-check` warnings.
 - `engine-atoms.md`: Stage 1 Goldfish atom inventory for `src/engine/` and coupled `@utils` modules.
@@ -24,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- `src/ui/` (`Toggle.svelte`, `Storyboard.svelte`, `Profile.svelte`, `DevWing.svelte`, `VisualWing.svelte`): Fixed UI visual drift — removed stray `'false'` class and added `border-white/10` on unchecked `Toggle`, standardized Import/Export modals to `rounded-standard` + `shadow-standard` and labeled Import `SourceField` (`Source Payload`), unified `profile-time-travel-bar` round pills to `<Button size="small">` with portrait-veil gradient, flattened `DevWing` Token Budget (`rounded-standard bg-glass-sunken p-standard`) and `Mutation Ledger` (`<Accordion>` + `divide-y`) with `wing-item-slide-down`, and bound `VisualWing` prompt headers to entity `signature_color`.
+- `src/ui/` (`Toggle.svelte`, `Storyboard.svelte`, `Profile.svelte`, `DevWing.svelte`, `VisualWing.svelte`): Fixed UI visual drift — removed stray `'false'` class and added `border-white/10` on unchecked `Toggle`, standardized Import/Export modals to `rounded-standard` + `shadow-standard`, flattened the Storyboard Import Modal directly onto `SourceField` with `Character`/`Fractal` toggles and the `Import` CTA in its header snippets, unified `profile-time-travel-bar` round pills to `<Button size="small">` with portrait-veil gradient, flattened `DevWing` Token Budget (`rounded-standard bg-glass-sunken p-standard`) and `Mutation Ledger` (`<Accordion>` + `divide-y`) with `wing-item-slide-down`, and bound `VisualWing` prompt headers to entity `signature_color`.
 - `src/ui/` & `src/utils/ui-helpers.test.js`: Converted 7 self-barrel imports (`@ui`, `@primitives`, `@utils`) to relative `./` sibling paths to eliminate barrel cycles (`ChatBubble.svelte`, `Console.svelte`, `Profile.svelte`, `Storyboard.svelte`, `Storymode.svelte`, `TextField.svelte`, `ui-helpers.test.js`).
 - `src/utils/text.js` & `src/utils/text.test.js`: Removed redundant `export * from "./alternations.js"` pass-through and pointed `text.test.js` directly to `./alternations.js`.
 - `src/App.svelte`: Replaced `[data-dev="grid"]` `border` with `outline` + `outline-offset` to eliminate CSS `boxModel` warnings.
@@ -42,7 +43,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `src/ui/DevWing.svelte`: Removed the Token Budget / Breakdown HUD block and its unused token snapshot derivations.
 - `src/simulation/fixtures.test-util.js`: Removed standalone fixture file after inlining into its sole consumer (`src/engine/runner.test.js`).
+
+### Fixed
+
+- `src/ui/DevWing.svelte`: Derived dynamics meter `desc` tooltip from `axis.low` → `axis.high` instead of falling back to `"Metric"`.
+- `src/ui/Storyboard.svelte`: Matched the Import modal header button to the adjacent `SourceField` upload icon button (`variant="invisible"`, `size="small"`, `square`, `size-icon-small`, `tooltip`) and increased checked `Toggle` contrast against the `--color-frozen` header bar.
 - `.agents/skills/graph-it-{dead-code-hunter,refactor,pr-review,onboarding-express}/`: Removed merged skill directories.
 
 ## `[0.2.0]` - 2026-11-16
