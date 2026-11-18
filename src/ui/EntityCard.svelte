@@ -208,11 +208,11 @@
       if (variant === "library" && !motion.is_reduced && launch_gesture) {
         // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
-        // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after animation duration
+        // Fallback: exceed the 350ms rack-pull-eject keyframe by 50ms so animationend completes first
         if (fallback_timeout) clearTimeout(fallback_timeout);
         fallback_timeout = setTimeout(() => {
           trigger_selection();
-        }, 300);
+        }, 400);
       } else {
         // Direct layout injection if motion suppression is active or not in library layout tracking
         select_handler();

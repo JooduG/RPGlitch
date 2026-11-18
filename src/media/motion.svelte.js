@@ -138,7 +138,7 @@ function create_kinetic_action(node, config) {
 export function shimmy(node) {
   return create_kinetic_action(node, {
     animate: (target, intensity) => {
-      const base_duration = resolve_ms("--duration-slow", 500, node);
+      const base_duration = resolve_ms("--transition-duration-slow", 500, node);
       const animation = target.animate(
         [
           { transform: "translate(0, 0) rotate(0deg)" },
@@ -170,7 +170,7 @@ export function pulse(node) {
         return_anim.cancel();
         return_anim = null;
       }
-      const base_duration = resolve_ms("--duration-ambient", 2000, node);
+      const base_duration = resolve_ms("--transition-duration-ambient", 2000, node);
       const animation = target.animate(
         [
           { transform: "scale(1)", offset: 0 },
@@ -188,7 +188,7 @@ export function pulse(node) {
     onStop: (target, currentAnimation) => {
       if (currentAnimation) {
         currentAnimation.cancel();
-        const duration = resolve_ms("--duration-fast", 150, node);
+        const duration = resolve_ms("--transition-duration-fast", 150, node);
         const easing = resolve_string("--ease-out", "cubic-bezier(0.23, 1, 0.32, 1)", node);
         return_anim = target.animate([{ transform: "scale(1)" }], { duration, easing });
         return_anim.onfinish = () => {
@@ -261,7 +261,7 @@ roll.is_kinetic = true;
 export function stab(node) {
   return create_kinetic_action(node, {
     animate: (target, intensity) => {
-      const base_duration = resolve_ms("--duration-slow", 500, node);
+      const base_duration = resolve_ms("--transition-duration-slow", 500, node);
       const easing = resolve_string("--ease-out", "cubic-bezier(0.23, 1, 0.32, 1)", node);
       const animation = target.animate(
         [

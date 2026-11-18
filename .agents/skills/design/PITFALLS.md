@@ -51,3 +51,21 @@
 - **Trigger**: Resolving `@ENTITY` bracket keys or looking up characters/fractals across `src/ui/` (`Profile.svelte`).
 - **Wrong Behavior**: Reading nonexistent `app.characters` or `app.fractals` arrays (`undefined`), causing lookups to fail silently.
 - **Correct Behavior**: Read `app.ai_list` and `app.fractal_list` (combined with `runtime.active_*` and `ALL_PREMADES` fallback), or query `@data` `list_entities(...)`.
+
+## Pitfall 9: Z-Index Escalation & `bits-ui` Portal `wrapperProps` Stacking
+
+- **Trigger**: Adding z-index layers to modals, backdrops, cards, or portalled floating UI (`Tooltip.Content`, `Modal`, `Backdrop`).
+- **Wrong Behavior**: Passing hardcoded `z_index="1000"`/`"500"` overrides, using banned `z-elevated` / `z-backdrop` / `z-5` / `z-25` / bracketed `z-[...]` classes, or putting `z-index` on `Tooltip.Content`'s inner `props` div instead of `wrapperProps` (which traps tooltips behind modal backdrops).
+- **Correct Behavior**: Use local `z-0`–`z-30` inside `isolate` wrappers for component internals, and the 7-tier global scale (`z-sticky`, `z-overlay`, `z-popover`, `z-modal`, `z-tooltip`, `z-toast`, `z-max`) for global chrome/portals. Always apply `style:z-index` on `bits-ui` `wrapperProps` for portalled tooltips (`audit-design.js` `LEGACY_Z_INDEX` enforces this).
+
+## Pitfall 10: Wing Signature Color Leakage
+
+- **Trigger**: Styling `VisualWing`, `AudioWing`, or `DevWing` inside `Profile.svelte`'s `<aside data-wings-container>`.
+- **Wrong Behavior**: Letting wings inherit `--signature-color` from the parent `Profile` modal or passing entity `signature_color` into `VisualWing` prompt fields.
+- **Correct Behavior**: Pin `VisualWing` and `AudioWing` `<section>` roots to `style:--signature-color="var(--color-frozen)"` (fallback) and `DevWing` to `style:--signature-color="var(--color-electric-cyan)"`.
+
+## Pitfall 11: VisualWing Prompt Refinement & Dirty-State Sync
+
+- **Trigger**: Wiring image prompt enhancement or programmatic `char.modifiers.*` writes in `VisualWing.svelte`.
+- **Wrong Behavior**: Calling removed `app.visual.envision()` or mutating `profile_state.char.modifiers.*` without calling `profile_state.mark_mutated()`.
+- **Correct Behavior**: Import `refine_image_prompt` from `@engine` and call `profile_state.mark_mutated()` whenever programmatic actions update `modifiers.prompt` or `modifiers.negative_prompt`.

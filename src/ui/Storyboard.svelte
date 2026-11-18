@@ -292,6 +292,7 @@
   import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
   import EntityCard from "./EntityCard.svelte";
   import { untrack } from "svelte";
+  import { quartOut } from "svelte/easing";
 
   // ============================================
   // TITLE HEADER STATE & CONSTANTS
@@ -595,23 +596,15 @@
     }
   }
 
-  let render_active = $state(false);
-  let is_visible = $state(false);
+  function card_hand_in() {
+    if (motion.is_reduced) return { duration: 0 };
+    return { duration: 280, easing: quartOut, css: (/** @type {number} */ t, /** @type {number} */ u) => `transform: translateY(${u * 100}%); opacity: ${t};` };
+  }
 
-  $effect(() => {
-    if (is_open) {
-      render_active = true;
-      requestAnimationFrame(() => {
-        is_visible = true;
-      });
-    } else if (render_active) {
-      is_visible = false;
-      const timer = setTimeout(() => {
-        render_active = false;
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  });
+  function card_hand_out() {
+    if (motion.is_reduced || show_import_modal) return { duration: 0 };
+    return { duration: 150, easing: quartOut, css: (/** @type {number} */ t, /** @type {number} */ u) => `transform: translateY(${u * 100}%); opacity: ${t};` };
+  }
 
   let entity_list = $derived(
     /** @type {any[]} */ (
@@ -719,8 +712,8 @@
     import_character = card_hand_type !== "fractal";
     import_fractal = card_hand_type === "fractal";
     import_error_message = "";
-    app.close_card_hand();
     show_import_modal = true;
+    app.close_card_hand();
   }
 
   /** @param {any} entity */
@@ -958,10 +951,9 @@
 {#if app.entities_loaded}
   {#if is_open}
     <Backdrop onclick={() => app.close_card_hand()} layer="cardhand" />
-  {/if}
-
-  {#if render_active}
     <div
+      in:card_hand_in
+      out:card_hand_out
       class="
         pointer-events-none
         fixed
@@ -977,27 +969,7 @@
         items-center
         justify-end
         overflow-hidden
-        pb-[calc(var(--spacing-row-unit)*0.1)]
-        transition-[transform,opacity]
-        duration-300
-        ease-in-out
-
-        {is_visible ?
-        `
-          translate-y-0
-          opacity-100
-        `
-      : `
-          translate-y-full
-          opacity-0
-        `}
-        {motion.is_reduced ?
-        `
-          translate-y-0
-          transition-opacity!
-          duration-300!
-        `
-      : ''}"
+        pb-[calc(var(--spacing-row-unit)*0.1)]"
       role="dialog"
       aria-labelledby="hand-title">
       <header class="pointer-events-auto z-20 -mb-standard text-center">
@@ -1071,7 +1043,7 @@
             style:transform={hovered_index === -2 ?
               `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
             : "none"}>
-            <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" onclick={handle_open_import} />
+            <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" launch_gesture={false} onclick={handle_open_import} />
           </div>
         </div>
 
@@ -1127,7 +1099,7 @@
             style:transform={hovered_index === -1 ?
               `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
             : "none"}>
-            <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
+            <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" launch_gesture={false} onclick={handle_create_new} />
           </div>
         </div>
 
