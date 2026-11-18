@@ -882,7 +882,7 @@
                 // would otherwise paint over + eat clicks on anything under it.
                 (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}>
               <!-- Left: Paired @ID · POV -->
-              <div class="flex min-w-0 flex-col gap-0.5">
+              <div class="flex min-w-0 flex-col gap-0.5 {!app.viewport.mobile ? 'pl-[calc(2rem+var(--spacing-standard))]' : ''}">
                 {#if profile_state.is_editing}
                   <div class="flex items-center gap-tight font-mono text-xs" style="color: {signature_color};">
                     <span aria-hidden="true" class="opacity-70">@</span>
