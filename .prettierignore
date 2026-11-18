@@ -36,6 +36,7 @@
 **/.graph-it/**
 **/graphit.architecture.json
 **/.prettiercache
+.agents/skills/graph-it-live/references/onboarding.md
 **/.stylelintcache
 **/suggestion*
 package-lock.json

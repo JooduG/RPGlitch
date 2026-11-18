@@ -383,7 +383,7 @@
       disabled: simulation_state.busy,
     });
     if (type === "fractal") {
-      items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: simulation_state.busy || visual_engine.is_loading });
+      items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: simulation_state.busy });
     }
     if (type === "user") {
       items.push({

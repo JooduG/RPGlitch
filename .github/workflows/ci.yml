@@ -7,6 +7,9 @@ on:
     branches: ["main", "develop"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: true
@@ -16,18 +19,40 @@ jobs:
     name: "🧪 Sovereign Audit & Build"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "24"
           cache: "npm"
       - name: "Install Dependencies"
-        run: npm ci --legacy-peer-deps
+        run: npm ci
       - name: "Synchronize Design & Ignore Layers"
         run: npm run sync
       - name: "Sovereign Verification (Lint, Audit, Test)"
         run: npm run verify
       - name: "Verify Production Bundle Build"
         run: npm run build
+      - name: "Verify Perchance Bundle Ceiling (<= 4.00 MB)"
+        run: node -e "const size = require('fs').statSync('dist/index.html').size; const mb = (size / (1024 * 1024)).toFixed(2); console.log('Bundle size:', mb, 'MB'); if (size > 4 * 1024 * 1024) { console.error('Exceeds 4.00 MB ceiling'); process.exit(1); }"
       - name: "Verify Git Cleanliness (Zero Artifact Drift)"
         run: git diff --exit-code
+
+  graph-review:
+    name: "🕸️ Graph-It Review Gate"
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: magic5644/Graph-It-Live/.github/actions/graph-it-review-gate@eafcdd12ba4eb33ceb622a7b28a2b5a02f11ca5c # v1.25.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          comment: ${{ github.event.pull_request.head.repo.fork && 'false' || 'true' }}
+          fail-on-risk: high
+          max-depth: "3"
+          max-files: "200"
+          cli-version: ""

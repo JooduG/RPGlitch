@@ -54,6 +54,7 @@ export default defineConfig([
       "**/.graph-it/**",
       "**/graphit.architecture.json",
       "**/.prettiercache",
+      ".agents/skills/graph-it-live/references/onboarding.md",
       "**/.stylelintcache"
     ],
     // @agent:ignore-end
