@@ -82,9 +82,10 @@
     bg-glass-elevated
     p-standard
     [backdrop-filter:var(--blur-mist)]
-  ">
+  "
+  style:animation="wing-item-slide-down var(--motion-elastic) forwards">
   <!-- PROMPT TOKEN CLIFF HUD BADGE -->
-  <div class="flex flex-col gap-tight rounded-xl border border-white/10 bg-black/40 p-0.5">
+  <div class="flex flex-col gap-tight rounded-standard bg-glass-sunken p-standard">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-tight">
         <span class="font-mono text-[10px] font-bold tracking-widest text-slate-400 uppercase">Token Budget</span>
@@ -168,42 +169,29 @@
     </div>
   </Accordion>
 
-  <div class="flex flex-col gap-tight rounded-xl border border-white/5 bg-black/20 p-standard text-left">
-    <div class="flex items-center justify-between">
-      <span class="font-mono text-[10px] font-bold tracking-widest text-cyan-400 uppercase"> Mutation Ledger </span>
-      <Button
-        variant="bare"
-        size="small"
-        onclick={() => (show_ledger_feed = !show_ledger_feed)}
-        class="cursor-pointer font-mono text-[11px] text-cyan-300 hover:text-cyan-200">
-        {show_ledger_feed ? "Hide ▲" : "Inspect ▼"}
-      </Button>
-    </div>
-
-    {#if show_ledger_feed}
-      {#if is_ledger_loading}
-        <span class="font-mono text-[10px] text-slate-400">Loading ledger...</span>
-      {:else if ledger_records.length === 0}
-        <span class="font-mono text-[10px] text-slate-500">No ledger events recorded.</span>
-      {:else}
-        <div class="flex max-h-56 flex-col gap-1 overflow-y-auto pt-1 font-mono text-[10px]">
-          {#each ledger_records as rec (rec.id || `${rec.round}-${rec.seq}-${rec.timestamp}`)}
-            <div class="flex flex-col gap-0.5 rounded border border-white/5 bg-black/30 p-1.5 text-left">
-              <div class="flex items-center justify-between text-slate-400">
-                <span class="font-bold text-cyan-400">R{rec.round}:S{rec.seq} · {rec.field}</span>
-                <span class="text-[9px] text-slate-500">{format_datetime(rec.timestamp)}</span>
-              </div>
-              <div class="text-slate-200">
-                {#if rec.key}<span class="text-cyan-300">[{rec.key}]</span>
-                {/if}
-                {rec.new_value ?? "cleared (null)"}
-              </div>
+  <Accordion label="Mutation Ledger" bind:open={show_ledger_feed}>
+    {#if is_ledger_loading}
+      <span class="font-mono text-[10px] text-slate-400">Loading ledger...</span>
+    {:else if ledger_records.length === 0}
+      <span class="font-mono text-[10px] text-slate-500">No ledger events recorded.</span>
+    {:else}
+      <div class="flex max-h-56 flex-col divide-y divide-white/5 overflow-y-auto font-mono text-[10px]">
+        {#each ledger_records as rec (rec.id || `${rec.round}-${rec.seq}-${rec.timestamp}`)}
+          <div class="flex flex-col gap-0.5 py-1.5 text-left first:pt-0 last:pb-0">
+            <div class="flex items-center justify-between text-slate-400">
+              <span class="font-bold text-cyan-400">R{rec.round}:S{rec.seq} · {rec.field}</span>
+              <span class="text-[9px] text-slate-500">{format_datetime(rec.timestamp)}</span>
             </div>
-          {/each}
-        </div>
-      {/if}
+            <div class="text-slate-200">
+              {#if rec.key}<span class="text-cyan-300">[{rec.key}]</span>
+              {/if}
+              {rec.new_value ?? "cleared (null)"}
+            </div>
+          </div>
+        {/each}
+      </div>
     {/if}
-  </div>
+  </Accordion>
 
   <!-- META FOOTER -->
   <footer

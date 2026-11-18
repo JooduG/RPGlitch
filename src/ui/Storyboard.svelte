@@ -1225,7 +1225,7 @@
     bind:open={show_import_modal}
     variant="bare"
     z_index="1000"
-    class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-standard bg-glass-elevated p-standard shadow-standard [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_import_modal = false;
       import_error_message = "";
@@ -1252,7 +1252,11 @@
           type={import_fetch_type}
           disabled={import_loading}
           decode_png_card={extract_card_from_png}
-          on_source={handle_import_source} />
+          on_source={handle_import_source}>
+          {#snippet status()}
+            <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Source Payload</span>
+          {/snippet}
+        </SourceField>
       </div>
 
       <div class="flex items-center justify-between">

@@ -24,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `src/ui/` (`Toggle.svelte`, `Storyboard.svelte`, `Profile.svelte`, `DevWing.svelte`, `VisualWing.svelte`): Fixed UI visual drift — removed stray `'false'` class and added `border-white/10` on unchecked `Toggle`, standardized Import/Export modals to `rounded-standard` + `shadow-standard` and labeled Import `SourceField` (`Source Payload`), unified `profile-time-travel-bar` round pills to `<Button size="small">` with portrait-veil gradient, flattened `DevWing` Token Budget (`rounded-standard bg-glass-sunken p-standard`) and `Mutation Ledger` (`<Accordion>` + `divide-y`) with `wing-item-slide-down`, and bound `VisualWing` prompt headers to entity `signature_color`.
 - `src/ui/` & `src/utils/ui-helpers.test.js`: Converted 7 self-barrel imports (`@ui`, `@primitives`, `@utils`) to relative `./` sibling paths to eliminate barrel cycles (`ChatBubble.svelte`, `Console.svelte`, `Profile.svelte`, `Storyboard.svelte`, `Storymode.svelte`, `TextField.svelte`, `ui-helpers.test.js`).
 - `src/utils/text.js` & `src/utils/text.test.js`: Removed redundant `export * from "./alternations.js"` pass-through and pointed `text.test.js` directly to `./alternations.js`.
 - `src/App.svelte`: Replaced `[data-dev="grid"]` `border` with `outline` + `outline-offset` to eliminate CSS `boxModel` warnings.

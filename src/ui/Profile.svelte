@@ -682,7 +682,7 @@
     variant="bare"
     bind:open={show_export_modal}
     z_index="1000"
-    class="relative w-[clamp(24rem,92vw,38rem)] rounded-2xl bg-glass-elevated p-standard shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+    class="relative w-[clamp(24rem,92vw,38rem)] rounded-standard bg-glass-elevated p-standard shadow-standard [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     on_close={() => {
       show_export_modal = false;
     }}>
@@ -986,9 +986,10 @@
           {#if is_time_traveling}
             <div
               data-testid="profile-time-travel-bar"
-              class="relative z-20 flex flex-wrap items-center justify-between gap-tight border-t px-standard py-tight backdrop-blur-lg"
-              style:border-color="color-mix(in srgb, var(--signature-color) 25%, transparent)"
-              style:background-color="color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken))"
+              class="relative z-20 flex flex-wrap items-center justify-between gap-tight px-standard py-tight backdrop-blur-lg"
+              style:background={entity_type !== "fractal" && !app.viewport.mobile ?
+                "linear-gradient(to right, transparent 0%, color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken)) 55%, color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken)) 100%)"
+              : "color-mix(in srgb, var(--signature-color) 8%, var(--color-glass-sunken))"}
               style:margin-left={entity_type !== "fractal" && !app.viewport.mobile ? "calc(var(--spacing-column-unit) * -2)" : "0"}>
               <div
                 class={"flex flex-wrap items-center gap-tight" +
@@ -998,19 +999,13 @@
                 </span>
                 <div class="flex flex-wrap items-center gap-1">
                   {#each available_timeline_rounds as r (r)}
-                    <button
-                      type="button"
-                      class="cursor-pointer rounded-md px-2 py-0.5 font-mono text-[11px] tabular-nums transition-colors"
-                      style:background-color={selected_timeline_round === r ?
-                        "color-mix(in srgb, var(--signature-color) 25%, var(--color-glass-sunken))"
-                      : "rgba(0,0,0,0.3)"}
-                      style:border={selected_timeline_round === r ?
-                        "1px solid color-mix(in srgb, var(--signature-color) 60%, transparent)"
-                      : "1px solid rgba(255,255,255,0.08)"}
-                      style:color={selected_timeline_round === r ? "var(--color-frisk)" : "rgb(148 163 184)"}
+                    <Button
+                      size="small"
+                      variant={selected_timeline_round === r ? "secondary" : "invisible"}
+                      class="font-mono text-[11px] tabular-nums"
                       onclick={() => handle_select_timeline_round(r)}>
                       R{r}
-                    </button>
+                    </Button>
                   {/each}
                 </div>
               </div>

@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { VISUAL_STYLES } from "@definitions";
-  import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@utils";
+  import { get_signature_color, get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@utils";
   import { Button, Dropdown, Label, SourceField, TextField, Toggle, tooltip } from "@primitives";
   import { app } from "@state";
   import { extract_aesthetic_traits, sanitize_visual_text } from "@simulation";
@@ -18,6 +18,8 @@
 
   /** @type {Props} */
   let { profile_state } = $props();
+
+  const signature_color = $derived(get_signature_color(profile_state.char));
 
   // --- CONSTANTS ---
 
@@ -298,7 +300,7 @@
     placeholder="Image prompt, URL, or drop/paste an image here..."
     size="sm"
     field_class=""
-    signature_color="var(--color-frozen)"
+    {signature_color}
     data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
     oninput={() => profile_state.mark_mutated()}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-prompt", label: "Image Prompt" })}
@@ -444,7 +446,7 @@
     bind:value={profile_state.char.modifiers.negative_prompt}
     placeholder="Negative prompt (avoid these)..."
     disabled={!profile_state.is_editing || is_prompt_busy}
-    signature_color="var(--color-frozen)"
+    {signature_color}
     oninput={() => profile_state.mark_mutated()}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}>
     {#snippet status()}

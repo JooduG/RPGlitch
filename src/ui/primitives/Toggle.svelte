@@ -66,7 +66,6 @@
       *:pointer-events-none
     `
   : ''}
-    {size === 'small'}
     {className}"
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
@@ -96,7 +95,9 @@
           disabled:cursor-default
           data-disabled:cursor-default
 
-          {always_signature ? 'bg-(--signature-color,#555d66)' : 'bg-neutral-900/60 data-[state=checked]:bg-(--signature-color,#555d66)'}
+          {always_signature ? 'bg-(--signature-color,#555d66)' : (
+          'border border-white/10 bg-neutral-900/60 data-[state=checked]:border-transparent data-[state=checked]:bg-(--signature-color,#555d66)'
+        )}
           data-[state=checked]:group-hover/toggle:brightness-125
 
           {size === 'small' ?
