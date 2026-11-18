@@ -12,6 +12,8 @@ graph-it architecture --level units --format toon
 
 ## Step 2 — Run the Scan
 
+For RPGlitch dead-code sweeps, prefer `npm run audit:dead-code` (wraps `graph-it tool scan_dead_code --format json` with comment-stripped `.svelte`/`.js` filtering via `scripts/scan-dead-code.js`).
+
 List unreferenced whole files first (lowest-effort deletions), then scan symbol exports:
 
 ```bash

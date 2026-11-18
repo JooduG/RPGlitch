@@ -22,7 +22,7 @@ Dependency, call-graph, impact, dead-code, PR-review, and architecture analysis 
 | Locate code by concept | `graph-it context "<question>" --mode search --detail compact --token-budget 2000 --format toon` | [commands.md](./references/commands.md) |
 | Callers, importers, blast radius | `graph-it path-in`, `tool query_call_graph`, `tool get_impact_analysis` | [commands.md](./references/commands.md) |
 | Layer-boundary architecture gate | `graph-it check-architecture --format toon` (`graphit.architecture.json`) | [commands.md](./references/commands.md) |
-| Dead-code & ghost-file sweep | `tool scan_dead_code` + per-file confirmation | [dead-code.md](./references/dead-code.md) |
+| Dead-code & ghost-file sweep | `npm run audit:dead-code` (or `tool scan_dead_code`) + per-file confirmation | [dead-code.md](./references/dead-code.md) |
 | Multi-file refactor (map -> edit -> verify) | `graph-it context --mode refactor --depth 4` | [refactor.md](./references/refactor.md) |
 | PR / Git diff risk review | `graph-it review-pr --base origin/main --format toon` | [pr-review.md](./references/pr-review.md) |
 | Codebase onboarding tour | `graph-it architecture`, `explain`, `tool generate_codemap`, `trace` | [onboarding.md](./references/onboarding.md) |

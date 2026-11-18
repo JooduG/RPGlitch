@@ -51,3 +51,11 @@
 - **Trigger**: `graph-it tool scan_dead_code` or `get_impact_analysis` reporting a symbol as unused when it is imported into a `.svelte` component through an `@alias` `export *` barrel (`src/*/index.js`) and invoked in the Svelte HTML template (`onclick={...}`, `use:action`, `in:transition`, `prop={fn}`).
 - **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` resolves `@alias` file edges in `.svelte` files, but `scan_dead_code` and `get_impact_analysis` do not trace Svelte HTML template expressions or `export *` barrel bindings for `.svelte` consumers, producing high-confidence false positives (e.g. `open_picker`, `auto_resize`, `overlay_in`, `extract_card_from_png`).
 - **Correct Behavior (Prevention Rule)**: Before deleting any candidate from `scan_dead_code`, strip comments (`//`, `/* ... */`, `<!-- ... -->`) and search `src/**/*.{js,svelte}` (excluding the defining file) for `\b<symbol>\b`. Also check hits inside the defining file to distinguish truly dead code (`1` hit) from internal-only exports (`2+` hits).
+
+---
+
+### `[PF-007]` Treating `graph-it cycles` as Proof of Zero File-Level Import Cycles (Occurrences: 1)
+
+- **Trigger**: Checking for circular dependencies across `src/*/index.js` barrels or `.svelte`/`.svelte.js` stores.
+- **Wrong Behavior (Root Cause)**: Running `graph-it cycles <file>` alone and trusting `cycleCount=0`. `cycles` inspects symbol-level call cycles and misses module-level `IMPORTS` cycles—such as in-folder files importing their own `@alias` barrel (`@ui` inside `src/ui/`, `@primitives` inside `src/ui/primitives/`) or mutual store imports (`runtime.svelte.js` ↔ `interface.svelte.js`).
+- **Correct Behavior (Prevention Rule)**: Enforce `./` relative imports for all in-folder siblings (never `@<own-folder>`), and verify file-level import cycles using a Strongly Connected Components (Tarjan SCC) check over `graph-it architecture --communities louvain --format json` edges.

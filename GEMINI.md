@@ -78,6 +78,8 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
 - `src/ui/` (Presentation) → `src/state/` (Reactive Controllers) → `src/intelligence/` (Inference) → `src/data/` (Persistence) → `src/platform/` & `src/media/`.
 - Downward imports allowed. Upward imports strictly forbidden (`src/state/` cannot import `src/ui/`, lower levels cannot import state or UI).
 - **Cross-Folder Barrel Mandate**: Use module alias barrels (`@data`, `@engine`, `@media`, `@primitives`, `@ui`, `@utils`) for **all** cross-folder imports; use relative `./file.js` paths strictly for in-folder imports. When switching a consumer to a barrel import, ensure the symbol is re-exported by the barrel's `index.js` and update any unit test `vi.spyOn` / `vi.mock` targets to match the barrel rather than an internal file.
+  - **No Self-Barrel Imports**: Never import `@<own-folder>` from inside `src/<folder>/` (e.g. `@ui` inside `src/ui/`, `@primitives` inside `src/ui/primitives/`), as it creates circular barrel dependencies.
+  - **Alias Config Sync**: Keep `tsconfig.json` (`"baseUrl": "."`, `"noEmit": true`, and bare barrel `paths`) in sync with `vite.config.js` and `jsconfig.json` so `graph-it-live` resolves cross-folder `@alias` edges while `svelte-check` stays emission-free.
 - **Prompt Sovereign Mandate (Single Source of Truth for Prompts)**:
   - All prompt compilation envelopes (`<SYSTEM>`, `<TASK>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, Purpose Cores) MUST live exclusively in `src/engine/prompts.js`.
   - Never copy-paste or assemble prompt XML templates in `src/media/`, `src/storage/`, `src/data/`, or `src/utils/`.
