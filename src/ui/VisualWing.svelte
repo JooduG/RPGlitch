@@ -6,6 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { VISUAL_STYLES } from "@definitions";
+  import { refine_image_prompt } from "@engine";
   import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@utils";
   import { Button, Dropdown, Label, SourceField, TextField, Toggle, tooltip } from "@primitives";
   import { app } from "@state";
@@ -103,8 +104,9 @@
     try {
       if (!has_prompt_text && !prompt_value) {
         profile_state.char.modifiers.prompt = extract_aesthetic_traits(profile_state.char);
+        profile_state.mark_mutated();
       } else if (has_prompt_text) {
-        const result = await app.visual.envision(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
+        const result = await refine_image_prompt(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char, app.settings?.visual_style);
         if (result) {
           // Rescue prose out of any JSON-shaped leftovers (older builds could
           // persist raw blobs) and strip template-significant braces - the
@@ -118,6 +120,7 @@
           } else {
             profile_state.char.modifiers.prompt = positive;
             if (negative) profile_state.char.modifiers.negative_prompt = negative;
+            profile_state.mark_mutated();
           }
         }
       }
