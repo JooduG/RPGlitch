@@ -2,13 +2,15 @@
 
 ## Overview
 
-Application root for **RPGlitch**, containing the browser boot entrypoint, root Svelte 5 shell, canonical system configuration constants, Perchance plugin integration manifest, HTML host document, and all six layered domain packages.
+Application root for **RPGlitch**, containing the browser boot entrypoint, root Svelte 5 shell, canonical system configuration constants, Perchance plugin integration manifest, HTML host document, and all eight layered domain packages.
 
 ## Interface
 
 ### 1. Subsystems & Contracts
 
 - [Simulation Engine (`./engine/README.md`)](./engine/README.md): Direct-store Svelte 5 simulation runtime, 3-turn orchestration pipeline (`Director`, `Character`, `Caretaker`), `session_driver`, reactive `simulation_log`/`developer_log` stores, XML prompt compiler and verifier, priority-gated LLM transport, Two-Tier Sieve RAG, and dynamics math.
+- [Reactive State Stores (`./state/README.md`)](./state/README.md): Rank 3 Svelte 5 rune stores (`app`, `runtime`, `session_driver`, `simulation_log`, `developer_log`, `simulation_state`, `streaming`) and freeze watchdog.
+- [Simulation Core (`./simulation/README.md`)](./simulation/README.md): Rank 1 pure bracket/pseudo-JSON parser, dynamics reducer, history normalization, prose slop linter, two-tier RAG memory selection, and XML/diffusion prompt compilation.
 - [Domain UI & Controllers (`./ui/README.md`)](./ui/README.md): Presentation components (`Storyboard`, `Storymode`, `Console`, `Profile`, `RelationalGraph`, `ChatBubble`, `EntityCard`, `ImagePreview`, `ContextMenu`, `Typewriter`) and reactive controllers (`app`, `ProfileState`).
   - [UI Primitives (`./ui/primitives/README.md`)](./ui/primitives/README.md): 15 design-system Svelte 5 primitives and the `tooltip` action built on `bits-ui`.
 - [Data & Persistence (`./data/README.md`)](./data/README.md): Pure persistence layer (zero Svelte runes, zero upward imports) — Dexie `"rpglitch"` IndexedDB engine, event-sourced `mutation_ledger`, 4-quadrant entity normalization (`records.js`), TavernAI/PNG card codecs (`card-codec.js`), 3-tier session checkpoints (`checkpoint.js`), and Markdown story exporters (`exporters.js`).
@@ -31,7 +33,7 @@ Application root for **RPGlitch**, containing the browser boot entrypoint, root 
 
 ## Invariants
 
-- **Strict Layer Hierarchy**: Ranked layers flow downward or laterally within equal ranks across `src/ui/` (Rank 4) -> `src/engine/` & `src/data/` (Rank 2; `src/data/` is a pure persistence layer with zero `@engine` imports) -> `src/media/` & `src/utils/` (Rank 1), enforced by the repository layer gate (`npm run audit:layers`). `src/definitions/` is unranked in `LAYER_HIERARCHY` (`layers.js`) and has a mutual barrel dependency with `src/media/` (`profile-taxonomy.js` -> `@media`; `optics.js` & `visual.svelte.js` -> `@definitions`).
+- **Strict Layer Hierarchy**: Ranked layers flow downward or laterally within equal ranks across the 6-Rank DAG: `src/ui/` (Rank 5) -> `src/engine/` (Rank 4) -> `src/state/` (Rank 3) -> `src/data/` & `src/media/` (Rank 2) -> `src/simulation/` (Rank 1) -> `src/definitions/` & `src/utils/` (Rank 0), enforced by both `npm run audit:layers` (`layers.js`) and `graph-it check-architecture` (`graphit.architecture.json`).
 - **Config Evaluation Order (`config.js`)**: All exported configuration objects, arrays, and sets are frozen via `Object.freeze`; Section 1 and Section 2 have zero cross-references between homes, and Section 3 only references Sections 1–2 to prevent module-evaluation TDZ errors. `DYNAMICS` axis definitions are uppercase (`CHAOS`, `INTENSITY`, `OPENNESS`, `AFFINITY`, `VELOCITY`, `ENTROPY`) and indexed by lowercase runtime IDs via `.toUpperCase()`.
 - **Bootstrap Sequencing & Single-Init Guard (`main.js`)**: `Dexie` and `DOMPurify` are attached to `window`, and `register_state_accessors`, `register_stream_handlers`, and `bind_session_driver` execute before `app_bootstrap.init()`. `app_bootstrap.init()` guards against duplicate calls via `has_initialized`, skips auto-execution on module load when `import.meta.env.MODE === "test"`, awaits `seed_premades()` prior to `runtime.sync()`, guards `set_versionchange_quiesce` against partial `@data` mocks, and sanitizes critical boot error markup via `sanitize_to_fragment()`.
 - **Root Shell Lifecycle (`App.svelte`)**: `<Console />` remains mounted in the persistent stage `<footer>` across `"storyboard"` and `"storymode"` transitions; `<ImagePreview />` mounts directly in root shell markup while `interface.svelte.js` delegates preview operations directly to `ImagePreview`; fractal `view-transition-name: entity-morph-fractal` applies only during `"storymode"` when `!app.transitioning_profile`; noise animation respects `motion.is_reduced`; AudioContexts are destroyed on both `pagehide` and `$effect` cleanup.
