@@ -128,12 +128,11 @@
   <Select.Portal>
     <Select.Content sideOffset={8} {align}>
       {#snippet child({ wrapperProps, props })}
-        <div {...wrapperProps}>
+        <div {...wrapperProps} style:z-index="var(--z-index-tooltip)">
           <div
             {...props}
             data-dropdown-menu
             class="
-              z-popover
               flex
               {computed_height}
               {dropdownWidth ? dropdownWidth
