@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { CLOTHING_KEYS, strip_leading_key_echo } from "@simulation";
 import { clean_xml, dedent_all, escape_xml, prompt_escape, render_atom_xml, render_profile_field_block, render_xml_tag } from "./xml.js";
 
 describe("escape_xml", () => {
@@ -93,24 +92,6 @@ describe("render_profile_field_block", () => {
   it("returns null on empty rows", () => {
     expect(render_profile_field_block("APPEARANCE", [])).toBeNull();
     expect(render_profile_field_block("APPEARANCE", null)).toBeNull();
-  });
-});
-
-describe("CLOTHING_KEYS", () => {
-  it("contains canonical clothing keys in a frozen array", () => {
-    expect(CLOTHING_KEYS).toContain("SHIRT");
-    expect(CLOTHING_KEYS).toContain("PANTS");
-    expect(CLOTHING_KEYS).toContain("ARMOR");
-    expect(CLOTHING_KEYS).toContain("CLOTHING");
-    expect(Object.isFrozen(CLOTHING_KEYS)).toBe(true);
-  });
-});
-
-describe("strip_leading_key_echo", () => {
-  it("strips matching underscore or spaced key echoes", () => {
-    expect(strip_leading_key_echo("STATE: protective", ["STATE"])).toBe("protective");
-    expect(strip_leading_key_echo("DENTAL FEATURES: sharp fangs", ["DENTAL_FEATURES"])).toBe("sharp fangs");
-    expect(strip_leading_key_echo("plain value", ["STATE"])).toBe("plain value");
   });
 });
 

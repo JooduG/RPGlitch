@@ -17,10 +17,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `tsconfig.json`: Added root TypeScript/alias config (`"baseUrl": "."` + bare barrel `paths`) so `graph-it-live` resolves all cross-folder `@alias` edges.
 - `engine-atoms.md`: Stage 1 Goldfish atom inventory for `src/engine/` and coupled `@utils` modules.
 - `.github/dependabot.yml`: Weekly `github-actions` update schedule.
 
 ### Changed
+
+- `src/ui/primitives/SourceField.svelte` & `src/ui/Storyboard.svelte`: Decoupled `SourceField` from `@data` via an optional `decode_png_card` prop (`extract_card_from_png` passed from `Storyboard.svelte`), satisfying `rank5-primitives-stateless`.
+- `src/utils/{text,xml}.test.js` → `src/simulation/{brackets,history,llm-output}.test.js`: Relocated `@simulation` test suites out of `src/utils/` so `graph-it check-architecture` passes all 13 rules with 0 violations.
 
 - `jsconfig.json` & `graphit.architecture.json`: Added bare barrel path aliases (`@data`, `@definitions`, `@engine`, `@media`, `@simulation`, `@state`, `@primitives`, `@ui`, `@utils`) matching `vite.config.js`, and scoped `shell` to `["src/main.js", "src/App.svelte"]`.
 - `src/state/runtime.svelte.js` & `src/state/interface.svelte.js`: Broke circular import via `register_runtime_app_sink(app)` so `@state` dependencies flow one-way (`interface` → `runtime`).

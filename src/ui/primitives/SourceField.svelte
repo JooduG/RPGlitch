@@ -10,11 +10,10 @@
    * (drop, paste, browse, URL fetch) and the result is reported via
    * `on_source({kind:"image", data_url})`.
    *
-   * The heavy lifting is delegated: URLs go through @platform web-fetch, PNG
-   * card decoding through @data/cards.js, file/image reading through the shared
-   * @platform blob_to_data_url. This component only routes sources.
+   * The heavy lifting is delegated: URLs go through @utils web-fetch, PNG
+   * card decoding through an optional `decode_png_card` prop, file/image reading
+   * through @utils `blob_to_data_url`. This component only routes sources.
    */
-  import { extract_card_from_png } from "@data";
   import { Button, TextField, tooltip } from "@primitives";
   import { blob_to_data_url, fetch_web, validate_image } from "@utils";
 
@@ -32,6 +31,7 @@
     signature_color = "#475569",
     header_actions = null,
     status = null,
+    decode_png_card = null,
     oninput = undefined,
     onfocus = undefined,
     on_source = () => {},
@@ -141,8 +141,8 @@
       const data_url = await image_file_to_data_url(file);
       image_data = data_url;
 
-      if (file.name.toLowerCase().endsWith(".png")) {
-        const text = extract_card_from_png(await file.arrayBuffer());
+      if (file.name.toLowerCase().endsWith(".png") && decode_png_card) {
+        const text = decode_png_card(await file.arrayBuffer());
         if (text) {
           fetched_text = text;
           value = text;

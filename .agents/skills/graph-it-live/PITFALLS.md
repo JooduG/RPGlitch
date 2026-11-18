@@ -38,8 +38,8 @@
 
 ---
 
-### `[PF-005]` Treating `check-architecture` / `scan_dead_code` as Complete Across Bare `@alias` Barrels (Occurrences: 1)
+### `[PF-005]` Bare `@alias` Barrels Require `tsconfig.json` with `baseUrl` for Full Graph Resolution (Occurrences: 1)
 
-- **Trigger**: Running `graph-it check-architecture`, `scan_dead_code`, or `trace` in RPGlitch where cross-folder imports use bare Vite/jsconfig barrel aliases (`@data`, `@utils`, `@state`, `@engine`, `@media`, `@simulation`, `@definitions`, `@primitives`, `@ui`).
-- **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` treats bare `@alias` imports as `:::external` even when declared in `jsconfig.json`. Consequently, `check-architecture` only validates relative imports (`interGroupEdges` excludes `@alias` edges), `scan_dead_code` marks `src/*/index.js` barrels as unreferenced (`low` confidence) and flags barrel-re-exported symbols as unused (`high` confidence), and `trace` stops at `@alias` boundaries.
-- **Correct Behavior (Prevention Rule)**: Never delete an export flagged by `scan_dead_code` until you verify it is not re-exported by `src/*/index.js` and imported via `@<layer>` (e.g. with `rg` / `Select-String`). Likewise, treat `check-architecture` as covering relative imports only unless alias resolution is confirmed in `architecture --folder src` (`interGroupEdges`) or `trace`.
+- **Trigger**: Running `graph-it check-architecture`, `scan_dead_code`, or `trace` in RPGlitch where cross-folder imports use bare Vite barrel aliases (`@data`, `@utils`, `@state`, `@engine`, `@media`, `@simulation`, `@definitions`, `@primitives`, `@ui`).
+- **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` does not resolve bare `@alias` imports from `jsconfig.json` alone — it treats them as `:::external`, causing `check-architecture` to skip cross-rank `@alias` edges (`interGroupEdges=0`) and `scan_dead_code` to flag `src/*/index.js` barrels as unreferenced.
+- **Correct Behavior (Prevention Rule)**: Keep root `tsconfig.json` (with `"baseUrl": "."` and bare barrel `paths` matching `vite.config.js`) in sync. If `architecture --folder src` ever drops to `interGroupEdges=0` or `scan_dead_code` flags `src/*/index.js`, check `tsconfig.json` before trusting dead-code or layer-check results.

@@ -1,28 +1,6 @@
 import { CHARS_PER_TOKEN } from "@config";
 import { describe, expect, it } from "vitest";
 import {
-  AGGREGATE_KEYS,
-  balance_brackets,
-  CLEAR_TOKENS,
-  derive_vector_title,
-  format_relational_vector,
-  format_tagged_fields,
-  parse_relational_vector,
-  safe_parse_json,
-  safe_parse_pseudo_json,
-  strip_cognition_blocks,
-  VISUAL_EXCLUDED_KEYS,
-} from "@simulation";
-import {
-  collapse_history,
-  decompose_story_title,
-  filter_narrative_messages,
-  first_sentence,
-  format_history_entries,
-  is_narrative_role,
-  role_display_label,
-} from "@simulation";
-import {
   alternation_field_label,
   clean_text,
   collapse_whitespace,
@@ -42,112 +20,6 @@ import {
   truncate_at_word,
   truncate_at_boundary,
 } from "./text.js";
-describe("safe_parse_json", () => {
-  it("extracts embedded JSON object from surrounding text", () => {
-    const raw = `Here is your prompt: {"prompt": "cyberpunk alley", "negative_prompt": "blurry"} Hope you like it!`;
-    expect(safe_parse_json(raw)).toEqual({ prompt: "cyberpunk alley", negative_prompt: "blurry" });
-  });
-
-  it("extracts embedded JSON array from surrounding text", () => {
-    const raw = `Available targets: ["solo_entity", "story_scene"]`;
-    expect(safe_parse_json(raw)).toEqual(["solo_entity", "story_scene"]);
-  });
-
-  it("returns null for non-JSON or invalid input", () => {
-    expect(safe_parse_json("just text")).toBeNull();
-    expect(safe_parse_json("")).toBeNull();
-    expect(safe_parse_json(null)).toBeNull();
-    expect(safe_parse_json("{ broken json ")).toBeNull();
-  });
-
-  it("handles startWith prefix option when model continues prefill", () => {
-    const decapitated = 'thinking", "prompt": "neon city", "negative_prompt": "blurry"}';
-    const prefix = '{"_thought_process": "';
-    expect(safe_parse_json(decapitated, { prefix })).toEqual({ _thought_process: "thinking", prompt: "neon city", negative_prompt: "blurry" });
-  });
-});
-
-describe("strip_cognition_blocks", () => {
-  it("removes think tags and internal monologue from text", () => {
-    expect(strip_cognition_blocks("<think>Planning next turn...</think>Hello world.")).toBe("Hello world.");
-    expect(strip_cognition_blocks("Before <think>secret thought</think> After")).toBe("Before  After");
-  });
-
-  it("handles dangling closing think tags and model artifact prefixes", () => {
-    expect(strip_cognition_blocks("Prose content.</think>")).toBe("Prose content.");
-    expect(strip_cognition_blocks("Mattis. Archetypes: Hero\nReal story begins.")).toBe("Real story begins.");
-  });
-
-  it("strips leaked DYNAMICS state blocks that leaked into prose", () => {
-    expect(strip_cognition_blocks("<DYNAMICS>\n  Chaos: 60 -> 58 (-2)\n  Intensity: 65 -> 70 (+5)\n</DYNAMICS>\n\nThe white light is too loud.")).toBe(
-      "The white light is too loud.",
-    );
-    expect(strip_cognition_blocks("Stray <DYNAMICS> tag here.")).toBe("Stray");
-    expect(strip_cognition_blocks("Stray </DYNAMICS> tag here.")).toBe("Stray  tag here.");
-  });
-
-  it("handles null or empty inputs", () => {
-    expect(strip_cognition_blocks(null)).toBe("");
-    expect(strip_cognition_blocks("")).toBe("");
-  });
-});
-
-describe("safe_parse_pseudo_json", () => {
-  it("extracts bracketed key value pairs", () => {
-    const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [LOCATION: tavern]");
-    expect(parsed).toEqual({ SHIRT: "leather jacket", LOCATION: "tavern" });
-  });
-
-  it("applies atomic clearing tokens by deleting the key", () => {
-    const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [HELD: none] [INJURY: healed]");
-    expect(parsed).toEqual({ SHIRT: "leather jacket" });
-  });
-
-  it("aggregates repeated INVENTORY / STASH entries", () => {
-    const parsed = safe_parse_pseudo_json("[INVENTORY: potion, map] [INVENTORY: dagger]");
-    expect(parsed.INVENTORY).toEqual(["potion", "map", "dagger"]);
-  });
-
-  it("aggregates multiple relational @-prefixed entries under the same target", () => {
-    const parsed = safe_parse_pseudo_json("[@ASHENWEALD: high court birthplace] [@ASHENWEALD: site of public stripping of princehood]");
-    expect(parsed["@ASHENWEALD"]).toEqual(["high court birthplace", "site of public stripping of princehood"]);
-  });
-
-  it("falls back to quoted JSON or raw prose", () => {
-    expect(safe_parse_pseudo_json('"STATUS": "active"')).toEqual({ STATUS: "active" });
-    expect(safe_parse_pseudo_json("Just raw narrative prose.")).toEqual({ __raw_prose__: "Just raw narrative prose." });
-  });
-
-  it("keeps multi-word uppercase keys separate when unbracketed (tag-name leak regression)", () => {
-    const parsed = safe_parse_pseudo_json("HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs HEIGHT: 193 cm");
-    expect(parsed).toEqual({ HAIR: "dark with silver streaks at the temples", DENTAL_FEATURES: "perfectly white sharp fangs", HEIGHT: "193 cm" });
-  });
-
-  it("never merges a following key into the previous value across unbracketed keys", () => {
-    const parsed = safe_parse_pseudo_json("LANDMARKS: rows of vat tanks VISUAL_THEME: sterile chrome and cold blue light");
-    expect(parsed).toEqual({ LANDMARKS: "rows of vat tanks", VISUAL_THEME: "sterile chrome and cold blue light" });
-  });
-
-  it("does not let a bracket value swallow the next bracket's key", () => {
-    const parsed = safe_parse_pseudo_json("[HAIR: silver streaks] [DENTAL_FEATURES: sharp fangs]");
-    expect(parsed).toEqual({ HAIR: "silver streaks", DENTAL_FEATURES: "sharp fangs" });
-  });
-
-  it("splits a following uppercase key swallowed inside a single bracket (tag-name leak regression)", () => {
-    const parsed = safe_parse_pseudo_json("[HAIR: dark with silver streaks at the temples DENTAL FEATURES: perfectly white sharp fangs]");
-    expect(parsed).toEqual({ HAIR: "dark with silver streaks at the temples", DENTAL_FEATURES: "perfectly white sharp fangs" });
-  });
-
-  it("splits multiple keys inside one bracket", () => {
-    const parsed = safe_parse_pseudo_json("[STATE: protective, possessive SECRET: he fears being owned]");
-    expect(parsed).toEqual({ STATE: "protective, possessive", SECRET: "he fears being owned" });
-  });
-
-  it("preserves lowercase keys and URL values while splitting embedded keys", () => {
-    expect(safe_parse_pseudo_json("[location: tavern]")).toEqual({ location: "tavern" });
-    expect(safe_parse_pseudo_json("[NOTE: see HTTP://example.com]")).toEqual({ NOTE: "see HTTP://example.com" });
-  });
-});
 
 describe("indent_continuation", () => {
   it("indents multi-line string content with specified spaces", () => {
@@ -196,37 +68,6 @@ describe("compute_initials", () => {
   });
 });
 
-describe("role_display_label & is_narrative_role", () => {
-  it("maps roles to display labels", () => {
-    expect(role_display_label("USER_PERSONA")).toBe("User");
-    expect(role_display_label("user")).toBe("User");
-    expect(role_display_label("FRACTAL")).toBe("Fractal");
-    expect(role_display_label("AI_CHARACTER")).toBe("Character");
-    expect(role_display_label(null)).toBe("Character");
-  });
-
-  it("identifies narrative roles", () => {
-    expect(is_narrative_role("ai")).toBe(true);
-    expect(is_narrative_role("FRACTAL")).toBe(true);
-    expect(is_narrative_role("user")).toBe(true);
-    expect(is_narrative_role("npc")).toBe(true);
-    expect(is_narrative_role("system")).toBe(false);
-    expect(is_narrative_role(null)).toBe(false);
-  });
-});
-
-describe("first_sentence", () => {
-  it("extracts the first sentence within boundary", () => {
-    expect(first_sentence("The sky broke open. Rain poured down.")).toBe("The sky broke open.");
-    expect(first_sentence("A quick alert!")).toBe("A quick alert!");
-  });
-
-  it("returns empty string on empty input", () => {
-    expect(first_sentence(null)).toBe("");
-    expect(first_sentence("")).toBe("");
-  });
-});
-
 describe("clean_text", () => {
   it("strips markdown characters and collapses whitespace", () => {
     expect(clean_text("**Bold** and `code` with [links]")).toBe("Bold and code with links");
@@ -246,92 +87,6 @@ describe("format_datetime", () => {
   it("returns fallback dashes on null", () => {
     expect(format_datetime(null)).toBe("---");
     expect(format_datetime(undefined)).toBe("---");
-  });
-});
-
-describe("collapse_history", () => {
-  it("groups consecutive messages from the same role and character", () => {
-    const messages = [
-      { role: "user", text: "Hello", character_name: "Orion" },
-      { role: "user", text: "Are you there?", character_name: "Orion" },
-      { role: "assistant", text: "I am here.", character_name: "Glitch" },
-    ];
-    const collapsed = collapse_history(messages);
-    expect(collapsed).toEqual([
-      { role: "user_persona", name: "Orion", content: "Hello\nAre you there?" },
-      { role: "ai_character", name: "Glitch", content: "I am here." },
-    ]);
-  });
-
-  it("ignores system messages in collapsed history", () => {
-    const messages = [
-      { role: "system", text: "Telemetry delta" },
-      { role: "assistant", text: "Welcome.", character_name: "Glitch" },
-    ];
-    expect(collapse_history(messages)).toEqual([{ role: "ai_character", name: "Glitch", content: "Welcome." }]);
-  });
-});
-
-describe("filter_narrative_messages", () => {
-  it("filters out system messages and respects consolidated option", () => {
-    const messages = [
-      { role: "system", text: "Story Started" },
-      { role: "user", text: "Look out", meta: { consolidated: true } },
-      { role: "assistant", text: "I see it", character_name: "Iris" },
-    ];
-
-    expect(filter_narrative_messages(messages)).toEqual([
-      { role: "user", text: "Look out", meta: { consolidated: true } },
-      { role: "assistant", text: "I see it", character_name: "Iris" },
-    ]);
-
-    expect(filter_narrative_messages(messages, { exclude_consolidated: true })).toEqual([{ role: "assistant", text: "I see it", character_name: "Iris" }]);
-  });
-
-  it("filters out empty string entries without prologue/epilogue flags", () => {
-    const messages = [
-      { role: "fractal", text: "", character_name: "World" },
-      { role: "fractal", text: "   ", character_name: "World" },
-      { role: "fractal", text: "", meta: { is_prologue: true }, character_name: "World" },
-      { role: "assistant", text: "Valid dialogue", character_name: "Iris" },
-    ];
-
-    expect(filter_narrative_messages(messages)).toEqual([
-      { role: "fractal", text: "", meta: { is_prologue: true }, character_name: "World" },
-      { role: "assistant", text: "Valid dialogue", character_name: "Iris" },
-    ]);
-  });
-
-  it("handles null or non-array inputs safely", () => {
-    expect(filter_narrative_messages(null)).toEqual([]);
-    expect(filter_narrative_messages(undefined)).toEqual([]);
-  });
-});
-
-describe("format_history_entries", () => {
-  it("formats messages into canonical XML <ACTION> sequences with origin, round, and stripped think tags", () => {
-    const messages = [
-      { role: "user", text: "Hello", character_name: "Orion", origin: "ORION" },
-      { role: "assistant", text: "<think>He greets me.</think>Greetings.", character_name: "Glitch", origin: "GLITCH" },
-    ];
-    const xml = format_history_entries(messages);
-    expect(xml).toContain('<ACTION round="1" origin="ORION">Hello</ACTION>');
-    expect(xml).toContain('<ACTION round="2" origin="GLITCH">Greetings.</ACTION>');
-    expect(xml).not.toContain("<think>");
-  });
-
-  it("collapses consecutive messages with separator and supports indent and max_chars", () => {
-    const messages = [
-      { role: "user", text: "One", character_name: "Orion" },
-      { role: "user", text: "Two", character_name: "Orion" },
-    ];
-    const xml = format_history_entries(messages, { separator: "\n\n", indent: 2 });
-    expect(xml).toBe('  <ACTION round="1" origin="Orion">One\n\nTwo</ACTION>');
-  });
-
-  it("returns empty string on empty or null inputs", () => {
-    expect(format_history_entries([])).toBe("");
-    expect(format_history_entries(null)).toBe("");
   });
 });
 
@@ -364,112 +119,11 @@ describe("format_key_as_label", () => {
   });
 });
 
-describe("derive_vector_title", () => {
-  it("derives a clean title from short directive text", () => {
-    expect(derive_vector_title("Washed ashore at Mournhold.")).toBe("Washed ashore at Mournhold");
-  });
-
-  it("truncates long directive text with ellipsis at word boundary", () => {
-    const long_text = "This is a very long directive text that exceeds the maximum length limit allowed for headers";
-    const title = derive_vector_title(long_text, 38);
-    expect(title.length).toBeLessThanOrEqual(40);
-    expect(title.endsWith("…")).toBe(true);
-  });
-
-  it("handles null or non-string inputs gracefully", () => {
-    expect(derive_vector_title(null)).toBe("");
-    expect(derive_vector_title(undefined)).toBe("");
-    expect(derive_vector_title("")).toBe("");
-  });
-});
-
-describe("NAME_PREFIXES, CLEAR_TOKENS, AGGREGATE_KEYS", () => {
+describe("NAME_PREFIXES", () => {
   it("contains common title prefixes and stop words in frozen array", () => {
     expect(NAME_PREFIXES).toContain("dr");
     expect(NAME_PREFIXES).toContain("the");
     expect(NAME_PREFIXES).toContain("mr.");
-  });
-
-  it("exposes canonical clearing and aggregation tokens in frozen Sets", () => {
-    expect(CLEAR_TOKENS.has("none")).toBe(true);
-    expect(CLEAR_TOKENS.has("healed")).toBe(true);
-    expect(AGGREGATE_KEYS.has("INVENTORY")).toBe(true);
-    expect(AGGREGATE_KEYS.has("STASH")).toBe(true);
-  });
-});
-
-describe("parse_relational_vector & format_relational_vector", () => {
-  it("parses valid unicode and ascii arrow relational vectors", () => {
-    const v1 = parse_relational_vector("Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry");
-    expect(v1).toEqual({
-      source_name: "Orion the Pink Protector",
-      target_name: "Glitch",
-      dynamic: "playful superhero vs hacker rivalry",
-      raw: "Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry",
-    });
-
-    const v2 = parse_relational_vector("Glitch -> Dr. Elias Tariq: containment breach hacker sabotage");
-    expect(v2).toEqual({
-      source_name: "Glitch",
-      target_name: "Dr. Elias Tariq",
-      dynamic: "containment breach hacker sabotage",
-      raw: "Glitch -> Dr. Elias Tariq: containment breach hacker sabotage",
-    });
-
-    const v3 = parse_relational_vector("K-9 → Nova-City: defense patrol unit");
-    expect(v3).toEqual({ source_name: "K-9", target_name: "Nova-City", dynamic: "defense patrol unit", raw: "K-9 → Nova-City: defense patrol unit" });
-  });
-
-  it("handles vectors with no dynamic description", () => {
-    const v = parse_relational_vector("Julien → Ashenweald");
-    expect(v).toEqual({ source_name: "Julien", target_name: "Ashenweald", dynamic: "", raw: "Julien → Ashenweald" });
-  });
-
-  it("formats canonical relational vectors properly", () => {
-    expect(format_relational_vector("Orion", "Nova City", "protector")).toBe("Orion → Nova City: protector");
-    expect(format_relational_vector("Orion", "Nova City")).toBe("Orion → Nova City");
-    expect(format_relational_vector("", "Nova City")).toBe("");
-  });
-
-  it("handles null or malformed inputs safely", () => {
-    expect(parse_relational_vector(null)).toBeNull();
-    expect(parse_relational_vector("")).toBeNull();
-    expect(parse_relational_vector("Not a vector")).toBeNull();
-  });
-});
-
-describe("decompose_story_title", () => {
-  it("decomposes standard title into colored entity segments", () => {
-    const entities = {
-      ai: { name: "Glitch" },
-      user: { name: "Orion" },
-      fractal: { name: "Nova City" },
-      get_color: (e) =>
-        e.name === "Glitch" ? "#00ffcc"
-        : e.name === "Orion" ? "#ff66cc"
-        : "#6699ff",
-    };
-    const title = "Chronicles of Glitch & Orion in Nova City";
-    const parts = decompose_story_title(title, entities);
-    expect(parts).toEqual([
-      { text: "Chronicles of " },
-      { text: "Glitch", color: "#00ffcc" },
-      { text: " & " },
-      { text: "Orion", color: "#ff66cc" },
-      { text: " in " },
-      { text: "Nova City", color: "#6699ff" },
-    ]);
-  });
-
-  it("handles custom arbitrary titles gracefully", () => {
-    const title = "Custom Dark Fantasy Epic";
-    const parts = decompose_story_title(title, {});
-    expect(parts).toEqual([{ text: "Custom Dark Fantasy Epic" }]);
-  });
-
-  it("handles null or empty title gracefully", () => {
-    expect(decompose_story_title(null)).toEqual([{ text: "" }]);
-    expect(decompose_story_title("")).toEqual([{ text: "" }]);
   });
 });
 
@@ -503,44 +157,6 @@ describe("truncate_at_word", () => {
   it("handles null or empty inputs", () => {
     expect(truncate_at_word(null)).toBe("");
     expect(truncate_at_word("")).toBe("");
-  });
-});
-
-describe("balance_brackets", () => {
-  it("encloses line that ends with ] but misses [", () => {
-    const input = "high-alert containment breach | w: 8]";
-    expect(balance_brackets(input)).toBe("[high-alert containment breach | w: 8]");
-  });
-
-  it("closes line that starts with [ but misses ]", () => {
-    const input = "[ANOMALY: imminent orbital dissemination of mind-wipe virus";
-    expect(balance_brackets(input)).toBe("[ANOMALY: imminent orbital dissemination of mind-wipe virus]");
-  });
-
-  it("repairs multiline text containing both opening and closing bracket errors", () => {
-    const input = "high-alert containment breach | w: 8]\n[ANOMALY: imminent orbital dissemination of mind-wipe virus";
-    expect(balance_brackets(input)).toBe("[high-alert containment breach | w: 8]\n[ANOMALY: imminent orbital dissemination of mind-wipe virus]");
-  });
-
-  it("leaves already balanced brackets untouched", () => {
-    const input = "[STATE: active] [MOOD: tense | w: 7]";
-    expect(balance_brackets(input)).toBe("[STATE: active] [MOOD: tense | w: 7]");
-  });
-
-  it("wraps unbracketed key-value or weight directives", () => {
-    expect(balance_brackets("ANOMALY: containment breach | w: 8")).toBe("[ANOMALY: containment breach | w: 8]");
-    expect(balance_brackets("@DR_TARIQ: hostile | hide")).toBe("[@DR_TARIQ: hostile | hide]");
-  });
-
-  it("does not wrap natural language prose lines with colons or pipes", () => {
-    expect(balance_brackets("Note: the corridor hums quietly.")).toBe("Note: the corridor hums quietly.");
-    expect(balance_brackets("He whispered: run before they find you.")).toBe("He whispered: run before they find you.");
-    expect(balance_brackets("They played hide and seek in the shadows.")).toBe("They played hide and seek in the shadows.");
-  });
-
-  it("handles null and empty input gracefully", () => {
-    expect(balance_brackets(null)).toBe("");
-    expect(balance_brackets("")).toBe("");
   });
 });
 
@@ -606,39 +222,6 @@ describe("alternation macros (selectable options & dice resolution)", () => {
     expect(alternation_field_label("[SHIRT: {red|black}]", "{red|black}")).toBe("SHIRT");
     expect(alternation_field_label("plain {a|b} prose", "{a|b}")).toBe("");
     expect(alternation_field_label("[MOOD: {calm|furious}] then {a|b}", "{a|b}")).toBe("");
-  });
-});
-
-describe("visual exclusion via format_tagged_fields & VISUAL_EXCLUDED_KEYS", () => {
-  it("exports frozen VISUAL_EXCLUDED_KEYS set", () => {
-    expect(VISUAL_EXCLUDED_KEYS).toBeInstanceOf(Set);
-    expect(VISUAL_EXCLUDED_KEYS.has("INVENTORY")).toBe(true);
-    expect(VISUAL_EXCLUDED_KEYS.has("STASH")).toBe(true);
-    expect(VISUAL_EXCLUDED_KEYS.has("SECRET")).toBe(true);
-    expect(VISUAL_EXCLUDED_KEYS.has("PLAN")).toBe(true);
-    expect(VISUAL_EXCLUDED_KEYS.has("STATUS")).toBe(true);
-    expect(Object.isFrozen(VISUAL_EXCLUDED_KEYS)).toBe(true);
-  });
-
-  it("returns empty string for falsey inputs", () => {
-    expect(format_tagged_fields("", { visual_only: true })).toBe("");
-    expect(format_tagged_fields(null, { visual_only: true })).toBe("");
-    expect(format_tagged_fields(undefined, { visual_only: true })).toBe("");
-  });
-
-  it("preserves raw prose if no pseudo-JSON brackets are parsed", () => {
-    const raw = "A lone figure stands in the rain";
-    expect(format_tagged_fields(raw, { visual_only: true })).toBe(raw);
-  });
-
-  it("strips visual excluded keys and retains visual keys", () => {
-    const input = "[SHIRT: red tunic] [INVENTORY: dagger, potion] [HAIR: raven] [SECRET: knows the truth] [STATUS: bleeding]";
-    const result = format_tagged_fields(input, { visual_only: true });
-    expect(result).toContain("[SHIRT: red tunic]");
-    expect(result).toContain("[HAIR: raven]");
-    expect(result).not.toContain("INVENTORY");
-    expect(result).not.toContain("SECRET");
-    expect(result).not.toContain("STATUS");
   });
 });
 

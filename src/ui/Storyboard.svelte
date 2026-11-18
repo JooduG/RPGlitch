@@ -279,7 +279,14 @@
 </script>
 
 <script>
-  import { create_entity as create_new, detect_card_format, normalize_entity as normalize, parse_character_card, upsert_entity } from "@data";
+  import {
+    create_entity as create_new,
+    detect_card_format,
+    extract_card_from_png,
+    normalize_entity as normalize,
+    parse_character_card,
+    upsert_entity,
+  } from "@data";
   import { create_entity_with_profile } from "@engine";
   import { Audio, rect_of } from "@media";
   import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
@@ -1244,6 +1251,7 @@
           bind:image_data={import_image_data}
           type={import_fetch_type}
           disabled={import_loading}
+          decode_png_card={extract_card_from_png}
           on_source={handle_import_source} />
       </div>
 

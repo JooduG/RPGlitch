@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parse_think_block, strip_cognition_blocks } from "./llm-output.js";
+import { first_sentence, parse_think_block, safe_parse_json, strip_cognition_blocks } from "./llm-output.js";
 import { resolve_style } from "@utils";
 
 describe("resolve_style (pure, no bridge)", () => {
@@ -36,5 +36,67 @@ describe("parse_think_block", () => {
     const parsed = parse_think_block("Just prose.");
     expect(parsed.think).toBe("");
     expect(parsed.prose).toContain("Just prose.");
+  });
+});
+
+describe("safe_parse_json", () => {
+  it("extracts embedded JSON object from surrounding text", () => {
+    const raw = `Here is your prompt: {"prompt": "cyberpunk alley", "negative_prompt": "blurry"} Hope you like it!`;
+    expect(safe_parse_json(raw)).toEqual({ prompt: "cyberpunk alley", negative_prompt: "blurry" });
+  });
+
+  it("extracts embedded JSON array from surrounding text", () => {
+    const raw = `Available targets: ["solo_entity", "story_scene"]`;
+    expect(safe_parse_json(raw)).toEqual(["solo_entity", "story_scene"]);
+  });
+
+  it("returns null for non-JSON or invalid input", () => {
+    expect(safe_parse_json("just text")).toBeNull();
+    expect(safe_parse_json("")).toBeNull();
+    expect(safe_parse_json(null)).toBeNull();
+    expect(safe_parse_json("{ broken json ")).toBeNull();
+  });
+
+  it("handles startWith prefix option when model continues prefill", () => {
+    const decapitated = 'thinking", "prompt": "neon city", "negative_prompt": "blurry"}';
+    const prefix = '{"_thought_process": "';
+    expect(safe_parse_json(decapitated, { prefix })).toEqual({ _thought_process: "thinking", prompt: "neon city", negative_prompt: "blurry" });
+  });
+});
+
+describe("strip_cognition_blocks (extended)", () => {
+  it("removes think tags and internal monologue from text", () => {
+    expect(strip_cognition_blocks("<think>Planning next turn...</think>Hello world.")).toBe("Hello world.");
+    expect(strip_cognition_blocks("Before <think>secret thought</think> After")).toBe("Before  After");
+  });
+
+  it("handles dangling closing think tags and model artifact prefixes", () => {
+    expect(strip_cognition_blocks("Prose content.</think>")).toBe("Prose content.");
+    expect(strip_cognition_blocks("Mattis. Archetypes: Hero\nReal story begins.")).toBe("Real story begins.");
+  });
+
+  it("strips leaked DYNAMICS state blocks that leaked into prose", () => {
+    expect(strip_cognition_blocks("<DYNAMICS>\n  Chaos: 60 -> 58 (-2)\n  Intensity: 65 -> 70 (+5)\n</DYNAMICS>\n\nThe white light is too loud.")).toBe(
+      "The white light is too loud.",
+    );
+    expect(strip_cognition_blocks("Stray <DYNAMICS> tag here.")).toBe("Stray");
+    expect(strip_cognition_blocks("Stray </DYNAMICS> tag here.")).toBe("Stray  tag here.");
+  });
+
+  it("handles null or empty inputs", () => {
+    expect(strip_cognition_blocks(null)).toBe("");
+    expect(strip_cognition_blocks("")).toBe("");
+  });
+});
+
+describe("first_sentence", () => {
+  it("extracts the first sentence within boundary", () => {
+    expect(first_sentence("The sky broke open. Rain poured down.")).toBe("The sky broke open.");
+    expect(first_sentence("A quick alert!")).toBe("A quick alert!");
+  });
+
+  it("returns empty string on empty input", () => {
+    expect(first_sentence(null)).toBe("");
+    expect(first_sentence("")).toBe("");
   });
 });

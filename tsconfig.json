@@ -32,7 +32,9 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "target": "ESNext",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "noEmit": true
   },
   "exclude": [
     "**/.agents/**",
