@@ -9,8 +9,7 @@
   import { runtime } from "@state";
   import { motion } from "@media";
   import StyleBadge from "./StyleBadge.svelte";
-  import { guarded_transition, get_signature_color } from "@utils";
-  import { flushSync } from "svelte";
+  import { get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
   import { app } from "@state";
@@ -154,49 +153,18 @@
   let select_handler = $derived(onclick || on_select || (() => {}));
 
   /**
-   * Helper to perform the actual entity selection, wrapped inside guarded_transition.
+   * Completes the card selection gesture and delegates transition ownership to the parent controller.
    */
   function trigger_selection() {
     if (launch_triggered || !is_launching) return;
     launch_triggered = true;
-
-    // Manually strip view-transition-name from any existing panel/slot cards of this type in the DOM
-    // to guarantee zero duplicate transition name errors during snapshot capture.
-    try {
-      const target_name = "card-slot-" + type;
-      const elements = document.querySelectorAll("[data-card-root]");
-      elements.forEach((/** @type {any} */ el) => {
-        const style_attr = el.getAttribute("style") || "";
-        const has_transition_name = style_attr.includes("view-transition-name");
-        const current_name = (el.style.getPropertyValue("view-transition-name") || el.style.viewTransitionName || "").trim();
-
-        const is_match = current_name === target_name || current_name === `"${target_name}"` || (has_transition_name && style_attr.includes(target_name));
-
-        if (is_match && el !== root_el) {
-          el.style.removeProperty("view-transition-name");
-          // Bulletproof fallback: manually strip the property from the style attribute directly
-          const cleaned_style = style_attr
-            .split(";")
-            .filter((/** @type {string} */ part) => !part.trim().startsWith("view-transition-name"))
-            .join(";");
-          el.setAttribute("style", cleaned_style);
-        }
-      });
-    } catch (err) {
-      console.warn("[ViewTransition] DOM pre-flight sweep failed:", err);
+    if (fallback_timeout) {
+      clearTimeout(fallback_timeout);
+      fallback_timeout = null;
     }
-
-    guarded_transition(
-      () => {
-        flushSync(() => {
-          is_launching = false; // Remove view-transition-name from old element before capture
-          if (root_el) root_el.style.removeProperty("view-transition-name"); // Bulletproof DOM strip
-          select_handler();
-        });
-        launch_triggered = false;
-      },
-      { className: "is-swapping-card" },
-    );
+    is_launching = false;
+    launch_triggered = false;
+    select_handler();
   }
 
   /**
@@ -208,11 +176,11 @@
       if (variant === "library" && !motion.is_reduced && launch_gesture) {
         // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
-        // Fallback: exceed the 350ms rack-pull-eject keyframe by 50ms so animationend completes first
+        // Fallback: exceed the 300ms (--transition-duration-standard) rack-pull-eject keyframe by 50ms so animationend completes first
         if (fallback_timeout) clearTimeout(fallback_timeout);
         fallback_timeout = setTimeout(() => {
           trigger_selection();
-        }, 400);
+        }, 350);
       } else {
         // Direct layout injection if motion suppression is active or not in library layout tracking
         select_handler();
@@ -227,6 +195,10 @@
    */
   function handle_animation_end(e) {
     if (e.animationName === "rack-pull-eject" && is_launching) {
+      if (fallback_timeout) {
+        clearTimeout(fallback_timeout);
+        fallback_timeout = null;
+      }
       trigger_selection();
     }
   }
@@ -300,7 +272,7 @@
     {is_launching ?
     `
       z-20
-      animate-[rack-pull-eject_0.35s_cubic-bezier(0.4,0,0.2,1)_forwards]
+      animate-[rack-pull-eject_var(--transition-duration-standard)_var(--ease-out)_forwards]
     `
   : ''}
     backdrop-blur-md

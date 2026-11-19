@@ -69,7 +69,7 @@
       text-white
       ${uppercase ? "uppercase" : ""}
       transition-[background-color,color,box-shadow,transform,filter,border-color]
-      duration-500
+      duration-fast
       ease-out
 
       hover:brightness-125

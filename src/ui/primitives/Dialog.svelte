@@ -55,8 +55,8 @@
     open = false;
   };
 
-  const duration_in = resolve_ms("--duration-standard", 300);
-  const duration_out = resolve_ms("--duration-fast", 150);
+  const duration_in = resolve_ms("--transition-duration-standard", 300);
+  const duration_out = resolve_ms("--transition-duration-fast", 150);
 </script>
 
 <svelte:window

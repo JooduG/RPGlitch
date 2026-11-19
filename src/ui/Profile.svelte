@@ -24,6 +24,7 @@
   import StyleBadge from "./StyleBadge.svelte";
   import VisualWing from "./VisualWing.svelte";
   import { app } from "@state";
+  import { motion } from "@media";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -184,13 +185,19 @@
   let _prev_has_wings = null;
 
   /** Slides `el` from one translateX to another via a CSS transition (FLIP). */
-  function slide_x(el, from_x, to_x, ease = "var(--ease-drawer)") {
+  function slide_x(el, from_x, to_x, ease = "var(--ease-drawer)", duration = "var(--transition-duration-standard)") {
     if (el._slide_timer) clearTimeout(el._slide_timer);
+    if (motion.is_reduced) {
+      el.style.transition = "";
+      el.style.transform = "";
+      el._slide_timer = null;
+      return;
+    }
     el.style.transition = "none";
     el.style.transform = `translateX(${from_x})`;
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        el.style.transition = `transform ${ease}`;
+        el.style.transition = `transform ${duration} ${ease}`;
         el.style.transform = `translateX(${to_x})`;
       });
     });
@@ -199,30 +206,6 @@
       el.style.transform = "";
       el._slide_timer = null;
     }, 1000);
-  }
-
-  /** Briefly dips the info column opacity to mask the instant edit/readonly content swap. */
-  function dip_content(el) {
-    if (el._dip_timer_1) clearTimeout(el._dip_timer_1);
-    if (el._dip_timer_2) clearTimeout(el._dip_timer_2);
-    el.style.transition = "none";
-    el.style.opacity = "1";
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        el.style.transition = "opacity 90ms var(--ease-out)";
-        el.style.opacity = "0";
-      });
-    });
-    el._dip_timer_1 = setTimeout(() => {
-      el.style.transition = "opacity 220ms ease-out";
-      el.style.opacity = "1";
-    }, 120);
-    el._dip_timer_2 = setTimeout(() => {
-      el.style.transition = "";
-      el.style.opacity = "";
-      el._dip_timer_1 = null;
-      el._dip_timer_2 = null;
-    }, 400);
   }
 
   $effect(() => {
@@ -256,18 +239,20 @@
         if (card_ref) slide_x(card_ref, "33.33%", "0", "var(--ease-drawer)");
         if (wings_ref) slide_x(wings_ref, "-165%", "0", "var(--ease-drawer)");
       } else {
-        if (card_ref) slide_x(card_ref, "-33.33%", "0", "300ms ease-out");
+        if (card_ref) slide_x(card_ref, "-33.33%", "0", "var(--ease-out)");
         if (wings_ref) slide_x(wings_ref, "0", "-165%", "var(--ease-drawer)");
       }
     }
   });
 
+  let content_dipping = $state(false);
   let _prev_is_editing = null;
 
   $effect(() => {
     const editing = profile_state.is_editing;
-    if (app.transitioning_profile || app.viewport.mobile) {
+    if (app.transitioning_profile || app.viewport.mobile || motion.is_reduced) {
       _prev_is_editing = editing;
+      content_dipping = false;
       return;
     }
     if (_prev_is_editing === null) {
@@ -276,7 +261,11 @@
     }
     if (_prev_is_editing !== editing) {
       _prev_is_editing = editing;
-      if (info_container_el) dip_content(info_container_el);
+      content_dipping = true;
+      const timer = setTimeout(() => {
+        content_dipping = false;
+      }, 90);
+      return () => clearTimeout(timer);
     }
   });
 
@@ -294,7 +283,7 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex overflow-hidden border border-solid transition-[height,grid-template-columns,grid-template-rows,border-radius] duration-300 relative z-10 " +
+    "flex overflow-hidden border border-solid transition-[grid-template-columns,grid-template-rows,transform,opacity] duration-300 relative z-10 " +
       (app.viewport.mobile ?
         "col-span-full h-full flex-col rounded-none "
       : (has_wings ? "md:col-[2/8] row-start-1 my-auto h-[90dvh]" : "md:col-[4/10] row-start-1 my-auto h-[90dvh]") + " rounded-2xl ") +
@@ -302,7 +291,7 @@
   );
 
   const avatar_container_class = $derived(
-    "sticky top-0 z-20 flex shrink-0 items-stretch transition-[height,width,min-height] duration-300 " +
+    "sticky top-0 z-20 flex shrink-0 items-stretch transition-[transform,opacity] duration-300 " +
       (entity_type === "fractal" ? "h-12 min-h-64 w-full " : "h-full w-[calc(var(--spacing-column-unit)*2)] ") +
       (app.viewport.mobile ? "h-auto w-auto items-center justify-center" : ""),
   );
@@ -316,7 +305,7 @@
   );
 
   const info_container_class = $derived(
-    "flex min-h-0 min-w-0 flex-1 flex-col gap-standard overflow-x-hidden overflow-y-auto p-standard scrollbar-thin scrollbar-track-transparent [&::-webkit-scrollbar-track]:mb-(--footer-h)",
+    "flex min-h-0 min-w-0 flex-1 flex-col gap-standard overflow-x-hidden overflow-y-auto p-standard scrollbar-thin scrollbar-track-transparent [&::-webkit-scrollbar-track]:mb-(--footer-h) transition-opacity duration-fast ease-out",
   );
 
   const main_layout_class = $derived("grow p-0");
@@ -595,7 +584,7 @@
     }}
     is_pass_through={true}>
     <div
-      class={`m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,height] duration-300 ${
+      class={`m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,transform,opacity] duration-300 ${
         app.viewport.mobile ?
           has_wings ? "h-auto grid-rows-[auto_auto] gap-y-standard pb-standard"
           : "h-dvh grid-rows-1"
@@ -672,6 +661,7 @@
         <div class="relative flex min-w-0 flex-1 flex-col overflow-hidden">
           <div
             class={info_container_class}
+            class:opacity-0={content_dipping && !motion.is_reduced}
             bind:this={info_container_el}
             style:--footer-h={`${footer_h}px`}
             style:padding-bottom={`${footer_h + 16}px`}

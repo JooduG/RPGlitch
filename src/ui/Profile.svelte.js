@@ -5,7 +5,7 @@
 import { db, normalize_entity as normalize } from "@data";
 import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "@definitions";
 import { parse_entity_profile } from "@engine";
-import { resolve_voice_name, resolve_voice_uri } from "@media";
+import { motion, resolve_voice_name, resolve_voice_uri } from "@media";
 import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 import { app, runtime } from "@state";
@@ -345,7 +345,7 @@ export class ProfileState {
     }
     this.is_editing = false;
     const active_wings = app.settings.dev_mode;
-    if (active_wings) {
+    if (active_wings && !motion.is_reduced) {
       this.is_packing_up = true;
       setTimeout(() => {
         this.is_packing_up = false;

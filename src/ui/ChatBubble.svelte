@@ -1041,33 +1041,33 @@
         {:else if image_picker.isReady(regenerate_key)}
           <Button
             variant="bare"
-            class="group relative flex cursor-pointer flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-colors duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
+            class="group relative flex cursor-pointer flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-colors duration-standard hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
             style={container_style}
             onclick={() => open_picker()}
             aria-label="Select image from candidates">
             <!-- Mini 3-card spread with dynamic mouseover animation -->
-            <div class="relative h-16 w-24 transition-transform duration-300 group-hover:scale-110">
+            <div class="relative h-16 w-24 transition-transform duration-standard group-hover:scale-pulse">
               <div
-                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-300 group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-standard group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
                 style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;">
               </div>
               <div
-                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition duration-300 group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition duration-standard group-hover:-translate-y-1 group-hover:scale-pulse group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
                 style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;">
               </div>
               <div
-                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-300 group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
+                class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-standard group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
                 style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;">
               </div>
             </div>
-            <div class="flex items-center gap-tight transition-transform duration-200 group-hover:scale-105">
+            <div class="flex items-center gap-tight transition-transform duration-fast group-hover:scale-lift">
               <span
-                class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-200 group-hover:text-white">
+                class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-fast group-hover:text-white">
                 Click to select
               </span>
               <svg
                 viewBox="0 0 24 24"
-                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white">
+                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition duration-fast [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </div>
@@ -1316,13 +1316,13 @@
                           <div class="flex flex-1 items-center gap-standard">
                             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
-                                class="absolute h-full transition-[width] duration-300"
-                                style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);">
+                                class="absolute inset-0 origin-left transition-transform duration-300"
+                                style="transform: scaleX({fill_width / 100}); background: var(--color-dev-accent);">
                               </div>
                               {#if delta.has_delta}
                                 <div
-                                  class="absolute z-10 h-full opacity-40 transition-[left,width] duration-300"
-                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);">
+                                  class="absolute inset-0 z-10 origin-left opacity-40 transition-transform duration-300"
+                                  style="transform: translateX({fill_width}%) scaleX({delta_width / 100}); background: var(--color-dev-accent);">
                                 </div>
                               {/if}
                             </div>

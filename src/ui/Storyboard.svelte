@@ -12,6 +12,7 @@
   import { capture_storyboard_flight, fly_card_in, fly_card_out, fly_storyboard_cards_into_prologue, motion } from "@media";
   import { compute_initials, pick_random, get_signature_color } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
+  import { tick } from "svelte";
   import { app, runtime, simulation_log, simulation_state } from "@state";
   import { parse_message } from "./ChatBubble.svelte";
   const stories = { active_entity_ids };
@@ -163,6 +164,13 @@
       const viewport_h = window.innerHeight;
       let title_done = false;
 
+      let remaining = slots.length;
+      const finish_shuffle = () => {
+        clearTimeout(safety_timer);
+        this.#is_shuffling = false;
+      };
+      const safety_timer = setTimeout(finish_shuffle, 1000);
+
       slots.forEach((s, i) => {
         const r = /** @type {{ left: number, top: number, width: number, height: number }} */ (s.rect);
         const deck = deck_geometry({ width: viewport_w, height: viewport_h }, r);
@@ -176,7 +184,10 @@
 
         // Phase 2: deal the new card in, staggered per slot.
         setTimeout(() => {
-          if (!s.root || !s.rect) return;
+          if (!s.root || !s.rect) {
+            if (--remaining <= 0) finish_shuffle();
+            return;
+          }
           fly_card_in(s.root, deck, s.rect, {
             tag: "data-deal-in",
             on_clone: (clone) => dress_deal_card(clone, picks[s.type]),
@@ -193,14 +204,11 @@
                 title_done = true;
                 app.regenerate_title();
               }
+              if (--remaining <= 0) finish_shuffle();
             },
           });
         }, i * 90);
       });
-
-      setTimeout(() => {
-        this.#is_shuffling = false;
-      }, 180 + 700);
     }
 
     async begin() {
@@ -247,33 +255,33 @@
       const assets = capture_storyboard_flight();
       app._begin_flight_assets = assets;
 
-      setTimeout(() => {
+      Promise.resolve().then(async () => {
+        await tick();
         if (!app.begin_story_pending) return;
-        app.set_view("storymode");
-        setTimeout(() => {
-          if (!app.begin_story_pending) return;
-          if (!document.querySelector("[data-msg-prologue]")) {
-            app.begin_story_pending = false;
-            app.suppress_card_transitions = false;
-            app._begin_flight_assets = null;
-            return;
-          }
-          const vp = document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
-          if (vp) vp.scrollTop = 0;
-          const dst_rects = {};
-          const row = document.querySelector("[data-msg-prologue]");
-          if (row) {
-            for (const type of ["ai", "fractal", "user"]) {
-              const card = row.querySelector(`[data-msg-card="${type}"] [data-card-root]`);
-              if (card) dst_rects[type] = card.getBoundingClientRect();
-            }
-          }
-          fly_storyboard_cards_into_prologue(assets, dst_rects);
+        await app.set_view("storymode");
+        await tick();
+        if (!app.begin_story_pending) return;
+        if (!document.querySelector("[data-msg-prologue]")) {
           app.begin_story_pending = false;
           app.suppress_card_transitions = false;
           app._begin_flight_assets = null;
-        }, 60);
-      }, 0);
+          return;
+        }
+        const vp = document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
+        if (vp) vp.scrollTop = 0;
+        const dst_rects = {};
+        const row = document.querySelector("[data-msg-prologue]");
+        if (row) {
+          for (const type of ["ai", "fractal", "user"]) {
+            const card = row.querySelector(`[data-msg-card="${type}"] [data-card-root]`);
+            if (card) dst_rects[type] = card.getBoundingClientRect();
+          }
+        }
+        fly_storyboard_cards_into_prologue(assets, dst_rects);
+        app.begin_story_pending = false;
+        app.suppress_card_transitions = false;
+        app._begin_flight_assets = null;
+      });
     });
   }
 </script>

@@ -363,7 +363,7 @@
                   on_select_entity(sat_entity || node.item.entity || { name: node.item.name });
                 }
               }}
-              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-300 hover:scale-115 focus:outline-hidden"
+              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-fast hover:scale-lift focus:outline-hidden"
               style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;">
               {#if sat_entity?.profile_picture}
                 <img src={sat_entity.profile_picture} alt={node.item.name} class="h-full w-full rounded-full object-cover" />
