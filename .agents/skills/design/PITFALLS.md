@@ -54,9 +54,9 @@
 
 ## Pitfall 9: Z-Index Escalation & `bits-ui` Portal `wrapperProps` Stacking
 
-- **Trigger**: Adding z-index layers to modals, backdrops, cards, or portalled floating UI (`Tooltip.Content`, `Modal`, `Backdrop`).
-- **Wrong Behavior**: Passing hardcoded `z_index="1000"`/`"500"` overrides, using banned `z-elevated` / `z-backdrop` / `z-5` / `z-25` / bracketed `z-[...]` classes, or putting `z-index` on `Tooltip.Content`'s inner `props` div instead of `wrapperProps` (which traps tooltips behind modal backdrops).
-- **Correct Behavior**: Use local `z-0`–`z-30` inside `isolate` wrappers for component internals, and the 7-tier global scale (`z-sticky`, `z-overlay`, `z-popover`, `z-modal`, `z-tooltip`, `z-toast`, `z-max`) for global chrome/portals. Always apply `style:z-index` on `bits-ui` `wrapperProps` for portalled tooltips (`audit-design.js` `LEGACY_Z_INDEX` enforces this).
+- **Trigger**: Adding z-index layers to modals, backdrops, cards, or portalled floating UI (`Tooltip.Content`, `Select.Content`, `Modal`, `Backdrop`).
+- **Wrong Behavior**: Passing hardcoded `z_index="1000"`/`"500"` overrides, using banned `z-elevated` / `z-backdrop` / `z-5` / `z-25` / bracketed `z-[...]` classes, putting `z-index` on `Tooltip.Content` / `Select.Content`'s inner `props` div instead of `wrapperProps`, or using `z-popover` (`300`) for dropdowns opened inside modals (`z-modal: 400`).
+- **Correct Behavior**: Use local `z-0`–`z-30` inside `isolate` wrappers for component internals, and the 7-tier global scale (`z-sticky`, `z-overlay`, `z-popover`, `z-modal`, `z-tooltip`, `z-toast`, `z-max`) for global chrome/portals. Always apply `style:z-index="var(--z-index-tooltip)"` (`500`) on `bits-ui` `wrapperProps` for portalled tooltips and modal-hosted dropdowns (`audit-design.js` `LEGACY_Z_INDEX` enforces this).
 
 ## Pitfall 10: Wing Signature Color Leakage
 

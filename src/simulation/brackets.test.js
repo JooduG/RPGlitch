@@ -6,8 +6,10 @@ import {
   CLEAR_TOKENS,
   CLOTHING_KEYS,
   derive_vector_title,
+  extract_entity_relationships,
   format_relational_vector,
   format_tagged_fields,
+  has_bracket_bond,
   parse_relational_vector,
   parse_tagged_fields,
   safe_parse_pseudo_json,
@@ -290,5 +292,60 @@ describe("visual exclusion via format_tagged_fields & VISUAL_EXCLUDED_KEYS", () 
     expect(result).not.toContain("INVENTORY");
     expect(result).not.toContain("SECRET");
     expect(result).not.toContain("STATUS");
+  });
+});
+
+describe("extract_entity_relationships & has_bracket_bond", () => {
+  const known = [
+    { id: "silvers", name: "Lord Benedict Silvers" },
+    { id: "glitch", name: "Glitch" },
+    { id: "nova", name: "Nova City" },
+  ];
+
+  it("harvests value-referenced @IDs across all 6 quadrant fields as arrays without overwriting", () => {
+    const orion = {
+      id: "orion",
+      name: "Orion",
+      eternal: { physical: "[TATTOO: glowing mark from @NOVA]", non_physical: "[RIVALRY: @GLITCH hacker rivalry], [SPONSORSHIP: @SILVERS protein deal]" },
+      present: {
+        physical: "[DANCING_MAN: @GLITCH watching from the rooftop]",
+        non_physical: "[FOCUS: @SILVERS' posture], [SUSPICION: @SILVERS' motives | hide]",
+      },
+      future: "[GOAL: dismantle @SILVERS' composure]",
+      past: "[BREACH: @GLITCH and @SILVERS clashed at @NOVA]",
+    };
+
+    const rels = extract_entity_relationships(orion, known, "owner");
+    expect(rels.get("SILVERS").present).toEqual(["[FOCUS: @SILVERS' posture]", "[SUSPICION: @SILVERS' motives]"]);
+    expect(rels.get("SILVERS").future).toEqual(["[GOAL: dismantle @SILVERS' composure]"]);
+    expect(rels.get("GLITCH").present).toEqual(["[DANCING_MAN: @GLITCH watching from the rooftop]"]);
+    expect(rels.get("NOVA").eternal).toEqual(["[TATTOO: glowing mark from @NOVA]"]);
+    // Multi-target past bracket emits an edge to each referenced target
+    expect(rels.get("GLITCH").past).toEqual(["[BREACH: @GLITCH and @SILVERS clashed at @NOVA]"]);
+    expect(rels.get("SILVERS").past).toEqual(["[BREACH: @GLITCH and @SILVERS clashed at @NOVA]"]);
+    expect(rels.get("NOVA").past).toEqual(["[BREACH: @GLITCH and @SILVERS clashed at @NOVA]"]);
+  });
+
+  it("filters | hide entries for 'other' perspective and ignores unknown @words", () => {
+    const entity = {
+      id: "orion",
+      name: "Orion",
+      present: { non_physical: "[PUBLIC: trusts @SILVERS | show], [SECRET: plotting against @SILVERS | hide], [NOTE: @UNKNOWN_HANDLE]" },
+    };
+    const other_rels = extract_entity_relationships(entity, known, "other");
+    expect(other_rels.get("SILVERS").present).toEqual(["[PUBLIC: trusts @SILVERS]"]);
+    expect(other_rels.has("UNKNOWN_HANDLE")).toBe(false);
+  });
+
+  it("expands @ME/@YOU and resolves ambient @USER/@CHAR/@FRACTAL", () => {
+    const entity = { id: "orion", name: "Orion", present: { non_physical: "[BOND: @ME watches @YOU and @USER]" } };
+    const rels = extract_entity_relationships(entity, known, "owner", { USER: { id: "u1", name: "Alex" } });
+    expect(rels.get("U1").present).toEqual(["[BOND: Orion watches Alex and Alex]"]);
+  });
+
+  it("has_bracket_bond detects @TARGET inside bracket values across quadrants", () => {
+    const fractal = { id: "nova", name: "Nova City", present: { physical: "[STAGE: @ORION is busting out some moves]" } };
+    expect(has_bracket_bond(fractal, { id: "orion", name: "Orion" })).toBe(true);
+    expect(has_bracket_bond(fractal, { id: "silvers", name: "Silvers" })).toBe(false);
   });
 });

@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { collapse_whitespace, truncate_at_word } from "@utils";
+import { collapse_whitespace, create_relational_context, parse_macros, truncate_at_word } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
 /**
@@ -479,18 +479,18 @@ function _merge_aggregate_value(existing_value, incoming_items) {
 // ============================================================================
 
 /**
- * Harvests all entity-keyed relationship brackets across an entity's fields.
- * Supports target keys starting with '@' (e.g. [@JULIEN: ...], [@USER: ...])
- * as well as plain keys, resolving dynamic role targets and expanding @ME/@SPEAKER
- * and @YOU/@LISTENER macros relative to the directed edge.
+ * Harvests all entity-referencing relationship brackets across an entity's 6 quadrant fields.
+ * Scans bracket values (`[KEY: ... @TARGET ...]`) for `@TARGET` tokens, resolving them strictly
+ * against `known_entities` and ambient role tokens (`@USER`, `@CHAR`, `@FRACTAL`), and delegates
+ * `@ME`/`@SPEAKER`/`@YOU`/`@LISTENER` expansion to `parse_macros`.
  * Supports perspective-aware filtering ('owner' | 'other') to prevent private/hidden
  * relational dynamics from leaking to unauthorized viewpoints.
  *
  * @param {any} entity
  * @param {string[]|Array<{ id?: string, name?: string }>} [known_entities=[]]
- * @param {'owner'|'other'} [perspective='owner']
+ * @param {'owner'|'other'|'omniscient'} [perspective='owner']
  * @param {Object} [ambient_entities={}] - Ambient { USER, AI, FRACTAL }
- * @returns {Map<string, { eternal?: string, present?: string, past: string[], future?: string }>}
+ * @returns {Map<string, { target_id: string, target_name: string, eternal: string[], present: string[], past: string[], future: string[] }>}
  */
 export function extract_entity_relationships(entity, known_entities = [], perspective = "owner", ambient_entities = {}) {
   const relationships = new Map();
@@ -501,7 +501,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
   for (const item of known_entities || []) {
     if (typeof item === "string") {
       const clean = item.trim().toUpperCase();
-      slug_to_entity.set(clean, { id: clean, name: item.trim() });
+      if (clean) slug_to_entity.set(clean, { id: clean, name: item.trim() });
     } else if (item && typeof item === "object") {
       const id_slug = item.id ? String(item.id).trim().toUpperCase() : null;
       const name_slug = item.name ? String(item.name).trim().toUpperCase() : null;
@@ -511,21 +511,24 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
     }
   }
 
-  const normalize_target = (raw_key) => {
-    let clean = String(raw_key || "")
+  const PERSPECTIVE_MACROS = new Set(["ME", "YOU", "SPEAKER", "LISTENER", "OWNER", "TARGET"]);
+
+  const resolve_target_token = (raw_key) => {
+    const clean = String(raw_key || "")
       .trim()
+      .replace(/^@/, "")
       .toUpperCase();
-    if (clean.startsWith("@")) clean = clean.slice(1);
+    if (!clean || PERSPECTIVE_MACROS.has(clean)) return null;
     if (clean === "USER" && ambient_entities.USER?.name) {
-      const user_key = ambient_entities.USER.name.toUpperCase();
+      const user_key = String(ambient_entities.USER.id || ambient_entities.USER.name).toUpperCase();
       return { key: user_key, display: ambient_entities.USER.name, id: ambient_entities.USER.id || user_key };
     }
     if (clean === "CHAR" && ambient_entities.AI?.name) {
-      const ai_key = ambient_entities.AI.name.toUpperCase();
+      const ai_key = String(ambient_entities.AI.id || ambient_entities.AI.name).toUpperCase();
       return { key: ai_key, display: ambient_entities.AI.name, id: ambient_entities.AI.id || ai_key };
     }
     if (clean === "FRACTAL" && ambient_entities.FRACTAL?.name) {
-      const fractal_key = ambient_entities.FRACTAL.name.toUpperCase();
+      const fractal_key = String(ambient_entities.FRACTAL.id || ambient_entities.FRACTAL.name).toUpperCase();
       return { key: fractal_key, display: ambient_entities.FRACTAL.name, id: ambient_entities.FRACTAL.id || fractal_key };
     }
     const meta = slug_to_entity.get(clean);
@@ -533,7 +536,7 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
       const key = meta.id ? String(meta.id).toUpperCase() : clean;
       return { key, display: meta.name || clean, id: meta.id || key };
     }
-    return { key: clean, display: clean, id: clean };
+    return null;
   };
 
   const get_or_create_relationship = (target_key, target_id, target_name) => {
@@ -541,10 +544,10 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
       relationships.set(target_key, {
         target_id: target_id || target_key,
         target_name: target_name || target_key,
-        eternal: undefined,
-        present: undefined,
+        eternal: [],
+        present: [],
         past: [],
-        future: undefined,
+        future: [],
       });
     }
     return relationships.get(target_key);
@@ -555,15 +558,20 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
     return entry.visibility !== "hide";
   };
 
-  const process_value = (value, target_name) => {
+  const process_value = (value, target_entity) => {
     if (!value || typeof value !== "string") return "";
-    // Expand directed edge macros: @SPEAKER/@ME -> source entity name, @LISTENER/@YOU -> target name
-    const source_name = entity.name || "Speaker";
-    return value.replace(/(?<!\w)@(SPEAKER|ME|LISTENER|YOU)\b/gi, (match, token) => {
-      const upper = token.toUpperCase();
-      if (upper === "SPEAKER" || upper === "ME") return source_name;
-      if (upper === "LISTENER" || upper === "YOU") return target_name;
-      return match;
+    const rel_ctx = create_relational_context({
+      owner: entity,
+      me: entity,
+      speaker: entity,
+      you: target_entity,
+      listener: target_entity,
+      target: target_entity,
+    });
+    return parse_macros(value, rel_ctx, {
+      AI: ambient_entities.AI || entity,
+      USER: ambient_entities.USER || target_entity,
+      FRACTAL: ambient_entities.FRACTAL || null,
     });
   };
 
@@ -571,28 +579,26 @@ export function extract_entity_relationships(entity, known_entities = [], perspe
     if (!text || typeof text !== "string") return;
     const entries = parse_tagged_fields(text);
     for (const entry of entries) {
-      let key = entry.key;
-      const starts_with_at = entry.original_key?.startsWith("@") || key.startsWith("@");
-      if (starts_with_at) {
-        key = key.replace(/^@/, "");
-      }
-      if (starts_with_at && is_visible(entry)) {
-        const target = normalize_target(key);
-        const processed_val = process_value(entry.value, target.display);
+      if (!is_visible(entry)) continue;
+      const seen_in_entry = new Set();
+      const token_matches = entry.value.matchAll(/(?<!\w)@([A-Za-z0-9_-]+)\b/g);
+      for (const match of token_matches) {
+        const target = resolve_target_token(match[1]);
+        if (!target || seen_in_entry.has(target.key)) continue;
+        seen_in_entry.add(target.key);
+        const processed_val = process_value(entry.value, { id: target.id, name: target.display });
         const record = get_or_create_relationship(target.key, target.id, target.display);
-        if (field_name === "past") {
-          record.past.push(processed_val);
-        } else {
-          record[field_name] = processed_val;
-        }
+        record[field_name].push(`[${entry.key}: ${processed_val}]`);
       }
     }
   };
 
-  // 1. Eternal non-physical
+  // 1. Eternal (physical & non-physical)
+  scan_field(entity.eternal?.physical, "eternal");
   scan_field(entity.eternal?.non_physical, "eternal");
 
-  // 2. Present non-physical
+  // 2. Present (physical & non-physical)
+  scan_field(entity.present?.physical, "present");
   scan_field(entity.present?.non_physical, "present");
 
   // 3. Past
@@ -836,14 +842,17 @@ export function has_bracket_bond(entity, target_identifier_or_entity) {
   ];
 
   for (const text of layers) {
-    if (typeof text !== "string" || text.indexOf("[") < 0) continue;
-    const matches = text.matchAll(/\[@?([^\]:]+):/g);
-    for (const match of matches) {
-      const parsed_target = String(match[1] || "")
-        .trim()
-        .toLowerCase();
-      if (target_ids.has(parsed_target)) {
-        return true;
+    if (typeof text !== "string" || text.indexOf("@") < 0) continue;
+    const entries = parse_tagged_fields(text);
+    for (const entry of entries) {
+      const token_matches = entry.value.matchAll(/(?<!\w)@([A-Za-z0-9_-]+)\b/g);
+      for (const match of token_matches) {
+        const parsed_target = String(match[1] || "")
+          .trim()
+          .toLowerCase();
+        if (target_ids.has(parsed_target)) {
+          return true;
+        }
       }
     }
   }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clean_xml, dedent_all, escape_xml, prompt_escape, render_atom_xml, render_profile_field_block, render_xml_tag } from "./xml.js";
+import { clean_xml, dedent_all, escape_xml, prompt_escape, render_atom_xml, render_xml_tag } from "./xml.js";
 
 describe("escape_xml", () => {
   it("escapes special characters including quotes and brackets", () => {
@@ -71,27 +71,6 @@ describe("render_atom_xml", () => {
   it("returns empty string on missing atom or invalid key", () => {
     expect(render_atom_xml(null)).toBe("");
     expect(render_atom_xml({}, "INVALID.KEY")).toBe("");
-  });
-});
-
-describe("render_profile_field_block", () => {
-  it("renders self-closing tag when all rows are compacted attributes", () => {
-    const rows = ['build="athletic"', 'hair="black"'];
-    const xml = render_profile_field_block("APPEARANCE", rows);
-    expect(xml).toBe('<APPEARANCE build="athletic" hair="black" />');
-  });
-
-  it("renders open and close tags when child elements exist", () => {
-    const rows = ['jacket="worn leather"', "<SCARS>Deep scar on jaw</SCARS>"];
-    const xml = render_profile_field_block("CURRENT_LOOK", rows);
-    expect(xml).toContain('<CURRENT_LOOK jacket="worn leather">');
-    expect(xml).toContain("  <SCARS>Deep scar on jaw</SCARS>");
-    expect(xml).toContain("</CURRENT_LOOK>");
-  });
-
-  it("returns null on empty rows", () => {
-    expect(render_profile_field_block("APPEARANCE", [])).toBeNull();
-    expect(render_profile_field_block("APPEARANCE", null)).toBeNull();
   });
 });
 

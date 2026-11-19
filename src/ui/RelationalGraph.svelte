@@ -13,6 +13,7 @@
 <script>
   import { list_entities } from "@data";
   import { extract_entity_relationships } from "@simulation";
+  import { app } from "@state";
   import { get_signature_color } from "@utils";
   import { tooltip } from "@primitives";
   import { ALL_PREMADES } from "@definitions";
@@ -110,19 +111,21 @@
   const resolved_edges = $derived.by(() => {
     if (!entity?.name) return [];
     const current_name = norm(entity.name);
+    const current_id = norm(entity.id);
+    const incoming_perspective = app?.settings?.dev_mode ? "omniscient" : "other";
     const edges = [];
 
-    // Harvest bracket relationships for the central entity across eternal, present, past, future
-    const bracket_rel_map = extract_entity_relationships(entity, all_entities);
-    const matched_targets = new Set();
+    const summarize_links = (links) => links?.present?.[0] || links?.eternal?.[0] || links?.past?.[0] || links?.future?.[0] || "Connected";
 
-    // Outgoing edges (harvested from central entity's universal bracket predicates)
+    // Harvest bracket relationships for the central entity across all 6 quadrant fields
+    const bracket_rel_map = extract_entity_relationships(entity, all_entities, "owner");
+
+    // Outgoing edges (harvested from central entity's value-referenced brackets)
     for (const [target_key, links] of bracket_rel_map) {
       const target_norm = norm(target_key);
-      if (target_norm === current_name) continue;
-      matched_targets.add(target_norm);
+      if (target_norm === current_name || (current_id && target_norm === current_id)) continue;
       const target_entity = find_matched_entity(target_key);
-      const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
+      const dynamic = summarize_links(links);
       edges.push({
         source_name: entity.name,
         target_name: target_entity?.name || target_key,
@@ -134,13 +137,14 @@
       });
     }
 
-    // B. Incoming edges (harvested from other entities pointing to current entity)
+    // B. Incoming edges (harvested from other entities pointing to current entity, respecting Epistemic Wall)
     for (const other of all_entities) {
-      if (norm(other.name) === current_name) continue;
-      const other_bracket_map = extract_entity_relationships(other, [entity]);
+      if (norm(other.name) === current_name || (current_id && norm(other.id) === current_id)) continue;
+      const other_bracket_map = extract_entity_relationships(other, [entity], incoming_perspective);
       for (const [key, links] of other_bracket_map) {
-        if (norm(key) === current_name) {
-          const dynamic = links.present || links.eternal || (links.past && links.past[0]) || links.future || "Connected";
+        const key_norm = norm(key);
+        if (key_norm === current_name || (current_id && key_norm === current_id)) {
+          const dynamic = summarize_links(links);
           edges.push({
             source_name: other.name,
             target_name: entity.name,

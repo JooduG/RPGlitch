@@ -85,7 +85,7 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
   - Never copy-paste or assemble prompt XML templates in `src/media/`, `src/storage/`, `src/data/`, or `src/utils/`.
   - **Zero Downward LLM Leaks**: Lower layers (`storage`, `media`, `utils`, `data`) must remain pure, synchronous engines/persistence. They must NEVER import `llm_service` or initiate LLM generation jobs. All prompt assembly and inference orchestration must flow downward from `src/engine/` (`turns.js`, `bridge.js`).
 - **Prompt Catalog Grammar Law**: Every prompt catalog atom across `src/intelligence/modules/` must be a frozen object `{ tag, body, attrs?, inline? }` compiled exclusively via `render_atom_xml` from `@utils`. Naked strings in prompt catalogs are prohibited.
-- **Relational Invariant**: Entity relations (`[@TARGET: ...]`) ALWAYS emit child `<RELATION target="...">` tags and are strictly immune to XML attribute compaction in `render_profile_field_block`.
+- **Relational Syntax Law**: Entity relations use value-referenced `@TARGET_ID` tokens inside semantic brackets (`[KEY: ... @TARGET_ID ... | flags]`) and are filtered across the Epistemic Wall via `format_tagged_fields` (`see_hidden`, `is_counterpart`).
 
 ### 4. State Ownership Matrix
 

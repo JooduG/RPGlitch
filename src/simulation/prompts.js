@@ -177,7 +177,7 @@ ${thinking_block}
     - Multiple brackets are supported per field separated by commas (e.g. \`[CHEST: bare], [MOOD: alert]\`).
     - Matching keys cleanly overwrite existing state (e.g. \`[CHEST: bare]\` replaces \`[CHEST: shirt]\`).
     - Use \`[KEY: cleared]\` or \`[KEY: none]\` to delete an established state.
-    - Relational dynamics targeting other entities must use \`@\` (e.g. \`[@TARGET: dynamic | flags]\`).
+    - Relational dynamics targeting other entities must reference their uppercase \`@ID\` inside the bracket value (e.g. \`[GOAL: dismantle @SILVERS' composure | show | w:7]\`).${context?.cast_slugs ? `\n    - Active cast @IDs: ${context.cast_slugs}.` : ""}
     - Optional flags: \`| hide\` for covert facts, \`| w: 1-10\` for emotional weight/significance (e.g. \`[TRAUMA: betrayed by mentor | w: 9]\`).
 
     ---
@@ -384,12 +384,23 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const see_hidden = purpose_core.see_hidden;
   const identity = purpose_core.identity;
 
+  const cast_slugs = [ai, user, fractal, npc]
+    .filter((e) => e && (e.id || e.name))
+    .map(
+      (e) =>
+        `@${String(e.id || e.name)
+          .trim()
+          .toUpperCase()} (${e.name || e.id})`,
+    )
+    .join(", ");
+
   const core_context = {
     speaker_name,
     listener_name,
     fractal_name,
     target_name,
     target_type,
+    cast_slugs,
     input_data: task_options.input_data || "",
     pov: ai?.pov || "3rd_person",
     is_character: Boolean(ai && ai.type !== "fractal"),
@@ -424,8 +435,8 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     const strip_inventory = see_hidden === "none";
     const pres_phys = format_tagged_fields(entity.present?.physical || "", { see_hidden, is_counterpart, strip_inventory });
     const eter_phys = format_tagged_fields(entity.eternal?.physical || "", { see_hidden, is_counterpart, strip_inventory });
-    const eter_non = entity.eternal?.non_physical?.trim() || "";
-    const pres_non = entity.present?.non_physical?.trim() || "";
+    const eter_non = format_tagged_fields(entity.eternal?.non_physical || "", { see_hidden, is_counterpart }).trim();
+    const pres_non = format_tagged_fields(entity.present?.non_physical || "", { see_hidden, is_counterpart }).trim();
     const dyn = entity.dynamics || {};
 
     const children = [];
@@ -548,9 +559,14 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   // --- Blocks 8, 9 & 10: Unified History (Memories + Recent Transcript) ---
   let history_block = "";
   const rendered_memories = (resolved_memories || [])
-    .map((m) => (typeof m === "string" ? m : m.text || ""))
+    .map((m) => {
+      if (typeof m === "string") return m.trim();
+      const text = (m?.text || "").trim();
+      if (!text) return "";
+      return m?.key ? `[${m.key}: ${text}]` : text;
+    })
     .filter(Boolean)
-    .map((text) => `    - ${text.trim()}`)
+    .map((text) => `    - ${text}`)
     .join("\n");
 
   // Invariant-aligned sliding window: TEMPO_ROUNDS.STANDARD (8 rounds) defines the canonical
@@ -626,7 +642,6 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
 // 2. Balance of all open and closing XML-style tags.
 // 3. Tag inventories: verifying ordered presence of mandatory structural layers.
 // 4. Prohibition of unescaped/naked control leaks.
-// 5. Relational invariant: relations must emit child <RELATION target="..."> tags.
 
 /**
  * Extracts all XML-style tags in order of appearance from a prompt string.

@@ -28,6 +28,29 @@ describe("compile_prompt", () => {
     const compiled = compile_prompt({ core: "character", round: 1, entities, history: [] });
     expect(verify_compiled_prompt(compiled).valid).toBe(true);
   });
+  it("strips | hide non_physical brackets from COUNTERPART across the Epistemic Wall", () => {
+    const guarded = {
+      ...entities,
+      AI: { ...entities.AI, present: { non_physical: "[SECRET_AI: own hidden thought | hide]" } },
+      USER: {
+        ...entities.USER,
+        eternal: { non_physical: "[WOUND: hidden user trauma | hide]" },
+        present: { non_physical: "[PLOT: betray @A | hide], [MOOD: calm | show]" },
+      },
+    };
+    const compiled = compile_prompt({ core: "character", round: 1, entities: guarded, history: [] });
+    expect(compiled).toContain("own hidden thought");
+    expect(compiled).not.toContain("hidden user trauma");
+    expect(compiled).not.toContain("betray @A");
+    expect(compiled).toContain("[MOOD: calm]");
+  });
+  it("preserves memory bracket keys in <MEMORIES> and injects active cast @IDs for CARETAKER", () => {
+    const with_past = { ...entities, AI: { ...entities.AI, past: "[BREACH: infiltrated @F | show]" } };
+    const char_prompt = compile_prompt({ core: "character", round: 1, entities: with_past, history: [], memories: null });
+    expect(char_prompt).toContain("[BREACH: infiltrated @F]");
+    const caretaker_prompt = compile_prompt({ core: "caretaker", round: 1, entities: with_past, history: [] });
+    expect(caretaker_prompt).toContain("Active cast @IDs: @A (Al), @U (Us), @F (Wo).");
+  });
 });
 
 describe("purpose cores + portrait", () => {

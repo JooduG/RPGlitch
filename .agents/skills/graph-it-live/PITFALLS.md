@@ -46,6 +46,14 @@
 
 ---
 
+### `[PF-009]` `spawnSync npx.cmd EINVAL` in Node.js Scripts on Windows (Occurrences: 1)
+
+- **Trigger**: Calling `graph-it` from a Node.js automation script (`scan-dead-code.js`, `audit.js`) via `execFileSync("npx.cmd", ...)` on Windows.
+- **Wrong Behavior (Root Cause)**: Spawning `.cmd`/`.bat` shims directly with `execFileSync` without a shell throws `Error: spawnSync npx.cmd EINVAL` in modern Node.js (CVE-2024-27980).
+- **Correct Behavior (Prevention Rule)**: Resolve `node_modules/@magic5644/graph-it-live/dist/graph-it.js` from the workspace root and invoke it directly with `execFileSync(process.execPath, [graph_it_bin, ...], ...)`.
+
+---
+
 ## RPGlitch Stack
 
 ### `[PF-005]` Bare `@alias` Barrels Require Root `tsconfig.json` with `baseUrl` (Occurrences: 1)

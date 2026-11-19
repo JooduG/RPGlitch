@@ -72,36 +72,6 @@ export const prompt_escape = (str) => {
   return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 };
 
-/**
- * Renders a profile field block (<APPEARANCE>, <CURRENT_LOOK>, <PERSONALITY>, <STATE>, etc.)
- * separating compacted attributes from complex child rows. Emits a self-closing tag when
- * child rows are empty.
- *
- * @param {string} tag - XML tag name
- * @param {string[]} [rows=[]] - Pre-parsed row strings (either `attr="val"` or `<TAG>val</TAG>`)
- * @returns {string|null} Structured XML block, or null if rows is empty
- */
-export function render_profile_field_block(tag, rows = []) {
-  if (!rows || !rows.length) return null;
-  const attrs = {};
-  const children = [];
-  for (const row of rows) {
-    const attr_match = String(row).match(/^([a-z0-9_]+)="([\s\S]*)"$/);
-    if (attr_match) {
-      attrs[attr_match[1]] = attr_match[2];
-    } else {
-      children.push(row);
-    }
-  }
-  const attr_keys = Object.keys(attrs);
-  const attr_str = attr_keys.map((k) => `${k}="${attrs[k]}"`).join(" ");
-  if (!children.length) {
-    return attr_str ? `<${tag} ${attr_str} />` : `<${tag} />`;
-  }
-  const open = attr_str ? `<${tag} ${attr_str}>` : `<${tag}>`;
-  return `${open}\n${children.map((c) => `  ${c}`).join("\n")}\n</${tag}>`;
-}
-
 // ============================================================================
 // [SECTION 4: XML FORMATTING & CLEANUP]
 // ============================================================================

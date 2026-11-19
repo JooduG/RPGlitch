@@ -10,10 +10,10 @@ vi.mock("@data", async (importOriginal) => {
       name: "Lord Benedict Silvers",
       type: "character",
       signature_color: "Crimson Red",
-      present: { non_physical: "[@HANK: custom pyrotechnics]" },
+      present: { non_physical: "[PYRO: @HANK custom pyrotechnics]" },
     },
-    { id: "hank", name: "Hank", type: "character", signature_color: "Rusty Orange", present: { non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]" } },
-    { id: "julien", name: "Julien", type: "character", signature_color: "Soft Rose", present: { non_physical: "" } },
+    { id: "hank", name: "Hank", type: "character", signature_color: "Rusty Orange", present: { non_physical: "[DEBT: @SILVERS arms supplier debt]" } },
+    { id: "julien", name: "Julien", type: "character", signature_color: "Soft Rose", present: { non_physical: "[PLOT: secret betrayal of @HANK | hide]" } },
   ];
   return { ...actual, list_entities: vi.fn(async (type) => (type === "character" ? mock_list : [])) };
 });
@@ -36,7 +36,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      present: { non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]" },
+      present: { non_physical: "[DEBT: @SILVERS arms supplier debt]" },
     };
 
     const on_select_entity = vi.fn();
@@ -46,6 +46,8 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(await screen.findByText("Hank")).toBeTruthy();
     // Satellite node
     expect(await screen.findByText("Lord Benedict Silvers")).toBeTruthy();
+    // Hidden incoming edge from Julien must not leak across the Epistemic Wall
+    expect(screen.queryByText("Julien")).toBeNull();
   });
 
   it("shows a CardHand-sized hover card on mouseover and opens profile directly on click", async () => {
@@ -54,7 +56,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
-      present: { non_physical: "[@LORD_BENEDICT_SILVERS: arms supplier debt]" },
+      present: { non_physical: "[DEBT: @SILVERS arms supplier debt]" },
     };
 
     const on_select_entity = vi.fn();
@@ -71,8 +73,13 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(on_select_entity).toHaveBeenCalledWith(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
   });
 
-  it("renders constellation nodes derived from universal bracket predicates in present.non_physical", async () => {
-    const mock_entity = { id: "silvers", name: "Lord Benedict Silvers", type: "character", present: { non_physical: "[@HANK: arms supplier debt | w: 8]" } };
+  it("renders constellation nodes derived from value-referenced brackets in present.non_physical", async () => {
+    const mock_entity = {
+      id: "silvers",
+      name: "Lord Benedict Silvers",
+      type: "character",
+      present: { non_physical: "[DEBT: @HANK arms supplier debt | w: 8]" },
+    };
 
     render(RelationalGraph, { props: { entity: mock_entity } });
 

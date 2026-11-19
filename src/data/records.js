@@ -92,15 +92,15 @@ function normalize_future_to_brackets(raw_future) {
 }
 
 /**
- * Normalizes bracket strings by ensuring all relational bracket targets ([@target: ...])
- * are canonicalized to uppercase ([@TARGET: ...]).
+ * Normalizes bracket strings by ensuring all inline relational entity tokens (@target)
+ * inside `[...]` brackets are canonicalized to uppercase (`@TARGET`).
  *
  * @param {string} text
  * @returns {string}
  */
 function normalize_relational_brackets(text) {
-  if (typeof text !== "string" || !text.includes("[@")) return text || "";
-  return text.replace(/\[@([a-z0-9_]+):/gi, (_, target) => `[@${target.toUpperCase()}:`);
+  if (typeof text !== "string" || !text.includes("@")) return text || "";
+  return text.replace(/\[[^\]]+\]/g, (bracket) => bracket.replace(/(?<!\w)@([a-z0-9_-]+)\b/gi, (_, target) => `@${target.toUpperCase()}`));
 }
 
 /**

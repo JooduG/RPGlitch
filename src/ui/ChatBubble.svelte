@@ -152,33 +152,6 @@
   }
 
   /**
-   * Parses a directed relationship edge string or object into a structured object.
-   * String parsing delegates to the canonical `parse_relational_vector` (@utils/text.js:
-   * all five arrow notations). The renderer keeps its own rules on top: the `: dynamic`
-   * label stays mandatory (canonical alone accepts labelless edges) and strings with a
-   * blank side are dropped. Object edges keep the Entity/Target fallbacks.
-   * @param {any} edge
-   * @returns {{ source: string, target: string, dynamic: string } | null}
-   */
-  export function parse_relationship_edge(edge) {
-    if (!edge) return null;
-    if (typeof edge === "object") {
-      const source = String(edge.source || "").trim();
-      const target = String(edge.target || "").trim();
-      const dynamic = String(edge.dynamic ?? edge.content ?? "").trim();
-      if (!source && !target && !dynamic) return null;
-      return { source: source || "Entity", target: target || "Target", dynamic };
-    }
-    if (typeof edge === "string") {
-      const parsed = parse_relational_vector(edge);
-      if (!parsed || !parsed.dynamic) return null;
-      if (!parsed.source_name && !parsed.target_name) return null;
-      return { source: parsed.source_name || "Entity", target: parsed.target_name || "Target", dynamic: parsed.dynamic };
-    }
-    return null;
-  }
-
-  /**
    * Projects a DYNAMICS_DELTA `updates` map into renderable per-entity blocks.
    * @param {any} meta
    * @returns {Array<any>}
@@ -219,24 +192,8 @@
       const eternal_physical = clean_text_debris(raw.eternal_mutations?.physical ?? "");
       const eternal_non_physical = clean_text_debris(raw.eternal_mutations?.non_physical ?? "");
       const has_mods = !!eternal_physical || !!eternal_non_physical;
-      const raw_relationships =
-        Array.isArray(raw.relationships) ? raw.relationships
-        : Array.isArray(meta?.relationships) && ((meta.consolidated_entity ?? meta.forged_entity) === block_key || meta.target === key) ? meta.relationships
-        : [];
-      const relationships = raw_relationships
-        .map(parse_relationship_edge)
-        .filter((r) => r !== null && (r.source !== "Entity" || r.target !== "Target" || r.dynamic));
 
-      if (
-        !dynamics.length &&
-        !new_vectors.length &&
-        !retrieval.length &&
-        !physical &&
-        !non_physical &&
-        !eternal_physical &&
-        !eternal_non_physical &&
-        !relationships.length
-      ) {
+      if (!dynamics.length && !new_vectors.length && !retrieval.length && !physical && !non_physical && !eternal_physical && !eternal_non_physical) {
         continue;
       }
 
@@ -250,7 +207,6 @@
         dynamics,
         new_vectors,
         retrieval,
-        relationships,
         has_mods,
       });
     }
@@ -272,7 +228,7 @@
   import StyleBadge from "./StyleBadge.svelte";
   import EntityCard from "./EntityCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
-  import { parse_relational_vector, resolve_speaking_style } from "@simulation";
+  import { resolve_speaking_style } from "@simulation";
   import { get_percentage, safe_html, get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
@@ -1362,21 +1318,6 @@
                           true,
                         )}
                       {/if}
-                    </div>
-                  {/if}
-
-                  <!-- RELATIONAL MUTATIONS -->
-                  {#if block.relationships?.length > 0}
-                    <div class="flex flex-col gap-tight pb-tight">
-                      <header class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">RELATIONAL MUTATIONS</header>
-                      <div class="flex flex-col gap-tight">
-                        {#each block.relationships as rel, i (i)}
-                          <div class="flex items-center gap-tight font-mono text-xs text-slate-300">
-                            <span class="text-(--color-dev-accent)">{rel.source} → {rel.target}:</span>
-                            <span class="text-slate-100">{rel.dynamic}</span>
-                          </div>
-                        {/each}
-                      </div>
                     </div>
                   {/if}
                 </div>

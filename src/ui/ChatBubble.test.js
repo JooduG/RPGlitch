@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { clean_text_debris, get_telemetry_label, parse_relationship_edge, process_entity_blocks, resolve_entity_name, vector_label } from "./ChatBubble.svelte";
+import { clean_text_debris, get_telemetry_label, process_entity_blocks, resolve_entity_name, vector_label } from "./ChatBubble.svelte";
 
 describe("TelemetryCard Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {
@@ -248,48 +248,6 @@ describe("TelemetryCard Telemetry Logic", () => {
     expect(get_telemetry_label({ type: "DYNAMICS_DELTA" }, runtime)).toBe("Director turn");
 
     expect(get_telemetry_label({}, runtime)).toBe("Director turn");
-  });
-
-  test("parses directed relationship edge strings into structured objects", () => {
-    // String formats
-    expect(parse_relationship_edge("Beast → Glitch: protective hold")).toEqual({ source: "Beast", target: "Glitch", dynamic: "protective hold" });
-    expect(parse_relationship_edge("Ghost -> Viper : cautious trust")).toEqual({ source: "Ghost", target: "Viper", dynamic: "cautious trust" });
-    expect(parse_relationship_edge("Void -> Viper: looming danger")).toEqual({ source: "Void", target: "Viper", dynamic: "looming danger" });
-
-    // Object format
-    expect(parse_relationship_edge({ source: "Mira", target: "Sorel", dynamic: "rivalry" })).toEqual({ source: "Mira", target: "Sorel", dynamic: "rivalry" });
-
-    // Invalid / empty formats return null
-    expect(parse_relationship_edge("")).toBeNull();
-    expect(parse_relationship_edge("   ")).toBeNull();
-    expect(parse_relationship_edge("Random sentence with no arrow")).toBeNull();
-    expect(parse_relationship_edge(null)).toBeNull();
-    expect(parse_relationship_edge(undefined)).toBeNull();
-    expect(parse_relationship_edge({ source: "", target: "" })).toBeNull();
-  });
-
-  test("parses every canonical arrow notation (em-dash-arrow regression)", () => {
-    // The repo-wide em-dash purge rewrote ChatBubble's local `—>` alternative to a
-    // duplicate `->`; string parsing now delegates to parse_relational_vector, so all
-    // five canonical notations must work again.
-    for (const arrow of ["→", "->", "—>", "=>", "—"]) {
-      expect(parse_relationship_edge(`Beast ${arrow} Glitch: protective hold`)).toEqual({ source: "Beast", target: "Glitch", dynamic: "protective hold" });
-    }
-    // Whitespace-padded variants still parse (canonical trims first).
-    expect(parse_relationship_edge("  Beast  —>  Glitch  :  protective hold  ")).toEqual({ source: "Beast", target: "Glitch", dynamic: "protective hold" });
-  });
-
-  test("relationship edges keep renderer rules: label mandatory, malformed strings dropped", () => {
-    // Labelless edges are dropped even though the canonical parser alone accepts them.
-    expect(parse_relationship_edge("Beast → Glitch")).toBeNull();
-    expect(parse_relationship_edge("Beast → Glitch:   ")).toBeNull();
-    // Blank-side or colon-in-source strings no longer get Entity/Target placeholder
-    // chips (pre-consolidation they rendered as such); object edges still do.
-    expect(parse_relationship_edge("Beast →   : stalks")).toBeNull();
-    expect(parse_relationship_edge("A: B → C: x")).toBeNull();
-    expect(parse_relationship_edge({ source: "Mira" })).toEqual({ source: "Mira", target: "Target", dynamic: "" });
-    // Non-string, non-object inputs stay null.
-    expect(parse_relationship_edge(42)).toBeNull();
   });
 
   test("cleans up comma debris and leading/trailing punctuation in prose strings", () => {
