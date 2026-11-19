@@ -292,20 +292,22 @@ export async function seed_premades() {
   _is_seeding_active = true;
 
   try {
-    const existing_records = await db.entities.toArray();
-    const existing_by_id = new Map(existing_records.map((r) => [r.id, r]));
+    await db.transaction("rw", db.entities, async () => {
+      const existing_records = await db.entities.toArray();
+      const existing_by_id = new Map(existing_records.map((r) => [r.id, r]));
 
-    const to_put = [];
-    for (const premade of ALL_PREMADES) {
-      const existing = existing_by_id.get(premade.id);
-      if (!existing) {
-        to_put.push(normalize_entity(premade));
+      const to_put = [];
+      for (const premade of ALL_PREMADES) {
+        const existing = existing_by_id.get(premade.id);
+        if (!existing) {
+          to_put.push(normalize_entity(premade));
+        }
       }
-    }
 
-    if (to_put.length > 0) {
-      await db.entities.bulkPut(to_put);
-    }
+      if (to_put.length > 0) {
+        await db.entities.bulkPut(to_put);
+      }
+    });
 
     await seed_premade_story(ORION_NOVA_GLITCH_STORY);
   } finally {
@@ -323,143 +325,160 @@ export async function seed_premades() {
 async function seed_premade_story(fixture) {
   if (!fixture?.key || !db.stories || !db.simulation_log) return;
 
-  const existing_stories = await db.stories.toArray();
-  if (existing_stories.some((story) => story.premade_key === fixture.key)) {
-    return;
-  }
+  const tables = [db.entities, db.stories, db.simulation_log, ...(db.mutation_ledger ? [db.mutation_ledger] : [])];
+  await db.transaction("rw", tables, async () => {
+    const existing_stories = await db.stories.toArray();
+    if (existing_stories.some((story) => story.premade_key === fixture.key)) {
+      return;
+    }
 
-  const [ai_entity, user_entity, fractal_entity] = await Promise.all([
-    db.entities.get(fixture.ai_id),
-    db.entities.get(fixture.user_id),
-    db.entities.get(fixture.fractal_id),
-  ]);
-  if (!ai_entity || !user_entity || !fractal_entity) return;
+    const legacy_story = existing_stories.find(
+      (story) =>
+        !story.premade_key &&
+        story.title === fixture.title &&
+        story.ai_id === fixture.ai_id &&
+        story.user_id === fixture.user_id &&
+        story.fractal_id === fixture.fractal_id &&
+        Boolean(story.is_concluded),
+    );
+    if (legacy_story) {
+      await db.stories.update(legacy_story.id, { premade_key: fixture.key });
+      return;
+    }
 
-  const base_time = Date.now() - fixture.turns.length * 60_000;
-  const story_row_id = await db.stories.add({
-    premade_key: fixture.key,
-    title: fixture.title,
-    ai_id: fixture.ai_id,
-    user_id: fixture.user_id,
-    fractal_id: fixture.fractal_id,
-    visual_style: fixture.visual_style,
-    narrative_style: fixture.narrative_style,
-    entity_snapshots: { ai: structuredClone(ai_entity), user: structuredClone(user_entity), fractal: structuredClone(fractal_entity) },
-    npc_ids: [],
-    round: fixture.round,
-    is_concluded: fixture.is_concluded ?? 1,
-    created_at: base_time,
-    updated_at: base_time + fixture.turns.length * 60_000,
-  });
+    const [ai_entity, user_entity, fractal_entity] = await Promise.all([
+      db.entities.get(fixture.ai_id),
+      db.entities.get(fixture.user_id),
+      db.entities.get(fixture.fractal_id),
+    ]);
+    if (!ai_entity || !user_entity || !fractal_entity) return;
 
-  const story_id = String(story_row_id);
-  const log_rows = [
-    {
+    const base_time = Date.now() - fixture.turns.length * 60_000;
+    const story_row_id = await db.stories.add({
+      premade_key: fixture.key,
+      title: fixture.title,
+      ai_id: fixture.ai_id,
+      user_id: fixture.user_id,
+      fractal_id: fixture.fractal_id,
+      visual_style: fixture.visual_style,
+      narrative_style: fixture.narrative_style,
+      entity_snapshots: { ai: structuredClone(ai_entity), user: structuredClone(user_entity), fractal: structuredClone(fractal_entity) },
+      npc_ids: [],
+      round: fixture.round,
+      is_concluded: fixture.is_concluded ?? 1,
+      created_at: base_time,
+      updated_at: base_time + fixture.turns.length * 60_000,
+    });
+
+    const story_id = String(story_row_id);
+    const log_rows = [
+      {
+        story_id,
+        role: "system",
+        type: "text",
+        text: `Story Started: ${fixture.title}`,
+        turn_type: "SYSTEM_TURN",
+        round: 0,
+        meta: { type: "STORY_START" },
+        created_at: base_time,
+      },
+    ];
+
+    const ledger_rows = [];
+    for (const record of [ai_entity, user_entity, fractal_entity]) {
+      const genesis_fields = {
+        "eternal.physical": record.eternal?.physical,
+        "eternal.non_physical": record.eternal?.non_physical,
+        "present.physical": record.present?.physical,
+        "present.non_physical": record.present?.non_physical,
+        past: record.past,
+        future: record.future,
+      };
+      for (const [field_path, value] of Object.entries(genesis_fields)) {
+        if (value == null || !String(value).trim()) continue;
+        ledger_rows.push({
+          story_id,
+          entity_id: String(record.id),
+          round: 0,
+          seq: 0,
+          field: field_path,
+          key: null,
+          old_value: null,
+          new_value: String(value),
+          visibility: null,
+          weight: null,
+          writer: "genesis",
+          decider: "genesis",
+          timestamp: base_time,
+        });
+      }
+    }
+
+    for (const turn of fixture.turns) {
+      const turn_time = base_time + turn.round * 60_000;
+      log_rows.push(
+        {
+          story_id,
+          role: "user",
+          type: "text",
+          character_name: user_entity.name,
+          text: turn.user_text,
+          turn_type: "USER_TURN",
+          round: turn.round,
+          meta: {},
+          created_at: turn_time,
+        },
+        {
+          story_id,
+          role: "ai",
+          type: "text",
+          character_name: ai_entity.name,
+          text: turn.ai_text,
+          turn_type: "ACTOR_TURN",
+          round: turn.round,
+          meta: {},
+          created_at: turn_time + 10_000,
+        },
+      );
+
+      for (const mutation of turn.mutations) {
+        ledger_rows.push({
+          story_id,
+          entity_id: String(mutation.entity_id),
+          round: turn.round,
+          seq: Number(mutation.seq ?? 1),
+          field: String(mutation.field),
+          key: mutation.key ? String(mutation.key).toUpperCase().trim() : null,
+          old_value: mutation.old_value != null ? String(mutation.old_value) : null,
+          new_value: mutation.new_value != null ? String(mutation.new_value) : null,
+          visibility:
+            mutation.visibility === "hide" ? "hide"
+            : mutation.visibility === "show" ? "show"
+            : null,
+          weight: typeof mutation.weight === "number" && !Number.isNaN(mutation.weight) ? mutation.weight : null,
+          writer: mutation.writer || "kernel",
+          decider: mutation.decider || "director",
+          timestamp: turn_time + 15_000 + Number(mutation.seq ?? 1) * 100,
+        });
+      }
+    }
+
+    log_rows.push({
       story_id,
       role: "system",
       type: "text",
-      text: `Story Started: ${fixture.title}`,
+      text: `Story Concluded: ${fixture.title}`,
       turn_type: "SYSTEM_TURN",
-      round: 0,
-      meta: { type: "STORY_START" },
-      created_at: base_time,
-    },
-  ];
+      round: fixture.round,
+      meta: { type: "EPILOGUE", is_epilogue: true },
+      created_at: base_time + fixture.turns.length * 60_000 + 20_000,
+    });
 
-  const ledger_rows = [];
-  for (const record of [ai_entity, user_entity, fractal_entity]) {
-    const genesis_fields = {
-      "eternal.physical": record.eternal?.physical,
-      "eternal.non_physical": record.eternal?.non_physical,
-      "present.physical": record.present?.physical,
-      "present.non_physical": record.present?.non_physical,
-      past: record.past,
-      future: record.future,
-    };
-    for (const [field_path, value] of Object.entries(genesis_fields)) {
-      if (value == null || !String(value).trim()) continue;
-      ledger_rows.push({
-        story_id,
-        entity_id: String(record.id),
-        round: 0,
-        seq: 0,
-        field: field_path,
-        key: null,
-        old_value: null,
-        new_value: String(value),
-        visibility: null,
-        weight: null,
-        writer: "genesis",
-        decider: "genesis",
-        timestamp: base_time,
-      });
+    await db.simulation_log.bulkAdd(log_rows);
+    if (db.mutation_ledger && ledger_rows.length > 0) {
+      await db.mutation_ledger.bulkAdd(ledger_rows);
     }
-  }
-
-  for (const turn of fixture.turns) {
-    const turn_time = base_time + turn.round * 60_000;
-    log_rows.push(
-      {
-        story_id,
-        role: "user",
-        type: "text",
-        character_name: user_entity.name,
-        text: turn.user_text,
-        turn_type: "USER_TURN",
-        round: turn.round,
-        meta: {},
-        created_at: turn_time,
-      },
-      {
-        story_id,
-        role: "ai",
-        type: "text",
-        character_name: ai_entity.name,
-        text: turn.ai_text,
-        turn_type: "ACTOR_TURN",
-        round: turn.round,
-        meta: {},
-        created_at: turn_time + 10_000,
-      },
-    );
-
-    for (const mutation of turn.mutations) {
-      ledger_rows.push({
-        story_id,
-        entity_id: String(mutation.entity_id),
-        round: turn.round,
-        seq: Number(mutation.seq ?? 1),
-        field: String(mutation.field),
-        key: mutation.key ? String(mutation.key).toUpperCase().trim() : null,
-        old_value: mutation.old_value != null ? String(mutation.old_value) : null,
-        new_value: mutation.new_value != null ? String(mutation.new_value) : null,
-        visibility:
-          mutation.visibility === "hide" ? "hide"
-          : mutation.visibility === "show" ? "show"
-          : null,
-        weight: typeof mutation.weight === "number" && !Number.isNaN(mutation.weight) ? mutation.weight : null,
-        writer: mutation.writer || "kernel",
-        decider: mutation.decider || "director",
-        timestamp: turn_time + 15_000 + Number(mutation.seq ?? 1) * 100,
-      });
-    }
-  }
-
-  log_rows.push({
-    story_id,
-    role: "system",
-    type: "text",
-    text: `Story Concluded: ${fixture.title}`,
-    turn_type: "SYSTEM_TURN",
-    round: fixture.round,
-    meta: { type: "EPILOGUE", is_epilogue: true },
-    created_at: base_time + fixture.turns.length * 60_000 + 20_000,
   });
-
-  await db.simulation_log.bulkAdd(log_rows);
-  if (db.mutation_ledger && ledger_rows.length > 0) {
-    await db.mutation_ledger.bulkAdd(ledger_rows);
-  }
 }
 
 /**

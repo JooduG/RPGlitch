@@ -49,4 +49,14 @@ describe("seed_premades", () => {
     expect(orion?.pov).toBe("3rd_person");
     expect(orion?.signature_color).toBe("Electric Cyan");
   });
+
+  it("backfills premade_key on legacy premade stories and prevents duplicate seeding under concurrent calls", async () => {
+    await db.stories.add({ title: "Neon Static & Pink Thunder", ai_id: "orion", user_id: "glitch", fractal_id: "nova", round: 10, is_concluded: 1 });
+
+    await Promise.all([seed_premades(), seed_premades()]);
+
+    const stories = await db.stories.toArray();
+    expect(stories).toHaveLength(1);
+    expect(stories[0].premade_key).toBe("orion-nova-glitch");
+  });
 });

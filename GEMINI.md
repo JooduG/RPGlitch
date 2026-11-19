@@ -86,6 +86,7 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
   - **Zero Downward LLM Leaks**: Lower layers (`storage`, `media`, `utils`, `data`) must remain pure, synchronous engines/persistence. They must NEVER import `llm_service` or initiate LLM generation jobs. All prompt assembly and inference orchestration must flow downward from `src/engine/` (`turns.js`, `bridge.js`).
 - **Prompt Catalog Grammar Law**: Every prompt catalog atom across `src/intelligence/modules/` must be a frozen object `{ tag, body, attrs?, inline? }` compiled exclusively via `render_atom_xml` from `@utils`. Naked strings in prompt catalogs are prohibited.
 - **Relational Syntax Law**: Entity relations use value-referenced `@TARGET_ID` tokens inside semantic brackets (`[KEY: ... @TARGET_ID ... | flags]`) and are filtered across the Epistemic Wall via `format_tagged_fields` (`see_hidden`, `is_counterpart`).
+- **Premade vs. Database Sovereignty**: Static premade catalogs (`ALL_PREMADES`, `PREMADE_*`, `ORION_NOVA_GLITCH_STORY`, `get_premade_*`, `has_premade_entity`) may **only** be imported by `src/data/db.js` (boot seeding) and `src/definitions/` (enforced by `premades.test.js`). Runtime code (`ui`, `state`, `engine`, `simulation`) must read entities exclusively from IndexedDB/runtime state without premade fallbacks, and `seed_premades()` must never overwrite existing DB fields (e.g., `pov`) on subsequent boots.
 
 ### 4. State Ownership Matrix
 
