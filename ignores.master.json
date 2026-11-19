@@ -39,7 +39,6 @@
     "**/.graph-it/**",
     "**/graphit.architecture.json",
     "**/.prettiercache",
-    ".agents/skills/graph-it-live/references/onboarding.md",
     "**/.stylelintcache"
   ],
   "gitignore": ["!.env.example", "!package-lock.json", "!**/*main.pjs", "!**/templates/**", "act_output.log", "gha-creds-*.json"],

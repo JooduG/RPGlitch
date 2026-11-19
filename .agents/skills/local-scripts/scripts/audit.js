@@ -11,10 +11,10 @@
  *   node audit.js all       # hygiene + layers (default)
  */
 
+import { execFileSync } from "node:child_process";
 import path from "path";
 import { COLORS, ROOT_DIRECTORY, run_audit } from "./lib/io.js";
 import { code_hygiene_rules, legislative_debt_rules, lexical_hygiene_rules } from "./rules/hygiene.js";
-import { audit_layers } from "./rules/layers.js";
 import { sync_workspace } from "./sync-ignores.js";
 
 export { sync_workspace };
@@ -82,24 +82,44 @@ export function audit_hygiene(exit_on_heresy = true) {
 }
 
 /**
- * Runs the strict layer boundary gate.
+ * Runs the strict architecture gate via graph-it check-architecture (graphit.architecture.json).
  *
  * @param {boolean} [exit_on_violation=true]
  */
 export function audit_layer_boundaries(exit_on_violation = true) {
-  console.log("🏛️ [AUDIT] Checking architectural layer boundaries in src/...");
-  const violations = audit_layers(ROOT_DIRECTORY);
-
-  if (violations.length === 0) {
-    console.log("✅ [PASSED] 0 layer boundary violations detected. All imports flow downward.");
+  console.log("🏛️ [AUDIT] Checking architecture rules via graph-it check-architecture...");
+  const graph_it_bin = path.join(ROOT_DIRECTORY, "node_modules", "@magic5644", "graph-it-live", "dist", "graph-it.js");
+  try {
+    const raw = execFileSync(process.execPath, [graph_it_bin, "check-architecture", "--format", "json"], {
+      cwd: ROOT_DIRECTORY,
+      encoding: "utf8",
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    const json_start = raw.indexOf("{");
+    const report = json_start === -1 ? null : JSON.parse(raw.slice(json_start));
+    const files = report?.totals?.files ?? "?";
+    const rules = report?.totals?.rules ?? "?";
+    console.log(`✅ [PASSED] 0 architecture violations across ${files} files (${rules} rules).`);
     return { violations: [] };
+  } catch (error) {
+    const stdout = String(error.stdout || "");
+    const stderr = String(error.stderr || "");
+    const json_start = stdout.indexOf("{");
+    if (json_start !== -1) {
+      const report = JSON.parse(stdout.slice(json_start));
+      const new_errors = report?.totals?.newErrors ?? report?.totals?.errors ?? "unknown";
+      console.error(`❌ [FAILED] graph-it check-architecture reported ${new_errors} error violation(s).`);
+      for (const rule of report?.rules || []) {
+        if (rule.newViolations > 0 || rule.violations > 0) {
+          console.error(`  - [${rule.name}] ${rule.reason} (${rule.violations} violation(s))`);
+        }
+      }
+    } else {
+      console.error(`❌ [FAILED] graph-it check-architecture failed:\n${stderr || stdout || error.message}`);
+    }
+    if (exit_on_violation) process.exit(1);
+    return { violations: [error] };
   }
-  console.error(`❌ [FAILED] Found ${violations.length} layer boundary violation(s):`);
-  for (const v of violations) {
-    console.error(`  - ${v.file} (${v.file_layer}) -> imported "${v.specifier}" (${v.imported_layer})`);
-  }
-  if (exit_on_violation) process.exit(1);
-  return { violations };
 }
 
 const is_main_execution = process.argv[1] && path.resolve(process.argv[1]).endsWith("audit.js");
