@@ -813,7 +813,7 @@
 
   :global(body:has([data-id="storymode-scroll-area"]) [data-id="storymode-scroll-area"] > [data-orientation="vertical"]),
   :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
-    position: fixed;
+    position: fixed !important;
     right: 0;
     top: 0;
     bottom: 0;

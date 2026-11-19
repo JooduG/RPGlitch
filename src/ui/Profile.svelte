@@ -14,7 +14,6 @@
   import { auto_resize, click_outside, download_json_file, resolve_display_macro_segments } from "@utils";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "@definitions";
-  import { ALL_PREMADES } from "@definitions";
   import { VISUAL_STYLES, get_visual_style } from "@definitions";
   import AudioWing from "./AudioWing.svelte";
   import DevWing from "./DevWing.svelte";
@@ -124,7 +123,7 @@
   });
 
   const known_entities = $derived(
-    [...(app.ai_list || []), ...(app.fractal_list || []), runtime.active_ai, runtime.active_user, runtime.active_fractal, ...ALL_PREMADES].filter(Boolean),
+    [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.fractal_list || [])].filter(Boolean),
   );
 
   /**

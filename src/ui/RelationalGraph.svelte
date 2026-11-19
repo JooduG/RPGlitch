@@ -16,7 +16,6 @@
   import { app } from "@state";
   import { get_signature_color } from "@utils";
   import { tooltip } from "@primitives";
-  import { ALL_PREMADES } from "@definitions";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   /**
@@ -49,18 +48,10 @@
       .trim();
   }
 
-  // Load all known characters and fractals to resolve incoming relationships and satellite entity profiles
+  // Load all known characters and fractals from DB to resolve incoming relationships and satellite entity profiles
   $effect(() => {
     Promise.all([list_entities("character"), list_entities("fractal")]).then(([chars, fracs]) => {
-      const combined = [...chars, ...fracs];
-      // Merge with premades so uninstantiated premades can still be clicked / mapped
-      const seen_ids = new Set(combined.map((e) => e.id));
-      for (const p of ALL_PREMADES) {
-        if (!seen_ids.has(p.id)) {
-          combined.push(p);
-        }
-      }
-      all_entities = combined;
+      all_entities = [...chars, ...fracs];
     });
   });
 
@@ -97,13 +88,6 @@
       );
     });
     if (token_match) return token_match;
-    // 3. Match in premade catalog
-    const pm = ALL_PREMADES.find((e) => {
-      const en = norm(e.name);
-      const eid = norm(e.id);
-      return en === n || en === n_no_underscore || eid === n || eid === n_no_underscore;
-    });
-    if (pm) return pm;
     return { name: target_name.replace(/_/g, " ") };
   }
 

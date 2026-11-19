@@ -62,6 +62,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- `src/ui/Profile.svelte` & `src/ui/RelationalGraph.svelte`: Removed static `ALL_PREMADES` fallbacks so `known_entities` and relationship node resolution pull exclusively from IndexedDB (`list_entities`, `app.ai_list`, `app.fractal_list`) and active `runtime` entities instead of resurrecting deleted or unedited premades.
 - `src/ui/primitives/Tooltip.svelte`: Applied `style:z-index="var(--z-index-max)"` (`999`) to `Tooltip.Content`'s positioned `wrapperProps` element (replacing the undefined `z-tooltip` utility class) so tooltips always render above modal backdrops (`z-index: 200`/`600`).
 - `src/ui/VisualWing.svelte`: Wired `handle_creative_action()`'s Envision prompt button to `refine_image_prompt` from `@engine` (replacing the removed `app.visual.envision` call) and called `profile_state.mark_mutated()` after updating prompt fields.
 - `src/ui/` (`VisualWing.svelte`, `AudioWing.svelte`, `DevWing.svelte`): Scoped `VisualWing` and `AudioWing` to fallback `--color-frozen` (`--signature-color: var(--color-frozen)`, removing entity `signature_color` from `VisualWing` prompt fields) and pinned `DevWing` to `--color-electric-cyan`.

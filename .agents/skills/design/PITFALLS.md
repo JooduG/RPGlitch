@@ -69,3 +69,9 @@
 - **Trigger**: Wiring image prompt enhancement or programmatic `char.modifiers.*` writes in `VisualWing.svelte`.
 - **Wrong Behavior**: Calling removed `app.visual.envision()` or mutating `profile_state.char.modifiers.*` without calling `profile_state.mark_mutated()`.
 - **Correct Behavior**: Import `refine_image_prompt` from `@engine` and call `profile_state.mark_mutated()` whenever programmatic actions update `modifiers.prompt` or `modifiers.negative_prompt`.
+
+## Pitfall 12: `bits-ui` `ScrollArea.Scrollbar` Inline `position: absolute` Override
+
+- **Trigger**: Positioning a `ScrollArea.Scrollbar` (`[data-orientation="vertical"]`) relative to the viewport (e.g., `position: fixed; right: 0;`) via `:global(...)` CSS or utility classes.
+- **Wrong Behavior**: Writing `position: fixed;` without `!important`, which `bits-ui`'s `ScrollAreaScrollbarSharedState` (`mergeProps(restProps, scrollbarSharedState.props)`) silently overrides with an inline `style="position: absolute; ..."`, pinning the scrollbar to the centered grid column instead of the viewport edge.
+- **Correct Behavior**: Use `position: fixed !important;` on the target `[data-orientation="vertical"]` rule (as in `src/ui/Storymode.svelte`).

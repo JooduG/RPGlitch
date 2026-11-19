@@ -88,6 +88,17 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     // Satellite node harvested from bracket
     expect(await screen.findByText("Hank")).toBeTruthy();
   });
+
+  it("does not fall back to ALL_PREMADES when a premade entity is absent from the DB", async () => {
+    const mock_entity = { id: "custom_hero", name: "Custom Hero", type: "character", present: { non_physical: "[RIVALRY: @ORION rival | show]" } };
+
+    const on_select_entity = vi.fn();
+    render(RelationalGraph, { props: { entity: mock_entity, on_select_entity } });
+
+    expect(await screen.findByText(/No recorded relationships yet/i)).toBeTruthy();
+    expect(screen.queryByText("Orion the Pink Protector")).toBeNull();
+    expect(on_select_entity).not.toHaveBeenCalled();
+  });
 });
 
 /**
