@@ -300,9 +300,6 @@ export async function seed_premades() {
       const existing = existing_by_id.get(premade.id);
       if (!existing) {
         to_put.push(normalize_entity(premade));
-      } else if (premade.type === "character" && existing.pov !== "1st_person") {
-        // Backfill premade characters that were seeded with the legacy 3rd_person default
-        to_put.push(normalize_entity({ ...existing, pov: "1st_person" }));
       }
     }
 

@@ -5,6 +5,8 @@
  * ============================================================================
  */
 
+import { readdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   ALL_PREMADES,
@@ -62,5 +64,38 @@ describe("premades registry", () => {
     expect(has_premade_entity("nonexistent")).toBe(false);
     expect(get_premade_characters().length).toBe(PREMADE_CHARACTERS.length);
     expect(get_premade_fractals().length).toBe(PREMADE_FRACTALS.length);
+  });
+
+  it("never leaks premade catalog imports into runtime code outside src/data/db.js", () => {
+    const src_root = resolve(process.cwd(), "src");
+    const premade_symbol_pattern =
+      /\b(ALL_PREMADES|PREMADE_CHARACTERS|PREMADE_FRACTALS|PREMADE_ENTITY_MAP|ORION_NOVA_GLITCH_STORY|get_premade_entity_by_id|has_premade_entity|get_premade_characters|get_premade_fractals)\b/;
+
+    const collect_files = (dir) => {
+      const entries = readdirSync(dir, { withFileTypes: true });
+      const files = [];
+      for (const entry of entries) {
+        const full_path = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          files.push(...collect_files(full_path));
+        } else if (/\.(js|svelte)$/.test(entry.name) && !entry.name.endsWith(".test.js")) {
+          files.push(full_path);
+        }
+      }
+      return files;
+    };
+
+    const allowed_suffixes = ["src/data/db.js", "src/definitions/"];
+    const violations = [];
+    for (const file_path of collect_files(src_root)) {
+      const normalized_path = file_path.replace(/\\/g, "/");
+      if (allowed_suffixes.some((suffix) => normalized_path.includes(suffix))) continue;
+      const content = readFileSync(file_path, "utf8");
+      if (premade_symbol_pattern.test(content)) {
+        violations.push(normalized_path);
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 });

@@ -38,4 +38,15 @@ describe("seed_premades", () => {
     expect(claimed).not.toContain("glitch");
     expect(claimed).not.toContain("nova");
   });
+
+  it("preserves user DB edits (including pov) on existing premades across subsequent boots", async () => {
+    await seed_premades();
+    await db.entities.update("orion", { pov: "3rd_person", signature_color: "Electric Cyan" });
+
+    await seed_premades();
+
+    const orion = await db.entities.get("orion");
+    expect(orion?.pov).toBe("3rd_person");
+    expect(orion?.signature_color).toBe("Electric Cyan");
+  });
 });
