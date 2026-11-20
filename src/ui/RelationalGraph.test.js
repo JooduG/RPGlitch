@@ -1,7 +1,9 @@
 import { tooltip_state } from "@primitives";
+import { app } from "@state";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import EntityCard from "./EntityCard.svelte";
+import MacroText from "./MacroText.svelte";
 import RelationalGraph from "./RelationalGraph.svelte";
 
 vi.mock("@data", async (importOriginal) => {
@@ -84,9 +86,9 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(tooltip_state.entity).toEqual(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
     expect(tooltip_state.incoming_only).toBe(false);
     expect(tooltip_state.bracket_items).toEqual([
-      { key: "DEBT", value: "@SILVERS arms supplier debt", is_hidden: false },
-      { key: "RIVALRY", value: "@SILVERS bitter orbital rivalry", is_hidden: false },
-      { key: "OLD_PACT", value: "@SILVERS forged scrap deal", is_hidden: false },
+      { key: "DEBT", value: "@SILVERS arms supplier debt", is_hidden: false, quadrant: "present" },
+      { key: "RIVALRY", value: "@SILVERS bitter orbital rivalry", is_hidden: false, quadrant: "eternal" },
+      { key: "OLD_PACT", value: "@SILVERS forged scrap deal", is_hidden: false, quadrant: "past" },
     ]);
 
     const { container } = render(EntityCard, {
@@ -105,8 +107,11 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     // Multiple brackets drop the entity title first to avoid scrollbars
     expect(container.textContent).not.toContain("Lord Benedict Silvers");
     expect(container.textContent).toContain("DEBT");
+    expect(container.textContent).toContain("present");
     expect(container.textContent).toContain("RIVALRY");
+    expect(container.textContent).toContain("eternal");
     expect(container.textContent).toContain("OLD_PACT");
+    expect(container.textContent).toContain("past");
     expect(container.textContent).toContain("arms supplier debt");
     expect(container.textContent).toContain("bitter orbital rivalry");
     expect(container.textContent).not.toContain("[DEBT:");
@@ -138,7 +143,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 
     await fireEvent.mouseOver(silvers_btn, { clientX: 60, clientY: 80 });
     expect(tooltip_state.incoming_only).toBe(true);
-    expect(tooltip_state.bracket_items).toEqual([{ key: "PYRO", value: "@HANK custom pyrotechnics", is_hidden: true }]);
+    expect(tooltip_state.bracket_items).toEqual([{ key: "PYRO", value: "@HANK custom pyrotechnics", is_hidden: true, quadrant: "present" }]);
 
     const { container: card_container } = render(EntityCard, {
       props: {
@@ -191,6 +196,40 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(await screen.findByText(/No recorded relationships yet/i)).toBeTruthy();
     expect(screen.queryByText("@ORION")).toBeNull();
     expect(on_select_entity).not.toHaveBeenCalled();
+  });
+
+  it("opens profile/select on EntityCard left-click and ContextMenu (with empty state) on right-click", async () => {
+    const entity = { id: "silvers", name: "Lord Benedict Silvers", type: "character", signature_color: "Crimson Red" };
+    const on_select = vi.fn();
+
+    const { container } = render(EntityCard, { props: { variant: "panel", entity, actions: [], on_select } });
+
+    const card_root = container.querySelector("[data-card-root]");
+    await fireEvent.click(card_root);
+    expect(on_select).toHaveBeenCalledTimes(1);
+    expect(document.body.querySelector('[role="menu"]')).toBeNull();
+
+    await fireEvent.contextMenu(card_root, { clientX: 120, clientY: 140 });
+    const menu = document.body.querySelector('[role="menu"]');
+    expect(menu).toBeTruthy();
+    expect(menu.textContent).toContain("None are currently active");
+  });
+
+  it("opens profile on @ID left-click and ContextMenu empty state on @ID right-click in MacroText", async () => {
+    const open_spy = vi.spyOn(app, "open_profile").mockImplementation(() => {});
+    const target = { id: "silvers", name: "Lord Benedict Silvers", type: "character", signature_color: "Crimson Red" };
+
+    render(MacroText, { props: { text: "Refuses @SILVERS", entities: { ALL: [target] } } });
+
+    const handle_btn = await screen.findByRole("button", { name: "@SILVERS" });
+    await fireEvent.click(handle_btn);
+    expect(open_spy).toHaveBeenCalledWith(target);
+
+    await fireEvent.contextMenu(handle_btn, { clientX: 80, clientY: 90 });
+    const menu = document.body.querySelector('[role="menu"]');
+    expect(menu).toBeTruthy();
+    expect(menu.textContent).toContain("None are currently active");
+    open_spy.mockRestore();
   });
 });
 

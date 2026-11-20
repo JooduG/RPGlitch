@@ -103,36 +103,42 @@
 {#if open}
   <div
     use:portal_to_body
-    class="fixed z-popover min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
+    class="fixed min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
       before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
-    style="left:{clamped_x}px;top:{clamped_y}px;--signature-color:{signature_color}"
+    style="left:{clamped_x}px;top:{clamped_y}px;--signature-color:{signature_color};z-index:var(--z-index-tooltip)"
     role="menu"
     tabindex="-1"
     onclick={(e) => e.stopPropagation()}
     onkeydown={(e) => e.key === "Escape" && close()}>
-    {#each actions as item, i (i)}
-      {#if item.separator}
-        <div class="block h-px bg-current opacity-20"></div>
-      {:else}
-        <Button
-          variant="bare"
-          class="
-            flex h-9 w-full cursor-default items-center gap-tight px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
-            {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
-            {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
-          "
-          disabled={item.disabled}
-          onclick={(e) => handle_item_click(e, item)}
-          role="menuitem">
-          {#if item.active}
-            <span
-              class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"
-            ></span>
-          {/if}
-          {item.label}
-        </Button>
-      {/if}
-    {/each}
+    {#if actions.length === 0}
+      <div class="max-w-56 px-3 py-2 text-xs leading-snug text-slate-300/80 select-none">
+        Contextual actions for this entity will appear here when available. None are currently active.
+      </div>
+    {:else}
+      {#each actions as item, i (i)}
+        {#if item.separator}
+          <div class="block h-px bg-current opacity-20"></div>
+        {:else}
+          <Button
+            variant="bare"
+            class="
+              flex h-9 w-full cursor-default items-center gap-tight px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
+              {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
+              {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
+            "
+            disabled={item.disabled}
+            onclick={(e) => handle_item_click(e, item)}
+            role="menuitem">
+            {#if item.active}
+              <span
+                class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"
+              ></span>
+            {/if}
+            {item.label}
+          </Button>
+        {/if}
+      {/each}
+    {/if}
   </div>
 {/if}
 

@@ -349,6 +349,7 @@
     if (target.closest("[data-wings-container] > *")) return;
     if (
       target.closest(".menu") ||
+      target.closest('[role="menu"]') ||
       target.closest("[data-dropdown-menu]") ||
       target.closest(".dropdown-portal-wrapper") ||
       target.closest(".tooltip-portal") ||

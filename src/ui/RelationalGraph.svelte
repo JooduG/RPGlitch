@@ -100,7 +100,12 @@
     const list = Array.isArray(links_list) ? links_list : [links_list];
     for (const links of list) {
       if (!links) continue;
-      for (const bucket of [links.present, links.eternal, links.past, links.future]) {
+      for (const [quadrant, bucket] of [
+        ["present", links.present],
+        ["eternal", links.eternal],
+        ["past", links.past],
+        ["future", links.future],
+      ]) {
         if (!Array.isArray(bucket)) continue;
         for (const raw_entry of bucket) {
           const text = String(raw_entry || "").trim();
@@ -111,10 +116,10 @@
           const is_hidden = force_hidden || /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val);
           const value = clean_dynamic_text(raw_val);
           if (!value) continue;
-          const dedupe_key = `${key.toUpperCase()}:${value}`;
+          const dedupe_key = `${quadrant}:${key.toUpperCase()}:${value}`;
           if (seen.has(dedupe_key)) continue;
           seen.add(dedupe_key);
-          items.push({ key, value, is_hidden });
+          items.push({ key, value, is_hidden, quadrant });
         }
       }
     }

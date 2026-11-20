@@ -14,6 +14,7 @@
    * @property {string} key
    * @property {string} value
    * @property {boolean} [is_hidden]
+   * @property {string} [quadrant]
    */
 
   /**
@@ -135,7 +136,8 @@
 
   const normalized_entries = $derived.by(() => {
     const source =
-      Array.isArray(entries) && entries.length > 0 ? entries.map((item) => ({ key: item.key, raw: item.value, force_hidden: Boolean(item.is_hidden) }))
+      Array.isArray(entries) && entries.length > 0 ?
+        entries.map((item) => ({ key: item.key, raw: item.value, force_hidden: Boolean(item.is_hidden), quadrant: item.quadrant || null }))
       : record && typeof record === "object" ?
         (sort_by_length ? Object.entries(record).sort((a, b) => String(a[1]).length - String(b[1]).length) : Object.entries(record)).map(([key, val]) => ({
           key,
@@ -150,7 +152,7 @@
       const is_hidden = item.force_hidden || /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val);
       const clean_val = strip_metadata_flags(raw_val);
       if (!clean_val) continue;
-      out.push({ key: item.key, value: clean_val, is_hidden });
+      out.push({ key: item.key, value: clean_val, is_hidden, quadrant: item.quadrant || null });
     }
     return out;
   });
@@ -167,11 +169,16 @@
     {#each normalized_entries as item, idx (`${item.key}_${idx}`)}
       {@const key_color = resolve_bracket_target_color(item.key)}
       <div class="flex flex-col items-start gap-0.5 first:pt-0 last:pb-0 {compact ? 'py-1' : 'py-1.5'} {item.is_hidden ? 'opacity-muted' : ''}">
-        <span
-          style={key_color && !item.is_hidden ? `color: ${key_color};` : undefined}
-          class="text-left font-mono text-xs font-bold tracking-wider uppercase {item.is_hidden ? 'text-slate-400'
-          : key_color ? ''
-          : 'text-(--signature-color)'}">{item.key}</span>
+        <div class="flex w-full items-baseline justify-between gap-tight">
+          <span
+            style={key_color && !item.is_hidden ? `color: ${key_color};` : undefined}
+            class="text-left font-mono text-xs font-bold tracking-wider uppercase {item.is_hidden ? 'text-slate-400'
+            : key_color ? ''
+            : 'text-(--signature-color)'}">{item.key}</span>
+          {#if item.quadrant}
+            <span class="shrink-0 font-mono text-[9px] tracking-widest text-slate-400/75 uppercase">{item.quadrant}</span>
+          {/if}
+        </div>
         <span
           class="text-left {compact ? `text-xs leading-snug ${compact_clamp_class}` : 'text-sm leading-normal'} {item.is_hidden ? 'text-slate-400 italic' : (
             'text-slate-200'

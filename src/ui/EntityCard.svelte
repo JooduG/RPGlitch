@@ -85,14 +85,16 @@
     menu_open = true;
   }
 
-  function handle_card_click(e) {
+  function handle_card_click() {
     if (disabled) return;
-    if (variant !== "library" && !is_empty && actions.length) {
-      e.stopPropagation();
-      open_menu_at(e.clientX, e.clientY);
-      return;
-    }
     handle_select();
+  }
+
+  function handle_card_contextmenu(e) {
+    if (disabled || variant === "library" || is_empty) return;
+    e.preventDefault();
+    e.stopPropagation();
+    open_menu_at(e.clientX, e.clientY);
   }
 
   let fractal_storymode_ratio = $state("4 / 3");
@@ -321,6 +323,7 @@
     : "Select " + name
   : a11y_label}
   onclick={handle_card_click}
+  oncontextmenu={handle_card_contextmenu}
   onanimationend={handle_animation_end}
   onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
   onpointerup={() => {
@@ -332,14 +335,7 @@
   onkeydown={(/** @type {KeyboardEvent} */ e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (variant !== "library" && !is_empty && actions.length) {
-        if (root_el) {
-          const rect = root_el.getBoundingClientRect();
-          open_menu_at(rect.right, rect.bottom);
-        }
-      } else {
-        handle_select();
-      }
+      handle_select();
     }
   }}>
   <div
