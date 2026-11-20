@@ -23,10 +23,12 @@
 {#each segments as seg, i (i)}
   {#if seg.macro}
     {#if seg.entity}
-      <span use:tooltip={{ entity: seg.entity, text: seg.entity.name || seg.text }} class="cursor-help font-mono" style="color: {color_of(seg)};"
-        >{seg.text}</span>
+      <span
+        use:tooltip={{ entity: seg.entity, text: seg.entity.name || seg.text }}
+        class="cursor-help font-mono text-xs font-semibold"
+        style="color: {color_of(seg)};">{seg.text}</span>
     {:else}
-      <span class={seg.text.startsWith("@") ? "font-mono" : undefined} style="color: {color_of(seg)};">{seg.text}</span>
+      <span class={seg.text.startsWith("@") ? "font-mono text-xs font-semibold" : undefined} style="color: {color_of(seg)};">{seg.text}</span>
     {/if}
   {:else}
     {seg.text}

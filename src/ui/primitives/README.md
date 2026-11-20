@@ -6,7 +6,7 @@ Design-system primitive library (`src/ui/primitives`) providing 15 Svelte 5 Rune
 
 ## Interface
 
-- [`index.js`](./index.js): Barrel module re-exporting `Avatar` from `bits-ui`, all 15 default Svelte components (`Accordion`, `Backdrop`, `Button`, `Dialog`, `Dropdown`, `Label`, `Modal`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `SourceField`, `TextField`, `Toggle`, `Tooltip`), and the named `tooltip` action from [`Tooltip.svelte`](./Tooltip.svelte).
+- [`index.js`](./index.js): Barrel module re-exporting `Avatar` from `bits-ui`, all 15 default Svelte components (`Accordion`, `Backdrop`, `Button`, `Dialog`, `Dropdown`, `Label`, `Modal`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `SourceField`, `TextField`, `Toggle`, `Tooltip`), and the named `tooltip` action and `tooltip_state` store from [`Tooltip.svelte`](./Tooltip.svelte).
 - [`Accordion.svelte`](./Accordion.svelte): Default Svelte component wrapping `bits-ui` `Collapsible`.
   - Props: `label = ""`, `open = $bindable(false)`, `default_open = false`, `disabled = false`, `class: className = ""`, `content_class = ""`, `children`.
 - [`Backdrop.svelte`](./Backdrop.svelte): Default Svelte component rendering a fixed viewport backdrop container.
@@ -37,10 +37,10 @@ Design-system primitive library (`src/ui/primitives`) providing 15 Svelte 5 Rune
 - [`Toggle.svelte`](./Toggle.svelte): Default Svelte component wrapping `bits-ui` `Switch.Root` / `Switch.Thumb` and [`Label.svelte`](./Label.svelte).
   - Props: `value = $bindable(false)`, `label = ""`, `size = "md"` (`"md" | "small"`), `disabled = false`, `busy = false`, `always_signature = false`, `actions = []`, `class: className = ""`, `style = ""`, `onchange = undefined`, `...rest` (spread onto `Switch.Root`).
 - [`Tooltip.svelte`](./Tooltip.svelte): Global `bits-ui` `Tooltip` renderer (optional `entity_preview = null` snippet prop) and `<script module>` exports:
-  - `tooltip_state`: Exported `$state({ text: null, entity: null, target: null, active: false, x: 0, y: 0, has_cursor: false })`.
-  - `show_tooltip(target, text, entity = null)`: Exported function scheduling tooltip activation (`120ms` for entity previews, `400ms` for text tooltips).
+  - `tooltip_state`: Exported `$state({ text: null, entity: null, bracket_items: null, description_owner: null, incoming_only: false, target: null, active: false, x: 0, y: 0, has_cursor: false })`.
+  - `show_tooltip(target, text, options = null)`: Exported function scheduling tooltip activation (`120ms` for entity previews, `400ms` for text tooltips, or explicit `delay` override).
   - `hide_tooltip()`: Exported function cancelling pending activation and clearing tooltip state.
-  - `tooltip(node, param)`: Exported Svelte action (re-exported by [`index.js`](./index.js)) accepting `string | { text?: string, entity?: any } | null` and returning `{ update(new_param), destroy() }`.
+  - `tooltip(node, param)`: Exported Svelte action (re-exported by [`index.js`](./index.js)) accepting `string | { text?: string, entity?: any, bracket_items?: any[] | null, description_owner?: any, incoming_only?: boolean, delay?: number } | null` and returning `{ update(new_param), destroy() }`.
 
 ## Invariants
 

@@ -5,7 +5,7 @@
   Visualizes outgoing & incoming relationship vectors for an entity in a sleek
   radial constellation.
   - Center Sun Node: The current active entity (@ID); hovering highlights incoming arrows and shows incoming bonds.
-  - Satellite Nodes: Surrounding related entities (@ID); hovering lights up the outgoing arrow and locks an EntityCard preview 1:1 to the cursor.
+  - Satellite Nodes: Surrounding related entities (@ID); hovering lights up the outgoing arrow and triggers the global Tooltip EntityCard preview.
   - SVG Curved Arcs: Directional arrows colored with the source entity's signature color.
   - Navigation: Clicking a satellite node triggers on_select_entity(entity).
 -->
@@ -15,7 +15,6 @@
   import { app, runtime } from "@state";
   import { get_signature_color, render_display_macros } from "@utils";
   import { tooltip } from "@primitives";
-  import EntityCard from "./EntityCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   /**
@@ -32,10 +31,6 @@
   let hovered_edge = $state(null);
   let hovered_node = $state(null);
   let center_hovered = $state(false);
-  let cursor_x = $state(0);
-  let cursor_y = $state(0);
-  let has_pointer = $state(false);
-  let constellation_element = $state(null);
 
   function get_entity_slug(ent) {
     if (!ent) return "";
@@ -99,12 +94,31 @@
     ALL: all_entities,
   });
 
-  function update_cursor_coords(e) {
-    if (!constellation_element || !(e instanceof MouseEvent)) return;
-    const rect = constellation_element.getBoundingClientRect();
-    cursor_x = e.clientX - rect.left;
-    cursor_y = e.clientY - rect.top;
-    has_pointer = true;
+  function collect_bracket_items(links_list, force_hidden = false) {
+    const items = [];
+    const seen = new Set();
+    const list = Array.isArray(links_list) ? links_list : [links_list];
+    for (const links of list) {
+      if (!links) continue;
+      for (const bucket of [links.present, links.eternal, links.past, links.future]) {
+        if (!Array.isArray(bucket)) continue;
+        for (const raw_entry of bucket) {
+          const text = String(raw_entry || "").trim();
+          if (!text) continue;
+          const match = text.match(/^\[([^:\]]+):([\s\S]*)\]$/);
+          const key = match ? match[1].trim() : "BOND";
+          const raw_val = match ? match[2].trim() : text;
+          const is_hidden = force_hidden || /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val);
+          const value = clean_dynamic_text(raw_val);
+          if (!value) continue;
+          const dedupe_key = `${key.toUpperCase()}:${value}`;
+          if (seen.has(dedupe_key)) continue;
+          seen.add(dedupe_key);
+          items.push({ key, value, is_hidden });
+        }
+      }
+    }
+    return items;
   }
 
   function find_matched_entity(target_name) {
@@ -200,12 +214,25 @@
       const resolved = other_entity?.id ? other_entity : find_matched_entity(other_name);
       const key = norm(resolved?.name || other_name);
       if (!key || key === current_name) continue;
-      const existing = map.get(key);
+      let existing = map.get(key);
       if (!existing) {
-        map.set(key, { name: resolved?.name || other_name, entity: resolved, outgoing_links: edge.is_outgoing ? edge.temporal_links || null : null });
-      } else if (edge.is_outgoing && !existing.outgoing_links) {
-        existing.outgoing_links = edge.temporal_links || null;
+        existing = { name: resolved?.name || other_name, entity: resolved, outgoing_links: [], incoming_links: [], is_incoming_only: false, bracket_items: [] };
+        map.set(key, existing);
       }
+      if (edge.temporal_links) {
+        if (edge.is_outgoing) {
+          existing.outgoing_links.push(edge.temporal_links);
+        } else {
+          existing.incoming_links.push(edge.temporal_links);
+        }
+      }
+    }
+
+    for (const node_item of map.values()) {
+      const is_incoming_only = node_item.outgoing_links.length === 0 && node_item.incoming_links.length > 0;
+      node_item.is_incoming_only = is_incoming_only;
+      node_item.bracket_items =
+        is_incoming_only ? collect_bracket_items(node_item.incoming_links, true) : collect_bracket_items(node_item.outgoing_links, false);
     }
 
     return Array.from(map.values());
@@ -228,7 +255,6 @@
     hovered_node = null;
     hovered_edge = null;
     center_hovered = false;
-    has_pointer = false;
   });
 
   // 3. Constellation Coordinates & Radial Geometry
@@ -319,9 +345,6 @@
   });
 
   const center_color = $derived(get_signature_color(entity));
-  const hovered_node_pos = $derived(hovered_node ? node_positions.get(norm(hovered_node.name)) : null);
-  const raw_anchor_x = $derived(has_pointer ? cursor_x : (hovered_node_pos?.x ?? cx));
-  const raw_anchor_y = $derived(has_pointer ? cursor_y : (hovered_node_pos?.y ?? cy));
 </script>
 
 <div class="relative flex w-full items-center justify-center {custom_class}">
@@ -342,7 +365,7 @@
   {:else}
     <!-- Radial Visual Constellation -->
     <div class="relative flex flex-col items-center justify-center overflow-visible">
-      <div bind:this={constellation_element} class="relative flex items-center justify-center" style="width: {size}px; height: {size}px;">
+      <div class="relative flex items-center justify-center" style="width: {size}px; height: {size}px;">
         <!-- SVG Canvas for Connecting Directional Curves -->
         <svg class="absolute inset-0 z-0 h-full w-full overflow-visible" viewBox="0 0 {size} {size}" style="width: {size}px; height: {size}px;">
           <defs>
@@ -423,31 +446,29 @@
           {@const sat_entity = node.item.entity}
           {@const sat_color = get_signature_color(sat_entity)}
           {@const sat_handle = `@${get_entity_slug(sat_entity || node.item)}`}
-          <div class="absolute z-10 flex flex-col items-center justify-center" style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%);">
+          <div
+            data-testid="relational-satellite-node"
+            class="absolute z-10 flex flex-col items-center justify-center transition-opacity duration-fast {node.item.is_incoming_only ?
+              'opacity-muted grayscale hover:opacity-100'
+            : ''}"
+            style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%);">
             <button
               type="button"
               aria-label={`Open profile for ${node.item.name} (${sat_handle})`}
-              onpointerenter={(e) => {
-                hovered_node = node.item;
-                update_cursor_coords(e);
+              use:tooltip={{
+                entity: sat_entity || { name: node.item.name },
+                text: node.item.name,
+                bracket_items: node.item.bracket_items,
+                description_owner: entity,
+                incoming_only: node.item.is_incoming_only,
+                delay: 0,
               }}
-              onpointermove={update_cursor_coords}
-              onmouseenter={(e) => {
-                hovered_node = node.item;
-                if (e.clientX || e.clientY) update_cursor_coords(e);
-              }}
-              onmouseleave={() => {
-                hovered_node = null;
-                has_pointer = false;
-              }}
-              onfocus={() => {
-                hovered_node = node.item;
-                has_pointer = false;
-              }}
-              onblur={() => {
-                hovered_node = null;
-                has_pointer = false;
-              }}
+              onpointerenter={() => (hovered_node = node.item)}
+              onpointerleave={() => (hovered_node = null)}
+              onmouseenter={() => (hovered_node = node.item)}
+              onmouseleave={() => (hovered_node = null)}
+              onfocus={() => (hovered_node = node.item)}
+              onblur={() => (hovered_node = null)}
               onclick={() => {
                 if (typeof on_select_entity === "function") {
                   on_select_entity(sat_entity || node.item.entity || { name: node.item.name });
@@ -462,33 +483,6 @@
             </span>
           </div>
         {/each}
-
-        <!-- Cursor-Locked EntityCard Hover Preview -->
-        {#if hovered_node}
-          {@const hover_ent = hovered_node.entity || { name: hovered_node.name }}
-          {@const is_fractal = hover_ent?.type === "fractal"}
-          {@const first_outgoing =
-            hovered_node.outgoing_links?.present?.[0] ||
-            hovered_node.outgoing_links?.eternal?.[0] ||
-            hovered_node.outgoing_links?.past?.[0] ||
-            hovered_node.outgoing_links?.future?.[0] ||
-            ""}
-          {@const hover_dynamic = clean_dynamic_text(first_outgoing)}
-          <div
-            data-testid="relational-hover-card"
-            class="pointer-events-none absolute top-0 left-0 z-30 will-change-transform"
-            style="transform: translate3d({raw_anchor_x}px, {raw_anchor_y}px, 0);">
-            <div style="transform: translate({raw_anchor_x > cx ? 'calc(-100% - 16px)' : '16px'}, {raw_anchor_y > cy ? 'calc(-100% - 16px)' : '16px'});">
-              <EntityCard
-                variant="library"
-                entity={hover_ent}
-                type={is_fractal ? "fractal" : "ai"}
-                launch_gesture={false}
-                description_override={hover_dynamic || null}
-                description_owner={entity} />
-            </div>
-          </div>
-        {/if}
       </div>
     </div>
   {/if}

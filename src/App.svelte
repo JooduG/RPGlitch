@@ -112,8 +112,16 @@
 </main>
 
 <Tooltip>
-  {#snippet entity_preview(preview_entity)}
-    <EntityCard variant="library" entity={preview_entity} type={preview_entity?.type === "fractal" ? "fractal" : "ai"} launch_gesture={false} />
+  {#snippet entity_preview(preview)}
+    {@const preview_entity = preview?.entity ?? preview}
+    <EntityCard
+      variant="library"
+      entity={preview_entity}
+      type={preview_entity?.type === "fractal" ? "fractal" : "ai"}
+      launch_gesture={false}
+      bracket_items={preview?.bracket_items ?? null}
+      description_owner={preview?.description_owner ?? null}
+      incoming_only={preview?.incoming_only ?? false} />
   {/snippet}
 </Tooltip>
 

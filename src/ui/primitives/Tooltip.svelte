@@ -10,6 +10,9 @@
    * @typedef {Object} TooltipState
    * @property {string | null} text - Current tooltip text
    * @property {any | null} entity - Optional entity for rich EntityCard preview
+   * @property {Array<{ key: string, value: string, is_hidden?: boolean }> | null} bracket_items - Optional relationship bracket list
+   * @property {any | null} description_owner - Optional perspective owner for MacroText rendering inside previews
+   * @property {boolean} incoming_only - Whether the hovered relationship is strictly incoming-only
    * @property {HTMLElement | null} target - The element currently being hovered
    * @property {boolean} active - Visibility toggle
    * @property {number} x - Viewport cursor X coordinate
@@ -21,7 +24,18 @@
    * Global reactive state for the tooltip system.
    * @type {TooltipState}
    */
-  export const tooltip_state = $state({ text: null, entity: null, target: null, active: false, x: 0, y: 0, has_cursor: false });
+  export const tooltip_state = $state({
+    text: null,
+    entity: null,
+    bracket_items: null,
+    description_owner: null,
+    incoming_only: false,
+    target: null,
+    active: false,
+    x: 0,
+    y: 0,
+    has_cursor: false,
+  });
 
   /** @type {number | null} */
   let timer = null;
@@ -30,19 +44,33 @@
    * Triggers the tooltip visibility with a slight delay for kinetic comfort.
    * @param {HTMLElement} target
    * @param {string | null} text
-   * @param {any | null} [entity]
+   * @param {any | { entity?: any, bracket_items?: any[] | null, description_owner?: any, incoming_only?: boolean, delay?: number }} [options]
    */
-  export function show_tooltip(target, text, entity = null) {
-    if (!text && !entity) return;
+  export function show_tooltip(target, text, options = null) {
+    const opts = options && typeof options === "object" && "entity" in options ? options : { entity: options };
+    const resolved_entity = opts?.entity ?? null;
+    if (!text && !resolved_entity) return;
     hide_tooltip();
 
-    const delay = entity ? 120 : 400;
-    timer = window.setTimeout(() => {
+    const delay =
+      typeof opts?.delay === "number" ? opts.delay
+      : resolved_entity ? 120
+      : 400;
+    const commit = () => {
       tooltip_state.text = text || null;
-      tooltip_state.entity = entity || null;
+      tooltip_state.entity = resolved_entity;
+      tooltip_state.bracket_items = opts?.bracket_items ?? null;
+      tooltip_state.description_owner = opts?.description_owner ?? null;
+      tooltip_state.incoming_only = Boolean(opts?.incoming_only);
       tooltip_state.target = target;
       tooltip_state.active = true;
-    }, delay);
+    };
+
+    if (delay <= 0) {
+      commit();
+    } else {
+      timer = window.setTimeout(commit, delay);
+    }
   }
 
   /**
@@ -60,6 +88,9 @@
       tooltip_state.active = false;
       tooltip_state.text = null;
       tooltip_state.entity = null;
+      tooltip_state.bracket_items = null;
+      tooltip_state.description_owner = null;
+      tooltip_state.incoming_only = false;
       tooltip_state.target = null;
     }, 0);
   }
@@ -67,28 +98,38 @@
   /**
    * Svelte Action: use:tooltip
    * @param {HTMLElement} node
-   * @param {string | { text?: string, entity?: any } | null} param
+   * @param {string | { text?: string, entity?: any, bracket_items?: any[] | null, description_owner?: any, incoming_only?: boolean, delay?: number } | null} param
    */
   export function tooltip(node, param) {
     const resolve_payload = (input) => {
-      const resolved_text = typeof input === "object" ? input?.text : input;
-      const resolved_entity = typeof input === "object" ? (input?.entity ?? null) : null;
+      const is_obj = input && typeof input === "object";
+      const resolved_text = is_obj ? input?.text : input;
+      const resolved_entity = is_obj ? (input?.entity ?? null) : null;
       const active_text = resolved_text || node.getAttribute("aria-label") || node.getAttribute("title") || null;
-      return { active_text, resolved_entity };
+      return {
+        active_text,
+        resolved_entity,
+        bracket_items: is_obj ? (input?.bracket_items ?? null) : null,
+        description_owner: is_obj ? (input?.description_owner ?? null) : null,
+        incoming_only: is_obj ? Boolean(input?.incoming_only) : false,
+        delay: is_obj ? input?.delay : undefined,
+      };
     };
 
     /** @param {MouseEvent | PointerEvent} e */
     const handle_move = (e) => {
-      tooltip_state.x = e.clientX;
-      tooltip_state.y = e.clientY;
-      tooltip_state.has_cursor = true;
+      if (e.clientX || e.clientY) {
+        tooltip_state.x = e.clientX;
+        tooltip_state.y = e.clientY;
+        tooltip_state.has_cursor = true;
+      }
     };
 
     /** @param {MouseEvent | FocusEvent} e */
     const handle_enter = (e) => {
       if (e instanceof MouseEvent && e.type === "mouseover" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
 
-      if (e instanceof MouseEvent) {
+      if (e instanceof MouseEvent && (e.clientX || e.clientY)) {
         tooltip_state.x = e.clientX;
         tooltip_state.y = e.clientY;
         tooltip_state.has_cursor = true;
@@ -96,14 +137,20 @@
         tooltip_state.has_cursor = false;
       }
 
-      const { active_text, resolved_entity } = resolve_payload(param);
+      const payload = resolve_payload(param);
 
-      if (active_text || resolved_entity) {
+      if (payload.active_text || payload.resolved_entity) {
         if (node.hasAttribute("title")) {
           node.dataset.tooltipTitle = node.getAttribute("title") || "";
           node.setAttribute("title", "");
         }
-        show_tooltip(node, active_text, resolved_entity);
+        show_tooltip(node, payload.active_text, {
+          entity: payload.resolved_entity,
+          bracket_items: payload.bracket_items,
+          description_owner: payload.description_owner,
+          incoming_only: payload.incoming_only,
+          delay: payload.delay,
+        });
       }
     };
 
@@ -124,14 +171,17 @@
     node.addEventListener("focusout", handle_leave);
 
     return {
-      /** @param {string | { text?: string, entity?: any } | null} new_param */
+      /** @param {string | { text?: string, entity?: any, bracket_items?: any[] | null, description_owner?: any, incoming_only?: boolean, delay?: number } | null} new_param */
       update(new_param) {
         param = new_param;
         // If this node is the active target, sync the payload immediately
         if (tooltip_state.target === node && tooltip_state.active) {
-          const { active_text, resolved_entity } = resolve_payload(param);
-          if (active_text) tooltip_state.text = active_text;
-          tooltip_state.entity = resolved_entity;
+          const payload = resolve_payload(param);
+          if (payload.active_text) tooltip_state.text = payload.active_text;
+          tooltip_state.entity = payload.resolved_entity;
+          tooltip_state.bracket_items = payload.bracket_items;
+          tooltip_state.description_owner = payload.description_owner;
+          tooltip_state.incoming_only = payload.incoming_only;
         }
       },
       destroy() {
@@ -212,7 +262,14 @@
                     {open ? 'opacity-100' : 'opacity-0'}"
                   transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}>
                   {#if tooltip_state.entity && entity_preview}
-                    {@render entity_preview(tooltip_state.entity)}
+                    <div data-testid="relational-hover-card">
+                      {@render entity_preview({
+                        entity: tooltip_state.entity,
+                        bracket_items: tooltip_state.bracket_items,
+                        description_owner: tooltip_state.description_owner,
+                        incoming_only: tooltip_state.incoming_only,
+                      })}
+                    </div>
                   {:else}
                     <div
                       class="

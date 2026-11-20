@@ -13,6 +13,7 @@
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
   import { app } from "@state";
+  import BracketList from "./BracketList.svelte";
   import MacroText from "./MacroText.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
 
@@ -38,6 +39,8 @@
    * @property {boolean} [launch_gesture] - Rack-pull-eject launch on select (default true; disable when the parent animates selection itself)
    * @property {string | null} [description_override] - Optional override text rendered in the card summary block (also enables summary in library variant)
    * @property {any} [description_owner] - Optional perspective owner passed to MacroText when rendering description_override
+   * @property {Array<{ key: string, value: string, is_hidden?: boolean }> | null} [bracket_items] - Optional structured relationship brackets rendered via BracketList
+   * @property {boolean} [incoming_only] - Dim/desaturate card when representing a strictly incoming-only relationship
    */
 
   /** @type {Props} */
@@ -53,6 +56,8 @@
     launch_gesture = true,
     description_override = null,
     description_owner = null,
+    bracket_items = null,
+    incoming_only = false,
   } = $props();
 
   // --- STATE RUNES ---
@@ -282,6 +287,7 @@
       animate-[rack-pull-eject_var(--transition-duration-standard)_var(--ease-out)_forwards]
     `
   : ''}
+    {incoming_only && !disabled ? 'opacity-muted grayscale' : ''}
     backdrop-blur-md
   "
   class:w-[calc(var(--spacing-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
@@ -414,8 +420,7 @@
       rounded-b-[inherit]
       bg-linear-to-t
       from-black/95
-      via-black/75
-      via-45%
+      {Array.isArray(bracket_items) && bracket_items.length > 0 ? 'max-h-[88%] via-black/85 via-60%' : 'via-black/75 via-45%'}
       to-transparent
       text-center
       transition-opacity
@@ -482,7 +487,11 @@
           group-hover/card:opacity-100
         `
       : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
-    {#if !is_empty && (Boolean(description_override) || (variant !== "library" && variant !== "message" && app.view !== "storymode"))}
+    {#if Array.isArray(bracket_items) && bracket_items.length > 0}
+      <div class="mt-tight max-h-36 w-full overflow-y-auto">
+        <BracketList entries={bracket_items} owner={description_owner || entity} entities={display_entities} compact={true} sort_by_length={false} />
+      </div>
+    {:else if !is_empty && (Boolean(description_override) || (variant !== "library" && variant !== "message" && app.view !== "storymode"))}
       <p
         data-card-text
         class="

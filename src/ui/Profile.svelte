@@ -11,11 +11,12 @@
   import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import ProfilePicture from "./ProfilePicture.svelte";
   import { safe_parse_pseudo_json } from "@simulation";
-  import { auto_resize, click_outside, download_json_file, resolve_display_macro_segments } from "@utils";
+  import { auto_resize, click_outside, download_json_file } from "@utils";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, get_narrative_style } from "@definitions";
   import { VISUAL_STYLES, get_visual_style } from "@definitions";
   import AudioWing from "./AudioWing.svelte";
+  import BracketList from "./BracketList.svelte";
   import DevWing from "./DevWing.svelte";
   import MacroText from "./MacroText.svelte";
   import { ProfileState } from "./Profile.svelte.js";
@@ -128,40 +129,6 @@
     FRACTAL: runtime.active_fractal || app.selected_fractal,
     ALL: known_entities,
   });
-
-  /**
-   * Resolves the target entity's signature color for `@ENTITY` bracket keys.
-   * @param {string} key
-   * @returns {string | null}
-   */
-  function resolve_bracket_target_color(key) {
-    if (!key || !key.startsWith("@")) return null;
-    const raw_slug = key.slice(1).trim().toLowerCase();
-    if (!raw_slug) return null;
-    if (raw_slug === "user" && display_entities.USER) return get_signature_color(display_entities.USER, null);
-    if ((raw_slug === "char" || raw_slug === "ai") && display_entities.AI) return get_signature_color(display_entities.AI, null);
-    if (raw_slug === "fractal" && display_entities.FRACTAL) return get_signature_color(display_entities.FRACTAL, null);
-
-    const spaced_slug = raw_slug.replace(/_/g, " ");
-    const exact_match = known_entities.find((entity) => {
-      const entity_id = String(entity?.id || "")
-        .trim()
-        .toLowerCase();
-      const entity_name = String(entity?.name || "")
-        .trim()
-        .toLowerCase();
-      return entity_id === raw_slug || entity_id === spaced_slug || entity_name === raw_slug || entity_name === spaced_slug;
-    });
-    if (exact_match) return get_signature_color(exact_match, null);
-
-    const token_match = known_entities.find((entity) => {
-      const entity_name = String(entity?.name || "")
-        .trim()
-        .toLowerCase();
-      return entity_name.split(/\s+/).includes(spaced_slug);
-    });
-    return token_match ? get_signature_color(token_match, null) : null;
-  }
 
   const author_options = Object.values(NARRATIVE_STYLES)
     .sort((a, b) => {
@@ -346,67 +313,6 @@
     let cls = "text-slate-400 transition duration-200 hover:text-(--signature-color) ";
     cls += profile_state.active_field?.key === fieldKey ? "opacity-100" : "opacity-0 group-data-[expanded=true]/textfield:opacity-100";
     return cls;
-  };
-
-  /**
-   * Recursively parses string payloads to detect inline Perchance dynamic variable loops.
-   * Supports arbitrary N-flat options like {A|B|C} and nested options like {A|B|{C1|C2}}.
-   * @param {string} str
-   * @returns {Array<{is_var: boolean, text?: string, choices?: Array<any>}>}
-   */
-  const parse_variants = (str) => {
-    if (!str) return [];
-
-    const result = [];
-    let i = 0;
-    let text_buffer = "";
-
-    while (i < str.length) {
-      if (str[i] === "{") {
-        if (text_buffer) {
-          result.push({ is_var: false, text: text_buffer });
-          text_buffer = "";
-        }
-
-        let depth = 1;
-        i++;
-        let current_choice = "";
-        const raw_choices = [];
-
-        while (i < str.length && depth > 0) {
-          const char = str[i];
-          if (char === "{") {
-            depth++;
-            current_choice += char;
-          } else if (char === "}") {
-            depth--;
-            if (depth > 0) current_choice += char;
-          } else if (char === "|" && depth === 1) {
-            raw_choices.push(current_choice.trim());
-            current_choice = "";
-          } else {
-            current_choice += char;
-          }
-          i++;
-        }
-
-        if (current_choice.trim() || raw_choices.length > 0) {
-          raw_choices.push(current_choice.trim());
-        }
-
-        const parsed_choices = raw_choices.map((c) => parse_variants(c));
-        result.push({ is_var: true, choices: parsed_choices });
-      } else {
-        text_buffer += str[i];
-        i++;
-      }
-    }
-
-    if (text_buffer) {
-      result.push({ is_var: false, text: text_buffer });
-    }
-
-    return result.length > 0 ? result : [{ is_var: false, text: str }];
   };
 
   // --- EFFECTS ---
@@ -1118,30 +1024,7 @@
             {/if}
 
             {#snippet bracketed_content()}
-              {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
-              <div class="flex flex-col divide-y divide-white/5">
-                {#each sorted_entries as [k, v] (k)}
-                  {@const raw_val = String(v ?? "")}
-                  {@const is_hidden = /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val)}
-                  {@const clean_val = raw_val
-                    .replace(/\s*\|\s*(?:hide|show|private)\b/gi, "")
-                    .replace(/\s*\|\s*w:\s*\d+\b/gi, "")
-                    .trim()}
-                  {@const key_color = resolve_bracket_target_color(k)}
-                  {#if clean_val}
-                    <div class="flex flex-col items-start gap-0.5 py-1.5 first:pt-0 last:pb-0 {is_hidden ? 'opacity-55' : ''}">
-                      <span
-                        style={key_color && !is_hidden ? `color: ${key_color};` : undefined}
-                        class="text-left font-mono text-[10px] font-bold tracking-wider uppercase {is_hidden ? 'text-slate-400'
-                        : key_color ? ''
-                        : 'text-(--signature-color)'}">{k}</span>
-                      <span class="text-left text-xs leading-normal {is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
-                        {@render RenderFormattedValue(clean_val)}
-                      </span>
-                    </div>
-                  {/if}
-                {/each}
-              </div>
+              <BracketList record={parsed} owner={profile_state.char} entities={display_entities} />
             {/snippet}
 
             <TextField
@@ -1228,37 +1111,6 @@
         }} />
     </div>
   </div>
-{/snippet}
-
-{#snippet RenderChoiceNodes(nodes)}
-  {#each nodes as part, i (i)}
-    {#if part.is_var}
-      <span
-        class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300">
-        <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
-        {#each part.choices as choiceNodes, idx (idx)}
-          <span class="inline-flex items-center">
-            {@render RenderChoiceNodes(choiceNodes)}
-          </span>
-          {#if idx < part.choices.length - 1}
-            <span class="mx-0.5 text-[9px] text-(--signature-color)/40">/</span>
-          {/if}
-        {/each}
-      </span>
-    {:else}
-      <span>{part.text}</span>
-    {/if}
-  {/each}
-{/snippet}
-
-{#snippet RenderFormattedValue(val_str)}
-  {#each resolve_display_macro_segments(val_str, profile_state.char, display_entities) as seg, si (si)}
-    {#if seg.macro}
-      <MacroText segment={seg} />
-    {:else}
-      {@render RenderChoiceNodes(parse_variants(seg.text))}
-    {/if}
-  {/each}
 {/snippet}
 
 {#snippet inline_macro_text(text)}

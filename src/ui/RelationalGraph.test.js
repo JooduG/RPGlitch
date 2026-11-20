@@ -1,5 +1,7 @@
+import { tooltip_state } from "@primitives";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import EntityCard from "./EntityCard.svelte";
 import RelationalGraph from "./RelationalGraph.svelte";
 
 vi.mock("@data", async (importOriginal) => {
@@ -21,6 +23,13 @@ vi.mock("@data", async (importOriginal) => {
 describe("RelationalGraph (Radial Constellation UI)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    tooltip_state.active = false;
+    tooltip_state.text = null;
+    tooltip_state.entity = null;
+    tooltip_state.bracket_items = null;
+    tooltip_state.description_owner = null;
+    tooltip_state.incoming_only = false;
+    tooltip_state.target = null;
   });
 
   it("renders empty state when entity has no relationships", async () => {
@@ -50,47 +59,97 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(screen.queryByText("@JULIEN")).toBeNull();
   });
 
-  it("shows a cursor-locked EntityCard on satellite hover with outgoing-only bond text and opens profile on click", async () => {
+  it("collects all outgoing brackets across quadrants into Tooltip preview payload and renders structured BracketList on EntityCard", async () => {
     const mock_entity = {
       id: "hank",
       name: "Hank",
       type: "character",
       signature_color: "Rusty Orange",
+      eternal: { non_physical: "[RIVALRY: @SILVERS bitter orbital rivalry]" },
       present: { non_physical: "[DEBT: @SILVERS arms supplier debt]" },
+      past: "[OLD_PACT: @SILVERS forged scrap deal]",
     };
 
     const on_select_entity = vi.fn();
     render(RelationalGraph, { props: { entity: mock_entity, on_select_entity } });
 
     const satellite_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
-    await fireEvent.pointerEnter(satellite_btn, { clientX: 40, clientY: 60 });
-    await fireEvent.pointerMove(satellite_btn, { clientX: 55, clientY: 75 });
+    await fireEvent.mouseOver(satellite_btn, { clientX: 55, clientY: 75 });
 
-    const hover_card = await screen.findByTestId("relational-hover-card");
-    expect(hover_card).toBeTruthy();
-    expect(hover_card.getAttribute("style")).toMatch(/translate3d\(55px,\s*75px,\s*0(?:px)?\)/);
-    expect(hover_card.querySelector("[data-card-root]")).toBeTruthy();
-    expect(hover_card.textContent).toContain("Lord Benedict Silvers");
-    expect(hover_card.textContent).toContain("arms supplier debt");
-    expect(screen.queryByTestId("relational-dossier-card")).toBeNull();
+    expect(tooltip_state.active).toBe(true);
+    expect(tooltip_state.entity).toEqual(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
+    expect(tooltip_state.incoming_only).toBe(false);
+    expect(tooltip_state.bracket_items).toEqual([
+      { key: "DEBT", value: "@SILVERS arms supplier debt", is_hidden: false },
+      { key: "RIVALRY", value: "@SILVERS bitter orbital rivalry", is_hidden: false },
+      { key: "OLD_PACT", value: "@SILVERS forged scrap deal", is_hidden: false },
+    ]);
+
+    const { container } = render(EntityCard, {
+      props: {
+        variant: "library",
+        entity: tooltip_state.entity,
+        bracket_items: tooltip_state.bracket_items,
+        description_owner: tooltip_state.description_owner,
+        incoming_only: tooltip_state.incoming_only,
+      },
+    });
+    const card_root = container.querySelector("[data-card-root]");
+    expect(card_root?.className).not.toContain("opacity-muted");
+    expect(card_root?.className).not.toContain("grayscale");
+    expect(container.textContent).toContain("Lord Benedict Silvers");
+    expect(container.textContent).toContain("DEBT");
+    expect(container.textContent).toContain("RIVALRY");
+    expect(container.textContent).toContain("OLD_PACT");
+    expect(container.textContent).toContain("arms supplier debt");
+    expect(container.textContent).toContain("bitter orbital rivalry");
+    expect(container.textContent).not.toContain("[DEBT:");
 
     await fireEvent.click(satellite_btn);
     expect(on_select_entity).toHaveBeenCalledWith(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
   });
 
-  it("keeps incoming-only satellite nodes clickable without showing incoming text on satellite hover, and highlights incoming arrows on center Sun hover", async () => {
-    const mock_entity = { id: "hank", name: "Hank", type: "character", signature_color: "Rusty Orange", present: { non_physical: "" } };
+  it("applies opacity-muted grayscale to incoming-only satellite nodes and their EntityCard, while keeping one-way outgoing nodes full saturation", async () => {
+    const mock_entity = {
+      id: "hank",
+      name: "Hank",
+      type: "character",
+      signature_color: "Rusty Orange",
+      present: { non_physical: "[ALLY: @JULIEN one-way outgoing bond]" },
+    };
 
     const { container } = render(RelationalGraph, { props: { entity: mock_entity } });
 
-    const satellite_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
-    await fireEvent.mouseEnter(satellite_btn);
+    const silvers_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
+    const julien_btn = await screen.findByRole("button", { name: /Julien/i });
 
-    const hover_card = await screen.findByTestId("relational-hover-card");
-    expect(hover_card.textContent).toContain("Lord Benedict Silvers");
-    expect(hover_card.textContent).not.toContain("custom pyrotechnics");
+    const silvers_wrapper = silvers_btn.closest('[data-testid="relational-satellite-node"]');
+    const julien_wrapper = julien_btn.closest('[data-testid="relational-satellite-node"]');
+    expect(silvers_wrapper?.className).toContain("opacity-muted");
+    expect(silvers_wrapper?.className).toContain("grayscale");
+    expect(julien_wrapper?.className).not.toContain("opacity-muted");
+    expect(julien_wrapper?.className).not.toContain("grayscale");
 
-    await fireEvent.mouseLeave(satellite_btn);
+    await fireEvent.mouseOver(silvers_btn, { clientX: 60, clientY: 80 });
+    expect(tooltip_state.incoming_only).toBe(true);
+    expect(tooltip_state.bracket_items).toEqual([{ key: "PYRO", value: "@HANK custom pyrotechnics", is_hidden: true }]);
+
+    const { container: card_container } = render(EntityCard, {
+      props: {
+        variant: "library",
+        entity: tooltip_state.entity,
+        bracket_items: tooltip_state.bracket_items,
+        description_owner: tooltip_state.description_owner,
+        incoming_only: tooltip_state.incoming_only,
+      },
+    });
+    const card_root = card_container.querySelector("[data-card-root]");
+    expect(card_root?.className).toContain("opacity-muted");
+    expect(card_root?.className).toContain("grayscale");
+    expect(card_container.textContent).toContain("PYRO");
+    expect(card_container.textContent).toContain("custom pyrotechnics");
+
+    await fireEvent.mouseOut(silvers_btn);
 
     const center_node = await screen.findByTestId("relational-center-node");
     await fireEvent.pointerEnter(center_node);
