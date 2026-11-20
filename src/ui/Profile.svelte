@@ -353,6 +353,7 @@
       target.closest("[data-dropdown-menu]") ||
       target.closest(".dropdown-portal-wrapper") ||
       target.closest(".tooltip-portal") ||
+      target.closest('[data-testid="relational-hover-card"]') ||
       target.closest("[data-modal-variant='lightbox']") ||
       target.closest("[data-modal-backdrop='lightbox']") ||
       target.closest("[data-modal-variant='bare']") ||

@@ -282,10 +282,35 @@
 </script>
 
 <script>
+  import { motion } from "@media";
   import { Tooltip } from "bits-ui";
   import { scale } from "svelte/transition";
 
   let { entity_preview = null } = $props();
+
+  let display_snapshot = $state({
+    text: /** @type {string | null} */ (null),
+    entity: /** @type {any} */ (null),
+    bracket_items: /** @type {any[] | null} */ (null),
+    description_owner: /** @type {any} */ (null),
+    incoming_only: false,
+    pinned: false,
+    actions: /** @type {any[]} */ ([]),
+  });
+
+  $effect(() => {
+    if (tooltip_state.active) {
+      display_snapshot = {
+        text: tooltip_state.text,
+        entity: tooltip_state.entity,
+        bracket_items: tooltip_state.bracket_items,
+        description_owner: tooltip_state.description_owner,
+        incoming_only: tooltip_state.incoming_only,
+        pinned: tooltip_state.pinned,
+        actions: tooltip_state.actions,
+      };
+    }
+  });
 
   const virtual_anchor = {
     getBoundingClientRect: () => ({
@@ -311,6 +336,9 @@
     function handle_pointer_down(e) {
       const target = /** @type {HTMLElement | null} */ (e.target);
       if (target?.closest?.('[data-testid="relational-hover-card"]')) return;
+      if (e.button === 2) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
       unpin_tooltip();
     }
 
@@ -329,21 +357,25 @@
     }
 
     function handle_key_down(e) {
-      if (e.key === "Escape") unpin_tooltip();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        unpin_tooltip();
+      }
     }
 
     window.addEventListener("pointerdown", handle_pointer_down, true);
     window.addEventListener("contextmenu", handle_context_menu, true);
     window.addEventListener("scroll", handle_scroll, true);
     window.addEventListener("blur", handle_blur);
-    window.addEventListener("keydown", handle_key_down);
+    window.addEventListener("keydown", handle_key_down, true);
 
     return () => {
       window.removeEventListener("pointerdown", handle_pointer_down, true);
       window.removeEventListener("contextmenu", handle_context_menu, true);
       window.removeEventListener("scroll", handle_scroll, true);
       window.removeEventListener("blur", handle_blur);
-      window.removeEventListener("keydown", handle_key_down);
+      window.removeEventListener("keydown", handle_key_down, true);
     };
   });
 </script>
@@ -351,12 +383,12 @@
 <Tooltip.Provider delayDuration={0}>
   <Tooltip.Root open={tooltip_state.active}>
     <Tooltip.Portal>
-      {#if tooltip_state.target && (tooltip_state.text || (tooltip_state.entity && entity_preview))}
+      {#if tooltip_state.target && (display_snapshot.text || (display_snapshot.entity && entity_preview))}
         <Tooltip.Content
           customAnchor={active_anchor}
           updatePositionStrategy="always"
           side="top"
-          sideOffset={tooltip_state.entity ? 14 : 10}
+          sideOffset={display_snapshot.entity ? 14 : 10}
           align="center"
           avoidCollisions={true}
           strategy="fixed"
@@ -365,35 +397,26 @@
             {#if open}
               <div
                 {...wrapperProps}
-                class="{wrapperProps?.class || ''} {tooltip_state.pinned ? 'pointer-events-auto' : 'pointer-events-none'}"
+                class={[wrapperProps?.class || "", display_snapshot.pinned ? "pointer-events-auto" : "pointer-events-none"]}
                 style:z-index="var(--z-index-tooltip)">
                 <div
                   {...props}
-                  class="{props.class}
-
-                    group
-                    {tooltip_state.pinned ? 'pointer-events-auto' : 'pointer-events-none'}
-                    relative
-                    flex
-                    origin-(--transform-origin)
-                    flex-col
-                    items-center
-                    drop-shadow-lg
-                    transition-opacity
-                    duration-fast
-                    ease-out
-
-                    {open ? 'opacity-100' : 'opacity-0'}"
-                  transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}>
-                  {#if tooltip_state.entity && entity_preview}
+                  class={[
+                    props.class,
+                    "group relative flex origin-(--transform-origin) flex-col items-center drop-shadow-lg transition-opacity duration-fast ease-out",
+                    display_snapshot.pinned ? "pointer-events-auto" : "pointer-events-none",
+                    open ? "opacity-100" : "opacity-0",
+                  ]}
+                  transition:scale={{ duration: motion.is_reduced ? 0 : 150, start: 0.95, opacity: 0 }}>
+                  {#if display_snapshot.entity && entity_preview}
                     <div data-testid="relational-hover-card">
                       {@render entity_preview({
-                        entity: tooltip_state.entity,
-                        bracket_items: tooltip_state.bracket_items,
-                        description_owner: tooltip_state.description_owner,
-                        incoming_only: tooltip_state.incoming_only,
-                        pinned: tooltip_state.pinned,
-                        actions: tooltip_state.actions,
+                        entity: display_snapshot.entity,
+                        bracket_items: display_snapshot.bracket_items,
+                        description_owner: display_snapshot.description_owner,
+                        incoming_only: display_snapshot.incoming_only,
+                        pinned: display_snapshot.pinned,
+                        actions: display_snapshot.actions,
                       })}
                     </div>
                   {:else}
@@ -409,13 +432,13 @@
                         group-data-[side=bottom]:border-x-8
                         group-data-[side=bottom]:border-b-8
                         group-data-[side=bottom]:border-x-transparent
-                        group-data-[side=bottom]:border-b-slate-600
+                        group-data-[side=bottom]:border-b-gunmetal
 
                         group-data-[side=top]:bottom-[-8px]
                         group-data-[side=top]:border-x-8
                         group-data-[side=top]:border-t-8
                         group-data-[side=top]:border-x-transparent
-                        group-data-[side=top]:border-t-slate-600
+                        group-data-[side=top]:border-t-gunmetal
                       ">
                       <div
                         class="
@@ -428,13 +451,13 @@
                           group-data-[side=bottom]:border-x-8
                           group-data-[side=bottom]:border-b-8
                           group-data-[side=bottom]:border-x-transparent
-                          group-data-[side=bottom]:border-b-neutral-900
+                          group-data-[side=bottom]:border-b-chalk
 
                           group-data-[side=top]:bottom-px
                           group-data-[side=top]:border-x-8
                           group-data-[side=top]:border-t-8
                           group-data-[side=top]:border-x-transparent
-                          group-data-[side=top]:border-t-neutral-900
+                          group-data-[side=top]:border-t-chalk
                         ">
                       </div>
                     </div>
@@ -445,10 +468,10 @@
                         w-max
                         max-w-100
                         transform-gpu
-                        rounded-md
+                        rounded-sharp
                         border
-                        border-slate-600
-                        bg-neutral-900/98
+                        border-gunmetal
+                        bg-chalk/95
                         px-tight
                         py-1.5
                         text-center
@@ -457,11 +480,12 @@
                         tracking-normal
                         text-balance
                         whitespace-pre-line
-                        text-slate-50
+                        text-frisk
                         normal-case
+                        shadow-standard
                         backface-hidden
                       ">
-                      {tooltip_state.text}
+                      {display_snapshot.text}
                     </div>
                   {/if}
                 </div>

@@ -520,11 +520,14 @@
   function handle_badge_click(e) {
     e.stopPropagation();
     if (!entity) return;
-    if (badge_actions && badge_actions.length) {
-      open_menu_at(e.clientX, e.clientY);
-    } else {
-      app.toggle_profile(true, entity);
-    }
+    app.toggle_profile(true, entity);
+  }
+
+  function handle_badge_contextmenu(e) {
+    if (!entity) return;
+    e.preventDefault();
+    e.stopPropagation();
+    open_menu_at(e.clientX, e.clientY);
   }
 
   $effect(() => {
@@ -1426,6 +1429,7 @@
         <button
           type="button"
           onclick={handle_badge_click}
+          oncontextmenu={handle_badge_contextmenu}
           class="
             group/badge
             relative
@@ -1559,6 +1563,7 @@
         <button
           type="button"
           onclick={handle_badge_click}
+          oncontextmenu={handle_badge_contextmenu}
           class="
             group/badge
             relative
@@ -1600,4 +1605,11 @@
   </div>
 {/if}
 
-<ContextMenu bind:open={menu_open} x={menu_x} y={menu_y} epoch={my_menu_epoch} actions={badge_actions} {signature_color} />
+<ContextMenu
+  bind:open={menu_open}
+  x={menu_x}
+  y={menu_y}
+  epoch={my_menu_epoch}
+  actions={badge_actions}
+  target_name={entity?.name || character_name || ""}
+  {signature_color} />

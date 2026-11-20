@@ -41,6 +41,7 @@
    * @property {any} [description_owner] - Optional perspective owner passed to MacroText when rendering description_override
    * @property {Array<{ key: string, value: string, is_hidden?: boolean }> | null} [bracket_items] - Optional structured relationship brackets rendered via BracketList
    * @property {boolean} [incoming_only] - Dim/desaturate card when representing a strictly incoming-only relationship
+   * @property {boolean} [preview] - Non-interactive hover-preview mode (uniform radius, no hover scale or backdrop-filter compositing)
    */
 
   /** @type {Props} */
@@ -58,6 +59,7 @@
     description_owner = null,
     bracket_items = null,
     incoming_only = false,
+    preview = false,
   } = $props();
 
   // --- STATE RUNES ---
@@ -86,12 +88,12 @@
   }
 
   function handle_card_click() {
-    if (disabled) return;
+    if (disabled || preview) return;
     handle_select();
   }
 
   function handle_card_contextmenu(e) {
-    if (disabled || variant === "library" || is_empty) return;
+    if (disabled || preview || variant === "library" || is_empty) return;
     e.preventDefault();
     e.stopPropagation();
     open_menu_at(e.clientX, e.clientY);
@@ -231,15 +233,13 @@
     @container
     relative
     isolate
-    cursor-pointer
     overflow-visible
-    rounded-none
     border
     border-(--signature-color)
-    bg-slate-950/95
-    shadow-sm
+    bg-chalk/95
+    shadow-standard
     transition
-    duration-300
+    duration-standard
     ease-in-out
     outline-none
     select-none
@@ -253,13 +253,21 @@
     after:border-transparent
     after:shadow-[inset_0_0_0_1px_transparent]
     after:transition
-    after:duration-300
+    after:duration-standard
     after:ease-in-out
-    hover:scale-lift
-    hover:brightness-glow
-    active:scale-sink
-    active:brightness-dim
-    md:rounded-2xl
+
+    {preview ? 'pointer-events-none rounded-standard' : (
+    `
+      cursor-pointer
+      rounded-none
+      backdrop-blur-md
+      hover:scale-lift
+      hover:brightness-glow
+      active:scale-sink
+      active:brightness-dim
+      md:rounded-standard
+    `
+  )}
 
     {disabled ?
     `
@@ -275,6 +283,7 @@
       after:border-transparent
       after:shadow-none
     `
+  : preview ? ''
   : `
       hover:border-(--signature-color)
       hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
@@ -282,7 +291,7 @@
       hover:after:border-(--signature-color,var(--color-slate-50))
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
     `}
-    {is_pressing && !disabled ?
+    {is_pressing && !disabled && !preview ?
     `
       scale-sink
       border-[color-mix(in_srgb,var(--signature-color)_100%,transparent)]
@@ -295,7 +304,6 @@
     `
   : ''}
     {incoming_only && !disabled ? 'opacity-muted grayscale' : ''}
-    backdrop-blur-md
   "
   class:w-[calc(var(--spacing-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
@@ -315,8 +323,8 @@
   : undefined}
   style:height={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? "auto" : undefined}
   style:aspect-ratio={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? fractal_storymode_ratio : undefined}
-  role="button"
-  tabindex={disabled ? -1 : 0}
+  role={preview ? undefined : "button"}
+  tabindex={disabled || preview ? -1 : 0}
   aria-label={variant === "library" ?
     is_empty ? "Create New"
     : disabled ? "Already selected"
@@ -325,7 +333,7 @@
   onclick={handle_card_click}
   oncontextmenu={handle_card_contextmenu}
   onanimationend={handle_animation_end}
-  onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
+  onpointerdown={() => !disabled && !preview && variant === "library" && (is_pressing = true)}
   onpointerup={() => {
     is_pressing = false;
   }}
@@ -333,6 +341,7 @@
     is_pressing = false;
   }}
   onkeydown={(/** @type {KeyboardEvent} */ e) => {
+    if (preview) return;
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handle_select();
@@ -438,7 +447,7 @@
             h-auto
             max-h-full
             px-tight
-            pt-6
+            pt-8
             pb-tight
           `
       : `
@@ -453,30 +462,28 @@
           pt-8
           pb-standard
         `}"
-    style:background={has_brackets ? "linear-gradient(to top, rgb(0 0 0 / 0.96) 0%, rgb(0 0 0 / 0.88) calc(100% - 1.5rem), transparent 100%)" : undefined}>
+    style:background={has_brackets ?
+      "linear-gradient(to top, rgb(from var(--color-background-gradient-1) r g b / 0.96) 0%, rgb(from var(--color-background-gradient-1) r g b / 0.86) calc(100% - 2rem), transparent 100%)"
+    : undefined}>
     {#if !hide_title_for_brackets}
       <span
         data-card-text
         class="
-          [display:-webkit-box]
+          line-clamp-3
           w-full
-          overflow-hidden
           text-center
           font-heading
           font-bold
           wrap-break-word
-          text-(--signature-color,var(--color-slate-50))
+          text-(--signature-color,var(--color-frisk))
           uppercase
-          [-webkit-box-orient:vertical]
-          [-webkit-line-clamp:3]
-          [line-clamp:3]
 
           {variant === 'library' ?
           `
             text-sm
             leading-snug
             tracking-wide
-            [text-shadow:0_1px_3px_#000,0_2px_6px_#000,0_0_2px_#000]
+            [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]
           `
         : `
             text-[clamp(1rem,12cqi,1.5rem)]
@@ -486,10 +493,10 @@
           `}
           {is_empty ?
           `
-            text-slate-50
+            text-frisk
             opacity-15
             transition-opacity
-            duration-300
+            duration-standard
             ease-in-out
 
             group-hover/card:opacity-100
@@ -504,36 +511,31 @@
       <p
         data-card-text
         class="
-          [display:-webkit-box]
-          overflow-hidden
           font-sans
           wrap-break-word
           whitespace-normal
-          text-slate-50
+          text-frisk
           transition-opacity
-          duration-300
+          duration-standard
           ease-in-out
-          [-webkit-box-orient:vertical]
-          [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]
+          [text-shadow:0_1px_3px_rgb(from_var(--color-background-gradient-1)_r_g_b/0.8)]
 
           {variant === 'library' && description_override ?
           `
             mt-0.5
+            line-clamp-2
             max-h-9
-            text-[10px]
+            text-xs
             leading-snug
             opacity-90
-            [-webkit-line-clamp:2]
-            [line-clamp:2]
           `
         : `
             mt-tight
+            line-clamp-3
             max-h-18
             text-sm
             leading-relaxed
             opacity-80
-            [-webkit-line-clamp:3]
-            [line-clamp:3]
           `}
 
           {(variant === 'library' || variant === 'message') && !description_override ?

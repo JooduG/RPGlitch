@@ -116,13 +116,12 @@
   {#snippet entity_preview(preview)}
     {@const preview_entity = preview?.entity ?? preview}
     {@const is_pinned = Boolean(preview?.pinned)}
-    <div style="perspective: 1000px;">
-      <div
-        class="relative {motion.is_reduced ? '' : 'transition-transform duration-300 ease-out'}"
-        style="transform-style: preserve-3d; transform: {is_pinned ? 'rotateY(180deg)' : 'rotateY(0deg)'};">
-        <div style="backface-visibility: hidden;">
+    <div class="perspective-[1200px]">
+      <div class="relative" data-card-flip-rotor data-pinned={is_pinned} data-reduced={motion.is_reduced}>
+        <div class="pointer-events-none [transform:rotateY(0deg)] rounded-standard backface-hidden">
           <EntityCard
             variant="library"
+            preview={true}
             entity={preview_entity}
             type={preview_entity?.type === "fractal" ? "fractal" : "ai"}
             launch_gesture={false}
@@ -130,12 +129,17 @@
             description_owner={preview?.description_owner ?? null}
             incoming_only={preview?.incoming_only ?? false} />
         </div>
-        <div class="absolute inset-0" style="backface-visibility: hidden; transform: rotateY(180deg);">
+        <div
+          class={[
+            "absolute inset-0 [transform:rotateY(180deg)] overflow-hidden rounded-standard backface-hidden",
+            is_pinned ? "pointer-events-auto" : "pointer-events-none",
+          ]}>
           <ContextMenu
             embedded={true}
             open={is_pinned}
             actions={preview?.actions ?? []}
             target_name={preview_entity?.name || ""}
+            portrait_src={preview_entity?.profile_picture || ""}
             signature_color={get_signature_color(preview_entity)}
             on_close={unpin_tooltip} />
         </div>
@@ -244,5 +248,27 @@
   [data-dev="grid"] [data-label="row"] {
     left: calc(var(--spacing-unit) * 2);
     top: calc(var(--spacing-unit) * 2);
+  }
+
+  /* ── 3D Hover Preview Card-Back Rotor ───────────────────────── */
+
+  [data-card-flip-rotor] {
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+    transition: transform var(--transition-duration-standard) var(--ease-drawer);
+  }
+
+  [data-card-flip-rotor][data-pinned="true"] {
+    transform: rotateY(180deg);
+  }
+
+  @starting-style {
+    [data-card-flip-rotor][data-pinned="true"] {
+      transform: rotateY(0deg);
+    }
+  }
+
+  [data-card-flip-rotor][data-reduced="true"] {
+    transition: none;
   }
 </style>

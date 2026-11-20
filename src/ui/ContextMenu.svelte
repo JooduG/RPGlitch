@@ -28,6 +28,7 @@
    * @property {number} [epoch]
    * @property {MenuItem[]} [actions]
    * @property {string} [target_name]
+   * @property {string} [portrait_src]
    * @property {string} [signature_color]
    * @property {boolean} [embedded]
    * @property {() => void} [on_close]
@@ -41,19 +42,41 @@
     epoch = 0,
     actions = [],
     target_name = "",
-    signature_color = "var(--color-slate-50)",
+    portrait_src = "",
+    signature_color = "var(--color-frisk)",
     embedded = false,
     on_close = () => {},
   } = $props();
 
-  let clamped_x = $state(0);
-  let clamped_y = $state(0);
   /** @type {HTMLElement | null} */
   let menu_el = $state(null);
 
-  function portal_to_body(node) {
+  /**
+   * Appends the standalone menu to `document.body` and clamps coordinates
+   * synchronously on mount and position updates so there is no 1-frame jump.
+   * @param {HTMLElement} node
+   * @param {{ x: number, y: number }} coords
+   */
+  function portal_and_clamp(node, coords) {
     document.body.appendChild(node);
+
+    const apply_position = ({ x: raw_x, y: raw_y }) => {
+      const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
+      const vh = typeof window !== "undefined" ? window.innerHeight : 768;
+      const w = node.offsetWidth || 180;
+      const h = node.offsetHeight || 160;
+      const clamped_x = Math.max(0, Math.min(raw_x > vw / 2 ? raw_x - w : raw_x, vw - w));
+      const clamped_y = Math.max(0, Math.min(raw_y > vh / 2 ? raw_y - h : raw_y, vh - h));
+      node.style.left = `${clamped_x}px`;
+      node.style.top = `${clamped_y}px`;
+    };
+
+    apply_position(coords);
+
     return {
+      update(next_coords) {
+        apply_position(next_coords);
+      },
       destroy() {
         node.remove();
       },
@@ -88,95 +111,85 @@
 
     const handle_outside_pointer = (e) => {
       if (menu_el && e.target instanceof Node && menu_el.contains(e.target)) return;
+      if (e.type === "pointerdown" && e.button === 2) return;
+      if (e.type === "pointerdown") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
       close();
     };
     const handle_scroll = () => close();
     const handle_blur = () => close();
     const handle_keydown = (e) => {
-      if (e.key === "Escape") close();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        close();
+      }
     };
 
     window.addEventListener("pointerdown", handle_outside_pointer, true);
     window.addEventListener("contextmenu", handle_outside_pointer, true);
     window.addEventListener("scroll", handle_scroll, true);
     window.addEventListener("blur", handle_blur);
-    window.addEventListener("keydown", handle_keydown);
+    window.addEventListener("keydown", handle_keydown, true);
 
     return () => {
       window.removeEventListener("pointerdown", handle_outside_pointer, true);
       window.removeEventListener("contextmenu", handle_outside_pointer, true);
       window.removeEventListener("scroll", handle_scroll, true);
       window.removeEventListener("blur", handle_blur);
-      window.removeEventListener("keydown", handle_keydown);
+      window.removeEventListener("keydown", handle_keydown, true);
       set_tooltip_suppressed(false);
     };
   });
-
-  // Clamping calculation when open or position changes (standalone mode)
-  $effect(() => {
-    if (embedded || !open) return;
-    const vw = typeof window !== "undefined" ? window.innerWidth : 1024;
-    const vh = typeof window !== "undefined" ? window.innerHeight : 768;
-
-    if (x > vw / 2) {
-      clamped_x = Math.max(0, x - 180);
-    } else {
-      clamped_x = Math.min(x, vw - 180);
-    }
-
-    if (y > vh / 2) {
-      clamped_y = y - 200;
-    } else {
-      clamped_y = Math.min(y, vh - 200);
-    }
-
-    requestAnimationFrame(() => {
-      const menu = menu_el || document.body.querySelector('[role="menu"]');
-      if (!menu) return;
-      const { width, height } = menu.getBoundingClientRect();
-      if (y > vh / 2) {
-        clamped_y = y - height;
-      }
-      if (clamped_x + width > vw) clamped_x = vw - width;
-      if (clamped_y + height > vh) clamped_y = vh - height;
-      if (clamped_x < 0) clamped_x = 0;
-      if (clamped_y < 0) clamped_y = 0;
-    });
-  });
 </script>
+
+{#snippet menu_shell_layers()}
+  {#if embedded && portrait_src}
+    <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
+      <img src={portrait_src} alt="" class="h-full w-full scale-110 -scale-x-100 object-cover opacity-whisper blur-md brightness-muted" />
+      <div class="absolute inset-0 bg-[color-mix(in_srgb,var(--signature-color)_10%,var(--color-background-gradient-1))]/80"></div>
+    </div>
+  {/if}
+  <div class="pointer-events-none absolute inset-0 bg-(image:--noise-url) opacity-ghost mix-blend-overlay" aria-hidden="true"></div>
+{/snippet}
 
 {#snippet menu_body()}
   {#if target_name}
-    <div class="border-b border-white/10 px-2.5 py-1.5 text-left">
-      <div class="truncate font-heading text-xs font-bold tracking-wider uppercase" style="color: {signature_color};">
+    <header class="relative z-10 border-b border-white/10 px-standard py-tight text-left">
+      <div class="truncate pb-0.5 font-heading text-xs font-bold tracking-wider text-(--signature-color) uppercase text-shadow-(--shadow-ambient)">
         {target_name}
       </div>
-    </div>
+    </header>
   {/if}
   {#if actions.length === 0}
-    <div class="px-2.5 py-2 text-left text-xs leading-snug text-slate-300/80 select-none">
-      Contextual actions for this entity will appear here when available. None are currently active.
+    <div
+      class={[
+        "relative z-10 flex font-mono text-xs tracking-wide text-frisk/50 select-none",
+        embedded ? "flex-1 items-center justify-center p-standard text-center" : "items-center px-standard py-3 text-left",
+      ]}>
+      No actions available
     </div>
   {:else}
-    <div class="flex flex-col py-0.5">
+    <div class="relative z-10 flex min-h-0 flex-1 scrollbar-none flex-col gap-0.5 overflow-y-auto p-tight [&::-webkit-scrollbar]:hidden">
       {#each actions as item, i (i)}
         {#if item.separator}
-          <div class="my-0.5 block h-px bg-white/10"></div>
+          <div class="my-1 block h-px shrink-0 bg-white/10"></div>
         {:else}
           <Button
             variant="bare"
-            class="
-              flex min-h-8 w-full cursor-pointer items-center gap-tight px-2.5 py-1 text-left text-xs font-bold tracking-wider text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/15 hover:text-white
-              {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
-              {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
-            "
+            class={[
+              "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left font-sans text-xs font-semibold tracking-wide transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
+              item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
+              : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
+              : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",
+            ]}
             disabled={item.disabled}
             onclick={(e) => handle_item_click(e, item)}
             role="menuitem">
             {#if item.active}
-              <span
-                class="size-1.5 shrink-0 rounded-full bg-(--signature-color,var(--color-slate-50)) shadow-[0_0_4px_var(--signature-color,var(--color-slate-50))]"
-              ></span>
+              <span class="size-1.5 shrink-0 rounded-full bg-(--signature-color) shadow-(--signature-glow)"></span>
             {/if}
             <span class="truncate">{item.label}</span>
           </Button>
@@ -189,28 +202,28 @@
 {#if embedded}
   <div
     bind:this={menu_el}
-    class="relative flex h-full w-full flex-col overflow-y-auto rounded-[inherit] border bg-slate-950/95 shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
-      before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
+    class="relative isolate flex h-full w-full flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
+      before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
     style:--signature-color={signature_color}
-    style:border-color="color-mix(in srgb, var(--signature-color) 45%, transparent)"
     role="menu"
     tabindex="-1"
     onclick={(e) => e.stopPropagation()}
     onkeydown={(e) => e.key === "Escape" && close()}>
+    {@render menu_shell_layers()}
     {@render menu_body()}
   </div>
 {:else if open}
   <div
     bind:this={menu_el}
-    use:portal_to_body
-    class="fixed max-w-60 min-w-44 overflow-hidden rounded-standard border bg-slate-950/95 shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
-      before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
-    style="left:{clamped_x}px;top:{clamped_y}px;--signature-color:{signature_color};z-index:var(--z-index-tooltip)"
-    style:border-color="color-mix(in srgb, var(--signature-color) 45%, transparent)"
+    use:portal_and_clamp={{ x, y }}
+    class="fixed isolate z-tooltip flex max-w-60 min-w-44 flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
+      before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
+    style:--signature-color={signature_color}
     role="menu"
     tabindex="-1"
     onclick={(e) => e.stopPropagation()}
     onkeydown={(e) => e.key === "Escape" && close()}>
+    {@render menu_shell_layers()}
     {@render menu_body()}
   </div>
 {/if}

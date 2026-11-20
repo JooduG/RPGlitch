@@ -15,6 +15,7 @@
   import { app, runtime } from "@state";
   import { get_signature_color, render_display_macros } from "@utils";
   import { pin_tooltip_menu, tooltip } from "@primitives";
+  import { build_entity_preview_actions } from "./ContextMenu.svelte.js";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   /**
@@ -355,8 +356,9 @@
 <div class="relative flex w-full items-center justify-center {custom_class}">
   {#if resolved_edges.length === 0}
     <!-- Empty State -->
-    <div class="flex w-full flex-col items-center justify-center rounded-2xl border border-slate-800/60 bg-slate-950/40 p-6 text-center backdrop-blur-md">
-      <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800/60 text-slate-400">
+    <div
+      class="flex w-full flex-col items-center justify-center rounded-standard border border-white/10 bg-glass-sunken p-6 text-center [backdrop-filter:var(--blur-mist)]">
+      <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-frisk/60">
         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current stroke-2">
           <circle cx="12" cy="12" r="3" />
           <circle cx="4" cy="12" r="2" />
@@ -364,8 +366,8 @@
           <path d="M6 12h3m6 0h3" />
         </svg>
       </div>
-      <span class="mt-tight text-xs font-semibold text-slate-300">No recorded relationships yet</span>
-      <p class="mt-tight max-w-xs text-[11px] text-slate-400">This entity has not yet established directed bonds with other entities.</p>
+      <span class="mt-tight text-xs font-semibold text-frisk/80">No recorded relationships yet</span>
+      <p class="mt-tight max-w-xs text-xs text-frisk/55">This entity has not yet established directed bonds with other entities.</p>
     </div>
   {:else}
     <!-- Radial Visual Constellation -->
@@ -416,7 +418,7 @@
               stroke-width={is_highlighted ? "2.75" : "1.75"}
               stroke-opacity={is_highlighted ? "1" : "0.75"}
               marker-end="url(#marker-{ve.id})"
-              class="pointer-events-none transition-[stroke-opacity,filter] duration-200"
+              class="pointer-events-none transition-[stroke-opacity,filter] duration-fast"
               filter={is_highlighted ? "url(#mesh-glow)" : undefined} />
           {/each}
         </svg>
@@ -433,15 +435,14 @@
           onmouseenter={() => (center_hovered = true)}
           onmouseleave={() => (center_hovered = false)}>
           <div
-            class="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 bg-slate-900 shadow-xl transition-transform duration-fast {(
-              center_hovered && incoming_edges.length
-            ) ?
-              'scale-lift'
-            : ''}"
-            style="border-color: {center_color}; box-shadow: 0 0 20px {center_color}33;">
+            class={[
+              "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 bg-glass-sunken shadow-standard transition-transform duration-fast",
+              center_hovered && incoming_edges.length ? "scale-lift" : "",
+            ]}
+            style="border-color: {center_color}; box-shadow: 0 0 20px color-mix(in srgb, {center_color} 25%, transparent);">
             <ProfilePicture {entity} class="rounded-full" />
           </div>
-          <span class="mt-tight max-w-22.5 truncate text-center font-mono text-[11px] font-bold drop-shadow-md" style="color: {center_color};">
+          <span class="mt-tight max-w-22.5 truncate text-center font-mono text-xs font-bold drop-shadow-md" style="color: {center_color};">
             @{get_entity_slug(entity) || "ACTIVE"}
           </span>
         </div>
@@ -482,24 +483,31 @@
               oncontextmenu={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+                const target_entity = sat_entity || { name: node.item.name };
+                const actions = build_entity_preview_actions(target_entity, {
+                  on_open_profile: (ent) => {
+                    if (typeof on_select_entity === "function") on_select_entity(ent);
+                  },
+                  on_open_image_preview: (payload) => app.open_image_preview(payload),
+                });
                 pin_tooltip_menu(e.currentTarget, {
-                  entity: sat_entity || { name: node.item.name },
+                  entity: target_entity,
                   text: node.item.name,
                   bracket_items: node.item.bracket_items,
                   description_owner: entity,
                   incoming_only: node.item.is_incoming_only,
-                  actions: [],
+                  actions,
                   x: e.clientX,
                   y: e.clientY,
                 });
               }}
               class="group flex cursor-pointer flex-col items-center justify-center focus:outline-hidden">
               <div
-                class="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-fast group-hover:scale-lift"
-                style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;">
+                class="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 bg-glass-sunken shadow-standard transition-transform duration-fast group-hover:scale-lift"
+                style="border-color: {sat_color}; box-shadow: 0 0 12px color-mix(in srgb, {sat_color} 20%, transparent);">
                 <ProfilePicture entity={sat_entity || node.item} class="rounded-full" />
               </div>
-              <span class="mt-tight max-w-20 truncate text-center font-mono text-[10px] font-bold drop-shadow-md" style="color: {sat_color};">
+              <span class="mt-tight max-w-20 truncate text-center font-mono text-xs font-bold drop-shadow-md" style="color: {sat_color};">
                 {sat_handle}
               </span>
             </button>

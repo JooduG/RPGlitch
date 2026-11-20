@@ -13,6 +13,7 @@
   import { hide_tooltip, pin_tooltip_menu, tooltip } from "@primitives";
   import { app } from "@state";
   import { get_signature_color, resolve_display_macro_segments } from "@utils";
+  import { build_entity_preview_actions } from "./ContextMenu.svelte.js";
 
   let { text = "", owner = null, entities = {}, segment = null, fallback_color = "var(--color-frozen)" } = $props();
 
@@ -29,7 +30,11 @@
   function open_handle_menu(e, target_entity, fallback_text = "") {
     e.preventDefault();
     e.stopPropagation();
-    pin_tooltip_menu(e.currentTarget, { entity: target_entity, text: target_entity.name || fallback_text, actions: [], x: e.clientX, y: e.clientY });
+    const actions = build_entity_preview_actions(target_entity, {
+      on_open_profile: (ent) => app.open_profile(ent),
+      on_open_image_preview: (payload) => app.open_image_preview(payload),
+    });
+    pin_tooltip_menu(e.currentTarget, { entity: target_entity, text: target_entity.name || fallback_text, actions, x: e.clientX, y: e.clientY });
   }
 </script>
 

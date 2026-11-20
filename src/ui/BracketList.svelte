@@ -158,31 +158,36 @@
   });
   const compact_clamp_class = $derived(
     !compact ? ""
-    : normalized_entries.length >= 3 ? "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [line-clamp:1]"
-    : normalized_entries.length === 2 ? "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [line-clamp:2]"
-    : "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [line-clamp:3]",
+    : normalized_entries.length >= 3 ? "line-clamp-1"
+    : normalized_entries.length === 2 ? "line-clamp-2"
+    : "line-clamp-3",
   );
 </script>
 
 {#if normalized_entries.length > 0}
-  <div class="flex w-full flex-col divide-y text-left {compact ? 'divide-white/10' : 'divide-white/5'}">
+  <div class={["flex w-full flex-col divide-y text-left", compact ? "divide-white/10" : "divide-white/5"]}>
     {#each normalized_entries as item, idx (`${item.key}_${idx}`)}
       {@const key_color = resolve_bracket_target_color(item.key)}
-      <div class="flex flex-col items-start gap-0.5 first:pt-0 last:pb-0 {compact ? 'py-1' : 'py-1.5'} {item.is_hidden ? 'opacity-muted' : ''}">
+      <div class={["flex flex-col items-start gap-0.5 first:pt-0 last:pb-0", compact ? "py-1" : "py-1.5", item.is_hidden ? "opacity-muted" : ""]}>
         <div class="flex w-full items-baseline justify-between gap-tight">
           <span
             style={key_color && !item.is_hidden ? `color: ${key_color};` : undefined}
-            class="text-left font-mono text-xs font-bold tracking-wider uppercase {item.is_hidden ? 'text-slate-400'
-            : key_color ? ''
-            : 'text-(--signature-color)'}">{item.key}</span>
+            class={[
+              "text-left font-mono text-xs font-bold tracking-wider uppercase",
+              item.is_hidden ? "text-frisk/55"
+              : key_color ? ""
+              : "text-(--signature-color)",
+            ]}>{item.key}</span>
           {#if item.quadrant}
-            <span class="shrink-0 font-mono text-[9px] tracking-widest text-slate-400/75 uppercase">{item.quadrant}</span>
+            <span class="shrink-0 font-mono text-xs/none font-normal text-frisk/45">{item.quadrant}</span>
           {/if}
         </div>
         <span
-          class="text-left {compact ? `text-xs leading-snug ${compact_clamp_class}` : 'text-sm leading-normal'} {item.is_hidden ? 'text-slate-400 italic' : (
-            'text-slate-200'
-          )}">
+          class={[
+            "text-left",
+            compact ? `text-xs leading-snug ${compact_clamp_class}` : "text-sm leading-normal",
+            item.is_hidden ? "text-frisk/55 italic" : "text-frisk/90",
+          ]}>
           {@render RenderFormattedValue(item.value)}
         </span>
       </div>

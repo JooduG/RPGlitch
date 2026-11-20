@@ -2,6 +2,8 @@ import { set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip } from "@
 import { app } from "@state";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import ContextMenu from "./ContextMenu.svelte";
+import { claim_menu } from "./ContextMenu.svelte.js";
 import EntityCard from "./EntityCard.svelte";
 import MacroText from "./MacroText.svelte";
 import RelationalGraph from "./RelationalGraph.svelte";
@@ -216,15 +218,22 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     const menu = document.body.querySelector('[role="menu"]');
     expect(menu).toBeTruthy();
     expect(menu.textContent).toContain("Lord Benedict Silvers");
-    expect(menu.textContent).toContain("None are currently active");
+    expect(menu.textContent).toContain("No actions available");
 
     await fireEvent.pointerDown(document.body);
     expect(document.body.querySelector('[role="menu"]')).toBeNull();
   });
 
-  it("opens profile on @ID left-click and pins card-back ContextMenu on @ID right-click in MacroText", async () => {
+  it("opens profile on @ID left-click and pins card-back ContextMenu with entity actions on @ID right-click in MacroText", async () => {
     const open_spy = vi.spyOn(app, "open_profile").mockImplementation(() => {});
-    const target = { id: "silvers", name: "Lord Benedict Silvers", type: "character", signature_color: "Crimson Red" };
+    const preview_spy = vi.spyOn(app, "open_image_preview").mockImplementation(() => {});
+    const target = {
+      id: "silvers",
+      name: "Lord Benedict Silvers",
+      type: "character",
+      signature_color: "Crimson Red",
+      profile_picture: "https://example.com/silvers.png",
+    };
 
     render(MacroText, { props: { text: "Refuses @SILVERS", entities: { ALL: [target] } } });
 
@@ -236,15 +245,22 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(tooltip_state.active).toBe(true);
     expect(tooltip_state.pinned).toBe(true);
     expect(tooltip_state.entity).toEqual(target);
-    expect(tooltip_state.actions).toEqual([]);
+    expect(tooltip_state.actions.map((a) => a.label)).toEqual(["Profile", "Profile Picture"]);
+
+    tooltip_state.actions[0].onSelect();
+    expect(open_spy).toHaveBeenCalledTimes(2);
+    tooltip_state.actions[1].onSelect();
+    expect(preview_spy).toHaveBeenCalledWith({ src: "https://example.com/silvers.png", metadata: null });
 
     unpin_tooltip();
     expect(tooltip_state.pinned).toBe(false);
     expect(tooltip_state.active).toBe(false);
     open_spy.mockRestore();
+    preview_spy.mockRestore();
   });
 
-  it("pins card-back ContextMenu on RelationalGraph satellite right-click", async () => {
+  it("pins card-back ContextMenu with Profile action on RelationalGraph satellite right-click", async () => {
+    const on_select_entity = vi.fn();
     const mock_entity = {
       id: "hank",
       name: "Hank",
@@ -253,18 +269,49 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       present: { non_physical: "[DEBT: @SILVERS arms supplier debt]" },
     };
 
-    render(RelationalGraph, { props: { entity: mock_entity } });
+    render(RelationalGraph, { props: { entity: mock_entity, on_select_entity } });
     const satellite_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
 
     await fireEvent.contextMenu(satellite_btn, { clientX: 60, clientY: 70 });
     expect(tooltip_state.active).toBe(true);
     expect(tooltip_state.pinned).toBe(true);
     expect(tooltip_state.entity).toEqual(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
-    expect(tooltip_state.actions).toEqual([]);
+    expect(tooltip_state.actions.map((a) => a.label)).toEqual(["Profile"]);
+
+    tooltip_state.actions[0].onSelect();
+    expect(on_select_entity).toHaveBeenCalledWith(expect.objectContaining({ id: "silvers" }));
 
     unpin_tooltip();
     expect(tooltip_state.active).toBe(false);
     expect(tooltip_state.pinned).toBe(false);
+  });
+
+  it("renders frosted portrait backdrop on embedded ContextMenu and guards modal dismissal", async () => {
+    const on_close = vi.fn();
+    const { container } = render(ContextMenu, {
+      props: { embedded: true, open: true, target_name: "Lord Benedict Silvers", portrait_src: "https://example.com/silvers.png", actions: [], on_close },
+    });
+
+    const img = container.querySelector("img");
+    expect(img).toBeTruthy();
+    expect(img.getAttribute("src")).toBe("https://example.com/silvers.png");
+    expect(container.textContent).toContain("Lord Benedict Silvers");
+    expect(container.textContent).toContain("No actions available");
+  });
+
+  it("marks outside pointerdown defaultPrevented when dismissing standalone ContextMenu and ignores button 2", async () => {
+    render(ContextMenu, { props: { open: true, epoch: claim_menu(), x: 100, y: 100, target_name: "Hank", actions: [] } });
+    expect(document.body.querySelector('[role="menu"]')).toBeTruthy();
+
+    await fireEvent.pointerDown(document.body, { button: 2 });
+    expect(document.body.querySelector('[role="menu"]')).toBeTruthy();
+
+    const outside_event = new PointerEvent("pointerdown", { bubbles: true, cancelable: true, button: 0 });
+    document.body.dispatchEvent(outside_event);
+    await new Promise((r) => setTimeout(r, 0));
+
+    expect(outside_event.defaultPrevented).toBe(true);
+    expect(document.body.querySelector('[role="menu"]')).toBeNull();
   });
 
   it("enforces global 1-tooltip rule and suppresses hover tooltips when suppressed", () => {
