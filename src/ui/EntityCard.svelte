@@ -168,7 +168,7 @@
   let total_bracket_chars = $derived(
     has_brackets ? bracket_items.reduce((sum, item) => sum + String(item?.key || "").length + String(item?.value || "").length, 0) : 0,
   );
-  let hide_title_for_brackets = $derived(variant === "library" && has_brackets && (bracket_items.length > 1 || total_bracket_chars > 75));
+  let hide_title_for_brackets = $derived(!incoming_only && variant === "library" && has_brackets && (bracket_items.length > 1 || total_bracket_chars > 75));
 
   // Unified callback event mappings
   let select_handler = $derived(onclick || on_select || (() => {}));
@@ -429,7 +429,7 @@
       justify-end
       overflow-hidden
       rounded-b-[inherit]
-      {has_brackets ? '' : 'bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent'}
+      {has_brackets || incoming_only ? '' : 'bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent'}
       text-center
       transition-opacity
       duration-300
@@ -443,7 +443,7 @@
     : 'opacity-100'}
 
       {variant === 'library' ?
-      has_brackets ?
+      has_brackets || incoming_only ?
         `
             h-auto
             max-h-full
@@ -463,7 +463,7 @@
           pt-8
           pb-standard
         `}"
-    style:background={has_brackets ?
+    style:background={has_brackets || incoming_only ?
       "linear-gradient(to top, rgb(from var(--color-background-gradient-1) r g b / 0.96) 0%, rgb(from var(--color-background-gradient-1) r g b / 0.86) calc(100% - 2rem), transparent 100%)"
     : undefined}>
     {#if !hide_title_for_brackets}
@@ -504,7 +504,33 @@
           `
         : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
     {/if}
-    {#if has_brackets}
+    {#if incoming_only}
+      <div
+        class="
+          mt-tight
+          flex
+          w-full
+          flex-col
+          items-center
+          gap-1.5
+          rounded-standard
+          border
+          border-white/10
+          bg-glass-sunken/80
+          px-tight
+          py-2
+          text-center
+          [backdrop-filter:var(--blur-mist)]
+        ">
+        <span class="font-mono text-[0.625rem] font-bold tracking-widest text-(--signature-color,var(--color-dev-accent)) uppercase">
+          Unidirectional Relation
+        </span>
+        <p class="font-sans text-xs leading-relaxed text-balance text-frisk/80">
+          This connection originates exclusively from <span class="font-semibold text-frisk">{entity?.name || name}</span>'s profile. Open their profile to
+          inspect.
+        </p>
+      </div>
+    {:else if has_brackets}
       <div class="{hide_title_for_brackets ? '' : 'mt-tight'} w-full overflow-hidden">
         <BracketList entries={bracket_items} owner={description_owner || entity} entities={display_entities} compact={true} sort_by_length={false} />
       </div>

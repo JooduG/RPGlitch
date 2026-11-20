@@ -237,8 +237,7 @@
     for (const node_item of map.values()) {
       const is_incoming_only = node_item.outgoing_links.length === 0 && node_item.incoming_links.length > 0;
       node_item.is_incoming_only = is_incoming_only;
-      node_item.bracket_items =
-        is_incoming_only ? collect_bracket_items(node_item.incoming_links, true) : collect_bracket_items(node_item.outgoing_links, false);
+      node_item.bracket_items = is_incoming_only ? [] : collect_bracket_items(node_item.outgoing_links, false);
     }
 
     return Array.from(map.values());

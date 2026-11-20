@@ -233,18 +233,29 @@
           pinned_switch_timer = window.setTimeout(() => {
             pinned_switch_timer = null;
             if (!tooltip_state.pinned) return;
+            // 1. Unpin and dismiss the active menu so it plays its flip-to-nothing exit transition
             unpin_tooltip();
-            tooltip_state.x = cursor_x;
-            tooltip_state.y = cursor_y;
-            tooltip_state.has_cursor = true;
-            show_tooltip(node, payload.active_text, {
-              entity: payload.resolved_entity,
-              bracket_items: payload.bracket_items,
-              description_owner: payload.description_owner,
-              incoming_only: payload.incoming_only,
-              delay: 0,
-            });
-          }, 200);
+
+            // 2. Schedule the new entity preview after the flip-out exit animation finishes (260ms)
+            timer = window.setTimeout(() => {
+              timer = null;
+              if (tooltip_state.pinned || is_suppressed) return;
+              if (cursor_x || cursor_y) {
+                tooltip_state.x = cursor_x;
+                tooltip_state.y = cursor_y;
+                tooltip_state.has_cursor = true;
+              } else {
+                tooltip_state.has_cursor = false;
+              }
+              show_tooltip(node, payload.active_text, {
+                entity: payload.resolved_entity,
+                bracket_items: payload.bracket_items,
+                description_owner: payload.description_owner,
+                incoming_only: payload.incoming_only,
+                delay: 0,
+              });
+            }, 260);
+          }, 150);
         }
         return;
       }
@@ -278,6 +289,7 @@
         window.clearTimeout(pinned_switch_timer);
         pinned_switch_timer = null;
       }
+      clear_tooltip_timers();
       if (tooltip_state.pinned) return;
       if (e instanceof MouseEvent && e.type === "mouseout" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
       if (node.dataset.tooltipTitle) {

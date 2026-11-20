@@ -148,7 +148,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 
     await fireEvent.mouseOver(silvers_btn, { clientX: 60, clientY: 80 });
     expect(tooltip_state.incoming_only).toBe(true);
-    expect(tooltip_state.bracket_items).toEqual([{ key: "PYRO", value: "@HANK custom pyrotechnics", is_hidden: true, quadrant: "present" }]);
+    expect(tooltip_state.bracket_items).toEqual([]);
 
     const { container: card_container } = render(EntityCard, {
       props: {
@@ -162,11 +162,11 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     const card_root = card_container.querySelector("[data-card-root]");
     expect(card_root?.className).toContain("opacity-muted");
     expect(card_root?.className).toContain("grayscale");
+    expect(card_container.textContent).toContain("Unidirectional Relation");
+    expect(card_container.textContent).toContain("Open their profile");
     expect(card_container.querySelector(".overflow-y-auto")).toBeNull();
-    // Single short bracket preserves the entity title
+    // Preserves the entity title
     expect(card_container.textContent).toContain("Lord Benedict Silvers");
-    expect(card_container.textContent).toContain("PYRO");
-    expect(card_container.textContent).toContain("custom pyrotechnics");
 
     await fireEvent.mouseOut(silvers_btn);
 
@@ -369,11 +369,16 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       expect(tooltip_state.pinned).toBe(true);
       expect(tooltip_state.entity.id).toBe("elias");
 
-      // Intentional dwell over el_target (>=200ms)
+      // Intentional dwell over el_target (150ms dwell triggers clean unpin, 260ms exit transition completes)
       el_target.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, clientX: 200, clientY: 200 }));
-      vi.advanceTimersByTime(200);
+      vi.advanceTimersByTime(150);
 
-      // Menu was unpinned and new tooltip active for Project Tartarus!
+      // Menu was unpinned and began exit transition
+      expect(tooltip_state.pinned).toBe(false);
+      expect(tooltip_state.active).toBe(false);
+
+      // After exit transition finishes (260ms), new tooltip mounts fresh for Project Tartarus
+      vi.advanceTimersByTime(260);
       expect(tooltip_state.pinned).toBe(false);
       expect(tooltip_state.active).toBe(true);
       expect(tooltip_state.entity.id).toBe("tartarus");
