@@ -101,7 +101,9 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     const card_root = container.querySelector("[data-card-root]");
     expect(card_root?.className).not.toContain("opacity-muted");
     expect(card_root?.className).not.toContain("grayscale");
-    expect(container.textContent).toContain("Lord Benedict Silvers");
+    expect(container.querySelector(".overflow-y-auto")).toBeNull();
+    // Multiple brackets drop the entity title first to avoid scrollbars
+    expect(container.textContent).not.toContain("Lord Benedict Silvers");
     expect(container.textContent).toContain("DEBT");
     expect(container.textContent).toContain("RIVALRY");
     expect(container.textContent).toContain("OLD_PACT");
@@ -150,6 +152,9 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     const card_root = card_container.querySelector("[data-card-root]");
     expect(card_root?.className).toContain("opacity-muted");
     expect(card_root?.className).toContain("grayscale");
+    expect(card_container.querySelector(".overflow-y-auto")).toBeNull();
+    // Single short bracket preserves the entity title
+    expect(card_container.textContent).toContain("Lord Benedict Silvers");
     expect(card_container.textContent).toContain("PYRO");
     expect(card_container.textContent).toContain("custom pyrotechnics");
 

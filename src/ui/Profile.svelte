@@ -790,6 +790,7 @@
                       placeholder="SLUG"
                       maxlength="36"
                       aria-label="Entity Handle"
+                      use:tooltip={"Entity Handle (@ID) - unique identifier used to reference this entity in brackets (2-36 chars: A-Z, 0-9, _ or -)."}
                       class="w-28 border-b border-white/25 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider text-slate-100 uppercase outline-none focus:border-white/60"
                       oninput={(event) => {
                         profile_state.draft_id = event.currentTarget.value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 36);
@@ -806,6 +807,9 @@
                     <span class="text-slate-400" aria-hidden="true">·</span>
                     <button
                       type="button"
+                      use:tooltip={profile_state.char.pov === "1st_person" ?
+                        "Narrative POV: 1st Person ('I / me'). Click to switch to 3rd Person."
+                      : "Narrative POV: 3rd Person ('he / she / they'). Click to switch to 1st Person."}
                       class="cursor-pointer rounded-md border border-white/15 bg-black/25 px-2 py-0.5 font-mono text-[11px] tracking-wider text-slate-200 uppercase transition-colors outline-none hover:border-white/35"
                       onclick={() => {
                         profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
@@ -824,9 +828,18 @@
                 {:else if profile_state.char.id}
                   <div
                     class="flex items-center gap-tight rounded-md border border-white/10 bg-black/25 px-2.5 py-1 font-mono text-[11px] tracking-wider text-slate-200 uppercase">
-                    <span style="color: {signature_color};">@{profile_state.char.id.toUpperCase()}</span>
+                    <span
+                      class="cursor-help"
+                      style="color: {signature_color};"
+                      use:tooltip={`Entity Handle: @${profile_state.char.id.toUpperCase()} - reference this entity in brackets using @${profile_state.char.id.toUpperCase()}`}
+                      >@{profile_state.char.id.toUpperCase()}</span>
                     <span class="text-slate-500" aria-hidden="true">·</span>
-                    <span class="text-slate-300">{profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}</span>
+                    <span
+                      class="cursor-help text-slate-300"
+                      use:tooltip={profile_state.char.pov === "1st_person" ?
+                        "Narrative POV: 1st Person - narrates from an 'I / me' perspective"
+                      : "Narrative POV: 3rd Person - narrates from a 'he / she / they' perspective"}
+                      >{profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}</span>
                   </div>
                 {/if}
               </div>

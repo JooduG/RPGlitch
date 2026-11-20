@@ -160,6 +160,11 @@
   let signature_color = $derived(get_signature_color(entity, variant === "library" ? undefined : "var(--color-gunmetal)"));
   let name = $derived(entity?.name || "Untitled");
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
+  let has_brackets = $derived(Array.isArray(bracket_items) && bracket_items.length > 0);
+  let total_bracket_chars = $derived(
+    has_brackets ? bracket_items.reduce((sum, item) => sum + String(item?.key || "").length + String(item?.value || "").length, 0) : 0,
+  );
+  let hide_title_for_brackets = $derived(variant === "library" && has_brackets && (bracket_items.length > 1 || total_bracket_chars > 75));
 
   // Unified callback event mappings
   let select_handler = $derived(onclick || on_select || (() => {}));
@@ -420,7 +425,7 @@
       rounded-b-[inherit]
       bg-linear-to-t
       from-black/95
-      {Array.isArray(bracket_items) && bracket_items.length > 0 ? 'max-h-[88%] via-black/85 via-60%' : 'via-black/75 via-45%'}
+      {has_brackets ? 'max-h-full via-black/85 via-60%' : 'via-black/75 via-45%'}
       to-transparent
       text-center
       transition-opacity
@@ -447,48 +452,50 @@
         pt-8
         pb-standard
       `}">
-    <span
-      data-card-text
-      class="
-        [display:-webkit-box]
-        w-full
-        overflow-hidden
-        text-center
-        font-heading
-        font-bold
-        wrap-break-word
-        text-(--signature-color,var(--color-slate-50))
-        uppercase
-        [-webkit-box-orient:vertical]
-        [-webkit-line-clamp:3]
-        [line-clamp:3]
+    {#if !hide_title_for_brackets}
+      <span
+        data-card-text
+        class="
+          [display:-webkit-box]
+          w-full
+          overflow-hidden
+          text-center
+          font-heading
+          font-bold
+          wrap-break-word
+          text-(--signature-color,var(--color-slate-50))
+          uppercase
+          [-webkit-box-orient:vertical]
+          [-webkit-line-clamp:3]
+          [line-clamp:3]
 
-        {variant === 'library' ?
-        `
-          text-sm
-          leading-snug
-          tracking-wide
-          [text-shadow:0_1px_3px_#000,0_2px_6px_#000,0_0_2px_#000]
-        `
-      : `
-          text-[clamp(1rem,12cqi,1.5rem)]
-          leading-tight
-          tracking-widest
-          [text-shadow:0_2px_4px_var(--color-void-black)]
-        `}
-        {is_empty ?
-        `
-          text-slate-50
-          opacity-15
-          transition-opacity
-          duration-300
-          ease-in-out
+          {variant === 'library' ?
+          `
+            text-sm
+            leading-snug
+            tracking-wide
+            [text-shadow:0_1px_3px_#000,0_2px_6px_#000,0_0_2px_#000]
+          `
+        : `
+            text-[clamp(1rem,12cqi,1.5rem)]
+            leading-tight
+            tracking-widest
+            [text-shadow:0_2px_4px_var(--color-void-black)]
+          `}
+          {is_empty ?
+          `
+            text-slate-50
+            opacity-15
+            transition-opacity
+            duration-300
+            ease-in-out
 
-          group-hover/card:opacity-100
-        `
-      : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
-    {#if Array.isArray(bracket_items) && bracket_items.length > 0}
-      <div class="mt-tight max-h-36 w-full overflow-y-auto">
+            group-hover/card:opacity-100
+          `
+        : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
+    {/if}
+    {#if has_brackets}
+      <div class="{hide_title_for_brackets ? '' : 'mt-tight'} w-full overflow-hidden">
         <BracketList entries={bracket_items} owner={description_owner || entity} entities={display_entities} compact={true} sort_by_length={false} />
       </div>
     {:else if !is_empty && (Boolean(description_override) || (variant !== "library" && variant !== "message" && app.view !== "storymode"))}

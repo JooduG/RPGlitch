@@ -154,6 +154,12 @@
     }
     return out;
   });
+  const compact_clamp_class = $derived(
+    !compact ? ""
+    : normalized_entries.length >= 3 ? "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:1] [line-clamp:1]"
+    : normalized_entries.length === 2 ? "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [line-clamp:2]"
+    : "[display:-webkit-box] overflow-hidden [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [line-clamp:3]",
+  );
 </script>
 
 {#if normalized_entries.length > 0}
@@ -166,7 +172,10 @@
           class="text-left font-mono text-xs font-bold tracking-wider uppercase {item.is_hidden ? 'text-slate-400'
           : key_color ? ''
           : 'text-(--signature-color)'}">{item.key}</span>
-        <span class="text-left {compact ? 'text-xs leading-snug' : 'text-sm leading-normal'} {item.is_hidden ? 'text-slate-400 italic' : 'text-slate-200'}">
+        <span
+          class="text-left {compact ? `text-xs leading-snug ${compact_clamp_class}` : 'text-sm leading-normal'} {item.is_hidden ? 'text-slate-400 italic' : (
+            'text-slate-200'
+          )}">
           {@render RenderFormattedValue(item.value)}
         </span>
       </div>
