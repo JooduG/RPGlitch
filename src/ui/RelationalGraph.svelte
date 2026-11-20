@@ -474,13 +474,16 @@
                   on_select_entity(sat_entity || node.item.entity || { name: node.item.name });
                 }
               }}
-              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-fast hover:scale-lift focus:outline-hidden"
-              style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;">
-              <ProfilePicture entity={sat_entity || node.item} class="rounded-full" />
+              class="group flex cursor-pointer flex-col items-center justify-center focus:outline-hidden">
+              <div
+                class="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-fast group-hover:scale-lift"
+                style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;">
+                <ProfilePicture entity={sat_entity || node.item} class="rounded-full" />
+              </div>
+              <span class="mt-tight max-w-20 truncate text-center font-mono text-[10px] font-bold drop-shadow-md" style="color: {sat_color};">
+                {sat_handle}
+              </span>
             </button>
-            <span class="mt-tight max-w-20 truncate text-center font-mono text-[10px] font-bold drop-shadow-md" style="color: {sat_color};">
-              {sat_handle}
-            </span>
           </div>
         {/each}
       </div>

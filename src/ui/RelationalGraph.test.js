@@ -74,7 +74,11 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     render(RelationalGraph, { props: { entity: mock_entity, on_select_entity } });
 
     const satellite_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
-    await fireEvent.mouseOver(satellite_btn, { clientX: 55, clientY: 75 });
+    const handle_el = await screen.findByText("@SILVERS");
+    expect(satellite_btn.contains(handle_el)).toBe(true);
+
+    await fireEvent.mouseOver(handle_el, { clientX: 55, clientY: 75 });
+    await new Promise((r) => setTimeout(r, 20));
 
     expect(tooltip_state.active).toBe(true);
     expect(tooltip_state.entity).toEqual(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));

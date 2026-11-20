@@ -39,6 +39,19 @@
 
   /** @type {number | null} */
   let timer = null;
+  /** @type {number | null} */
+  let hide_timer = null;
+
+  function clear_tooltip_timers() {
+    if (timer) {
+      window.clearTimeout(timer);
+      timer = null;
+    }
+    if (hide_timer) {
+      window.clearTimeout(hide_timer);
+      hide_timer = null;
+    }
+  }
 
   /**
    * Triggers the tooltip visibility with a slight delay for kinetic comfort.
@@ -50,13 +63,16 @@
     const opts = options && typeof options === "object" && "entity" in options ? options : { entity: options };
     const resolved_entity = opts?.entity ?? null;
     if (!text && !resolved_entity) return;
-    hide_tooltip();
 
     const delay =
       typeof opts?.delay === "number" ? opts.delay
       : resolved_entity ? 120
       : 400;
     const commit = () => {
+      if (hide_timer) {
+        window.clearTimeout(hide_timer);
+        hide_timer = null;
+      }
       tooltip_state.text = text || null;
       tooltip_state.entity = resolved_entity;
       tooltip_state.bracket_items = opts?.bracket_items ?? null;
@@ -67,8 +83,10 @@
     };
 
     if (delay <= 0) {
+      clear_tooltip_timers();
       commit();
     } else {
+      hide_tooltip();
       timer = window.setTimeout(commit, delay);
     }
   }
@@ -77,14 +95,12 @@
    * Immediately hides the tooltip and clears active timers.
    */
   export function hide_tooltip() {
-    if (timer) {
-      window.clearTimeout(timer);
-      timer = null;
-    }
+    clear_tooltip_timers();
     // Defer state mutation to avoid Svelte 5 state_unsafe_mutation.
     // DOM removal during unmount can trigger synchronous `mouseout` or `blur` events,
     // which execute this function while Svelte is in the middle of a reactive teardown.
-    setTimeout(() => {
+    hide_timer = window.setTimeout(() => {
+      hide_timer = null;
       tooltip_state.active = false;
       tooltip_state.text = null;
       tooltip_state.entity = null;
