@@ -57,3 +57,15 @@
 - **Trigger**: Implementing component entry/exit animations in Svelte by pairing booleans (`render_active`, `is_visible`), calling `requestAnimationFrame` inside `$effect`, and cleaning up with manual `setTimeout`.
 - **Wrong Behavior**: Triggering single-frame race conditions where entering surfaces pop in without animating (because browser paint batches the initial state before `is_visible` flips), and creating un-cancellable timer leaks on rapid re-toggling.
 - **Correct Behavior**: Delete manual mount state machines entirely. Use Svelte's native `in:` / `out:` directives (`overlay_in`, `overlay_out`) or CSS Grid row collapse (`grid-rows-[0fr]` / `grid-rows-[1fr]`) so Svelte owns the DOM lifecycle.
+
+## Pitfall 10: 3D `preserve-3d` Flip Clipping, Mid-Exit State Snap & Flip-to-Void Dismissal
+
+- **Trigger**: Flipping a hover preview card 180° to an interactive `ContextMenu` backside (`[data-card-flip-rotor]` in `App.svelte` / `Tooltip.svelte`) and animating its dismissal.
+- **Wrong Behavior**: Letting front and back faces use mismatched border radii or active `backdrop-blur-md` inside a `preserve-3d` rotor (breaks `backface-visibility: hidden` in Chromium); binding the rotor directly to live `tooltip_state` instead of an exit-held `display_snapshot` (causes the card to snap back to the front face mid-fade); or scaling a flipped card (`180deg`) flat down on close instead of continuing the rotation.
+- **Correct Behavior**: Enforce identical `rounded-standard` and `backface-hidden` on both faces, freeze content in `display_snapshot` while `open` transitions out, and animate `data-closing="true"` forward from `rotateY(180deg)` to `rotateY(270deg) scale(0.92)` with `opacity: 0` so the card turns edge-on into nothing without flashing the front face (and collapse via `transition: none !important` when `motion.is_reduced` is true).
+
+## Pitfall 11: Re-Targeting a Singleton Floating Portal on the Same Tick as `unpin_tooltip()`
+
+- **Trigger**: Switching a singleton `Tooltip.Root` from a pinned 3D card-back menu on entity A to a hover preview on entity B (`Tooltip.svelte`).
+- **Wrong Behavior**: Calling `unpin_tooltip()` (`active = false`, `pinned = false`) and immediately calling `show_tooltip(newNode, ..., { delay: 0 })` (`active = true`) in the same synchronous tick. Svelte coalesces `active` to remain `true`, aborting the exit transition, keeping the old anchor coordinates while Floating UI recalculates, and visibly rotating entity A's context menu backward (`180deg -> 0deg`) over entity B.
+- **Correct Behavior**: Stage the handoff: require a short hover dwell (`150ms`) to ignore accidental cursor fly-bys, call `unpin_tooltip()` so entity A completes its `250ms` flip-to-void exit and unmounts, and only mount entity B's fresh `rotateY(0deg)` preview after the exit window (`260ms`) if the pointer is still over entity B.

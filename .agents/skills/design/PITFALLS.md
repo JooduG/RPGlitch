@@ -52,11 +52,11 @@
 - **Wrong Behavior**: Reading nonexistent `app.characters` or `app.fractals` arrays (`undefined`), causing lookups to fail silently.
 - **Correct Behavior**: Read `app.ai_list` and `app.fractal_list` (combined with `runtime.active_*` and `ALL_PREMADES` fallback), or query `@data` `list_entities(...)`.
 
-## Pitfall 9: Z-Index Escalation & `bits-ui` Portal `wrapperProps` Stacking
+## Pitfall 9: Z-Index Escalation, Modal-Over-Modal Portals & `bits-ui` `wrapperProps` Stacking
 
-- **Trigger**: Adding z-index layers to modals, backdrops, cards, or portalled floating UI (`Tooltip.Content`, `Select.Content`, `Modal`, `Backdrop`).
-- **Wrong Behavior**: Passing hardcoded `z_index="1000"`/`"500"` overrides, using banned `z-elevated` / `z-backdrop` / `z-5` / `z-25` / bracketed `z-[...]` classes, putting `z-index` on `Tooltip.Content` / `Select.Content`'s inner `props` div instead of `wrapperProps`, or using `z-popover` (`300`) for dropdowns opened inside modals (`z-modal: 400`).
-- **Correct Behavior**: Use local `z-0`–`z-30` inside `isolate` wrappers for component internals, and the 7-tier global scale (`z-sticky`, `z-overlay`, `z-popover`, `z-modal`, `z-tooltip`, `z-toast`, `z-max`) for global chrome/portals. Always apply `style:z-index="var(--z-index-tooltip)"` (`500`) on `bits-ui` `wrapperProps` for portalled tooltips and modal-hosted dropdowns (`audit-design.js` `LEGACY_Z_INDEX` enforces this).
+- **Trigger**: Adding z-index layers to modals, secondary lightboxes (`ImagePreview.svelte`), backdrops, cards, or portalled floating UI (`Tooltip.Content`, `Select.Content`, `Modal`, `Backdrop`).
+- **Wrong Behavior**: Leaving a secondary lightbox modal (`ImagePreview`) on the base `layer="modal"` (`--z-index-modal: 400`) or mounting `<ImagePreview />` before `<Profile />` in `App.svelte` (causing `Dialog.Portal` to paint behind an open Profile modal); passing hardcoded `z_index="1000"`/`"500"` overrides; using banned `z-elevated` / `z-backdrop` / `z-5` / `z-25` / bracketed `z-[...]` classes; putting `z-index` on `Tooltip.Content` / `Select.Content`'s inner `props` div instead of `wrapperProps`; or using `z-popover` (`300`) for dropdowns opened inside modals (`z-modal: 400`).
+- **Correct Behavior**: Use local `z-0`–`z-30` inside `isolate` wrappers for component internals, and the 7-tier global scale (`z-sticky`, `z-overlay`, `z-popover`, `z-modal`, `z-tooltip`, `z-toast`, `z-max`) for global chrome/portals. Pass `layer="image"` (`calc(var(--z-index-modal) + 10)` = `410`) to `<Modal>` / `<Backdrop>` for secondary image lightboxes and mount `<ImagePreview />` after `<Profile />` in `App.svelte` so lightboxes stack above `Profile` (`400`) while portalled tooltips and modal-hosted dropdowns (`style:z-index="var(--z-index-tooltip)"` = `500` on `bits-ui` `wrapperProps`, enforced by `audit-design.js` `LEGACY_Z_INDEX`) remain visible above both.
 
 ## Pitfall 10: Wing Signature Color Leakage
 
@@ -75,3 +75,15 @@
 - **Trigger**: Positioning a `ScrollArea.Scrollbar` (`[data-orientation="vertical"]`) relative to the viewport (e.g., `position: fixed; right: 0;`) via `:global(...)` CSS or utility classes.
 - **Wrong Behavior**: Writing `position: fixed;` without `!important`, which `bits-ui`'s `ScrollAreaScrollbarSharedState` (`mergeProps(restProps, scrollbarSharedState.props)`) silently overrides with an inline `style="position: absolute; ..."`, pinning the scrollbar to the centered grid column instead of the viewport edge.
 - **Correct Behavior**: Use `position: fixed !important;` on the target `[data-orientation="vertical"]` rule (as in `src/ui/Storymode.svelte`).
+
+## Pitfall 13: Container-Level `opacity-muted` / `grayscale` Dimming Foreground Text Overlays
+
+- **Trigger**: Dimming or desaturating a card or media surface for secondary states (e.g., `incoming_only` on `EntityCard.svelte`).
+- **Wrong Behavior**: Applying `opacity-muted grayscale` to the outer card root (`[data-card-root]`), which multiplies `0.6` opacity and grayscale across child headlines, signature borders, and glass callout text, making foreground text illegible against the backdrop.
+- **Correct Behavior**: Scope `opacity-muted grayscale` strictly to the inner portrait/media wrapper (`<ProfilePicture>` container) so the artwork dims while card borders, titles, and foreground callouts render at 100% contrast (`text-frisk`).
+
+## Pitfall 14: Dynamic `role` Ternaries With Nonnegative `tabindex` (`a11y_no_noninteractive_tabindex`)
+
+- **Trigger**: Toggling interactivity on a non-native interactive container (`<div role="button">`) such as `EntityCard.svelte` in `preview` mode.
+- **Wrong Behavior**: Binding `role={preview ? undefined : "button"}` alongside `tabindex={disabled || preview ? -1 : 0}`. Svelte's static compiler does not correlate ternary branches across attributes and flags `a11y_no_noninteractive_tabindex` because a `<div>` whose `role` may be `undefined` cannot have a possible `0` `tabindex`.
+- **Correct Behavior**: Keep `role="button"` static on the element and suppress assistive/keyboard focus in non-interactive modes via `tabindex={disabled || preview ? -1 : 0}` paired with `aria-hidden={preview ? "true" : undefined}` and `pointer-events-none`.

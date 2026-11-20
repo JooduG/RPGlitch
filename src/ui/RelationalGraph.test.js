@@ -160,8 +160,10 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       },
     });
     const card_root = card_container.querySelector("[data-card-root]");
-    expect(card_root?.className).toContain("opacity-muted");
-    expect(card_root?.className).toContain("grayscale");
+    const media_layer = card_root?.firstElementChild;
+    expect(media_layer?.className).toContain("opacity-muted");
+    expect(media_layer?.className).toContain("grayscale");
+    expect(card_root?.className).not.toContain("opacity-muted");
     expect(card_container.textContent).toContain("Unidirectional Relation");
     expect(card_container.textContent).toContain("Open their profile");
     expect(card_container.querySelector(".overflow-y-auto")).toBeNull();

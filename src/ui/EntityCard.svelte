@@ -303,7 +303,6 @@
       animate-[rack-pull-eject_var(--transition-duration-standard)_var(--ease-out)_forwards]
     `
   : ''}
-    {incoming_only && !disabled ? 'opacity-muted grayscale' : ''}
   "
   class:w-[calc(var(--spacing-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
@@ -377,6 +376,11 @@
         opacity-20
         grayscale
         filter
+      `
+    : incoming_only ?
+      `
+        opacity-muted
+        grayscale
       `
     : 'opacity-100'}
       {is_empty ?
@@ -525,7 +529,7 @@
         <span class="font-mono text-[0.625rem] font-bold tracking-widest text-(--signature-color,var(--color-dev-accent)) uppercase">
           Unidirectional Relation
         </span>
-        <p class="font-sans text-xs leading-relaxed text-balance text-frisk/80">
+        <p class="font-sans text-xs leading-relaxed text-balance text-frisk">
           This connection originates exclusively from <span class="font-semibold text-frisk">{entity?.name || name}</span>'s profile. Open their profile to
           inspect.
         </p>
