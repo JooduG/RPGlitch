@@ -14,7 +14,7 @@
   import { extract_entity_relationships } from "@simulation";
   import { app, runtime } from "@state";
   import { get_signature_color, render_display_macros } from "@utils";
-  import { tooltip } from "@primitives";
+  import { pin_tooltip_menu, tooltip } from "@primitives";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   /**
@@ -478,6 +478,20 @@
                 if (typeof on_select_entity === "function") {
                   on_select_entity(sat_entity || node.item.entity || { name: node.item.name });
                 }
+              }}
+              oncontextmenu={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                pin_tooltip_menu(e.currentTarget, {
+                  entity: sat_entity || { name: node.item.name },
+                  text: node.item.name,
+                  bracket_items: node.item.bracket_items,
+                  description_owner: entity,
+                  incoming_only: node.item.is_incoming_only,
+                  actions: [],
+                  x: e.clientX,
+                  y: e.clientY,
+                });
               }}
               class="group flex cursor-pointer flex-col items-center justify-center focus:outline-hidden">
               <div

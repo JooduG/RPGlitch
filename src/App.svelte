@@ -9,8 +9,9 @@
    */
   import { runtime, app } from "@state";
   import { Audio, motion } from "@media";
-  import { Tooltip } from "@primitives";
-  import { Console, EntityCard, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
+  import { Tooltip, unpin_tooltip } from "@primitives";
+  import { get_signature_color } from "@utils";
+  import { Console, ContextMenu, EntityCard, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
@@ -114,14 +115,32 @@
 <Tooltip>
   {#snippet entity_preview(preview)}
     {@const preview_entity = preview?.entity ?? preview}
-    <EntityCard
-      variant="library"
-      entity={preview_entity}
-      type={preview_entity?.type === "fractal" ? "fractal" : "ai"}
-      launch_gesture={false}
-      bracket_items={preview?.bracket_items ?? null}
-      description_owner={preview?.description_owner ?? null}
-      incoming_only={preview?.incoming_only ?? false} />
+    {@const is_pinned = Boolean(preview?.pinned)}
+    <div style="perspective: 1000px;">
+      <div
+        class="relative {motion.is_reduced ? '' : 'transition-transform duration-300 ease-out'}"
+        style="transform-style: preserve-3d; transform: {is_pinned ? 'rotateY(180deg)' : 'rotateY(0deg)'};">
+        <div style="backface-visibility: hidden;">
+          <EntityCard
+            variant="library"
+            entity={preview_entity}
+            type={preview_entity?.type === "fractal" ? "fractal" : "ai"}
+            launch_gesture={false}
+            bracket_items={preview?.bracket_items ?? null}
+            description_owner={preview?.description_owner ?? null}
+            incoming_only={preview?.incoming_only ?? false} />
+        </div>
+        <div class="absolute inset-0" style="backface-visibility: hidden; transform: rotateY(180deg);">
+          <ContextMenu
+            embedded={true}
+            open={is_pinned}
+            actions={preview?.actions ?? []}
+            target_name={preview_entity?.name || ""}
+            signature_color={get_signature_color(preview_entity)}
+            on_close={unpin_tooltip} />
+        </div>
+      </div>
+    </div>
   {/snippet}
 </Tooltip>
 

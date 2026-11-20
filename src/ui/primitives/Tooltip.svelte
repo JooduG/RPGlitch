@@ -10,10 +10,12 @@
    * @typedef {Object} TooltipState
    * @property {string | null} text - Current tooltip text
    * @property {any | null} entity - Optional entity for rich EntityCard preview
-   * @property {Array<{ key: string, value: string, is_hidden?: boolean }> | null} bracket_items - Optional relationship bracket list
+   * @property {Array<{ key: string, value: string, is_hidden?: boolean, quadrant?: string }> | null} bracket_items - Optional relationship bracket list
    * @property {any | null} description_owner - Optional perspective owner for MacroText rendering inside previews
    * @property {boolean} incoming_only - Whether the hovered relationship is strictly incoming-only
-   * @property {HTMLElement | null} target - The element currently being hovered
+   * @property {boolean} pinned - Whether the entity preview card is pinned & 3D-flipped to its ContextMenu backside
+   * @property {any[]} actions - Contextual actions shown on the pinned backside
+   * @property {HTMLElement | null} target - The element currently being hovered or pinned
    * @property {boolean} active - Visibility toggle
    * @property {number} x - Viewport cursor X coordinate
    * @property {number} y - Viewport cursor Y coordinate
@@ -30,6 +32,8 @@
     bracket_items: null,
     description_owner: null,
     incoming_only: false,
+    pinned: false,
+    actions: [],
     target: null,
     active: false,
     x: 0,
@@ -41,6 +45,7 @@
   let timer = null;
   /** @type {number | null} */
   let hide_timer = null;
+  let is_suppressed = false;
 
   function clear_tooltip_timers() {
     if (timer) {
@@ -53,13 +58,39 @@
     }
   }
 
+  function reset_tooltip_state() {
+    tooltip_state.active = false;
+    tooltip_state.text = null;
+    tooltip_state.entity = null;
+    tooltip_state.bracket_items = null;
+    tooltip_state.description_owner = null;
+    tooltip_state.incoming_only = false;
+    tooltip_state.pinned = false;
+    tooltip_state.actions = [];
+    tooltip_state.target = null;
+  }
+
+  /**
+   * Suppresses or restores hover tooltips globally (e.g. while a standalone ContextMenu is open).
+   * @param {boolean} suppressed
+   */
+  export function set_tooltip_suppressed(suppressed) {
+    is_suppressed = Boolean(suppressed);
+    if (is_suppressed) {
+      clear_tooltip_timers();
+      reset_tooltip_state();
+    }
+  }
+
   /**
    * Triggers the tooltip visibility with a slight delay for kinetic comfort.
+   * Enforces the global 1-tooltip rule by clearing any active or pending tooltip first.
    * @param {HTMLElement} target
    * @param {string | null} text
    * @param {any | { entity?: any, bracket_items?: any[] | null, description_owner?: any, incoming_only?: boolean, delay?: number }} [options]
    */
   export function show_tooltip(target, text, options = null) {
+    if (is_suppressed || tooltip_state.pinned) return;
     const opts = options && typeof options === "object" && "entity" in options ? options : { entity: options };
     const resolved_entity = opts?.entity ?? null;
     if (!text && !resolved_entity) return;
@@ -69,45 +100,73 @@
       : resolved_entity ? 120
       : 400;
     const commit = () => {
-      if (hide_timer) {
-        window.clearTimeout(hide_timer);
-        hide_timer = null;
-      }
+      if (is_suppressed || tooltip_state.pinned) return;
+      clear_tooltip_timers();
       tooltip_state.text = text || null;
       tooltip_state.entity = resolved_entity;
       tooltip_state.bracket_items = opts?.bracket_items ?? null;
       tooltip_state.description_owner = opts?.description_owner ?? null;
       tooltip_state.incoming_only = Boolean(opts?.incoming_only);
+      tooltip_state.pinned = false;
+      tooltip_state.actions = [];
       tooltip_state.target = target;
       tooltip_state.active = true;
     };
 
+    clear_tooltip_timers();
     if (delay <= 0) {
-      clear_tooltip_timers();
       commit();
     } else {
-      hide_tooltip();
+      tooltip_state.active = false;
       timer = window.setTimeout(commit, delay);
     }
   }
 
   /**
-   * Immediately hides the tooltip and clears active timers.
+   * Pins and 3D-flips an entity preview card at `(x, y)` so its backside ContextMenu is interactive.
+   * @param {HTMLElement} target
+   * @param {{ entity: any, text?: string | null, bracket_items?: any[] | null, description_owner?: any, incoming_only?: boolean, actions?: any[], x: number, y: number }} options
+   */
+  export function pin_tooltip_menu(target, options) {
+    if (!options?.entity) return;
+    clear_tooltip_timers();
+    tooltip_state.x = options.x;
+    tooltip_state.y = options.y;
+    tooltip_state.has_cursor = true;
+    tooltip_state.text = options.text || options.entity.name || null;
+    tooltip_state.entity = options.entity;
+    tooltip_state.bracket_items = options.bracket_items ?? null;
+    tooltip_state.description_owner = options.description_owner ?? null;
+    tooltip_state.incoming_only = Boolean(options.incoming_only);
+    tooltip_state.actions = Array.isArray(options.actions) ? options.actions : [];
+    tooltip_state.pinned = true;
+    tooltip_state.target = target;
+    tooltip_state.active = true;
+  }
+
+  /**
+   * Unpins and closes any pinned entity preview card.
+   */
+  export function unpin_tooltip() {
+    if (!tooltip_state.pinned) return;
+    clear_tooltip_timers();
+    reset_tooltip_state();
+  }
+
+  /**
+   * Immediately hides the tooltip and clears active timers (no-op while pinned).
    */
   export function hide_tooltip() {
+    if (tooltip_state.pinned) return;
     clear_tooltip_timers();
     // Defer state mutation to avoid Svelte 5 state_unsafe_mutation.
     // DOM removal during unmount can trigger synchronous `mouseout` or `blur` events,
     // which execute this function while Svelte is in the middle of a reactive teardown.
     hide_timer = window.setTimeout(() => {
       hide_timer = null;
-      tooltip_state.active = false;
-      tooltip_state.text = null;
-      tooltip_state.entity = null;
-      tooltip_state.bracket_items = null;
-      tooltip_state.description_owner = null;
-      tooltip_state.incoming_only = false;
-      tooltip_state.target = null;
+      if (!tooltip_state.pinned) {
+        reset_tooltip_state();
+      }
     }, 0);
   }
 
@@ -134,6 +193,7 @@
 
     /** @param {MouseEvent | PointerEvent} e */
     const handle_move = (e) => {
+      if (tooltip_state.pinned || is_suppressed) return;
       if (e.clientX || e.clientY) {
         tooltip_state.x = e.clientX;
         tooltip_state.y = e.clientY;
@@ -143,6 +203,7 @@
 
     /** @param {MouseEvent | FocusEvent} e */
     const handle_enter = (e) => {
+      if (tooltip_state.pinned || is_suppressed) return;
       if (e instanceof MouseEvent && e.type === "mouseover" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
 
       if (e instanceof MouseEvent && (e.clientX || e.clientY)) {
@@ -172,6 +233,7 @@
 
     /** @param {MouseEvent | FocusEvent} e */
     const handle_leave = (e) => {
+      if (tooltip_state.pinned) return;
       if (e instanceof MouseEvent && e.type === "mouseout" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
       if (node.dataset.tooltipTitle) {
         node.setAttribute("title", node.dataset.tooltipTitle);
@@ -191,7 +253,7 @@
       update(new_param) {
         param = new_param;
         // If this node is the active target, sync the payload immediately
-        if (tooltip_state.target === node && tooltip_state.active) {
+        if (tooltip_state.target === node && tooltip_state.active && !tooltip_state.pinned) {
           const payload = resolve_payload(param);
           if (payload.active_text) tooltip_state.text = payload.active_text;
           tooltip_state.entity = payload.resolved_entity;
@@ -211,7 +273,8 @@
           delete node.dataset.tooltipTitle;
         }
         if (tooltip_state.target === node) {
-          hide_tooltip();
+          if (tooltip_state.pinned) unpin_tooltip();
+          else hide_tooltip();
         }
       },
     };
@@ -241,6 +304,48 @@
   };
 
   const active_anchor = $derived(tooltip_state.has_cursor ? virtual_anchor : tooltip_state.target);
+
+  $effect(() => {
+    if (!tooltip_state.pinned) return;
+
+    function handle_pointer_down(e) {
+      const target = /** @type {HTMLElement | null} */ (e.target);
+      if (target?.closest?.('[data-testid="relational-hover-card"]')) return;
+      unpin_tooltip();
+    }
+
+    function handle_context_menu(e) {
+      const target = /** @type {HTMLElement | null} */ (e.target);
+      if (target?.closest?.('[data-testid="relational-hover-card"]')) return;
+      unpin_tooltip();
+    }
+
+    function handle_scroll() {
+      unpin_tooltip();
+    }
+
+    function handle_blur() {
+      unpin_tooltip();
+    }
+
+    function handle_key_down(e) {
+      if (e.key === "Escape") unpin_tooltip();
+    }
+
+    window.addEventListener("pointerdown", handle_pointer_down, true);
+    window.addEventListener("contextmenu", handle_context_menu, true);
+    window.addEventListener("scroll", handle_scroll, true);
+    window.addEventListener("blur", handle_blur);
+    window.addEventListener("keydown", handle_key_down);
+
+    return () => {
+      window.removeEventListener("pointerdown", handle_pointer_down, true);
+      window.removeEventListener("contextmenu", handle_context_menu, true);
+      window.removeEventListener("scroll", handle_scroll, true);
+      window.removeEventListener("blur", handle_blur);
+      window.removeEventListener("keydown", handle_key_down);
+    };
+  });
 </script>
 
 <Tooltip.Provider delayDuration={0}>
@@ -258,13 +363,16 @@
           forceMount>
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
-              <div {...wrapperProps} class="{wrapperProps?.class || ''} pointer-events-none" style:z-index="var(--z-index-tooltip)">
+              <div
+                {...wrapperProps}
+                class="{wrapperProps?.class || ''} {tooltip_state.pinned ? 'pointer-events-auto' : 'pointer-events-none'}"
+                style:z-index="var(--z-index-tooltip)">
                 <div
                   {...props}
                   class="{props.class}
 
                     group
-                    pointer-events-none
+                    {tooltip_state.pinned ? 'pointer-events-auto' : 'pointer-events-none'}
                     relative
                     flex
                     origin-(--transform-origin)
@@ -284,6 +392,8 @@
                         bracket_items: tooltip_state.bracket_items,
                         description_owner: tooltip_state.description_owner,
                         incoming_only: tooltip_state.incoming_only,
+                        pinned: tooltip_state.pinned,
+                        actions: tooltip_state.actions,
                       })}
                     </div>
                   {:else}

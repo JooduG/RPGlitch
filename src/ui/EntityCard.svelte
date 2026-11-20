@@ -561,7 +561,7 @@
   {/if}
 </div>
 
-<ContextMenu bind:open={menu_open} x={menu_x} y={menu_y} epoch={my_menu_epoch} {actions} {signature_color} />
+<ContextMenu bind:open={menu_open} x={menu_x} y={menu_y} epoch={my_menu_epoch} {actions} target_name={entity?.name || name} {signature_color} />
 
 <style>
   /* --- KINETIC HARDWARE KEYFRAMES --- */

@@ -1,4 +1,4 @@
-import { tooltip_state } from "@primitives";
+import { set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip } from "@primitives";
 import { app } from "@state";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,6 +32,9 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     tooltip_state.description_owner = null;
     tooltip_state.incoming_only = false;
     tooltip_state.target = null;
+    tooltip_state.pinned = false;
+    tooltip_state.actions = [];
+    set_tooltip_suppressed(false);
   });
 
   it("renders empty state when entity has no relationships", async () => {
@@ -212,10 +215,14 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     await fireEvent.contextMenu(card_root, { clientX: 120, clientY: 140 });
     const menu = document.body.querySelector('[role="menu"]');
     expect(menu).toBeTruthy();
+    expect(menu.textContent).toContain("Lord Benedict Silvers");
     expect(menu.textContent).toContain("None are currently active");
+
+    await fireEvent.pointerDown(document.body);
+    expect(document.body.querySelector('[role="menu"]')).toBeNull();
   });
 
-  it("opens profile on @ID left-click and ContextMenu empty state on @ID right-click in MacroText", async () => {
+  it("opens profile on @ID left-click and pins card-back ContextMenu on @ID right-click in MacroText", async () => {
     const open_spy = vi.spyOn(app, "open_profile").mockImplementation(() => {});
     const target = { id: "silvers", name: "Lord Benedict Silvers", type: "character", signature_color: "Crimson Red" };
 
@@ -226,10 +233,69 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(open_spy).toHaveBeenCalledWith(target);
 
     await fireEvent.contextMenu(handle_btn, { clientX: 80, clientY: 90 });
-    const menu = document.body.querySelector('[role="menu"]');
-    expect(menu).toBeTruthy();
-    expect(menu.textContent).toContain("None are currently active");
+    expect(tooltip_state.active).toBe(true);
+    expect(tooltip_state.pinned).toBe(true);
+    expect(tooltip_state.entity).toEqual(target);
+    expect(tooltip_state.actions).toEqual([]);
+
+    unpin_tooltip();
+    expect(tooltip_state.pinned).toBe(false);
+    expect(tooltip_state.active).toBe(false);
     open_spy.mockRestore();
+  });
+
+  it("pins card-back ContextMenu on RelationalGraph satellite right-click", async () => {
+    const mock_entity = {
+      id: "hank",
+      name: "Hank",
+      type: "character",
+      signature_color: "Rusty Orange",
+      present: { non_physical: "[DEBT: @SILVERS arms supplier debt]" },
+    };
+
+    render(RelationalGraph, { props: { entity: mock_entity } });
+    const satellite_btn = await screen.findByRole("button", { name: /Lord Benedict Silvers/i });
+
+    await fireEvent.contextMenu(satellite_btn, { clientX: 60, clientY: 70 });
+    expect(tooltip_state.active).toBe(true);
+    expect(tooltip_state.pinned).toBe(true);
+    expect(tooltip_state.entity).toEqual(expect.objectContaining({ id: "silvers", name: "Lord Benedict Silvers" }));
+    expect(tooltip_state.actions).toEqual([]);
+
+    unpin_tooltip();
+    expect(tooltip_state.active).toBe(false);
+    expect(tooltip_state.pinned).toBe(false);
+  });
+
+  it("enforces global 1-tooltip rule and suppresses hover tooltips when suppressed", () => {
+    const el1 = document.createElement("button");
+    const el2 = document.createElement("button");
+    document.body.append(el1, el2);
+
+    const a1 = tooltip(el1, { text: "First", delay: 0 });
+    const a2 = tooltip(el2, { text: "Second", delay: 0 });
+
+    el1.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, clientX: 10, clientY: 10 }));
+    expect(tooltip_state.active).toBe(true);
+    expect(tooltip_state.text).toBe("First");
+    expect(tooltip_state.target).toBe(el1);
+
+    el2.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, clientX: 20, clientY: 20 }));
+    expect(tooltip_state.active).toBe(true);
+    expect(tooltip_state.text).toBe("Second");
+    expect(tooltip_state.target).toBe(el2);
+
+    set_tooltip_suppressed(true);
+    expect(tooltip_state.active).toBe(false);
+
+    el1.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, clientX: 10, clientY: 10 }));
+    expect(tooltip_state.active).toBe(false);
+
+    set_tooltip_suppressed(false);
+    a1.destroy();
+    a2.destroy();
+    el1.remove();
+    el2.remove();
   });
 });
 

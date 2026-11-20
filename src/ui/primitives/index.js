@@ -8,7 +8,7 @@ export { default as SourceField } from "./SourceField.svelte";
 export { default as Slider } from "./Slider.svelte";
 export { default as TextField } from "./TextField.svelte";
 export { default as Toggle } from "./Toggle.svelte";
-export { hide_tooltip, tooltip, tooltip_state, default as Tooltip } from "./Tooltip.svelte";
+export { hide_tooltip, pin_tooltip_menu, set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip, default as Tooltip } from "./Tooltip.svelte";
 export { default as Accordion } from "./Accordion.svelte";
 export { default as ProgressBar } from "./ProgressBar.svelte";
 export { default as Label } from "./Label.svelte";
