@@ -89,8 +89,6 @@
     </div>
   </div>
 
-  <ImagePreview />
-
   <!-- PERSISTENT STAGE GRID: Storyboard / Storymode stage + persistent Console footer -->
   <div class="fixed inset-0 z-sticky m-auto grid overflow-hidden text-white transition-opacity duration-300 {container_class}">
     {#if app.view === "storyboard"}
@@ -110,15 +108,18 @@
   {#if app.profile_open}
     <Profile entity_type={app.profile_target_type} />
   {/if}
+
+  <ImagePreview />
 </main>
 
 <Tooltip>
   {#snippet entity_preview(preview)}
     {@const preview_entity = preview?.entity ?? preview}
     {@const is_pinned = Boolean(preview?.pinned)}
-    <div class="perspective-[1200px]">
-      <div class="relative" data-card-flip-rotor data-pinned={is_pinned} data-reduced={motion.is_reduced}>
-        <div class="pointer-events-none [transform:rotateY(0deg)] rounded-standard backface-hidden">
+    {@const is_closing = Boolean(preview?.closing)}
+    <div class="perspective-distant">
+      <div class="relative" data-card-flip-rotor data-pinned={is_pinned} data-closing={is_closing} data-reduced={motion.is_reduced}>
+        <div class="pointer-events-none transform-[rotateY(0deg)] rounded-standard backface-hidden">
           <EntityCard
             variant="library"
             preview={true}
@@ -131,7 +132,7 @@
         </div>
         <div
           class={[
-            "absolute inset-0 [transform:rotateY(180deg)] overflow-hidden rounded-standard backface-hidden",
+            "absolute inset-0 transform-[rotateY(180deg)] overflow-hidden rounded-standard backface-hidden",
             is_pinned ? "pointer-events-auto" : "pointer-events-none",
           ]}>
           <ContextMenu
@@ -262,6 +263,14 @@
     transform: rotateY(180deg);
   }
 
+  [data-card-flip-rotor][data-pinned="true"][data-closing="true"] {
+    transform: rotateY(270deg) scale(0.92);
+    opacity: 0;
+    transition:
+      transform 250ms var(--ease-drawer),
+      opacity 200ms var(--ease-out);
+  }
+
   @starting-style {
     [data-card-flip-rotor][data-pinned="true"] {
       transform: rotateY(0deg);
@@ -269,6 +278,6 @@
   }
 
   [data-card-flip-rotor][data-reduced="true"] {
-    transition: none;
+    transition: none !important;
   }
 </style>

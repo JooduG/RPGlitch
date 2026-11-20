@@ -423,7 +423,7 @@
           {/each}
         </svg>
 
-        <!-- Center "Sun" Node (Active Profile Entity — Incoming Relationships Hub) -->
+        <!-- Center "Sun" Node (Active Profile Entity - Incoming Relationships Hub) -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           data-testid="relational-center-node"

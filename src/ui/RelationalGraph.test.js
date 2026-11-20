@@ -1,4 +1,4 @@
-import { set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip } from "@primitives";
+import { Backdrop, pin_tooltip_menu, set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip } from "@primitives";
 import { app } from "@state";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -343,6 +343,55 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     a2.destroy();
     el1.remove();
     el2.remove();
+  });
+
+  it("dwells and switches to a newly hovered entity handle while pinned, but protects menu on fast fly-by", async () => {
+    vi.useFakeTimers();
+    try {
+      const el_source = document.createElement("button");
+      const el_target = document.createElement("button");
+      document.body.append(el_source, el_target);
+
+      const a_source = tooltip(el_source, { entity: { id: "elias", name: "Elias" }, delay: 0 });
+      const a_target = tooltip(el_target, { entity: { id: "tartarus", name: "Project Tartarus" }, delay: 0 });
+
+      // Pin the menu on el_source
+      pin_tooltip_menu(el_source, { entity: { id: "elias", name: "Elias" }, actions: [{ id: "act1", label: "Action 1" }], x: 100, y: 100 });
+      expect(tooltip_state.pinned).toBe(true);
+      expect(tooltip_state.entity.id).toBe("elias");
+
+      // Fast fly-by over el_target (<200ms)
+      el_target.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, clientX: 200, clientY: 200 }));
+      vi.advanceTimersByTime(50);
+      el_target.dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
+
+      // Menu should still be pinned to Elias!
+      expect(tooltip_state.pinned).toBe(true);
+      expect(tooltip_state.entity.id).toBe("elias");
+
+      // Intentional dwell over el_target (>=200ms)
+      el_target.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, clientX: 200, clientY: 200 }));
+      vi.advanceTimersByTime(200);
+
+      // Menu was unpinned and new tooltip active for Project Tartarus!
+      expect(tooltip_state.pinned).toBe(false);
+      expect(tooltip_state.active).toBe(true);
+      expect(tooltip_state.entity.id).toBe("tartarus");
+
+      a_source.destroy();
+      a_target.destroy();
+      el_source.remove();
+      el_target.remove();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("renders Backdrop with calc(var(--z-index-modal) + 10) for layer=image", () => {
+    const { container } = render(Backdrop, { props: { layer: "image" } });
+    const backdrop_el = container.firstElementChild;
+    expect(backdrop_el).toBeTruthy();
+    expect(backdrop_el.getAttribute("style")).toContain("z-index: calc(var(--z-index-modal) + 10)");
   });
 });
 

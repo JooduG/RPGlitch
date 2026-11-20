@@ -22,6 +22,7 @@
 
     // Design
     variant = "standard",
+    layer = "modal",
     class: className = "",
 
     // Handlers
@@ -79,7 +80,7 @@
                 on_close();
               }
             }}
-            layer="modal"
+            {layer}
             is_blurred={blur}
             busy={is_busy}
             {is_pass_through}

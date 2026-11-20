@@ -153,6 +153,7 @@
 <Modal
   bind:open={modal_open}
   variant="bare"
+  layer="image"
   on_close={close_image_preview}
   class="flex max-h-[95dvh] flex-col items-stretch justify-center gap-standard overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-[calc(var(--spacing-column-unit))]">
   <!-- svelte-ignore a11y_no_static_element_interactions -->

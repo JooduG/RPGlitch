@@ -45,6 +45,8 @@
   let timer = null;
   /** @type {number | null} */
   let hide_timer = null;
+  /** @type {number | null} */
+  let pinned_switch_timer = null;
   let is_suppressed = false;
 
   function clear_tooltip_timers() {
@@ -55,6 +57,10 @@
     if (hide_timer) {
       window.clearTimeout(hide_timer);
       hide_timer = null;
+    }
+    if (pinned_switch_timer) {
+      window.clearTimeout(pinned_switch_timer);
+      pinned_switch_timer = null;
     }
   }
 
@@ -193,7 +199,14 @@
 
     /** @param {MouseEvent | PointerEvent} e */
     const handle_move = (e) => {
-      if (tooltip_state.pinned || is_suppressed) return;
+      if (is_suppressed) return;
+      if (tooltip_state.pinned) {
+        if (pinned_switch_timer && (e.clientX || e.clientY)) {
+          tooltip_state.x = e.clientX;
+          tooltip_state.y = e.clientY;
+        }
+        return;
+      }
       if (e.clientX || e.clientY) {
         tooltip_state.x = e.clientX;
         tooltip_state.y = e.clientY;
@@ -203,8 +216,38 @@
 
     /** @param {MouseEvent | FocusEvent} e */
     const handle_enter = (e) => {
-      if (tooltip_state.pinned || is_suppressed) return;
+      if (is_suppressed) return;
       if (e instanceof MouseEvent && e.type === "mouseover" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
+
+      const payload = resolve_payload(param);
+
+      if (tooltip_state.pinned) {
+        if (node === tooltip_state.target || node.closest?.('[data-testid="relational-hover-card"]')) return;
+        if (payload.resolved_entity) {
+          if (pinned_switch_timer) {
+            window.clearTimeout(pinned_switch_timer);
+            pinned_switch_timer = null;
+          }
+          const cursor_x = e instanceof MouseEvent ? e.clientX : tooltip_state.x;
+          const cursor_y = e instanceof MouseEvent ? e.clientY : tooltip_state.y;
+          pinned_switch_timer = window.setTimeout(() => {
+            pinned_switch_timer = null;
+            if (!tooltip_state.pinned) return;
+            unpin_tooltip();
+            tooltip_state.x = cursor_x;
+            tooltip_state.y = cursor_y;
+            tooltip_state.has_cursor = true;
+            show_tooltip(node, payload.active_text, {
+              entity: payload.resolved_entity,
+              bracket_items: payload.bracket_items,
+              description_owner: payload.description_owner,
+              incoming_only: payload.incoming_only,
+              delay: 0,
+            });
+          }, 200);
+        }
+        return;
+      }
 
       if (e instanceof MouseEvent && (e.clientX || e.clientY)) {
         tooltip_state.x = e.clientX;
@@ -213,8 +256,6 @@
       } else {
         tooltip_state.has_cursor = false;
       }
-
-      const payload = resolve_payload(param);
 
       if (payload.active_text || payload.resolved_entity) {
         if (node.hasAttribute("title")) {
@@ -233,6 +274,10 @@
 
     /** @param {MouseEvent | FocusEvent} e */
     const handle_leave = (e) => {
+      if (pinned_switch_timer) {
+        window.clearTimeout(pinned_switch_timer);
+        pinned_switch_timer = null;
+      }
       if (tooltip_state.pinned) return;
       if (e instanceof MouseEvent && e.type === "mouseout" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
       if (node.dataset.tooltipTitle) {
@@ -263,6 +308,10 @@
         }
       },
       destroy() {
+        if (pinned_switch_timer) {
+          window.clearTimeout(pinned_switch_timer);
+          pinned_switch_timer = null;
+        }
         node.removeEventListener("mouseover", handle_enter);
         node.removeEventListener("pointermove", handle_move);
         node.removeEventListener("mouseout", handle_leave);
@@ -407,7 +456,14 @@
                     display_snapshot.pinned ? "pointer-events-auto" : "pointer-events-none",
                     open ? "opacity-100" : "opacity-0",
                   ]}
-                  transition:scale={{ duration: motion.is_reduced ? 0 : 150, start: 0.95, opacity: 0 }}>
+                  transition:scale={{
+                    duration:
+                      motion.is_reduced ? 0
+                      : display_snapshot.pinned ? 250
+                      : 150,
+                    start: 0.95,
+                    opacity: 0,
+                  }}>
                   {#if display_snapshot.entity && entity_preview}
                     <div data-testid="relational-hover-card">
                       {@render entity_preview({
@@ -417,6 +473,7 @@
                         incoming_only: display_snapshot.incoming_only,
                         pinned: display_snapshot.pinned,
                         actions: display_snapshot.actions,
+                        closing: !open,
                       })}
                     </div>
                   {:else}

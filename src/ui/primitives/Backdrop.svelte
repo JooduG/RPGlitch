@@ -29,7 +29,8 @@
   const is_profile = $derived(className === "profile");
   const computed_z_index = $derived(
     layer === "sticky" || layer === "console" || layer === "cardhand" ? "var(--z-index-sticky)"
-    : layer === "modal" || layer === "image" ? "var(--z-index-modal)"
+    : layer === "image" || layer === "lightbox" ? "calc(var(--z-index-modal) + 10)"
+    : layer === "modal" ? "var(--z-index-modal)"
     : layer === "max" ? "var(--z-index-max)"
     : "var(--z-index-overlay)",
   );

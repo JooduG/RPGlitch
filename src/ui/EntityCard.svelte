@@ -323,8 +323,9 @@
   : undefined}
   style:height={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? "auto" : undefined}
   style:aspect-ratio={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? fractal_storymode_ratio : undefined}
-  role={preview ? undefined : "button"}
+  role="button"
   tabindex={disabled || preview ? -1 : 0}
+  aria-hidden={preview ? "true" : undefined}
   aria-label={variant === "library" ?
     is_empty ? "Create New"
     : disabled ? "Already selected"
