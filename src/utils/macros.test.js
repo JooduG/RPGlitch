@@ -70,24 +70,35 @@ describe("Universal @ENTITY Macro Engine", () => {
   });
 
   describe("resolve_display_macro_segments", () => {
-    it("segments text and attaches referenced entity for signature color styling", () => {
+    it("segments text as canonical @ID handles and attaches referenced entity for signature color styling", () => {
       const text = "Hello @CHAR and @USER";
       const segments = resolve_display_macro_segments(text, null, entities);
       expect(segments).toHaveLength(4);
       expect(segments[0]).toEqual({ text: "Hello ", macro: null, entity: null });
-      expect(segments[1].text).toBe("Julien");
+      expect(segments[1].text).toBe("@CHAR_JULIEN");
       expect(segments[1].entity).toBe(ai);
       expect(segments[2]).toEqual({ text: " and ", macro: null, entity: null });
-      expect(segments[3].text).toBe("Alice");
+      expect(segments[3].text).toBe("@USR_PROTAGONIST");
       expect(segments[3].entity).toBe(user);
     });
 
-    it("resolves concrete entity token @JULIEN to AI entity", () => {
+    it("resolves concrete entity token @JULIEN to AI entity @ID handle", () => {
       const text = "Seen with @JULIEN";
       const segments = resolve_display_macro_segments(text, null, entities);
       expect(segments).toHaveLength(2);
-      expect(segments[1].text).toBe("Julien");
+      expect(segments[1].text).toBe("@CHAR_JULIEN");
       expect(segments[1].entity).toBe(ai);
+    });
+
+    it("resolves non-active roster @ENTITY tokens via entities.ALL by id and name word", () => {
+      const beast = { id: "beast", name: "Beast", type: "character", signature_color: "#f97316" };
+      const orion = { id: "orion_id", name: "Orion the Pink Protector", type: "character", signature_color: "#ec4899" };
+      const roster_entities = { ...entities, ALL: [beast, orion] };
+
+      const segments = resolve_display_macro_segments("Architect of @BEAST and @ORION", null, roster_entities);
+      expect(segments).toHaveLength(4);
+      expect(segments[1]).toEqual({ text: "@BEAST", macro: "BEAST", entity: beast });
+      expect(segments[3]).toEqual({ text: "@ORION_ID", macro: "ORION", entity: orion });
     });
   });
 });

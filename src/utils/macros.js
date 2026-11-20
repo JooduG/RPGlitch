@@ -290,6 +290,15 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
   const user_name = user_entity?.name?.trim() || "";
   const fractal_name = fractal_entity?.name?.trim() || "";
   const placeholder = (token) => `@${token}`;
+  const format_handle = (ent, fallback_token) => {
+    const raw = ent?.id || fallback_token || ent?.name || "";
+    const cleaned = String(raw)
+      .trim()
+      .replace(/^@+/, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9_-]/g, "_");
+    return `@${cleaned}`;
+  };
 
   const perspective = _resolve_owner_perspective(owner, entities);
   const speaker_entity = context.speaker || (perspective === "user" ? user_entity : ai_entity || owner);
@@ -310,60 +319,78 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
     let entity = null;
 
     if (token === "TARGET") {
-      if (context?.target?.name) {
-        label = context.target.name;
+      if (context?.target?.name || context?.target?.id) {
         entity = context.target;
+        label = format_handle(entity, raw_token);
       }
     } else if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
-      if (speaker_entity?.name) {
-        label = speaker_entity.name;
+      if (speaker_entity?.name || speaker_entity?.id) {
         entity = speaker_entity;
-      } else if (me_name) {
-        label = me_name;
+        label = format_handle(entity, raw_token);
+      } else if (me_name || owner?.id) {
         entity = owner;
+        label = format_handle(entity, raw_token);
       } else if (owner) {
         label = owner.type === "fractal" ? "this fractal" : "this character";
       }
     } else if (token === "CHAR") {
-      if (ai_name) {
-        label = ai_name;
+      if (ai_name || ai_entity?.id) {
         entity = ai_entity;
+        label = format_handle(entity, raw_token);
       } else {
         label = UNRESOLVED_LABELS.char;
       }
     } else if (token === "USER") {
-      if (user_name) {
-        label = user_name;
+      if (user_name || user_entity?.id) {
         entity = user_entity;
+        label = format_handle(entity, raw_token);
       } else {
         label = UNRESOLVED_LABELS.user;
       }
     } else if (token === "LISTENER" || token === "YOU") {
-      if (listener_entity?.name) {
-        label = listener_entity.name;
+      if (listener_entity?.name || listener_entity?.id) {
         entity = listener_entity;
+        label = format_handle(entity, raw_token);
       } else {
         const you_target = _resolve_you_target(owner, entities);
-        label = you_target.label;
         entity = you_target.entity;
+        label = entity ? format_handle(entity, raw_token) : you_target.label;
       }
     } else if (token === "FRACTAL") {
-      if (fractal_name) {
-        label = fractal_name;
+      if (fractal_name || fractal_entity?.id) {
         entity = fractal_entity;
+        label = format_handle(entity, raw_token);
       } else {
         label = UNRESOLVED_LABELS.fractal;
       }
     } else {
-      // Concrete entity check by name or id
+      // Concrete entity check by name or id (active scene entities first, then full roster)
       const token_lc = raw_token.toLowerCase();
-      for (const cand of [ai_entity, user_entity, fractal_entity, owner]) {
-        if (!cand) continue;
-        if ((cand.id && String(cand.id).toLowerCase() === token_lc) || (cand.name && String(cand.name).toLowerCase() === token_lc)) {
-          label = cand.name;
-          entity = cand;
-          break;
-        }
+      const spaced_token = token_lc.replace(/_/g, " ");
+      const extra = Array.isArray(entities.ALL) ? entities.ALL : [];
+      const candidates = [ai_entity, user_entity, fractal_entity, owner, ...extra].filter(Boolean);
+
+      const exact_match = candidates.find((cand) => {
+        const cand_id = String(cand.id || "")
+          .trim()
+          .toLowerCase();
+        const cand_name = String(cand.name || "")
+          .trim()
+          .toLowerCase();
+        return cand_id === token_lc || cand_id === spaced_token || cand_name === token_lc || cand_name === spaced_token;
+      });
+      const resolved =
+        exact_match ||
+        candidates.find((cand) =>
+          String(cand.name || "")
+            .trim()
+            .toLowerCase()
+            .split(/\s+/)
+            .includes(spaced_token),
+        );
+      if (resolved) {
+        entity = resolved;
+        label = format_handle(resolved, raw_token);
       }
     }
 

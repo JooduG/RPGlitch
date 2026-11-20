@@ -10,7 +10,7 @@
   import { runtime, app } from "@state";
   import { Audio, motion } from "@media";
   import { Tooltip } from "@primitives";
-  import { Console, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
+  import { Console, EntityCard, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
@@ -111,7 +111,11 @@
   {/if}
 </main>
 
-<Tooltip />
+<Tooltip>
+  {#snippet entity_preview(preview_entity)}
+    <EntityCard variant="library" entity={preview_entity} type={preview_entity?.type === "fractal" ? "fractal" : "ai"} launch_gesture={false} />
+  {/snippet}
+</Tooltip>
 
 {#if app.settings.dev_grid_visible}
   <div data-dev="grid" data-view={app.view} aria-hidden="true">

@@ -4,18 +4,18 @@
 
   Visualizes outgoing & incoming relationship vectors for an entity in a sleek
   radial constellation.
-  - Center Node: The current active entity.
-  - Satellite Nodes: Surrounding related entities (both outgoing & incoming).
+  - Center Sun Node: The current active entity (@ID); hovering highlights incoming arrows and shows incoming bonds.
+  - Satellite Nodes: Surrounding related entities (@ID); hovering lights up the outgoing arrow and locks an EntityCard preview 1:1 to the cursor.
   - SVG Curved Arcs: Directional arrows colored with the source entity's signature color.
-  - Interactive Tooltips: Hover/focus over edges shows dynamic details.
   - Navigation: Clicking a satellite node triggers on_select_entity(entity).
 -->
 <script>
   import { list_entities } from "@data";
   import { extract_entity_relationships } from "@simulation";
-  import { app } from "@state";
-  import { get_signature_color } from "@utils";
+  import { app, runtime } from "@state";
+  import { get_signature_color, render_display_macros } from "@utils";
   import { tooltip } from "@primitives";
+  import EntityCard from "./EntityCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   /**
@@ -28,9 +28,14 @@
   /** @type {Props} */
   let { entity, on_select_entity = () => {}, class: custom_class = "" } = $props();
 
-  let all_entities = $state([]);
+  let db_entities = $state([]);
   let hovered_edge = $state(null);
   let hovered_node = $state(null);
+  let center_hovered = $state(false);
+  let cursor_x = $state(0);
+  let cursor_y = $state(0);
+  let has_pointer = $state(false);
+  let constellation_element = $state(null);
 
   function get_entity_slug(ent) {
     if (!ent) return "";
@@ -51,7 +56,7 @@
   // Load all known characters and fractals from DB to resolve incoming relationships and satellite entity profiles
   $effect(() => {
     Promise.all([list_entities("character"), list_entities("fractal")]).then(([chars, fracs]) => {
-      all_entities = [...chars, ...fracs];
+      db_entities = [...chars, ...fracs];
     });
   });
 
@@ -63,6 +68,43 @@
     return String(name || "")
       .trim()
       .toLowerCase();
+  }
+
+  const all_entities = $derived.by(() => {
+    const seen = new Set();
+    const merged = [];
+    const pool = [
+      ...db_entities,
+      runtime.active_ai,
+      runtime.active_user,
+      runtime.active_fractal,
+      ...(app.ai_list || []),
+      ...(app.user_list || []),
+      ...(app.fractal_list || []),
+    ];
+    for (const item of pool) {
+      if (!item) continue;
+      const key = norm(item.id) || norm(item.name);
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      merged.push(item);
+    }
+    return merged;
+  });
+
+  const display_entities = $derived({
+    AI: runtime.active_ai || app.selected_ai,
+    USER: runtime.active_user || app.selected_user,
+    FRACTAL: runtime.active_fractal || app.selected_fractal,
+    ALL: all_entities,
+  });
+
+  function update_cursor_coords(e) {
+    if (!constellation_element || !(e instanceof MouseEvent)) return;
+    const rect = constellation_element.getBoundingClientRect();
+    cursor_x = e.clientX - rect.left;
+    cursor_y = e.clientY - rect.top;
+    has_pointer = true;
   }
 
   function find_matched_entity(target_name) {
@@ -157,12 +199,36 @@
       const other_entity = edge.is_outgoing ? edge.target_entity : edge.source_entity;
       const resolved = other_entity?.id ? other_entity : find_matched_entity(other_name);
       const key = norm(resolved?.name || other_name);
-      if (key && key !== current_name && !map.has(key)) {
-        map.set(key, { name: resolved?.name || other_name, entity: resolved, temporal_links: edge.temporal_links || null });
+      if (!key || key === current_name) continue;
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, { name: resolved?.name || other_name, entity: resolved, outgoing_links: edge.is_outgoing ? edge.temporal_links || null : null });
+      } else if (edge.is_outgoing && !existing.outgoing_links) {
+        existing.outgoing_links = edge.temporal_links || null;
       }
     }
 
     return Array.from(map.values());
+  });
+
+  const incoming_edges = $derived(resolved_edges.filter((edge) => !edge.is_outgoing));
+
+  const incoming_tooltip_text = $derived(
+    incoming_edges
+      .map(
+        (edge) =>
+          `@${get_entity_slug(edge.source_entity || { name: edge.source_name })}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, display_entities)}`,
+      )
+      .join("\n"),
+  );
+
+  // Reset hover states when navigating to a different central entity
+  $effect(() => {
+    void (entity?.id || entity?.name);
+    hovered_node = null;
+    hovered_edge = null;
+    center_hovered = false;
+    has_pointer = false;
   });
 
   // 3. Constellation Coordinates & Radial Geometry
@@ -253,6 +319,9 @@
   });
 
   const center_color = $derived(get_signature_color(entity));
+  const hovered_node_pos = $derived(hovered_node ? node_positions.get(norm(hovered_node.name)) : null);
+  const raw_anchor_x = $derived(has_pointer ? cursor_x : (hovered_node_pos?.x ?? cx));
+  const raw_anchor_y = $derived(has_pointer ? cursor_y : (hovered_node_pos?.y ?? cy));
 </script>
 
 <div class="relative flex w-full items-center justify-center {custom_class}">
@@ -273,7 +342,7 @@
   {:else}
     <!-- Radial Visual Constellation -->
     <div class="relative flex flex-col items-center justify-center overflow-visible">
-      <div class="relative flex items-center justify-center" style="width: {size}px; height: {size}px;">
+      <div bind:this={constellation_element} class="relative flex items-center justify-center" style="width: {size}px; height: {size}px;">
         <!-- SVG Canvas for Connecting Directional Curves -->
         <svg class="absolute inset-0 z-0 h-full w-full overflow-visible" viewBox="0 0 {size} {size}" style="width: {size}px; height: {size}px;">
           <defs>
@@ -292,6 +361,14 @@
 
           <!-- Render Directed Curve Lines -->
           {#each visual_edges as ve (ve.id)}
+            {@const is_highlighted =
+              hovered_edge === ve.edge ||
+              (center_hovered && !ve.is_outgoing) ||
+              (Boolean(hovered_node) && ve.is_outgoing && norm(ve.edge.target_name) === norm(hovered_node.name))}
+            {@const edge_tooltip =
+              ve.is_outgoing ?
+                `@${get_entity_slug(ve.edge.source_entity)} → @${get_entity_slug(ve.edge.target_entity)}: ${render_display_macros(clean_dynamic_text(ve.edge.dynamic), ve.edge.source_entity, display_entities)}`
+              : ""}
             <!-- Hitbox (wide stroke for easy mouseover hover & tooltip trigger) -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <path
@@ -302,35 +379,42 @@
               class="pointer-events-auto cursor-pointer"
               onmouseenter={() => (hovered_edge = ve.edge)}
               onmouseleave={() => (hovered_edge = null)}
-              use:tooltip={`${ve.edge.source_name} → ${ve.edge.target_name}: ${clean_dynamic_text(ve.edge.dynamic)}`} />
+              use:tooltip={edge_tooltip || null} />
             <!-- Visible Styled Curve Path -->
             <path
               d={ve.path_d}
               fill="none"
               stroke={ve.color}
-              stroke-width={hovered_edge === ve.edge ? "2.75" : "1.75"}
-              stroke-opacity={hovered_edge === ve.edge ? "1" : "0.75"}
+              stroke-width={is_highlighted ? "2.75" : "1.75"}
+              stroke-opacity={is_highlighted ? "1" : "0.75"}
               marker-end="url(#marker-{ve.id})"
               class="pointer-events-none transition-[stroke-opacity,filter] duration-200"
-              filter={hovered_edge === ve.edge ? "url(#mesh-glow)" : undefined} />
+              filter={is_highlighted ? "url(#mesh-glow)" : undefined} />
           {/each}
         </svg>
 
-        <!-- Center Node (Active Profile Entity) -->
-        <div class="absolute z-10 flex flex-col items-center justify-center" style="left: {cx}px; top: {cy}px; transform: translate(-50%, -50%);">
+        <!-- Center "Sun" Node (Active Profile Entity — Incoming Relationships Hub) -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+          data-testid="relational-center-node"
+          class="absolute z-10 flex flex-col items-center justify-center"
+          style="left: {cx}px; top: {cy}px; transform: translate(-50%, -50%);"
+          use:tooltip={incoming_tooltip_text || null}
+          onpointerenter={() => (center_hovered = true)}
+          onpointerleave={() => (center_hovered = false)}
+          onmouseenter={() => (center_hovered = true)}
+          onmouseleave={() => (center_hovered = false)}>
           <div
-            class="relative flex h-14 w-14 items-center justify-center rounded-full border-2 bg-slate-900 shadow-xl"
+            class="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-2 bg-slate-900 shadow-xl transition-transform duration-fast {(
+              center_hovered && incoming_edges.length
+            ) ?
+              'scale-lift'
+            : ''}"
             style="border-color: {center_color}; box-shadow: 0 0 20px {center_color}33;">
-            {#if entity?.profile_picture}
-              <img src={entity.profile_picture} alt={entity.name} class="h-full w-full rounded-full object-cover" />
-            {:else}
-              <span class="text-xs font-bold text-slate-200 uppercase">
-                {(entity?.name || "?").slice(0, 2)}
-              </span>
-            {/if}
+            <ProfilePicture {entity} class="rounded-full" />
           </div>
-          <span class="mt-tight max-w-22.5 truncate text-center text-[11px] font-bold text-slate-200 drop-shadow-md">
-            {entity?.name || "Active"}
+          <span class="mt-tight max-w-22.5 truncate text-center font-mono text-[11px] font-bold drop-shadow-md" style="color: {center_color};">
+            @{get_entity_slug(entity) || "ACTIVE"}
           </span>
         </div>
 
@@ -338,77 +422,74 @@
         {#each Array.from(node_positions.values()) as node (node.item.name)}
           {@const sat_entity = node.item.entity}
           {@const sat_color = get_signature_color(sat_entity)}
+          {@const sat_handle = `@${get_entity_slug(sat_entity || node.item)}`}
           <div class="absolute z-10 flex flex-col items-center justify-center" style="left: {node.x}px; top: {node.y}px; transform: translate(-50%, -50%);">
             <button
               type="button"
-              aria-label={`Open profile for ${node.item.name}`}
-              onmouseenter={() => (hovered_node = node.item)}
-              onmouseleave={() => (hovered_node = null)}
-              onfocus={() => (hovered_node = node.item)}
-              onblur={() => (hovered_node = null)}
+              aria-label={`Open profile for ${node.item.name} (${sat_handle})`}
+              onpointerenter={(e) => {
+                hovered_node = node.item;
+                update_cursor_coords(e);
+              }}
+              onpointermove={update_cursor_coords}
+              onmouseenter={(e) => {
+                hovered_node = node.item;
+                if (e.clientX || e.clientY) update_cursor_coords(e);
+              }}
+              onmouseleave={() => {
+                hovered_node = null;
+                has_pointer = false;
+              }}
+              onfocus={() => {
+                hovered_node = node.item;
+                has_pointer = false;
+              }}
+              onblur={() => {
+                hovered_node = null;
+                has_pointer = false;
+              }}
               onclick={() => {
                 if (typeof on_select_entity === "function") {
                   on_select_entity(sat_entity || node.item.entity || { name: node.item.name });
                 }
               }}
-              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-fast hover:scale-lift focus:outline-hidden"
+              class="group relative flex h-11 w-11 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 bg-slate-900 shadow-lg transition-transform duration-fast hover:scale-lift focus:outline-hidden"
               style="border-color: {sat_color}; box-shadow: 0 0 12px {sat_color}22;">
-              {#if sat_entity?.profile_picture}
-                <img src={sat_entity.profile_picture} alt={node.item.name} class="h-full w-full rounded-full object-cover" />
-              {:else}
-                <span class="text-[10px] font-bold text-slate-300 uppercase">
-                  {node.item.name.slice(0, 2)}
-                </span>
-              {/if}
+              <ProfilePicture entity={sat_entity || node.item} class="rounded-full" />
             </button>
-            <span class="mt-tight max-w-20 truncate text-center text-[10px] font-medium text-slate-400 group-hover:text-slate-200">
-              {node.item.name}
+            <span class="mt-tight max-w-20 truncate text-center font-mono text-[10px] font-bold drop-shadow-md" style="color: {sat_color};">
+              {sat_handle}
             </span>
           </div>
         {/each}
-      </div>
 
-      <!-- CardHand-sized Hover Preview Card -->
-      {#if hovered_node}
-        {@const hover_ent = hovered_node.entity}
-        {@const hover_color = get_signature_color(hover_ent)}
-        {@const is_fractal = hover_ent?.type === "fractal"}
-        {@const hover_dynamic = clean_dynamic_text(
-          hovered_node.temporal_links?.present ||
-            hovered_node.temporal_links?.eternal ||
-            hovered_node.temporal_links?.past?.[0] ||
-            hovered_node.temporal_links?.future ||
-            "",
-        )}
-        <div
-          data-testid="relational-hover-card"
-          class="pointer-events-none absolute right-2 bottom-2 z-30 flex flex-col overflow-hidden rounded-standard border bg-glass-elevated shadow-standard backdrop-blur-md {(
-            is_fractal
-          ) ?
-            'h-[calc(var(--spacing-fractal-card-height)*0.5)] w-[calc(var(--spacing-fractal-card-width)*0.5)]'
-          : 'h-[calc(var(--spacing-character-card-height)*0.5)] w-[calc(var(--spacing-character-card-width)*0.5)]'}"
-          style:--signature-color={hover_color}
-          style:border-color="color-mix(in srgb, var(--signature-color) 55%, transparent)">
-          <div class="relative h-full w-full overflow-hidden">
-            {#if hover_ent}
-              <ProfilePicture entity={hover_ent} />
-            {/if}
-            <div class="absolute inset-x-0 bottom-0 z-20 flex flex-col justify-end bg-linear-to-t from-black/95 via-black/75 to-transparent p-tight text-left">
-              <span class="truncate font-heading text-xs font-bold uppercase" style="color: {hover_color};">
-                {hovered_node.name}
-              </span>
-              <span class="font-mono text-[9px] text-slate-400">
-                @{get_entity_slug(hover_ent || hovered_node)}
-              </span>
-              {#if hover_dynamic}
-                <p class="mt-0.5 line-clamp-2 text-[10px] leading-snug text-slate-200">
-                  {hover_dynamic}
-                </p>
-              {/if}
+        <!-- Cursor-Locked EntityCard Hover Preview -->
+        {#if hovered_node}
+          {@const hover_ent = hovered_node.entity || { name: hovered_node.name }}
+          {@const is_fractal = hover_ent?.type === "fractal"}
+          {@const first_outgoing =
+            hovered_node.outgoing_links?.present?.[0] ||
+            hovered_node.outgoing_links?.eternal?.[0] ||
+            hovered_node.outgoing_links?.past?.[0] ||
+            hovered_node.outgoing_links?.future?.[0] ||
+            ""}
+          {@const hover_dynamic = clean_dynamic_text(first_outgoing)}
+          <div
+            data-testid="relational-hover-card"
+            class="pointer-events-none absolute top-0 left-0 z-30 will-change-transform"
+            style="transform: translate3d({raw_anchor_x}px, {raw_anchor_y}px, 0);">
+            <div style="transform: translate({raw_anchor_x > cx ? 'calc(-100% - 16px)' : '16px'}, {raw_anchor_y > cy ? 'calc(-100% - 16px)' : '16px'});">
+              <EntityCard
+                variant="library"
+                entity={hover_ent}
+                type={is_fractal ? "fractal" : "ai"}
+                launch_gesture={false}
+                description_override={hover_dynamic || null}
+                description_owner={entity} />
             </div>
           </div>
-        </div>
-      {/if}
+        {/if}
+      </div>
     </div>
   {/if}
 </div>

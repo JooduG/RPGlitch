@@ -63,6 +63,7 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
 
 - **Framework**: Svelte 5 (Runes-only) via Vite 8 (`vite-plugin-singlefile`). Local-First PWA for Perchance iframe.
 - **Persistence**: Dexie.js (IndexedDB) exclusively. `localStorage` is forbidden.
+- **Atomic Seeding & Schema Lock**: Keep Dexie at `db.version(2)` (no schema bumps for new indexes). Multi-table boot seeding and idempotency/backfill checks (such as `premade_key`) must run inside a single `db.transaction("rw", ...)` rather than relying on per-tab in-memory flags or separate non-transactional writes.
 - **Audio Protocol**: Initialize AudioContext strictly on direct user gesture. Suspend/close when unmounting.
 - **Documentation Topology (Anti-Docs-Folder Law)**: Never create a top-level `docs/` folder or loose design drafts in the root. Technical blueprints belong in root `README.md` (the sovereign Hay Blueprint replacing legacy `ARCHITECTURE.md`), active sprints and roadmap horizons belong in `ROADMAP.md` and `nuclear-plan.md`, domain research and proposals belong in `.agents/skills/<domain>/references/`, and interactive implementation runbooks belong in agent brain artifacts (`<brain>/<name>.md`).
 

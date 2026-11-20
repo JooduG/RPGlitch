@@ -116,15 +116,18 @@
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profile_state.char, "var(--color-gunmetal)"));
 
+  const known_entities = $derived(
+    [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
+      Boolean,
+    ),
+  );
+
   const display_entities = $derived({
     AI: runtime.active_ai || app.selected_ai,
     USER: runtime.active_user || app.selected_user,
     FRACTAL: runtime.active_fractal || app.selected_fractal,
+    ALL: known_entities,
   });
-
-  const known_entities = $derived(
-    [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.fractal_list || [])].filter(Boolean),
-  );
 
   /**
    * Resolves the target entity's signature color for `@ENTITY` bracket keys.

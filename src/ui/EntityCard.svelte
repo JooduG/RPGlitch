@@ -20,6 +20,9 @@
     AI: runtime.active_ai || app.selected_ai,
     USER: runtime.active_user || app.selected_user,
     FRACTAL: runtime.active_fractal || app.selected_fractal,
+    ALL: [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
+      Boolean,
+    ),
   });
 
   /**
@@ -33,6 +36,8 @@
    * @property {() => void} [on_select] - Selection callback mapping
    * @property {any[]} [actions] - Context menu actions (config-driven: { label, onSelect, disabled, separator, danger })
    * @property {boolean} [launch_gesture] - Rack-pull-eject launch on select (default true; disable when the parent animates selection itself)
+   * @property {string | null} [description_override] - Optional override text rendered in the card summary block (also enables summary in library variant)
+   * @property {any} [description_owner] - Optional perspective owner passed to MacroText when rendering description_override
    */
 
   /** @type {Props} */
@@ -46,6 +51,8 @@
     on_select = undefined,
     actions = [],
     launch_gesture = true,
+    description_override = null,
+    description_owner = null,
   } = $props();
 
   // --- STATE RUNES ---
@@ -475,37 +482,52 @@
           group-hover/card:opacity-100
         `
       : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
-    {#if !is_empty && variant !== "library" && variant !== "message" && app.view !== "storymode"}
+    {#if !is_empty && (Boolean(description_override) || (variant !== "library" && variant !== "message" && app.view !== "storymode"))}
       <p
         data-card-text
         class="
-          mt-tight
           [display:-webkit-box]
-          max-h-18
           overflow-hidden
           font-sans
-          text-sm
-          leading-relaxed
           wrap-break-word
           whitespace-normal
           text-slate-50
-          opacity-80
           transition-opacity
           duration-300
           ease-in-out
           [-webkit-box-orient:vertical]
-          [-webkit-line-clamp:3]
-          [line-clamp:3]
           [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]
 
-          {variant === 'library' || variant === 'message' ?
+          {variant === 'library' && description_override ?
+          `
+            mt-0.5
+            max-h-9
+            text-[10px]
+            leading-snug
+            opacity-90
+            [-webkit-line-clamp:2]
+            [line-clamp:2]
+          `
+        : `
+            mt-tight
+            max-h-18
+            text-sm
+            leading-relaxed
+            opacity-80
+            [-webkit-line-clamp:3]
+            [line-clamp:3]
+          `}
+
+          {(variant === 'library' || variant === 'message') && !description_override ?
           `
             m-0
             max-h-0
             opacity-0
           `
         : ''}">
-        {#if entity?.description}
+        {#if description_override}
+          <MacroText text={description_override} owner={description_owner || entity} entities={display_entities} />
+        {:else if entity?.description}
           <MacroText text={entity.description} owner={entity} entities={display_entities} />
         {:else}
           No description provided.
