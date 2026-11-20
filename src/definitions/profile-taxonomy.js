@@ -30,6 +30,11 @@ import { format_key_as_label } from "@utils";
  */
 
 export const PROFILE_FIELDS = {
+  id: {
+    label: "Entity Handle",
+    description: "Unique @ID slug used to reference this entity in relational brackets and prompts (2-36 chars: A-Z, 0-9, _ or -).",
+    directive: "Unique @ID handle slug",
+  },
   name: { label: "Name", description: "Entity name string", directive: "Entity name string" },
   description: {
     label: "Description",
@@ -83,7 +88,7 @@ export const PROFILE_FIELDS = {
       enhancer: "TRAJECTORY_SIMULATOR",
     },
     past: {
-      label: "Past",
+      label: "Memories & Backstory",
       description: "Settled precedents, canon facts, and emotional anchors ([KEY: fact | flags]). Ranked via pure numeric weights (w: 1-10).",
       directive: `Settled historical fact or precedent: [KEY: value | flags] (flags: 'hide' / 'show', 'w: 1-10'). Specific over vague; exclude transient moods or immediate dialogue.`,
       enhancer: "PAST_COMPILER",

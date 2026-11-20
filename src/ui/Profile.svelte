@@ -608,7 +608,7 @@
                         profile_state.identity_error = "";
                         profile_state.mark_mutated();
                       }}
-                      onfocus={() => profile_state.set_active_field("name", "Entity Name")}
+                      onfocus={() => profile_state.set_active_field("name", PROFILE_FIELDS.name.label)}
                       onblur={() => {
                         if (!profile_state.commit_draft_name()) {
                           profile_state.identity_error = "Name is required.";
@@ -667,10 +667,10 @@
                     hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
                     [&::-webkit-scrollbar-track]:bg-transparent
                   "
-                    placeholder={PROFILE_FIELDS.description?.description || "Description"}
+                    placeholder={PROFILE_FIELDS.description?.description || PROFILE_FIELDS.description?.label}
                     bind:value={profile_state.char.description}
                     use:auto_resize
-                    onfocus={() => profile_state.set_active_field("description", "Description")}
+                    onfocus={() => profile_state.set_active_field("description", PROFILE_FIELDS.description.label)}
                     onblur={() => profile_state.set_active_field("", "")}></textarea>
                 </div>
               {:else if profile_state.char.description}
@@ -789,8 +789,8 @@
                       value={profile_state.draft_id ?? profile_state.char.id ?? ""}
                       placeholder="SLUG"
                       maxlength="36"
-                      aria-label="Entity Handle"
-                      use:tooltip={"Entity Handle (@ID) - unique identifier used to reference this entity in brackets (2-36 chars: A-Z, 0-9, _ or -)."}
+                      aria-label={PROFILE_FIELDS.id.label}
+                      use:tooltip={PROFILE_FIELDS.id.description}
                       class="w-28 border-b border-white/25 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider text-slate-100 uppercase outline-none focus:border-white/60"
                       oninput={(event) => {
                         profile_state.draft_id = event.currentTarget.value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 36);
@@ -803,19 +803,18 @@
                         }
                         profile_state.set_active_field("", "");
                       }}
-                      onfocus={() => profile_state.set_active_field("id", "Entity Handle")} />
+                      onfocus={() => profile_state.set_active_field("id", PROFILE_FIELDS.id.label)} />
                     <span class="text-slate-400" aria-hidden="true">·</span>
                     <button
                       type="button"
-                      use:tooltip={profile_state.char.pov === "1st_person" ?
-                        "Narrative POV: 1st Person ('I / me'). Click to switch to 3rd Person."
-                      : "Narrative POV: 3rd Person ('he / she / they'). Click to switch to 1st Person."}
+                      aria-label={PROFILE_FIELDS.pov.label}
+                      use:tooltip={PROFILE_FIELDS.pov.description}
                       class="cursor-pointer rounded-md border border-white/15 bg-black/25 px-2 py-0.5 font-mono text-[11px] tracking-wider text-slate-200 uppercase transition-colors outline-none hover:border-white/35"
                       onclick={() => {
                         profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
                         profile_state.mark_mutated();
                       }}
-                      onfocus={() => profile_state.set_active_field("pov", "Perspective")}
+                      onfocus={() => profile_state.set_active_field("pov", PROFILE_FIELDS.pov.label)}
                       onblur={() => profile_state.set_active_field("", "")}>
                       {profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}
                     </button>
@@ -828,17 +827,10 @@
                 {:else if profile_state.char.id}
                   <div
                     class="flex items-center gap-tight rounded-md border border-white/10 bg-black/25 px-2.5 py-1 font-mono text-[11px] tracking-wider text-slate-200 uppercase">
-                    <span
-                      class="cursor-help"
-                      style="color: {signature_color};"
-                      use:tooltip={`Entity Handle: @${profile_state.char.id.toUpperCase()} - reference this entity in brackets using @${profile_state.char.id.toUpperCase()}`}
+                    <span class="cursor-help" style="color: {signature_color};" use:tooltip={PROFILE_FIELDS.id.description}
                       >@{profile_state.char.id.toUpperCase()}</span>
                     <span class="text-slate-500" aria-hidden="true">·</span>
-                    <span
-                      class="cursor-help text-slate-300"
-                      use:tooltip={profile_state.char.pov === "1st_person" ?
-                        "Narrative POV: 1st Person - narrates from an 'I / me' perspective"
-                      : "Narrative POV: 3rd Person - narrates from a 'he / she / they' perspective"}
+                    <span class="cursor-help text-slate-300" use:tooltip={PROFILE_FIELDS.pov.description}
                       >{profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}</span>
                   </div>
                 {/if}

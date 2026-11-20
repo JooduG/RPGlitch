@@ -423,10 +423,7 @@
       justify-end
       overflow-hidden
       rounded-b-[inherit]
-      bg-linear-to-t
-      from-black/95
-      {has_brackets ? 'max-h-full via-black/85 via-60%' : 'via-black/75 via-45%'}
-      to-transparent
+      {has_brackets ? '' : 'bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent'}
       text-center
       transition-opacity
       duration-300
@@ -440,18 +437,27 @@
     : 'opacity-100'}
 
       {variant === 'library' ?
-      `
-        h-auto
-        min-h-[40%]
-        p-tight
-      `
+      has_brackets ?
+        `
+            h-auto
+            max-h-full
+            px-tight
+            pt-6
+            pb-tight
+          `
+      : `
+            h-auto
+            min-h-[40%]
+            p-tight
+          `
     : `
-        h-auto
-        min-h-[50%]
-        px-tight
-        pt-8
-        pb-standard
-      `}">
+          h-auto
+          min-h-[50%]
+          px-tight
+          pt-8
+          pb-standard
+        `}"
+    style:background={has_brackets ? "linear-gradient(to top, rgb(0 0 0 / 0.96) 0%, rgb(0 0 0 / 0.88) calc(100% - 1.5rem), transparent 100%)" : undefined}>
     {#if !hide_title_for_brackets}
       <span
         data-card-text

@@ -9,8 +9,10 @@ import { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE, build_
 
 describe("profile-taxonomy.js schema invariants", () => {
   it("defines top-level taxonomy sections and entity root schemas", () => {
+    expect(PROFILE_FIELDS.id).toBeDefined();
     expect(PROFILE_FIELDS.name).toBeDefined();
     expect(PROFILE_FIELDS.description).toBeDefined();
+    expect(PROFILE_FIELDS.pov).toBeDefined();
     expect(PROFILE_FIELDS.character).toBeDefined();
     expect(PROFILE_FIELDS.character.eternal).toBeDefined();
     expect(PROFILE_FIELDS.character.present).toBeDefined();
