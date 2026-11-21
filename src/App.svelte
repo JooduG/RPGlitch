@@ -10,9 +10,9 @@
   import { app, execution, session } from "@state";
   import { Audio, motion } from "@media";
   import { LayoutGrid, Tooltip, unpin_tooltip } from "@atoms";
-  import { ContextMenu, EntityCard } from "@organisms";
+  import { ContextMenu, EntityCard, ImagePreview } from "@organisms";
   import { get_signature_color } from "@utils";
-  import { Console, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
+  import { Console, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
