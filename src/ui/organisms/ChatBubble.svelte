@@ -227,12 +227,11 @@
   import { image_picker, open_image_preview, open_picker } from "./ImagePreview.svelte.js";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
   import { Accordion, Avatar, Button, Icon, Shimmer, Typewriter, tooltip } from "@atoms";
-  import { TextField } from "@molecules";
+  import { MacroText, TextField } from "@molecules";
   import { open_context_menu } from "./ContextMenu.svelte";
   import EntityCard from "./EntityCard.svelte";
   import { resolve_speaking_style } from "@simulation";
   import { entity_avatar_props, get_percentage, safe_html, get_signature_color } from "@utils";
-  import MacroText from "./MacroText.svelte";
 
   /**
    * @typedef {Object} Props
@@ -1080,11 +1079,11 @@
           {#if item.key}
             <span class="inline-flex max-w-full items-baseline gap-tight rounded border border-white/10 bg-white/5 px-2.5 py-1">
               <span class="shrink-0 text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">{item.key}</span>
-              <span class="min-w-0 text-slate-100"><MacroText text={item.value} entities={display_entities} /></span>
+              <span class="min-w-0 text-slate-100"><MacroText text={item.value} entities={display_entities} on_select={(ent) => app.open_profile(ent)} /></span>
             </span>
           {:else}
             <div class="w-full">
-              <span><MacroText text={item.value} entities={display_entities} /></span>
+              <span><MacroText text={item.value} entities={display_entities} on_select={(ent) => app.open_profile(ent)} /></span>
             </div>
           {/if}
         {/each}

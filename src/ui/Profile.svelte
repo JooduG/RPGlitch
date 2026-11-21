@@ -18,8 +18,8 @@
   import { app, execution, session } from "@state";
   import { auto_resize, download_json_file, entity_avatar_props, get_signature_color } from "@utils";
   import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
-  import { Dialog, Dropdown, Modal, TextField } from "@molecules";
-  import { AudioWing, BracketList, DevWing, MacroText, ProfileState, RelationalGraph, VisualWing } from "@organisms";
+  import { BracketList, Dialog, Dropdown, MacroText, Modal, TextField } from "@molecules";
+  import { AudioWing, DevWing, ProfileState, RelationalGraph, VisualWing } from "@organisms";
   import { fade } from "svelte/transition";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -992,7 +992,7 @@
             {/if}
 
             {#snippet bracketed_content()}
-              <BracketList record={parsed} owner={profile_state.char} entities={display_entities} />
+              <BracketList record={parsed} owner={profile_state.char} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
             {/snippet}
 
             <TextField
@@ -1080,5 +1080,5 @@
 {/snippet}
 
 {#snippet inline_macro_text(text)}
-  <MacroText {text} owner={profile_state.char} entities={display_entities} />
+  <MacroText {text} owner={profile_state.char} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
 {/snippet}

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ContextMenu, { close_context_menu } from "./ContextMenu.svelte";
 import EntityCard from "./EntityCard.svelte";
 import * as imagePreviewModule from "./ImagePreview.svelte.js";
-import MacroText from "./MacroText.svelte";
+import { MacroText } from "@molecules";
 import RelationalGraph from "./RelationalGraph.svelte";
 
 vi.mock("@data", async (importOriginal) => {
@@ -105,11 +105,11 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     expect(container.querySelector(".overflow-y-auto")).toBeNull();
     expect(container.textContent).not.toContain("Lord Benedict Silvers");
     expect(container.textContent).toContain("DEBT");
-    expect(container.textContent).toContain("present");
+    expect(container.querySelector('[aria-label="present"]')).toBeTruthy();
     expect(container.textContent).toContain("RIVALRY");
-    expect(container.textContent).toContain("eternal");
+    expect(container.querySelector('[aria-label="eternal"]')).toBeTruthy();
     expect(container.textContent).toContain("OLD_PACT");
-    expect(container.textContent).toContain("past");
+    expect(container.querySelector('[aria-label="past"]')).toBeTruthy();
     expect(container.textContent).toContain("arms supplier debt");
     expect(container.textContent).toContain("bitter orbital rivalry");
     expect(container.textContent).not.toContain("[DEBT:");
@@ -228,7 +228,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
       profile_picture: "https://example.com/silvers.png",
     };
 
-    render(MacroText, { props: { text: "Refuses @SILVERS", entities: { ALL: [target] } } });
+    render(MacroText, { props: { text: "Refuses @SILVERS", entities: { ALL: [target] }, on_select: (ent) => app.open_profile(ent) } });
 
     const handle_btn = await screen.findByRole("button", { name: "@SILVERS" });
     await fireEvent.click(handle_btn);

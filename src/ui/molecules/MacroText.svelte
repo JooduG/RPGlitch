@@ -1,10 +1,9 @@
 <script>
   /**
-   * @file src/ui/organisms/MacroText.svelte
+   * @file src/ui/molecules/MacroText.svelte
    * Renders prose with resolved `@ID` handles colored by signature hue and interactive hover/context-menu previews.
    */
   import { hide_tooltip, pin_tooltip_menu, tooltip } from "@atoms";
-  import { app } from "@state";
   import { get_signature_color, resolve_display_macro_segments } from "@utils";
 
   let { text = "", owner = null, entities = {}, segment = null, fallback_color = "var(--color-frozen)", on_select = null } = $props();
@@ -17,8 +16,6 @@
     hide_tooltip();
     if (typeof on_select === "function") {
       on_select(target_entity);
-    } else {
-      app.open_profile(target_entity);
     }
   }
 
@@ -32,7 +29,7 @@
 {#each segments as seg, i (i)}
   {#if seg.macro}
     {#if seg.entity}
-      {#if on_select || on_select === null}
+      {#if typeof on_select === "function"}
         <button
           type="button"
           use:tooltip={{ preview: { entity: seg.entity }, text: seg.entity.name || seg.text }}

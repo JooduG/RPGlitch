@@ -24,10 +24,9 @@
   import { resolve_entity_style_tiles } from "@definitions";
   import { motion } from "@media";
   import { Avatar, Icon, tooltip } from "@atoms";
+  import { BracketList, MacroText } from "@molecules";
   import { entity_avatar_props, get_signature_color } from "@utils";
   import { open_context_menu } from "./ContextMenu.svelte";
-  import BracketList from "./BracketList.svelte";
-  import MacroText from "./MacroText.svelte";
 
   const display_entities = $derived({
     AI: session.active_ai || app.selected_ai,
@@ -533,7 +532,13 @@
       </div>
     {:else if has_brackets}
       <div class="{hide_title_for_brackets ? '' : 'mt-tight'} w-full overflow-hidden">
-        <BracketList entries={bracket_items} owner={description_owner || entity} entities={display_entities} compact={true} sort_by_length={false} />
+        <BracketList
+          entries={bracket_items}
+          owner={description_owner || entity}
+          entities={display_entities}
+          compact={true}
+          sort_by_length={false}
+          on_select={(ent) => app.open_profile(ent)} />
       </div>
     {:else if !is_empty && (Boolean(description_override) || (variant !== "library" && variant !== "message" && app.view !== "storymode"))}
       <p
@@ -574,9 +579,9 @@
           `
         : ''}">
         {#if description_override}
-          <MacroText text={description_override} owner={description_owner || entity} entities={display_entities} />
+          <MacroText text={description_override} owner={description_owner || entity} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
         {:else if entity?.description}
-          <MacroText text={entity.description} owner={entity} entities={display_entities} />
+          <MacroText text={entity.description} owner={entity} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
         {:else}
           No description provided.
         {/if}
