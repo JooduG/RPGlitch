@@ -1,16 +1,18 @@
+import { app, execution, session } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
-import { app, execution, session } from "@state";
-import { run_turn } from "./runner.js";
 import { generate_opening } from "./lifecycle.js";
+import { run_turn } from "./turns.js";
 
-vi.mock("./runner.js", () => ({ run_turn: vi.fn().mockResolvedValue({}), continue_turn: vi.fn().mockResolvedValue({}) }));
+vi.mock("./turns.js", () => ({ run_turn: vi.fn().mockResolvedValue({}), continue_turn: vi.fn().mockResolvedValue({}) }));
 
 vi.mock("./lifecycle.js", () => ({
   generate_opening: vi.fn().mockResolvedValue({}),
   generate_closing: vi.fn().mockResolvedValue({}),
   refine_image_prompt: vi.fn().mockResolvedValue({ prompt: "", negative_prompt: "" }),
   parse_entity_profile: vi.fn().mockResolvedValue(null),
+  create_entity_with_profile: vi.fn().mockResolvedValue({}),
+  generate_user_draft: vi.fn().mockResolvedValue(""),
 }));
 
 describe("ChronoEngine", () => {
@@ -63,11 +65,12 @@ describe("ChronoEngine", () => {
       expect(session.send_user_message).not.toHaveBeenCalled();
     });
 
-    it("accepts valid text and dispatches run_turn", async () => {
+    it("accepts valid text, dispatches run_turn, and avoids duplicate session.save", async () => {
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session.send_user_message).toHaveBeenCalledWith("Look around");
       expect(run_turn).toHaveBeenCalled();
+      expect(session.save).not.toHaveBeenCalled();
     });
 
     it("purges orphaned user turn row from IndexedDB when a turn is aborted", async () => {
@@ -83,10 +86,22 @@ describe("ChronoEngine", () => {
       expect(result).toBe(false);
       expect(session.delete_entry).toHaveBeenCalledWith(42);
     });
+
+    it("recovers orphaned turn once on non-abort error and leaves execution phase idle", async () => {
+      session.load_log.mockResolvedValueOnce([{ id: 77, role: "user", text: "Hello", created_at: 1000 }]);
+      run_turn.mockRejectedValueOnce(new Error("Transient network glitch")).mockResolvedValueOnce({});
+
+      const result = await chrono_engine.send("Hello");
+
+      expect(result).toBe(true);
+      expect(run_turn).toHaveBeenCalledTimes(2);
+      expect(execution.phase).toBe("idle");
+      expect(execution.busy).toBe(false);
+    });
   });
 
   describe("start", () => {
-    it("creates session, syncs session store, and executes opening", async () => {
+    it("creates session, syncs session store, and executes abortable opening", async () => {
       const selection = {
         ai: { id: "ai-1", name: "Iris" },
         user: { id: "usr-1", name: "Player" },
@@ -97,8 +112,9 @@ describe("ChronoEngine", () => {
 
       expect(session.create_from_selection).toHaveBeenCalledWith(expect.objectContaining({ ai_id: "ai-1", user_id: "usr-1", fractal_id: "fr-1" }));
       expect(session.sync).toHaveBeenCalledWith("story-123");
-      expect(generate_opening).toHaveBeenCalledWith("story-123");
+      expect(generate_opening).toHaveBeenCalledWith("story-123", expect.objectContaining({ signal: expect.any(AbortSignal) }));
       expect(app.suppress_card_transitions).toBe(false);
+      expect(execution.stream.abort_controller).toBeNull();
     });
   });
 

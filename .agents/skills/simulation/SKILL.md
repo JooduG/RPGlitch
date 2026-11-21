@@ -1,34 +1,42 @@
 ---
 name: simulation
-description: Operational runbook for RPGlitch's 3-turn simulation engine, prompt compilation, Sieve RAG memory, and deterministic somatic physics in `src/engine/`. Use when modifying `turns.js`, `runs.js`, `prompts.js`, `sieve.js`, `dynamics.js`, `gate.js`, `kernel.svelte.js`, or `chrono.svelte.js`. Do NOT use for UI components or runes (use `svelte`), visual tokens/layouts (use `design`), animations (use `motion`), or Web Audio/TTS (use `audio`).
+description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/engine/`), prompt compilation, Sieve RAG memory, and deterministic somatic physics (`src/simulation/`). Use when modifying `transport.js`, `steps.js`, `turns.js`, `lifecycle.js`, `chrono.svelte.js`, `prompts.js`, `retrieval.js`, or `dynamics.js`. Do NOT use for UI components or runes (use `svelte`), visual tokens/layouts (use `design`), animations (use `motion`), or Web Audio/TTS (use `audio`).
 ---
 
 # Simulation Engine Runbook
 
-> **Pre-Flight Check**: Read [PITFALLS.md](./PITFALLS.md) before editing any simulation module.
+> **Pre-Flight Check**: Read [PITFALLS.md](./PITFALLS.md) before editing any simulation or engine module.
 
-> **Spec Boundary**: Authoritative product specs live in [README.md](../../../README.md) and [GEMINI.md](../../../GEMINI.md). This skill covers **how** to modify and verify the live engine in `src/engine/`.
+> **Spec Boundary**: Authoritative product specs live in [README.md](../../../README.md) and [GEMINI.md](../../../GEMINI.md). This skill covers **how** to modify and verify the live engine in `src/engine/` and pure simulation logic in `src/simulation/`.
 
 ---
 
 ## 1. Live Engine Map
 
-- **Entry & Lifecycle**: `src/engine/chrono.svelte.js` (`chrono_engine.send()`), `src/engine/kernel.svelte.js` (`Kernel`), `src/engine/runs.js` (`execute_turn`, `execute_continue`, `dispatch_caretaker_consolidation`).
-- **3-Turn Pipeline (`src/engine/turns.js`)**:
-  - **Turn 1 (Director)**: `execute_turn_1_director` — fast staging pass; evaluates somatic deltas, delegates next actor, optionally schedules image beats (`spawn_image_beat` in `runs.js`), and emits `directors_note`.
-  - **Turn 2 (Character)**: `execute_turn_2_character` — streams in-character dialogue, `<think>` cognition, and sensory prose; runs `detox_prose(text, resolved_style)`.
-  - **Turn 3 (Caretaker)**: `execute_turn_3_caretaker` — background consolidation (`LLM_PRIORITY.BACKGROUND` via `gate.js`), computing 384-d embeddings and writing `mutation_ledger` diffs.
-- **Prompt Compilation (`src/engine/prompts.js`)**: `PURPOSE_CORES` and `compile_prompt()` assemble the 11-block Spatial State Spine (`<SYSTEM>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, etc.). Keep the opening prefix byte-identical across turns for KV-cache reuse.
-- **Memory & Budgets (`src/engine/sieve.js`)**: Two-Tier Sieve RAG enforces character budgets (`FIELD_FLOORS`, `TOTAL_FIELD_FLOORS_CHARACTERS = 1700`) and `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` (`src/config.js`). `usr_` memories are origin-protected (`1.5x` relevance).
-- **Somatic Physics & Gate**: `src/engine/dynamics.js` (`reduce_dynamics`, clamped to `DYNAMICS.DELTA.CLIP` `[5, 95]` in `Kernel.submit_turn`), `src/engine/gate.js` (`run_llm_job`, `LLM_PRIORITY`).
+### Rank 4 (`src/engine/`)
+
+- **Transport (`src/engine/transport.js`)**: `get_transport()`, `create_live_stream_fn()`, `is_abort_error()`, `get_mock_message()`; delegates single-flight priority queuing (`LLM_PRIORITY`, `enqueue_llm_job`) to `src/utils/async.js`.
+- **Stateless Steps (`src/engine/steps.js`)**: Zero `@state` imports.
+  - **Turn 1 (Director)**: `run_planner_step` — evaluates dynamics deltas (`[-20, 20]`), delegates `next_action`, and emits `directors_note` + `camera_note`.
+  - **Turn 2 (Character)**: `run_generation_step`, `continue_generation_step`, `run_round`.
+  - **Turn 3 (Caretaker / Schemas)**: `run_memory_consolidation_step`, `run_schema_extraction_step`, `run_image_prompt_step`.
+- **Stateful Turns (`src/engine/turns.js`)**: `run_turn`, `continue_turn`, `persist_turn_rows`, `write_back_turn_state`, `dispatch_consolidation`, `maybe_spawn_turn_image` (clamps dynamics to `[5, 95]` via `step_dynamics`, preserves `dynamics_baseline`, schedules non-blocking `spawn_image_beat`).
+- **Lifecycle (`src/engine/lifecycle.js`)**: `generate_opening`, `generate_closing`, `refine_image_prompt`, `parse_entity_profile`, `create_entity_with_profile`, `generate_user_draft`.
+- **Facade (`src/engine/chrono.svelte.js`)**: `ChronoEngine` / `chrono_engine` (`start`, `send`, `retry`, `continue`, `advance_turn`, `stop`).
+
+### Rank 1 (`src/simulation/`)
+
+- **Prompt Compilation (`src/simulation/prompts.js`)**: `PURPOSE_CORES` and `compile_prompt()` assemble the Spatial State Spine (`<SYSTEM>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, etc.). Keep the opening prefix byte-identical across turns for KV-cache reuse.
+- **Memory & Budgets (`src/simulation/retrieval.js`)**: Two-Tier Sieve RAG enforces character budgets (`FIELD_FLOORS`, `TOTAL_FIELD_FLOORS_CHARACTERS = 1700`) and `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` (`src/config.js`). `usr_` memories are origin-protected (`1.5x` relevance).
+- **Dynamics & Output (`src/simulation/dynamics.js`, `brackets.js`, `history.js`, `llm-output.js`)**: `step_dynamics`, `resolve_caretaker_target`, `format_tagged_fields`, `clean_generated_prose`.
 
 ---
 
 ## 2. Execution Workflow
 
-1. **Ground**: Read [PITFALLS.md](./PITFALLS.md) and the target `src/engine/` module(s).
+1. **Ground**: Read [PITFALLS.md](./PITFALLS.md) and the target `src/engine/` or `src/simulation/` module(s).
 2. **Preserve Prefix & Agency**: Keep `<SYSTEM>` / `<AXIOMATIC_CONSTITUTION>` byte-identical across turns and never emit user-persona speech/thoughts.
-3. **Verify Epistemic & Visual Filters**: Ensure `filter_epistemic_brackets` / `format_clean_brackets` (`src/data/parser.js`) and `build_aesthetic_map` (`src/media/optics.js`) remain intact.
+3. **Verify Epistemic & Visual Filters**: Ensure `format_tagged_fields` (`src/simulation/brackets.js`) and `build_aesthetic_map` (`src/simulation/prompts.js`) remain intact.
 4. **In-Folder Imports**: Use relative `./file.js` imports inside `src/engine/` (never `@engine`).
 5. **Test**: Run `npm run audit:simulation` and `npm run test:unit` after edits.
 

@@ -11,7 +11,7 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 - **User text & chat inputs** (`Console.svelte`, `Profile.svelte`)
 - **Imported character cards & JSON/PNG files** (`src/data/card-conversion.js`, `src/ui/primitives/SourceField.svelte`)
 - **External web fetches** (`validate_url` / `fetch_web` in `src/utils/ingestion.js`)
-- **Streaming LLM responses** (`src/engine/transport.js`, `src/engine/runner.js`)
+- **Streaming LLM responses** (`src/engine/transport.js`, `src/engine/steps.js`)
 
 ---
 
@@ -30,7 +30,7 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 
 ### 2.3 LLM Response & Domain Bounds
 
-- **Whitelisted Extraction (`src/engine/runner.js`)**: Director Turn 1 parses JSON via `safe_parse_json` and extracts only whitelisted fields (`dynamics_deltas`, `next_action`, `directors_note`, `camera_note`).
+- **Whitelisted Extraction (`src/engine/steps.js`)**: Director Turn 1 parses JSON via `safe_parse_json` and extracts only whitelisted fields (`dynamics_deltas`, `next_action`, `directors_note`, `camera_note`).
 - **Resource & Numeric Caps**: `clamp` (`@utils`) and `DYNAMICS.DELTA.CLIP` (`src/config.js`) bound dynamics values (`[0, 100]` in `reduce_dynamics`, `[5, 95]` in `apply_dynamics_step`).
 
 ---

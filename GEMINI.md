@@ -21,8 +21,8 @@ Extends global `GEMINI.md` with RPGlitch's invariant laws, live 6-Rank architect
 - **Framework**: Svelte 5 (**Runes-only**) built with Vite 8 (`vite-plugin-singlefile`) into a single Perchance bundle (`<= 4.00 MB`).
   - **Forbidden**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
   - **Mandatory**: `$state()`, `$derived()`, `$effect()`, `{@render ...}` snippets, `SvelteSet`. Never read application state from DOM elements; sanitize untrusted HTML via `DOMPurify` (`SANITIZE_NAMED_PROPS: true`).
-- **Persistence**: Dexie.js (`"rpglitch"`, schema `version(2)`) exclusively; `localStorage` is forbidden.
-  - Keep Dexie locked at `db.version(2)`. Multi-table boot seeding and `premade_key` backfills must execute inside a single `db.transaction("rw", ...)` in [src/data/db.js](./src/data/db.js).
+- **Persistence**: Dexie.js (`"rpglitch"`, local IndexedDB schema `version(2)`) exclusively; `localStorage` is forbidden.
+  - `seed_premades()` must execute inside a single `db.transaction("rw", ...)` in [src/data/entity-repository.js](./src/data/entity-repository.js). Avoid unnecessary schema version bumps during parallel tab coexistence unless explicitly requested.
 - **Audio Protocol**: Initialize `AudioContext` strictly on direct user gesture and call `Audio.destroy()` on unmount / `pagehide`. Master audio state boots silent in memory (`is_muted = true`).
 - **Documentation Topology (Anti-Docs-Folder Law)**: Never create a top-level `docs/` directory or loose design drafts in the root. System specs belong in [README.md](./README.md) (plus package `README.md` contracts), visual tokens in [DESIGN.md](./DESIGN.md), security in [SECURITY.md](./SECURITY.md), active sprint deltas in [ROADMAP.md](./ROADMAP.md), release pulses in [CHANGELOG.md](./CHANGELOG.md), and parked feature proposals in [.agents/skills/architect-blueprint/references/](./.agents/skills/architect-blueprint/SKILL.md).
 
@@ -35,7 +35,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 - **Rank Topology (Strictly Downward)**:
   1. `src/main.js`, `src/App.svelte` (Shell)
   2. `src/ui/*` (`@ui`) & `src/ui/primitives/**` (`@primitives`, restricted to `@config`, `@utils`, `@media`) (Rank 5)
-  3. `src/engine/` (`@engine`: `chrono.svelte.js`, `lifecycle.js`, `runner.js`, `transport.js`) (Rank 4)
+  3. `src/engine/` (`@engine`: `chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`) (Rank 4)
   4. `src/state/` (`@state`: `session.svelte.js`, `execution.svelte.js`, `interface.svelte.js`) (Rank 3)
   5. `src/data/` (`@data`) & `src/media/` (`@media`) — mutually isolated peer leaves (Rank 2)
   6. `src/simulation/` (`@simulation`: `brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`) (Rank 1)
@@ -47,7 +47,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 - **Epistemic Wall & Relational Syntax Law**:
   - Entity relations use value-referenced `@TARGET_ID` tokens inside semantic brackets (`[KEY: ... @TARGET_ID ... | flags]`).
   - Filter **all** `physical` and `non_physical` bracketed state via `format_tagged_fields(..., { see_hidden, is_counterpart })` in [src/simulation/brackets.js](./src/simulation/brackets.js), and strip `INVENTORY`/`STASH` + `| hide` via `build_aesthetic_map()` in [src/simulation/prompts.js](./src/simulation/prompts.js).
-- **Premade vs. Database Sovereignty**: Static premade catalogs (`ALL_PREMADES`, `PREMADE_*`, `ORION_NOVA_GLITCH_STORY`) may only be imported by [src/data/db.js](./src/data/db.js) and `src/definitions/` (enforced by `premades.test.js`). Runtime code reads entities strictly from IndexedDB / runtime state; `seed_premades()` never overwrites existing DB fields.
+- **Premade vs. Database Sovereignty**: Static premade catalogs (`ALL_PREMADES`, `PREMADE_*`) may only be imported by [src/data/entity-repository.js](./src/data/entity-repository.js) and `src/definitions/` (enforced by `premades.test.js`). Runtime code reads entities strictly from IndexedDB / runtime state; `seed_premades()` never overwrites existing DB fields.
 
 ---
 

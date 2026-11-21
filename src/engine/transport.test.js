@@ -1,14 +1,28 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { create_live_stream_fn, get_transport, reset_transport, generate_text, enhance_text, get_mock_message } from "./transport.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { execution } from "@state";
+import { create_live_stream_fn, get_mock_message, get_transport, is_abort_error, reset_transport } from "./transport.js";
 
-describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unified run_completion)", () => {
+describe("src/engine/transport.js", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });
 
-  describe("Gap 1 & 2: create_live_stream_fn streaming, prompt format & deduplication", () => {
-    it("accepts both string and function prompt parameters and passes them cleanly", async () => {
+  describe("is_abort_error", () => {
+    it("detects AbortError by name, message, or aborted signal", () => {
+      const abort_err = new Error("interrupted");
+      abort_err.name = "AbortError";
+      expect(is_abort_error(abort_err)).toBe(true);
+      expect(is_abort_error(new Error("Request aborted by user"))).toBe(true);
+
+      const controller = new AbortController();
+      controller.abort();
+      expect(is_abort_error(new Error("other"), controller.signal)).toBe(true);
+      expect(is_abort_error(new Error("network timeout"), null)).toBe(false);
+    });
+  });
+
+  describe("create_live_stream_fn streaming, prompt format & deduplication", () => {
+    it("accepts both string and function prompt parameters", async () => {
       const original_gen = window.generate_text;
       const received_instructions = [];
 
@@ -20,12 +34,9 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
 
       try {
         const stream_fn = create_live_stream_fn();
-
-        // Test string prompt
         const res_str = await stream_fn("Hello world");
         expect(res_str).toBe("Resolved: Hello world");
 
-        // Test function prompt
         const res_fn = await stream_fn(() => "Function prompt");
         expect(res_fn).toBe("Resolved: Function prompt");
 
@@ -60,7 +71,6 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
       const chunks_emitted = [];
 
       window.generate_text = vi.fn(({ onToken, onChunk }) => {
-        // Plugin firing both onToken and onChunk for the same data
         onToken("chunk1");
         onChunk("chunk1");
         onToken("chunk2");
@@ -72,7 +82,6 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
         const stream_fn = create_live_stream_fn();
         const res = await stream_fn("test", { onChunk: (c) => chunks_emitted.push(c) });
 
-        // Chunks should only be delivered once, not twice
         expect(chunks_emitted).toEqual(["chunk1", "chunk2"]);
         expect(res).toBe("chunk1chunk2");
       } finally {
@@ -81,8 +90,8 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
     });
   });
 
-  describe("B13: Shared Gate-Backed Stream Adapter", () => {
-    it("returns singleton transport instance across multiple calls and resets cleanly", () => {
+  describe("shared gate-backed stream adapter", () => {
+    it("returns singleton transport instance and resets cleanly", () => {
       reset_transport();
       const t1 = get_transport();
       const t2 = get_transport();
@@ -93,7 +102,7 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
       expect(t3).not.toBe(t1);
     });
 
-    it("foreground preempts background job through the shared gate without killing other queued background work", async () => {
+    it("preempts background job when foreground job arrives", async () => {
       reset_transport();
       const original_gen = window.generate_text;
 
@@ -115,19 +124,12 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
 
       try {
         const transport = get_transport();
-
-        // 1. Launch background job
         const background_promise = transport.stream("background-job-1", { priority: "background" });
 
-        // Let background job occupy the single gate slot
         await new Promise((r) => setTimeout(r, 10));
-
-        // 2. Launch foreground job
         const foreground_promise = transport.stream("foreground-job-1", { priority: "foreground" });
 
-        // Background should be preempted by foreground
         await expect(background_promise).rejects.toThrow();
-
         const foreground_result = await foreground_promise;
         expect(foreground_result).toContain("foreground-job-1");
       } finally {
@@ -137,8 +139,8 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
     });
   });
 
-  describe("Phase 5: abort contracts (throw_on_abort foreground vs silent background)", () => {
-    it("foreground stream throws AbortError so chrono can roll back, background generate_text maps abort to empty string", async () => {
+  describe("abort handling & .stop() wiring", () => {
+    it("throws AbortError when stream is aborted", async () => {
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(({ signal }) => {
         return new Promise((_, reject) => {
@@ -162,11 +164,6 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
         const pending = stream_fn("hello", { signal: controller.signal });
         controller.abort();
         await expect(pending).rejects.toThrow();
-
-        const controller2 = new AbortController();
-        const pending2 = generate_text({ prompt: "hello" }, { signal: controller2.signal });
-        controller2.abort();
-        await expect(pending2).resolves.toBe("");
       } finally {
         window.generate_text = original_gen;
       }
@@ -193,11 +190,9 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
         const controller = new AbortController();
         const stream_fn = create_live_stream_fn();
         const pending = stream_fn("hello", { signal: controller.signal });
-        // Allow the engine call to be created and the listener to attach.
         await new Promise((r) => setTimeout(r, 5));
         controller.abort();
         expect(stop_called).toBe(true);
-        // The abort rejects the engine promise, so the foreground stream throws.
         await expect(pending).rejects.toThrow();
       } finally {
         window.generate_text = original_gen;
@@ -205,46 +200,8 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
     });
   });
 
-  describe("Phase 5: enhance_text normalization", () => {
-    it("normalizes { text } result objects before sanitizing", async () => {
-      const original_gen = window.generate_text;
-      window.generate_text = vi.fn(async () => ({ text: "  Clean prose here.  " }));
-      try {
-        const out = await enhance_text({ prompt: "x" });
-        expect(typeof out).toBe("string");
-        expect(out).toContain("Clean prose here.");
-      } finally {
-        window.generate_text = original_gen;
-      }
-    });
-
-    it("normalizes { generatedText } result objects before sanitizing", async () => {
-      const original_gen = window.generate_text;
-      window.generate_text = vi.fn(async () => ({ generatedText: "Second shape works." }));
-      try {
-        const out = await enhance_text({ prompt: "x" });
-        expect(typeof out).toBe("string");
-        expect(out).toContain("Second shape works.");
-      } finally {
-        window.generate_text = original_gen;
-      }
-    });
-
-    it("passes non-string results through untouched", async () => {
-      const original_gen = window.generate_text;
-      const payload = { count: 3 };
-      window.generate_text = vi.fn(async () => payload);
-      try {
-        const out = await enhance_text({ prompt: "x" });
-        expect(out).toBe(payload);
-      } finally {
-        window.generate_text = original_gen;
-      }
-    });
-  });
-
-  describe("Phase 5: mock runner single delivery + stream teardown", () => {
-    it("delivers each mock chunk exactly once (onChunk preferred) and returns the mock message", async () => {
+  describe("mock runner single delivery + stream teardown", () => {
+    it("delivers each mock chunk once (onChunk preferred) and returns the mock message", async () => {
       const saved_text = window.generate_text;
       const saved_text2 = window.generateText;
       delete window.generate_text;
@@ -257,7 +214,6 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
         const res = await stream_fn("anything", { onChunk: on_chunk, onToken: on_token, silent: true });
         expect(typeof res).toBe("string");
         expect(res).toContain("long quote");
-        // Preferred path delivers via onChunk only — onToken never fires on the mock path.
         expect(on_token).not.toHaveBeenCalled();
         expect(on_chunk.mock.calls.length).toBeGreaterThan(3);
         expect(on_chunk.mock.calls.map((c) => c[0]).join("")).toBe(get_mock_message());

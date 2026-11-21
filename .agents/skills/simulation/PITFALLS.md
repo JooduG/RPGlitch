@@ -12,7 +12,7 @@
 
 ## 2. Broken User Agency (P1 Violation) (Occurrences: 1)
 
-- **Trigger**: Authoring or tuning Director/Actor prompt cores in `src/simulation/prompts.js` or `src/engine/runner.js`.
+- **Trigger**: Authoring or tuning Director/Actor prompt cores in `src/simulation/prompts.js` or `src/engine/steps.js`.
 - **Wrong Behavior**: Allowing the AI actor to generate dialogue, thoughts, or actions attributed to the user persona.
 - **Correct Behavior**: Enforce strict third-person limited boundaries for non-user entities and reject/detox any user-persona speech.
 
@@ -26,7 +26,7 @@
 
 - **Trigger**: Reading older docs or writing new simulation tests/modules.
 - **Wrong Behavior**: Importing from eradicated `src/intelligence/*` paths, or assuming `PAST_VECTOR_CAP = 20`.
-- **Correct Behavior**: Use `src/engine/` (`chrono.svelte.js`, `lifecycle.js`, `runner.js`, `transport.js`), `src/simulation/` (`brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`), `src/state/` (`execution.svelte.js`, `interface.svelte.js`, `session.svelte.js`), and `FIELD_FLOORS` / `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` from `src/config.js`.
+- **Correct Behavior**: Use `src/engine/` (`chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`), `src/simulation/` (`brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`), `src/state/` (`execution.svelte.js`, `interface.svelte.js`, `session.svelte.js`), and `FIELD_FLOORS` / `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` from `src/config.js`.
 
 ## 5. Value-Referenced `[KEY: ... @TARGET ...]` & `<MEMORIES>` Key Preservation (Occurrences: 1)
 

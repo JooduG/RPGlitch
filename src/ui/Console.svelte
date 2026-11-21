@@ -6,7 +6,7 @@
    * storyboard controls, storymode input composer, settings control panel, and conclusion modals.
    */
   import { db, stories } from "@data";
-  import { chrono_engine, generate_closing, generate_user_draft, get_transport } from "@engine";
+  import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
   import { Audio, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Dialog, Icon, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { install_begin_flight_effect, storyboard } from "./Storyboard.svelte";
@@ -28,7 +28,7 @@
 
   // Story conclusion status
   let story_concluded = $derived(
-    session.feed.some((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.story_id))),
+    session.feed.some((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.active_id))),
   );
   let story_locked = $derived(execution.phase === "locked" || story_concluded);
   let signature_color = $derived(get_signature_color(session.active_user || app.selected_user, "var(--color-gunmetal)"));
@@ -39,7 +39,7 @@
 
   // Models & storyboard readiness
   let models_ready = $derived(embeddings_engine.model_ready);
-  let has_active_story = $derived(Boolean(session.story_id));
+  let has_active_story = $derived(Boolean(session.active_id));
   let ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
 
   // Audio controls state (silent boot: muted until the user opts in)
@@ -136,7 +136,7 @@
       await refresh_stories();
       await app.load_entities();
       console.info(`Story "${pending_story_delete.title}" deleted.`);
-      if (String(session.story_id) === String(pending_story_delete.id)) {
+      if (String(session.active_id) === String(pending_story_delete.id)) {
         await session.clear_active();
         app.set_view("storyboard");
       }
@@ -192,7 +192,7 @@
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    generate_user_draft(get_transport(), previous_text, null, null, { session, app, feed: session.feed })
+    generate_user_draft(previous_text)
       .then(async (generated_text) => {
         if (generated_text && generated_text.trim()) {
           value = generated_text;
@@ -319,17 +319,17 @@
   }
 
   async function handle_rewind() {
-    if (is_rewinding || !session.story_id) return;
+    if (is_rewinding || !session.active_id) return;
     is_rewinding = true;
     try {
-      const epilogues = session.feed.filter((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.story_id)));
+      const epilogues = session.feed.filter((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.active_id)));
       for (const ep of epilogues) {
         if (ep?.id != null) await session.delete_entry(String(ep.id));
       }
       execution.phase = "idle";
-      if (session.story_id) {
-        await stories.update(session.story_id, { is_concluded: 0, conclusion_status: null });
-        await session.set_active(session.story_id);
+      if (session.active_id) {
+        await stories.update(session.active_id, { is_concluded: 0, conclusion_status: null });
+        await session.set_active(session.active_id);
       }
       console.info("Story rewound: you can continue chatting.");
     } catch (err) {
@@ -343,7 +343,7 @@
     if (is_exporting) return;
     is_exporting = true;
     try {
-      const story_id = session.story_id;
+      const story_id = session.active_id;
       if (!story_id) return;
       const story_record = (await stories.get(story_id)) || session.active_story || {};
       const entries = await session.load_log(story_id);
@@ -364,9 +364,9 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      await generate_closing(session.story_id);
-      if (session.story_id) {
-        await stories.conclude(session.story_id);
+      await generate_closing(session.active_id);
+      if (session.active_id) {
+        await stories.conclude(session.active_id);
         await app.load_entities();
       }
     } catch (err) {
@@ -382,8 +382,8 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      if (session.story_id) {
-        await stories.conclude(session.story_id);
+      if (session.active_id) {
+        await stories.conclude(session.active_id);
         await chrono_engine.stop?.();
         await app.load_entities();
       }
@@ -644,7 +644,7 @@
                     <div class="min-w-0" in:item_in>
                       <StoryCard
                         {story}
-                        active={session.story_id === String(story.id)}
+                        active={session.active_id === String(story.id)}
                         onclick={() => load_story(story.id)}
                         ondelete={delete_story}
                         onrename={start_rename_story}
@@ -799,8 +799,8 @@
   on_confirm={async () => {
     is_concluding = true;
     try {
-      if (session.story_id) {
-        await stories.conclude(session.story_id);
+      if (session.active_id) {
+        await stories.conclude(session.active_id);
       }
       await session.clear_active();
       await app.load_entities();

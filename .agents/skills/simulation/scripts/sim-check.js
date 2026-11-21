@@ -11,7 +11,7 @@
  *   cores in src/simulation/prompts.js (DIRECTOR, CHARACTER, CARETAKER, VISUALIZER).
  * - turn smoke: run_planner_step / run_generation_step /
  *   run_memory_consolidation_step / run_image_prompt_step /
- *   run_schema_extraction_step from src/engine/runner.js against an injected
+ *   run_schema_extraction_step from src/engine/steps.js against an injected
  *   mock transport, plus resolve_caretaker_target from
  *   src/simulation/dynamics.js.
  * - memory stress: rank_memories + select_context_memories + cosine_similarity
@@ -34,7 +34,7 @@ import {
   run_memory_consolidation_step,
   run_planner_step,
   run_schema_extraction_step,
-} from "../../../../src/engine/runner.js";
+} from "../../../../src/engine/steps.js";
 import { resolve_caretaker_target } from "../../../../src/simulation/dynamics.js";
 
 export const LIVE_CORES = Object.freeze(["DIRECTOR", "CHARACTER", "CARETAKER", "VISUALIZER"]);

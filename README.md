@@ -81,7 +81,7 @@ Root-level manifests configure build tooling, verification gates, and module ali
 RPGlitch organizes its source code into clean, isolated subsystems:
 
 - [src/](./src/README.md): Application boot entrypoint (`main.js`), root Svelte shell (`App.svelte`), canonical `config.js` constants, and Perchance host integration (`main.pjs`, `index.html`).
-- [src/engine/](./src/engine/README.md): Simulation engine & turn orchestration (`ChronoEngine`, `runner.js`, `lifecycle.js`, `transport.js`).
+- [src/engine/](./src/engine/README.md): Simulation engine & turn orchestration (`ChronoEngine`, `transport.js`, `steps.js`, `turns.js`, `lifecycle.js`).
 - [src/state/](./src/state/README.md): Acyclic 3-store Svelte 5 reactive state layer (`interface.svelte.js` / `app`, `execution.svelte.js` / `execution`, `session.svelte.js` / `session`).
 - [src/ui/](./src/ui/README.md): Domain presentation layer (`Storymode`, `Storyboard`, `Console`, `Profile`, `VisualWing`, `AudioWing`, `DevWing`, `RelationalGraph`, `ChatBubble`, `EntityCard`, `ImagePreview`, `ContextMenu`, `Typewriter`, `StoryCard`, `MacroText`, `ProfilePicture`, `Meter`, `StyleBadge`, `UndoToast`) and reactive controllers (`ProfileState`, `ImagePreview`).
   - [src/ui/primitives/](./src/ui/primitives/README.md): 15 design-system Svelte 5 UI primitives and the global `tooltip` action wrapping `bits-ui`.

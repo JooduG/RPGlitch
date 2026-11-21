@@ -24,14 +24,14 @@ describe("Console & Settings State", () => {
 
   it("preserves active story session when returning to storyboard view", async () => {
     const mock_story_id = "test-active-story-123";
-    session.story_id = mock_story_id;
+    session.active_id = mock_story_id;
     await session.set_active(mock_story_id);
 
     // Switch view to storyboard (same action triggered by Return to Storyboard)
     await app.set_view("storyboard");
 
     expect(app.view).toBe("storyboard");
-    expect(session.story_id).toBe(mock_story_id);
+    expect(session.active_id).toBe(mock_story_id);
   });
 
   it("triggers ghostwriter exactly once per request and prevents loop", async () => {

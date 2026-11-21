@@ -1,32 +1,27 @@
 /**
- * src/engine/lifecycle.js
- * ============================================================================
- * 🌱 ENGINE LIFECYCLE - NON-TURN JOBS
- * ============================================================================
- *
- * Story-lifecycle work that is not a turn: prologue, epilogue, visual
- * envisioning, and profile structuring. Each job brings its own prompt;
- * model contact goes through transport.js, turn mechanics through runner.js.
+ * @file src/engine/lifecycle.js
+ * Non-turn story lifecycle jobs: visual prompt refinement, profile structuring,
+ * prologue/epilogue beats, entity birth, and user draft ghostwriting.
  */
 
 import { apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
 import { get_visual_style } from "@definitions";
-import { clean_generated_prose, compile_prompt, get_resolution_string, parse_think_block } from "@simulation";
+import { clear_generation_in_flight, mark_generation_in_flight, visual_engine } from "@media";
+import { clean_generated_prose, compile_prompt, get_resolution_string, parse_think_block, reconstruct_history_from_feed } from "@simulation";
 import { app, execution, session } from "@state";
-import { mark_generation_in_flight, clear_generation_in_flight, visual_engine } from "@media";
-import { run_turn } from "./runner.js";
+import { run_generation_step, run_image_prompt_step, run_schema_extraction_step } from "./steps.js";
 import { get_transport } from "./transport.js";
-import { run_image_prompt_step, run_schema_extraction_step } from "./runner.js";
+import { run_turn } from "./turns.js";
 
 /**
  * Refines a draft description or camera note into a visual prompt via the
  * visualizer purpose core.
  *
- * @param {string} text - Draft description or camera note
- * @param {string} [type="character"] - Generation mode or kind ("character", "fractal", "story_scene", etc.)
- * @param {object|null} [entity=null] - Target entity snapshot
- * @param {string|null} [app_style=null] - App-level visual style override
- * @param {AbortSignal|null} [signal=null]
+ * @param {string} text
+ * @param {string} [type="character"]
+ * @param {object | null} [entity=null]
+ * @param {string | null} [app_style=null]
+ * @param {AbortSignal | null} [signal=null]
  * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
  */
 export async function refine_image_prompt(text, type = "character", entity = null, app_style = null, signal = null) {
@@ -94,32 +89,34 @@ export async function refine_image_prompt(text, type = "character", entity = nul
     return { prompt: text.trim(), negative_prompt: style_def?.negative_prompt || "", resolution: tier_resolution };
   }
 }
+
 /**
- * Runs raw prose structuring via the Caretaker purpose core.
+ * Structures raw prose into 4-quadrant profile fields via the Caretaker core.
  *
- * @param {string} raw - Raw bio, concept, or character prose
+ * @param {string} raw
  * @param {"character" | "fractal"} [type="character"]
- * @param {AbortSignal|null} [signal=null]
+ * @param {AbortSignal | null} [signal=null]
  * @returns {Promise<Record<string, any> | null>}
  */
 export async function parse_entity_profile(raw, type = "character", signal = null) {
   const input_data = typeof raw === "string" ? raw : JSON.stringify(raw, null, 2);
 
   try {
-    const parsed = await run_schema_extraction_step({ transport: get_transport(), input_data, type, signal });
-    return parsed;
+    return await run_schema_extraction_step({ transport: get_transport(), input_data, type, signal });
   } catch (err) {
     console.warn("[parse_entity_profile] Structuring failed:", err);
     return null;
   }
 }
+
 /**
- * Executes a pure Prologue and opening AI narrative beat for Turn 0.
+ * Executes the Turn 0 Fractal prologue and opening AI character turn.
  *
  * @param {string} story_id
+ * @param {{ signal?: AbortSignal | null }} [options={}]
  * @returns {Promise<any>}
  */
-export async function generate_opening(story_id) {
+export async function generate_opening(story_id, { signal = null } = {}) {
   if (!session || !story_id) return null;
 
   execution.set_loading(true);
@@ -137,7 +134,6 @@ export async function generate_opening(story_id) {
     session.last_director_beat_round = 0;
     session.last_dynamics_beat_round = 0;
 
-    // 1. Establish the empty fractal role prologue entry
     await session.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
@@ -145,7 +141,6 @@ export async function generate_opening(story_id) {
       attachments: [],
     });
 
-    // 2. Stream Fractal prologue scene setting via Character core (is_character: false)
     const prologue_prompt = compile_prompt({
       core: "CHARACTER",
       round: 0,
@@ -153,14 +148,12 @@ export async function generate_opening(story_id) {
       task_options: { turn_tempo: 3 },
     });
 
-    const raw_prologue = await live_transport.stream(prologue_prompt, { startWith: "<think>\n" });
-
+    const raw_prologue = await live_transport.stream(prologue_prompt, { startWith: "<think>\n", signal });
     const { think: prologue_think, prose: prologue_body } = parse_think_block(raw_prologue);
     const prologue_text = (prologue_body || raw_prologue || "").trim();
 
     await session.edit_entry(node_id, prologue_text, { think: prologue_think });
 
-    // 3. Register deferred prologue scene image
     const prologue_image_requested_at = Date.now();
     await session.update_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene", requested_at: prologue_image_requested_at } });
 
@@ -199,9 +192,8 @@ export async function generate_opening(story_id) {
       })().catch(() => {});
     }
 
-    // 4. Execute the opening AI character turn reacting directly to the prologue
     try {
-      return await run_turn(prologue_text, { is_opening_turn: true });
+      return await run_turn(prologue_text, { is_opening_turn: true, signal });
     } finally {
       release_prologue_image();
     }
@@ -214,8 +206,9 @@ export async function generate_opening(story_id) {
     execution.complete();
   }
 }
+
 /**
- * Executes an Epilogue conclusion narrative beat for story conclusion.
+ * Executes an Epilogue narrative beat for story conclusion.
  *
  * @param {string | number} story_id
  * @param {"CONCLUDED" | "COLLAPSED"} [conclusion_status="CONCLUDED"]
@@ -253,14 +246,14 @@ export async function generate_closing(story_id, conclusion_status = "CONCLUDED"
     execution.end_stream();
   }
 }
+
 /**
- * Common birth core shared across spawn paths and ImportModal.
- * Runs structuring (if prose), maps profile leaves, saves to DB,
- * and chains post-save portrait generation.
+ * Creates a character or fractal entity, optionally structures raw prose via
+ * Caretaker, persists to IndexedDB, and triggers portrait generation.
  *
- * @param {'character' | 'fractal'} type
- * @param {Object} draft
- * @param {Object} [options]
+ * @param {"character" | "fractal"} type
+ * @param {Record<string, any>} [draft={}]
+ * @param {Record<string, any>} [options={}]
  * @returns {Promise<any>}
  */
 export async function create_entity_with_profile(type, draft = {}, options = {}) {
@@ -270,9 +263,6 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
   const description = String(draft?.description || "").trim();
   const scene_context = String(draft?.scene_context || "").trim();
 
-  // Canonical init: fractals get velocity/entropy dynamics and "" past via
-  // create_entity; the description seeds the quadrant prefill (overwritten
-  // below when the draft already carries quadrants).
   let entity = create_entity(entity_type, {
     ...(name ? { name } : {}),
     ...(description ? { description } : {}),
@@ -283,11 +273,9 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
     future: "",
     past: "",
   });
-  // Orchestration-only extras the normalizer drops (same as pre-move behavior).
   entity.dynamics_baseline = { ...entity.dynamics };
   entity.is_wanderer = false;
 
-  // Run structuring if rich synthesis text is provided
   if (options.run_sorter || (!draft?.eternal && !draft?.present && (name || description))) {
     try {
       const synthesis_source = [
@@ -304,7 +292,7 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
         entity = apply_profile_to_entity(entity, rich_profile);
       }
     } catch (error) {
-      console.warn(`[GameMaster] Genesis rich synthesis failed for "${name}":`, error?.message || error);
+      console.warn(`[Lifecycle] Genesis synthesis failed for "${name}":`, error?.message || error);
     }
   } else if (draft && typeof draft === "object") {
     entity = apply_profile_to_entity(entity, draft);
@@ -316,7 +304,6 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
   const saved_entity = await upsert_entity(entity);
 
   const story_id = options.story_id ?? session.active_id ?? null;
-  // Register NPC on active story if spawned during a story session
   if (entity_type === "character" && story_id && story_id !== "debug") {
     try {
       const story = await get_story(story_id);
@@ -326,11 +313,10 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
         await update_cast(story_id, updated_npcs);
       }
     } catch (err) {
-      console.warn(`[Storage] Failed to register NPC on story ${story_id}:`, err?.message || err);
+      console.warn(`[Lifecycle] Failed to register NPC on story ${story_id}:`, err?.message || err);
     }
   }
 
-  // Chained post-save portrait generation (fire-and-forget)
   if (options.generate_portrait !== false && entity_type === "character") {
     if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
       try {
@@ -346,9 +332,9 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
             }
           });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
-          portrait_promise.catch((error) => console.warn(`[GameMaster] Portrait generation for "${name}" failed:`, error?.message || error));
+          portrait_promise.catch((error) => console.warn(`[Lifecycle] Portrait generation for "${name}" failed:`, error?.message || error));
         }
-      } catch (_error) {
+      } catch {
         /* portrait failure must never break genesis */
       }
     }
@@ -356,16 +342,64 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
 
   return saved_entity;
 }
+
 /**
- * CHANGELOG:
- * - 2026-11-10: Created from bridge.js lifecycle atoms (prologue, epilogue,
- *   visualizer envision, profile structuring) unchanged except transport and
- *   opening-turn imports. bridge.js dies.
- * - Phase 5: Renamed to Rank 4 verbs (refine_image_prompt, parse_entity_profile,
- *   generate_opening, generate_closing, create_entity_with_profile). Both inline
- *   live_transport shims replaced with get_transport() (fixing the dropped signal
- *   + priority in structuring). All dynamic imports replaced with static barrel
- *   imports (@media/@definitions/@simulation). generate_opening drops the dead
- *   _ai_quadrant; generate_closing normalizes entities, resolves the fractal
- *   speaking style into clean_generated_prose, and ends the stream in a finally.
+ * Drafts the user's next narrative action or dialogue (ghostwriting).
+ * Reuses the Character core with inverted participants (AI: user, USER: ai),
+ * streaming prose incrementally once `</think>` closes.
+ *
+ * @param {string} [input_text=""]
+ * @param {{ transport?: object, signal?: AbortSignal | null, on_token?: ((chunk: string, is_full_replace: boolean) => void) | null, session?: object, app?: object, feed?: Array<any> }} [options={}]
+ * @returns {Promise<string>}
  */
+export async function generate_user_draft(
+  input_text = "",
+  { transport = get_transport(), signal = null, on_token = null, session: session_source = session, app: app_source = app, feed = session.feed } = {},
+) {
+  const user_quadrant = normalize_entity(session_source?.active_user || app_source?.selected_user || {});
+  const ai_quadrant = normalize_entity(session_source?.active_ai || app_source?.selected_ai || {});
+  const fractal_quadrant = normalize_entity(session_source?.active_fractal || app_source?.selected_fractal || {});
+
+  const history = reconstruct_history_from_feed(feed || [], { user: user_quadrant, ai: ai_quadrant, fractal: fractal_quadrant });
+  if (input_text && input_text.trim()) {
+    history.push({ role: "user", text: input_text.trim() });
+  }
+
+  let full_accumulated = "";
+  let emitted_len = 0;
+
+  const outcome = await run_generation_step({
+    transport,
+    round: Number(session_source?.round || 1),
+    entities: { AI: user_quadrant, USER: ai_quadrant, FRACTAL: fractal_quadrant },
+    history,
+    memories: [],
+    directors_note: "",
+    signal,
+    onChunk: (chunk) => {
+      full_accumulated += chunk;
+      if (typeof on_token !== "function") return;
+      const close_match = /<\/think\s*>/i.exec(full_accumulated);
+      if (!close_match) {
+        const opened =
+          /<think[\s>]/i.test(full_accumulated) || full_accumulated.trimStart() === "<" || /<t(?:h(?:i(?:n(?:k)?)?)?)?$/i.test(full_accumulated.trimEnd());
+        if (opened) return;
+        const cleaned = full_accumulated.trimStart();
+        const delta = cleaned.slice(emitted_len);
+        if (delta) {
+          on_token(delta, emitted_len === 0);
+          emitted_len = cleaned.length;
+        }
+        return;
+      }
+      const cleaned = full_accumulated.slice(close_match.index + close_match[0].length).trimStart();
+      const delta = cleaned.slice(emitted_len);
+      if (delta) {
+        on_token(delta, emitted_len === 0);
+        emitted_len = cleaned.length;
+      }
+    },
+  });
+
+  return (outcome?.prose || "").trim();
+}
