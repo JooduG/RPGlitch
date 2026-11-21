@@ -7,7 +7,8 @@
  * Canonical entity normalization, factory, epistemic filtering and export.
  * Birth orchestration lives in `src/engine/lifecycle.js` (`create_entity_with_profile`);
  * profile structuring lives there too (`parse_entity_profile`).
- * Persistence lives in `./db.js`; history in `./ledger.js`.
+ * Persistence lives in `./db.js` (cabinet), `./entity-repository.js` (entities)
+ * and `./story-library.js` (stories + simulation logs).
  * ============================================================================
  */
 
@@ -54,14 +55,22 @@ function normalize_dynamics(raw_dynamics, entity_type) {
 
 /**
  * Coerces a past-timeline value into a canonical multiline bracket string.
- * Non-string inputs (arrays, objects, null) yield "" - there is exactly one
- * writer of entity rows and it always stores bracket strings, so anything
- * else is corrupt input, not a shape to support.
+ * Legacy rows predate the bracket grammar and store string arrays (or bare
+ * prose); arrays migrate item-by-item into `[MEMORY: ...]` brackets (multiple
+ * brackets per field are canonical) instead of being dropped, so a sync
+ * never deletes memories it was meant to preserve.
  *
  * @param {any} raw_past
  * @returns {string}
  */
 function normalize_past_to_brackets(raw_past) {
+  // Legacy array shape: migrate each entry into its own bracket
+  if (Array.isArray(raw_past)) {
+    const items = raw_past.map((entry) => String(entry ?? "").trim()).filter(Boolean);
+    if (items.length === 0) return "";
+    return items.map((item) => (item.startsWith("[") && item.endsWith("]") ? item : `[MEMORY: ${item}]`)).join(" ");
+  }
+
   // If already a non-empty string, ensure it has brackets
   if (typeof raw_past === "string" && raw_past.trim().length > 0) {
     const trimmed = raw_past.trim();
@@ -77,11 +86,17 @@ function normalize_past_to_brackets(raw_past) {
 
 /**
  * Normalizes future trajectory to canonical bracket string.
+ * Legacy array rows migrate item-by-item into `[AGENDA: ...]` brackets.
  *
  * @param {any} raw_future
  * @returns {string}
  */
 function normalize_future_to_brackets(raw_future) {
+  if (Array.isArray(raw_future)) {
+    const items = raw_future.map((entry) => String(entry ?? "").trim()).filter(Boolean);
+    if (items.length === 0) return "";
+    return items.map((item) => (item.startsWith("[") && item.includes(":") ? item : `[AGENDA: ${item}]`)).join(" ");
+  }
   if (typeof raw_future !== "string") return "";
   const trimmed = raw_future.trim();
   if (!trimmed) return "";

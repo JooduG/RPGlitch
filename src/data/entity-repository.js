@@ -5,11 +5,11 @@
  * ============================================================================
  *
  * IndexedDB CRUD for characters and fractals with adapt-on-read normalization,
- * plus idempotent starter seeding (`ALL_PREMADES` and `ORION_NOVA_GLITCH_STORY`).
+ * plus idempotent starter entity seeding (`ALL_PREMADES`).
  * ============================================================================
  */
 
-import { ALL_PREMADES, ORION_NOVA_GLITCH_STORY } from "@definitions";
+import { ALL_PREMADES } from "@definitions";
 import { db } from "./db.js";
 import { normalize_entity } from "./records.js";
 
@@ -44,121 +44,9 @@ export async function seed_premades() {
         await db.entities.bulkPut(to_put);
       }
     });
-
-    await seed_premade_story(ORION_NOVA_GLITCH_STORY);
   } finally {
     _is_seeding_active = false;
   }
-}
-
-/**
- * Seeds a premade concluded story and its simulation log idempotently by
- * `premade_key` so premade entities share inspectable history on boot.
- * @param {typeof ORION_NOVA_GLITCH_STORY} fixture
- * @returns {Promise<void>}
- */
-async function seed_premade_story(fixture) {
-  if (!fixture?.key || !db.stories || !db.simulation_log) return;
-
-  await db.transaction("rw", [db.entities, db.stories, db.simulation_log], async () => {
-    const existing_stories = await db.stories.toArray();
-    if (existing_stories.some((story) => story.premade_key === fixture.key)) {
-      return;
-    }
-
-    const legacy_story = existing_stories.find(
-      (story) =>
-        !story.premade_key &&
-        story.title === fixture.title &&
-        story.ai_id === fixture.ai_id &&
-        story.user_id === fixture.user_id &&
-        story.fractal_id === fixture.fractal_id &&
-        Boolean(story.is_concluded),
-    );
-    if (legacy_story) {
-      await db.stories.update(legacy_story.id, { premade_key: fixture.key });
-      return;
-    }
-
-    const [ai_entity, user_entity, fractal_entity] = await Promise.all([
-      db.entities.get(fixture.ai_id),
-      db.entities.get(fixture.user_id),
-      db.entities.get(fixture.fractal_id),
-    ]);
-    if (!ai_entity || !user_entity || !fractal_entity) return;
-
-    const base_time = Date.now() - fixture.turns.length * 60_000;
-    const story_row_id = await db.stories.add({
-      premade_key: fixture.key,
-      title: fixture.title,
-      ai_id: fixture.ai_id,
-      user_id: fixture.user_id,
-      fractal_id: fixture.fractal_id,
-      visual_style: fixture.visual_style,
-      narrative_style: fixture.narrative_style,
-      entity_snapshots: { ai: structuredClone(ai_entity), user: structuredClone(user_entity), fractal: structuredClone(fractal_entity) },
-      npc_ids: [],
-      round: fixture.round,
-      is_concluded: fixture.is_concluded ?? 1,
-      created_at: base_time,
-      updated_at: base_time + fixture.turns.length * 60_000,
-    });
-
-    const story_id = String(story_row_id);
-    const log_rows = [
-      {
-        story_id,
-        role: "system",
-        type: "text",
-        text: `Story Started: ${fixture.title}`,
-        turn_type: "SYSTEM_TURN",
-        round: 0,
-        meta: { type: "STORY_START" },
-        created_at: base_time,
-      },
-    ];
-
-    for (const turn of fixture.turns) {
-      const turn_time = base_time + turn.round * 60_000;
-      log_rows.push(
-        {
-          story_id,
-          role: "user",
-          type: "text",
-          character_name: user_entity.name,
-          text: turn.user_text,
-          turn_type: "USER_TURN",
-          round: turn.round,
-          meta: {},
-          created_at: turn_time,
-        },
-        {
-          story_id,
-          role: "ai",
-          type: "text",
-          character_name: ai_entity.name,
-          text: turn.ai_text,
-          turn_type: "ACTOR_TURN",
-          round: turn.round,
-          meta: {},
-          created_at: turn_time + 10_000,
-        },
-      );
-    }
-
-    log_rows.push({
-      story_id,
-      role: "system",
-      type: "text",
-      text: `Story Concluded: ${fixture.title}`,
-      turn_type: "SYSTEM_TURN",
-      round: fixture.round,
-      meta: { type: "EPILOGUE", is_epilogue: true },
-      created_at: base_time + fixture.turns.length * 60_000 + 20_000,
-    });
-
-    await db.simulation_log.bulkAdd(log_rows);
-  });
 }
 
 // ============================================================================

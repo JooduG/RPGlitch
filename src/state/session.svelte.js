@@ -20,7 +20,6 @@ import {
   load_log as load_story_log,
   load_session_checkpoint,
   log_message as write_log_message,
-  normalize_entity,
   record_session_access,
   regenerate as regenerate_trailing_turns,
   send as send_user_turn,
@@ -489,7 +488,8 @@ export class SessionStore {
         const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
         if (npc_ids.length) {
           const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get(nid, "character")))).filter(Boolean);
-          this.active_npcs = Object.fromEntries(npc_list.map((n) => [String(n.id), { ...n, presence: "active" }]));
+          const reconciled = await Promise.all(npc_list.map((n) => this.#reconcile_entity_vectors("character", { ...n })));
+          this.active_npcs = Object.fromEntries(reconciled.map((n) => [String(n.id), { ...n, presence: "active" }]));
         } else {
           this.active_npcs = {};
         }
@@ -520,22 +520,25 @@ export class SessionStore {
   }
 
   /**
-   * Normalizes legacy array/over-cap `past`/`future` fields on synced entities and persists if changed.
+   * Migrates legacy `past`/`future` shapes on synced entities and persists if changed.
+   * Compares the RAW IndexedDB row against the adapt-on-read normalized copy:
+   * comparing normalized-vs-normalized would always agree (the reader masks
+   * legacy arrays into strings), so the raw row is the only honest baseline.
    * @param {"character" | "fractal"} type
-   * @param {any} entity
+   * @param {any} entity - adapt-on-read normalized entity (from entities.get)
    */
   async #reconcile_entity_vectors(type, entity) {
-    if (!entity) return entity;
+    if (!entity?.id) return entity;
     try {
-      const normalized = normalize_entity(entity);
-      const changed = JSON.stringify(normalized.past) !== JSON.stringify(entity.past) || JSON.stringify(normalized.future) !== JSON.stringify(entity.future);
+      const raw = await db.entities.get(entity.id);
+      const changed =
+        JSON.stringify(raw?.past ?? null) !== JSON.stringify(entity.past ?? null) ||
+        JSON.stringify(raw?.future ?? null) !== JSON.stringify(entity.future ?? null);
       if (changed) {
-        entity.past = normalized.past;
-        entity.future = normalized.future;
         await entities.update(entity.id, { past: entity.past, future: entity.future });
       }
     } catch (err) {
-      console.warn("[Session] Vector reconciliation failed for", entity.id, err);
+      console.warn("[Session] Vector reconciliation failed for", entity?.id, err);
     }
     return entity;
   }

@@ -69,7 +69,7 @@ describe("premades registry", () => {
   it("never leaks premade catalog imports into runtime code outside src/data/db.js", () => {
     const src_root = resolve(process.cwd(), "src");
     const premade_symbol_pattern =
-      /\b(ALL_PREMADES|PREMADE_CHARACTERS|PREMADE_FRACTALS|PREMADE_ENTITY_MAP|ORION_NOVA_GLITCH_STORY|get_premade_entity_by_id|has_premade_entity|get_premade_characters|get_premade_fractals)\b/;
+      /\b(ALL_PREMADES|PREMADE_CHARACTERS|PREMADE_FRACTALS|PREMADE_ENTITY_MAP|get_premade_entity_by_id|has_premade_entity|get_premade_characters|get_premade_fractals)\b/;
 
     const collect_files = (dir) => {
       const entries = readdirSync(dir, { withFileTypes: true });

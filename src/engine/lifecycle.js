@@ -256,7 +256,7 @@ export async function generate_closing(story_id, conclusion_status = "CONCLUDED"
 /**
  * Common birth core shared across spawn paths and ImportModal.
  * Runs structuring (if prose), maps profile leaves, saves to DB,
- * writes genesis ledger entries, and chains post-save portrait generation.
+ * and chains post-save portrait generation.
  *
  * @param {'character' | 'fractal'} type
  * @param {Object} draft
@@ -315,7 +315,6 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
 
   const saved_entity = await upsert_entity(entity);
 
-  // Write Genesis Ledger Entries for all populated quadrant fields
   const story_id = options.story_id ?? session.active_id ?? null;
   // Register NPC on active story if spawned during a story session
   if (entity_type === "character" && story_id && story_id !== "debug") {

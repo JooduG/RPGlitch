@@ -1,6 +1,5 @@
 export * from "./dynamics-registry.js";
 export * from "./narrative-styles.js";
-export * from "./orion-nova-glitch.js";
 export * from "./premades.js";
 export * from "./profile-taxonomy.js";
 export * from "./speaking-styles.js";

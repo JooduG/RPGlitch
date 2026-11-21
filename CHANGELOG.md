@@ -32,6 +32,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `src/data/records.js` & `src/state/session.svelte.js`: Added array-to-bracket migration in `normalize_past_to_brackets()`/`normalize_future_to_brackets()` and updated `#reconcile_entity_vectors()` to diff against raw `db.entities` rows and reconcile `active_npcs` on `sync()`.
+
 - `src/data/` (`@data`, Rank 2), `src/state/session.svelte.js`, `src/ui/Profile.svelte`, & `src/data/README.md`: Re-imagined the persistence layer by splitting `db.js` and `session.js` into `db.js` (Dexie v2 cabinet, `story_key_variants()`, `coerce_log_key()`, and active session pointer tracking), `entity-repository.js` (entity CRUD + `seed_premades()`), and `story-library.js` (story CRUD, simulation-log CRUD, speaker resolution, `create_from_selection()`, `send()`, and `regenerate()`); removed polymorphic `entities.{get,upsert,delete}` shims, `entities.remove`, `get_story_log()`, `serialize_rpglitch_entity()`, and `entity_Snapshots` fallback under P4; and simplified `records.js:create_entity()`.
 
 - `src/` root (`main.js`, `App.svelte`, `index.html`, `config.js`, `main.test.js`, `README.md`), `src/utils/{dom,ingestion}.js`, `src/media/image-generation.js`, `src/engine/transport.js`, `src/state/session.svelte.js`, & `src/ui/DevGrid.svelte`: Refactored the `src/` root entrypoint, shell, host HTML, and config — unified `window`/`window.parent` Perchance plugin discovery into `resolve_perchance_plugin()` in `@utils` and canonicalized `index.html` polling onto `main.pjs` names (`generate_text`, `generate_image`, `fetch_web`); removed dead `#svelte-root`, `<!--PERCHANCE_CONFIG_TARGET-->`, `window.{Dexie,DOMPurify}`, and the 75-line inline `config.js` changelog; moved `install_environment_hardening()`/`ensure_theme_tokens()` inside `app_bootstrap.init()`, moved boot-time entity vector normalization into `session.sync()`, ran `app.load_entities()` unconditionally at boot, and extracted `<DevGrid />` from `App.svelte` while removing redundant mount `$effect`s and flattening nested ternaries.
@@ -86,6 +88,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `src/definitions/orion-nova-glitch.js` & `src/data/entity-repository.js`: Removed the `ORION_NOVA_GLITCH_STORY` premade story fixture and `seed_premade_story()` boot seeding.
 - `src/data/ledger.js`, `src/data/db.js`, `src/engine/{lifecycle,runner}.js`, & `src/ui/DevWing.svelte`: Removed the `mutation_ledger` table, `ledger.js` time-travel replay/query module, genesis/caretaker ledger writes, and the DevWing "Mutation Ledger" inspector.
 - `src/ui/Profile.svelte`: Removed the clock/time-travel button, inline `profile-time-travel-bar` scrub UI, and timeline replay/branch/revert handlers while keeping `DevWing`'s Mutation Ledger intact.
 - `src/ui/DevWing.svelte`: Removed the Token Budget / Breakdown HUD block and its unused token snapshot derivations.
