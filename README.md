@@ -92,7 +92,7 @@ RPGlitch organizes its source code into clean, isolated subsystems:
 
 ## Global Invariants
 
-1. **Downward Layer Hierarchy**: Imports flow downward across `src/ui` (Rank 5) -> `src/engine` (Rank 4) -> `src/state` (Rank 3) -> `src/data` & `src/media` (Rank 2) -> `src/simulation` (Rank 1) -> `src/definitions` & `src/utils` (Rank 0), audited by [audit.js](./.agents/skills/local-scripts/scripts/audit.js) and [graphit.architecture.json](./graphit.architecture.json).
+1. **Downward Layer Hierarchy**: Imports flow downward across `src/ui` (Rank 5) -> `src/engine` (Rank 4) -> `src/state` (Rank 3) -> `src/data` & `src/media` (Rank 2) -> `src/simulation` (Rank 1) -> `src/definitions` & `src/utils` (Rank 0), audited by [audit.js](./.agents/skills/housekeeping/scripts/audit.js) and [graphit.architecture.json](./graphit.architecture.json).
 2. **P1 User Agency**: Never speak, act, or think on behalf of the biological User; non-user entities remain third-person limited.
 3. **P4 Zero Backwards Compatibility (Pre-Beta Purity)**: Avoid backwards-compatible fallbacks, legacy aliases, or schema shims; update all downstream consumers directly.
 4. **Epistemic Wall & Anti-Telepathy**: Hidden brackets (`| hide`) belonging to non-owner entities are stripped across the Epistemic Wall (`format_clean_brackets`, `filter_epistemic_brackets`, and `see_hidden: "own"` / `"none"` in `PURPOSE_CORES`).
@@ -130,4 +130,4 @@ RPGlitch organizes its source code into clean, isolated subsystems:
   npm run build
   ```
 
-  Builds `dist/index.html` with `perchanceBase64Vault` asset encapsulation (the 4.00 MB deployment ceiling is verified in `.agents/skills/local-scripts/scripts/deploy.js`).
+  Builds `dist/index.html` with `perchanceBase64Vault` asset encapsulation (the 4.00 MB deployment ceiling is verified in `.agents/skills/housekeeping/scripts/deploy.js`).

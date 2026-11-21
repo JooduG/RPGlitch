@@ -1,7 +1,7 @@
 ---
 name: motion
 description: >-
-  UI motion choreography, tactile physics, easing curves, View Transitions, and reduced-motion enforcement in RPGlitch. Use when implementing, modifying, or auditing CSS transitions/keyframes from DESIGN.md, @media kinetic actions and card flights in src/media/motion.svelte.js (pulse, roll, shimmy, stab, overlay_in, overlay_out, item_in, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue, update_card_scrub, clear_card_location), guarded_transition() View Transitions, or prefers-reduced-motion compliance. Do NOT use for static DESIGN.md tokens, typography, or .proto-picker prototyping (use design), Web Audio SFX or speech synthesis (use audio), general non-motion Svelte 5 runes (use svelte), or turn/simulation logic (use simulation).
+  UI motion choreography, easing curves, View Transitions, and reduced-motion enforcement in RPGlitch (`src/media/motion.svelte.js`). Use when modifying `DESIGN.md` transitions/keyframes, `@media` kinetic actions (`pulse`, `roll`, `shimmy`, `stab`), card flights (`fly_card_*`, storyboard flights), or `guarded_transition()`. Do NOT use for static tokens/layouts (`design`), SFX/TTS (`audio`), simulation turns (`simulation`), or general runes (`svelte`).
 ---
 
 # Kinetic & Interactive Motion Governance

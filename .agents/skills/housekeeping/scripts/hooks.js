@@ -1,0 +1,775 @@
+/**
+ * .agents/skills/housekeeping/scripts/hooks.js
+ * 🪝 CONSOLIDATED ANTIGRAVITY LIFECYCLE HOOK DISPATCHER
+ *
+ * Consolidates all lifecycle hooks into a single, high-performance router.
+ * Can be invoked directly with a specific sub-hook name:
+ *   node .agents/skills/housekeeping/scripts/hooks.js <hook-name>
+ *
+ * Supported Hook Handlers:
+ *   - command-guard:            PreToolUse 3-tier security gate for run_command.
+ *   - sequential-thinking-gate: PreToolUse think-before-edit cognitive gate.
+ *   - mcp-argument-normalizer:  PreToolUse MCP argument normalizer (sequential thinking camelCase & tool lists).
+ *   - file-architecture-gate:   PreToolUse validation for file structure headers & changelogs.
+ *   - grep-truncation:          PostToolUse hard-stop circuit breaker on capped grep results.
+ *   - circuit-breaker:          PostToolUse 3-strike self-audit circuit breaker on tool failures.
+ *   - svelte-pre-invocation:    PreInvocation prompt injection for svelte-autofixer awareness.
+ *   - svelte-stop-gate:         Stop gate ensuring svelte-autofixer runs after .svelte changes.
+ *   - stop-hygiene:             Stop gate preventing transient debris in repository root.
+ */
+
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { GATE_TABLE, is_high_risk_file } from "./gates.js";
+
+// =================================================================================================
+// 0. SHARED LIFECYCLE IO & PATH UTILITIES
+// =================================================================================================
+
+/**
+ * Reads and parses JSON payload from stdin synchronously.
+ * Returns an empty object on any parse failure or empty input to prevent locking up hooks.
+ *
+ * @returns {Record<string, any>} Parsed stdin payload.
+ */
+export function read_stdin_payload() {
+  try {
+    const raw_input = fs.readFileSync(0, "utf-8");
+    if (!raw_input || !raw_input.trim()) return {};
+    return JSON.parse(raw_input);
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Writes a formatted JSON response to stdout.
+ *
+ * @param {Record<string, any>} response JSON response object.
+ */
+export function send_hook_response(response) {
+  process.stdout.write(JSON.stringify(response) + "\n");
+}
+
+/**
+ * Normalizes absolute or relative paths to a relative workspace path.
+ * Strips `.agents/` suffix if present in workspace root.
+ *
+ * @param {string} file_path Target file path.
+ * @param {string} [workspace_root] Workspace root path.
+ * @returns {string} Normalized relative workspace path with forward slashes.
+ */
+export function to_relative_workspace_path(file_path, workspace_root) {
+  let root = (workspace_root || process.cwd()).replace(/\\/g, "/");
+  if (root.endsWith("/.agents") || root.endsWith(".agents")) {
+    root = root.replace(/\/\.agents$/, "").replace(/\.agents$/, "");
+  }
+  const normalized = (file_path || "").replace(/\\/g, "/");
+  if (normalized.startsWith(root + "/")) {
+    return normalized.slice(root.length + 1);
+  }
+  return normalized;
+}
+
+/**
+ * Resolves repository root directory cleanly regardless of whether CWD is root or .agents/.
+ *
+ * @param {Record<string, any>} [payload] Stdin hook payload.
+ * @returns {string} Absolute path to repository root.
+ */
+export function resolve_repo_root(payload) {
+  if (payload?.workspacePaths && payload.workspacePaths[0] && fs.existsSync(payload.workspacePaths[0])) {
+    return payload.workspacePaths[0];
+  }
+  return process.cwd().endsWith(".agents") ? fs.realpathSync(process.cwd() + "/..") : process.cwd();
+}
+
+/**
+ * Checks if the workspace is currently in Workshop/Prototyping Mode.
+ * Workshop mode bypasses friction gates (sequential thinking, planning handoff)
+ * during rapid brainstorming and workshopping.
+ *
+ * @param {Record<string, any>} [payload] Stdin hook payload.
+ * @returns {boolean} True if workshop mode is active.
+ */
+export function is_workshop_mode(payload) {
+  if (process.env.WORKSHOP_MODE === "true" || process.env.WORKSHOP_MODE === "1") {
+    return true;
+  }
+  try {
+    const repo_root = resolve_repo_root(payload);
+    const flag_path = path.join(repo_root, "tmp", ".workshop_mode");
+    return fs.existsSync(flag_path);
+  } catch {
+    return false;
+  }
+}
+
+// =================================================================================================
+// 1. CONSTANTS & WORKSPACE REGISTRIES
+// =================================================================================================
+
+const DEFAULT_WORKSPACE_TOOLS = Object.freeze([
+  "run_command",
+  "view_file",
+  "replace_file_content",
+  "multi_replace_file_content",
+  "write_to_file",
+  "grep_search",
+  "list_dir",
+  "manage_task",
+  "schedule",
+  "call_mcp_tool",
+  "read_url_content",
+  "generate_image",
+  "mcp:svelte:svelte-autofixer",
+  "mcp:developer-database:read_knowledge_base",
+  "mcp:developer-database:write_knowledge_base",
+  "mcp:deepwiki",
+  "mcp:context7:query-docs",
+  "mcp:github-copilot",
+  "mcp:firecrawl-mcp",
+  "mcp:chrome-devtools",
+  "mcp:StitchMCP",
+  "mcp:mcp-sequentialthinking-tools",
+]);
+
+// =================================================================================================
+// 2. HOOK HANDLERS
+// =================================================================================================
+
+/**
+ * PreToolUse: 3-Tier Security Guard for run_command.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_command_guard(payload) {
+  const command_line = payload?.toolCall?.args?.CommandLine || "";
+
+  // Tier 1: Strictly Denied
+  const is_destructive_git = /\bgit\s+(reset\s+--hard|clean\s+-[a-zA-Z]*f|checkout\s+--\s+\.|restore\s+\.)/i.test(command_line);
+  const is_destructive_rm =
+    /\b(rm\s+-[a-zA-Z]*r|rmdir\s+\/s|Remove-Item\s+-[a-zA-Z]*Recurse)\b/i.test(command_line) &&
+    !command_line.includes("tmp/") &&
+    !command_line.includes("tmp\\");
+
+  if (is_destructive_git || is_destructive_rm) {
+    send_hook_response({ decision: "deny", reason: `Blocked by destructive-command-guard: "${command_line}" is potentially destructive to the repository.` });
+    return;
+  }
+
+  // Tier 2: Force Ask
+  const is_sensitive_git = /\bgit\s+(push(\s+--force|\s+-f)?|branch\s+-D|stash\s+(drop|clear)|rebase|merge)\b/i.test(command_line);
+  const is_npm_mutation = /\bnpm\s+(install|uninstall|update|i)\b/i.test(command_line);
+
+  if (is_sensitive_git || is_npm_mutation) {
+    send_hook_response({ decision: "ask", reason: `Sensitive action detected ("${command_line}"). User confirmation required.` });
+    return;
+  }
+
+  // Tier 3: Allow
+  send_hook_response({ decision: "allow" });
+}
+
+/**
+ * PreToolUse: Cognitive Thinking Gate for File Modifications.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_sequential_thinking_gate(payload) {
+  if (is_workshop_mode(payload)) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const tool_call = payload?.toolCall || {};
+  const tool_args = tool_call.args || {};
+  const target_file = tool_args.TargetFile || "";
+
+  if (!target_file) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const workspace_root = resolve_repo_root(payload);
+  const relative_target = to_relative_workspace_path(target_file, workspace_root);
+
+  if (!relative_target.startsWith("src/") && !relative_target.startsWith(".agents/skills/")) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const transcript_path = payload?.transcriptPath || "";
+  if (!transcript_path || !fs.existsSync(transcript_path)) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  let has_thought_recorded = false;
+  const files_edited_in_turn = new Set();
+  let consecutive_edits_on_target = 0;
+
+  try {
+    const raw_transcript = fs.readFileSync(transcript_path, "utf-8");
+    const all_lines = raw_transcript.trim().split("\n");
+    // Optimize performance: slice trailing 60 lines (last turn) to avoid O(transcript) scan
+    const lines = all_lines.slice(-60);
+
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i];
+      if (!line) continue;
+
+      try {
+        const step = JSON.parse(line);
+        if (step.type === "USER_INPUT") break;
+
+        const step_str = JSON.stringify(step);
+        if (step_str.includes("sequentialthinking_tools")) {
+          has_thought_recorded = true;
+        }
+
+        const tool_calls = step.tool_calls || [];
+        for (const tc of tool_calls) {
+          if (tc.name === "replace_file_content" || tc.name === "write_to_file" || tc.name === "multi_replace_file_content") {
+            const edited_path = to_relative_workspace_path(tc.args?.TargetFile || "", workspace_root);
+            if (edited_path) {
+              files_edited_in_turn.add(edited_path);
+              if (edited_path === relative_target) {
+                consecutive_edits_on_target++;
+              }
+            }
+          }
+        }
+      } catch {
+        // Continue on JSON parse error
+      }
+    }
+  } catch {
+    // If transcript inspection fails, allow through
+  }
+
+  if (has_thought_recorded) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const is_high_risk_engine_file = is_high_risk_file(relative_target);
+
+  if (is_high_risk_engine_file) {
+    send_hook_response({
+      decision: "deny",
+      reason: `High-Risk Engine Gate: "${relative_target}" is a core simulation/intelligence engine file. Structural modifications to prompt compilers, chrono state, or data persistence require sequential thinking. Run \`call_mcp_tool\` for \`mcp-sequentialthinking-tools\` (\`sequentialthinking_tools\`) to record your step-by-step reasoning and plan before editing.`,
+    });
+    return;
+  }
+
+  const is_multi_file_attempt = files_edited_in_turn.size > 0 && !files_edited_in_turn.has(relative_target);
+  const is_consecutive_thrashing = consecutive_edits_on_target >= 1;
+
+  if (is_multi_file_attempt) {
+    const other_files = Array.from(files_edited_in_turn).join(", ");
+    // Soften to ask with feedback so agent is never hard-locked if MCP is unavailable
+    send_hook_response({
+      decision: "ask",
+      reason: `Multi-File Cognitive Reminder: You previously modified (${other_files}) and are now modifying "${relative_target}". Cross-file changes benefit from structured reasoning via \`mcp-sequentialthinking-tools\`. Please confirm or record step plan before editing multiple files.`,
+    });
+    return;
+  }
+
+  if (is_consecutive_thrashing) {
+    send_hook_response({
+      decision: "ask",
+      reason: `Thrashing Prevention Reminder: You are editing "${relative_target}" for the ${consecutive_edits_on_target + 1}th time in this turn. Repeated edits to the same file indicate potential looping. Please confirm and state your plan before editing again.`,
+    });
+    return;
+  }
+
+  send_hook_response({ decision: "allow" });
+}
+
+/**
+ * PreToolUse: Sequential Thinking & MCP Arguments Normalizer.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_mcp_argument_normalizer(payload) {
+  const tool_call = payload?.toolCall || {};
+  const tool_name = tool_call.name || "";
+  const tool_args = tool_call.args || {};
+
+  if (tool_name === "call_mcp_tool") {
+    let server_name = tool_args.ServerName || "";
+    let target_tool = tool_args.ToolName || "";
+    let inner_args = tool_args.Arguments || {};
+
+    if (server_name === "mcp-sequentialthinking-tools" && target_tool === "sequentialthinking_tools") {
+      // Normalize camelCase aliases that models or callers frequently emit
+      if (inner_args.thoughtNumber !== undefined && inner_args.thought_number === undefined) {
+        inner_args.thought_number = inner_args.thoughtNumber;
+        delete inner_args.thoughtNumber;
+      }
+      if (inner_args.totalThoughts !== undefined && inner_args.total_thoughts === undefined) {
+        inner_args.total_thoughts = inner_args.totalThoughts;
+        delete inner_args.totalThoughts;
+      }
+      if (inner_args.nextThoughtNeeded !== undefined && inner_args.next_thought_needed === undefined) {
+        inner_args.next_thought_needed = inner_args.nextThoughtNeeded;
+        delete inner_args.nextThoughtNeeded;
+      }
+
+      if (!inner_args.available_tools || inner_args.available_tools.length === 0) {
+        inner_args = { ...inner_args, available_tools: [...DEFAULT_WORKSPACE_TOOLS] };
+      }
+    }
+
+    const args_changed = JSON.stringify(inner_args) !== JSON.stringify(tool_args.Arguments);
+    if (server_name !== tool_args.ServerName || target_tool !== tool_args.ToolName || args_changed) {
+      send_hook_response({ decision: "allow", overwrite: { ServerName: server_name, ToolName: target_tool, Arguments: inner_args } });
+      return;
+    }
+  }
+
+  send_hook_response({ decision: "allow" });
+}
+
+/**
+ * PreToolUse: Universal File Architecture Gate.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_file_architecture_gate(payload) {
+  const tool_name = payload?.toolCall?.name || payload?.tool_name || "";
+  const args = payload?.toolCall?.args || {};
+
+  if (tool_name !== "write_to_file") {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const target_file = (args.TargetFile || "").replace(/\\/g, "/");
+  const code_content = args.CodeContent || "";
+
+  const is_src_source_file = target_file.includes("/src/") && (target_file.endsWith(".js") || target_file.endsWith(".svelte") || target_file.endsWith(".ts"));
+
+  if (!is_src_source_file) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const trimmed_code = code_content.trim();
+  const has_top_header = trimmed_code.startsWith("/**") || trimmed_code.startsWith("<!--") || trimmed_code.startsWith("/*");
+  const has_changelog = trimmed_code.includes("CHANGELOG") || trimmed_code.includes("Changelog") || trimmed_code.includes("changelog");
+
+  if (!has_top_header || !has_changelog) {
+    const missing = [];
+    if (!has_top_header) missing.push("Instructional Header Block (/** ... */ or <!-- ... --> at line 1)");
+    if (!has_changelog) missing.push("Changelog Footer Block (/** CHANGELOG ... */ at bottom)");
+
+    send_hook_response({
+      decision: "deny",
+      reason: [
+        `🛑 Blocked by Universal File Architecture Gate (GEMINI.md System Standards § 3):`,
+        `Target file "${target_file}" is missing required structural elements:`,
+        ...missing.map((item) => ` - ${item}`),
+        `Please add the required blocks to CodeContent before creating the file.`,
+      ].join("\n"),
+    });
+    return;
+  }
+
+  send_hook_response({ decision: "allow" });
+}
+
+/**
+ * PostToolUse: Grep Truncation Breaker.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_grep_truncation(payload) {
+  const tool_name = payload?.toolCall?.name || payload?.tool_name || "";
+  const tool_result = payload?.toolResult || payload?.result || "";
+
+  if (tool_name !== "grep_search") {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const result_text = typeof tool_result === "string" ? tool_result : JSON.stringify(tool_result);
+  const is_capped_at_fifty = result_text.includes("Total results are capped at 50 matches");
+  const has_truncation_warning = /more results not shown/i.test(result_text) || /truncated/i.test(result_text) || /results are capped/i.test(result_text);
+
+  if (is_capped_at_fifty || has_truncation_warning) {
+    send_hook_response({
+      decision: "allow",
+      feedback: [
+        "⚠️ [CONSTITUTIONAL CIRCUIT BREAKER: Exhaustive Search Truncation Detected]",
+        "Grep search results were capped or truncated (GEMINI.md Phase 4.4).",
+        "MANDATE: You must NOT proceed on incomplete assumptions.",
+        "Execute targeted recursive searches using subdirectory filters ('Includes') until 100% of matches are audited.",
+      ].join("\n"),
+    });
+    return;
+  }
+
+  send_hook_response({ decision: "allow" });
+}
+
+/**
+ * PostToolUse: 3-Strike Circuit Breaker.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_circuit_breaker(payload) {
+  const tool_name = payload?.toolCall?.name || payload?.tool_name || "";
+  const tool_result = payload?.toolResult || payload?.result || "";
+  const state_file = path.join(resolve_repo_root(payload), "tmp", ".tool-failures.json");
+
+  if (tool_name === "call_mcp_tool" && payload?.toolCall?.args?.ServerName === "mcp-sequentialthinking-tools") {
+    try {
+      if (fs.existsSync(state_file)) fs.unlinkSync(state_file);
+    } catch {
+      // Ignore filesystem cleanup errors
+    }
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  // Exempt read-only exploration tools from tripping the circuit breaker
+  const read_only_tools = new Set(["view_file", "grep_search", "read_url_content", "list_dir", "read_resource", "list_resources"]);
+  if (read_only_tools.has(tool_name)) {
+    send_hook_response({ decision: "allow" });
+    return;
+  }
+
+  const error_text = typeof payload?.error === "string" ? payload.error : "";
+  const result_text = typeof tool_result === "string" ? tool_result : JSON.stringify(tool_result);
+  const combined_text = `${error_text} ${result_text}`.trim();
+  const has_error =
+    Boolean(error_text) ||
+    (/error|failed|exception|rejection|command failed/i.test(combined_text) && !combined_text.includes("0 errors") && !combined_text.includes("errors: 0"));
+
+  let count = 0;
+  try {
+    if (fs.existsSync(state_file)) {
+      count = JSON.parse(fs.readFileSync(state_file, "utf-8")).consecutive_failures || 0;
+    }
+  } catch {
+    count = 0;
+  }
+
+  if (has_error) {
+    count += 1;
+    try {
+      const dir = path.dirname(state_file);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(state_file, JSON.stringify({ consecutive_failures: count, updated_at: new Date().toISOString() }));
+    } catch {
+      // Ignore write errors
+    }
+
+    if (count >= 3) {
+      send_hook_response({
+        decision: "allow",
+        feedback: [
+          "🛑 [CIRCUIT BREAKER TRIGGERED: 3 Consecutive Tool Failures]",
+          "In accordance with GEMINI.md Phase 5.2:",
+          "You have encountered 3 consecutive tool/verification failures without progress.",
+          "MANDATORY ACTION: You must invoke call_mcp_tool with ServerName: 'mcp-sequentialthinking-tools'",
+          "to perform a self-audit of assumptions, hypotheses, and approaches before attempting more edits.",
+        ].join("\n"),
+      });
+      return;
+    }
+  } else if (count > 0) {
+    try {
+      if (fs.existsSync(state_file)) fs.unlinkSync(state_file);
+    } catch {
+      // Ignore cleanup error
+    }
+  }
+
+  send_hook_response({ decision: "allow" });
+}
+
+/**
+ * PreInvocation: Svelte Autofixer Prompt Injector.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_svelte_pre_invocation(_payload) {
+  send_hook_response({ injectSteps: [] });
+}
+
+/**
+ * Stop: Svelte Autofixer Verification Gate.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_svelte_stop_gate(payload) {
+  const transcript_path = payload?.transcriptPath || "";
+  if (!transcript_path || !fs.existsSync(transcript_path)) {
+    send_hook_response({ decision: "stop" });
+    return;
+  }
+
+  let modified_svelte = false;
+  let ran_autofixer = false;
+
+  try {
+    const raw_transcript = fs.readFileSync(transcript_path, "utf-8");
+    const all_lines = raw_transcript.trim().split("\n");
+    // Optimize performance: slice trailing 60 lines (last turn) to avoid O(transcript) scan
+    const lines = all_lines.slice(-60);
+
+    for (let i = lines.length - 1; i >= 0; i--) {
+      const line = lines[i];
+      if (!line) continue;
+
+      try {
+        const step = JSON.parse(line);
+        if (step.type === "USER_INPUT") break;
+
+        const stringified = JSON.stringify(step);
+        if (stringified.includes("svelte-autofixer")) {
+          ran_autofixer = true;
+        }
+
+        if (
+          /\.svelte["']/.test(stringified) &&
+          (step.tool_calls?.some((tc) => tc.name === "write_to_file" || tc.name === "replace_file_content" || tc.name === "multi_replace_file_content") ||
+            step.content?.includes("write_to_file") ||
+            step.content?.includes("replace_file_content"))
+        ) {
+          modified_svelte = true;
+        }
+      } catch {
+        // Ignore JSON error
+      }
+    }
+  } catch {
+    // If read fails, allow stop
+  }
+
+  if (modified_svelte && !ran_autofixer) {
+    send_hook_response({
+      decision: "continue",
+      reason:
+        "Svelte component code was modified or created, but `svelte-autofixer` was not executed. You must call `call_mcp_tool` with ServerName: 'svelte' and ToolName: 'svelte-autofixer' on the modified Svelte file to verify and fix any component issues before concluding.",
+    });
+    return;
+  }
+
+  send_hook_response({ decision: "stop" });
+}
+
+/**
+ * Stop: Planning Handoff Gate.
+ * Validates that substantive changes in `src/` are recorded in CHANGELOG.md or ROADMAP.md,
+ * and ensures spec-to-code alignment against the active blueprint in ROADMAP.md.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_planning_handoff(payload) {
+  if (payload?.stop_hook_active) {
+    send_hook_response({ decision: "stop" });
+    return;
+  }
+
+  const repo_root = resolve_repo_root(payload);
+
+  try {
+    const status_output = execSync("git status --porcelain", { cwd: repo_root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+
+    if (!status_output) {
+      send_hook_response({ decision: "stop" });
+      return;
+    }
+
+    const changed_files = status_output.split("\n").map((line) =>
+      line
+        .replace(/^..?\s+/, "")
+        .trim()
+        .replace(/\\/g, "/"),
+    );
+    const has_source_files = changed_files.some((file) => file.startsWith("src/") && /\.(js|ts|svelte|css)$/.test(file));
+    let changed_line_count = 0;
+    if (has_source_files) {
+      try {
+        const numstat = execSync("git diff --numstat HEAD -- src/", { cwd: repo_root, encoding: "utf8" });
+        for (const row of numstat.split("\n")) {
+          const match = row.match(/^(\d+)\s+(\d+)\s+(.+)$/);
+          if (match && /\.(js|ts|svelte|css)$/.test(match[3].trim())) {
+            changed_line_count += Number(match[1]) + Number(match[2]);
+          }
+        }
+      } catch {
+        changed_line_count = 25;
+      }
+    }
+
+    // Guard: If no files in src/ were modified in this working tree or diff line count is 0, allow stop
+    if (!has_source_files || changed_line_count === 0) {
+      send_hook_response({ decision: "stop" });
+      return;
+    }
+
+    const has_substantive_source_changes = has_source_files && changed_line_count >= 25;
+    const has_handoff_recorded = changed_files.some((file) => file === "CHANGELOG.md" || file === "ROADMAP.md");
+
+    if (has_substantive_source_changes && !has_handoff_recorded) {
+      send_hook_response({
+        decision: "continue",
+        reason:
+          "Planning Handoff Law: Substantive changes were made to `src/`, but neither `CHANGELOG.md` nor `ROADMAP.md` has been updated. Record your session progress and updated Pulse/Roadmap before concluding.",
+      });
+      return;
+    }
+
+    // Spec-to-Code Drift Verification (Conductor CDD Pattern)
+    if (has_substantive_source_changes) {
+      const roadmap_path = path.join(repo_root, "ROADMAP.md");
+      let active_plan_content = null;
+
+      if (fs.existsSync(roadmap_path)) {
+        active_plan_content = fs.readFileSync(roadmap_path, "utf-8");
+      }
+
+      if (active_plan_content) {
+        const src_modifications = changed_files.filter((file) => file.startsWith("src/"));
+        const drift_files = src_modifications.filter((file) => !active_plan_content.includes(file) && !active_plan_content.includes(path.basename(file)));
+        if (drift_files.length > 0) {
+          send_hook_response({
+            decision: "stop",
+            reason: `Spec-to-Code Drift Warning: Modified files (${drift_files.join(", ")}) are not declared in ROADMAP.md active blueprint.`,
+          });
+          return;
+        }
+      }
+    }
+  } catch {
+    // Graceful fallback
+  }
+
+  send_hook_response({ decision: "stop" });
+}
+
+/**
+ * Stop: Workspace Hygiene Gate.
+ *
+ * @param {any} payload Hook payload from stdin.
+ */
+export function handle_stop_hygiene(payload) {
+  const root_directory = resolve_repo_root(payload);
+  const forbidden_root_patterns = [/\.tmp$/i, /\.log$/i, /^scratch_/i, /^test_out/i, /^temp_/i];
+  const violations = [];
+
+  try {
+    const root_files = fs.readdirSync(root_directory);
+    for (const file of root_files) {
+      if (forbidden_root_patterns.some((pattern) => pattern.test(file))) {
+        violations.push(file);
+      }
+    }
+  } catch {
+    // Graceful fallback
+  }
+
+  if (violations.length > 0) {
+    send_hook_response({
+      decision: "continue",
+      reason: `Workspace hygiene gate violation: Found transient files in repository root (${violations.join(", ")}). Move or clean them in tmp/ before terminating.`,
+    });
+    return;
+  }
+
+  send_hook_response({ decision: "stop" });
+}
+
+// =================================================================================================
+// 3. MAIN ROUTER DISPATCHER
+// =================================================================================================
+
+const ALL_HANDLERS = {
+  "command-guard": handle_command_guard,
+  "guard-commands": handle_command_guard,
+  "sequential-thinking-gate": handle_sequential_thinking_gate,
+  "mcp-argument-normalizer": handle_mcp_argument_normalizer,
+  "waldzell-router": handle_mcp_argument_normalizer,
+  "file-architecture-gate": handle_file_architecture_gate,
+  "grep-truncation": handle_grep_truncation,
+  "circuit-breaker": handle_circuit_breaker,
+  "svelte-pre-invocation": handle_svelte_pre_invocation,
+  "svelte-stop-gate": handle_svelte_stop_gate,
+  "planning-handoff": handle_planning_handoff,
+  "stop-hygiene": handle_stop_hygiene,
+  "workspace-hygiene": handle_stop_hygiene,
+};
+
+const REGISTERED_SUBCOMMANDS = new Set(GATE_TABLE.map((gate) => gate.subcommand));
+
+// NOTE: svelte-pre-invocation / svelte-stop-gate and the waldzell-router /
+// guard-commands / workspace-hygiene aliases stay dispatchable for backward
+// compatibility but are no longer registered gates (see gates.js).
+const HOOK_DISPATCH_TABLE = Object.freeze(Object.fromEntries(Object.entries(ALL_HANDLERS).filter(([subcommand]) => REGISTERED_SUBCOMMANDS.has(subcommand))));
+
+/**
+ * Executes router logic by reading stdin and calling the matched handler.
+ */
+function run() {
+  const hook_subcommand = process.argv[2];
+  const payload = read_stdin_payload();
+
+  // If sub-command explicitly specified in argv
+  if (hook_subcommand && HOOK_DISPATCH_TABLE[hook_subcommand]) {
+    HOOK_DISPATCH_TABLE[hook_subcommand](payload);
+    return;
+  }
+
+  // Fallback: Infer hook type based on payload structure
+  const tool_name = payload?.toolCall?.name || payload?.tool_name;
+  if (tool_name === "run_command") {
+    handle_command_guard(payload);
+    return;
+  }
+  if (tool_name === "call_mcp_tool") {
+    handle_mcp_argument_normalizer(payload);
+    return;
+  }
+  if (tool_name === "grep_search") {
+    handle_grep_truncation(payload);
+    return;
+  }
+  if (tool_name === "write_to_file") {
+    handle_file_architecture_gate(payload);
+    return;
+  }
+
+  // Default response for unhandled events
+  send_hook_response({ decision: "allow" });
+}
+
+const is_main_execution = process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (is_main_execution) {
+  run();
+}
+
+/**
+ * CHANGELOG
+ * -------------------------------------------------------------------------------------------------
+ * 2026-11-14: Standardized workspace_root resolution in handle_sequential_thinking_gate via resolve_repo_root(payload) and updated CLI header path to .agents/skills/local-scripts/scripts/hooks.js.
+ * 2026-11-10: Dispatch table + high-risk policy now driven by gates.js GATE_TABLE (single source;
+ *   hooks.json regenerated via `node gates.js --dump`). Retired svelte-autofixer pair + aliases
+ *   from the registered set (handlers kept for backward compatibility).
+ * 2026-10-19: Registered `mcp-argument-normalizer` under PreToolUse in `.agents/hooks.json`, inspected `payload.error` in `handle_circuit_breaker` for standard PostToolUse failure detection, and synchronized local-scripts documentation with ROADMAP.md.
+ * 2026-09-30: Hardened `resolve_repo_root` to verify `fs.existsSync(payload.workspacePaths[0])` so non-existent test or cross-platform mock paths fall back safely to current workspace root.
+ * 2026-09-25: Hardened porcelain git status path extraction regex in `handle_planning_handoff` (`/^..?\s+/`) to robustly handle both single-letter and two-letter status code prefixes.
+ * 2026-09-24: Passed explicit `cwd: repo_root` to `git status --porcelain` in `handle_planning_handoff` so file paths are uniformly relative to workspace root regardless of subshell invocation CWD.
+ * 2026-09-12: Added is_workshop_mode helper and bypass in handle_sequential_thinking_gate to allow zero-friction prototyping when WORKSHOP_MODE is set or tmp/.workshop_mode exists.
+ * 2026-09-05: Initial creation of consolidated hooks.js dispatcher unifying all 10 Antigravity hooks.
+ * 2026-09-05: Fixed circuit breaker false positives (exempted read-only tools, dynamically resolved tmp/.tool-failures.json), optimized transcript parsing (sliced last 60 lines), softened sequential thinking gate on multi-file/repeat edits to ask, and added deep structural equality comparison in handle_waldzell_router.
+ * 2026-09-05: A5 clarification - reverted file-architecture-gate to write_to_file only in hooks.json. The handler enforces header/changelog law at file creation time; replace_file_content/multi_replace_file_content operate on existing files in targeted patches and cannot meaningfully enforce full structural blocks.
+ * 2026-09-05: Added active-track-gate PreToolUse handler and enhanced handle_planning_handoff Stop gate: guarantees exactly one track in tasks/future/ is status: active, automatically reconciles tasks/PRESENT.md frontmatter active_track, link, and ## 🚀 Future queued list from tasks/future/*.md blueprints.
+ */
