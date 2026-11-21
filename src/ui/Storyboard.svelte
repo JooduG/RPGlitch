@@ -14,8 +14,7 @@
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
   import { app, execution, session } from "@state";
-  import { open_image_preview } from "./ImagePreview.svelte.js";
-  import { parse_message } from "./ChatBubble.svelte";
+  import { open_image_preview, parse_message } from "@organisms";
   const stories = { active_entity_ids };
 
   // ---------------------------------------------------------------------------------------------
@@ -298,8 +297,9 @@
   } from "@data";
   import { create_entity_with_profile } from "@engine";
   import { Audio, rect_of } from "@media";
-  import { Backdrop, Button, Icon, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
-  import EntityCard from "./EntityCard.svelte";
+  import { Backdrop, Button, Icon, Toggle, tooltip } from "@atoms";
+  import { CardSkeleton, Modal, SourceField, StoryboardTitle } from "@molecules";
+  import { EntityCard } from "@organisms";
   import { untrack } from "svelte";
   import { quartOut } from "svelte/easing";
 
@@ -401,9 +401,9 @@
     app.story_title_parts = is_custom ? [{ text: custom_title }] : title_parts.map((p) => ({ ...p }));
   });
 
-  /** @param {Event & { currentTarget: EventTarget & HTMLElement }} e */
-  function handle_input(e) {
-    custom_title = e.currentTarget.textContent;
+  /** @param {string} new_text */
+  function handle_input(new_text) {
+    custom_title = new_text;
     is_custom = true;
   }
 
@@ -807,78 +807,12 @@
 
 <svelte:window onkeydown={handle_keydown} onpointermove={handle_pointer_move} onwheel={handle_wheel} />
 
-{#snippet card_skeleton()}
-  <div class="relative isolate h-full min-h-50 w-full overflow-hidden rounded-xl border border-solid border-white/10 bg-zinc-900/40 backdrop-blur-sm">
-    <Shimmer color="rgba(255, 255, 255, 0.4)" />
-  </div>
-{/snippet}
-
 <!-- STORYBOARD TITLE HEADER -->
 {#if app.entities_loaded}
   <!-- display:flex inline: unlayered normalize.css v3 resets semantic elements to block, defeating Tailwind's layered flex utility -->
   <header style="display: flex;" class="pointer-events-none z-sticky flex justify-center {header_class}">
     <div class="flex w-full justify-center">
-      <h2
-        class="
-          pointer-events-none
-          z-sticky
-          inline-block
-          max-w-[90vw]
-          cursor-text
-          px-standard
-          text-center
-          font-display
-          text-[clamp(1.5rem,3.2vw,2.6rem)]
-          font-normal
-          text-balance
-          transition-[background-color,box-shadow]
-          duration-300
-
-          select-none
-          hover:rounded-md
-
-          hover:bg-white/5
-          focus:rounded-md
-          focus:bg-black/20
-          focus:shadow-md
-
-          focus:outline-none
-          [&>span]:pointer-events-auto
-        "
-        use:tooltip={{ text: "Double-click to regenerate title" }}
-        contenteditable="true"
-        aria-label="Story Title"
-        oninput={handle_input}
-        ondblclick={handle_reset}>
-        {#if is_custom}
-          <span class="text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]"
-            >{custom_title}</span>
-        {:else}
-          {#each title_parts as part, i (i)}
-            {#if part.color}
-              <span
-                class="
-                inline
-                px-tight
-                font-display
-                whitespace-nowrap
-                text-(--signature-color)
-                [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
-              "
-                style:--signature-color={part.color}>{part.text}</span>
-            {:else}
-              <span
-                class="
-              inline
-              px-tight
-              font-display
-              whitespace-normal
-              text-shadow-[0_var(--spacing-pixel)_var(--spacing-pixel)_var(--color-void-black),0_0_var(--spacing-unit)_var(--color-void-black)]
-            ">{part.text}</span>
-            {/if}
-          {/each}
-        {/if}
-      </h2>
+      <StoryboardTitle editable={true} {is_custom} {custom_title} parts={title_parts} oninput={handle_input} onreset={handle_reset} />
     </div>
   </header>
 {/if}
@@ -886,7 +820,7 @@
 <!-- LEFT SLOT: AI CHARACTER -->
 <aside style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {left_class}">
   {#if !app.entities_loaded}
-    {@render card_skeleton()}
+    <CardSkeleton />
   {:else}
     {@const entity = app.selected_ai || session.active_ai}
     <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
@@ -910,7 +844,7 @@
 <!-- CENTER SLOT: FRACTAL -->
 <section style="display: flex;" class="pointer-events-none relative z-10 flex min-h-0 flex-col justify-center {center_class}">
   {#if !app.entities_loaded}
-    {@render card_skeleton()}
+    <CardSkeleton />
   {:else}
     {@const entity = app.selected_fractal || session.active_fractal}
     <div class="flex h-full w-full items-center justify-center" data-slot-type="fractal">
@@ -934,7 +868,7 @@
 <!-- RIGHT SLOT: USER PERSONA -->
 <aside style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {right_class}">
   {#if !app.entities_loaded}
-    {@render card_skeleton()}
+    <CardSkeleton />
   {:else}
     {@const entity = app.selected_user || session.active_user}
     <div class="flex h-full w-full items-center justify-center" data-slot-type="user" data-panel-card="user">

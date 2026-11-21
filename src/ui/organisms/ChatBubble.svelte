@@ -227,7 +227,7 @@
   import { image_picker, open_image_preview, open_picker } from "./ImagePreview.svelte.js";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
   import { Accordion, Avatar, Button, Icon, Shimmer, Typewriter, tooltip } from "@atoms";
-  import { MacroText, TextField } from "@molecules";
+  import { MacroText, StoryboardTitle, TextField } from "@molecules";
   import { open_context_menu } from "./ContextMenu.svelte";
   import EntityCard from "./EntityCard.svelte";
   import { resolve_speaking_style } from "@simulation";
@@ -913,23 +913,7 @@
 {/snippet}
 
 {#snippet cursive_title()}
-  {#if app.story_title}
-    <h2 class="mb-standard text-center font-display text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance" data-msg-title>
-      {#if app.story_title_parts.length > 0}
-        {#each app.story_title_parts as part, i (i)}
-          {#if part.color}
-            <span
-              class="inline px-1 whitespace-nowrap text-(--signature-color) text-shadow-[0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]"
-              style:--signature-color={part.color}>{part.text}</span>
-          {:else}
-            <span class="inline px-1 text-shadow-[0_0_var(--spacing-unit)_var(--color-void-black)]">{part.text}</span>
-          {/if}
-        {/each}
-      {:else}
-        {app.story_title}
-      {/if}
-    </h2>
-  {/if}
+  <StoryboardTitle title={app.story_title} parts={app.story_title_parts} />
 {/snippet}
 
 {#snippet attachments_gallery()}

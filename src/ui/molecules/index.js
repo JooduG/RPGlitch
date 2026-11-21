@@ -6,6 +6,7 @@ export { default as MacroText } from "./MacroText.svelte";
 export { default as Meter } from "./Meter.svelte";
 export { default as Modal } from "./Modal.svelte";
 export { default as SourceField } from "./SourceField.svelte";
+export { default as StoryboardTitle } from "./StoryboardTitle.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
 export { default as TextField } from "./TextField.svelte";
 export { default as UndoToast } from "./UndoToast.svelte";
