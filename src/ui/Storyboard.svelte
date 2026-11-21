@@ -297,7 +297,7 @@
   } from "@data";
   import { create_entity_with_profile } from "@engine";
   import { Audio, rect_of } from "@media";
-  import { Backdrop, Button, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
+  import { Backdrop, Button, Icon, Modal, Shimmer, SourceField, Toggle, tooltip } from "@primitives";
   import EntityCard from "./EntityCard.svelte";
   import { untrack } from "svelte";
   import { quartOut } from "svelte/easing";
@@ -1238,11 +1238,7 @@
             onclick={execute_entity_import}
             busy={import_loading}
             disabled={import_loading || (!import_character && !import_fractal)}>
-            <svg viewBox="0 0 24 24" class="size-icon-small" fill="none">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
-              <polyline points="7 10 12 15 17 10" stroke="currentColor"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"></line>
-            </svg>
+            <Icon name="download" class="size-icon-small" />
           </Button>
         {/snippet}
       </SourceField>

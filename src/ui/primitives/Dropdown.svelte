@@ -5,6 +5,7 @@
    * Standalone dropdown select atom using bits-ui/Select and Svelte 5.
    */
   import { tooltip } from "./Tooltip.svelte";
+  import Icon from "./Icon.svelte";
   import { Select } from "bits-ui";
   import { scale } from "svelte/transition";
 
@@ -107,21 +108,9 @@
           <span class="opacity-50"> - {selected_item.region || selected_item.tag}</span>
         {/if}
       </span>
-      <svg
-        viewBox="0 0 24 24"
-        class="
-          size-4
-          shrink-0
-          opacity-60
-          transition-transform
-          duration-150
-          ease-in-out
-
-          group-data-[state=open]/trigger:rotate-180
-          group-data-[state=open]/trigger:opacity-100
-        ">
-        <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-      </svg>
+      <Icon
+        name="chevron_down"
+        class="size-4 shrink-0 opacity-60 transition-transform duration-150 ease-in-out group-data-[state=open]/trigger:rotate-180 group-data-[state=open]/trigger:opacity-100" />
     {/if}
   </Select.Trigger>
 

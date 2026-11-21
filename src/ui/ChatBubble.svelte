@@ -224,7 +224,7 @@
   import { parse_tagged_fields as parse_bracket_entries, get_resolution, render_optics_fallback } from "@simulation";
   import { runtime, simulation_log, simulation_state, image_picker, open_picker } from "@state";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
-  import { Accordion, Button, Shimmer, TextField, tooltip } from "@primitives";
+  import { Accordion, Button, Icon, Shimmer, TextField, tooltip } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
   import EntityCard from "./EntityCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
@@ -701,9 +701,7 @@
             actions={[tooltip]}
             onclick={() => on_save?.(local_text)}
             class="text-white/85 transition-colors hover:text-white">
-            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-              <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-            </svg>
+            <Icon name="check" class="size-4" />
           </Button>
           <Button
             variant="invisible"
@@ -713,10 +711,7 @@
             actions={[tooltip]}
             onclick={on_cancel}
             class="text-white/85 transition-colors hover:text-white">
-            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-              <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
-              <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
-            </svg>
+            <Icon name="close" class="size-4" />
           </Button>
         {:else}
           {#if is_ai}
@@ -729,9 +724,7 @@
               onclick={on_continue}
               disabled={simulation_state.busy}
               class="text-white/85 transition-colors hover:text-white">
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
-                <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon>
-              </svg>
+              <Icon name="play" class="size-4" />
             </Button>
             <Button
               variant="invisible"
@@ -742,10 +735,7 @@
               onclick={on_regenerate}
               disabled={simulation_state.busy}
               class="text-white/85 transition-colors hover:text-white">
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2"></path>
-              </svg>
+              <Icon name="refresh" class="size-4" />
             </Button>
           {/if}
 
@@ -759,14 +749,9 @@
               onclick={() => Audio.voice.toggle_pause()}
               class="text-white/85 transition-colors hover:text-white">
               {#if Audio.voice.is_paused}
-                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
-                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                </svg>
+                <Icon name="play" class="size-4" />
               {:else}
-                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
-                  <rect x="6" y="4" width="4" height="16" rx="1"></rect>
-                  <rect x="14" y="4" width="4" height="16" rx="1"></rect>
-                </svg>
+                <Icon name="pause" class="size-4" />
               {/if}
             </Button>
             <Button
@@ -777,9 +762,7 @@
               actions={[tooltip]}
               onclick={() => Audio.voice.stop()}
               class="text-white/85 transition-colors hover:text-white">
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
-                <rect x="6" y="6" width="12" height="12" rx="1"></rect>
-              </svg>
+              <Icon name="stop" class="size-4" />
             </Button>
           {:else}
             <Button
@@ -791,11 +774,7 @@
               onclick={handle_speak}
               disabled={!clean_markdown || !voice_audible}
               class="text-white/85 transition-colors hover:text-white disabled:opacity-30">
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
-                <path
-                  fill="currentColor"
-                  d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
-              </svg>
+              <Icon name="volume" class="size-4" />
             </Button>
           {/if}
           <Button
@@ -806,10 +785,7 @@
             actions={[tooltip]}
             onclick={on_edit}
             class="text-white/85 transition-colors hover:text-white">
-            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"></path>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2"></path>
-            </svg>
+            <Icon name="edit" class="size-4" />
           </Button>
           <Button
             variant="invisible"
@@ -819,10 +795,7 @@
             actions={[tooltip]}
             onclick={handle_copy}
             class="text-white/85 transition-colors hover:text-white">
-            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-            </svg>
+            <Icon name="copy" class="size-4" />
           </Button>
           <Button
             variant="invisible"
@@ -832,10 +805,7 @@
             actions={[tooltip]}
             onclick={on_delete}
             class="text-white/85 transition-colors hover:text-white">
-            <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-              <polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2"></polyline>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"></path>
-            </svg>
+            <Icon name="trash" class="size-4" />
           </Button>
         {/if}
       </div>
@@ -1024,11 +994,9 @@
                 class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-fast group-hover:text-white">
                 Click to select
               </span>
-              <svg
-                viewBox="0 0 24 24"
-                class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition duration-fast [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
+              <Icon
+                name="chevron_right"
+                class="size-3.5 text-(--signature-color,slate-300) transition duration-fast group-hover:translate-x-0.5 group-hover:text-white" />
             </div>
           </Button>
         {:else if image_picker.isRegenerating(regenerate_key)}
@@ -1041,11 +1009,7 @@
           <div
             class="relative flex flex-col items-center justify-center gap-tight overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-standard"
             style={container_style}>
-            <svg viewBox="0 0 24 24" class="h-8 w-8 fill-none stroke-2 text-red-400/80 [stroke-linecap:round] [stroke-linejoin:round]" aria-hidden="true">
-              <path d="M12 3 L21 21 H3 Z" />
-              <line x1="12" y1="9" x2="12" y2="14" />
-              <line x1="12" y1="17.5" x2="12.01" y2="17.5" />
-            </svg>
+            <Icon name="warning" class="size-8 text-red-400/80" />
             <p class="text-center text-xs font-medium text-red-300">Image generation failed</p>
             <p class="text-center text-[10px] text-red-400/70">The image service timed out. Retry or remove.</p>
             <div class="flex items-center gap-tight">
@@ -1125,7 +1089,10 @@
       class="flex gap-standard rounded border-l-2 px-3 py-tight font-mono text-xs leading-relaxed {isMuted ? 'border-l-slate-500 bg-black/20' : (
         'border-l-(--color-dev-accent) bg-black/40'
       )}">
-      <span class="w-28 shrink-0 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">{label}</span>
+      <span class="inline-flex w-28 shrink-0 items-center gap-1.5 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">
+        <Icon name={label.toLowerCase().startsWith("past") ? "past" : label.toLowerCase()} class="size-3.5 shrink-0" />
+        {label}
+      </span>
       <div class="flex flex-1 flex-wrap gap-tight {isMuted ? 'text-slate-300' : 'text-slate-200'}">
         {#each chip_items as item, i (i)}
           {#if item.key}

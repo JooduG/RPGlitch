@@ -60,7 +60,7 @@ export default defineConfig([
   },
   {
     // ESLint-specific global ignores (not managed by sync-ignores.js)
-    ignores: ["dist/**/*", "src/index.html", "types.d.ts", "**/.cache", "package-lock.json"],
+    ignores: ["dist/**/*", "**/*.html", "types.d.ts", "**/.cache", "package-lock.json"],
   },
 
   // 1. Core JavaScript Engine Rules

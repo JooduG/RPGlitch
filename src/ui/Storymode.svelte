@@ -241,7 +241,7 @@
 <script>
   import { chrono_engine } from "@engine";
   import { clear_card_location, item_in, motion, update_card_scrub } from "@media";
-  import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
+  import { Button, Dialog, Icon, ScrollArea, Shimmer } from "@primitives";
   import { onDestroy, tick } from "svelte";
   import ChatBubble from "./ChatBubble.svelte";
   import UndoToast from "./UndoToast.svelte";
@@ -746,9 +746,7 @@
                   {:else}
                     <!-- Director Abstract Evaluation Rune / Lens -->
                     <div class="flex h-full w-full items-center justify-center bg-slate-950/80">
-                      <svg viewBox="0 0 24 24" class="size-5 animate-spin text-frozen opacity-80" style="animation-duration: 3s;">
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" stroke-dasharray="14 10" />
-                      </svg>
+                      <Icon name="spinner" class="size-5 animate-spin text-frozen opacity-80" style="animation-duration: 3s;" />
                     </div>
                   {/if}
                   <div

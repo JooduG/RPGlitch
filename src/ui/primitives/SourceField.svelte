@@ -15,6 +15,7 @@
    * through @utils `blob_to_data_url`. This component only routes sources.
    */
   import Button from "./Button.svelte";
+  import Icon from "./Icon.svelte";
   import TextField from "./TextField.svelte";
   import { tooltip } from "./Tooltip.svelte";
   import { blob_to_data_url, fetch_web, validate_image } from "@utils";
@@ -211,11 +212,7 @@
       actions={[tooltip]}
       onclick={trigger_browse}
       disabled={dropzone_disabled}>
-      <svg viewBox="0 0 24 24" class="size-icon-small" fill="none">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
-        <polyline points="17 8 12 3 7 8" stroke="currentColor"></polyline>
-        <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor"></line>
-      </svg>
+      <Icon name="upload" class="size-icon-small" />
     </Button>
     {#if header_actions}
       {@render header_actions()}
@@ -288,12 +285,7 @@
           {#if is_fetching}
             <span class="animate-pulse text-[11px] font-bold tracking-widest uppercase">Fetching...</span>
           {:else}
-            <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-              <path d="M12 2a10 10 0 1 0 10 10" />
-              <path d="M2 12h8" />
-              <path d="M18 4l4 4-4 4" />
-              <path d="M22 8h-8" />
-            </svg>
+            <Icon name="fetch_url" class="size-3.5" />
             <span class="text-[11px] font-bold tracking-widest uppercase">
               {is_image_mode || is_image_url ? "Load Image" : "Fetch Page"}
             </span>

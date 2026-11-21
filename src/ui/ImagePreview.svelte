@@ -1,7 +1,7 @@
 <script>
   import { runtime } from "@state";
   import { get_resolution } from "@simulation";
-  import { Backdrop, Button, Dropdown, Modal, Shimmer, TextField, tooltip } from "@primitives";
+  import { Backdrop, Button, Dropdown, Icon, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
   import { app, image_preview as preview_state, image_picker, close_image_preview, close_regenerate, run_image_regeneration, select_candidate } from "@state";
@@ -203,10 +203,7 @@
                   actions={[tooltip]}
                   class="h-full! py-0! opacity-80 hover:opacity-100"
                   onclick={handle_copy_prompt}>
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-                  </svg>
+                  <Icon name="copy" class="size-4" />
                 </Button>
               {/snippet}
             </TextField>
@@ -233,10 +230,7 @@
                   actions={[tooltip]}
                   class="h-full! py-0! opacity-80 hover:opacity-100"
                   onclick={handle_copy_negative_prompt}>
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-                  </svg>
+                  <Icon name="copy" class="size-4" />
                 </Button>
               {/snippet}
             </TextField>
@@ -260,26 +254,14 @@
 
           {#if preview_state.on_regenerate}
             <Button variant="secondary" class="col-start-2 row-start-1 h-12! w-full!" onclick={handle_regenerate}>
-              <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
-                <path
-                  d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round" />
-                <path d="M21 3v5h-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
+              <Icon name="refresh" class="mr-0 size-4 stroke-[1.5]" />
               Regenerate
             </Button>
           {/if}
 
           <!-- Row 2: Download & Delete -->
           <Button variant="secondary" class="col-start-1 row-start-2 h-12! w-full!" onclick={handle_download}>
-            <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
-            </svg>
+            <Icon name="download" class="mr-0 size-4" />
             Download
           </Button>
 
@@ -292,14 +274,7 @@
                 close_image_preview();
                 fn();
               }}>
-              <svg viewBox="0 0 24 24" class="mr-tight h-4 w-4 fill-none stroke-current">
-                <path
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"></path>
-              </svg>
+              <Icon name="trash" class="mr-tight size-4" />
               Delete
             </Button>
           {/if}
@@ -315,15 +290,9 @@
             class="col-span-2 row-start-3 h-12! w-full!">
             {#snippet trigger_content()}
               <span class="flex w-full items-center justify-center gap-tight truncate text-[0.8125rem] font-semibold">
-                <svg viewBox="0 0 24 24" class="size-4 shrink-0 fill-none stroke-current">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  ></path>
-                  <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle>
-                </svg>
+                <Icon name="character" class="size-4 shrink-0" />
                 <span class="truncate">Use as Profile Picture</span>
-                <svg viewBox="0 0 24 24" class="size-4 shrink-0 opacity-60">
-                  <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-                </svg>
+                <Icon name="chevron_down" class="size-4 shrink-0 opacity-60" />
               </span>
             {/snippet}
           </Dropdown>
@@ -398,9 +367,7 @@
                             {#if image_picker.selected_index === i}
                               <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
                                 <div class="rounded-full bg-emerald-400 p-standard text-white shadow-lg">
-                                  <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-3 [stroke-linecap:round] [stroke-linejoin:round]">
-                                    <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                                  </svg>
+                                  <Icon name="check" class="size-6 stroke-3" />
                                 </div>
                               </div>
                             {/if}
@@ -420,10 +387,7 @@
                           variant="bare"
                           class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-white transition-colors duration-200 hover:bg-white/20"
                           onclick={handle_picker_regenerate}>
-                          <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]">
-                            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                            <path d="M21 3v5h-5" />
-                          </svg>
+                          <Icon name="refresh" class="size-4 stroke-[1.5]" />
                           <span class="font-mono text-xs tracking-widest uppercase">Discard & Regenerate</span>
                         </Button>
                       </div>

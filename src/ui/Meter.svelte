@@ -5,7 +5,7 @@
    * Encapsulates the dynamic value square, hover controls, and the underlying progress line.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { Button, Label, tooltip } from "@primitives";
+  import { Button, Icon, Label, tooltip } from "@primitives";
   import { clamp } from "@utils";
   import { Meter } from "bits-ui";
 
@@ -125,9 +125,7 @@
     ">
     {#if is_editing}
       <Button flank={true} size="small" square class="hover:text-electric-cyan" onclick={decrease} aria-label="Decrease">
-        <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14" />
-        </svg>
+        <Icon name="minus" class="size-icon-small" />
       </Button>
 
       <input
@@ -152,9 +150,7 @@
         max="100" />
 
       <Button flank={true} size="small" square class="hover:text-electric-cyan" onclick={increase} aria-label="Increase">
-        <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
+        <Icon name="plus" class="size-icon-small" />
       </Button>
     {:else}
       <span class="meter-value py-1 font-mono text-base text-slate-50">

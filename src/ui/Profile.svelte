@@ -8,7 +8,7 @@
   import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
   import { runtime, simulation_state } from "@state";
   import { get_signature_color } from "@utils";
-  import { Button, Dialog, Dropdown, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
+  import { Button, Dialog, Dropdown, Icon, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import ProfilePicture from "./ProfilePicture.svelte";
   import { safe_parse_pseudo_json } from "@simulation";
   import { auto_resize, click_outside, download_json_file } from "@utils";
@@ -851,13 +851,9 @@
                       profile_state.enhance_profile(entity_type);
                     }}
                     class="touch-target-coarse">
-                    <svg
-                      viewBox="0 0 24 24"
-                      class={(Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt") ? "animate-pulse " : "") +
-                        "h-5 w-5 fill-none stroke-current"}
-                      style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
-                    </svg>
+                    <Icon
+                      name="ai_enhance"
+                      class={(Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt") ? "animate-pulse " : "") + "size-5"} />
                   </Button>
                   <Button
                     variant="primary"
@@ -867,11 +863,7 @@
                     disabled={profile_state.is_saving}
                     onclick={() => (show_export_modal = true)}
                     class="touch-target-coarse">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                      <polyline points="7 10 12 15 17 10"></polyline>
-                      <line x1="12" y1="15" x2="12" y2="3"></line>
-                    </svg>
+                    <Icon name="download" class="size-5" />
                   </Button>
                   <Button
                     variant="secondary"
@@ -883,10 +875,7 @@
                       profile_state.cancel();
                     }}
                     class="touch-target-coarse">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                      <polyline points="1 4 1 10 7 10"></polyline>
-                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                    </svg>
+                    <Icon name="reset" class="size-5" />
                   </Button>
                   <Button
                     variant="danger"
@@ -897,10 +886,7 @@
                       profile_state.show_delete_confirm = true;
                     }}
                     class="touch-target-coarse">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
+                    <Icon name="trash" class="size-5" />
                   </Button>
                 {:else}
                   <Button
@@ -918,10 +904,7 @@
                       }, 0);
                     }}
                     class="touch-target-coarse">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" style="stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
+                    <Icon name="edit" class="size-5" />
                   </Button>
                 {/if}
               </div>
@@ -1069,9 +1052,7 @@
                     disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
                     onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
                     class={get_ai_action_btn_class(field.key)}>
-                    <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                      <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
-                    </svg>
+                    <Icon name="ai_enhance" class="size-icon-small" />
                   </Button>
                 {/if}
               {/snippet}

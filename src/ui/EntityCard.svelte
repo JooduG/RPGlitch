@@ -8,6 +8,7 @@
 
   import { runtime } from "@state";
   import { motion } from "@media";
+  import { Icon } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
   import { get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
@@ -399,23 +400,13 @@
     {#if !is_empty}
       <ProfilePicture {entity} />
     {:else if variant === "library" && role_label.toLowerCase().includes("import")}
-      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]" style="stroke-linecap: round; stroke-linejoin: round;">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-        <polyline points="7 10 12 15 17 10"></polyline>
-        <line x1="12" y1="15" x2="12" y2="3"></line>
-      </svg>
+      <Icon name="download" class="size-20 stroke-[1.5]" />
     {:else if variant === "library"}
-      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
-        <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-      </svg>
+      <Icon name="plus" class="size-20 stroke-[1.5]" />
     {:else if type === "fractal"}
-      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
-        <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
-      </svg>
+      <Icon name="fractal" class="size-20 stroke-[1.5]" />
     {:else}
-      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
-        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
-      </svg>
+      <Icon name="character" class="size-20 stroke-[1.5]" />
     {/if}
   </div>
 

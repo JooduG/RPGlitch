@@ -7,6 +7,7 @@
    * pills, `opacity-muted` hidden states, and `<MacroText />` inline `@ID` tokens.
    */
   import { get_signature_color, resolve_display_macro_segments } from "@utils";
+  import { Icon } from "@primitives";
   import MacroText from "./MacroText.svelte";
 
   /**
@@ -179,7 +180,10 @@
               : "text-(--signature-color)",
             ]}>{item.key}</span>
           {#if item.quadrant}
-            <span class="shrink-0 font-mono text-xs/none font-normal text-frisk/45">{item.quadrant}</span>
+            <span class="inline-flex shrink-0 items-center gap-1 font-mono text-xs/none font-normal text-frisk/60">
+              <Icon name={item.quadrant.toLowerCase()} class="size-3.5" />
+              {item.quadrant}
+            </span>
           {/if}
         </div>
         <span

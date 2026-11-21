@@ -13,4 +13,5 @@ export { default as Accordion } from "./Accordion.svelte";
 export { default as ProgressBar } from "./ProgressBar.svelte";
 export { default as Label } from "./Label.svelte";
 export { default as Dialog } from "./Dialog.svelte";
+export { default as Icon } from "./Icon.svelte";
 export { default as Shimmer } from "./Shimmer.svelte";

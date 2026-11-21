@@ -1,6 +1,6 @@
 # Graph-It-Live Command, Tool & Flag Glossary
 
-Verified against `graph-it v1.25.3+` (`graph-it --help`, `graph-it <command> --help`, `graph-it tool <name> --help`, and upstream `src/cli/`). Confirm with `--help` if the installed version differs.
+Verified against `graph-it v1.25.3+` (npm CLI `v1.25.3`, VS Code extension `v1.25.6+`). Confirm with `--help` if the installed version differs.
 
 ## Runtime Rules & Conventions
 
@@ -8,20 +8,20 @@ Verified against `graph-it v1.25.3+` (`graph-it --help`, `graph-it <command> --h
 - **Ignore files**: Skips root `.gitignore` entries, `tests/fixtures/`, and `out-*/` by default. Add a root `.graphitignore` (gitignore syntax with `!` negation) to customize scope.
 - **On-demand indexing**: Every analysis command restores `.graph-it/cache/` and re-analyzes changed files automatically. `scan` is optional (CI cache warm-up or status). Pass `--reindex` to force a full rebuild (`[PF-001]`).
 - **Path arguments**: Top-level CLI commands and `graph-it tool <name>` resolve workspace-relative or absolute paths automatically. Direct `graphitlive_*` MCP server calls expect absolute paths (`[PF-004]`).
-- **Flag casing**: CLI flags use kebab-case (`--token-budget`, `--max-files`), with three camelCase exceptions: `architecture --maxFiles`, `check --minConfidence`, and `check --unreferencedFiles`. `graph-it tool` parameters use camelCase (`--filePath`, `--tokenBudget`), except `explore_architecture` uses `--response_format` (`[PF-008]`).
+- **Flag casing**: CLI flags use kebab-case (`--token-budget`, `--max-files`), with three camelCase exceptions: `architecture --maxFiles`, `check --minConfidence`, and `check --unreferencedFiles`. `graph-it tool` parameters use camelCase (`--filePath`, `--tokenBudget`), except `explore_architecture` uses `--response_format` (`[PF-008]`). Unknown flags/parameters and missing targets exit `1` (CLI) or return a parameter/target error (MCP).
 - **Stdout banner caveat**: When a newer npm version exists, `graph-it` may print an `Update available: ...` line before structured output. Scripts parsing `--format json` should slice from the first `{` or `[` (`[PF-008]`).
 - **Agent format default**: Pass `--format toon` for compact agent output.
 
 ## Exit Codes
 
-| Code | Constant              | Meaning                                                                                    |
-| ---- | --------------------- | ------------------------------------------------------------------------------------------ |
-| `0`  | `SUCCESS`             | Command completed cleanly.                                                                 |
-| `1`  | `GENERAL_ERROR`       | Usage error, runtime failure, or new unaccepted `error` violation in `check-architecture`. |
-| `2`  | `AMBIGUOUS_SYMBOL`    | Symbol reference matched multiple declarations.                                            |
-| `3`  | `WORKSPACE_NOT_FOUND` | No workspace marker found at or above the working directory.                               |
-| `4`  | `UNSUPPORTED_FORMAT`  | Format/command combination is unsupported.                                                 |
-| `5`  | `SECURITY_VIOLATION`  | Target or output path resolves outside the workspace root.                                 |
+| Code | Constant              | Meaning                                                                                                                    |
+| ---- | --------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `0`  | `SUCCESS`             | Command completed cleanly.                                                                                                 |
+| `1`  | `GENERAL_ERROR`       | Usage error, unknown option, missing target, runtime failure, or new unaccepted `error` violation in `check-architecture`. |
+| `2`  | `AMBIGUOUS_SYMBOL`    | Symbol reference matched multiple declarations.                                                                            |
+| `3`  | `WORKSPACE_NOT_FOUND` | No workspace marker found at or above the working directory.                                                               |
+| `4`  | `UNSUPPORTED_FORMAT`  | Format/command combination is unsupported.                                                                                 |
+| `5`  | `SECURITY_VIOLATION`  | Target or output path resolves outside the workspace root.                                                                 |
 
 ## Global Flags & Format Matrix
 
@@ -41,8 +41,8 @@ Global options work before or after any command name.
 | Format | Supported Commands & Notes |
 | --- | --- |
 | `text`, `json`, `toon` | General CLI commands (`text` is default; `query` supports only `text\|json\|toon`; `stats` supports `text\|json\|markdown`; `wiki` supports `markdown\|json\|toon` with `markdown` default; `init` supports `text\|markdown\|json\|toon`). |
-| `markdown` | General CLI commands (`context` silently prints `json` if passed `markdown` or `mermaid`). |
-| `mermaid` | `trace`, `path`, `path-in`, `architecture --groups`, plus general commands listed in `--help`. |
+| `markdown` | General CLI commands (`context` and `query` reject `markdown` or `mermaid` with exit code `4`). |
+| `mermaid` | `trace`, `path`, `path-in`, `architecture --groups` (other commands reject unsupported formats with exit code `4`). |
 | `html` | `export` (required; only supported format), `diagram` (default unless `--output` ends in `.svg`). |
 | `svg`, `diagram-spec` | `diagram` only. |
 | `csv` | `architecture --matrix` only. |
@@ -71,7 +71,7 @@ Global options work before or after any command name.
 | `graph-it summary [file]` | No arg: workspace overview. With `<file>`: per-file codemap (exports, internals, deps, dependents, call flow, cycles). | None | Global only |
 | `graph-it explain <file>` | Analyze intra-file call hierarchy: entry points, call tree, internal cycles. | None | Global only |
 | `graph-it trace <file>#<symbol>` | Trace static call chain outward from a symbol. | None | Global only |
-| `graph-it path <file>` | Crawl transitive outgoing imports reachable from an entry file. | None | `--communities` |
+| `graph-it path <file>` | Crawl transitive outgoing imports reachable from an entry file (`cycleKinds` reports cycle kinds). | None | `--communities` |
 | `graph-it path-in <file>` | List every file importing `<file>`. | None | Global only |
 | `graph-it check-dependencies <file>` | List incoming and outgoing dependencies for `<file>`. | None | Global only |
 | `graph-it cycles <file>` | List confirmed file-level dependency cycles passing through `<file>` (`cycleKinds` tags `runtime` vs. `type-only`; `typeOnlyCycleCount`). | None | Global only |
@@ -98,9 +98,9 @@ Global options work before or after any command name.
 | Command | Purpose | Command Flags | Shared Flags |
 | --- | --- | --- | --- |
 | `graph-it init` | Generate `graphit.architecture.json` from current imports (`allowOnly` per unit, `noCycles` for acyclic units) plus dead-file, cycle, hub, matrix guide, and quick-win report. | `--dry-run`, `--yes`, `--focus <name>` | `--output` |
-| `graph-it architecture` | Inspect workspace architecture graph, folder groups, unit edges, cycles, or DSM matrix. | `--level groups\|units`, `--groups`, `--matrix`, `--maxFiles <n>` | `--folder`, `--from`, `--to`, `--communities` |
+| `graph-it architecture` | Inspect workspace architecture graph, folder groups, unit edges (`--level units` draws declared `elements` from `graphit.architecture.json` when present), cycles, or DSM matrix. | `--level groups\|units`, `--groups`, `--matrix`, `--maxFiles <n>` | `--folder`, `--from`, `--to`, `--communities` |
 | `graph-it check-architecture` | Validate static imports against `graphit.architecture.json`. | `--update-baseline` | `--config`, `--baseline`, `--verbose` |
-| `graph-it diagram [dir]` | Write a static, script-free SVG, HTML, or `diagram-spec` JSON diagram (capped at 60 units/groups). | `--view units\|folder\|matrix`, `--theme light\|dark` (SVG only), `--rules` | `--folder`, `--config`, `--baseline`, `--output` |
+| `graph-it diagram [dir]` | Write a static, script-free SVG, HTML, or `diagram-spec` JSON diagram (draws declared `elements` when present, capped at 60 units/groups). | `--view units\|folder\|matrix`, `--theme light\|dark` (SVG only), `--rules` | `--folder`, `--config`, `--baseline`, `--output` |
 | `graph-it export [scope]` | Export dependency graph as standalone HTML (default `graph.html`). | Requires `--format html` | `--communities`, `--output` |
 | `graph-it wiki` | Generate a navigable markdown wiki from the call graph (default dir `wiki`). | `--exclude <pattern>` (repeatable), `--top 1-50` (default `10`), `--force` | `--scope`, `--output` |
 
@@ -156,6 +156,7 @@ Invoke any of the 19 CLI-exposed MCP tools directly from the shell.
 - **Discovery**: `graph-it tool --list` prints all 19 tools; `graph-it tool <name> --help` prints Zod-derived parameters and types.
 - **Parameter syntax**: `--<param>=<value>` or `--<param> <value>` (boolean params may stand alone as `--flag`). Arrays and objects are JSON (`--filePaths='["a","b"]'`). `--args '<json>'` provides a base object; named `--<param>` flags merge in and override matching keys.
 - **Silent indexing**: `graph-it tool` suppresses indexing progress lines on stderr for cleaner scripting.
+- **Strict v1.25.5+ contracts**: Unknown parameters and missing targets fail with errors (`query_call_graph` errors on missing targets instead of returning `reason="not_found"`). `crawl_dependency_graph` uses `cycleKinds` (replacing `circularDependencyKinds`), and `query_natural_language` accepts only `response_format` (`outputFormat` removed).
 
 ### Tool-Only Capabilities (10 Tools Without Top-Level CLI Commands)
 

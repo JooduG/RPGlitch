@@ -10,6 +10,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import Button from "./Button.svelte";
+  import Icon from "./Icon.svelte";
   import ScrollArea from "./ScrollArea.svelte";
   import { tooltip } from "./Tooltip.svelte";
   import { auto_resize, parse_markdown, use_actions } from "@utils";
@@ -296,10 +297,7 @@
               disabled={!can_undo || is_disabled}
               onclick={undo}
               class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20">
-              <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                <path d="M3 7v6h6" />
-                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
-              </svg>
+              <Icon name="undo" class="size-3.5" />
             </Button>
             <Button
               variant="invisible"
@@ -311,10 +309,7 @@
               disabled={!can_redo || is_disabled}
               onclick={redo}
               class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20">
-              <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-                <path d="M21 7v6h-6" />
-                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
-              </svg>
+              <Icon name="redo" class="size-3.5" />
             </Button>
           </div>
         {/if}

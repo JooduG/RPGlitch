@@ -14,7 +14,7 @@
   import { extract_entity_relationships } from "@simulation";
   import { app, runtime } from "@state";
   import { get_signature_color, render_display_macros } from "@utils";
-  import { pin_tooltip_menu, tooltip } from "@primitives";
+  import { Icon, pin_tooltip_menu, tooltip } from "@primitives";
   import { build_entity_preview_actions } from "./ContextMenu.svelte.js";
   import ProfilePicture from "./ProfilePicture.svelte";
 
@@ -358,12 +358,7 @@
     <div
       class="flex w-full flex-col items-center justify-center rounded-standard border border-white/10 bg-glass-sunken p-6 text-center [backdrop-filter:var(--blur-mist)]">
       <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-frisk/60">
-        <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current stroke-2">
-          <circle cx="12" cy="12" r="3" />
-          <circle cx="4" cy="12" r="2" />
-          <circle cx="20" cy="12" r="2" />
-          <path d="M6 12h3m6 0h3" />
-        </svg>
+        <Icon name="relations" class="size-5" />
       </div>
       <span class="mt-tight text-xs font-semibold text-frisk/80">No recorded relationships yet</span>
       <p class="mt-tight max-w-xs text-xs text-frisk/55">This entity has not yet established directed bonds with other entities.</p>
