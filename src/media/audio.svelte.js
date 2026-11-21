@@ -19,7 +19,7 @@ let shared_audio_context = null;
 let master_gain_node = null;
 let current_master_volume = 1.0;
 // Silent boot: SFX stay off until the user unmutes (Console mute toggle clears this).
-let is_muted = true;
+let is_muted = $state(true);
 
 /**
  * Lazily initializes and returns the shared hardware AudioContext.
@@ -118,13 +118,31 @@ export function play_sfx(type, options = {}) {
   const master_gain = get_master_gain();
   if (!context || !master_gain || is_muted || typeof context.createOscillator !== "function") return;
 
-  if (context.state === "suspended") {
-    context.resume().catch(() => {});
+  const volume = Math.max(0, Math.min(1, Number(options.volume ?? 1.0)));
+
+  if (context.state === "suspended" && typeof context.resume === "function") {
+    context
+      .resume()
+      .then(() => {
+        if (!is_muted) schedule_sfx(context, master_gain, type, volume);
+      })
+      .catch(() => {});
+    return;
   }
 
+  schedule_sfx(context, master_gain, type, volume);
+}
+
+/**
+ * Schedules a procedural Web Audio cue on an active AudioContext.
+ * @param {AudioContext} context
+ * @param {GainNode} master_gain
+ * @param {string} type
+ * @param {number} volume
+ */
+function schedule_sfx(context, master_gain, type, volume) {
   const now = context.currentTime;
   const sfx_gain = context.createGain();
-  const volume = Math.max(0, Math.min(1, Number(options.volume ?? 1.0)));
   sfx_gain.connect(master_gain);
 
   const cleanup = (source, gain) => {
@@ -370,7 +388,7 @@ export class VoiceEngine {
     if (!synth || typeof synth.getVoices !== "function") return [];
     try {
       const list = synth.getVoices() || [];
-      if (list.length > 0 && this.voices.length === 0) {
+      if (list.length > 0 && list.length !== this.voices.length) {
         this.#native_voices = list;
         this.voices = list.map((v) => ({ name: v.name, uri: v.voiceURI || v.name, lang: v.lang || "", local: !!v.localService }));
       }
@@ -422,6 +440,7 @@ export class VoiceEngine {
     if (!text) return;
     if (!this.enabled && !force) return;
 
+    const was_busy = Boolean(this.#speech_synth.speaking || this.#speech_synth.pending);
     if (should_clear_queue) {
       this.stop();
     }
@@ -455,7 +474,12 @@ export class VoiceEngine {
       this.is_paused = false;
     };
 
-    this.#speech_synth.speak(utterance);
+    // Chromium drops a new utterance queued synchronously in the same tick as cancel().
+    if (should_clear_queue && was_busy) {
+      setTimeout(() => this.#speech_synth?.speak(utterance), 20);
+    } else {
+      this.#speech_synth.speak(utterance);
+    }
   }
 
   stop() {

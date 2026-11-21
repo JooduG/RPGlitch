@@ -35,8 +35,6 @@
 
   const active_voice_name = $derived(resolve_voice_name(profile_state.char?.voice?.name || profile_state.char?.voice?.uri || "Standard Voice"));
 
-  const selected_voice = $derived((Audio.voice.voices ?? []).find((v) => v.name === active_voice_name || v.uri === profile_state.char?.voice?.uri));
-
   // Derived list formatted for the Dropdown atom schema
   const dropdown_items = $derived((Audio.voice.voices ?? []).map((voice) => ({ value: voice.name, label: voice.name })));
 
@@ -110,7 +108,6 @@
         tooltip="Preview Voice"
         aria-label="Preview Voice"
         square
-        disabled={!selected_voice}
         onclick={() => Audio.voice.preview(active_voice_name, get_cadence_rate(profile_state.char.voice.cadence))}
         variant="secondary">
         <Icon name="volume" class="size-icon-small" />
@@ -123,7 +120,7 @@
           step={1}
           value={cadence_index}
           onchange={handle_cadence_change}
-          disabled={!profile_state.is_editing || !selected_voice}
+          disabled={!profile_state.is_editing}
           label="Cadence"
           neutral={2}
           format={() => active_cadence.label}

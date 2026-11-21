@@ -564,7 +564,16 @@
             <Accordion label="Audio" content_class="flex flex-col gap-standard">
               <div class="grid w-full grid-cols-2 gap-standard">
                 <div class="flex min-w-0 items-center">
-                  <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
+                  <Toggle
+                    label="NOTIFICATIONS"
+                    bind:value={Audio.notifications_enabled}
+                    onchange={(enabled) => {
+                      if (enabled && (explicitly_muted || Audio.volume === 0)) {
+                        explicitly_muted = false;
+                        Audio.volume = previous_volume || 1.0;
+                        Audio.is_muted = false;
+                      }
+                    }} />
                 </div>
                 <div class="flex min-w-0 flex-wrap items-center gap-tight">
                   <Button
@@ -595,9 +604,9 @@
                       max={1}
                       step={0.01}
                       bind:value={Audio.volume}
-                      oninput={() => {
-                        explicitly_muted = false;
-                        Audio.is_muted = false;
+                      onchange={(val) => {
+                        explicitly_muted = val === 0;
+                        Audio.is_muted = val === 0;
                       }} />
                   </div>
                 </div>
