@@ -125,6 +125,21 @@ export class SessionStore {
     return this.#story_by_id[this.active_id] ?? this.#story_by_id[coerce_story_key(this.active_id)] ?? null;
   }
 
+  /**
+   * Legacy alias for `active_id` (pre-consolidation name). `runner.js` and
+   * `Console.svelte` still read `session.story_id`; without this they see
+   * `undefined`, which silently skips AI/DELTA persistence, image beats,
+   * caretaker telemetry cards, and the end-story flows. Prefer `active_id`
+   * in new code.
+   */
+  get story_id() {
+    return this.active_id;
+  }
+
+  set story_id(value) {
+    this.active_id = value;
+  }
+
   get ai_dynamics() {
     return this.#ai_dynamics;
   }
