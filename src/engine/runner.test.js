@@ -149,20 +149,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
     expect(characterResult.turn_tempo).toBe(1);
   });
 
-  it("executes complete 1-shot round without Director staging by default", async () => {
-    const mock_transport = {
-      async stream() {
-        return "Alice nods silently.";
-      },
-    };
-
-    const result = await run_round({ transport: mock_transport, round: 1, entities, history: [{ text: "Ready?" }], director_enabled: false });
-
-    expect(result.director_staging).toBeNull();
-    expect(result.character_turn.prose).toBe("Alice nods silently.");
-  });
-
-  it("executes full 2-shot dance when director_enabled is true", async () => {
+  it("executes full 2-shot dance (Director + Character)", async () => {
     let call_count = 0;
     const mock_transport = {
       async stream(prompt) {
@@ -174,7 +161,7 @@ Alice steps into the shadow of the rusted girder, her hand resting on her holste
       },
     };
 
-    const result = await run_round({ transport: mock_transport, round: 1, entities, history: [{ text: "Ready?" }], director_enabled: true });
+    const result = await run_round({ transport: mock_transport, round: 1, entities, history: [{ text: "Ready?" }] });
 
     expect(call_count).toBe(2);
     expect(result.director_staging?.directors_note).toBe("Whisper your reply.");
@@ -370,22 +357,9 @@ Routing: Present physical gets lockpick, mood vigilant.
     });
   });
 
-  describe("Gap 3: director_enabled toggle from app settings", () => {
-    it("respects app.settings.director_enabled flag", async () => {
-      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
-      Object.assign(app, mock_app);
-
-      const outcome = await run_turn("Move forward");
-
-      // With director_enabled = false, 1-shot mode runs and director_staging is null
-      expect(outcome.director_staging).toBeNull();
-      expect(outcome.character_turn).toBeDefined();
-    });
-  });
-
   describe("B03: Turn stage transitions on Director and Speaker", () => {
     it("invokes set_delegated_speaker and start_stream_stage during run_turn", async () => {
-      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_app = { settings: {}, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
       Object.assign(app, mock_app);
       const speaker_spy = vi.spyOn(simulation_state, "set_delegated_speaker").mockImplementation(() => {});
       const stage_spy = vi.spyOn(simulation_state, "start_stream_stage").mockImplementation(() => {});
@@ -502,12 +476,7 @@ Routing: Present physical gets lockpick, mood vigilant.
         return Promise.resolve({ text: `${startWith}Next paragraph beat.`, generatedText: "Next paragraph beat." });
       });
 
-      const mock_app = {
-        settings: { director_enabled: false },
-        start_stream: vi.fn(),
-        update_stream: vi.fn((c) => streamed_chunks.push(c)),
-        end_stream: vi.fn(),
-      };
+      const mock_app = { settings: {}, start_stream: vi.fn(), update_stream: vi.fn((c) => streamed_chunks.push(c)), end_stream: vi.fn() };
       const target_entry = { id: "msg-42", role: "ai", text: "Initial paragraph.", round: 1, meta: { think: "Initial thought." } };
 
       runtime.active_ai = { id: "ai-1", name: "Orion" };
@@ -538,7 +507,7 @@ Routing: Present physical gets lockpick, mood vigilant.
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async () => "Extended paragraph.");
 
-      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_app = { settings: {}, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
       const target_entry = { id: "msg-99", role: "ai", text: "Existing text.", round: 1, meta: {} };
 
       runtime.active_ai = { id: "ai-1", name: "Lyra", profile_picture: "avatar.png", signature_color: "#00ffee" };
@@ -564,7 +533,7 @@ Routing: Present physical gets lockpick, mood vigilant.
 
   describe("B19: Automatic Visual Synthesis Wire-Up (Phase 5: entity-keyed prev_dynamics)", () => {
     it("evaluates get_image_generation_queue and calls spawn_image_beat without blocking turn", async () => {
-      const mock_app = { settings: { director_enabled: true }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_app = { settings: {}, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
 
       runtime.active_ai = { id: "ai-1", name: "Lyra", dynamics: { chaos: 60, intensity: 60, openness: 50, affinity: 50 } };
       runtime.active_user = { id: "u-1", name: "Glitch", dynamics: {} };
@@ -637,7 +606,7 @@ Routing: Present physical gets lockpick, mood vigilant.
     });
 
     it("fails silently and never blocks the turn when spawn_image_beat rejects", async () => {
-      const mock_app = { settings: { director_enabled: false }, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
+      const mock_app = { settings: {}, start_stream: vi.fn(), update_stream: vi.fn(), end_stream: vi.fn() };
 
       runtime.active_ai = { id: "ai-1", name: "Lyra", dynamics: {} };
       runtime.active_user = { id: "u-1", name: "Glitch", dynamics: {} };

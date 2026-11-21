@@ -80,7 +80,7 @@ describe("ChronoEngine", () => {
     });
 
     it("persists a user-role row when engine is on and dispatches run_turn", async () => {
-      app.settings = { ...(app.settings || {}), director_enabled: true };
+      app.settings = { ...(app.settings || {}) };
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
       expect(session_driver.send).toHaveBeenCalledWith("Look around");

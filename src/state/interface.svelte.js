@@ -151,7 +151,6 @@ export class InterfaceStore {
     auto_scroll: true,
     dev_mode: false,
     dev_grid_visible: false,
-    director_enabled: true,
     narrative_style: "default",
     visual_style: "none",
   });

@@ -676,7 +676,6 @@
                 on_confirm={hard_reset} />
 
               <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
-              <Toggle label="DIRECTOR" bind:value={app.settings.director_enabled} onchange={() => app.save_settings()} />
               <Toggle label="GRID" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
               <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
                 <Icon name="trash" class="size-3.5 -translate-y-kinetic-shimmy-y" />

@@ -464,16 +464,11 @@ export async function run_schema_extraction_step({ transport, input_data = "", t
  * @param {Array<any>} params.history - Recent transcript
  * @param {Array<any>} params.memories - Sieve RAG memories
  * @param {string} params.input - User action input
- * @param {boolean} [params.director_enabled=false] - Whether to execute Turn 1 staging
  * @param {(chunk: string) => void} [params.onChunk] - Streaming callback for Character prose
  * @returns {Promise<{ director_staging: object | null, character_turn: object }>}
  */
-export async function run_round({ transport, round = 1, entities = {}, history = [], memories = [], director_enabled = false, onChunk = null, signal = null }) {
-  let director_staging = null;
-
-  if (director_enabled) {
-    director_staging = await run_planner_step({ transport, round, entities, history, signal });
-  }
+export async function run_round({ transport, round = 1, entities = {}, history = [], memories = [], onChunk = null, signal = null }) {
+  const director_staging = await run_planner_step({ transport, round, entities, history, signal });
 
   const character_turn = await run_generation_step({
     transport,
@@ -812,7 +807,6 @@ export async function run_turn(user_input, _options = {}) {
       round: turn_round,
       entities: { AI: ai_quadrant, USER: user_quadrant, FRACTAL: fractal_quadrant },
       history,
-      director_enabled: Boolean(app?.settings?.director_enabled),
       onChunk: (chunk) => {
         stage_once();
         app.update_stream(chunk);
