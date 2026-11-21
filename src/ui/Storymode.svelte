@@ -10,7 +10,6 @@
   import { get_mock_message, refine_image_prompt } from "@engine";
   import { runtime, session_driver, simulation_log, simulation_state, run_image_regeneration } from "@state";
   import { Audio, visual_engine } from "@media";
-  import ProfilePicture from "./ProfilePicture.svelte";
   import { app } from "@state";
 
   // --- STORYMODE SHARED STATE ---
@@ -242,7 +241,7 @@
 <script>
   import { chrono_engine } from "@engine";
   import { clear_card_location, item_in, motion, update_card_scrub } from "@media";
-  import { Button, Dialog, Icon, ScrollArea, Shimmer } from "@primitives";
+  import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
   import { onDestroy, tick } from "svelte";
   import ChatBubble from "./ChatBubble.svelte";
   import UndoToast from "./UndoToast.svelte";
@@ -691,104 +690,6 @@
               </div>
             {/if}
           {/each}
-
-          {#if simulation_state.busy && !app.streaming.active}
-            <div
-              class="relative flex w-full items-start justify-start p-standard pl-[calc(var(--spacing-column-unit)*2)] transition duration-200"
-              in:item_in={{ duration: 200 }}>
-              <!-- Left-Gutter Portrait / Lens Anchor Slot -->
-              <div
-                class="
-              absolute
-              top-1/2
-              left-[calc(var(--spacing-column-unit)*0.5)]
-              m-0
-              flex
-              w-column-unit
-              -translate-y-1/2
-              items-center
-              justify-center
-              p-0
-              select-none
-            "
-                style="--signature-color: {simulation_state.speaker_thinking || simulation_state.media_generating ?
-                  simulation_state.generating_entity_color || 'var(--color-electric-cyan)'
-                : 'var(--color-frozen)'};">
-                <div
-                  class="
-                group/badge
-                relative
-                isolate
-                m-0
-                aspect-3/4
-                w-column-unit
-                transform-[translateZ(0)]
-                overflow-hidden
-                rounded-xl
-                border
-                border-solid
-                border-(--signature-color)
-                bg-black/60
-                p-0
-                shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_25%,transparent)]
-                transition
-                duration-300
-              ">
-                  {#if (simulation_state.speaker_thinking || simulation_state.media_generating) && simulation_state.generating_entity_avatar}
-                    <img
-                      src={simulation_state.generating_entity_avatar}
-                      alt={simulation_state.generating_entity_name || "Speaker"}
-                      class="h-full w-full object-cover object-top" />
-                  {:else if (simulation_state.speaker_thinking || simulation_state.media_generating) && simulation_state.generating_entity_name}
-                    <ProfilePicture
-                      entity={{ name: simulation_state.generating_entity_name, signature_color: simulation_state.generating_entity_color }}
-                      alt=""
-                      class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
-                  {:else}
-                    <!-- Director Abstract Evaluation Rune / Lens -->
-                    <div class="flex h-full w-full items-center justify-center bg-slate-950/80">
-                      <Icon name="spinner" class="size-5 animate-spin text-frozen opacity-80" style="animation-duration: 3s;" />
-                    </div>
-                  {/if}
-                  <div
-                    aria-hidden="true"
-                    class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-30"
-                    style="background-color: var(--signature-color); mix-blend-mode: color;">
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pending turn pill: single-line 5-col glass, no bounce -->
-              <div
-                class="
-              relative
-              flex
-              h-10
-              w-[calc(var(--spacing-column-unit)*5)]
-              max-w-full
-              items-center
-              gap-standard
-              overflow-hidden
-              rounded-2xl
-              border
-              border-solid
-              border-white/10
-              bg-[color-mix(in_srgb,var(--color-dev-accent)_5%,rgba(15,15,15,0.7))]
-              px-standard
-              [backdrop-filter:var(--blur-mist)]
-            ">
-                <Shimmer
-                  color={simulation_state.speaker_thinking || simulation_state.media_generating ?
-                    simulation_state.generating_entity_color || "var(--color-electric-cyan)"
-                  : "var(--color-dev-accent)"} />
-                <span class="truncate font-mono text-[11px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
-                  {simulation_state.generating_entity_name ? `Synthesizing ${simulation_state.generating_entity_name}`
-                  : active_turn_name ? `Synthesizing ${active_turn_name}`
-                  : "Synthesizing director turn"}
-                </span>
-              </div>
-            </div>
-          {/if}
 
           {#if visible_feed.length === 0 && !simulation_state.busy}
             <div

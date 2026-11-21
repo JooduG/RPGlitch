@@ -232,6 +232,7 @@
   import { get_percentage, safe_html, get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
+  import MacroText from "./MacroText.svelte";
   import { app } from "@state";
   import Typewriter from "./Typewriter.svelte";
 
@@ -406,6 +407,14 @@
   let time_label = $derived(timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }));
 
   let entity_display_name = $derived(entity?.name || character_name || (is_fractal ? "Fractal" : sender));
+  const display_entities = $derived({
+    AI: runtime.active_ai,
+    USER: runtime.active_user,
+    FRACTAL: runtime.active_fractal,
+    ALL: [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
+      Boolean,
+    ),
+  });
 
   // --- ACTIONS & UTILITIES ---
   function handle_message_click(e) {
@@ -1098,11 +1107,11 @@
           {#if item.key}
             <span class="inline-flex max-w-full items-baseline gap-tight rounded border border-white/10 bg-white/5 px-2.5 py-1">
               <span class="shrink-0 text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">{item.key}</span>
-              <span class="min-w-0 text-slate-100" use:safe_html={render_telemetry_text(item.value)}></span>
+              <span class="min-w-0 text-slate-100"><MacroText text={item.value} entities={display_entities} /></span>
             </span>
           {:else}
             <div class="w-full">
-              <span use:safe_html={render_telemetry_text(item.value)}></span>
+              <span><MacroText text={item.value} entities={display_entities} /></span>
             </div>
           {/if}
         {/each}

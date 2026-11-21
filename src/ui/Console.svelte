@@ -514,7 +514,7 @@
     </span>
   {/if}
 
-  {#if app.streaming.active && runtime.round > 0}
+  {#if (app.streaming.active || app.simulation.loading) && (runtime.round > 0 || app.simulation.loading)}
     <Button
       variant="invisible"
       disabled={app.control_panel_open}
@@ -524,7 +524,7 @@
       class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!">
       <Icon name="interrupt" class="block size-icon-medium" />
     </Button>
-  {:else if is_locked || app.simulation.loading || app.streaming.active}
+  {:else if is_locked}
     <Button
       variant="invisible"
       onclick={() => force_recover_simulation("Manual unstick from composer")}

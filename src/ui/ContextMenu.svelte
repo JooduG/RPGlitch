@@ -158,7 +158,7 @@
 {#snippet menu_body()}
   {#if target_name}
     <header class="relative z-10 border-b border-white/10 px-standard py-tight text-left">
-      <div class="truncate pb-0.5 font-heading text-xs font-bold tracking-wider text-(--signature-color) uppercase text-shadow-(--shadow-ambient)">
+      <div class="truncate pb-0.5 font-heading text-sm font-bold tracking-normal text-(--signature-color) text-shadow-(--shadow-ambient)">
         {target_name}
       </div>
     </header>
@@ -180,7 +180,7 @@
           <Button
             variant="bare"
             class={[
-              "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left font-sans text-xs font-semibold tracking-wide transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
+              "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left font-sans text-xs font-medium tracking-wide transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
               item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
               : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
               : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",
@@ -216,7 +216,7 @@
   <div
     bind:this={menu_el}
     use:portal_and_clamp={{ x, y }}
-    class="fixed isolate z-tooltip flex max-w-60 min-w-44 flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
+    class="fixed isolate z-tooltip flex max-w-72 min-w-48 flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none
       before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
     style:--signature-color={signature_color}
     role="menu"
