@@ -87,3 +87,9 @@
 - **Trigger**: Toggling interactivity on a non-native interactive container (`<div role="button">`) such as `EntityCard.svelte` in `preview` mode.
 - **Wrong Behavior**: Binding `role={preview ? undefined : "button"}` alongside `tabindex={disabled || preview ? -1 : 0}`. Svelte's static compiler does not correlate ternary branches across attributes and flags `a11y_no_noninteractive_tabindex` because a `<div>` whose `role` may be `undefined` cannot have a possible `0` `tabindex`.
 - **Correct Behavior**: Keep `role="button"` static on the element and suppress assistive/keyboard focus in non-interactive modes via `tabindex={disabled || preview ? -1 : 0}` paired with `aria-hidden={preview ? "true" : undefined}` and `pointer-events-none`.
+
+## Pitfall 15: `{@html}` in `Icon.svelte` (`audit:hygiene` Heresy) & SVG `currentColor`
+
+- **Trigger**: Adding or consolidating inline `<svg>` icons into [Icon.svelte](../../../src/ui/primitives/Icon.svelte) or previewing SVGs standalone.
+- **Wrong Behavior**: Rendering an `ICONS` HTML-string map with `{@html ICONS[name]}` (rejected by `npm run audit:hygiene` Phase A), or using `fill="currentColor"` on inner paths when `<svg>` sets `stroke="#..."` without setting `color` (inherits dark `#000` text).
+- **Correct Behavior**: Express every icon in `Icon.svelte` `ICONS` as a single SVG `<path d="..." />` string and render declaratively via `<path d={ICONS[name]} fill={...} stroke={...} />` (forwarding `...rest` props onto `<svg>`). Always style `<svg>` via `color` + `stroke="currentColor"` when child elements use `currentColor`.

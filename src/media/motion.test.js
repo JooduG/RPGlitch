@@ -1,6 +1,16 @@
 import { flushSync } from "svelte";
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { motion, pulse, roll, update_card_scrub, clear_card_location, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "./motion.svelte.js";
+import {
+  motion,
+  pulse,
+  roll,
+  fly_card_in,
+  fly_card_out,
+  update_card_scrub,
+  clear_card_location,
+  capture_storyboard_flight,
+  fly_storyboard_cards_into_prologue,
+} from "./motion.svelte.js";
 
 describe("kinetic utilities", () => {
   /** @type {HTMLElement} */
@@ -106,11 +116,21 @@ describe("kinetic utilities", () => {
   });
 
   describe("storyboard & prologue card scrub and flight", () => {
-    it("update_card_scrub and clear_card_location do not throw when passed options object or no arguments", () => {
-      expect(() => update_card_scrub({ pending: true })).not.toThrow();
-      expect(() => update_card_scrub({ pending: false })).not.toThrow();
+    it("update_card_scrub and clear_card_location do not throw", () => {
       expect(() => update_card_scrub()).not.toThrow();
       expect(() => clear_card_location()).not.toThrow();
+    });
+
+    it("fly_card_in and fly_card_out respect motion.is_reduced without spawning clones", async () => {
+      motion.is_reduced = true;
+      const on_land = vi.fn();
+      const rect = { left: 0, top: 0, width: 100, height: 140 };
+      await fly_card_in(node, rect, rect, { on_land });
+      expect(on_land).toHaveBeenCalledTimes(1);
+      expect(document.querySelector("[data-flight-clone]")).toBeNull();
+
+      fly_card_out(node, rect);
+      expect(document.querySelector("[data-flight-out]")).toBeNull();
     });
 
     it("capture_storyboard_flight captures clones and rects from data-slot-type [data-card-root]", () => {

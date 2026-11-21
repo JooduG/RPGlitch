@@ -18,8 +18,8 @@ description: >-
 - [PITFALLS.md](./PITFALLS.md) — Empirical scar tissue covering mute boundaries, Web Speech native voice conversion, node cleanup, and codebase quirks.
 - [src/media/README.md](../../../src/media/README.md) — Authoritative media-layer interface, Rank 1 zero-upward-import invariant, and excised-Kokoro architectural record.
 - [audio.svelte.js](../../../src/media/audio.svelte.js) — Implementation of Web Audio lifecycle functions, `play_sfx`, cadence/role helpers, `VoiceEngine`, and `AudioEngine` / `Audio`.
-- [src/media/index.js](../../../src/media/index.js) — `@media` barrel exports (note direct-only exports `CADENCE_RATES` and `audio_engine` stay on `audio.svelte.js`).
-- [audio.test.js](../../../src/media/audio.test.js) — Unit test suite covering `normalize_role`, `get_cadence_rate`, `play_sfx`, and `Audio` facade behavior.
+- [src/media/index.js](../../../src/media/index.js) — `@media` barrel exports (`Audio`, `AudioEngine`, `VoiceEngine`, `VOICE_CADENCES`, `voice_role_key`, `get_cadence_rate`, `resolve_voice_uri`, `resolve_voice_name`, `play_sfx`, lifecycle helpers).
+- [audio.test.js](../../../src/media/audio.test.js) — Unit test suite covering `voice_role_key`, `get_cadence_rate`, `play_sfx`, `is_paused`, notifications gate, and `Audio` facade behavior.
 - [config.js](../../../src/config.js#L145-L158) — `VOICE_CADENCE.RATES` and `SHAPING` constants (`DYNAMICS_OFFSET`, `MIN_RATE`, `MAX_RATE`).
 - UI & Lifecycle Callers: [AudioWing.svelte](../../../src/ui/AudioWing.svelte), [Console.svelte](../../../src/ui/Console.svelte), [ChatBubble.svelte](../../../src/ui/ChatBubble.svelte), [status.svelte.js](../../../src/engine/status.svelte.js#L335-L389), [App.svelte](../../../src/App.svelte#L72-L81), and root [README.md](../../../README.md).
 
@@ -43,7 +43,7 @@ description: >-
    - Use `suspend_audio()` for temporary pauses and `close_audio_context()` / `Audio.destroy()` on teardown ([App.svelte](../../../src/App.svelte#L74-L81) invokes `Audio.destroy()` on `pagehide` and unmount).
 2. **Zero-Asset Procedural SFX Cues**:
    - Every SFX is synthesized at runtime with `OscillatorNode`, noise `AudioBufferSourceNode`, and `GainNode` — never fetch remote `.wav`/audio files.
-   - Supported cues in `play_sfx(type, options = {})` (and `Audio.play(sound_key)`): `"click"` (`800 -> 200Hz` sine, `0.03s`), `"pop"` (`300 -> 600Hz` sine, `0.05s`), `"glitch"` (white-noise buffer, `0.08s`), `"alert"` (`520 -> 660Hz` triangle, `0.2s`), `"subtle_hum"` (`60Hz` sine ramp, `0.4s`), and `default` fallback (`440Hz` sine, `0.04s`; [ChatBubble.svelte](../../../src/ui/ChatBubble.svelte#L364) passes `"notification"`, which hits this fallback).
+   - Supported cues in `play_sfx(type, options = {})` (and `Audio.play(sound_key)`): `"click"` (`800 -> 200Hz` sine, `0.03s`), `"pop"` (`300 -> 600Hz` sine, `0.05s`), `"glitch"` (white-noise buffer, `0.08s`), `"alert"` (`520 -> 660Hz` triangle, `0.2s`), `"subtle_hum"` (`60Hz` sine ramp, `0.4s`), `"notification"` (`587.33 -> 880Hz` sine chime, `0.16s`; `Audio.play("notification")` is gated by `Audio.notifications_enabled`), and `default` fallback (`440Hz` sine, `0.04s`).
    - All cues connect through `sfx_gain` to `master_gain_node` and clear `source.onended = null`, `source.disconnect()`, and `gain.disconnect()` on completion to avoid Web Audio node leaks.
 
 ## 4. Web Speech API Engine (`VoiceEngine`) & Cadence Shaping

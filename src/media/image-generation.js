@@ -327,7 +327,7 @@ export class VisualEngine {
   async generate(target, options = {}) {
     const mode = options.mode || "solo_entity";
     const tier_resolution = get_resolution_string(mode);
-    const dispatched = await dispatch_visual_generation(
+    return await dispatch_visual_generation(
       {
         prompt: typeof target === "string" ? target : options.prompt || "",
         negative_prompt: options.negative_prompt,
@@ -338,10 +338,9 @@ export class VisualEngine {
       },
       options,
     );
-    return { ...dispatched, url: dispatched.image_url };
   }
 
-  async visualize(text, tier, options = {}, ctx) {
+  async visualize(text, tier, options = {}, ctx = {}) {
     const base_prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
     const tier_resolution = get_resolution_string(tier);
     const style_key = resolve_story_beat_style({
@@ -363,20 +362,13 @@ export class VisualEngine {
       },
       options,
     );
-    return {
-      imageUrl: dispatched.image_url,
-      image_url: dispatched.image_url,
-      seed: dispatched.seed,
-      refinedPrompt: composed.prompt,
-      refined_prompt: composed.prompt,
-      metadata: { ...dispatched.metadata, style_key },
-    };
+    return { image_url: dispatched.image_url, seed: dispatched.seed, refined_prompt: composed.prompt, metadata: { ...dispatched.metadata, style_key } };
   }
 
   async generate_candidates(prompt, options = {}) {
     const count = options.count ?? 3;
     const base_options = {
-      mode: options.mode || "character",
+      mode: options.mode || "solo_entity",
       negative_prompt: options.negative_prompt,
       resolution: options.resolution,
       guidance_scale: options.guidance_scale,
@@ -449,35 +441,15 @@ export async function spawn_image_beat(tier, options = {}, ctx) {
     mark_generation_in_flight(placeholder_entry.id, 0);
     const resolve_placeholder = async () => {
       try {
-        const active_engine = engine || visual_engine;
-
-        let result;
-        if (active_engine?.visualize) {
-          result = await with_resolve_timeout(active_engine.visualize(visual_prompt, tier, { silent: true, visual_staging }, ctx));
-        } else {
-          const fallback_style = resolve_story_beat_style({
-            app_style: ctx.app?.settings?.visual_style,
-            fractal_style: ctx.runtime?.active_fractal?.visual_style,
-          });
-          const fallback_composed = compose_story_beat_prompt(
-            [visual_prompt, visual_staging].filter((part) => part && String(part).trim()).join(" "),
-            fallback_style,
-          );
-          const dispatched = await with_resolve_timeout(
-            dispatch_visual_generation({ prompt: fallback_composed.prompt, negative_prompt: fallback_composed.negative_prompt }),
-          );
-          result = { imageUrl: dispatched.image_url, metadata: { ...dispatched.metadata, style_key: fallback_style }, refinedPrompt: fallback_composed.prompt };
-        }
+        const active_engine = engine?.visualize ? engine : visual_engine;
+        const result = await with_resolve_timeout(active_engine.visualize(visual_prompt, tier, { silent: true, visual_staging }, ctx));
 
         _remove_from_image_generation_queue(placeholder_entry.id);
 
-        const resolved_image_url = result?.imageUrl || result?.image_url;
-        const refined_prompt = result?.refinedPrompt || result?.refined_prompt;
-
-        if (resolved_image_url) {
+        if (result?.image_url) {
           await ctx.session_driver?.update_log_attachment(placeholder_entry.id, 0, {
-            src: resolved_image_url,
-            metadata: { mode: tier, image_source: source, ...result.metadata, prompt: refined_prompt },
+            src: result.image_url,
+            metadata: { mode: tier, image_source: source, ...result.metadata, prompt: result.refined_prompt },
           });
         } else {
           await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata, ctx);

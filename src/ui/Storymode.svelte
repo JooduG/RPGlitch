@@ -85,12 +85,12 @@
         { app, runtime, session_driver, simulation_log },
       );
 
-      if (result?.imageUrl && placeholder_entry?.id) {
+      if (result?.image_url && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: result.imageUrl,
-          metadata: { mode: target_mode, ...result.metadata, prompt: result.refinedPrompt },
+          src: result.image_url,
+          metadata: { mode: target_mode, ...result.metadata, prompt: result.refined_prompt },
         });
-      } else if (!result?.imageUrl) {
+      } else if (!result?.image_url) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
           src: null,
           metadata: { mode: target_mode, prompt, failed: true, error: "Image generation returned no image" },
@@ -137,12 +137,12 @@
 
       const result = await visual_engine.visualize(group_prompt, "story_entities", {}, { app, runtime, session_driver, simulation_log });
 
-      if (result?.imageUrl && placeholder_entry?.id) {
+      if (result?.image_url && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
-          src: result.imageUrl,
-          metadata: { ...result.metadata, prompt: result.refinedPrompt },
+          src: result.image_url,
+          metadata: { ...result.metadata, prompt: result.refined_prompt },
         });
-      } else if (!result?.imageUrl) {
+      } else if (!result?.image_url) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
           src: null,
           metadata: { mode: "story_entities", prompt: group_prompt, failed: true, error: "Image generation returned no image" },
@@ -178,6 +178,7 @@
       mode,
       signature_color,
       regenerate_count,
+      refine_prompt: refine_image_prompt,
       on_select: (candidate) => {
         if (log_id) {
           session_driver.update_log_attachment(log_id, attach_idx, {

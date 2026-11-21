@@ -86,20 +86,12 @@ export function close_audio_context() {
 }
 
 /**
- * Sets the master volume level [0.0 - 1.0].
- * @param {number} level
+ * Sets up or updates the master gain level.
  */
-export function set_master_volume(level) {
-  audio_engine.volume = level;
-}
-
-/**
- * Toggles the audio mute state.
- * @returns {boolean} New mute state
- */
-export function toggle_mute() {
-  audio_engine.is_muted = !audio_engine.is_muted;
-  return audio_engine.is_muted;
+function sync_master_gain() {
+  if (master_gain_node && shared_audio_context) {
+    master_gain_node.gain.setValueAtTime(is_muted ? 0 : current_master_volume, shared_audio_context.currentTime);
+  }
 }
 
 // Auto-unlock on first user interaction if in browser
@@ -239,6 +231,22 @@ export function play_sfx(type, options = {}) {
       break;
     }
 
+    case "notification": {
+      const osc = context.createOscillator();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(587.33, now);
+      osc.frequency.setValueAtTime(880, now + 0.06);
+
+      sfx_gain.gain.setValueAtTime(volume * 0.25, now);
+      sfx_gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+      osc.connect(sfx_gain);
+      osc.onended = () => cleanup(osc, sfx_gain);
+      osc.start(now);
+      osc.stop(now + 0.16);
+      break;
+    }
+
     default: {
       // Fallback click
       const osc = context.createOscillator();
@@ -259,34 +267,26 @@ export function play_sfx(type, options = {}) {
 // [SECTION 3: VOICE HELPERS & CADENCES]
 // ============================================================================
 
-/** Speech-rate multipliers by cadence (view over config VOICE_CADENCE.RATES - the single home) */
-export const CADENCE_RATES = VOICE_CADENCE.RATES;
-
 /** Labeled cadence picker list (view over VOICE_CADENCE.RATES) */
 export const VOICE_CADENCES = Object.freeze(
   Object.entries(VOICE_CADENCE.RATES).map(([id, rate]) => Object.freeze({ id, label: id.charAt(0).toUpperCase() + id.slice(1), rate })),
 );
 
 /**
- * Maps a speaker role onto a voice-flag key. Unlike normalize_role (which
- * collapses user/fractal into ai for prompt addressing), voice switches are
- * per-role: user and fractal keep their own flags, npc falls back to ai.
+ * Maps a speaker role onto a per-role voice-flag key (`"ai"`, `"user"`, `"fractal"`).
+ * `"npc"` and `"model"` fold into `"ai"`; `"system"` and falsy values return `null`.
+ * @param {string | null | undefined} role
+ * @returns {"ai" | "user" | "fractal" | null}
  */
 export function voice_role_key(role) {
-  const norm = normalize_role(role, { preserve_npc: true });
-  if (!norm) return null;
-  if (norm === "npc") return "ai";
-  return norm;
-}
-
-export function normalize_role(role, options = {}) {
   if (!role) return null;
   const normalized_string = String(role).trim().toLowerCase();
   if (normalized_string === "system") return null;
   if (normalized_string.includes("user")) return "user";
-  if (normalized_string.includes("npc")) return options.preserve_npc ? "npc" : "ai";
-  if (normalized_string.includes("fractal")) return options.preserve_npc ? "fractal" : "ai";
-  if (normalized_string.includes("ai") || normalized_string.includes("character") || normalized_string === "model") return "ai";
+  if (normalized_string.includes("fractal")) return "fractal";
+  if (normalized_string.includes("npc") || normalized_string.includes("ai") || normalized_string.includes("character") || normalized_string === "model") {
+    return "ai";
+  }
   return null;
 }
 
@@ -301,7 +301,7 @@ export function resolve_voice_name(name_or_uri) {
 }
 
 export function get_cadence_rate(cadence, dynamics_value = 50) {
-  const base_rate = CADENCE_RATES[cadence] || 1.0;
+  const base_rate = VOICE_CADENCE.RATES[cadence] || 1.0;
   if (dynamics_value === undefined || dynamics_value === null || isNaN(Number(dynamics_value))) {
     return base_rate;
   }
@@ -321,6 +321,7 @@ export class VoiceEngine {
   rate = 1.0;
   volume = $state(1.0);
   is_speaking = $state(false);
+  is_paused = $state(false);
   active_message_id = $state(null);
 
   // Per-role TTS switches. $state so context-menu labels re-render on toggle
@@ -411,9 +412,7 @@ export class VoiceEngine {
   set_volume(vol) {
     this.volume = Math.max(0, Math.min(1, Number(vol)));
     current_master_volume = this.volume;
-    if (master_gain_node && shared_audio_context) {
-      master_gain_node.gain.setValueAtTime(is_muted ? 0 : this.volume, shared_audio_context.currentTime);
-    }
+    sync_master_gain();
   }
 
   /**
@@ -445,12 +444,15 @@ export class VoiceEngine {
 
     utterance.onstart = () => {
       this.is_speaking = true;
+      this.is_paused = false;
     };
     utterance.onend = () => {
       this.is_speaking = false;
+      this.is_paused = false;
     };
     utterance.onerror = () => {
       this.is_speaking = false;
+      this.is_paused = false;
     };
 
     this.#speech_synth.speak(utterance);
@@ -461,6 +463,7 @@ export class VoiceEngine {
       this.#speech_synth.cancel();
     }
     this.is_speaking = false;
+    this.is_paused = false;
     this.reset_stream();
   }
 
@@ -468,20 +471,22 @@ export class VoiceEngine {
     if (this.#speech_synth) {
       this.#speech_synth.pause();
     }
+    this.is_paused = true;
   }
 
   resume() {
     if (this.#speech_synth) {
       this.#speech_synth.resume();
     }
+    this.is_paused = false;
   }
 
   toggle_pause() {
     if (!this.#speech_synth) return;
-    if (this.#speech_synth.paused) {
-      this.#speech_synth.resume();
+    if (this.#speech_synth.paused || this.is_paused) {
+      this.resume();
     } else {
-      this.#speech_synth.pause();
+      this.pause();
     }
   }
 
@@ -573,9 +578,7 @@ export class AudioEngine {
 
   set is_muted(val) {
     is_muted = Boolean(val);
-    if (master_gain_node && shared_audio_context) {
-      master_gain_node.gain.setValueAtTime(is_muted ? 0 : current_master_volume, shared_audio_context.currentTime);
-    }
+    sync_master_gain();
   }
 
   get voice_enabled() {
@@ -591,9 +594,7 @@ export class AudioEngine {
   }
 
   is_role_enabled(role) {
-    const norm = voice_role_key(role);
-    if (!norm) return false;
-    return this.voice_enabled && Boolean(this.voice.entity_voice[norm]);
+    return this.voice.is_role_enabled(role);
   }
 
   set_entity_voice(role, is_enabled) {
@@ -616,6 +617,7 @@ export class AudioEngine {
   }
 
   play(sound_key) {
+    if (sound_key === "notification" && !this.notifications_enabled) return;
     play_sfx(sound_key);
   }
 
@@ -629,5 +631,4 @@ export class AudioEngine {
   }
 }
 
-export const audio_engine = new AudioEngine();
-export const Audio = audio_engine;
+export const Audio = new AudioEngine();

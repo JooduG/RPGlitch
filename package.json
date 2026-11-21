@@ -82,7 +82,6 @@
     "bits-ui": "^2.20.6",
     "dexie": "^4.4.7",
     "dompurify": "^3.4.17",
-    "kokoro-js": "^1.2.1",
     "markdown-it": "^15.0.3",
     "tailwindcss": "^4.3.5"
   },

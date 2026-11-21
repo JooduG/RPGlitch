@@ -1,6 +1,7 @@
 <script>
   import { runtime } from "@state";
   import { get_resolution } from "@simulation";
+  import { refine_image_prompt } from "@engine";
   import { Backdrop, Button, Dropdown, Icon, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
@@ -23,7 +24,7 @@
     if (is_picker_regenerating) return;
     is_picker_regenerating = true;
     try {
-      await run_image_regeneration({ in_picker: true });
+      await run_image_regeneration({ in_picker: true, refine_prompt: refine_image_prompt });
     } finally {
       is_picker_regenerating = false;
     }

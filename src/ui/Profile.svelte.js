@@ -142,7 +142,7 @@ export class ProfileState {
       }
       const v = snap.voice && typeof snap.voice === "object" ? snap.voice : null;
       if (v) {
-        const vkey = v.name || v.uri || "Cinematic Narrator";
+        const vkey = v.name || v.uri || "Standard Voice";
         v.name = resolve_voice_name(vkey);
         v.uri = resolve_voice_uri(vkey);
         if (v.cadence == null) v.cadence = "standard";

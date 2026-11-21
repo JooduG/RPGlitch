@@ -77,3 +77,13 @@
 - **Trigger**: Verifying that RPGlitch has zero circular dependencies across `src/*/index.js` barrels or `.svelte.js` stores.
 - **Wrong Behavior (Root Cause)**: Running `graph-it cycles <file>` on one file and trusting `cycleCount=0`. `cycles` crawls from that entry file and reports only import cycles that pass directly through that exact `<file>`, missing cycles elsewhere in the folder or cycles hidden by unresolved aliases.
 - **Correct Behavior (Prevention Rule)**: Enforce `./` relative imports for in-folder siblings (never `@<own-folder>`). Verify workspace cycles with `graph-it check-architecture` (`no-rank-folder-cycles`), `graph-it architecture --level units --matrix --format toon`, or a Strongly Connected Components (Tarjan SCC) pass over `graph-it architecture --communities louvain --format json` edges.
+
+---
+
+### `[PF-010]` `graphit.architecture.json` Disjoint Globs, `node-ignore` Trailing Slashes, and `v1.25.3` / `v1.25.6` `roles` Split (Occurrences: 1)
+
+- **Trigger**: Authoring or updating `graphit.architecture.json` while running both the `v1.25.3` npm CLI and `v1.25.5+` VS Code extension.
+- **Wrong Behavior (Root Cause)**:
+  1. Combining trailing-slash directory rules (`"src/*/"`) with `"!*.test.js"` — `node-ignore` ignores file negations inside an already-matched parent directory, causing overlap warnings with `"test-suites"` in `v1.25.5+`.
+  2. Using `"roles"` keys like `"(root)"` or `"src"` (warns in `v1.25.5+`) or `"test"` role values (fails Zod validation in `v1.25.3` CLI).
+- **Correct Behavior (Prevention Rule)**: Keep declared `elements` strictly disjoint using `["src/<folder>/**", "!*.test.js"]` (and `["src/ui/*", "!src/ui/primitives", "!*.test.js"]` for `rank5-ui`), omit redundant umbrella elements when `allowOnly` rank rules already form an acyclic DAG, and key `"roles"` by declared element names with `v1.25.3`-compatible values (e.g., `"tooling": "tooling"`).

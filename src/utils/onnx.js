@@ -3,7 +3,7 @@
  * ⚙️ ONNX / WASM RUNTIME COORDINATION & INFERENCE MUTEX
  *
  * Core Responsibilities:
- * - Serializes inference across the shared `ort-wasm` runtime (semantic embeddings + Kokoro-82M TTS).
+ * - Serializes inference across the shared `ort-wasm` runtime (semantic embeddings).
  * - Eliminates race conditions and memory heap collisions on single-threaded WASM heaps.
  * - Coordinates one-shot runtime readiness (`mark_ort_ready` / `wait_ort_ready`) so secondary subsystems
  *   never attempt WebGPU / WASM device session initialization while the primary runtime is mid-initialization.
@@ -11,7 +11,6 @@
  *
  * Consumed by:
  * - `src/platform/embeddings.svelte.js` (Embeddings pipeline creation and inference calls).
- * - `src/media/audio.svelte.js` (Kokoro-82M TTS model loading and speech synthesis).
  */
 
 import { create_job_queue } from "./queue.js";

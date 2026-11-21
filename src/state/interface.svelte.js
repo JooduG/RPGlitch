@@ -826,9 +826,9 @@ export async function run_image_regeneration(options = {}) {
     const is_unrefined =
       !prompt || prompt.length < 30 || prompt.includes("<image_prompt>") || prompt.startsWith("RAW photograph or structured artistic rendering of");
 
-    if (in_picker || regenerate_count >= 1 || is_unrefined) {
+    if ((in_picker || regenerate_count >= 1 || is_unrefined) && typeof options.refine_prompt === "function") {
       try {
-        const refined = await visual_engine.envision(prompt, mode);
+        const refined = await options.refine_prompt(prompt, mode);
         if (refined?.prompt) {
           final_prompt = refined.prompt;
           final_negative = refined.negative_prompt || negative_prompt;

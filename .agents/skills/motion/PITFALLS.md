@@ -16,11 +16,11 @@
 - **Wrong Behavior**: Invoking `document.startViewTransition()` directly skips the `_transition_state.active` single-flight concurrency lock, unsupported-browser synchronous fallback, `flushSync()` coordination, and `.is-switching-view` / `.is-swapping-card` / `.is-profile-*` root scoping classes.
 - **Correct Behavior**: Always call `guarded_transition(callback, { className })` from `@utils` (`src/utils/ui-helpers.js`), flushing Svelte 5 DOM updates via `flushSync()` immediately before or inside `callback`.
 
-## Pitfall 3: Unguarded `fly_card_*` Flights & CSS Transitions Under Reduced Motion
+## Pitfall 3: Unguarded CSS Transitions Under Reduced Motion
 
-- **Trigger**: Calling `fly_card_in` / `fly_card_out`, adding custom `duration-*` transitions, or using `<Backdrop>` without `class="profile"`.
-- **Wrong Behavior**: Assuming all `@media` functions and `DESIGN.md` media queries suppress every animation. `fly_card_in` and `fly_card_out` run clone CSS transitions unconditionally without checking `motion.is_reduced`, and `DESIGN.md` sets `0.01ms` only on `animation-duration` and `::view-transition-*` — not CSS `transition-duration` or non-profile `Backdrop` `fade(150)`.
-- **Correct Behavior**: Gate `fly_card_in` / `fly_card_out` calls with `if (!motion.is_reduced)` (`Storyboard.svelte`), and explicitly handle `motion.is_reduced` on continuous/custom CSS `transition-*` elements when instant suppression is required.
+- **Trigger**: Adding custom `duration-*` transitions or using `<Backdrop>` without `class="profile"`.
+- **Wrong Behavior**: Assuming `DESIGN.md` media queries suppress every CSS transition. `DESIGN.md` sets `0.01ms` only on `animation-duration` and `::view-transition-*` — not CSS `transition-duration` or non-profile `Backdrop` `fade(150)`.
+- **Correct Behavior**: `fly_card_in`, `fly_card_out`, and `fly_storyboard_cards_into_prologue` guard `motion.is_reduced` internally; explicitly handle `motion.is_reduced` on continuous/custom CSS `transition-*` elements when instant suppression is required.
 
 ## Pitfall 4: Static Scanner Rejections & Token Drift (`audit-design.js`, ESLint, `--transition-duration-*`)
 

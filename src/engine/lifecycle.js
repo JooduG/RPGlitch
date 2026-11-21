@@ -182,12 +182,12 @@ export async function generate_opening(story_id) {
             { silent: true, refine_prompt: refine_image_prompt },
             { app, runtime, session_driver, simulation_log },
           );
-          if (img_result?.imageUrl) {
+          if (img_result?.image_url) {
             await session_driver.update_log_attachment(node_id, 0, {
-              src: img_result.imageUrl,
+              src: img_result.image_url,
               metadata: {
                 ...(img_result.metadata || {}),
-                prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                prompt: img_result.refined_prompt || img_result.metadata?.prompt,
                 mode: "story_scene",
                 requested_at: prologue_image_requested_at,
               },
@@ -380,11 +380,13 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
       try {
         const portrait_promise = visual_engine
           .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
-          .then(async (image_url) => {
-            if (image_url && saved_entity.id) {
-              const data_url = typeof image_url === "object" && image_url?.url ? image_url.url : image_url;
-              await update_entity(saved_entity.id, { profile_picture: data_url });
-              await runtime.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+          .then(async (image_result) => {
+            if (image_result && saved_entity.id) {
+              const data_url = typeof image_result === "object" ? image_result.image_url : image_result;
+              if (data_url) {
+                await update_entity(saved_entity.id, { profile_picture: data_url });
+                await runtime.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+              }
             }
           });
         if (portrait_promise && typeof portrait_promise.catch === "function") {

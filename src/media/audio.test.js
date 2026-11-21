@@ -1,29 +1,22 @@
 /**
  * @file src/media/audio.test.js
- * Unit tests verifying audio engine and premade voice configurations.
+ * Unit tests verifying audio engine, voice role gating, notifications, and premade voice configurations.
  */
 import { describe, expect, it } from "vitest";
 import { PREMADE_FRACTALS } from "@definitions";
-import { get_cadence_rate, normalize_role, resolve_voice_name, resolve_voice_uri, Audio, play_sfx, set_master_volume, toggle_mute } from "./audio.svelte.js";
+import { get_cadence_rate, voice_role_key, resolve_voice_name, resolve_voice_uri, Audio, play_sfx } from "./audio.svelte.js";
 
-describe("normalize_role", () => {
-  it("normalizes roles to internal keys", () => {
-    expect(normalize_role("AI_CHARACTER")).toBe("ai");
-    expect(normalize_role("model")).toBe("ai");
-    expect(normalize_role("USER_PERSONA")).toBe("user");
-    expect(normalize_role("user")).toBe("user");
-    expect(normalize_role("system")).toBe(null);
-    expect(normalize_role(null)).toBe(null);
-  });
-
-  it("maps fractal and npc to ai by default for unified toggle", () => {
-    expect(normalize_role("fractal")).toBe("ai");
-    expect(normalize_role("npc")).toBe("ai");
-  });
-
-  it("preserves fractal and npc when preserve_npc is true", () => {
-    expect(normalize_role("fractal", { preserve_npc: true })).toBe("fractal");
-    expect(normalize_role("npc-1", { preserve_npc: true })).toBe("npc");
+describe("voice_role_key", () => {
+  it("normalizes roles to per-role voice keys", () => {
+    expect(voice_role_key("AI_CHARACTER")).toBe("ai");
+    expect(voice_role_key("model")).toBe("ai");
+    expect(voice_role_key("npc")).toBe("ai");
+    expect(voice_role_key("npc-1")).toBe("ai");
+    expect(voice_role_key("USER_PERSONA")).toBe("user");
+    expect(voice_role_key("user")).toBe("user");
+    expect(voice_role_key("fractal")).toBe("fractal");
+    expect(voice_role_key("system")).toBe(null);
+    expect(voice_role_key(null)).toBe(null);
   });
 });
 
@@ -52,35 +45,41 @@ describe("Audio & Voice Configurations", () => {
     expect(resolve_voice_name("Hero")).toBe("Hero");
   });
 
-  it("provides functional play_sfx interface", () => {
+  it("provides functional play_sfx interface including notification cue", () => {
     expect(() => play_sfx("click")).not.toThrow();
     expect(() => play_sfx("pop")).not.toThrow();
     expect(() => play_sfx("glitch")).not.toThrow();
     expect(() => play_sfx("alert")).not.toThrow();
     expect(() => play_sfx("subtle_hum")).not.toThrow();
+    expect(() => play_sfx("notification")).not.toThrow();
   });
 
-  it("verifies AudioContext lifecycle and Audio facade methods", async () => {
+  it("verifies AudioContext lifecycle, notifications gate, pause state, and Audio facade", async () => {
     expect(typeof Audio.init).toBe("function");
     expect(typeof Audio.destroy).toBe("function");
     expect(typeof Audio.play).toBe("function");
     expect(typeof Audio.toggle_entity_voice).toBe("function");
 
-    // Audio properties
     expect(Audio.voice).toBeDefined();
     expect(Audio.entity_voice).toBeDefined();
+    expect(Audio.voice.is_paused).toBe(false);
     expect(typeof Audio.volume).toBe("number");
 
-    // Standalone volume and mute functions
-    set_master_volume(0.3);
+    Audio.volume = 0.3;
     expect(Audio.volume).toBe(0.3);
     const initial_mute = Audio.is_muted;
-    const toggled = toggle_mute();
-    expect(toggled).toBe(!initial_mute);
-    expect(Audio.is_muted).toBe(toggled);
-    toggle_mute(); // restore
+    Audio.is_muted = !initial_mute;
+    expect(Audio.is_muted).toBe(!initial_mute);
+    Audio.is_muted = initial_mute;
 
-    // Invoking destroy safely executes without unhandled exceptions
+    Audio.notifications_enabled = false;
+    expect(() => Audio.play("notification")).not.toThrow();
+
+    Audio.voice.pause();
+    expect(Audio.voice.is_paused).toBe(true);
+    Audio.voice.resume();
+    expect(Audio.voice.is_paused).toBe(false);
+
     expect(() => Audio.destroy()).not.toThrow();
   });
 });

@@ -5,8 +5,8 @@
  * ============================================================================
  *
  * Verifies OnnxMutex sequential execution, queue length dynamics, error
- * resilience, and strict mutual exclusion (active concurrency <= 1) between
- * Kokoro-82M TTS synthesis and semantic embeddings.
+ * resilience, and strict mutual exclusion (active concurrency <= 1) across
+ * concurrent semantic embedding tasks.
  *
  * RULES FOR MODIFICATION:
  *   - Universal File Architecture compliance (Header block & Changelog footer).

@@ -20,7 +20,7 @@ Dependency, call-graph, impact, dead-code, PR-review, and architecture analysis 
 
 - **Stack**: JavaScript, Svelte 5, Node.js scripts (Vite 8, Vitest).
 - **Alias Resolution**: Root `tsconfig.json` (`baseUrl` + `paths` matching `vite.config.js`) is required so bare `@alias` barrels resolve inside the graph (`[PF-005]`).
-- **Architecture Gate**: Root `graphit.architecture.json` enforces the 6-Rank DAG (`config` -> `rank0` -> `rank1` -> `rank2` isolated `@data`/`@media` -> `rank3` -> `rank4` -> `rank5-primitives`/`rank5-ui` -> `shell`), `no-test-suite-imports`, and `no-rank-folder-cycles`.
+- **Architecture Gate**: Root `graphit.architecture.json` enforces the 12-rule disjoint 6-Rank DAG (`config` -> `rank0` -> `rank1` -> `rank2` isolated `@data`/`@media` -> `rank3` -> `rank4` -> `rank5-primitives`/`rank5-ui` -> `shell`) plus `no-test-suite-imports` (`[PF-010]`).
 - **Dead-Code Wrapper**: Prefer `npm run audit:dead-code` for RPGlitch sweeps; it filters Svelte HTML template and `export *` barrel false positives (`[PF-006]`).
 - **Repo Verification & P4 Policy**: Run `npm run verify` after edits. Remove replaced symbols cleanly with zero backwards-compatibility shims unless an external package boundary requires one.
 

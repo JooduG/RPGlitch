@@ -87,7 +87,6 @@ export const app_bootstrap = {
 
       // Trigger asset pre-downloads on boot without blocking DOM mount
       embeddings_engine?.load_model?.()?.catch?.((err) => console.warn("[Boot] Embeddings pre-download error:", err));
-      Audio?.voice?.load_model?.()?.catch?.((err) => console.warn("[Boot] Voice pre-download error:", err));
 
       // Parallel Initialization: Reduce critical path for LCP.
       await Promise.all([runtime.sync(), app.init(), Audio.init()]);
@@ -96,7 +95,7 @@ export const app_bootstrap = {
       if (runtime.story_id) {
         try {
           await simulation_log?.refresh?.();
-          await sweep_stale_ghosts?.();
+          await sweep_stale_ghosts?.({ runtime, session_driver });
           await app?.load_entities?.();
           app.stories_version++;
           app?.set_view?.("storymode");

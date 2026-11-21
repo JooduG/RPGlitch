@@ -392,6 +392,34 @@ function ease_out_cubic(t) {
   return 1 - Math.pow(1 - t, 3);
 }
 
+/**
+ * Computes translation deltas and scale ratios between two bounding rects.
+ * @param {Rect} from_rect
+ * @param {Rect} to_rect
+ */
+function compute_flight_delta(from_rect, to_rect) {
+  return {
+    dx: to_rect.left - from_rect.left,
+    dy: to_rect.top - from_rect.top,
+    sx: to_rect.width / Math.max(1, from_rect.width),
+    sy: to_rect.height / Math.max(1, from_rect.height),
+  };
+}
+
+/**
+ * Fades a flight clone out and removes it from the DOM after `duration_ms`.
+ * @param {HTMLElement} clone
+ * @param {number} duration_ms
+ * @param {string} [transform]
+ */
+function dissolve_clone(clone, duration_ms, transform) {
+  clone.style.transition =
+    transform ? `transform ${duration_ms}ms var(--ease-out), opacity ${duration_ms}ms var(--ease-out)` : `opacity ${duration_ms}ms var(--ease-out)`;
+  if (transform) clone.style.transform = transform;
+  clone.style.opacity = "0";
+  setTimeout(() => clone.remove(), duration_ms + 40);
+}
+
 // -----------------------------------------------------------------------------
 // FLIGHT TRANSITIONS
 // -----------------------------------------------------------------------------
@@ -410,20 +438,21 @@ function ease_out_cubic(t) {
  * @param {number} [options.glide_ms]
  * @param {number} [options.set_down_ms]
  * @param {string} [options.tag]
- * @param {number} [options.z]
+ * @param {number | string} [options.z]
  * @returns {Promise<void>}
  */
 export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
+  if (typeof document === "undefined" || motion.is_reduced) {
+    options.on_land?.();
+    return Promise.resolve();
+  }
   const { on_clone, on_land, pickup_ms = 90, glide_ms = 380, set_down_ms = 130, tag = "data-flight-clone", z = "var(--z-index-overlay)" } = options;
   return new Promise((resolve) => {
     const clone = make_card_clone(source_el, tag, z);
     place(clone, from_rect);
     on_clone?.(clone);
 
-    const dx = to_rect.left - from_rect.left;
-    const dy = to_rect.top - from_rect.top;
-    const sx = to_rect.width / Math.max(1, from_rect.width);
-    const sy = to_rect.height / Math.max(1, from_rect.height);
+    const { dx, dy, sx, sy } = compute_flight_delta(from_rect, to_rect);
 
     // Pickup: quick pull up and slight tilt out of wherever the card was.
     requestAnimationFrame(() => {
@@ -439,10 +468,7 @@ export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
         on_land?.();
       } finally {
         // Set-down: settle slightly and dissolve, revealing the destination card.
-        clone.style.transition = `transform ${set_down_ms}ms var(--ease-out), opacity ${set_down_ms}ms var(--ease-out)`;
-        clone.style.transform = `translate(${dx}px, ${dy}px) rotate(0deg) scale(${sx * 0.96}, ${sy * 0.96})`;
-        clone.style.opacity = "0";
-        setTimeout(() => clone.remove(), set_down_ms + 40);
+        dissolve_clone(clone, set_down_ms, `translate(${dx}px, ${dy}px) rotate(0deg) scale(${sx * 0.96}, ${sy * 0.96})`);
         resolve();
       }
     };
@@ -469,19 +495,17 @@ export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
  * @param {number} [options.duration_ms]
  * @param {number} [options.tilt_deg]
  * @param {string} [options.tag]
- * @param {number} [options.z]
+ * @param {number | string} [options.z]
  * @returns {void}
  */
 export function fly_card_out(source_el, to_rect, options = {}) {
-  const { duration_ms = 300, tilt_deg = -8, tag = "data-flight-out", z = 9998 } = options;
+  if (typeof document === "undefined" || motion.is_reduced) return;
+  const { duration_ms = 300, tilt_deg = -8, tag = "data-flight-out", z = "var(--z-index-max)" } = options;
   const from = rect_of(source_el);
   const clone = make_card_clone(source_el, tag, z);
   place(clone, from);
 
-  const dx = to_rect.left - from.left;
-  const dy = to_rect.top - from.top;
-  const sx = to_rect.width / Math.max(1, from.width);
-  const sy = to_rect.height / Math.max(1, from.height);
+  const { dx, dy, sx, sy } = compute_flight_delta(from, to_rect);
 
   const fade_delay = Math.round(duration_ms * 0.5);
   const fade_ms = Math.round(duration_ms * 0.4);
@@ -505,20 +529,17 @@ export function fly_card_out(source_el, to_rect, options = {}) {
  * @param {number} [options.duration]
  * @param {number} [options.delay]
  * @param {string} [options.tag]
- * @param {number} [options.z]
+ * @param {number | string} [options.z]
  * @param {(clone: HTMLElement) => void} [options.on_clone]
  * @param {() => void} [options.on_land]
  * @returns {Promise<void>}
  */
 function cover_flight(source_el, from_rect, to_rect, options = {}) {
-  const { duration = 380, delay = 0, tag = "data-begin-flight", z = 9996, on_clone, on_land } = options;
+  const { duration = 380, delay = 0, tag = "data-begin-flight", z = "var(--z-index-max)", on_clone, on_land } = options;
   return new Promise((resolve) => {
     const clone = make_card_clone(source_el, tag, z);
     clone.style.willChange = "left, top, width, height";
-    clone.style.left = `${from_rect.left}px`;
-    clone.style.top = `${from_rect.top}px`;
-    clone.style.width = `${from_rect.width}px`;
-    clone.style.height = `${from_rect.height}px`;
+    place(clone, from_rect);
     on_clone?.(clone);
 
     const start = Date.now() + delay;
@@ -536,9 +557,7 @@ function cover_flight(source_el, from_rect, to_rect, options = {}) {
         try {
           on_land?.();
         } finally {
-          clone.style.transition = "opacity 140ms var(--ease-out)";
-          clone.style.opacity = "0";
-          setTimeout(() => clone.remove(), 160);
+          dissolve_clone(clone, 140);
           resolve();
         }
       }
@@ -694,7 +713,7 @@ export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {})
         setTimeout(() => {
           cover_flight(clone_src, from_rect, dst_rects[type] || rect_of(dst), {
             tag: "data-begin-flight",
-            z: 9996,
+            z: "var(--z-index-max)",
             duration: 420,
             delay: i * 110,
             on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
@@ -716,7 +735,7 @@ export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {})
       new Promise((resolve) => {
         cover_flight(badge_src, badge_from, badge_to, {
           tag: "data-begin-flight",
-          z: 9995,
+          z: "var(--z-index-max)",
           duration: 420,
           delay: 110,
           on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
