@@ -35,6 +35,13 @@ Located in `.agents/skills/local-scripts/scripts/` and invoked via `npm run`:
 | `npx vitest run .../proxy.test.js` | `proxy.test.js` | Unit tests for `proxy.js` global-tool fan-out and CI fallbacks. DeepWiki bridge is archived (zero callers). |
 | `npm run audit` | (Parallel Suite) | Concurrently runs backlog, design, google-design, hygiene, layers, simulation, and svelte audits. |
 
+### 2.1 Windows PowerShell 5.1 & Edit Concurrency
+
+- **Command Chaining**: PowerShell 5.1 rejects `&&`; chain dependent commands with `; if ($?) { ... }`.
+- **Recursive Search**: `Select-String` has no `-Recurse` flag; pipe `Get-ChildItem -Recurse <dir> -Include *.js,*.svelte | Select-String -Pattern '...'`.
+- **Inline Node Scripts**: Avoid `node -e "..."` (PowerShell strips inner quotes and splats `@alias` tokens); pipe a single-quoted here-string instead: `@' ... '@ | node -`.
+- **Same-File Edits**: Never issue multiple concurrent `edit_file` calls to the same file on Windows (triggers user-mapped section lock errors); serialize same-file edits or combine adjacent changes.
+
 ---
 
 ## 3.0 ANTIGRAVITY RUNTIME LIFECYCLE HOOKS

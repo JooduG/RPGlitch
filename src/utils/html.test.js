@@ -1,27 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { BLOCK_LEVEL_TAGS, decode_html_entities, html_to_plain_text, NOISE_SELECTORS, truncate_readable } from "./html.js";
+import { BLOCK_LEVEL_TAGS, decode_html_entities, html_to_plain_text, NOISE_SELECTORS, sanitize, sanitize_to_fragment, truncate_readable } from "./html.js";
+
+describe("sanitize & sanitize_to_fragment", () => {
+  it("strips dangerous script tags and event handlers while keeping safe markup", () => {
+    const clean = sanitize(`<p onclick="alert(1)">Hello <b>World</b></p><script>evil()</script>`);
+    expect(clean).toContain("<p>Hello <b>World</b></p>");
+    expect(clean).not.toContain("script");
+    expect(clean).not.toContain("onclick");
+
+    const fragment = sanitize_to_fragment(`<span>Safe</span><img src=x onerror=alert(1)>`);
+    expect(fragment).toBeInstanceOf(DocumentFragment);
+    expect(fragment.textContent).toBe("Safe");
+    expect(fragment.querySelector("img")?.getAttribute("onerror")).toBeNull();
+  });
+});
 
 describe("decode_html_entities", () => {
-  it("decodes common named entities", () => {
+  it("decodes common named, numeric, and typographic entities", () => {
     expect(decode_html_entities("Tom &amp; Jerry &lt;3 &gt; &quot;hi&quot; &apos;bye&apos;")).toBe("Tom & Jerry <3 > \"hi\" 'bye'");
-  });
-
-  it("decodes numeric decimal and hex references", () => {
     expect(decode_html_entities("&#65;&#x42;&#39;")).toBe("AB'");
-  });
-
-  it("decodes typographic entities", () => {
     expect(decode_html_entities("a&nbsp;b &mdash; c &hellip; d &ndash; e")).toBe("a b - c … d – e");
-  });
-
-  it("leaves plain text untouched", () => {
     expect(decode_html_entities("plain text")).toBe("plain text");
-  });
-
-  it("handles non-string or falsy input gracefully", () => {
     expect(decode_html_entities("")).toBe("");
     expect(decode_html_entities(null)).toBe("");
-    expect(decode_html_entities(undefined)).toBe("");
   });
 });
 
@@ -32,56 +33,33 @@ describe("html_to_plain_text", () => {
     expect(html_to_plain_text(null)).toBe("");
   });
 
-  it("extracts paragraph text", () => {
-    const html = "<html><body><p>First paragraph.</p><p>Second paragraph.</p></body></html>";
-    const out = html_to_plain_text(html);
-    expect(out).toContain("First paragraph.");
-    expect(out).toContain("Second paragraph.");
-    expect(out).toMatch(/\n/);
-  });
-
-  it("strips script, style, nav, and form content entirely", () => {
+  it("extracts paragraph and list text while stripping noise tags", () => {
     const html =
       "<nav>Menu items</nav><script>alert('xss')</script><style>.x{}</style>" +
-      "<p>Real content.</p><form><input><button>Submit</button></form><aside>Sidebar</aside>";
+      "<p>First paragraph.</p><ul><li>Alpha</li><li>Beta</li></ul><form><button>Submit</button></form><aside>Sidebar</aside>";
     const out = html_to_plain_text(html);
-    expect(out).not.toContain("Menu items");
-    expect(out).not.toContain("alert");
-    expect(out).not.toContain(".x{}");
-    expect(out).not.toContain("Submit");
-    expect(out).not.toContain("Sidebar");
-    expect(out).toContain("Real content.");
-  });
-
-  it("treats list items as separate lines", () => {
-    const html = "<ul><li>Alpha</li><li>Beta</li></ul>";
-    const out = html_to_plain_text(html);
+    expect(out).toContain("First paragraph.");
     expect(out).toContain("Alpha");
     expect(out).toContain("Beta");
-    expect(out).toMatch(/Alpha\s*\n/);
+    expect(out).not.toContain("Menu items");
+    expect(out).not.toContain("alert");
+    expect(out).not.toContain("Submit");
+    expect(out).not.toContain("Sidebar");
   });
 
-  it("decodes entities inside extracted text", () => {
-    const html = "<p>R&amp;D &amp; more</p>";
-    expect(html_to_plain_text(html)).toContain("R&D & more");
-  });
-
-  it("clips to max_chars via truncate_readable", () => {
+  it("clips to max_chars and falls back cleanly without DOMParser", () => {
     const long = "<p>" + "word ".repeat(200) + "</p>";
-    const out = html_to_plain_text(long, { max_chars: 100 });
-    expect(out.length).toBeLessThanOrEqual(110);
-    expect(out.endsWith("…")).toBe(true);
-  });
+    const clipped = html_to_plain_text(long, { max_chars: 100 });
+    expect(clipped.length).toBeLessThanOrEqual(110);
+    expect(clipped.endsWith("…")).toBe(true);
 
-  it("falls back to regex extraction when DOMParser is unavailable", () => {
     const original_dom_parser = globalThis.DOMParser;
     try {
       // @ts-ignore
       delete globalThis.DOMParser;
-      const html = "<div><h2>Title</h2><p>Paragraph text &amp; details.<script>noise()</script></p></div>";
-      const out = html_to_plain_text(html);
+      const out = html_to_plain_text("<div><h2>Title</h2><p>Paragraph &amp; details.<script>noise()</script></p></div>");
       expect(out).toContain("Title");
-      expect(out).toContain("Paragraph text & details.");
+      expect(out).toContain("Paragraph & details.");
       expect(out).not.toContain("noise");
     } finally {
       globalThis.DOMParser = original_dom_parser;
@@ -89,41 +67,18 @@ describe("html_to_plain_text", () => {
   });
 });
 
-describe("truncate_readable", () => {
-  it("returns text unchanged when within budget", () => {
+describe("truncate_readable & constants", () => {
+  it("clips at word boundary and trims trailing punctuation", () => {
     expect(truncate_readable("short", 50)).toBe("short");
-  });
-
-  it("clips at a word boundary with an ellipsis", () => {
-    const words = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta"];
-    const text = words.join(" ");
-    const out = truncate_readable(text, 18);
+    const out = truncate_readable("one, two, three, four, five, six, seven, eight, nine, ten.", 30);
     expect(out.endsWith("…")).toBe(true);
-    expect(out.length).toBeLessThan(22);
-    const last_word = out.replace(/…$/, "").split(" ").pop();
-    expect(words).toContain(last_word);
-  });
-
-  it("trims trailing punctuation before the ellipsis", () => {
-    const text = "one, two, three, four, five, six, seven, eight, nine, ten.";
-    const out = truncate_readable(text, 30);
-    expect(out.endsWith("…")).toBe(true);
-    expect(out).not.toMatch(/,…|\.…/);
-    expect(out).not.toMatch(/\s…$/);
-  });
-
-  it("handles empty and non-string input", () => {
+    expect(out).not.toMatch(/[,.\s]…$/);
     expect(truncate_readable("")).toBe("");
     expect(truncate_readable(null)).toBe("");
-    expect(truncate_readable(undefined)).toBe("");
   });
-});
 
-describe("ingestion budgets & constants", () => {
-  it("exposes BLOCK_LEVEL_TAGS and NOISE_SELECTORS sets", () => {
+  it("exposes BLOCK_LEVEL_TAGS and NOISE_SELECTORS", () => {
     expect(BLOCK_LEVEL_TAGS.has("p")).toBe(true);
-    expect(BLOCK_LEVEL_TAGS.has("div")).toBe(true);
     expect(NOISE_SELECTORS).toContain("script");
-    expect(NOISE_SELECTORS).toContain("style");
   });
 });

@@ -85,15 +85,14 @@ This document serves as the sovereign technical blueprint for **RPGlitch**. It d
   - All prompt compilation envelopes (`<SYSTEM>`, `<TASK>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, Purpose Cores) MUST live exclusively in `src/engine/prompts.js`.
   - Never copy-paste or assemble prompt XML templates in `src/media/`, `src/storage/`, `src/data/`, or `src/utils/`.
   - **Zero Downward LLM Leaks**: Lower layers (`storage`, `media`, `utils`, `data`) must remain pure, synchronous engines/persistence. They must NEVER import `llm_service` or initiate LLM generation jobs. All prompt assembly and inference orchestration must flow downward from `src/engine/` (`turns.js`, `bridge.js`).
-- **Prompt Catalog Grammar Law**: Every prompt catalog atom across `src/intelligence/modules/` must be a frozen object `{ tag, body, attrs?, inline? }` compiled exclusively via `render_atom_xml` from `@utils`. Naked strings in prompt catalogs are prohibited.
 - **Relational Syntax Law**: Entity relations use value-referenced `@TARGET_ID` tokens inside semantic brackets (`[KEY: ... @TARGET_ID ... | flags]`) and are filtered across the Epistemic Wall via `format_tagged_fields` (`see_hidden`, `is_counterpart`).
 - **Premade vs. Database Sovereignty**: Static premade catalogs (`ALL_PREMADES`, `PREMADE_*`, `ORION_NOVA_GLITCH_STORY`, `get_premade_*`, `has_premade_entity`) may **only** be imported by `src/data/db.js` (boot seeding) and `src/definitions/` (enforced by `premades.test.js`). Runtime code (`ui`, `state`, `engine`, `simulation`) must read entities exclusively from IndexedDB/runtime state without premade fallbacks, and `seed_premades()` must never overwrite existing DB fields (e.g., `pov`) on subsequent boots.
 
 ### 4. State Ownership Matrix
 
-- **Active Entities & Chronology** (`user`, `ai`, `fractal`, `round`, `story_id`): `runtime.svelte.js`.
-- **Simulation Phase** (`idle`, `generating`, `locked`): `status.svelte.js`.
-- **UI Flow & Modals** (`view`, `profile_open`): `interface.svelte.js`.
+- **Active Entities, Dynamics & Chronology** (`active_user`, `active_ai`, `active_fractal`, `ai_dynamics`, `fractal_dynamics`, `round`, `story_id`, `feed`): `session.svelte.js` (`session`). Assign nullable dynamics via store setters (`session.ai_dynamics = { ... }`) rather than `Object.assign`.
+- **Execution Phase, Streaming & Watchdog** (`phase`, `role`, `loading`, `stream`, `recover`): `execution.svelte.js` (`execution`).
+- **UI Flow, Settings & Storyboard Staging** (`view`, `profile_open`, `settings`, `selected_*`): `interface.svelte.js` (`app`). Image preview/picker state lives in `src/ui/ImagePreview.svelte.js`.
 - **Audio Context**: `src/media/`.
 
 ---

@@ -54,7 +54,7 @@ description: >-
 2. **Text Sanitization (`VoiceEngine.speak`)**:
    - Positional signature: `speak(text, should_clear_queue = true, force = false)`.
    - Before queueing an utterance, sanitize prose via:
-     1. `strip_cognition_blocks(text)` from `@utils` (strips `<think>`, `<DYNAMICS>`, and `MODEL_ARTIFACT_PATTERNS`).
+     1. `strip_cognition_blocks(text)` from `@simulation` (strips `<think>`, `<DYNAMICS>`, and `MODEL_ARTIFACT_PATTERNS`).
      2. ``.replace(/[*_#`~]/g, "")`` (strips inline Markdown tokens so symbols are not read aloud).
      3. `.replace(/\[\[(.*?)\]\]/g, "$1")` (unwraps `[[...]]` tokens to inner text).
      4. `.replace(/<[^>]*>/g, "").trim()` (strips HTML tags).

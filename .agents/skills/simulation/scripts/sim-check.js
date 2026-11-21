@@ -25,8 +25,8 @@
  */
 
 import { compile_prompt } from "../../../../src/simulation/prompts.js";
-import { cosine_similarity } from "../../../../src/utils/vectors.js";
-import { count_text_tokens } from "../../../../src/utils/text.js";
+import { cosine_similarity } from "../../../../src/utils/math.js";
+import { count_tokens } from "../../../../src/utils/text.js";
 import { rank_memories, select_context_memories } from "../../../../src/simulation/retrieval.js";
 import {
   run_generation_step,
@@ -209,7 +209,7 @@ export function run_memory_stress() {
   if (ranked.length !== candidates.length) problems.push("sieve dropped candidates during ranking");
   if (!ranked[0] || ranked[0].item.is_origin !== true) problems.push("origin protection did not float an origin memory first");
   const query_text = candidates.map((c) => c.text).join(" ");
-  const tokens = count_text_tokens(query_text);
+  const tokens = count_tokens(query_text);
   if (!(tokens > 0)) problems.push("token counter returned non-positive for a 100-round transcript");
 
   const primary = candidates.filter((c) => c.id.startsWith("usr_")).map((c) => ({ ...c, text: c.text }));

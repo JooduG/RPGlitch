@@ -1,86 +1,54 @@
 /**
  * @file src/utils/palette.js
- * 🎨 SENSORY CORTEX - SIGNATURE PALETTE & TOKEN BRIDGES
- *
- * Core Responsibilities:
- * 1. Palette Token Derivation:
- *    - Automatically derives `PALETTE` and `PALETTE_VARS` maps from generated `TOKENS`.
- *    - Re-exports `SIGNATURE_COLORS` to provide a single sensory facade.
- * 2. Deterministic Entity Color Resolution:
- *    - Computes consistent hash-anchored signature colors (`get_signature_color`, `get_deterministic_color`).
- *    - Resolves human-readable color labels (`get_signature_label`, `get_color_name`).
- * 3. Runtime Theme Token Self-Healing (`ensure_theme_tokens`):
- *    - Verifies and injects missing CSS custom properties directly onto `:root`.
- *
- * Purity: 100% pure utility functions & frozen lookups. Zero Svelte runes, safe browser DOM guards.
+ * Pure deterministic entity signature color and label resolution over generated design tokens.
  */
 
-import { PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS, TOKENS } from "./tokens.js";
-
-// ============================================================================
-// [SECTION 1: HASHING & COLOR RESOLUTION UTILITIES]
-// ============================================================================
+import { fnv1a_hash } from "./math.js";
+import { PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "./tokens.js";
 
 /**
- * Computes a deterministic 32-bit integer hash from a string seed.
- * @param {string} input_string
- * @returns {number}
- */
-function hash_string(input_string) {
-  let hash = 0;
-  for (let i = 0; i < input_string.length; i++) {
-    hash = input_string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return hash;
-}
-
-/**
- * Resolves a raw color or hex value to its CSS custom property string (`var(--color-...)`).
+ * Resolves a raw hex or `var(...)` string to its CSS custom property token.
  * @param {string | null | undefined} color
  * @returns {string | null}
  */
-export function resolve_token(color) {
+function resolve_token(color) {
   if (!color) return null;
   if (color.startsWith("var(")) return color;
   return PALETTE_CSS_VARIABLES[color] || null;
 }
 
 /**
- * Resolves a deterministic signature color from a string seed.
- * @param {string} [seed="default"]
- * @returns {string} CSS variable or hex string
- */
-export function get_deterministic_color(seed = "default") {
-  const hash = hash_string(seed || "default");
-  const keys = SIGNATURE_COLORS;
-  const key = keys[Math.abs(hash) % keys.length];
-  const hex = PALETTE[key];
-  return resolve_token(hex) || hex;
-}
-
-/**
- * Resolves the human-readable color name from a hex or CSS variable string.
+ * Resolves the human-readable palette label from a hex or CSS variable string.
  * @param {string | null | undefined} color_value
- * @returns {string} Color name (e.g., "Neon Cyan") or empty string
+ * @returns {string}
  */
-export function get_color_name(color_value) {
+function get_color_name(color_value) {
   if (!color_value) return "";
 
-  // 1. Direct search in PALETTE by hex value
   const match = Object.entries(PALETTE).find(([, value]) => value.toLowerCase() === color_value.toLowerCase());
   if (match) return match[0];
 
-  // 2. Resolve token first if it's a var() expression
   if (color_value.startsWith("var(")) {
-    const matched_hex_value = Object.entries(PALETTE_CSS_VARIABLES).find(([, value]) => value === color_value)?.[0];
-    if (matched_hex_value) return get_color_name(matched_hex_value);
+    const matched_hex = Object.entries(PALETTE_CSS_VARIABLES).find(([, value]) => value === color_value)?.[0];
+    if (matched_hex) return get_color_name(matched_hex);
   }
 
   return "";
 }
 
 /**
- * Returns the human-readable label for an entity's signature color without hex round-tripping.
+ * Builds a deterministic hash seed string from an entity's identity metadata.
+ * @param {any} entity
+ * @returns {string}
+ */
+function build_entity_seed(entity) {
+  if (typeof entity !== "object" || !entity) return String(entity || "default");
+  const joined = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
+  return joined || entity.id || "default";
+}
+
+/**
+ * Returns the human-readable palette label for an entity's signature color.
  * @param {{ signature_color?: string, name?: string, tags?: string[], id?: string } | string | null | undefined} entity
  * @returns {string}
  */
@@ -88,40 +56,31 @@ export function get_signature_label(entity) {
   if (!entity) return "Frozen";
   const color = typeof entity === "object" ? entity.signature_color : String(entity);
 
-  // 1. If already a valid palette label, return directly
   if (color && PALETTE[color]) return color;
 
-  // 2. If it's a hex or token, attempt resolution to a label
   if (color) {
     const name = get_color_name(color);
     if (name) return name;
   }
 
-  // 3. Fallback to deterministic label seeded by identity
-  const seed = typeof entity === "object" ? [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",") : String(entity);
-  const hash = hash_string(seed || (typeof entity === "object" ? entity?.id : "") || "default");
-  const keys = SIGNATURE_COLORS;
-  return keys[Math.abs(hash) % keys.length];
+  const hash = fnv1a_hash(build_entity_seed(entity));
+  return SIGNATURE_COLORS[hash % SIGNATURE_COLORS.length];
 }
 
 /**
  * Resolves the CSS color variable or hex string for an entity or raw color string.
- * @param {{ signature_color?: string, name?: string, tags?: string[], id?: string } | string | null | undefined} entity - Entity object or raw color name/hex.
- * @param {string} [fallback="var(--color-frozen)"] - Default fallback token.
+ * @param {{ signature_color?: string, name?: string, tags?: string[], id?: string } | string | null | undefined} entity
+ * @param {string} [fallback="var(--color-frozen)"]
  * @returns {string}
  */
 export function get_signature_color(entity, fallback = "var(--color-frozen)") {
   if (!entity) return fallback;
 
-  // 1. Extract color string from raw input or entity property
-  let color = null;
-  if (typeof entity === "string") {
-    color = entity;
-  } else if (typeof entity === "object" && entity.signature_color) {
-    color = entity.signature_color;
-  }
+  const color =
+    typeof entity === "string" ? entity
+    : typeof entity === "object" && entity.signature_color ? entity.signature_color
+    : null;
 
-  // 2. Resolve against palette and tokens
   if (color) {
     const token = resolve_token(color);
     if (token) return token;
@@ -133,42 +92,12 @@ export function get_signature_color(entity, fallback = "var(--color-frozen)") {
     return color;
   }
 
-  // 3. Strict guard for non-entities
   if (typeof entity === "object" && !entity.id && !entity.name) {
     return fallback;
   }
 
-  // 4. Deterministic resolution for valid entities
-  const seed = typeof entity === "object" ? [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",") : "";
-  return get_deterministic_color(seed || (typeof entity === "object" ? entity.id : "") || "default");
+  const hash = fnv1a_hash(build_entity_seed(entity));
+  const key = SIGNATURE_COLORS[hash % SIGNATURE_COLORS.length];
+  const hex = PALETTE[key];
+  return resolve_token(hex) || hex;
 }
-
-// ============================================================================
-// [SECTION 3: RUNTIME THEME TOKEN RECONCILIATION]
-// ============================================================================
-
-/**
- * Ensures all tokens in TOKENS exist as CSS custom properties on documentElement at runtime.
- */
-export function ensure_theme_tokens() {
-  if (typeof document === "undefined" || typeof getComputedStyle !== "function") return;
-  const root = document.documentElement;
-  if (!root) return;
-
-  for (const [name, value] of Object.entries(TOKENS)) {
-    if (typeof value !== "string" || value === "") continue;
-    const css_variable = `--${name}`;
-    if (getComputedStyle(root).getPropertyValue(css_variable).trim() === "") {
-      root.style.setProperty(css_variable, value);
-    }
-  }
-}
-
-/**
- * CHANGELOG:
- * - 2026-11-17: Phase 1 Rank 0 — moved from src/media/palette.js (pure file move;
- *   tokens import stays relative, now resolving to the generated src/utils/tokens.js).
- * - 2026-08-29: Applied /harmonize protocol: purged truncated variable names (input_string, color_value,
- *   matched_hex_value, css_variable), verified 100% anti-abbreviation compliance, and expanded unit test coverage.
- * - 2026-08-28: Implemented deterministic signature color resolution and CSS token hydration.
- */

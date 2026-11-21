@@ -1,29 +1,15 @@
 /**
- * src/utils/math.js
- * 🧮 MATHEMATICAL, CRYPTOGRAPHIC & HASHING ENGINE
- *
- * Core Responsibilities:
- * - Numeric clamping, percentage calculations, and bounds normalization.
- * - Vector math and the embedding codec live in ./vectors.js (single home).
- * - Secure cryptographically random UUID v4 generation and unbiased rejection-sampled seeds.
- * - High-speed 32-bit FNV-1a hashing for deterministic selection and seed-based pseudo-random picks.
- * - Image-beat trigger evaluation over dynamics deltas lives in `@simulation`
- *   (`dynamics.js#evaluate_image_trigger`); the media-facing surface is
- *   `src/media/policy.js`.
- * - 100% pure and stateless with zero external dependencies.
+ * @file src/utils/math.js
+ * Numeric clamping, L2-normalized vector cosine similarity, CSPRNG sampling,
+ * and deterministic 32-bit FNV-1a hashing.
  */
 
-// ============================================================================
-// [SECTION 1: NUMERIC CLAMPING & NORMALIZATION]
-// ============================================================================
-
 /**
- * Clamps a numeric value between a minimum and maximum boundary.
- * Defaults to [0, 100]. Non-numeric or NaN values normalize to 0.
- * @param {number | string | unknown} value - Target value.
- * @param {number} [min=0] - Lower bound.
- * @param {number} [max=100] - Upper bound.
- * @returns {number} Clamped numeric value.
+ * Clamps a numeric value between `min` and `max`. Non-numeric or NaN values normalize to 0.
+ * @param {number | string | unknown} value
+ * @param {number} [min=0]
+ * @param {number} [max=100]
+ * @returns {number}
  */
 export function clamp(value, min = 0, max = 100) {
   const num = Number(value);
@@ -33,10 +19,9 @@ export function clamp(value, min = 0, max = 100) {
 
 /**
  * Normalizes a value to an integer percentage in [0, 100].
- * Nullish and non-finite inputs default to 50 for neutral dynamics meter displays.
- * Zero is a real level and maps to 0.
- * @param {number | unknown} value - Input score or percentage.
- * @returns {number} Integer between 0 and 100.
+ * Nullish and non-finite inputs default to 50 for neutral meter displays; 0 maps to 0.
+ * @param {number | unknown} value
+ * @returns {number}
  */
 export function get_percentage(value) {
   if (value === null || value === undefined) return 50;
@@ -45,14 +30,34 @@ export function get_percentage(value) {
   return Math.max(0, Math.min(100, Math.round(num)));
 }
 
-// ============================================================================
-// [SECTION 2: CRYPTOGRAPHIC GENERATION & SAMPLING]
-// ============================================================================
+/**
+ * Computes cosine similarity between two vectors with L2 normalization.
+ * @param {number[] | Float32Array | null | undefined} vec_a
+ * @param {number[] | Float32Array | null | undefined} vec_b
+ * @returns {number} Cosine similarity in [-1, 1], or 0 on mismatch/degenerate input.
+ */
+export function cosine_similarity(vec_a, vec_b) {
+  if (!vec_a || !vec_b || vec_a.length !== vec_b.length) return 0;
+
+  let dot = 0;
+  let norm_a = 0;
+  let norm_b = 0;
+
+  for (let i = 0; i < vec_a.length; i++) {
+    dot += vec_a[i] * vec_b[i];
+    norm_a += vec_a[i] * vec_a[i];
+    norm_b += vec_b[i] * vec_b[i];
+  }
+
+  const denominator = Math.sqrt(norm_a) * Math.sqrt(norm_b);
+  if (denominator === 0) return 0;
+
+  return dot / denominator;
+}
 
 /**
  * Generates a cryptographically secure UUID v4 string.
- * @returns {string} RFC 4122 compliant UUID v4.
- * @throws {Error} If crypto.randomUUID is unavailable in current environment.
+ * @returns {string}
  */
 export function generate_uuid() {
   if (!globalThis.crypto?.randomUUID) {
@@ -62,11 +67,10 @@ export function generate_uuid() {
 }
 
 /**
- * Generates a uniform cryptographically secure random integer in [0, limit).
- * Employs rejection sampling to eliminate modulo bias for non-power-of-two limits.
- * @param {number} [limit=1000000] - Upper exclusive limit.
- * @returns {number} Random integer in [0, limit).
- * @throws {Error} If crypto.getRandomValues is unavailable.
+ * Generates a uniform cryptographically secure random integer in [0, limit)
+ * using rejection sampling to eliminate modulo bias.
+ * @param {number} [limit=1000000]
+ * @returns {number}
  */
 export function generate_secure_seed(limit = 1000000) {
   if (!globalThis.crypto?.getRandomValues) {
@@ -76,7 +80,6 @@ export function generate_secure_seed(limit = 1000000) {
   const lim = Math.max(1, Math.floor(Number(limit) || 1));
   const buffer = new Uint32Array(1);
 
-  // For limits exceeding 2^32, standard modulo is unbiased relative to draw range
   if (lim >= 0x100000000) {
     globalThis.crypto.getRandomValues(buffer);
     return buffer[0] % lim;
@@ -93,20 +96,15 @@ export function generate_secure_seed(limit = 1000000) {
 }
 
 /**
- * Randomly selects an element from an array using cryptographically secure seed generation.
+ * Randomly selects an element from an array using CSPRNG sampling.
  * @template T
- * @param {readonly T[] | T[]} array - Source array.
- * @returns {T | null} Randomly selected element, or null if array is empty or non-array.
+ * @param {readonly T[] | T[]} array
+ * @returns {T | null}
  */
 export function pick_random(array) {
   if (!Array.isArray(array) || array.length === 0) return null;
-  const index = generate_secure_seed(array.length);
-  return array[index];
+  return array[generate_secure_seed(array.length)];
 }
-
-// ============================================================================
-// [SECTION 3: DETERMINISTIC HASHING & SEED PICKING]
-// ============================================================================
 
 /** @type {number} FNV-1a 32-bit offset basis */
 export const HASH_OFFSET_BASIS = 0x811c9dc5;
@@ -116,8 +114,8 @@ export const HASH_PRIME = 0x01000193;
 
 /**
  * Computes a deterministic 32-bit FNV-1a hash of a string.
- * @param {string | unknown} str - Target string to hash.
- * @returns {number} 32-bit unsigned integer hash.
+ * @param {string | unknown} str
+ * @returns {number}
  */
 export function fnv1a_hash(str) {
   if (typeof str !== "string") return 0;
@@ -133,27 +131,14 @@ export function fnv1a_hash(str) {
 
 /**
  * Deterministically selects an element from a list based on a seed string and offset index.
- * Uses 32-bit FNV-1a hashing to provide uniform, stable distribution without RNG drift.
  * @template T
- * @param {readonly T[] | T[]} list - Array of elements.
- * @param {string} [seed=""] - Deterministic seed key.
- * @param {number} [offset=0] - Offset index for subsequent picks with same seed.
- * @returns {T | string} Selected item, or "" on invalid list.
+ * @param {readonly T[] | T[]} list
+ * @param {string} [seed=""]
+ * @param {number} [offset=0]
+ * @returns {T | string}
  */
 export function stable_pick(list, seed = "", offset = 0) {
   if (!Array.isArray(list) || list.length === 0) return "";
-  const seed_key = `${seed}@${offset}`;
-  const hash = fnv1a_hash(seed_key);
+  const hash = fnv1a_hash(`${seed}@${offset}`);
   return list[hash % list.length];
 }
-
-/**
- * CHANGELOG:
- * - 2026-11-17: Phase 1 Rank 0 — vector section moved to ./vectors.js (codec verbatim,
- *   serialize fixed for non-Float32Array views, cosine unified to L2-normalized);
- *   get_percentage(0) now maps to 0 (nullish/non-finite still default to 50).
- * - 2026-08-29: Applied /harmonize protocol: added Universal File Architecture header block,
- *   structured section dividers, exported frozen hash constants (HASH_OFFSET_BASIS, HASH_PRIME),
- *   added vector dimension validation, aligned JSDoc annotations, and unified test suite.
- * - 2026-06-15: Added rejection sampling to eliminate modulo bias in generate_secure_seed.
- */

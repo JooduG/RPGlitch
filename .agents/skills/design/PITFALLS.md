@@ -20,7 +20,7 @@
 
 - **Trigger**: Triggering view/layout morphs or styling an element that carries `view-transition-name`.
 - **Wrong Behavior**: Calling `document.startViewTransition()` directly without concurrency guards, inventing unregistered `view-transition-name` values (e.g. `telemetry-card`), or combining Svelte `transition:` / `in:` / `out:` directives with `view-transition-name` on the same DOM node.
-- **Correct Behavior**: Wrap DOM updates in `guarded_transition()` from [ui-helpers.js](../../../src/utils/ui-helpers.js), restrict view-transition names to those registered in `DESIGN.md` (`card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, `unified-console`, or dynamic card IDs), and delegate kinetic choreography to [motion/SKILL.md](../motion/SKILL.md).
+- **Correct Behavior**: Wrap DOM updates in `guarded_transition()` from [dom.js](../../../src/utils/dom.js), restrict view-transition names to those registered in `DESIGN.md` (`card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, `unified-console`, or dynamic card IDs), and delegate kinetic choreography to [motion/SKILL.md](../motion/SKILL.md).
 
 ## Pitfall 4: High-Luminance `--signature-color` Solid Fills With White Text
 

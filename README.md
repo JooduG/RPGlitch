@@ -20,9 +20,9 @@ flowchart TD
     UI["src/ui/ & src/ui/primitives/ (Rank 4: Presentation & Primitives)"]
     Engine["src/engine/ (Rank 2: Kernel, Turns & Priority Gate)"]
     Data["src/data/ (Rank 2: Dexie DB, Ledger & Parser)"]
-    Media["src/media/ (Rank 1: Audio, Motion & Visuals)"]
-    Utils["src/utils/ (Rank 1: Codecs, RAG Math, XML & Bridges)"]
-    Defs["src/definitions/ (Schemas, Protocols & Style Registries)"]
+    Media["src/media/ (Rank 2: Audio, Motion & Visuals)"]
+    Utils["src/utils/ (Rank 0: Tokens, Math, Ingestion, DOM & Async)"]
+    Defs["src/definitions/ (Rank 0: Schemas, Protocols & Style Registries)"]
 
     Root --> UI
     Root --> Engine
@@ -58,7 +58,7 @@ flowchart TD
 
 - **UI & Reactivity**: **Svelte 5 Runes**. State synchronization across `src/App.svelte`, `src/engine/`, `src/data/`, `src/media/`, `src/utils/`, and `src/ui/` is governed exclusively by `$state()`, `$derived()`, and `$effect()`. Legacy store contracts (`writable`, `readable`) and Svelte 4 `$:` reactivity are disallowed.
 - **Persistence Engine**: **Dexie.js 4 (IndexedDB)**. Manages structured client-side storage (`"rpglitch"`, schema `version(2)`) for entities, stories, `simulation_log`, `kv_settings`, `sessions`, `audio_prefs`, and the event-sourced `mutation_ledger` in [src/data/db.js](./src/data/db.js). `localStorage` is forbidden.
-- **Client-Side Neural Embeddings & Quantization**: Embedded ONNX pipeline in [src/utils/embeddings.svelte.js](./src/utils/embeddings.svelte.js) running `Xenova/all-MiniLM-L6-v2` (384-d vectors) paired with `quantize_vector_q8()` and `dequantize_vector_q8()` in [src/utils/math.js](./src/utils/math.js) under `OnnxMutex` serialization ([src/utils/onnx.js](./src/utils/onnx.js)).
+- **Client-Side Neural Embeddings**: Embedded ONNX pipeline in [src/utils/embeddings.svelte.js](./src/utils/embeddings.svelte.js) running `Xenova/all-MiniLM-L6-v2` (384-d vectors) under an internal `max_concurrency: 1` queue ([src/utils/async.js](./src/utils/async.js)), paired with `cosine_similarity()` in [src/utils/math.js](./src/utils/math.js).
 - **Audio & Sensory Output**: Procedural Web Audio SFX and Web Speech API (`window.speechSynthesis`) voice synthesis in [src/media/audio.svelte.js](./src/media/audio.svelte.js), paired with Svelte 5 reduced-motion-aware kinetic physics in [src/media/motion.svelte.js](./src/media/motion.svelte.js).
 - **Single-File Bundle Ceiling**: Production builds via [vite.config.js](./vite.config.js) package into a single `dist/index.html` targeting Perchance's 4.00 MB bundle limit.
 
@@ -67,7 +67,7 @@ flowchart TD
 Root-level manifests configure build tooling, verification gates, and module aliases (`@`, `@ui`, `@primitives`, `@engine`, `@data`, `@definitions`, `@media`, `@utils`, `@config`), while direct application entry points live in [src/](./src/README.md):
 
 - **Application Boot & Root Shell**:
-  - [src/main.js](./src/main.js): Exposes `app_bootstrap` (`{ async init() }`) and test-only `reset_bootstrap_guard()`. Wires `@utils` `register_state_accessors` and `register_stream_handlers` before seeding premades, reconciling vectors, and mounting `<App />`.
+  - [src/main.js](./src/main.js): Exposes `app_bootstrap` (`{ async init() }`) and test-only `reset_bootstrap_guard()`. Hydrates theme tokens and environment hardening (`ensure_theme_tokens`, `install_environment_hardening`) before seeding premades, reconciling entity fields, and mounting `<App />`.
   - [src/App.svelte](./src/App.svelte): Root Svelte 5 shell mounting the atmospheric backdrop, `<ImagePreview />`, persistent 12-column stage (`<Storyboard />` or `<Storymode />` with persistent `<footer>` `<Console />`), `<Profile />`, `<Tooltip />`, and `[data-dev="grid"]`.
   - [src/config.js](./src/config.js): Exports frozen subsystem agreements `TIMING_MS`, `PATIENCE_POLICY`, `DYNAMICS`, `LENGTH_THRESHOLDS`, `IMAGE_RESOLUTIONS`, `EMBEDDING_SPECS`, `TEMPO_ROUNDS`, `CHARS_PER_TOKEN`, `IMAGE_POLICY`, `VOICE_CADENCE`, `CANONICAL_ROLES`, `NARRATOR_ROLES`, `SPEAKING_STYLES`, `TELEMETRY_CAPS`, and `FIELD_FLOORS`.
   - [src/main.pjs](./src/main.pjs) & [src/index.html](./src/index.html): Perchance generator metadata and plugin bindings (`ai-text-plugin`, `text-to-image-plugin`, `super-fetch-plugin`) plus `data-no-vault` `capturePlugins()` polling.
@@ -88,11 +88,11 @@ RPGlitch organizes its source code into clean, isolated subsystems:
 - [src/data/](./src/data/README.md): Unified Dexie persistence & `mutation_ledger` replay (`db.js`), 4-quadrant entity normalization & genesis (`entities.js`), bracket parser & epistemic filters (`parser.js`), TavernAI/PNG card conversion (`card-conversion.js`), and pure session/log persistence (`session.js`).
 - [src/definitions/](./src/definitions/README.md): Declarative registries (without an `index.js` barrel) for dynamics rules & protocols (`dynamics-registry.js`), 24 literary narrative styles (`narrative-styles.js`), premade character & fractal blueprints (`premades.js`), 4-layer entity taxonomy (`profile-taxonomy.js`), 95 speaking-style & 30 anti-AI detox rules (`speaking-styles.js`), and 26 visual styles (`visual-styles.js`).
 - [src/media/](./src/media/README.md): Procedural Web Audio SFX & Web Speech synthesis (`audio.svelte.js`), Svelte 5 kinetic motion & card-flight physics (`motion.svelte.js`), Perchance image dispatch & queue bookkeeping (`visual.svelte.js`), pure optics taxonomy (`optics.js`), and generated design tokens (`palette.js`, `tokens.js`).
-- [src/utils/](./src/utils/README.md): Stateless codecs, DOMPurify HTML sanitization & web fetch (`html.js`), deterministic prose detox & slop auditing (`detox.js`, `styles.js`), vector math & CSPRNG (`math.js`), macro expansion (`macros.js`), XML atom rendering (`xml.js`), ONNX MiniLM embeddings (`onnx.js`, `embeddings.svelte.js`), async queues/circuit breakers (`job-queue.js`, `resilience.js`), and decoupled cross-layer registries (`registries.js`).
+- [src/utils/](./src/utils/README.md): Rank 0 shared utilities — generated tokens (`tokens.js`), deterministic palette resolution (`palette.js`), numeric/cosine math (`math.js`), text/XML/style helpers (`text.js`), inline Markdown AST (`markdown.js`), dot-path accessors (`field-path.js`), `@ENTITY` macros (`macros.js`), HTML sanitization/extraction (`html.js`), web/image ingestion (`ingestion.js`), browser DOM/actions (`dom.js`), MiniLM embeddings (`embeddings.svelte.js`), and async queues/circuit breaking (`async.js`).
 
 ## Global Invariants
 
-1. **Downward Layer Hierarchy**: Imports flow downward across `src/ui` (Rank 4) → `src/engine` & `src/data` (Rank 2) → `src/media` & `src/utils` (Rank 1), audited by [audit.js](./.agents/skills/local-scripts/scripts/audit.js) (`layers.js`). Cross-layer inversion into `@media` (`set_visualizer_envision_impl`) and `@utils` (`state_bridge`, `stream_bridge`, `stories_bridge`) is registered at boot rather than imported upward.
+1. **Downward Layer Hierarchy**: Imports flow downward across `src/ui` (Rank 5) -> `src/engine` (Rank 4) -> `src/state` (Rank 3) -> `src/data` & `src/media` (Rank 2) -> `src/simulation` (Rank 1) -> `src/definitions` & `src/utils` (Rank 0), audited by [audit.js](./.agents/skills/local-scripts/scripts/audit.js) and [graphit.architecture.json](./graphit.architecture.json).
 2. **P1 User Agency**: Never speak, act, or think on behalf of the biological User; non-user entities remain third-person limited.
 3. **P4 Zero Backwards Compatibility (Pre-Beta Purity)**: Avoid backwards-compatible fallbacks, legacy aliases, or schema shims; update all downstream consumers directly.
 4. **Epistemic Wall & Anti-Telepathy**: Hidden brackets (`| hide`) belonging to non-owner entities are stripped across the Epistemic Wall (`format_clean_brackets`, `filter_epistemic_brackets`, and `see_hidden: "own"` / `"none"` in `PURPOSE_CORES`).

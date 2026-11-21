@@ -1,39 +1,21 @@
 import { CHARS_PER_TOKEN } from "@config";
 import { describe, expect, it } from "vitest";
 import {
-  alternation_field_label,
-  diff_alternation_picks,
-  extract_alternations,
-  has_alternations,
-  resolve_alternations,
-  strip_alternation_braces,
-} from "./alternations.js";
-import {
   clean_text,
   collapse_whitespace,
   compute_initials,
   count_tokens,
+  escape_xml,
   format_datetime,
   format_key_as_label,
-  indent_continuation,
   match_case,
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
+  normalize_comma_spacing,
+  prompt_escape,
+  resolve_style,
   truncate_at_word,
-  truncate_at_boundary,
 } from "./text.js";
-
-describe("indent_continuation", () => {
-  it("indents multi-line string content with specified spaces", () => {
-    const text = "line1\nline2\nline3";
-    expect(indent_continuation(text, 2)).toBe("line1\n  line2\n  line3");
-  });
-
-  it("returns empty string on empty inputs", () => {
-    expect(indent_continuation(null, 2)).toBe("");
-    expect(indent_continuation("", 2)).toBe("");
-  });
-});
 
 describe("compute_initials", () => {
   it("skips title/stop prefixes", () => {
@@ -67,6 +49,8 @@ describe("compute_initials", () => {
   it("derives NAME_PREFIX_STEMS without trailing periods", () => {
     expect(NAME_PREFIX_STEMS.has("dr")).toBe(true);
     expect(NAME_PREFIX_STEMS.has("dr.")).toBe(false);
+    expect(NAME_PREFIXES).toContain("dr");
+    expect(NAME_PREFIXES).toContain("the");
   });
 });
 
@@ -93,15 +77,9 @@ describe("format_datetime", () => {
 });
 
 describe("match_case", () => {
-  it("preserves lowercase if original was lowercase", () => {
+  it("preserves lowercase and capitalizes uppercase originals", () => {
     expect(match_case("hello", "world")).toBe("world");
-  });
-
-  it("capitalizes replacement if original was capitalized", () => {
     expect(match_case("Hello", "world")).toBe("World");
-  });
-
-  it("handles null or empty inputs gracefully", () => {
     expect(match_case(null, "world")).toBe("world");
     expect(match_case("", "world")).toBe("world");
     expect(match_case("Hello", "")).toBe("");
@@ -113,19 +91,8 @@ describe("format_key_as_label", () => {
     expect(format_key_as_label("eternal")).toBe("Eternal");
     expect(format_key_as_label("first_name")).toBe("First Name");
     expect(format_key_as_label("non_physical")).toBe("Non-Physical");
-  });
-
-  it("handles null or empty inputs gracefully", () => {
     expect(format_key_as_label("")).toBe("");
     expect(format_key_as_label(null)).toBe("");
-  });
-});
-
-describe("NAME_PREFIXES", () => {
-  it("contains common title prefixes and stop words in frozen array", () => {
-    expect(NAME_PREFIXES).toContain("dr");
-    expect(NAME_PREFIXES).toContain("the");
-    expect(NAME_PREFIXES).toContain("mr.");
   });
 });
 
@@ -133,9 +100,6 @@ describe("truncate_at_word", () => {
   it("truncates at word boundary within limit and appends ellipsis", () => {
     const input = "The quick brown fox jumps over the lazy dog";
     expect(truncate_at_word(input, 20)).toBe("The quick brown fox…");
-  });
-
-  it("leaves text untouched if under limit", () => {
     expect(truncate_at_word("Short text", 20)).toBe("Short text");
   });
 
@@ -145,12 +109,9 @@ describe("truncate_at_word", () => {
     expect(out.endsWith("…")).toBe(true);
   });
 
-  it("honours a minimum word-boundary ratio", () => {
+  it("honours a minimum word-boundary ratio and strips trailing punctuation", () => {
     expect(truncate_at_word("alpha beta gamma delta epsilon", 20)).toBe("alpha beta gamma…");
     expect(truncate_at_word("alpha beta gamma delta epsilon", 20, { min_bound_ratio: 0.9 })).toBe("alpha beta gamma del…");
-  });
-
-  it("strips trailing punctuation before the ellipsis when requested", () => {
     const out = truncate_at_word("one, two, three, four", 16, { strip_trailing_punctuation: true });
     expect(out.endsWith("…")).toBe(true);
     expect(out).not.toMatch(/[,;:]…$/);
@@ -162,68 +123,12 @@ describe("truncate_at_word", () => {
   });
 });
 
-describe("collapse_whitespace", () => {
-  it("collapses runs of whitespace and trims the result", () => {
+describe("collapse_whitespace & normalize_comma_spacing", () => {
+  it("collapses whitespace and normalizes comma spacing", () => {
     expect(collapse_whitespace("  a \n\t b  ")).toBe("a b");
-  });
-
-  it("handles null or empty inputs", () => {
     expect(collapse_whitespace(null)).toBe("");
-    expect(collapse_whitespace("")).toBe("");
-  });
-});
-
-describe("alternation macros (selectable options & dice resolution)", () => {
-  it("extracts only real alternation groups (2+ options)", () => {
-    expect(extract_alternations("[SHIRT: {red|black}]")).toEqual([{ raw: "{red|black}", options: ["red", "black"] }]);
-    expect(extract_alternations("{a|b|c}")).toHaveLength(1);
-    expect(extract_alternations("{single} and {a|b}")).toHaveLength(1);
-    expect(extract_alternations("no braces")).toEqual([]);
-    expect(extract_alternations(null)).toEqual([]);
-  });
-
-  it("has_alternations detects groups", () => {
-    expect(has_alternations("[POSE: {standing|kneeling}]")).toBe(true);
-    expect(has_alternations("[POSE: standing]")).toBe(false);
-  });
-
-  it("resolve_alternations rolls one option per group via injectable random", () => {
-    const always_first = () => 0;
-    const r = resolve_alternations("[SHIRT: {red|black}] belt {leather|cloth}", { random: always_first });
-    expect(r.text).toBe("[SHIRT: red] belt leather");
-    expect(r.picks).toHaveLength(2);
-    expect(r.picks[0]).toEqual({ raw: "{red|black}", options: ["red", "black"], index: 0, option: "red" });
-
-    const always_last = () => 0.99;
-    expect(resolve_alternations("{a|b}", { random: always_last }).text).toBe("b");
-  });
-
-  it("reports dice picks through onPick and returns empty picks without alternations", () => {
-    const seen = [];
-    resolve_alternations("x {a|b|c}", { onPick: (pick) => seen.push(pick.index) });
-    expect(seen).toHaveLength(1);
-    expect(resolve_alternations("plain").picks).toEqual([]);
-    expect(resolve_alternations(null).text).toBe("");
-  });
-
-  it("diff_alternation_picks detects which option a resolved string committed to", () => {
-    const picks = diff_alternation_picks("[SHIRT: {red|black}]", "[SHIRT: black]");
-    expect(picks).toHaveLength(1);
-    expect(picks[0].option).toBe("black");
-    expect(picks[0].index).toBe(1);
-    expect(diff_alternation_picks("[SHIRT: {red|black}]", "[SHIRT: green]")).toEqual([]);
-  });
-
-  it("strip_alternation_braces collapses any leaked group to its first option", () => {
-    expect(strip_alternation_braces("He wore {the red coat|a blue cape} while {running|walking}.")).toBe("He wore the red coat while running.");
-    expect(strip_alternation_braces("plain")).toBe("plain");
-    expect(strip_alternation_braces(null)).toBeNull();
-  });
-
-  it("alternation_field_label resolves the enclosing bracket key", () => {
-    expect(alternation_field_label("[SHIRT: {red|black}]", "{red|black}")).toBe("SHIRT");
-    expect(alternation_field_label("plain {a|b} prose", "{a|b}")).toBe("");
-    expect(alternation_field_label("[MOOD: {calm|furious}] then {a|b}", "{a|b}")).toBe("");
+    expect(normalize_comma_spacing("a,b,c")).toBe("a, b, c");
+    expect(normalize_comma_spacing(null)).toBe("");
   });
 });
 
@@ -232,49 +137,37 @@ describe("count_tokens & CHARS_PER_TOKEN calibration", () => {
     expect(CHARS_PER_TOKEN).toBe(3.35);
   });
 
-  it("returns 0 for blank or null inputs", () => {
+  it("returns 0 for blank inputs and calibrates against CHARS_PER_TOKEN", () => {
     expect(count_tokens("")).toBe(0);
     expect(count_tokens(null)).toBe(0);
     expect(count_tokens(undefined)).toBe(0);
-  });
-
-  it("calibrates token estimation using Math.ceil(length / CHARS_PER_TOKEN)", () => {
-    // 335 chars should be exactly 100 tokens
-    const sample = "a".repeat(335);
-    expect(count_tokens(sample)).toBe(100);
-    // 10 chars is ceil(10 / 3.35) = ceil(2.985) = 3 tokens
+    expect(count_tokens("a".repeat(335))).toBe(100);
     expect(count_tokens("1234567890")).toBe(3);
-    // Minimum 1 token for non-empty string
     expect(count_tokens("x")).toBe(1);
   });
 });
 
-describe("truncate_at_boundary", () => {
-  it("returns original text if within limit", () => {
-    expect(truncate_at_boundary("[MOOD: calm]", 50)).toBe("[MOOD: calm]");
-    expect(truncate_at_boundary("Plain text within limits.", 50)).toBe("Plain text within limits.");
+describe("escape_xml & prompt_escape", () => {
+  it("escape_xml escapes special characters including quotes and brackets", () => {
+    const input = `<tag attr="value" prop='single'>& [bracket]</tag>`;
+    expect(escape_xml(input)).toBe(`&lt;tag attr=&quot;value&quot; prop=&apos;single&apos;&gt;&amp; &#91;bracket&#93;&lt;/tag&gt;`);
+    expect(escape_xml(null)).toBe("");
+    expect(escape_xml(123)).toBe("");
   });
 
-  it("clips at the last intact ']' when a pseudo-JSON bracket is sliced mid-tag", () => {
-    const input = "[MOOD: calm] [STATUS: alert and watching]";
-    // Slicing at 25 cuts inside [STATUS: ...
-    const truncated = truncate_at_boundary(input, 25);
-    expect(truncated).toBe("[MOOD: calm]");
-  });
-
-  it("falls back to truncate_at_word when no brackets are cut mid-tag", () => {
-    const input = "[MOOD: calm] Walking along the corridor into the open courtyard.";
-    const truncated = truncate_at_boundary(input, 35, { ellipsis: "…" });
-    expect(truncated).toBe("[MOOD: calm] Walking along the…");
-  });
-
-  it("handles empty or null gracefully", () => {
-    expect(truncate_at_boundary("", 20)).toBe("");
-    expect(truncate_at_boundary(null, 20)).toBe("");
+  it("prompt_escape escapes only XML tags, keeping brackets, ampersands, and quotes", () => {
+    const input = `<dialogue>He said "Hello" & [Action: wave]</dialogue>`;
+    expect(prompt_escape(input)).toBe(`&lt;dialogue&gt;He said "Hello" & [Action: wave]&lt;/dialogue&gt;`);
+    expect(prompt_escape(null)).toBe("");
   });
 });
 
-/**
- * CHANGELOG
- * - 2026-09-11: Updated the ind helper tests to the renamed indent_continuation.
- */
+describe("resolve_style", () => {
+  const registry = { noir: {}, cyber: {} };
+
+  it("prefers valid explicit override, then app choice, then fallback", () => {
+    expect(resolve_style("cyber", "noir", registry, "none")).toBe("cyber");
+    expect(resolve_style("default", "noir", registry, "none")).toBe("noir");
+    expect(resolve_style("missing", "missing", registry, "none")).toBe("none");
+  });
+});

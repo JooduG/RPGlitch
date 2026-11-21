@@ -56,7 +56,7 @@ Unbreakable strings lack whitespace, so containers collapse or overflow unless `
 | `Twelve tags: design, frontend, q3, urgent, needs-review, …` | Multi-tag list; expands vertically unless capped with `+N` overflow badge |
 | `customer-feedback-from-enterprise-onboarding` | Single tag wider than its parent badge row |
 | `Untitled` / `""` / `"   "` | Empty or whitespace-only title; collapses row height without placeholder fallback |
-| `<script>alert(1)</script>` / `&` / `**bold**` | Plain fields must render literally via `{value}` or `escape_html()` (`src/utils/html.js`); narrative HTML sinks must pass through `MarkdownIt` (`html: false`) + `sanitize()` / `use:safe_html` (`src/utils/actions.js`) |
+| `<script>alert(1)</script>` / `&` / `**bold**` | Plain fields must render literally via `{value}` or `escape_xml()` (`src/utils/text.js`); narrative HTML sinks must pass through `MarkdownIt` (`html: false`) + `sanitize()` (`src/utils/html.js`) / `use:safe_html` (`src/utils/dom.js`) |
 | `Line one\nLine two` | Newline inside a single-line header or badge doubles row height or disappears |
 | A 2,000-character pasted bio or prompt description | Tests `TextField.svelte` `auto_resize`, scroll bounds, and `line-clamp-2` previews |
 

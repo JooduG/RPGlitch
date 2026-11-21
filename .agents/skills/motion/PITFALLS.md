@@ -14,7 +14,7 @@
 
 - **Trigger**: Animating view changes (`Storyboard` <-> `Storymode`), card swaps, or profile opens in UI/state controllers.
 - **Wrong Behavior**: Invoking `document.startViewTransition()` directly skips the `_transition_state.active` single-flight concurrency lock, unsupported-browser synchronous fallback, `flushSync()` coordination, and `.is-switching-view` / `.is-swapping-card` / `.is-profile-*` root scoping classes.
-- **Correct Behavior**: Always call `guarded_transition(callback, { className })` from `@utils` (`src/utils/ui-helpers.js`), flushing Svelte 5 DOM updates via `flushSync()` immediately before or inside `callback`.
+- **Correct Behavior**: Always call `guarded_transition(callback, { className })` from `@utils` (`src/utils/dom.js`), flushing Svelte 5 DOM updates via `flushSync()` immediately before or inside `callback`.
 
 ## Pitfall 3: Unguarded CSS Transitions Under Reduced Motion
 

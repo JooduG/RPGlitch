@@ -10,17 +10,17 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 
 - **User text & chat inputs** (`Console.svelte`, `Profile.svelte`)
 - **Imported character cards & JSON/PNG files** (`src/data/card-conversion.js`, `src/ui/primitives/SourceField.svelte`)
-- **External web fetches** (`validate_url` / `fetch_web` in `src/utils/html.js`)
-- **Streaming LLM responses** (`src/engine/transport.js`, `src/engine/turns.js`)
+- **External web fetches** (`validate_url` / `fetch_web` in `src/utils/ingestion.js`)
+- **Streaming LLM responses** (`src/engine/transport.js`, `src/engine/runner.js`)
 
 ---
 
 ## 2. Active Security Controls
 
-### 2.1 URL & Web Ingestion (`src/utils/html.js`)
+### 2.1 URL & Web Ingestion (`src/utils/ingestion.js`)
 
 - **`validate_url(url)`**: Enforces an explicit protocol allowlist, blocking dangerous schemes (`javascript:`, `data:`, `file:`) before `fetch_web` or `get_super_fetch_engine` executes.
-- **`validate_image(file)` / `IMAGE_SIGNATURE_VALIDATORS`**: Inspects raw binary magic-byte headers (`image/jpeg`, `image/png`, `image/gif`, `image/webp`) before ingesting uploaded image files.
+- **`validate_image(file)` / `IMAGE_SIGNATURE_VALIDATORS`**: Inspects raw binary magic-byte headers (`image/jpeg`, `image/png`, `image/gif`, `image/webp`, `image/avif`) before ingesting uploaded image files.
 
 ### 2.2 HTML Sanitization & Markdown Rendering
 
@@ -30,14 +30,14 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 
 ### 2.3 LLM Response & Domain Bounds
 
-- **Whitelisted Extraction (`src/engine/turns.js`)**: `execute_turn_1_director` parses JSON via `safe_parse_json` and extracts only whitelisted fields (`_thought_process`, `next_action`, `directors_note`, `dynamics_deltas`, `camera_note`).
-- **Resource & Numeric Caps**: `clamp` (`@utils`) and `DYNAMICS.DELTA.CLIP` (`src/config.js`) bound dynamics values (`[0, 100]` in `reduce_dynamics`, `[5, 95]` in `Kernel.submit_turn`), and `PAST_VECTOR_CAP = 20` caps session memory vectors.
+- **Whitelisted Extraction (`src/engine/runner.js`)**: Director Turn 1 parses JSON via `safe_parse_json` and extracts only whitelisted fields (`dynamics_deltas`, `next_action`, `directors_note`, `camera_note`).
+- **Resource & Numeric Caps**: `clamp` (`@utils`) and `DYNAMICS.DELTA.CLIP` (`src/config.js`) bound dynamics values (`[0, 100]` in `reduce_dynamics`, `[5, 95]` in `apply_dynamics_step`).
 
 ---
 
 ## 3. Environment & Repository Hygiene
 
-- **Sandbox Hardening (`src/utils/html.js`)**: `install_environment_hardening()` (wired in `src/main.js`) catches and silences sandbox-boundary rejections on initialization.
+- **Sandbox Hardening (`src/utils/dom.js`)**: `install_environment_hardening()` (wired in `src/main.js`) catches and silences sandbox-boundary rejections on initialization.
 - **Zero-Secret Client Bundle**: The single-file `dist/index.html` bundle has no runtime `.env` access and must contain zero secrets.
 - **Local-Only Persistence**: All story, entity, and ledger state is confined to browser IndexedDB (`Dexie.js`) with zero `localStorage` usage and zero outbound telemetry.
 - **Hygiene Gate**: `npm run audit:hygiene` (part of `npm run verify`) scans for accidental secret leaks (`SECURITY_SECRET_LEAK`) and `DOMPurify` configuration regressions.

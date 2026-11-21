@@ -1,22 +1,14 @@
 /**
- * src/utils/macros.js
- * 🪢 MACRO RESOLUTION & PROFILE-FIELD TEXT CODECS
- *
- * Entity-aware {{macro}} resolution for both LLM prompts and human-facing
- * display, plus the profile-field text normalizers shared by @ui, @media and
- * @intelligence:
- * - parse_macros / render_field_value - prompt-side resolution + escaping
- * - resolve_display_macro_segments / render_display_macros - UI display
- * - strip_profile_wrappers / unwrap_enhancement_text - enhancer output cleanup
- *
- * Pure and stateless: no upward imports - safe for ANY layer to import.
+ * @file src/utils/macros.js
+ * Entity-aware `@TOKEN` macro resolution for simulation prompts and display segments.
  */
 
-import { prompt_escape } from "./xml.js";
+const MACRO_TOKEN_REGEX = /(?<!\w)@([a-zA-Z0-9_-]+)\b/gi;
+
+const FALLBACK_LABELS = Object.freeze({ user: "the traveler", you: "the traveler", fractal: "the realm", char: "the companion" });
 
 /**
- * Creates a frozen RelationalContext tuple consolidating identity, perspective, and interlocutors.
- *
+ * Creates a frozen relational context tuple consolidating identity, perspective, and interlocutors.
  * @param {Object} [parameters={}]
  * @param {any} [parameters.me]
  * @param {any} [parameters.you]
@@ -25,7 +17,6 @@ import { prompt_escape } from "./xml.js";
  * @param {any} [parameters.owner]
  * @param {any} [parameters.target]
  * @param {any[]} [parameters.witnesses=[]]
- * @returns {Readonly<{ me: any, you: any, speaker: any, listener: any, owner: any, target: any, witnesses: ReadonlyArray<any>, is_relational_context: boolean }>}
  */
 export function create_relational_context({ me = null, you = null, speaker = null, listener = null, owner = null, target = null, witnesses = [] } = {}) {
   return Object.freeze({
@@ -41,35 +32,50 @@ export function create_relational_context({ me = null, you = null, speaker = nul
 }
 
 /**
- * Safely parses macros in dynamic text with entity references.
- * Supports @SPEAKER, @LISTENER, @OWNER, @ME, @YOU, @TARGET, @USER, @CHAR, @FRACTAL, and concrete @ENTITY_NAME tokens.
- *
- * @param {string} text
+ * True when two entity references point at the same entity (by identity or matching string ID).
+ * @param {any} a
+ * @param {any} b
+ * @returns {boolean}
+ */
+function entity_ids_match(a, b) {
+  if (!a || !b) return false;
+  if (a === b) return true;
+  return !!(a.id && b.id && String(a.id) === String(b.id));
+}
+
+/**
+ * Classifies `owner` into its macro perspective (`"user"`, `"ai"`, `"fractal"`, `"entity:<id>"`, or `null`).
+ * @param {any} owner
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities={}]
+ * @returns {string | null}
+ */
+function resolve_owner_perspective(owner, entities = {}) {
+  if (!owner) return null;
+  if (owner.type === "user" || entity_ids_match(owner, entities?.USER)) return "user";
+  if (entity_ids_match(owner, entities?.AI)) return "ai";
+  if (owner.type === "fractal" || entity_ids_match(owner, entities?.FRACTAL)) return "fractal";
+  if (owner.id) return `entity:${owner.id}`;
+  return null;
+}
+
+/**
+ * Builds shared perspective and interlocutor state for macro parsing and display segmentation.
  * @param {any} owner_or_context
  * @param {any} entities
  * @param {Object} [context={}]
- * @param {any} [context.speaker]
- * @param {any} [context.listener]
- * @returns {string}
  */
-export function parse_macros(text, owner_or_context, entities = {}, context = {}) {
-  if (!text || !entities) return text || "";
+function build_macro_state(owner_or_context, entities = {}, context = {}) {
   const rel_ctx =
     owner_or_context?.is_relational_context ? owner_or_context
     : context?.is_relational_context ? context
-    : create_relational_context({ owner: owner_or_context, speaker: context?.speaker, listener: context?.listener });
+    : create_relational_context({ owner: owner_or_context, speaker: context?.speaker, listener: context?.listener, target: context?.target });
 
   const owner = rel_ctx.owner || (!owner_or_context?.is_relational_context ? owner_or_context : null) || rel_ctx.me;
-
   const ai_entity = entities.AI || null;
   const user_entity = entities.USER || null;
   const fractal_entity = entities.FRACTAL || null;
+  const perspective = resolve_owner_perspective(owner, entities);
 
-  const ai_name = ai_entity?.name || "the companion";
-  const user_name = user_entity?.name || "the traveler";
-  const fractal_name = fractal_entity?.name || "the realm";
-
-  const perspective = _resolve_owner_perspective(owner, entities);
   const speaker_entity =
     rel_ctx.speaker ||
     rel_ctx.me ||
@@ -78,326 +84,171 @@ export function parse_macros(text, owner_or_context, entities = {}, context = {}
     : perspective === "ai" ? ai_entity
     : perspective === "fractal" ? fractal_entity
     : owner || ai_entity);
+
   const listener_entity = rel_ctx.listener || rel_ctx.you || context.listener || (perspective === "user" ? ai_entity : user_entity);
 
-  return text.replace(/(?<!\w)@([a-zA-Z0-9_-]+)\b/gi, (match, raw_token) => {
-    const token = raw_token.toUpperCase();
+  return { rel_ctx, owner, ai_entity, user_entity, fractal_entity, perspective, speaker_entity, listener_entity };
+}
 
-    // 1. Direct role targets
-    if (token === "USER") return user_name;
-    if (token === "CHAR") return ai_name;
-    if (token === "FRACTAL") return fractal_name;
+/**
+ * Formats an entity's canonical uppercase `@ID` handle for display segments.
+ * @param {any} entity
+ * @param {string} fallback_token
+ * @returns {string}
+ */
+function format_handle(entity, fallback_token) {
+  const raw = entity?.id || fallback_token || entity?.name || "";
+  const cleaned = String(raw)
+    .trim()
+    .replace(/^@+/, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9_-]/g, "_");
+  return `@${cleaned}`;
+}
 
-    // 2. Perspective & stance tokens
-    if (token === "TARGET") {
-      if (rel_ctx.target?.name) return rel_ctx.target.name;
-      return match;
+/**
+ * Resolves a concrete `@ENTITY` token against active scene entities and `entities.ALL`.
+ * @param {string} raw_token
+ * @param {any} state
+ * @param {any} entities
+ * @returns {any | null}
+ */
+function find_roster_entity(raw_token, state, entities) {
+  const token_lc = raw_token.toLowerCase();
+  const spaced_token = token_lc.replace(/_/g, " ");
+  const extra = Array.isArray(entities.ALL) ? entities.ALL : [];
+  const candidates = [state.ai_entity, state.user_entity, state.fractal_entity, state.owner, ...extra].filter(Boolean);
+
+  const exact = candidates.find((cand) => {
+    const cand_id = String(cand.id || "")
+      .trim()
+      .toLowerCase();
+    const cand_name = String(cand.name || "")
+      .trim()
+      .toLowerCase();
+    return cand_id === token_lc || cand_id === spaced_token || cand_name === token_lc || cand_name === spaced_token;
+  });
+  if (exact) return exact;
+
+  return (
+    candidates.find((cand) =>
+      String(cand.name || "")
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .includes(spaced_token),
+    ) || null
+  );
+}
+
+/**
+ * Resolves role and perspective tokens (`@USER`, `@CHAR`, `@FRACTAL`, `@TARGET`, `@SPEAKER`, `@ME`, `@OWNER`, `@LISTENER`, `@YOU`).
+ * @param {string} token - Uppercased token name.
+ * @param {ReturnType<typeof build_macro_state>} state
+ * @returns {{ matched: boolean, entity: any, fallback_text: string | null }}
+ */
+function resolve_role_token(token, state) {
+  const { rel_ctx, owner, ai_entity, user_entity, fractal_entity, perspective, speaker_entity, listener_entity } = state;
+
+  if (token === "USER") return { matched: true, entity: user_entity, fallback_text: FALLBACK_LABELS.user };
+  if (token === "CHAR") return { matched: true, entity: ai_entity, fallback_text: FALLBACK_LABELS.char };
+  if (token === "FRACTAL") return { matched: true, entity: fractal_entity, fallback_text: FALLBACK_LABELS.fractal };
+  if (token === "TARGET") return { matched: true, entity: rel_ctx.target || null, fallback_text: null };
+
+  if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
+    const chosen = token === "ME" && rel_ctx.me ? rel_ctx.me : speaker_entity;
+    if (chosen?.name || chosen?.id) return { matched: true, entity: chosen, fallback_text: null };
+    if (perspective === "ai") return { matched: true, entity: ai_entity, fallback_text: FALLBACK_LABELS.char };
+    if (perspective === "user") return { matched: true, entity: user_entity, fallback_text: FALLBACK_LABELS.user };
+    if (perspective === "fractal") return { matched: true, entity: fractal_entity, fallback_text: FALLBACK_LABELS.fractal };
+    if (owner?.name || owner?.id) return { matched: true, entity: owner, fallback_text: null };
+    if (owner) return { matched: true, entity: null, fallback_text: owner.type === "fractal" ? "this fractal" : "this character" };
+    return { matched: true, entity: null, fallback_text: null };
+  }
+
+  if (token === "LISTENER" || token === "YOU") {
+    const chosen = token === "YOU" && rel_ctx.you ? rel_ctx.you : listener_entity;
+    if (chosen?.name || chosen?.id) return { matched: true, entity: chosen, fallback_text: null };
+    if (perspective === "ai") return { matched: true, entity: user_entity, fallback_text: FALLBACK_LABELS.user };
+    if (perspective === "user") return { matched: true, entity: ai_entity, fallback_text: FALLBACK_LABELS.char };
+    if (perspective === "fractal") {
+      const ai_name = ai_entity?.name?.trim() || FALLBACK_LABELS.char;
+      const user_name = user_entity?.name?.trim() || FALLBACK_LABELS.user;
+      return { matched: true, entity: null, fallback_text: `${ai_name} and ${user_name}` };
     }
-
-    if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
-      if (token === "ME" && rel_ctx.me?.name) return rel_ctx.me.name;
-      if (speaker_entity?.name) return speaker_entity.name;
-      if (perspective === "ai") return ai_name;
-      if (perspective === "user") return user_name;
-      if (perspective === "fractal") return fractal_name;
-      if (owner?.name) return owner.name;
-      return match;
+    if (perspective?.startsWith("entity:")) {
+      if (user_entity?.name || user_entity?.id) return { matched: true, entity: user_entity, fallback_text: FALLBACK_LABELS.user };
+      if (ai_entity?.name || ai_entity?.id) return { matched: true, entity: ai_entity, fallback_text: FALLBACK_LABELS.char };
     }
+    return { matched: true, entity: user_entity, fallback_text: FALLBACK_LABELS.you };
+  }
 
-    if (token === "LISTENER" || token === "YOU") {
-      if (token === "YOU" && rel_ctx.you?.name) return rel_ctx.you.name;
-      if (listener_entity?.name) return listener_entity.name;
-      if (perspective === "ai") return user_name;
-      if (perspective === "user") return ai_name;
-      if (perspective === "fractal") return `${ai_name} and ${user_name}`;
-      return match;
-    }
+  return { matched: false, entity: null, fallback_text: null };
+}
 
-    return match;
+/**
+ * Resolves role/perspective `@TOKEN` macros in text for LLM prompt compilation,
+ * keeping unknown or concrete `@ENTITY` tokens verbatim.
+ * @param {string} text
+ * @param {any} owner_or_context
+ * @param {any} [entities={}]
+ * @param {Object} [context={}]
+ * @returns {string}
+ */
+export function parse_macros(text, owner_or_context, entities = {}, context = {}) {
+  if (!text || !entities) return text || "";
+  const state = build_macro_state(owner_or_context, entities, context);
+
+  return text.replace(MACRO_TOKEN_REGEX, (match, raw_token) => {
+    const { matched, entity, fallback_text } = resolve_role_token(raw_token.toUpperCase(), state);
+    if (!matched) return match;
+    if (entity?.name) return entity.name;
+    return fallback_text ?? match;
   });
 }
 
 /**
- * Deep-clones `entity`, resolving every string field's {{...}} macros from that
- * entity's OWN perspective (see {@link parse_macros}). Callers use this before a
- * perspective swap so stored state never inverts {{char}}/{{user}} references,
- * and for any other case needing an entity with its macros pre-resolved.
- * @param {any} entity
- * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
- * @returns {any}
- */
-export function expand_entity_macros(entity, entities) {
-  if (!entity) return entity;
-  const seen = new WeakSet();
-  const expand = (value) => {
-    if (typeof value === "string") return parse_macros(value, entity, entities);
-    if (Array.isArray(value)) return value.map(expand);
-    if (value && typeof value === "object") {
-      if (seen.has(value)) return value;
-      seen.add(value);
-      const out = {};
-      for (const key of Object.keys(value)) out[key] = expand(value[key]);
-      return out;
-    }
-    return value;
-  };
-  return expand(entity);
-}
-
-/**
- * Friendly label used when `@YOU` / `@USER` appears in a readonly display
- * but no user persona exists to resolve it to, viewed from the companion's
- * (or an unknown owner's) perspective.
- */
-const UNRESOLVED_YOU_LABEL = "the traveler";
-
-/**
- * Friendly unresolved label for every KNOWN macro token. Each maps to a natural
- * muted label used when the entity it references isn't present in the display
- * context.
- */
-export const UNRESOLVED_LABELS = { user: UNRESOLVED_YOU_LABEL, you: UNRESOLVED_YOU_LABEL, fractal: "the realm", char: "the companion" };
-
-/**
- * True when two entity references point at the same entity: either the exact
- * same object, or (for normalized copies - the common production shape, where
- * the user persona is persisted as a character-typed entity) matching ids.
- * @param {any} a
- * @param {any} b
- * @returns {boolean}
- */
-function _entity_ids_match(a, b) {
-  if (!a || !b) return false;
-  if (a === b) return true;
-  const a_id = a.id;
-  const b_id = b.id;
-  return !!(a_id && b_id && String(a_id) === String(b_id));
-}
-
-/**
- * True when `owner` is the user persona. Recognized three ways: the exact
- * `entities.USER` reference, an explicit `type === "user"` (mock/dev entities),
- * or a matching id with `entities.USER` - user personas are persisted as
- * character-typed entities in the database, so type alone cannot distinguish
- * them from AI characters.
- * @param {any} owner
- * @param {{ USER?: any }} [entities]
- * @returns {boolean}
- */
-function _owner_is_user_persona(owner, entities = {}) {
-  if (!owner) return false;
-  if (owner.type === "user") return true;
-  return _entity_ids_match(owner, entities?.USER);
-}
-
-/**
- * True when `owner` is the fractal: the exact `entities.FRACTAL` reference, an
- * explicit `type === "fractal"`, or a matching id with `entities.FRACTAL`.
- * @param {any} owner
- * @param {{ FRACTAL?: any }} [entities]
- * @returns {boolean}
- */
-function _owner_is_fractal(owner, entities = {}) {
-  if (!owner) return false;
-  if (owner.type === "fractal") return true;
-  return _entity_ids_match(owner, entities?.FRACTAL);
-}
-
-/**
- * Classifies `owner` into its macro perspective: "user" (the user persona),
- * "ai" (the primary companion - any character that isn't the user persona or
- * the fractal), or "fractal" (the scene/setting narrator). Resolved by id/type
- * as well as object identity, so normalized entity copies (distinct objects
- * with matching ids) classify identically to the entities themselves.
- * @param {any} owner
- * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
- * @returns {"user"|"ai"|"fractal"|null}
- */
-function _resolve_owner_perspective(owner, entities = {}) {
-  if (!owner) return null;
-  if (_owner_is_user_persona(owner, entities)) return "user";
-  if (_entity_ids_match(owner, entities?.AI)) return "ai";
-  if (_owner_is_fractal(owner, entities)) return "fractal";
-  if (owner.id) return `entity:${owner.id}`;
-  return null;
-}
-
-/**
- * Resolves `{{you}}` from the viewing owner's perspective - "you" is always the
- * OTHER party (mirrors {@link parse_macros}): the user persona when viewing an
- * AI character's profile, the AI character when viewing the user persona's, and
- * both parties when viewing the fractal's.
- * @param {any} owner - The entity whose profile/description is being displayed.
- * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
- * @returns {{ label: string, entity: any|null }}
- */
-function _resolve_you_target(owner, entities = {}) {
-  const ai_name = entities.AI?.name?.trim() || "";
-  const user_name = entities.USER?.name?.trim() || "";
-  const perspective = _resolve_owner_perspective(owner, entities);
-  if (perspective === "user") {
-    if (ai_name) return { label: ai_name, entity: entities.AI };
-    return { label: UNRESOLVED_LABELS.char, entity: null };
-  }
-  if (perspective === "fractal") {
-    const parties = [ai_name ? ai_name : UNRESOLVED_LABELS.char, user_name ? user_name : UNRESOLVED_LABELS.user];
-    return { label: parties.join(" and "), entity: null };
-  }
-  if (perspective?.startsWith("entity:")) {
-    if (user_name) return { label: user_name, entity: entities.USER };
-    if (ai_name) return { label: ai_name, entity: entities.AI };
-  }
-  if (user_name) return { label: user_name, entity: entities.USER };
-  return { label: UNRESOLVED_LABELS.you, entity: null };
-}
-
-/**
- * Resolves macros for HUMAN-facing display (readonly profiles, story cards)
- * into structural segments the UI can render with entity signature colors.
- *
- * Unlike `parse_macros` - which keeps unresolved tokens verbatim because LLM
- * prompts need the macro placeholder - display rendering resolves known macros
- * to entity names ('{{me}}' → the viewed entity's name) and renders anything
- * unresolvable as a natural muted label (or a `⟨token⟩` placeholder for
- * unknown tokens), so the reader never sees raw `{{...}}` syntax. Edit-mode
- * fields keep the raw macros; this is only for readonly presentation.
- *
- * Each segment is `{ text, macro, entity }`:
- * - Plain text: `macro: null`, `entity: null`.
- * - Resolved macro: `macro` = lowercased token, `entity` = the referenced
- *   entity (so the UI can color it by signature color), `text` = its name.
- * - Known macro whose entity is absent: `entity: null`, `text` = a natural
- *   muted label from {@link UNRESOLVED_LABELS} - `{{user}}` → "the user
- *   persona", `{{fractal}}` → "the fractal", `{{char}}` → "the ai character",
- *   `{{you}}` → flips with the owner's perspective: "the user persona" from an
- *   AI character's profile, "the ai character" from the user persona's, and
- *   "the ai character and the user persona" from the fractal's; `{{me}}` with
- *   an unnamed owner → "this character" / "this fractal" (by type).
- * - Unknown token: `entity: null`, `text` = `⟨token⟩`.
+ * Resolves `@TOKEN` and concrete `@ENTITY` mentions into display segments
+ * (`{ text, macro, entity }`) for signature-colored UI rendering.
  * @param {string} text
- * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
- * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
- * @returns {Array<{ text: string, macro: string|null, entity: any|null }>}
+ * @param {any} owner
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any, ALL?: any[] }} [entities={}]
+ * @param {Object} [context={}]
+ * @returns {Array<{ text: string, macro: string | null, entity: any | null }>}
  */
 export function resolve_display_macro_segments(text, owner, entities = {}, context = {}) {
   if (!text) return [];
-  const me_name = owner?.name?.trim() || "";
-  const ai_entity = entities.AI || null;
-  const user_entity = entities.USER || null;
-  const fractal_entity = entities.FRACTAL || null;
-
-  const ai_name = ai_entity?.name?.trim() || "";
-  const user_name = user_entity?.name?.trim() || "";
-  const fractal_name = fractal_entity?.name?.trim() || "";
-  const placeholder = (token) => `@${token}`;
-  const format_handle = (ent, fallback_token) => {
-    const raw = ent?.id || fallback_token || ent?.name || "";
-    const cleaned = String(raw)
-      .trim()
-      .replace(/^@+/, "")
-      .toUpperCase()
-      .replace(/[^A-Z0-9_-]/g, "_");
-    return `@${cleaned}`;
-  };
-
-  const perspective = _resolve_owner_perspective(owner, entities);
-  const speaker_entity = context.speaker || (perspective === "user" ? user_entity : ai_entity || owner);
-  const listener_entity = context.listener || (perspective === "user" ? ai_entity : user_entity);
-
+  const state = build_macro_state(owner, entities, context);
   const segments = [];
   const source = String(text);
   let last = 0;
-  const re = /(?<!\w)@([a-zA-Z0-9_-]+)\b/gi;
-  let m;
-  while ((m = re.exec(source)) !== null) {
-    if (m.index > last) {
-      segments.push({ text: source.slice(last, m.index), macro: null, entity: null });
+
+  MACRO_TOKEN_REGEX.lastIndex = 0;
+  let match;
+  while ((match = MACRO_TOKEN_REGEX.exec(source)) !== null) {
+    if (match.index > last) {
+      segments.push({ text: source.slice(last, match.index), macro: null, entity: null });
     }
-    const raw_token = m[1];
-    const token = raw_token.toUpperCase();
-    let label = null;
+
+    const raw_token = match[1];
+    const role_result = resolve_role_token(raw_token.toUpperCase(), state);
+    const resolved_entity = role_result.matched ? role_result.entity : find_roster_entity(raw_token, state, entities);
+
+    let label;
     let entity = null;
-
-    if (token === "TARGET") {
-      if (context?.target?.name || context?.target?.id) {
-        entity = context.target;
-        label = format_handle(entity, raw_token);
-      }
-    } else if (token === "SPEAKER" || token === "ME" || token === "OWNER") {
-      if (speaker_entity?.name || speaker_entity?.id) {
-        entity = speaker_entity;
-        label = format_handle(entity, raw_token);
-      } else if (me_name || owner?.id) {
-        entity = owner;
-        label = format_handle(entity, raw_token);
-      } else if (owner) {
-        label = owner.type === "fractal" ? "this fractal" : "this character";
-      }
-    } else if (token === "CHAR") {
-      if (ai_name || ai_entity?.id) {
-        entity = ai_entity;
-        label = format_handle(entity, raw_token);
-      } else {
-        label = UNRESOLVED_LABELS.char;
-      }
-    } else if (token === "USER") {
-      if (user_name || user_entity?.id) {
-        entity = user_entity;
-        label = format_handle(entity, raw_token);
-      } else {
-        label = UNRESOLVED_LABELS.user;
-      }
-    } else if (token === "LISTENER" || token === "YOU") {
-      if (listener_entity?.name || listener_entity?.id) {
-        entity = listener_entity;
-        label = format_handle(entity, raw_token);
-      } else {
-        const you_target = _resolve_you_target(owner, entities);
-        entity = you_target.entity;
-        label = entity ? format_handle(entity, raw_token) : you_target.label;
-      }
-    } else if (token === "FRACTAL") {
-      if (fractal_name || fractal_entity?.id) {
-        entity = fractal_entity;
-        label = format_handle(entity, raw_token);
-      } else {
-        label = UNRESOLVED_LABELS.fractal;
-      }
+    if (resolved_entity?.name?.trim() || resolved_entity?.id) {
+      entity = resolved_entity;
+      label = format_handle(resolved_entity, raw_token);
+    } else if (role_result.matched && role_result.fallback_text) {
+      label = role_result.fallback_text;
     } else {
-      // Concrete entity check by name or id (active scene entities first, then full roster)
-      const token_lc = raw_token.toLowerCase();
-      const spaced_token = token_lc.replace(/_/g, " ");
-      const extra = Array.isArray(entities.ALL) ? entities.ALL : [];
-      const candidates = [ai_entity, user_entity, fractal_entity, owner, ...extra].filter(Boolean);
-
-      const exact_match = candidates.find((cand) => {
-        const cand_id = String(cand.id || "")
-          .trim()
-          .toLowerCase();
-        const cand_name = String(cand.name || "")
-          .trim()
-          .toLowerCase();
-        return cand_id === token_lc || cand_id === spaced_token || cand_name === token_lc || cand_name === spaced_token;
-      });
-      const resolved =
-        exact_match ||
-        candidates.find((cand) =>
-          String(cand.name || "")
-            .trim()
-            .toLowerCase()
-            .split(/\s+/)
-            .includes(spaced_token),
-        );
-      if (resolved) {
-        entity = resolved;
-        label = format_handle(resolved, raw_token);
-      }
+      label = `@${raw_token}`;
     }
 
-    if (label === null) label = placeholder(raw_token);
     segments.push({ text: label, macro: raw_token, entity });
-    last = m.index + m[0].length;
+    last = match.index + match[0].length;
   }
+
   if (last < source.length) {
     segments.push({ text: source.slice(last), macro: null, entity: null });
   }
@@ -405,150 +256,15 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
 }
 
 /**
- * Resolves macros for HUMAN-facing display to a plain string (names in place
- * of tokens, friendly labels / ⟨placeholders⟩ for anything unresolvable).
- * Plain-text convenience over {@link resolve_display_macro_segments} - use the
- * segment form when the UI needs per-entity signature colors.
+ * Resolves `@TOKEN` and concrete `@ENTITY` mentions into a plain display string.
  * @param {string} text
- * @param {any} owner - The entity whose fields are being displayed ('{{me}}' resolves to its name).
- * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities]
+ * @param {any} owner
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any, ALL?: any[] }} [entities={}]
  * @returns {string}
  */
 export function render_display_macros(text, owner, entities = {}) {
   if (!text) return "";
   return resolve_display_macro_segments(text, owner, entities)
-    .map((s) => s.text)
+    .map((segment) => segment.text)
     .join("");
 }
-
-/**
- * Strips structural XML tags and leading markdown-bold field-key headers that
- * LLMs occasionally echo from enhancement prompts into profile field values
- * (e.g. `<ETERNAL><NON_PHYSICAL>` or `**PRESENT.NON_PHYSICAL**`). Only the
- * known structural tag set is removed - ordinary prose is left untouched.
- * @param {string | null | undefined} text
- * @returns {string}
- */
-const PROFILE_WRAPPER_TAGS =
-  /<\/?(?:ENTITY_CONTEXT|INPUT_CONTENT|SYSTEM|TASK|INSTRUCTIONS|CORE_PROTOCOLS|PROTOCOLS|ENTITIES|HISTORY|CONTRACT|LAYER|ETERNAL|PRESENT|PHYSICAL|NON_PHYSICAL|PERSONALITY|STATE_OF_MIND|CURRENT_LOOK|APPEARANCE|AGENDA|PAST|FUTURE|MEMORY|DESCRIPTION|RELATIONSHIPS?)\b[^>]*>/gi;
-
-export function strip_profile_wrappers(text) {
-  if (!text) return "";
-  return String(text)
-    .replace(PROFILE_WRAPPER_TAGS, "")
-    .replace(/^\s*\*\*[^*]+\*\*\s*/, "")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
-
-/**
- * Collects non-empty string leaves from a parsed JSON value.
- * @param {any} value
- * @param {string[]} [into]
- * @returns {string[]}
- */
-function collect_json_strings(value, into = []) {
-  if (typeof value === "string") {
-    const t = value.trim();
-    if (t) into.push(t);
-  } else if (Array.isArray(value)) {
-    for (const item of value) collect_json_strings(item, into);
-  } else if (value && typeof value === "object") {
-    for (const k of Object.keys(value)) collect_json_strings(value[k], into);
-  }
-  return into;
-}
-
-/**
- * Descends a parsed JSON value along the dotted key path of a field id
- * (e.g. "present.non_physical" → value["present"]["non_physical"]).
- * @param {any} value
- * @param {string} field_id
- * @returns {any} The value at that path, or undefined.
- */
-function descend_json_path(value, field_id) {
-  const parts = String(field_id || "")
-    .split(".")
-    .filter(Boolean);
-  let cur = value;
-  for (const part of parts) {
-    if (cur && typeof cur === "object" && part in cur) cur = cur[part];
-    else return undefined;
-  }
-  return cur;
-}
-
-/**
- * Normalizes a single-field enhancement response into clean field content:
- * strips code fences, XML wrapper tags, and leading markdown-bold headers;
- * if the model wrapped the value in a JSON object (e.g.
- * `{"eternal":{"non_physical":"..."}}`), unwraps to the innermost string,
- * preferring the key path matching `field_id` and otherwise the longest leaf.
- * @param {string | null | undefined} text
- * @param {string} [field_id] - e.g. "present.non_physical" to prefer that path.
- * @returns {string}
- */
-export function unwrap_enhancement_text(text, field_id = "") {
-  if (!text) return "";
-  const cleaned = strip_profile_wrappers(
-    String(text)
-      .replace(/```json\b|```/gi, "")
-      .trim(),
-  );
-  if (!cleaned) return "";
-
-  const brace_at = cleaned.indexOf("{");
-  const bracket_at = cleaned.indexOf("[");
-  const has_object = brace_at !== -1 && (bracket_at === -1 || brace_at < bracket_at);
-  if (has_object) {
-    const last_brace = cleaned.lastIndexOf("}");
-    if (last_brace > brace_at) {
-      const block = cleaned.substring(brace_at, last_brace + 1);
-      try {
-        const parsed = JSON.parse(block);
-        if (parsed && typeof parsed === "object") {
-          const preferred = descend_json_path(parsed, field_id);
-          const candidates = collect_json_strings(preferred !== undefined ? preferred : parsed);
-          if (candidates.length) {
-            return candidates.sort((a, b) => b.length - a.length)[0];
-          }
-        }
-      } catch (_e) {
-        // not parseable JSON - fall through to cleaned prose
-      }
-    }
-  }
-  return cleaned;
-}
-
-/**
- * Safely evaluates, parses, and escapes an entity fragment value.
- * @param {any} text
- * @param {any} owner
- * @param {any} entities
- * @param {Object} [context={}]
- * @returns {string}
- */
-export function render_field_value(text, owner, entities, context = {}) {
-  if (!text) return "";
-  return prompt_escape(parse_macros(String(text).trim(), owner, entities, context));
-}
-
-/**
- * CHANGELOG
- * - 2026-10-14: Phase B - Atom 3.3 RelationalContext tuple wiring: render_field_value forwards context tuple to parse_macros.
- * - 2026-10-14: Atom 3.2 - Implemented create_relational_context tuple broker, purged {me}/{you} curly syntax in favor of canonical @ME/@YOU/@TARGET, replaced computing fallbacks with diegetic "the companion"/"the traveler"/"the realm".
- * - 2026-10-14: Atom 3.1 - Fixed secondary NPC identity inversion bug (Issue 18). Eliminated blanket owner.type === "character" catch-all in _resolve_owner_perspective, classifying NPCs as entity:<id> so @ME resolves to the NPC's own name instead of the companion.
- * - 2026-10-01: Relocated prompt directive MACRO_DIRECTIVES and resolve_macro_directive to src/intelligence/modules/protocols.js per Layer 3 prompt architecture, keeping macros.js a pure stateless string utility.
- * - 2026-09-18: Added CORE_PROTOCOLS, ENTITIES, and HISTORY to PROFILE_WRAPPER_TAGS per scrobbles.md blueprint.
- * - 2026-09-16: Added TASK to PROFILE_WRAPPER_TAGS to ensure prompt envelope tags are stripped from raw profile generations.
- * - 2026-09-13: Repatriated MACRO_DIRECTIVES and resolve_macro_directive to src/utils/macros.js as the single source of truth for all macro parsing and entity token specifications.
- * - 2026-09-11: Purification pass - removed the duplicate MACRO_DIRECTIVES export; modules/protocols.js is the single home, making the 2026-09-11 'moved' note accurate.
- * - 2026-09-11: Moved `MACRO_DIRECTIVES` to src/intelligence/modules/protocols.js where prompt protocols reside.
- * - 2026-09-10: Adopted `expand_entity_macros` from intelligence/prompts/story-prompt.js - the deep
- *   clone-and-resolve macro expander belongs beside `parse_macros`, its only dependency.
- * - 2026-09-10: Extracted from intelligence/prompts/shared.js - entity-aware
- *   macro resolution and profile-field text normalizers shared by @ui, @media,
- *   and @intelligence.
- */

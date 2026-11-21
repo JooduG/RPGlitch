@@ -1,7 +1,18 @@
-import { describe, it, expect } from "vitest";
-import { clamp, get_percentage, generate_uuid, generate_secure_seed, pick_random, fnv1a_hash, stable_pick, HASH_OFFSET_BASIS, HASH_PRIME } from "./math.js";
+import { describe, expect, it } from "vitest";
+import {
+  clamp,
+  cosine_similarity,
+  fnv1a_hash,
+  generate_secure_seed,
+  generate_uuid,
+  get_percentage,
+  HASH_OFFSET_BASIS,
+  HASH_PRIME,
+  pick_random,
+  stable_pick,
+} from "./math.js";
 
-describe("math and crypto utilities", () => {
+describe("math, vector similarity, and crypto utilities", () => {
   describe("clamp", () => {
     it("should clamp values between min and max", () => {
       expect(clamp(50, 0, 100)).toBe(50);
@@ -40,10 +51,37 @@ describe("math and crypto utilities", () => {
     });
   });
 
+  describe("cosine_similarity", () => {
+    it("computes exact similarity for normalized unit vectors", () => {
+      expect(cosine_similarity([1, 0, 0], [1, 0, 0])).toBe(1);
+      expect(cosine_similarity([1, 0, 0], [0, 1, 0])).toBe(0);
+      expect(cosine_similarity([1, 0, 0], [-1, 0, 0])).toBe(-1);
+    });
+
+    it("normalizes unnormalized vectors (L2-safe)", () => {
+      expect(cosine_similarity([3, 4], [3, 4])).toBeCloseTo(1, 10);
+      expect(cosine_similarity([2, 0], [0, 5])).toBeCloseTo(0, 10);
+      expect(cosine_similarity([1, 1], [2, 2])).toBeCloseTo(1, 10);
+      expect(cosine_similarity([1, 2], [2, 1])).toBeCloseTo(0.8, 10);
+    });
+
+    it("handles Float32Array inputs", () => {
+      const a = new Float32Array([0.6, 0.8]);
+      const b = new Float32Array([0.6, 0.8]);
+      expect(cosine_similarity(a, b)).toBeCloseTo(1, 4);
+    });
+
+    it("returns 0 on null, undefined, empty, or mismatched vectors", () => {
+      expect(cosine_similarity(null, [1, 2])).toBe(0);
+      expect(cosine_similarity([1, 2], null)).toBe(0);
+      expect(cosine_similarity([], [])).toBe(0);
+      expect(cosine_similarity([1, 2], [1, 2, 3])).toBe(0);
+    });
+  });
+
   describe("generate_uuid", () => {
     it("should generate a valid UUID v4", () => {
-      const uuid = generate_uuid();
-      expect(uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+      expect(generate_uuid()).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     });
   });
 
@@ -59,8 +97,8 @@ describe("math and crypto utilities", () => {
 
     it("should reject out-of-range draws (rejection sampling, no modulo bias)", () => {
       const limit = 10;
-      const max_valid = 0x100000000 - (0x100000000 % limit); // 4294967290
-      const draws = [max_valid, 3]; // first draw is exactly the reject threshold -> redrawn
+      const max_valid = 0x100000000 - (0x100000000 % limit);
+      const draws = [max_valid, 3];
       let i = 0;
       const real = globalThis.crypto.getRandomValues;
       globalThis.crypto.getRandomValues = (/** @type {Uint32Array} */ arr) => {
@@ -75,24 +113,18 @@ describe("math and crypto utilities", () => {
     });
 
     it("handles large limits >= 2^32", () => {
-      const big_limit = 0x200000000;
-      const seed = generate_secure_seed(big_limit);
-      expect(seed).toBeGreaterThanOrEqual(0);
+      expect(generate_secure_seed(0x200000000)).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe("pick_random", () => {
     it("should pick an element from the array", () => {
       const arr = ["a", "b", "c"];
-      const picked = pick_random(arr);
-      expect(arr).toContain(picked);
+      expect(arr).toContain(pick_random(arr));
     });
 
-    it("should return null for empty array", () => {
+    it("should return null for empty or non-array input", () => {
       expect(pick_random([])).toBeNull();
-    });
-
-    it("should return null for non-array", () => {
       // @ts-ignore
       expect(pick_random(null)).toBeNull();
       // @ts-ignore

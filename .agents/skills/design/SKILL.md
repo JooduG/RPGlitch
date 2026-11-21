@@ -85,7 +85,7 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 
 - **Jurisdiction**: Delegate all duration budgets, easing curves, scale physics, and entrance/exit choreography to [motion/SKILL.md](../motion/SKILL.md). Only apply design token bindings (e.g., `duration-fast ease-(--ease-out) active:scale-sink`).
 - **Canonical View-Transition Names**: Registered in `DESIGN.md`: `card-slot-ai`, `card-slot-user`, `card-slot-fractal`, `entity-morph-fractal`, and `unified-console` (bound dynamically in `EntityCard.svelte`, `App.svelte`, and `Console.svelte`).
-- **Guarded Transitions Only**: Trigger DOM view transitions exclusively via `guarded_transition(callback, options)` from [ui-helpers.js](../../../src/utils/ui-helpers.js) — never call raw `document.startViewTransition()` directly.
+- **Guarded Transitions Only**: Trigger DOM view transitions exclusively via `guarded_transition(callback, options)` from [dom.js](../../../src/utils/dom.js) — never call raw `document.startViewTransition()` directly.
 - **Directive Isolation**: Never combine `view-transition-name` with Svelte `transition:`, `in:`, or `out:` directives on the same DOM node.
 
 ## 7. Token Compilation, Audits & Visual Inspection
