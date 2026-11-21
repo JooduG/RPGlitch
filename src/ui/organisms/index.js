@@ -15,7 +15,6 @@ export {
 } from "./ImagePreview.svelte.js";
 export { default as MacroText } from "./MacroText.svelte";
 export { ProfileState } from "./Profile.svelte.js";
-export { default as ProfilePicture } from "./ProfilePicture.svelte";
 export { default as RelationalGraph } from "./RelationalGraph.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
 export { default as VisualWing } from "./VisualWing.svelte";

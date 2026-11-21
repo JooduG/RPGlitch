@@ -16,10 +16,10 @@
   import { motion } from "@media";
   import { safe_parse_pseudo_json } from "@simulation";
   import { app, execution, session } from "@state";
-  import { auto_resize, download_json_file, get_signature_color } from "@utils";
+  import { auto_resize, download_json_file, entity_avatar_props, get_signature_color } from "@utils";
   import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
   import { Dialog, Dropdown, Modal, TextField } from "@molecules";
-  import { AudioWing, BracketList, DevWing, MacroText, ProfilePicture, ProfileState, RelationalGraph, VisualWing } from "@organisms";
+  import { AudioWing, BracketList, DevWing, MacroText, ProfileState, RelationalGraph, VisualWing } from "@organisms";
   import { fade } from "svelte/transition";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -474,7 +474,7 @@
             {#if profile_state.busy_fields.has("generating-image")}
               <Shimmer color={signature_color || "var(--color-electric-cyan)"} class="rounded-[inherit]" />
             {/if}
-            <ProfilePicture entity={profile_state.char} contain={true} landscape={entity_type !== "character"} />
+            <Avatar {...entity_avatar_props(profile_state.char)} contain={true} landscape={entity_type !== "character"} />
           </Button>
           {#if entity_type === "fractal" && !app.viewport.mobile}
             {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}

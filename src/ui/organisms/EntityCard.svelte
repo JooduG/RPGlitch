@@ -24,11 +24,10 @@
   import { resolve_entity_style_tiles } from "@definitions";
   import { motion } from "@media";
   import { Avatar, Icon, tooltip } from "@atoms";
-  import { get_signature_color } from "@utils";
+  import { entity_avatar_props, get_signature_color } from "@utils";
   import { open_context_menu } from "./ContextMenu.svelte";
   import BracketList from "./BracketList.svelte";
   import MacroText from "./MacroText.svelte";
-  import ProfilePicture from "./ProfilePicture.svelte";
 
   const display_entities = $derived({
     AI: session.active_ai || app.selected_ai,
@@ -405,7 +404,7 @@
       `
     : ''}">
     {#if !is_empty}
-      <ProfilePicture {entity} />
+      <Avatar {...entity_avatar_props(entity)} />
     {:else if variant === "library" && role_label.toLowerCase().includes("import")}
       <Icon name="download" class="size-20 stroke-[1.5]" />
     {:else if variant === "library"}

@@ -230,9 +230,8 @@
   import { TextField } from "@molecules";
   import { open_context_menu } from "./ContextMenu.svelte";
   import EntityCard from "./EntityCard.svelte";
-  import ProfilePicture from "./ProfilePicture.svelte";
   import { resolve_speaking_style } from "@simulation";
-  import { get_percentage, safe_html, get_signature_color } from "@utils";
+  import { entity_avatar_props, get_percentage, safe_html, get_signature_color } from "@utils";
   import MacroText from "./MacroText.svelte";
 
   /**
@@ -1406,8 +1405,8 @@
             focus-visible:outline-none
           "
           aria-label="{is_fractal ? 'Fractal' : 'Character'} Menu">
-          <ProfilePicture
-            {entity}
+          <Avatar
+            {...entity_avatar_props(entity)}
             alt=""
             class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
           <div
@@ -1540,8 +1539,8 @@
             focus-visible:outline-none
           "
           aria-label="User Persona Menu">
-          <ProfilePicture
-            {entity}
+          <Avatar
+            {...entity_avatar_props(entity)}
             alt=""
             class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
           <div

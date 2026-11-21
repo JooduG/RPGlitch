@@ -6,9 +6,8 @@
   import { list_entities } from "@data";
   import { extract_entity_relationships } from "@simulation";
   import { app, session } from "@state";
-  import { get_signature_color, render_display_macros } from "@utils";
-  import { Icon, pin_tooltip_menu, tooltip } from "@atoms";
-  import ProfilePicture from "./ProfilePicture.svelte";
+  import { entity_avatar_props, get_signature_color, render_display_macros } from "@utils";
+  import { Avatar, Icon, pin_tooltip_menu, tooltip } from "@atoms";
 
   /**
    * @typedef {Object} Props
@@ -397,7 +396,7 @@
               center_hovered && incoming_edges.length && "scale-lift",
             ]}
             style="border-color: {center_color}; box-shadow: 0 0 20px color-mix(in srgb, {center_color} 25%, transparent);">
-            <ProfilePicture {entity} class="rounded-full" />
+            <Avatar {...entity_avatar_props(entity)} class="rounded-full" />
           </div>
           <span class="mt-tight max-w-22.5 truncate text-center font-mono text-xs font-bold drop-shadow-md" style="color: {center_color};">
             @{get_entity_slug(entity) || "ACTIVE"}
@@ -445,7 +444,7 @@
               <div
                 class="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full border-2 bg-glass-sunken shadow-standard transition-transform duration-fast group-hover:scale-lift"
                 style="border-color: {sat_color}; box-shadow: 0 0 12px color-mix(in srgb, {sat_color} 20%, transparent);">
-                <ProfilePicture entity={sat_entity || node.item} class="rounded-full" />
+                <Avatar {...entity_avatar_props(sat_entity || node.item)} class="rounded-full" />
               </div>
               <span class="mt-tight max-w-20 truncate text-center font-mono text-xs font-bold drop-shadow-md" style="color: {sat_color};">
                 {sat_handle}

@@ -5,6 +5,7 @@
  */
 
 import { CHARS_PER_TOKEN } from "@config";
+import { get_signature_color } from "./palette.js";
 
 /**
  * Common title prefixes and stop words for entity naming and initials calculation.
@@ -229,4 +230,60 @@ export function resolve_style(explicit_style, app_style, registry = {}, fallback
     return app_style;
   }
   return fallback;
+}
+
+/**
+ * Parses bracket display flags (e.g., `| hide`, `| show`) from a raw bracket value.
+ * @param {string | null | undefined} raw_val
+ * @returns {{ value: string, is_hidden: boolean }}
+ */
+export function parse_bracket_display_flags(raw_val) {
+  if (typeof raw_val !== "string") {
+    return { value: "", is_hidden: false };
+  }
+  const is_hidden = /(?:^|\s)\|(?:\s*)(?:hide|private)(?:\b|$)/i.test(raw_val);
+  const value = raw_val
+    .replace(/(?:^|\s)\|(?:\s*)(?:hide|private)(?:\b|$)/gi, "")
+    .replace(/(?:^|\s)\|(?:\s*)show(?:\b|$)/gi, "")
+    .trim();
+  return { value, is_hidden };
+}
+
+/**
+ * Transforms an entity record into standard Avatar atom props.
+ * @param {Record<string, any> | null | undefined} entity
+ * @returns {{ src: string, alt: string, initials: string, signature_color: string, flipped: boolean }}
+ */
+export function entity_avatar_props(entity) {
+  if (!entity || typeof entity !== "object") {
+    return { src: "", alt: "", initials: "?", signature_color: "var(--color-gunmetal)", flipped: false };
+  }
+
+  const name = entity.name || entity.id || "Entity";
+  const src = entity.profile_picture || entity.portrait || entity.avatar_url || "";
+  const initials = compute_initials(name);
+  const signature_color = get_signature_color(entity);
+  const flipped = Boolean(entity.modifiers?.flipped);
+
+  return { src, alt: name, initials, signature_color, flipped };
+}
+
+/**
+ * Converts a style registry map into standard Dropdown item options.
+ * @param {Record<string, any> | null | undefined} styles_map
+ * @param {string} [default_key="default"]
+ * @returns {Array<{ value: string, label: string, portrait: string, tag: string, tooltip: string }>}
+ */
+export function to_style_dropdown_items(styles_map, default_key = "default") {
+  if (!styles_map || typeof styles_map !== "object") {
+    return [];
+  }
+
+  return Object.values(styles_map).map((style) => ({
+    value: style.id || "",
+    label: style.name || style.id || "",
+    portrait: style.portrait || "",
+    tag: style.id === default_key ? "DEFAULT" : style.speaking_style || style.genre || "",
+    tooltip: style.description || style.name || "",
+  }));
 }

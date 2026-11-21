@@ -12,9 +12,12 @@ import {
   NAME_PREFIX_STEMS,
   NAME_PREFIXES,
   normalize_comma_spacing,
+  parse_bracket_display_flags,
   prompt_escape,
   resolve_style,
+  to_style_dropdown_items,
   truncate_at_word,
+  entity_avatar_props,
 } from "./text.js";
 
 describe("compute_initials", () => {
@@ -169,5 +172,51 @@ describe("resolve_style", () => {
     expect(resolve_style("cyber", "noir", registry, "none")).toBe("cyber");
     expect(resolve_style("default", "noir", registry, "none")).toBe("noir");
     expect(resolve_style("missing", "missing", registry, "none")).toBe("none");
+  });
+});
+
+describe("parse_bracket_display_flags", () => {
+  it("extracts hide flag and cleans raw value", () => {
+    expect(parse_bracket_display_flags("secret plan | hide")).toEqual({ value: "secret plan", is_hidden: true });
+    expect(parse_bracket_display_flags("public knowledge | show")).toEqual({ value: "public knowledge", is_hidden: false });
+    expect(parse_bracket_display_flags("public knowledge")).toEqual({ value: "public knowledge", is_hidden: false });
+    expect(parse_bracket_display_flags(null)).toEqual({ value: "", is_hidden: false });
+  });
+});
+
+describe("entity_avatar_props", () => {
+  it("formats entity for Avatar atom", () => {
+    const entity = {
+      id: "usr_alice",
+      name: "Alice Liddell",
+      profile_picture: "https://example.com/alice.png",
+      signature_color: "#ff0077",
+      modifiers: { flipped: true },
+    };
+    expect(entity_avatar_props(entity)).toEqual({
+      src: "https://example.com/alice.png",
+      alt: "Alice Liddell",
+      initials: "AL",
+      signature_color: "#ff0077",
+      flipped: true,
+    });
+  });
+
+  it("handles null entity gracefully", () => {
+    expect(entity_avatar_props(null)).toEqual({ src: "", alt: "", initials: "?", signature_color: "var(--color-gunmetal)", flipped: false });
+  });
+});
+
+describe("to_style_dropdown_items", () => {
+  it("transforms registry map to dropdown options", () => {
+    const map = {
+      default: { id: "default", name: "Default Prose", description: "Standard voice" },
+      noir: { id: "noir", name: "Noir Detective", description: "Gritty streets", speaking_style: "primal", portrait: "noir.png" },
+    };
+    const items = to_style_dropdown_items(map, "default");
+    expect(items).toEqual([
+      { value: "default", label: "Default Prose", portrait: "", tag: "DEFAULT", tooltip: "Standard voice" },
+      { value: "noir", label: "Noir Detective", portrait: "noir.png", tag: "primal", tooltip: "Gritty streets" },
+    ]);
   });
 });
