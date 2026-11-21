@@ -162,8 +162,8 @@
         returnPayload: true,
         _entity: profile_state.char,
       });
-      if (payload?.url) {
-        profile_state.char.profile_picture = payload.url;
+      if (payload?.image_url) {
+        profile_state.char.profile_picture = payload.image_url;
         if (payload.metadata?.seed !== undefined) profile_state.char.modifiers.last_generated_seed = payload.metadata.seed;
       }
     } catch (err) {
