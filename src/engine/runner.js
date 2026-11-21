@@ -51,7 +51,7 @@ import {
   step_dynamics,
   resolve_image_trigger,
 } from "@simulation";
-import { get_image_generation_queue, spawn_image_beat } from "@media";
+import { Audio, get_image_generation_queue, spawn_image_beat } from "@media";
 import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { get_transport } from "./transport.js";
 
@@ -851,6 +851,12 @@ export async function run_turn(user_input, _options = {}) {
     // Write back updated dynamics, macro round, and caretaker deltas
     await write_back_turn_state({ ai: ai_quadrant, fractal: fractal_quadrant, user: user_quadrant, round: turn_round, outcome, options: _options });
 
+    // Turn is committed and visible: chime once. Audio.play gates on the
+    // NOTIFICATIONS toggle + mute/volume internally. Placed before the image
+    // beat (which can take 30s+) so the sound lands with the text, and only
+    // on the success path (abort throws before reaching here).
+    Audio?.play?.("notification");
+
     // Entity-keyed pre-turn snapshot: evaluate_image_trigger compares each
     // entity's current dynamics against its own previous values.
     await maybe_spawn_turn_image({
@@ -963,6 +969,10 @@ export async function continue_turn(target_entry, _options = {}) {
           entry.meta.think = fused_think;
         }
       }
+
+      // Continuation fused and visible: chime once (same gates/placement
+      // rationale as execute_turn; abort throws before reaching here).
+      Audio?.play?.("notification");
 
       return outcome;
     } finally {

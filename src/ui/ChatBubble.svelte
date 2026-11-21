@@ -382,21 +382,9 @@
     }
   });
 
-  // Chime notification on typewriter completion
-  let has_played_notification = false;
-  $effect(() => {
-    if (was_streaming && is_typing_finished && !has_played_notification) {
-      has_played_notification = true;
-      if ((sender === "ai" || sender === "fractal") && has_display_text) {
-        Audio?.play?.("notification");
-      }
-    }
-  });
-
   // Force-finish if interrupted by a subsequent turn
   $effect(() => {
     if (app.streaming.active && !is_streaming_target && was_streaming && !is_typing_finished) {
-      has_played_notification = true;
       is_typing_finished = true;
     }
   });
