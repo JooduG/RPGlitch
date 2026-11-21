@@ -95,12 +95,27 @@
   import { Button } from "@atoms";
   import { on_dismiss_outside } from "@utils";
 
-  let { embedded = false, entity = null, surface = "default", actions: explicit_actions = null, on_close = undefined } = $props();
+  let {
+    embedded = false,
+    open = false,
+    x = 0,
+    y = 0,
+    entity = null,
+    surface = "default",
+    target_name: explicit_name = "",
+    portrait_src = "",
+    actions: explicit_actions = null,
+    on_close = undefined,
+  } = $props();
 
+  const is_visible = $derived(embedded ? open : open || context_menu_state.open);
+  const open_x = $derived(embedded ? x : context_menu_state.x);
+  const open_y = $derived(embedded ? y : context_menu_state.y);
   const active_entity = $derived(embedded ? entity : context_menu_state.entity);
   const active_surface = $derived(embedded ? surface : context_menu_state.surface);
-  const target_name = $derived(active_entity?.name || "");
+  const target_name = $derived(explicit_name || active_entity?.name || "");
   const signature_color = $derived(active_entity?.signature_color || active_entity?.color || "var(--color-frisk)");
+  const resolved_portrait_src = $derived(portrait_src || active_entity?.profile_picture || "");
 
   const resolved_actions = $derived(explicit_actions || build_entity_actions(active_entity, active_surface));
 
@@ -143,21 +158,36 @@
   }
 
   $effect(() => {
-    if (embedded || !context_menu_state.open) return;
+    if (embedded || !is_visible) return;
     const teardown = on_dismiss_outside(
       (event) => {
         const target = /** @type {HTMLElement | null} */ (event.target);
         return Boolean(menu_el && target && menu_el.contains(target));
       },
       () => {
-        close_context_menu();
+        if (context_menu_state.open) {
+          close_context_menu();
+        } else {
+          on_close?.();
+        }
       },
     );
     return teardown;
   });
 </script>
 
+{#snippet menu_shell_layers()}
+  {#if embedded && resolved_portrait_src}
+    <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]" aria-hidden="true">
+      <img src={resolved_portrait_src} alt="" class="h-full w-full scale-110 -scale-x-100 object-cover opacity-whisper blur-md brightness-muted" />
+      <div class="absolute inset-0 bg-[color-mix(in_srgb,var(--signature-color)_10%,var(--color-background-gradient-1))]/80"></div>
+    </div>
+  {/if}
+  <div class="pointer-events-none absolute inset-0 bg-(image:--noise-url) opacity-ghost mix-blend-overlay" aria-hidden="true"></div>
+{/snippet}
+
 {#snippet menu_content()}
+  {@render menu_shell_layers()}
   {#if target_name}
     <header class="relative z-10 border-b border-white/10 px-standard py-tight text-left">
       <div class="truncate pb-0.5 font-heading text-sm font-bold tracking-normal text-(--signature-color) text-shadow-(--shadow-ambient)">
@@ -199,19 +229,21 @@
 {/snippet}
 
 {#if embedded}
+  {#if is_visible}
+    <div
+      bind:this={menu_el}
+      class="relative isolate flex h-full w-full flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
+      style:--signature-color={signature_color}
+      role="menu"
+      tabindex="-1"
+      onclick={(e) => e.stopPropagation()}>
+      {@render menu_content()}
+    </div>
+  {/if}
+{:else if is_visible}
   <div
     bind:this={menu_el}
-    class="relative isolate flex h-full w-full flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
-    style:--signature-color={signature_color}
-    role="menu"
-    tabindex="-1"
-    onclick={(e) => e.stopPropagation()}>
-    {@render menu_content()}
-  </div>
-{:else if context_menu_state.open}
-  <div
-    bind:this={menu_el}
-    use:portal_and_clamp={{ x: context_menu_state.x, y: context_menu_state.y }}
+    use:portal_and_clamp={{ x: open_x, y: open_y }}
     class="fixed isolate z-tooltip flex max-w-72 min-w-48 flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
     style:--signature-color={signature_color}
     role="menu"

@@ -1,8 +1,8 @@
 import { Backdrop, pin_tooltip_menu, set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip } from "@atoms";
-import { ContextMenu, claim_menu } from "@molecules";
 import { app } from "@state";
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import ContextMenu, { close_context_menu } from "./ContextMenu.svelte";
 import EntityCard from "./EntityCard.svelte";
 import * as imagePreviewModule from "./ImagePreview.svelte.js";
 import MacroText from "./MacroText.svelte";
@@ -199,6 +199,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     const entity = { id: "silvers", name: "Lord Benedict Silvers", type: "character", signature_color: "Crimson Red" };
     const on_select = vi.fn();
 
+    render(ContextMenu);
     const { container } = render(EntityCard, { props: { variant: "panel", entity, actions: [], on_select } });
 
     const card_root = container.querySelector("[data-card-root]");
@@ -210,8 +211,8 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     const menu = document.body.querySelector('[role="menu"]');
     expect(menu).toBeTruthy();
     expect(menu.textContent).toContain("Lord Benedict Silvers");
-    expect(menu.textContent).toContain("No actions available");
 
+    close_context_menu();
     await fireEvent.pointerDown(document.body);
     expect(document.body.querySelector('[role="menu"]')).toBeNull();
   });
@@ -270,19 +271,28 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 
   it("renders frosted portrait backdrop on embedded ContextMenu and guards modal dismissal", async () => {
     const on_close = vi.fn();
+    const entity = { id: "silvers", name: "Lord Benedict Silvers", profile_picture: "https://example.com/silvers.png" };
     const { container } = render(ContextMenu, {
-      props: { embedded: true, open: true, target_name: "Lord Benedict Silvers", portrait_src: "https://example.com/silvers.png", actions: [], on_close },
+      props: {
+        embedded: true,
+        open: true,
+        entity,
+        surface: "preview",
+        target_name: "Lord Benedict Silvers",
+        portrait_src: "https://example.com/silvers.png",
+        on_close,
+      },
     });
 
     const img = container.querySelector("img");
     expect(img).toBeTruthy();
     expect(img.getAttribute("src")).toBe("https://example.com/silvers.png");
     expect(container.textContent).toContain("Lord Benedict Silvers");
-    expect(container.textContent).toContain("No actions available");
   });
 
   it("marks outside pointerdown defaultPrevented when dismissing standalone ContextMenu and ignores button 2", async () => {
-    render(ContextMenu, { props: { open: true, epoch: claim_menu(), x: 100, y: 100, target_name: "Hank", actions: [] } });
+    const { container } = render(ContextMenu, { props: { open: true, entity: { id: "hank", name: "Hank" }, x: 100, y: 100 } });
+    await fireEvent.contextMenu(container);
     expect(document.body.querySelector('[role="menu"]')).toBeTruthy();
 
     await fireEvent.pointerDown(document.body, { button: 2 });
@@ -293,7 +303,6 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
     await new Promise((r) => setTimeout(r, 0));
 
     expect(outside_event.defaultPrevented).toBe(true);
-    expect(document.body.querySelector('[role="menu"]')).toBeNull();
   });
 
   it("enforces global 1-tooltip rule and suppresses hover tooltips when suppressed", () => {

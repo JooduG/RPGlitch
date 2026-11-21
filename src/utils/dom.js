@@ -611,3 +611,57 @@ export function auto_resize(node, options = {}) {
     },
   };
 }
+
+/**
+ * Listens for outside dismiss gestures across capture-phase pointerdown,
+ * contextmenu, scroll, blur, and Escape keydown, invoking on_dismiss when outside.
+ *
+ * @param {(event: Event) => boolean} should_ignore
+ * @param {() => void} on_dismiss
+ * @returns {() => void} Cleanup teardown function
+ */
+export function on_dismiss_outside(should_ignore, on_dismiss) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const handle_pointer = (event) => {
+    if (typeof should_ignore === "function" && should_ignore(event)) {
+      return;
+    }
+    if (event.type === "pointerdown" && event.button === 2) {
+      return;
+    }
+    if (event.type === "pointerdown") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+    on_dismiss();
+  };
+
+  const handle_key = (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      on_dismiss();
+    }
+  };
+
+  const handle_blur = () => {
+    on_dismiss();
+  };
+
+  window.addEventListener("pointerdown", handle_pointer, true);
+  window.addEventListener("contextmenu", handle_pointer, true);
+  window.addEventListener("scroll", handle_pointer, true);
+  window.addEventListener("keydown", handle_key, true);
+  window.addEventListener("blur", handle_blur, true);
+
+  return () => {
+    window.removeEventListener("pointerdown", handle_pointer, true);
+    window.removeEventListener("contextmenu", handle_pointer, true);
+    window.removeEventListener("scroll", handle_pointer, true);
+    window.removeEventListener("keydown", handle_key, true);
+    window.removeEventListener("blur", handle_blur, true);
+  };
+}
