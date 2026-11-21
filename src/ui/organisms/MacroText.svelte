@@ -42,6 +42,8 @@
           style="color: {color_of(seg)};">{seg.text}</button>
       {:else}
         <span
+          role="button"
+          tabindex="-1"
           use:tooltip={{ preview: { entity: seg.entity }, text: seg.entity.name || seg.text }}
           oncontextmenu={(e) => open_handle_menu(e, seg.entity, seg.text)}
           class="inline font-mono text-xs font-semibold"

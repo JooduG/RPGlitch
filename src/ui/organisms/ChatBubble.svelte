@@ -222,13 +222,13 @@
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
   import { parse_tagged_fields as parse_bracket_entries, get_resolution } from "@simulation";
+  import { resolve_entity_style_tiles } from "@definitions";
   import { app, execution, session } from "@state";
   import { image_picker, open_image_preview, open_picker } from "./ImagePreview.svelte.js";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
-  import { Accordion, Button, Icon, Shimmer, Typewriter, tooltip } from "@atoms";
+  import { Accordion, Avatar, Button, Icon, Shimmer, Typewriter, tooltip } from "@atoms";
   import { TextField } from "@molecules";
   import { open_context_menu } from "./ContextMenu.svelte";
-  import StyleBadge from "./StyleBadge.svelte";
   import EntityCard from "./EntityCard.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
   import { resolve_speaking_style } from "@simulation";
@@ -855,6 +855,7 @@
     {/if}
     {#if session.active_fractal || app.selected_fractal}
       {@const f = session.active_fractal || app.selected_fractal}
+      {@const f_tiles = resolve_entity_style_tiles(f)}
       <div class="min-w-0" style="flex-grow: 2" data-msg-card="fractal">
         <div class="flex h-full w-full flex-col gap-tight md:gap-standard">
           <div class="min-h-0 flex-1">
@@ -866,9 +867,35 @@
               onclick={() => app.open_profile(f, "fractal")}
               onViewProfile={() => app.open_profile(f, "fractal")} />
           </div>
-          <div class="flex w-full shrink-0 justify-center gap-tight md:gap-standard" data-msg-style-badge>
-            <StyleBadge entity={f} layout="prologue" class="flex w-full justify-center gap-tight md:gap-standard" />
-          </div>
+          {#if f_tiles.narrative || f_tiles.visual}
+            {@const f_color = get_signature_color(f, "var(--color-gunmetal)")}
+            <div class="flex w-full shrink-0 justify-center gap-tight md:gap-standard" data-msg-style-badge>
+              <div class="pointer-events-none flex w-full justify-center gap-tight md:gap-standard">
+                {#each [f_tiles.narrative, f_tiles.visual].filter(Boolean) as tile (tile.name)}
+                  <div
+                    style="flex: 1 1 0%; aspect-ratio: 1 / 1; min-width: 0;"
+                    class="group/badge pointer-events-auto relative flex transform-gpu items-center justify-center overflow-hidden rounded-[clamp(0.5rem,9cqi,1rem)] border border-solid border-(--signature-color) bg-black/40 opacity-100 shadow-md transition duration-300 ease-in-out hover:scale-lift hover:brightness-glow">
+                    <Avatar
+                      src={tile.portrait}
+                      alt={tile.name}
+                      initials={tile.fallback}
+                      signature_color={f_color}
+                      fallback_class="text-[clamp(0.75rem,8cqi,1.1rem)]"
+                      class="rounded-[inherit]">
+                      {#snippet overlay()}
+                        <div
+                          class="pointer-events-none absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center justify-end overflow-hidden rounded-b-[inherit] bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent px-1 pt-standard pb-tight text-center opacity-0 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-100">
+                          <span
+                            class="[display:-webkit-box] w-full overflow-hidden text-center font-heading text-[clamp(0.45rem,4.5cqi,0.65rem)] leading-tight font-bold tracking-widest wrap-break-word text-(--signature-color,var(--color-slate-50)) uppercase [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [line-clamp:2] [text-shadow:0_2px_4px_var(--color-void-black)]"
+                            >{tile.name}</span>
+                        </div>
+                      {/snippet}
+                    </Avatar>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
         </div>
       </div>
     {/if}

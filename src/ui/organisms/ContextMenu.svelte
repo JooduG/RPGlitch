@@ -236,7 +236,8 @@
       style:--signature-color={signature_color}
       role="menu"
       tabindex="-1"
-      onclick={(e) => e.stopPropagation()}>
+      onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => e.key === "Escape" && on_close?.()}>
       {@render menu_content()}
     </div>
   {/if}
@@ -248,7 +249,8 @@
     style:--signature-color={signature_color}
     role="menu"
     tabindex="-1"
-    onclick={(e) => e.stopPropagation()}>
+    onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.key === "Escape" && (context_menu_state.open ? close_context_menu() : on_close?.())}>
     {@render menu_content()}
   </div>
 {/if}

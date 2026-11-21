@@ -1,29 +1,26 @@
 <script>
   /**
-   * @file src/ui/profile/Profile.svelte
-   * 🧪 ENTITY EDITOR - Primary orchestrator for viewing and editing entities.
-   * Flat DOM · Bolted Architecture
+   * @file src/ui/Profile.svelte
+   * Entity profile modal orchestrating viewing, editing, time-travel inspection, and auxiliary wings.
    */
   import { serialize_character_card, serialize_entity_for_export } from "@data";
-  import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
-  import { app, execution, session } from "@state";
-  import { get_signature_color } from "@utils";
-  import { Button, Dialog, Dropdown, Icon, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
-  import ProfilePicture from "./ProfilePicture.svelte";
-  import { safe_parse_pseudo_json } from "@simulation";
-  import { auto_resize, click_outside, download_json_file } from "@utils";
-  import { fade } from "svelte/transition";
-  import { NARRATIVE_STYLES, get_narrative_style } from "@definitions";
-  import { VISUAL_STYLES, get_visual_style } from "@definitions";
-  import AudioWing from "./AudioWing.svelte";
-  import BracketList from "./BracketList.svelte";
-  import DevWing from "./DevWing.svelte";
-  import MacroText from "./MacroText.svelte";
-  import { ProfileState } from "./Profile.svelte.js";
-  import RelationalGraph from "./RelationalGraph.svelte";
-  import StyleBadge from "./StyleBadge.svelte";
-  import VisualWing from "./VisualWing.svelte";
+  import {
+    NARRATIVE_STYLES,
+    PROFILE_FIELDS,
+    PROFILE_SECTIONS_BY_TYPE,
+    VISUAL_STYLES,
+    get_narrative_style,
+    get_visual_style,
+    resolve_entity_style_tiles,
+  } from "@definitions";
   import { motion } from "@media";
+  import { safe_parse_pseudo_json } from "@simulation";
+  import { app, execution, session } from "@state";
+  import { auto_resize, download_json_file, get_signature_color } from "@utils";
+  import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
+  import { Dialog, Dropdown, Modal, TextField } from "@molecules";
+  import { AudioWing, BracketList, DevWing, MacroText, ProfilePicture, ProfileState, RelationalGraph, VisualWing } from "@organisms";
+  import { fade } from "svelte/transition";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -339,36 +336,6 @@
     };
   });
 
-  /** @type {(event: MouseEvent) => void} */
-  function handle_click_outside(event) {
-    const target = event.target;
-    if (!(target instanceof Element)) return;
-
-    if (profile_state.show_delete_confirm) return;
-    if (target.closest("[data-wings-container] > *")) return;
-    if (
-      target.closest(".menu") ||
-      target.closest('[role="menu"]') ||
-      target.closest("[data-dropdown-menu]") ||
-      target.closest(".dropdown-portal-wrapper") ||
-      target.closest(".tooltip-portal") ||
-      target.closest('[data-testid="relational-hover-card"]') ||
-      target.closest("[data-modal-variant='lightbox']") ||
-      target.closest("[data-modal-backdrop='lightbox']") ||
-      target.closest("[data-modal-variant='bare']") ||
-      target.closest("[data-modal-backdrop='bare']")
-    )
-      return;
-    if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
-
-    event.preventDefault();
-    if (profile_state.is_editing) {
-      profile_state.save(entity_type);
-    } else {
-      profile_state.handle_close(entity_type);
-    }
-  }
-
   // --- ENTITY EXPORT (Edit Mode Footer) ---
   function export_entity_filename(extension = "json") {
     const name =
@@ -442,24 +409,13 @@
     confirm_label="Confirm"
     on_confirm={() => profile_state.delete(entity_type)} />
 
-  <Modal
-    variant="bare"
+  <Dialog
     bind:open={show_export_modal}
-    class="relative isolate w-[clamp(24rem,92vw,38rem)] rounded-standard bg-glass-elevated p-standard shadow-standard [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
-    on_close={() => {
-      show_export_modal = false;
-    }}>
-    <div class="flex flex-col gap-standard font-sans">
-      <div class="flex flex-col gap-standard text-left">
-        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">
-          Export {entity_type === "fractal" ? "Fractal" : "Character"}
-        </h5>
-        <p class="m-0 text-xs leading-relaxed text-slate-400">
-          V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data - memories, vectors, seeds, styling
-          - is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup.
-        </p>
-      </div>
-      <div class="flex gap-standard">
+    title={`Export ${entity_type === "fractal" ? "Fractal" : "Character"}`}
+    message="V2 Card is the standard character format for other apps (Tavern, Chub, Janitor). Keep in mind: some RPGlitch data - memories, vectors, seeds, styling - is lost when exporting as V2 Card. RPGlitch JSON is a full-fidelity backup."
+    layer="modal">
+    {#snippet footer()}
+      <div class="flex w-full gap-standard">
         <Button
           variant="secondary"
           class="flex-1 justify-center"
@@ -479,21 +435,21 @@
           RPGlitch JSON (.json)
         </Button>
       </div>
-    </div>
-  </Modal>
+    {/snippet}
+  </Dialog>
 
   <Modal
-    variant="profile"
+    animate={false}
+    dismissible={!profile_state.show_delete_confirm && !show_export_modal}
     on_close={() => {
       if (profile_state.is_editing) {
         profile_state.save(entity_type);
       } else {
         profile_state.handle_close(entity_type);
       }
-    }}
-    is_pass_through={true}>
+    }}>
     <div
-      class={`m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,transform,opacity] duration-300 ${
+      class={`pointer-events-none m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,transform,opacity] duration-300 ${
         app.viewport.mobile ?
           has_wings ? "h-auto grid-rows-[auto_auto] gap-y-standard pb-standard"
           : "h-dvh grid-rows-1"
@@ -502,14 +458,13 @@
       data-mobile={app.viewport.mobile}
       role="presentation">
       <div
-        class={main_card_class}
+        class={[main_card_class, "pointer-events-auto"]}
         bind:this={card_ref}
         style:background-color="color-mix(in srgb, var(--signature-color) 1%, var(--color-glass-sunken))"
         style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
         style:backdrop-filter="var(--blur-mist)"
         style:--signature-color={signature_color}
-        style:view-transition-name={target_morph_name}
-        use:click_outside={handle_click_outside}>
+        style:view-transition-name={target_morph_name}>
         <div class={avatar_container_class + " relative"}>
           <Button
             variant="bare"
@@ -526,6 +481,7 @@
             {@const is_default_visual = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
             <div class="absolute right-8 -bottom-16 z-30 flex flex-col items-end gap-tight">
               {#if profile_state.is_editing || !is_default_style}
+                {@const n_tile = resolve_entity_style_tiles(profile_state.char, { include_defaults: true }).narrative}
                 <Dropdown
                   bind:value={profile_state.char.narrative_style}
                   items={author_options}
@@ -539,12 +495,24 @@
                   class="block cursor-pointer p-0 outline-none data-disabled:cursor-default"
                   trigger_style="width: 8.5rem; height: 8.5rem;">
                   {#snippet trigger_content({ selected_item })}
-                    <StyleBadge entity={profile_state.char} layout="profile" which="narrative" class="h-full w-full" tooltip={selected_item?.tooltip} />
+                    <div
+                      use:tooltip={selected_item?.tooltip}
+                      class="group/badge pointer-events-auto relative flex h-full w-full transform-gpu items-center justify-center overflow-hidden rounded-xl border border-solid border-(--signature-color) bg-black/40 opacity-100 shadow-md transition duration-300 ease-in-out"
+                      style="--signature-color: {signature_color};">
+                      <Avatar
+                        src={n_tile?.portrait || ""}
+                        alt={n_tile?.name || "No Narrative Style"}
+                        initials={n_tile?.fallback || "?"}
+                        {signature_color}
+                        fallback_class="text-lg"
+                        class="rounded-[inherit]" />
+                    </div>
                   {/snippet}
                 </Dropdown>
               {/if}
 
               {#if profile_state.is_editing || !is_default_visual}
+                {@const v_tile = resolve_entity_style_tiles(profile_state.char, { include_defaults: true }).visual}
                 <Dropdown
                   bind:value={profile_state.char.visual_style}
                   items={visual_style_options}
@@ -559,7 +527,18 @@
                   trigger_style="width: 8.5rem; height: 8.5rem;"
                   onchange={() => profile_state.mark_mutated()}>
                   {#snippet trigger_content({ selected_item })}
-                    <StyleBadge entity={profile_state.char} layout="profile" which="visual" class="h-full w-full" tooltip={selected_item?.tooltip} />
+                    <div
+                      use:tooltip={selected_item?.tooltip}
+                      class="group/badge pointer-events-auto relative flex h-full w-full transform-gpu items-center justify-center overflow-hidden rounded-xl border border-solid border-(--signature-color) bg-black/40 opacity-100 shadow-md transition duration-300 ease-in-out"
+                      style="--signature-color: {signature_color};">
+                      <Avatar
+                        src={v_tile?.portrait || ""}
+                        alt={v_tile?.name || "No Visual Style"}
+                        initials={v_tile?.fallback || "?"}
+                        {signature_color}
+                        fallback_class="text-lg"
+                        class="rounded-[inherit]" />
+                    </div>
                   {/snippet}
                 </Dropdown>
               {/if}

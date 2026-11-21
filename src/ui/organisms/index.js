@@ -18,5 +18,4 @@ export { ProfileState } from "./Profile.svelte.js";
 export { default as ProfilePicture } from "./ProfilePicture.svelte";
 export { default as RelationalGraph } from "./RelationalGraph.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
-export { default as StyleBadge } from "./StyleBadge.svelte";
 export { default as VisualWing } from "./VisualWing.svelte";

@@ -21,9 +21,9 @@
    */
 
   import { app, session } from "@state";
+  import { resolve_entity_style_tiles } from "@definitions";
   import { motion } from "@media";
-  import { Icon } from "@atoms";
-  import StyleBadge from "./StyleBadge.svelte";
+  import { Avatar, Icon, tooltip } from "@atoms";
   import { get_signature_color } from "@utils";
   import { open_context_menu } from "./ContextMenu.svelte";
   import BracketList from "./BracketList.svelte";
@@ -586,9 +586,24 @@
   </div>
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
-    <div data-card-badge class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-20 flex flex-col gap-tight">
-      <StyleBadge {entity} class="flex flex-col gap-tight" />
-    </div>
+    {@const tiles = resolve_entity_style_tiles(entity)}
+    {#if tiles.narrative || tiles.visual}
+      <div data-card-badge class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-20 flex flex-col gap-tight">
+        {#each [tiles.narrative, tiles.visual].filter(Boolean) as tile (tile.name)}
+          <div
+            use:tooltip={{ text: tile.tooltip }}
+            class="group/badge pointer-events-auto relative flex h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)] transform-gpu items-center justify-center overflow-hidden rounded-[clamp(0.5rem,9cqi,1rem)] border border-solid border-(--signature-color) bg-black/40 opacity-100 shadow-md transition duration-300 ease-in-out">
+            <Avatar
+              src={tile.portrait}
+              alt={tile.name}
+              initials={tile.fallback}
+              {signature_color}
+              fallback_class="text-[clamp(0.75rem,8cqi,1.1rem)]"
+              class="rounded-[inherit]" />
+          </div>
+        {/each}
+      </div>
+    {/if}
   {/if}
 </div>
 
