@@ -6,7 +6,7 @@
    */
   import { serialize_character_card, serialize_rpglitch_entity } from "@data";
   import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
-  import { runtime, simulation_state } from "@state";
+  import { app, execution, session } from "@state";
   import { get_signature_color } from "@utils";
   import { Button, Dialog, Dropdown, Icon, Label, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import ProfilePicture from "./ProfilePicture.svelte";
@@ -23,7 +23,6 @@
   import RelationalGraph from "./RelationalGraph.svelte";
   import StyleBadge from "./StyleBadge.svelte";
   import VisualWing from "./VisualWing.svelte";
-  import { app } from "@state";
   import { motion } from "@media";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -64,7 +63,7 @@
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
     if (app.settings.dev_mode && profile_state.char?.id) {
-      const live_entity = [runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profile_state.char.id);
+      const live_entity = [session.active_user, session.active_fractal].find((e) => e && e.id === profile_state.char.id);
       if (live_entity?.dynamics && profile_state.char.dynamics) {
         Object.assign(profile_state.char.dynamics, live_entity.dynamics);
       }
@@ -118,15 +117,15 @@
   const signature_color = $derived(get_signature_color(profile_state.char, "var(--color-gunmetal)"));
 
   const known_entities = $derived(
-    [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
+    [session.active_ai, session.active_user, session.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
       Boolean,
     ),
   );
 
   const display_entities = $derived({
-    AI: runtime.active_ai || app.selected_ai,
-    USER: runtime.active_user || app.selected_user,
-    FRACTAL: runtime.active_fractal || app.selected_fractal,
+    AI: session.active_ai || app.selected_ai,
+    USER: session.active_user || app.selected_user,
+    FRACTAL: session.active_fractal || app.selected_fractal,
     ALL: known_entities,
   });
 
@@ -893,7 +892,7 @@
                     variant="secondary"
                     square={true}
                     actions={[tooltip]}
-                    disabled={simulation_state.busy || !profile_state.can_edit}
+                    disabled={execution.busy || !profile_state.can_edit}
                     aria-label={!profile_state.can_edit ? "Edit locked - entity is in an active story. Enable DevMode to override." : "Edit"}
                     onclick={() => {
                       if (!profile_state.can_edit) return;

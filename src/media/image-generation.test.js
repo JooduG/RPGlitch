@@ -83,20 +83,20 @@ describe("image-generation", () => {
     mark_generation_in_flight("in-flight", 0);
 
     const ctx = {
-      runtime: { story_id: "s1" },
-      session_driver: {
+      session: {
+        active_id: "s1",
         load_log: vi.fn().mockResolvedValue(entries),
-        delete_log_entry: vi.fn().mockResolvedValue(true),
-        update_log_attachment: vi.fn().mockResolvedValue(true),
+        delete_entry: vi.fn().mockResolvedValue(true),
+        update_attachment: vi.fn().mockResolvedValue(true),
+        remove: vi.fn(),
       },
-      simulation_log: { remove: vi.fn() },
     };
 
     expect(await count_pending_ghosts(ctx)).toBe(3);
     await sweep_stale_ghosts(ctx);
-    expect(ctx.session_driver.delete_log_entry).toHaveBeenCalledWith("empty-stale");
-    expect(ctx.session_driver.delete_log_entry).not.toHaveBeenCalledWith("in-flight");
-    expect(ctx.session_driver.update_log_attachment).toHaveBeenCalledWith(
+    expect(ctx.session.delete_entry).toHaveBeenCalledWith("empty-stale");
+    expect(ctx.session.delete_entry).not.toHaveBeenCalledWith("in-flight");
+    expect(ctx.session.update_attachment).toHaveBeenCalledWith(
       "text-stale",
       0,
       expect.objectContaining({ src: null, metadata: expect.objectContaining({ failed: true, image_ghost_swept: true }) }),
@@ -105,13 +105,17 @@ describe("image-generation", () => {
 
   it("marks narrative placeholder as failed without deleting text entry", async () => {
     const ctx = {
-      runtime: { story_id: "s1" },
-      simulation_log: { feed: [{ id: 42, story_id: "s1", text: "Keep this prose" }], remove: vi.fn() },
-      session_driver: { update_log_attachment: vi.fn(), delete_log_entry: vi.fn() },
+      session: {
+        active_id: "s1",
+        feed: [{ id: 42, story_id: "s1", text: "Keep this prose" }],
+        remove: vi.fn(),
+        update_attachment: vi.fn(),
+        delete_entry: vi.fn(),
+      },
     };
     await mark_placeholder_failed(42, { mode: "story_scene" }, ctx);
-    expect(ctx.session_driver.update_log_attachment).toHaveBeenCalledWith(42, 0, expect.objectContaining({ src: null }));
-    expect(ctx.session_driver.delete_log_entry).not.toHaveBeenCalled();
+    expect(ctx.session.update_attachment).toHaveBeenCalledWith(42, 0, expect.objectContaining({ src: null }));
+    expect(ctx.session.delete_entry).not.toHaveBeenCalled();
   });
 
   it("spawns and resolves an image beat via injected engine", async () => {
@@ -119,19 +123,20 @@ describe("image-generation", () => {
       visualize: vi.fn().mockResolvedValue({ image_url: "data:image/png;base64,OK", refined_prompt: "refined", metadata: { resolution: "512x768" } }),
     };
     const ctx = {
-      app: { log: vi.fn(), settings: {} },
-      runtime: { story_id: "s1", active_fractal: { name: "Nova" } },
-      session_driver: {
+      app: { settings: {} },
+      session: {
+        active_id: "s1",
+        active_fractal: { name: "Nova" },
         load_log: vi.fn().mockResolvedValue([]),
         log_message: vi.fn().mockResolvedValue({ id: "beat-1" }),
-        update_log_attachment: vi.fn().mockResolvedValue(true),
+        update_attachment: vi.fn().mockResolvedValue(true),
+        remove: vi.fn(),
       },
-      simulation_log: { remove: vi.fn() },
     };
 
     await spawn_image_beat("story_scene", { prompt: "A glowing console", engine: custom_engine }, ctx);
     await vi.waitFor(() => {
-      expect(ctx.session_driver.update_log_attachment).toHaveBeenCalledWith("beat-1", 0, expect.objectContaining({ src: "data:image/png;base64,OK" }));
+      expect(ctx.session.update_attachment).toHaveBeenCalledWith("beat-1", 0, expect.objectContaining({ src: "data:image/png;base64,OK" }));
     });
     expect(get_image_generation_queue()).toHaveLength(0);
     expect(is_generation_in_flight("beat-1", 0)).toBe(false);

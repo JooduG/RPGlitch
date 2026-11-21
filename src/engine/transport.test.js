@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { create_live_stream_fn, get_transport, reset_transport, generate_text, enhance_text, get_mock_message } from "./transport.js";
-import { streaming } from "@state";
+import { execution } from "@state";
 
 describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unified run_completion)", () => {
   beforeEach(() => {
@@ -273,7 +273,7 @@ describe("src/engine/transport.js - Engine Transport Unit Tests (Phase 5: unifie
       delete window.generate_text;
       delete window.generateText;
 
-      const end_spy = vi.spyOn(streaming, "end_stream");
+      const end_spy = vi.spyOn(execution, "end_stream");
       try {
         const controller = new AbortController();
         controller.abort();

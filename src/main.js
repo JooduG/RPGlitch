@@ -1,68 +1,31 @@
 /**
  * RPGlitch Main Entry Point (Vite)
- * Handles core library exposure, the composition root (state bridges), and the
- * app_bootstrap boot sequence (seed premades, runtime sync, auto-resume, mount).
+ * Handles core library exposure and the app_bootstrap boot sequence
+ * (seed premades, session sync, auto-resume, mount).
  */
 import "@media/design.css";
 import Dexie from "dexie";
 import DOMPurify from "dompurify";
-// Expose core libs to the global scope (Perchance integration).
-// Must happen BEFORE any other code runs
 Object.assign(window, { Dexie, DOMPurify });
 
-// Install runtime error hardening (ResizeObserver loop suppression + Perchance
-// sandbox-frame error silencing) before any app code creates observers.
 install_environment_hardening();
 ensure_theme_tokens();
 
-// 🚀 BOOTSTRAP
-// Composition root: direct singleton wiring (Rank 3 @state owns all reactive
-// stores; no bridge registries). Session hooks installed below run before
-// app_bootstrap.init().
 import App from "@/App.svelte";
 import { normalize_entity, save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
-import { runtime, session_driver, simulation_log, simulation_state } from "@state";
 import { Audio, sweep_stale_ghosts } from "@media";
-import { app } from "@state";
-import { embeddings_engine, install_environment_hardening, sanitize_to_fragment, ensure_theme_tokens } from "@utils";
+import { app, execution, install_freeze_watchdog, session } from "@state";
+import { embeddings_engine, ensure_theme_tokens, install_environment_hardening, sanitize_to_fragment } from "@utils";
 import { mount } from "svelte";
-
-// Direct wiring: the session driver (Rank 3, via @engine barrel) owns the
-// active pointer; runtime sync + feed refresh hook in here. Transport talks
-// to the streaming singleton directly, so no handler registration remains.
-session_driver.on_set_active = async (id) => {
-  await runtime.sync(id);
-  await simulation_log.refresh(id);
-};
-session_driver.on_clear_active = () => {
-  // The driver already nulled the single-owned pointer; just drop the feed.
-  simulation_log.clear();
-};
-
-/************************************************************************************
- * BOOT SEQUENCE (app_bootstrap)
- * ----------------------------------------------------------------------------------
- * The initial sequence of the application: seed premades, parallel service init,
- * auto-resume the active story, then mount the Svelte app. Formerly src/engine/boot.js.
- ************************************************************************************/
 
 let has_initialized = false;
 
-// Quiesce hook: when Dexie fires versionchange (another tab upgraded the schema)
-// IndexedDB is unavailable here, so stash a reload-safe checkpoint of the active
-// session pointer before the forced reload. runtime.sync() restores it on boot.
-// Guarded against environments where the persistence layer hasn't exposed the
-// hook (e.g. partial @data mocks in unit tests) - a boot hook registration must
-// never be able to take down module evaluation.
 if (typeof set_versionchange_quiesce === "function") {
   set_versionchange_quiesce(() => {
-    save_session_checkpoint({ story_id: session_driver?.active_id ?? null, round: runtime?.round ?? 0, phase: simulation_state?.phase ?? "idle" });
+    save_session_checkpoint({ story_id: session?.active_id ?? null, round: session?.round ?? 0, phase: execution?.phase ?? "idle" });
   });
 }
 
-/**
- * FOR TESTING ONLY: Reset the initialization guard.
- */
 export const reset_bootstrap_guard =
   import.meta.env.MODE === "test" ?
     () => {
@@ -70,47 +33,37 @@ export const reset_bootstrap_guard =
     }
   : () => {};
 
-/**
- * app_bootstrap handles the initial sequence of the application.
- */
 export const app_bootstrap = {
   async init() {
     if (has_initialized) {
-      app.log("[Engine] app_bootstrap.init() called more than once. Guarding.", "system");
+      console.warn("[Engine] app_bootstrap.init() called more than once. Guarding.");
       return;
     }
     has_initialized = true;
 
     try {
-      // 1. Seed Premades (Entities/Stories) - Must happen before sync to ensure data exists.
       await seed_premades();
 
-      // Trigger asset pre-downloads on boot without blocking DOM mount
       embeddings_engine?.load_model?.()?.catch?.((err) => console.warn("[Boot] Embeddings pre-download error:", err));
 
-      // Parallel Initialization: Reduce critical path for LCP.
-      await Promise.all([runtime.sync(), app.init(), Audio.init()]);
+      await Promise.all([session.sync(), app.init(), Audio.init()]);
+      install_freeze_watchdog();
 
-      // Auto-resume active story session & hydrate simulation log feed on page reload
-      if (runtime.story_id) {
+      if (session.active_id) {
         try {
-          await simulation_log?.refresh?.();
-          await sweep_stale_ghosts?.({ runtime, session_driver });
+          await session.refresh_feed?.();
+          await sweep_stale_ghosts?.({ session });
           await app?.load_entities?.();
-          app.stories_version++;
           app?.set_view?.("storymode");
         } catch (syncErr) {
           console.warn("[Boot] Active story auto-resume failed:", syncErr);
         }
       }
 
-      // Vector hygiene: entities saved under looser caps may still hold over-cap
-      // past pool. Trim once on load (origin/premade vectors are kept)
-      // so the past stays bounded going forward.
       for (const { entity, type } of [
-        { entity: runtime.active_ai, type: "character" },
-        { entity: runtime.active_user, type: "character" },
-        { entity: runtime.active_fractal, type: "fractal" },
+        { entity: session.active_ai, type: "character" },
+        { entity: session.active_user, type: "character" },
+        { entity: session.active_fractal, type: "fractal" },
       ]) {
         if (!entity) continue;
         try {
@@ -120,22 +73,19 @@ export const app_bootstrap = {
           if (changed) {
             entity.past = normalized.past;
             entity.future = normalized.future;
-            await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
+            await session.update_entity(type, entity.id, { past: entity.past, future: entity.future });
           }
         } catch (err) {
           console.warn("[Boot] Vector reconciliation failed for", entity.id, err);
         }
       }
 
-      // 5. Mount Svelte App
       mount(App, { target: document.body });
 
-      // 6. Tear down boot illusion
       document.getElementById("svelte-root")?.remove();
-      app.log("[Engine] >> System Online.", "system");
+      console.info("[Engine] >> System Online.");
     } catch (err) {
       console.error("[Engine] 🚫 Critical Failure:", err);
-      app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
 
       const error_template = `
                 <div style="background:var(--color-chalk); color:var(--color-crimson-red); padding:calc(var(--spacing-unit) * 8); font-family:var(--font-mono); height:100vh; overflow:auto;">
@@ -146,7 +96,6 @@ export const app_bootstrap = {
             `;
       const fragment = sanitize_to_fragment(error_template);
 
-      // Use textContent for safety
       const error_stack = fragment.querySelector("#user-content-error-stack");
       if (error_stack) {
         error_stack.textContent = /** @type {any} */ (err).stack || String(err);

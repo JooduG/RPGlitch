@@ -1,25 +1,22 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-const { _mock_app, _mock_runtime } = vi.hoisted(() => ({
-  _mock_app: { log: vi.fn(), init: vi.fn(), settings: { dev_mode: false } },
-  _mock_runtime: { sync: vi.fn(), is_ready: false },
+const { _mock_app, _mock_session } = vi.hoisted(() => ({
+  _mock_app: { init: vi.fn(), settings: { dev_mode: false }, set_view: vi.fn(), load_entities: vi.fn() },
+  _mock_session: {
+    sync: vi.fn(),
+    is_ready: false,
+    active_id: null,
+    round: 0,
+    active_ai: null,
+    active_user: null,
+    active_fractal: null,
+    update_entity: vi.fn(),
+  },
 }));
 
 vi.mock("@state", async (importOriginal) => {
   const actual = await importOriginal();
-  return {
-    ...actual,
-    app: _mock_app,
-    runtime: _mock_runtime,
-    session_driver: { active_id: null, sync: async () => {}, refresh: async () => {}, clear: () => {} },
-    simulation_log: { refresh: async () => {}, clear: () => {} },
-    simulation_state: {},
-  };
-});
-
-vi.mock("@data", async (importOriginal) => {
-  const actual = await importOriginal();
-  return { ...actual, simulation_log: {} };
+  return { ...actual, app: _mock_app, session: _mock_session, execution: { phase: "idle" }, install_freeze_watchdog: vi.fn() };
 });
 
 const { _mock_audio } = vi.hoisted(() => ({ _mock_audio: { init: vi.fn(), _init_promise: null, voice: { load_model: vi.fn().mockResolvedValue() } } }));
@@ -44,18 +41,23 @@ import { app_bootstrap, reset_bootstrap_guard } from "./main.js";
 
 vi.mock("svelte", () => ({ mount: vi.fn() }));
 vi.mock("@/App.svelte", () => ({ default: {} }));
+
 describe("app_bootstrap", () => {
   beforeEach(async () => {
     document.body.innerHTML = "";
     vi.resetAllMocks();
     reset_bootstrap_guard();
     _mock_app.settings.dev_mode = false;
+    _mock_session.active_id = null;
+    _mock_session.active_ai = null;
+    _mock_session.active_user = null;
+    _mock_session.active_fractal = null;
   });
+
   test("escapes error stack using textContent when initialization fails", async () => {
     const malicious_payload = "<img src=x onerror=alert(1)>";
     const error = new Error("Critical Failure");
     error.stack = malicious_payload;
-    // Mocking seed_premades to throw
     vi.mocked(repository.seed_premades).mockRejectedValue(error);
 
     const console_spy = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -63,14 +65,9 @@ describe("app_bootstrap", () => {
     await app_bootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
     expect(console_spy).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure:"), error);
-    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure: Critical Failure"), "error");
     console_spy.mockRestore();
     const error_stack_element = /** @type {HTMLElement} */ (document.getElementById("user-content-error-stack"));
     expect(error_stack_element).not.toBeNull();
-    // When using textContent, the literal string should be present in the text,
-    // but it won't be interpreted as HTML.
-    // In JSDOM, textContent will be the raw string, and innerHTML of that element
-    // will have the entities.
     expect(error_stack_element.textContent).toBe(malicious_payload);
     expect(error_stack_element.innerHTML).toContain("&lt;img");
     expect(document.body.innerHTML).not.toContain(malicious_payload);
@@ -78,33 +75,31 @@ describe("app_bootstrap", () => {
 
   test("successfully initializes all services in the correct order and mounts the app", async () => {
     const { mount } = await import("svelte");
+    const console_info_spy = vi.spyOn(console, "info").mockImplementation(() => {});
 
-    _mock_runtime.is_ready = true;
+    _mock_session.is_ready = true;
 
     await app_bootstrap.init();
 
-    // Verify all functions were called
     expect(repository.seed_premades).toHaveBeenCalled();
-    expect(vi.mocked(_mock_runtime.sync)).toHaveBeenCalled();
+    expect(vi.mocked(_mock_session.sync)).toHaveBeenCalled();
     expect(_mock_app.init).toHaveBeenCalled();
     expect(vi.mocked(mount)).toHaveBeenCalled();
 
-    // Verify the critical execution order
     const seed_premades_order = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
-    const runtime_sync_order = vi.mocked(_mock_runtime.sync).mock.invocationCallOrder[0];
+    const session_sync_order = vi.mocked(_mock_session.sync).mock.invocationCallOrder[0];
     const app_init_order = _mock_app.init.mock.invocationCallOrder[0];
     const mount_order = vi.mocked(mount).mock.invocationCallOrder[0];
 
-    // Verify seed_premades runs before parallel tasks
-    expect(seed_premades_order).toBeLessThan(runtime_sync_order);
+    expect(seed_premades_order).toBeLessThan(session_sync_order);
     expect(seed_premades_order).toBeLessThan(app_init_order);
 
-    // Verify mount runs after all parallel tasks are initiated
-    const parallel_init_max_order = Math.max(runtime_sync_order, app_init_order);
+    const parallel_init_max_order = Math.max(session_sync_order, app_init_order);
     expect(mount_order).toBeGreaterThan(parallel_init_max_order);
 
     expect(document.getElementById("svelte-root")).toBeNull();
-    expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("System Online"), "system");
+    expect(console_info_spy).toHaveBeenCalledWith(expect.stringContaining("System Online"));
+    console_info_spy.mockRestore();
   });
 
   test("does not use direct innerHTML assignment for the entire error template", async () => {
@@ -116,7 +111,6 @@ describe("app_bootstrap", () => {
 
     await app_bootstrap.init();
 
-    // We want this to be false, indicating we used a safer method like replaceChildren or append with a fragment
     expect(inner_htmlspy).not.toHaveBeenCalled();
 
     console_spy.mockRestore();
@@ -132,14 +126,14 @@ describe("app_bootstrap", () => {
       future: "Old future plan",
     };
 
-    _mock_runtime.active_ai = mock_entity;
-    _mock_runtime.active_user = null;
-    _mock_runtime.active_fractal = null;
-    _mock_runtime.update_entity = vi.fn().mockResolvedValue(true);
-    _mock_runtime.is_ready = true;
+    _mock_session.active_ai = mock_entity;
+    _mock_session.active_user = null;
+    _mock_session.active_fractal = null;
+    _mock_session.update_entity = vi.fn().mockResolvedValue(true);
+    _mock_session.is_ready = true;
 
     await app_bootstrap.init();
 
-    expect(_mock_runtime.update_entity).toHaveBeenCalledWith("character", "char-legacy", expect.objectContaining({ past: expect.any(String) }));
+    expect(_mock_session.update_entity).toHaveBeenCalledWith("character", "char-legacy", expect.objectContaining({ past: expect.any(String) }));
   });
 });

@@ -7,6 +7,7 @@
    */
   import { VISUAL_STYLES } from "@definitions";
   import { refine_image_prompt } from "@engine";
+  import { visual_engine } from "@media";
   import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@utils";
   import { Button, Dropdown, Icon, Label, SourceField, TextField, Toggle, tooltip } from "@primitives";
   import { app } from "@state";
@@ -74,7 +75,9 @@
 
   const current_label = $derived(get_signature_label(profile_state.char));
 
-  const is_prompt_busy = $derived(app.visual.is_loading || profile_state.busy_fields.has("visual-prompt"));
+  let generate_error = $state("");
+
+  const is_prompt_busy = $derived(profile_state.busy_fields.has("generating-image") || profile_state.busy_fields.has("visual-prompt"));
 
   const prompt_value = $derived((profile_state.char?.modifiers?.prompt || "").trim());
 
@@ -116,7 +119,7 @@
 
           // Guard against persisting prefill or internal thought markers as prompt
           if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
-            app.log("Envision returned no usable prose - draft kept", "warn");
+            console.warn("Envision returned no usable prose - draft kept");
           } else {
             profile_state.char.modifiers.prompt = positive;
             if (negative) profile_state.char.modifiers.negative_prompt = negative;
@@ -139,16 +142,17 @@
     if (profile_state.busy_fields.has("visual-prompt")) return;
     if (!has_prompt_text) return;
 
+    generate_error = "";
     profile_state.busy_fields.add("visual-prompt");
     profile_state.busy_fields.add("generating-image");
-    app.log(`[VisualWing] Painting... Prompt: ${prompt_value}`, "system");
+    console.info(`[VisualWing] Painting... Prompt: ${prompt_value}`);
 
     try {
       // Profile pictures follow the entity's nature: fractals are scenes
       // (landscape tier), characters are portraits (solo tier). A hardcoded
       // solo_entity tier rendered every fractal profile at portrait ratio.
       const mode = profile_state.char?.type === "fractal" ? "story_scene" : "solo_entity";
-      const payload = await app.visual.generate(prompt_value, {
+      const payload = await visual_engine.generate(prompt_value, {
         mode,
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:
@@ -167,7 +171,8 @@
         if (payload.metadata?.seed !== undefined) profile_state.char.modifiers.last_generated_seed = payload.metadata.seed;
       }
     } catch (err) {
-      app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
+      generate_error = /** @type {Error} */ (err).message || "Generation failed";
+      console.error(`Generation failed: ${generate_error}`, err);
     } finally {
       profile_state.busy_fields.delete("visual-prompt");
       profile_state.busy_fields.delete("generating-image");
@@ -183,7 +188,8 @@
     if (info.kind === "image" && info.data_url) {
       profile_state.setImage(info.data_url);
     } else if (info.kind === "error") {
-      app.log(`Image failed: ${info.message || "Unknown error"}`, "error");
+      generate_error = info.message || "Unknown error";
+      console.error(`Image failed: ${generate_error}`);
     }
   }
 
@@ -310,7 +316,7 @@
     {#snippet status()}
       <div class="flex items-center gap-tight">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
-        {#if app.visual.error || app.visual.is_offline || (app.visual.is_loading && app.visual.attempts > 0)}
+        {#if generate_error}
           <div
             class="
               flex
@@ -318,19 +324,10 @@
               gap-tight
               rounded-full
               border
+              border-red-500/15
+              bg-red-500/15
               p-tight
-
-              {app.visual.error || app.visual.is_offline ?
-              `
-                border-red-500/15
-                bg-red-500/15
-                text-red-500
-              `
-            : `
-                border-white/15
-                bg-white/5
-                text-slate-50
-              `}"
+              text-red-500"
             data-loading={is_prompt_busy}>
             <div
               class="
@@ -339,37 +336,15 @@
               items-center
               gap-tight
             ">
-              {#if app.visual.is_offline}
-                <span
-                  class="
-                    font-mono
-                    text-[0.625rem]
-                    tracking-widest
-                    text-inherit
-                    uppercase
-                  ">OFFLINE</span>
-              {:else if app.visual.error}
-                <span
-                  class="
-                    font-mono
-                    text-[0.625rem]
-                    tracking-widest
-                    text-inherit
-                    uppercase
-                  ">ERROR</span>
-                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
-              {:else if app.visual.attempts > 0}
-                <span
-                  class="
-                    animate-pulse
-                    font-mono
-                    text-[0.625rem]
-                    tracking-widest
-                    text-inherit
-                    uppercase
-                  ">RETRYING</span>
-                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
-              {/if}
+              <span
+                class="
+                  font-mono
+                  text-[0.625rem]
+                  tracking-widest
+                  text-inherit
+                  uppercase
+                ">ERROR</span>
+              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{generate_error}</span>
             </div>
           </div>
         {/if}

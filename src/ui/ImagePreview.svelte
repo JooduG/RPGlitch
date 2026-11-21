@@ -1,11 +1,18 @@
 <script>
-  import { runtime } from "@state";
+  import { app, session } from "@state";
   import { get_resolution } from "@simulation";
   import { refine_image_prompt } from "@engine";
   import { Backdrop, Button, Dropdown, Icon, Modal, Shimmer, TextField, tooltip } from "@primitives";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
-  import { app, image_preview as preview_state, image_picker, close_image_preview, close_regenerate, run_image_regeneration, select_candidate } from "@state";
+  import {
+    image_preview as preview_state,
+    image_picker,
+    close_image_preview,
+    close_regenerate,
+    run_image_regeneration,
+    select_candidate,
+  } from "./ImagePreview.svelte.js";
 
   // --- CANDIDATE PICKER STATE & LOGIC ---
   let is_picker_regenerating = $state(false);
@@ -107,10 +114,10 @@
    * @param {'ai' | 'user' | 'fractal'} slot
    */
   const get_profile_target = (slot) => {
-    if (slot === "ai") return runtime.active_ai || app.selected_ai || null;
-    if (slot === "user") return runtime.active_user || app.selected_user || null;
+    if (slot === "ai") return session.active_ai || app.selected_ai || null;
+    if (slot === "user") return session.active_user || app.selected_user || null;
     if (slot === "fractal") {
-      const live = runtime.active_fractal;
+      const live = session.active_fractal;
       const has_live = live && live.id && String(live.id) !== "active_fractal";
       return has_live ? live : app.selected_fractal || null;
     }
@@ -136,7 +143,7 @@
     const clean_url = String(src).trim();
     const type = slot === "fractal" ? "fractal" : "character";
     try {
-      await runtime.update_entity(type, String(target.id), { profile_picture: clean_url, image: clean_url });
+      await session.update_entity(type, String(target.id), { profile_picture: clean_url, image: clean_url });
     } catch (err) {
       console.error("[ImagePreview] Failed to set profile picture:", err);
     }

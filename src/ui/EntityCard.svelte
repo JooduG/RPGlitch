@@ -6,23 +6,22 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { runtime } from "@state";
+  import { app, session } from "@state";
   import { motion } from "@media";
   import { Icon } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
   import { get_signature_color } from "@utils";
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
-  import { app } from "@state";
   import BracketList from "./BracketList.svelte";
   import MacroText from "./MacroText.svelte";
   import ProfilePicture from "./ProfilePicture.svelte";
 
   const display_entities = $derived({
-    AI: runtime.active_ai || app.selected_ai,
-    USER: runtime.active_user || app.selected_user,
-    FRACTAL: runtime.active_fractal || app.selected_fractal,
-    ALL: [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
+    AI: session.active_ai || app.selected_ai,
+    USER: session.active_user || app.selected_user,
+    FRACTAL: session.active_fractal || app.selected_fractal,
+    ALL: [session.active_ai, session.active_user, session.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
       Boolean,
     ),
   });

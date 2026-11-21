@@ -39,3 +39,15 @@
 - **Trigger**: Calling role normalizers or reading playback/notification bindings in `src/ui/`.
 - **Wrong Behavior**: Calling `Audio.play("notification")` expecting it to fire when `Audio.notifications_enabled` is `false`, or assuming `voice_role_key` preserves `"npc"` separately from `"ai"`.
 - **Correct Behavior**: Always pass `voice_role_key(role)` for per-role speech gating (`"fractal"` and `"user"` stay distinct; `"npc"` and `"model"` fold into `"ai"`). `Audio.play("notification")` is gated by `Audio.notifications_enabled` and `VoiceEngine.is_paused` tracks reactive pause state for [ChatBubble.svelte](../../../src/ui/ChatBubble.svelte). Import `VOICE_CADENCES` or `get_cadence_rate` from `@media`, or `VOICE_CADENCE` from `@config` ([config.js](../../../src/config.js#L145-L158)).
+
+## Pitfall 7: `Slider.svelte` `oninput` vs `onchange`, Notification Auto-Unmute & Suspended `AudioContext`
+
+- **Trigger**: Wiring volume sliders or notification toggles in `Console.svelte`, or firing short `play_sfx()` cues right after page load/tab resume.
+- **Wrong Behavior**: Binding `oninput` on `<Slider />` (which only emits `onchange`), leaving `Audio.is_muted = true` when the user enables `NOTIFICATIONS`, or calling `osc.start(context.currentTime)` synchronously while `context.state === "suspended"`.
+- **Correct Behavior**: Use `onchange` on `<Slider />` to clear `explicitly_muted` / `Audio.is_muted`, unmute master SFX when `NOTIFICATIONS` is enabled from a muted state, and await `context.resume()` before scheduling short oscillators/buffers when `context.state === "suspended"`.
+
+## Pitfall 8: Chromium Same-Tick `speechSynthesis.cancel()` + `speak()` Drop & `"default"` Voice Lockout
+
+- **Trigger**: Replacing an active/pending `SpeechSynthesisUtterance` in `VoiceEngine.speak()`, or disabling `AudioWing` preview/cadence controls when `selected_voice` is `"default"`.
+- **Wrong Behavior**: Calling `speechSynthesis.cancel()` and `speechSynthesis.speak()` synchronously in the same tick (Chromium silently drops the new utterance), or gating Preview/Cadence on a matched dropdown entry (`!selected_voice`).
+- **Correct Behavior**: Defer `speechSynthesis.speak()` by ~20ms when `speechSynthesis.speaking || speechSynthesis.pending` was just cancelled, update `voices` on `voiceschanged` whenever `list.length !== this.voices.length`, and keep `AudioWing` Preview/Cadence enabled for the `"default"` browser voice.

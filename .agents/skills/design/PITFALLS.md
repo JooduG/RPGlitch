@@ -93,3 +93,9 @@
 - **Trigger**: Adding or consolidating inline `<svg>` icons into [Icon.svelte](../../../src/ui/primitives/Icon.svelte) or previewing SVGs standalone.
 - **Wrong Behavior**: Rendering an `ICONS` HTML-string map with `{@html ICONS[name]}` (rejected by `npm run audit:hygiene` Phase A), or using `fill="currentColor"` on inner paths when `<svg>` sets `stroke="#..."` without setting `color` (inherits dark `#000` text).
 - **Correct Behavior**: Express every icon in `Icon.svelte` `ICONS` as a single SVG `<path d="..." />` string and render declaratively via `<path d={ICONS[name]} fill={...} stroke={...} />` (forwarding `...rest` props onto `<svg>`). Always style `<svg>` via `color` + `stroke="currentColor"` when child elements use `currentColor`.
+
+## Pitfall 16: Raw `safe_html` Telemetry Dropping `@ENTITY` Colors, Standalone `ContextMenu` Hierarchy, & Premature `warning_fill`
+
+- **Trigger**: Rendering `[KEY: value]` telemetry rows (`ChatBubble.svelte`), standalone portalled `ContextMenu.svelte` headers/items, or `Console.svelte` generation action buttons.
+- **Wrong Behavior**: Using `use:safe_html={render_telemetry_text(...)}` for bracket values (strips `@ENTITY` signature colors and `<MacroText />` hover/profile links); rendering `ContextMenu` headers as `text-xs uppercase` smaller than `text-xs font-semibold` items inside `max-w-60` (truncating `"Generate AI Character Image"`); or showing `warning_fill` ("Unstick Simulation") during normal non-streaming `app.simulation.loading` turns.
+- **Correct Behavior**: Render telemetry bracket values with `<MacroText text={item.value} entities={display_entities} />`, give `ContextMenu` headers natural-case `text-sm font-bold` above `text-xs font-medium` items with `max-w-72`, and route all active generations (`app.streaming.active || app.simulation.loading`) to `Interrupt Generation`, reserving `warning_fill` strictly for `is_locked`.

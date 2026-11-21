@@ -220,10 +220,10 @@ export function _remove_from_image_generation_queue(id) {
 
 export async function count_pending_ghosts(ctx) {
   try {
-    const story_id = ctx.runtime?.story_id;
+    const story_id = ctx.session?.active_id;
     if (!story_id) return 0;
 
-    const entries = await ctx.session_driver?.load_log(story_id);
+    const entries = await ctx.session?.load_log(story_id);
     if (!entries) return 0;
     let count = 0;
 
@@ -248,8 +248,8 @@ export async function mark_placeholder_failed(id, metadata = {}, ctx) {
     const key = isNaN(Number(id)) ? id : Number(id);
     let has_narrative_text = false;
 
-    const current_story_id = ctx.runtime?.story_id;
-    const feed_match = ctx.simulation_log?.feed?.find(
+    const current_story_id = ctx.session?.active_id;
+    const feed_match = ctx.session?.feed?.find(
       (entry) =>
         (!entry.story_id || !current_story_id || entry.story_id === current_story_id) &&
         (entry.id === key || entry.id === id || String(entry.id) === String(id)),
@@ -258,7 +258,7 @@ export async function mark_placeholder_failed(id, metadata = {}, ctx) {
       has_narrative_text = true;
     } else {
       try {
-        const database_entries = await ctx.session_driver?.load_log(current_story_id);
+        const database_entries = await ctx.session?.load_log(current_story_id);
         const match = database_entries?.find((entry) => entry.id === key || entry.id === id || String(entry.id) === String(id));
         if (match && match.text && match.text.trim()) has_narrative_text = true;
       } catch {
@@ -267,16 +267,16 @@ export async function mark_placeholder_failed(id, metadata = {}, ctx) {
     }
 
     if (has_narrative_text) {
-      await ctx.session_driver?.update_log_attachment(id, 0, {
+      await ctx.session?.update_attachment(id, 0, {
         src: null,
         metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
       });
       return;
     }
 
-    await ctx.session_driver?.delete_log_entry(id);
-    ctx.simulation_log?.remove?.(key);
-    ctx.simulation_log?.remove?.(id);
+    await ctx.session?.delete_entry(id);
+    ctx.session?.remove?.(key);
+    ctx.session?.remove?.(id);
   } catch (error) {
     console.warn("[ImageQueue] Failed to mark image placeholder as failed:", error);
   }
@@ -284,10 +284,10 @@ export async function mark_placeholder_failed(id, metadata = {}, ctx) {
 
 export async function sweep_stale_ghosts(ctx) {
   try {
-    const story_id = ctx.runtime?.story_id;
+    const story_id = ctx.session?.active_id;
     if (!story_id) return;
 
-    const entries = await ctx.session_driver?.load_log(story_id);
+    const entries = await ctx.session?.load_log(story_id);
     if (!entries) return;
     const now = Date.now();
 
@@ -303,10 +303,10 @@ export async function sweep_stale_ghosts(ctx) {
           const is_empty_text = !entry.text || !entry.text.trim();
 
           if (is_empty_text && (is_failed || is_stale)) {
-            await ctx.session_driver?.delete_log_entry(entry.id);
-            ctx.simulation_log?.remove?.(entry.id);
+            await ctx.session?.delete_entry(entry.id);
+            ctx.session?.remove?.(entry.id);
           } else if (is_stale && !is_failed) {
-            await ctx.session_driver?.update_log_attachment(entry.id, attachment_index, {
+            await ctx.session?.update_attachment(entry.id, attachment_index, {
               src: null,
               metadata: { ...(attachment.metadata || {}), failed: true, image_ghost_swept: true, error: "Image beat timed out before it could resolve." },
             });
@@ -346,7 +346,7 @@ export class VisualEngine {
     const style_key = resolve_story_beat_style({
       style: options.style,
       app_style: options.app_style ?? ctx.app?.settings?.visual_style,
-      fractal_style: options.fractal_style ?? ctx.runtime?.active_fractal?.visual_style,
+      fractal_style: options.fractal_style ?? ctx.session?.active_fractal?.visual_style,
       entity: options.entity,
     });
     const staged = [base_prompt, options.visual_staging].filter((part) => part && String(part).trim()).join(" ");
@@ -410,21 +410,21 @@ export async function spawn_image_beat(tier, options = {}, ctx) {
   const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
   if (!tier || !IMAGE_TIERS.includes(tier)) return;
 
-  const runtime_state = ctx.runtime || {};
+  const session_state = ctx.session || {};
   const visual_prompt = String(prompt || "").trim() || "A significant narrative moment unfolds.";
-  const fractal_name = runtime_state.active_fractal?.name || "Fractal";
+  const fractal_name = session_state.active_fractal?.name || "Fractal";
 
   try {
     await sweep_stale_ghosts(ctx);
     const pending_ghosts = await count_pending_ghosts(ctx);
 
     if (pending_ghosts >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
-      ctx.app?.log(`[Image Trigger] Skipped ${tier} - ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.MAX_PENDING_IMAGES}).`, "warn");
+      console.warn(`[Image Trigger] Skipped ${tier} - ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.MAX_PENDING_IMAGES}).`);
       return;
     }
 
     const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit, requested_at: Date.now() };
-    const placeholder_entry = await ctx.session_driver?.log_message("", "fractal", fractal_name, {
+    const placeholder_entry = await ctx.session?.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       attachments: [{ src: null, metadata: placeholder_metadata }],
     });
@@ -447,13 +447,13 @@ export async function spawn_image_beat(tier, options = {}, ctx) {
         _remove_from_image_generation_queue(placeholder_entry.id);
 
         if (result?.image_url) {
-          await ctx.session_driver?.update_log_attachment(placeholder_entry.id, 0, {
+          await ctx.session?.update_attachment(placeholder_entry.id, 0, {
             src: result.image_url,
             metadata: { mode: tier, image_source: source, ...result.metadata, prompt: result.refined_prompt },
           });
         } else {
           await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata, ctx);
-          ctx.app?.log(`[Image Trigger] ${tier} generation returned no image.`, "warn");
+          console.warn(`[Image Trigger] ${tier} generation returned no image.`);
         }
       } catch (error) {
         _remove_from_image_generation_queue(placeholder_entry.id);

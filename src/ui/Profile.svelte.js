@@ -8,7 +8,7 @@ import { parse_entity_profile } from "@engine";
 import { motion, resolve_voice_name, resolve_voice_uri } from "@media";
 import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
-import { app, runtime } from "@state";
+import { app, session } from "@state";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 const QUADRANT_PATHS = ["eternal.physical", "eternal.non_physical", "present.physical", "present.non_physical", "past", "future"];
@@ -221,7 +221,7 @@ export class ProfileState {
   pending_swap_detail = $state("");
 
   constructor() {
-    this.char = normalize(app.editing_entity || runtime.active_user);
+    this.char = normalize(app.editing_entity || session.active_user);
   }
 
   /**
@@ -362,7 +362,7 @@ export class ProfileState {
    */
   cancel() {
     this.is_editing = false;
-    this.char = normalize(app.editing_entity || runtime.active_user);
+    this.char = normalize(app.editing_entity || session.active_user);
     this._user_mutated = false;
     this._edit_snapshot = null;
     this.pending_swap_detail = "";
@@ -406,11 +406,11 @@ export class ProfileState {
       const prev_id = this._original_id;
       const next_id = this.char.id;
 
-      await runtime.save_entity(entity_type, this.char);
+      await session.save_entity(entity_type, this.char);
 
       // Clean up stale database record if the primary key was renamed
       if (prev_id && prev_id !== next_id) {
-        await runtime.delete_entity(entity_type, prev_id);
+        await session.delete_entity(entity_type, prev_id);
       }
 
       await app.load_entities();
@@ -444,7 +444,7 @@ export class ProfileState {
    */
   async delete(entity_type) {
     try {
-      await runtime.delete_entity(entity_type, this.char.id);
+      await session.delete_entity(entity_type, this.char.id);
 
       if (entity_type === "character") {
         if (app.selected_ai?.id === this.char.id) app.selected_ai = null;
@@ -542,7 +542,7 @@ export class ProfileState {
     if (id) {
       const type = resolve_entity_type(this.char?.type);
       await db.entities.update(id, { profile_picture: clean_url, updated_at: Date.now() });
-      await runtime.update_entity(type, id, { profile_picture: clean_url });
+      await session.update_entity(type, id, { profile_picture: clean_url });
       this._user_mutated = true;
     }
   }

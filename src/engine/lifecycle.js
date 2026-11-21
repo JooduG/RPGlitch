@@ -12,7 +12,7 @@
 import { append_ledger_entries, apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
 import { get_visual_style } from "@definitions";
 import { clean_generated_prose, compile_prompt, get_resolution_string, parse_think_block } from "@simulation";
-import { app, runtime, session_driver, simulation_log, simulation_state } from "@state";
+import { app, execution, session } from "@state";
 import { mark_generation_in_flight, clear_generation_in_flight, visual_engine } from "@media";
 import { run_turn } from "./runner.js";
 import { get_transport } from "./transport.js";
@@ -41,8 +41,8 @@ export async function refine_image_prompt(text, type = "character", entity = nul
     style_key = app_choice;
   } else if (entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default") {
     style_key = entity.visual_style;
-  } else if (runtime.active_fractal?.visual_style && runtime.active_fractal.visual_style !== "none" && runtime.active_fractal.visual_style !== "default") {
-    style_key = runtime.active_fractal.visual_style;
+  } else if (session.active_fractal?.visual_style && session.active_fractal.visual_style !== "none" && session.active_fractal.visual_style !== "default") {
+    style_key = session.active_fractal.visual_style;
   }
 
   const style_def = get_visual_style(style_key);
@@ -52,7 +52,7 @@ export async function refine_image_prompt(text, type = "character", entity = nul
   }
 
   try {
-    const target_entity = entity || (type === "fractal" ? runtime.active_fractal : runtime.active_ai);
+    const target_entity = entity || (type === "fractal" ? session.active_fractal : session.active_ai);
     const style_cues =
       style_def?.engine ?
         [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
@@ -64,7 +64,7 @@ export async function refine_image_prompt(text, type = "character", entity = nul
     if (type === "fractal") {
       subject_kind = "place";
     } else if (type === "story_scene") {
-      const active_names = [runtime.active_ai?.name, runtime.active_user?.name, entity?.name].filter(Boolean);
+      const active_names = [session.active_ai?.name, session.active_user?.name, entity?.name].filter(Boolean);
       const mentions_character = active_names.some((name) => trimmed_text.toLowerCase().includes(name.toLowerCase()));
       if (!mentions_character) {
         subject_kind = "place";
@@ -73,11 +73,11 @@ export async function refine_image_prompt(text, type = "character", entity = nul
 
     const result = await run_image_prompt_step({
       transport: get_transport(),
-      round: Number(runtime.round || 1),
+      round: Number(session.round || 1),
       entities: {
         AI: type !== "fractal" ? normalize_entity(target_entity || {}) : null,
         USER: null,
-        FRACTAL: type === "fractal" ? normalize_entity(target_entity || {}) : normalize_entity(runtime.active_fractal || {}),
+        FRACTAL: type === "fractal" ? normalize_entity(target_entity || {}) : normalize_entity(session.active_fractal || {}),
       },
       camera_note,
       subject_kind,
@@ -120,25 +120,25 @@ export async function parse_entity_profile(raw, type = "character", signal = nul
  * @returns {Promise<any>}
  */
 export async function generate_opening(story_id) {
-  if (!runtime || !story_id) return null;
+  if (!session || !story_id) return null;
 
-  app.busy = true;
+  execution.set_loading(true);
 
   try {
-    const user_quadrant = normalize_entity(runtime.active_user || app.selected_user || {});
-    const fractal_quadrant = normalize_entity(runtime.active_fractal || app.selected_fractal || {});
+    const user_quadrant = normalize_entity(session.active_user || app.selected_user || {});
+    const fractal_quadrant = normalize_entity(session.active_fractal || app.selected_fractal || {});
 
     const live_transport = get_transport();
     const node_id = `prologue-${Date.now()}`;
     const fractal_name = fractal_quadrant?.name || "Fractal Entity";
 
-    runtime.round = 0;
-    runtime.turn_type = "SYSTEM_TURN";
-    runtime.last_director_beat_round = 0;
-    runtime.last_dynamics_beat_round = 0;
+    session.round = 0;
+    session.turn_type = "SYSTEM_TURN";
+    session.last_director_beat_round = 0;
+    session.last_dynamics_beat_round = 0;
 
     // 1. Establish the empty fractal role prologue entry
-    await session_driver.log_message("", "fractal", fractal_name, {
+    await session.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
       meta: { id: node_id, round: 0, is_prologue: true },
@@ -153,18 +153,16 @@ export async function generate_opening(story_id) {
       task_options: { turn_tempo: 3 },
     });
 
-    app.log("Establishing prologue scene (Round 0)...", "system");
     const raw_prologue = await live_transport.stream(prologue_prompt, { startWith: "<think>\n" });
 
     const { think: prologue_think, prose: prologue_body } = parse_think_block(raw_prologue);
     const prologue_text = (prologue_body || raw_prologue || "").trim();
 
-    await session_driver.edit_log_entry(node_id, prologue_text, { think: prologue_think });
-    app.log("Prologue scene established.", "system");
+    await session.edit_entry(node_id, prologue_text, { think: prologue_think });
 
     // 3. Register deferred prologue scene image
     const prologue_image_requested_at = Date.now();
-    await session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene", requested_at: prologue_image_requested_at } });
+    await session.update_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene", requested_at: prologue_image_requested_at } });
 
     let release_prologue_image = () => {};
     const prologue_image_gate = new Promise((resolve) => {
@@ -180,10 +178,10 @@ export async function generate_opening(story_id) {
             prologue_text,
             "story_scene",
             { silent: true, refine_prompt: refine_image_prompt },
-            { app, runtime, session_driver, simulation_log },
+            { app, session },
           );
           if (img_result?.image_url) {
-            await session_driver.update_log_attachment(node_id, 0, {
+            await session.update_attachment(node_id, 0, {
               src: img_result.image_url,
               metadata: {
                 ...(img_result.metadata || {}),
@@ -203,19 +201,17 @@ export async function generate_opening(story_id) {
 
     // 4. Execute the opening AI character turn reacting directly to the prologue
     try {
-      app.log("Generating opening character turn (Round 1)...", "ai");
       return await run_turn(prologue_text, { is_opening_turn: true });
     } finally {
       release_prologue_image();
     }
   } catch (e) {
     console.error("Prologue Failed:", e);
-    app.log("Error: Prologue Failed.", "error");
     throw e;
   } finally {
-    app.busy = false;
-    app.end_stream();
-    simulation_state.phase = "idle";
+    execution.set_loading(false);
+    execution.end_stream();
+    execution.complete();
   }
 }
 /**
@@ -226,17 +222,16 @@ export async function generate_opening(story_id) {
  * @returns {Promise<string | null>}
  */
 export async function generate_closing(story_id, conclusion_status = "CONCLUDED") {
-  app.log(`Generating epilogue (${conclusion_status})...`, "system");
   const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
-  const fractal_quadrant = normalize_entity(runtime?.active_fractal || {});
-  const ai_quadrant = normalize_entity(runtime?.active_ai || {});
-  const user_quadrant = normalize_entity(runtime?.active_user || {});
+  const fractal_quadrant = normalize_entity(session?.active_fractal || {});
+  const ai_quadrant = normalize_entity(session?.active_ai || {});
+  const user_quadrant = normalize_entity(session?.active_user || {});
   const fractal_name = fractal_quadrant?.name || "Fractal Entity";
 
   try {
     const prompt = compile_prompt({
       core: "CHARACTER",
-      round: (Number(runtime?.round) || 1) + 1,
+      round: (Number(session?.round) || 1) + 1,
       entities: { FRACTAL: fractal_quadrant, AI: ai_quadrant, USER: user_quadrant },
       task_options: { speaker_role: "fractal", is_epilogue: true, conclusion_status },
     });
@@ -246,16 +241,16 @@ export async function generate_closing(story_id, conclusion_status = "CONCLUDED"
     const fractal_style = typeof fractal_quadrant?.speaking_style === "string" ? fractal_quadrant.speaking_style : "casual";
     const cleaned_prose = clean_generated_prose(parse_think_block(response || "").prose, fractal_style);
 
-    await session_driver.log_message(cleaned_prose, "fractal", fractal_name, {
+    await session.log_message(cleaned_prose, "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       story_id,
       meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
     });
 
-    simulation_state.phase = "locked";
+    execution.lock();
     return cleaned_prose;
   } finally {
-    app.end_stream?.();
+    execution.end_stream();
   }
 }
 /**
@@ -309,7 +304,7 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
         entity = apply_profile_to_entity(entity, rich_profile);
       }
     } catch (error) {
-      app?.log?.(`[GameMaster] Genesis rich synthesis failed for "${name}": ${error?.message || error}`, "warn");
+      console.warn(`[GameMaster] Genesis rich synthesis failed for "${name}":`, error?.message || error);
     }
   } else if (draft && typeof draft === "object") {
     entity = apply_profile_to_entity(entity, draft);
@@ -321,7 +316,7 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
   const saved_entity = await upsert_entity(entity);
 
   // Write Genesis Ledger Entries for all populated quadrant fields
-  const story_id = options.story_id ?? runtime.story_id ?? null;
+  const story_id = options.story_id ?? session.active_id ?? null;
   const ledger_lines = [];
 
   const record_genesis_field = (field_path, value) => {
@@ -370,7 +365,7 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
         await update_cast(story_id, updated_npcs);
       }
     } catch (err) {
-      app?.log?.(`[Storage] Failed to register NPC on story ${story_id}: ${err?.message || err}`, "warn");
+      console.warn(`[Storage] Failed to register NPC on story ${story_id}:`, err?.message || err);
     }
   }
 
@@ -385,12 +380,12 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
               const data_url = typeof image_result === "object" ? image_result.image_url : image_result;
               if (data_url) {
                 await update_entity(saved_entity.id, { profile_picture: data_url });
-                await runtime.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
+                await session.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
               }
             }
           });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
-          portrait_promise.catch((error) => app?.log?.(`[GameMaster] Portrait generation for "${name}" failed: ${error?.message || error}`, "warn"));
+          portrait_promise.catch((error) => console.warn(`[GameMaster] Portrait generation for "${name}" failed:`, error?.message || error));
         }
       } catch (_error) {
         /* portrait failure must never break genesis */

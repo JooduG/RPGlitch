@@ -222,7 +222,8 @@
    * thinking cognition blocks, audio playback, edit controls, prologue, and epilogue cards.
    */
   import { parse_tagged_fields as parse_bracket_entries, get_resolution, render_optics_fallback } from "@simulation";
-  import { runtime, simulation_log, simulation_state, image_picker, open_picker } from "@state";
+  import { app, execution, session } from "@state";
+  import { image_picker, open_image_preview, open_picker } from "./ImagePreview.svelte.js";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
   import { Accordion, Button, Icon, Shimmer, TextField, tooltip } from "@primitives";
   import StyleBadge from "./StyleBadge.svelte";
@@ -233,7 +234,6 @@
   import ContextMenu from "./ContextMenu.svelte";
   import { claim_menu } from "./ContextMenu.svelte.js";
   import MacroText from "./MacroText.svelte";
-  import { app } from "@state";
   import Typewriter from "./Typewriter.svelte";
 
   /**
@@ -254,6 +254,10 @@
    * @property {boolean} [is_editing=false]
    * @property {(new_text: string) => any} [on_save]
    * @property {() => any} [on_cancel]
+   * @property {boolean} [is_pinned=false]
+   * @property {() => any} [on_toggle_pin]
+   * @property {(...args: any[]) => any} [on_take_photo]
+   * @property {(...args: any[]) => any} [on_regenerate_image]
    * @property {{ ai: any[], user: any[], fractal: any[] }} [card_actions]
    */
 
@@ -275,6 +279,10 @@
     is_editing = false,
     on_save = undefined,
     on_cancel = undefined,
+    is_pinned = false,
+    on_toggle_pin = undefined,
+    on_take_photo = undefined,
+    on_regenerate_image = undefined,
     card_actions = { ai: [], user: [], fractal: [] },
   } = $props();
 
@@ -308,24 +316,23 @@
   );
 
   let entity = $derived(
-    is_user ? runtime.active_user || app.selected_user
-    : is_ai ? runtime.active_ai || app.selected_ai
-    : is_npc ? Object.values(runtime.active_npcs || {}).find((n) => String(n.name) === character_name) || null
+    is_user ? session.active_user || app.selected_user
+    : is_ai ? session.active_ai || app.selected_ai
+    : is_npc ? Object.values(session.active_npcs || {}).find((n) => String(n.name) === character_name) || null
     : is_fractal ?
-      runtime.active_fractal && runtime.active_fractal.id !== "active_fractal" ?
-        runtime.active_fractal
-      : app.selected_fractal || runtime.active_fractal
+      session.active_fractal && session.active_fractal.id !== "active_fractal" ?
+        session.active_fractal
+      : app.selected_fractal || session.active_fractal
     : null,
   );
 
   let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
-  let is_pinned = $derived(app.pinned_message_id != null && String(app.pinned_message_id) === String(id));
   let is_extended = $derived(is_pinned || is_focused || is_editing);
 
-  let active_style = $derived(runtime.active_fractal?.narrative_style || "");
+  let active_style = $derived(session.active_fractal?.narrative_style || "");
   let speaking_style = $derived(resolve_speaking_style(entity, active_style));
-  let is_streaming_target = $derived(!!(app.streaming.active && (app.streaming.node_id === id || (meta?.id && app.streaming.node_id === meta.id))));
-  let active_text = $derived(is_streaming_target ? app.streaming.content : text);
+  let is_streaming_target = $derived(!!(execution.stream.active && (execution.stream.node_id === id || (meta?.id && execution.stream.node_id === meta.id))));
+  let active_text = $derived(is_streaming_target ? execution.stream.content : text);
   let parsed = $derived(parse_message(active_text, speaking_style));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think || meta?.think || null);
@@ -384,7 +391,7 @@
 
   // Force-finish if interrupted by a subsequent turn
   $effect(() => {
-    if (app.streaming.active && !is_streaming_target && was_streaming && !is_typing_finished) {
+    if (execution.stream.active && !is_streaming_target && was_streaming && !is_typing_finished) {
       is_typing_finished = true;
     }
   });
@@ -396,10 +403,10 @@
 
   let entity_display_name = $derived(entity?.name || character_name || (is_fractal ? "Fractal" : sender));
   const display_entities = $derived({
-    AI: runtime.active_ai,
-    USER: runtime.active_user,
-    FRACTAL: runtime.active_fractal,
-    ALL: [runtime.active_ai, runtime.active_user, runtime.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
+    AI: session.active_ai,
+    USER: session.active_user,
+    FRACTAL: session.active_fractal,
+    ALL: [session.active_ai, session.active_user, session.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
       Boolean,
     ),
   });
@@ -410,11 +417,7 @@
     if (target?.closest("button, input, textarea, a, select, [role='button']")) {
       return;
     }
-    if (app.pinned_message_id === id) {
-      app.pinned_message_id = null;
-    } else {
-      app.pinned_message_id = id;
-    }
+    on_toggle_pin?.();
   }
 
   function handle_focus() {
@@ -437,7 +440,7 @@
   function handle_speak() {
     if (!clean_markdown) return;
     if (!Audio.is_role_enabled(speak_role)) {
-      app.log(`${entity_display_name || "This voice"} is muted - enable it from the message menu to hear it read aloud.`, "warn");
+      console.warn(`${entity_display_name || "This voice"} is muted - enable it from the message menu to hear it read aloud.`);
       return;
     }
     Audio.voice.active_message_id = id;
@@ -471,7 +474,7 @@
         items.push({
           label: "Profile Picture",
           onSelect: () =>
-            app.open_image_preview({
+            open_image_preview({
               src: entity.profile_picture,
               metadata:
                 entity.modifiers ?
@@ -491,12 +494,12 @@
       items.push({
         label: "Generate NPC Picture",
         onSelect: () => {
-          if (app.take_photo_handler) {
-            const active_fractal = runtime.active_fractal || app.selected_fractal;
+          if (on_take_photo) {
+            const active_fractal = session.active_fractal || app.selected_fractal;
             const raw_fallback = render_optics_fallback({ tier: "story_character", subject: "ai", ai: entity, fractal: active_fractal });
             const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
 
-            app.take_photo_handler("npc", photo_prompt, "story_character", entity);
+            on_take_photo("npc", photo_prompt, "story_character", entity);
           }
         },
       });
@@ -574,12 +577,12 @@
     preview_options.signature_color = preview_signature;
     if (preview_id) {
       preview_options.on_delete = () => {
-        simulation_log.delete_attachment(String(preview_id), attach_idx);
+        session.delete_attachment(String(preview_id), attach_idx);
       };
     }
-    if (preview_id && app.regenerate_image_handler) {
+    if (preview_id && on_regenerate_image) {
       preview_options.on_regenerate = () => {
-        app.regenerate_image_handler({
+        on_regenerate_image({
           prompt: preview_options.metadata?.prompt || "A cinematic scene portrait",
           negative_prompt: preview_options.metadata?.negative_prompt,
           mode: preview_options.metadata?.mode || (is_fractal ? "landscape" : "character"),
@@ -603,7 +606,7 @@
 
   let entity_blocks = $derived(meta ? process_entity_blocks(meta) : []);
 
-  let telemetry_card_label = $derived(meta ? get_telemetry_label(meta, runtime) : "");
+  let telemetry_card_label = $derived(meta ? get_telemetry_label(meta, session) : "");
 
   // Director turn (A2): signed per-turn deltas + post-clamp absolute levels.
   const DIRECTOR_AXES = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];
@@ -620,7 +623,7 @@
   });
 
   const get_entity_name = (key) => {
-    return resolve_entity_name(key, runtime);
+    return resolve_entity_name(key, session);
   };
 
   const render_telemetry_text = (txt) => {
@@ -719,7 +722,7 @@
               aria-label="Continue"
               actions={[tooltip]}
               onclick={on_continue}
-              disabled={simulation_state.busy}
+              disabled={execution.busy}
               class="text-white/85 transition-colors hover:text-white">
               <Icon name="play" class="size-4" />
             </Button>
@@ -730,7 +733,7 @@
               aria-label="Regenerate"
               actions={[tooltip]}
               onclick={on_regenerate}
-              disabled={simulation_state.busy}
+              disabled={execution.busy}
               class="text-white/85 transition-colors hover:text-white">
               <Icon name="refresh" class="size-4" />
             </Button>
@@ -882,20 +885,20 @@
 
 {#snippet entity_trio()}
   <div class="my-tight flex h-character-card-height w-full items-stretch gap-tight md:gap-standard" data-msg-trio>
-    {#if runtime.active_ai || app.selected_ai}
-      {@const a = runtime.active_ai || app.selected_ai}
+    {#if session.active_ai || app.selected_ai}
+      {@const a = session.active_ai || app.selected_ai}
       <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
         <EntityCard
           entity={a}
           type="ai"
           variant="message"
           actions={card_actions.ai}
-          onclick={() => app.open_profile(a)}
-          onViewProfile={() => app.open_profile(a)} />
+          onclick={() => app.open_profile(a, "ai")}
+          onViewProfile={() => app.open_profile(a, "ai")} />
       </div>
     {/if}
-    {#if runtime.active_fractal || app.selected_fractal}
-      {@const f = runtime.active_fractal || app.selected_fractal}
+    {#if session.active_fractal || app.selected_fractal}
+      {@const f = session.active_fractal || app.selected_fractal}
       <div class="min-w-0" style="flex-grow: 2" data-msg-card="fractal">
         <div class="flex h-full w-full flex-col gap-tight md:gap-standard">
           <div class="min-h-0 flex-1">
@@ -904,8 +907,8 @@
               type="fractal"
               variant="message"
               actions={card_actions.fractal}
-              onclick={() => app.open_profile(f)}
-              onViewProfile={() => app.open_profile(f)} />
+              onclick={() => app.open_profile(f, "fractal")}
+              onViewProfile={() => app.open_profile(f, "fractal")} />
           </div>
           <div class="flex w-full shrink-0 justify-center gap-tight md:gap-standard" data-msg-style-badge>
             <StyleBadge entity={f} layout="prologue" class="flex w-full justify-center gap-tight md:gap-standard" />
@@ -913,16 +916,16 @@
         </div>
       </div>
     {/if}
-    {#if runtime.active_user || app.selected_user}
-      {@const u = runtime.active_user || app.selected_user}
+    {#if session.active_user || app.selected_user}
+      {@const u = session.active_user || app.selected_user}
       <div class="min-w-0" style="flex-grow: 1" data-msg-card="user">
         <EntityCard
           entity={u}
           type="user"
           variant="message"
           actions={card_actions.user}
-          onclick={() => app.open_profile(u)}
-          onViewProfile={() => app.open_profile(u)} />
+          onclick={() => app.open_profile(u, "user")}
+          onViewProfile={() => app.open_profile(u, "user")} />
       </div>
     {/if}
   </div>
@@ -1021,7 +1024,7 @@
               {#if id}
                 <Button
                   variant="bare"
-                  onclick={() => simulation_log.delete_attachment(String(id), attach_idx)}
+                  onclick={() => session.delete_attachment(String(id), attach_idx)}
                   class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white">
                   Remove
                 </Button>
@@ -1044,7 +1047,7 @@
               duration-200
               hover:brightness-110
             "
-            onclick={() => app.open_image_preview(preview_options)}
+            onclick={() => open_image_preview(preview_options)}
             aria-label="View Attachment">
             <img
               {src}

@@ -1,38 +1,43 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { developer_log } from "./devlog.svelte.js";
-import { app } from "./interface.svelte.js";
+import { app, InterfaceStore } from "./interface.svelte.js";
 
 describe("InterfaceStore (app)", () => {
   beforeEach(() => {
-    developer_log.clear();
+    app.selected_ai = null;
+    app.selected_user = null;
+    app.selected_fractal = null;
+    app.claimed_entity_ids.clear();
+    app.view = "storyboard";
+    app.ghostwrite_request = 0;
   });
 
-  it("exports a singleton app instance with default states", () => {
-    expect(app).toBeDefined();
+  it("exports a singleton app instance with clean default state", () => {
+    expect(app).toBeInstanceOf(InterfaceStore);
     expect(app.view).toBe("storyboard");
-    expect(app.settings.sound).toBe(true);
-    expect(app.settings.stream_text).toBe(true);
+    expect(app.settings).toEqual({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false, visual_style: "none" });
   });
 
-  it("toggles settings correctly", () => {
-    const initial_sound = app.settings.sound;
-    app.toggle_sound();
-    expect(app.settings.sound).toBe(!initial_sound);
+  it("tracks storyboard slot readiness and clears claimed selections", () => {
+    expect(app.selected_count).toBe(0);
+    expect(app.is_ready).toBe(false);
 
-    // Reset back
-    app.toggle_sound();
-    expect(app.settings.sound).toBe(initial_sound);
+    app.select_entity("ai", { id: "ai-1", name: "Orion", type: "character" });
+    app.select_entity("user", { id: "user-1", name: "You", type: "character" });
+    app.select_entity("fractal", { id: "frac-1", name: "Nova", type: "fractal" });
+
+    expect(app.selected_count).toBe(3);
+    expect(app.is_ready).toBe(true);
+
+    app.claimed_entity_ids.add("ai-1");
+    app.clean_claimed_selections();
+    expect(app.selected_ai).toBeNull();
+    expect(app.selected_count).toBe(2);
+    expect(app.is_ready).toBe(false);
   });
 
-  it("logs messages into developer_log via app.log()", () => {
-    app.log("Interface test log entry", "system");
-    expect(developer_log.entries.length).toBe(1);
-    expect(developer_log.entries[0].message).toBe("Interface test log entry");
-    expect(app.logs.length).toBe(1);
-  });
-
-  it("reflects embeddings_engine readiness in models_ready and models_progress", () => {
-    expect(typeof app.models_ready).toBe("boolean");
-    expect(typeof app.models_progress).toBe("number");
+  it("increments ghostwrite_request via request_ghostwrite()", () => {
+    app.request_ghostwrite();
+    app.request_ghostwrite();
+    expect(app.ghostwrite_request).toBe(2);
   });
 });

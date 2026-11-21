@@ -7,9 +7,8 @@
  * Pure Promise-based session tracking, story-session creation and simulation
  * log CRUD over the Dexie `db` (same layer, ./db.js). Zero Svelte runes, zero
  * upward imports: reactive-feed notification travels through an explicit
- * `log_store` passed per-call (see `on_stories_changed` for story-archive
- * notifications), runtime sync through caller hooks — never through direct
- * engine imports.
+ * `log_store` passed per-call, runtime sync through caller hooks — never
+ * through direct engine imports.
  *
  * Phase 3 consolidation: session/log logic moved out of `src/data/db.js`
  * (Sections 3 & 4) and the pure DB operations absorbed from
@@ -32,43 +31,6 @@ import { append_ledger_entries } from "./ledger.js";
 
 /** Durably stored active session key in kv_settings */
 export const SESSION_ID_KEY = "active_session_id";
-
-/**
- * Bound notification sink, installed once by the composition root via the
- * state driver facade passes `{ log_store }` per call.
- * Plain object - no runes - so this module stays a pure data service.
- * @type {{ log_store: any }}
- */
-/**
- * Story-archive change subscribers (Rank 3 `app.stories_version` bump lives
- * in the state layer; data/ never imports @state).
- * @type {Set<(story_id: string | null) => void>}
- */
-const _stories_listeners = new Set();
-
-/**
- * Subscribes to story-archive mutations. Returns an unsubscribe function.
- * @param {(story_id: string | null) => void} fn
- * @returns {() => void}
- */
-export function on_stories_changed(fn) {
-  if (typeof fn === "function") _stories_listeners.add(fn);
-  return () => _stories_listeners.delete(fn);
-}
-
-/**
- * Notifies story-archive subscribers (best-effort, never throws).
- * @param {string | null} [story_id=null]
- */
-function _notify_stories_changed(story_id = null) {
-  for (const fn of _stories_listeners) {
-    try {
-      fn(story_id);
-    } catch {
-      /* subscriber errors never break persistence */
-    }
-  }
-}
 
 // ============================================================================
 // 1. SESSION TRACKING & KV SETTINGS (from db.js Section 4)
@@ -517,7 +479,6 @@ export async function create_from_selection(selection, deps = {}) {
   });
 
   const story_id = String(id);
-  _notify_stories_changed(story_id);
   if (typeof deps.set_active === "function") {
     await deps.set_active(story_id);
   }

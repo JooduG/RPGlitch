@@ -13,7 +13,8 @@
   import { compute_initials, pick_random, get_signature_color } from "@utils";
   import { SvelteSet } from "svelte/reactivity";
   import { tick } from "svelte";
-  import { app, runtime, simulation_log, simulation_state } from "@state";
+  import { app, execution, session } from "@state";
+  import { open_image_preview } from "./ImagePreview.svelte.js";
   import { parse_message } from "./ChatBubble.svelte";
   const stories = { active_entity_ids };
 
@@ -105,7 +106,7 @@
     }
 
     async shuffle() {
-      if (app.simulation.loading) return;
+      if (execution.loading) return;
       if (!app.ai_list.length) {
         await app.load_entities();
       }
@@ -217,7 +218,7 @@
       const claimed = await stories.active_entity_ids();
       const locked = claimed_entity_lock([app.selected_ai, app.selected_user, app.selected_fractal], claimed);
       if (locked) {
-        app.log(`"${locked.name || "Entity"}" is claimed by an active story. End or delete that story first.`, "error");
+        console.error(`"${locked.name || "Entity"}" is claimed by an active story. End or delete that story first.`);
         return;
       }
       await chrono_engine.start({ ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal });
@@ -240,11 +241,11 @@
     $effect(() => {
       const _pending = app.begin_story_pending;
       if (!_pending) return;
-      const has_prologue_entry = simulation_log.feed.some((entry) => entry.meta?.is_prologue);
+      const has_prologue_entry = session.feed.some((entry) => entry.meta?.is_prologue);
       if (!has_prologue_entry || storyboard.begin_flight_started) return;
 
-      if (app.streaming.active && app.streaming.content) {
-        const parsed = parse_message(app.streaming.content);
+      if (execution.stream.active && execution.stream.content) {
+        const parsed = parse_message(execution.stream.content);
         const visible_text = (parsed.displayText || "").replace(/<[^>]+>/g, "").trim();
         if (!visible_text) return;
       } else {
@@ -253,7 +254,7 @@
 
       storyboard.begin_flight_started = true;
       const assets = capture_storyboard_flight();
-      app._begin_flight_assets = assets;
+      app.begin_flight_claimed = true;
 
       Promise.resolve().then(async () => {
         await tick();
@@ -264,7 +265,7 @@
         if (!document.querySelector("[data-msg-prologue]")) {
           app.begin_story_pending = false;
           app.suppress_card_transitions = false;
-          app._begin_flight_assets = null;
+          app.begin_flight_claimed = false;
           return;
         }
         const vp = document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
@@ -280,7 +281,7 @@
         fly_storyboard_cards_into_prologue(assets, dst_rects);
         app.begin_story_pending = false;
         app.suppress_card_transitions = false;
-        app._begin_flight_assets = null;
+        app.begin_flight_claimed = false;
       });
     });
   }
@@ -449,19 +450,19 @@
    */
   function build_actions(type) {
     const entity_map = {
-      ai: app.selected_ai || runtime.active_ai,
-      user: app.selected_user || runtime.active_user,
-      fractal: app.selected_fractal || runtime.active_fractal,
+      ai: app.selected_ai || session.active_ai,
+      user: app.selected_user || session.active_user,
+      fractal: app.selected_fractal || session.active_fractal,
     };
     const entity = entity_map[type];
 
-    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];
+    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity, type), disabled: !entity }];
 
     if (entity?.profile_picture) {
       items.push({
         label: "Profile Picture",
         onSelect: () =>
-          app.open_image_preview({
+          open_image_preview({
             src: entity.profile_picture,
             metadata:
               entity.modifiers ?
@@ -516,11 +517,11 @@
     }
     import_error_message = "";
     if (info.kind === "url") {
-      app.log(`Fetched ${info.chars?.toLocaleString()} chars from ${info.url}`, "system");
+      console.info(`Fetched ${info.chars?.toLocaleString()} chars from ${info.url}`);
     } else if (info.kind === "file") {
-      app.log(`Loaded ${info.name}${info.chars ? ` (${info.chars.toLocaleString()} chars)` : ""}`, "system");
+      console.info(`Loaded ${info.name}${info.chars ? ` (${info.chars.toLocaleString()} chars)` : ""}`);
     } else if (info.kind === "image") {
-      app.log(`Loaded avatar from ${info.name || info.url}`, "system");
+      console.info(`Loaded avatar from ${info.name || info.url}`);
     }
   }
 
@@ -554,7 +555,7 @@
 
     import_loading = true;
     import_error_message = "";
-    simulation_state.set_intent_active(true);
+    execution.set_intent_active(true);
 
     try {
       let parsed = null;
@@ -579,7 +580,7 @@
         }
       }
 
-      app.log(`Import successful.`, "system");
+      console.info("Import successful.");
       await app.load_entities();
 
       if (import_character && !app.selected_ai) {
@@ -597,10 +598,9 @@
     } catch (err) {
       console.error(err);
       import_error_message = err.message || "Failed to import entities.";
-      app.log(`Import failed: ${import_error_message}`, "error");
     } finally {
       import_loading = false;
-      simulation_state.set_intent_active(false);
+      execution.set_intent_active(false);
     }
   }
 
@@ -706,13 +706,13 @@
     try {
       const saved = await upsert_entity(plan);
       await app.load_entities();
-      app.log(`Birthed new ${type} blueprint: ${saved.id}`, "db");
+      console.info(`Birthed new ${type} blueprint: ${saved.id}`);
       app.select_entity(card_hand_type, saved);
-      app.open_profile(saved);
+      app.open_profile(saved, card_hand_type);
       app.close_card_hand();
     } catch (err) {
       const error = /** @type {Error} */ (err);
-      app.log(`Factory initialization failed: ${error.message}`, "error");
+      console.error(`Factory initialization failed: ${error.message}`, error);
     }
   }
 
@@ -888,7 +888,7 @@
   {#if !app.entities_loaded}
     {@render card_skeleton()}
   {:else}
-    {@const entity = app.selected_ai || runtime.active_ai}
+    {@const entity = app.selected_ai || session.active_ai}
     <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
       <EntityCard
         variant={entity ? "panel" : "slot"}
@@ -898,7 +898,7 @@
         actions={ai_actions}
         on_select={() => {
           if (entity) {
-            app.toggle_profile(true, entity);
+            app.toggle_profile(true, entity, "ai");
           } else {
             app.open_card_hand("ai");
           }
@@ -912,7 +912,7 @@
   {#if !app.entities_loaded}
     {@render card_skeleton()}
   {:else}
-    {@const entity = app.selected_fractal || runtime.active_fractal}
+    {@const entity = app.selected_fractal || session.active_fractal}
     <div class="flex h-full w-full items-center justify-center" data-slot-type="fractal">
       <EntityCard
         variant={entity ? "panel" : "slot"}
@@ -922,7 +922,7 @@
         actions={fractal_actions}
         on_select={() => {
           if (entity) {
-            app.toggle_profile(true, entity);
+            app.toggle_profile(true, entity, "fractal");
           } else {
             app.open_card_hand("fractal");
           }
@@ -936,7 +936,7 @@
   {#if !app.entities_loaded}
     {@render card_skeleton()}
   {:else}
-    {@const entity = app.selected_user || runtime.active_user}
+    {@const entity = app.selected_user || session.active_user}
     <div class="flex h-full w-full items-center justify-center" data-slot-type="user" data-panel-card="user">
       <EntityCard
         variant={entity ? "panel" : "slot"}
@@ -946,7 +946,7 @@
         actions={user_actions}
         on_select={() => {
           if (entity) {
-            app.toggle_profile(true, entity);
+            app.toggle_profile(true, entity, "user");
           } else {
             app.open_card_hand("user");
           }

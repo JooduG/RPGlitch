@@ -5,7 +5,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, act } from "@testing-library/svelte";
 
-import { app, runtime, session_driver } from "@state";
+import { app, session } from "@state";
 import Console from "./Console.svelte";
 import * as engine from "@engine";
 
@@ -24,15 +24,14 @@ describe("Console & Settings State", () => {
 
   it("preserves active story session when returning to storyboard view", async () => {
     const mock_story_id = "test-active-story-123";
-    runtime.story_id = mock_story_id;
-    await session_driver.set_active(mock_story_id);
+    session.story_id = mock_story_id;
+    await session.set_active(mock_story_id);
 
     // Switch view to storyboard (same action triggered by Return to Storyboard)
     await app.set_view("storyboard");
 
     expect(app.view).toBe("storyboard");
-    expect(runtime.story_id).toBe(mock_story_id);
-    expect(session_driver.active_id).toBe(mock_story_id);
+    expect(session.story_id).toBe(mock_story_id);
   });
 
   it("triggers ghostwriter exactly once per request and prevents loop", async () => {

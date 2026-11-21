@@ -28,7 +28,7 @@ vi.mock("@state", async (importOriginal) => {
       settings: { dev_mode: false },
       claimed_entity_ids: { has: vi.fn(() => false) },
     },
-    runtime: { active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" }, save_entity: vi.fn(), update_entity: vi.fn() },
+    session: { active_user: { id: "test-char", name: "Test Character", type: "character", profile_picture: "" }, save_entity: vi.fn(), update_entity: vi.fn() },
   };
 });
 
@@ -53,11 +53,11 @@ describe("ProfileState setImage", () => {
 
     // Assert persistence
     const { db } = await import("@data");
-    const { runtime } = await import("@state");
+    const { session } = await import("@state");
 
     expect(db.entities.update).toHaveBeenCalledWith("test-char", { profile_picture: "data:image/png;base64,trimmed123", updated_at: expect.any(Number) });
 
-    expect(runtime.update_entity).toHaveBeenCalledWith("character", "test-char", { profile_picture: "data:image/png;base64,trimmed123" });
+    expect(session.update_entity).toHaveBeenCalledWith("character", "test-char", { profile_picture: "data:image/png;base64,trimmed123" });
   });
 });
 

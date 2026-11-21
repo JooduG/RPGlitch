@@ -8,9 +8,9 @@
    */
   import { render_optics_fallback } from "@simulation";
   import { get_mock_message, refine_image_prompt } from "@engine";
-  import { runtime, session_driver, simulation_log, simulation_state, run_image_regeneration } from "@state";
+  import { app, execution, session } from "@state";
+  import { open_image_preview, run_image_regeneration } from "./ImagePreview.svelte.js";
   import { Audio, visual_engine } from "@media";
-  import { app } from "@state";
 
   // --- STORYMODE SHARED STATE ---
   class StorymodeState {
@@ -29,11 +29,11 @@
    * @param {any} [target_entity]
    */
   export async function take_photo(subject, prompt, kind, target_entity = null) {
-    if (simulation_state.busy) return;
+    if (execution.busy) return;
     const entity_map = {
-      ai: runtime.active_ai || app.selected_ai,
-      user: runtime.active_user || app.selected_user,
-      fractal: runtime.active_fractal || app.selected_fractal,
+      ai: session.active_ai || app.selected_ai,
+      user: session.active_user || app.selected_user,
+      fractal: session.active_fractal || app.selected_fractal,
     };
     const label_map = { ai: "AI", user: "User", fractal: "Fractal", npc: "NPC" };
     const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN", npc: "AI_TURN" };
@@ -44,9 +44,9 @@
     let placeholder_entry = null;
     let target_mode = "";
     try {
-      simulation_state.role = subject;
-      simulation_state.start_generation(subject);
-      simulation_state.start_media_stage({
+      execution.role = subject;
+      execution.start_generation(subject);
+      execution.start_media_stage({
         type: subject,
         name: role_label,
         avatar: entity?.profile_picture || entity?.avatar || null,
@@ -59,7 +59,7 @@
       let enhanced_negative = "";
       try {
         const configured_style = app.settings?.visual_style;
-        const story_style = runtime.active_fractal?.visual_style;
+        const story_style = session.active_fractal?.visual_style;
         const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
         const enhanced = await refine_image_prompt(prompt, subject, entity, app_style);
         if (enhanced?.prompt) {
@@ -72,41 +72,35 @@
         console.warn("[take_photo] Envision failed, falling back to draft prompt:", envision_err);
       }
 
-      placeholder_entry = await session_driver.log_message("", subject, role_label, {
+      placeholder_entry = await session.log_message("", subject, role_label, {
         turn_type,
         attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
       });
 
-      const result = await visual_engine.visualize(
-        refined_prompt,
-        kind,
-        { subject, entity, negative_prompt: enhanced_negative },
-        { app, runtime, session_driver, simulation_log },
-      );
+      const result = await visual_engine.visualize(refined_prompt, kind, { subject, entity, negative_prompt: enhanced_negative }, { app, session });
 
       if (result?.image_url && placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+        await session.update_log_attachment(placeholder_entry.id, 0, {
           src: result.image_url,
           metadata: { mode: target_mode, ...result.metadata, prompt: result.refined_prompt },
         });
       } else if (!result?.image_url) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+        await session.update_log_attachment(placeholder_entry.id, 0, {
           src: null,
           metadata: { mode: target_mode, prompt, failed: true, error: "Image generation returned no image" },
         });
-        app.log(`${role_label} image generation failed. Please try again.`, "error");
+        console.error(`${role_label} image generation failed. Please try again.`);
       }
     } catch (err) {
       console.error(`[Photo Error: ${subject}]`, err);
       if (placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+        await session.update_log_attachment(placeholder_entry.id, 0, {
           src: null,
           metadata: { mode: target_mode, prompt, failed: true, error: err?.message || "Image generation failed" },
         });
       }
-      app.log(`Image generation failed: ${err.message || err}`, "error");
     } finally {
-      simulation_state.complete();
+      execution.complete();
     }
   }
 
@@ -114,14 +108,14 @@
    * Group shot helper - logs placeholder immediately, then fills in the image.
    */
   export async function take_group_photo() {
-    if (simulation_state.busy) return;
+    if (execution.busy) return;
     /** @type {{ id?: string|number } | null} */
     let placeholder_entry = null;
     try {
-      simulation_state.role = "fractal";
-      simulation_state.start_generation("fractal");
-      const fractal = runtime.active_fractal || app.selected_fractal;
-      simulation_state.start_media_stage({
+      execution.role = "fractal";
+      execution.start_generation("fractal");
+      const fractal = session.active_fractal || app.selected_fractal;
+      execution.start_media_stage({
         type: "fractal",
         name: fractal?.name || "Scene",
         avatar: fractal?.profile_picture || fractal?.avatar || null,
@@ -129,36 +123,35 @@
       });
       const group_prompt = "A scene featuring both the AI character and the user persona together";
 
-      placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
+      placeholder_entry = await session.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
         attachments: [{ src: null, metadata: { mode: "story_entities", prompt: group_prompt } }],
       });
 
-      const result = await visual_engine.visualize(group_prompt, "story_entities", {}, { app, runtime, session_driver, simulation_log });
+      const result = await visual_engine.visualize(group_prompt, "story_entities", {}, { app, session });
 
       if (result?.image_url && placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+        await session.update_log_attachment(placeholder_entry.id, 0, {
           src: result.image_url,
           metadata: { ...result.metadata, prompt: result.refined_prompt },
         });
       } else if (!result?.image_url) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+        await session.update_log_attachment(placeholder_entry.id, 0, {
           src: null,
           metadata: { mode: "story_entities", prompt: group_prompt, failed: true, error: "Image generation returned no image" },
         });
-        app.log("Story Image generation failed. Please try again.", "error");
+        console.error("Story Image generation failed. Please try again.");
       }
     } catch (err) {
       console.error("[Story Image Error]", err);
       if (placeholder_entry?.id) {
-        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
+        await session.update_log_attachment(placeholder_entry.id, 0, {
           src: null,
           metadata: { mode: "story_entities", failed: true, error: err?.message || "Image generation failed" },
         });
       }
-      app.log(`Story Image failed: ${err.message || err}`, "error");
     } finally {
-      simulation_state.complete();
+      execution.complete();
     }
   }
 
@@ -180,7 +173,7 @@
       refine_prompt: refine_image_prompt,
       on_select: (candidate) => {
         if (log_id) {
-          session_driver.update_log_attachment(log_id, attach_idx, {
+          session.update_log_attachment(log_id, attach_idx, {
             src: candidate.url,
             metadata: { ...candidate.metadata, regenerate_count: regenerate_count + 1 },
           });
@@ -193,7 +186,7 @@
    * Ghostwriter trigger - fires a signal the Console watches.
    */
   export function ghostwrite() {
-    if (simulation_state.busy) return;
+    if (execution.busy) return;
     app.ghostwrite_request++;
   }
 
@@ -202,40 +195,36 @@
    * @param {string} role
    */
   export async function run_mock(role) {
-    if (simulation_state.busy) return;
+    if (execution.busy) return;
     const entity_map = {
-      ai: runtime.active_ai || app.selected_ai,
-      user: runtime.active_user || app.selected_user,
-      fractal: runtime.active_fractal || app.selected_fractal,
+      ai: session.active_ai || app.selected_ai,
+      user: session.active_user || app.selected_user,
+      fractal: session.active_fractal || app.selected_fractal,
     };
     const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
     const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
     const entity = entity_map[role];
     const content = get_mock_message();
 
-    simulation_state.start_generation(role);
+    execution.start_generation(role);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2500));
-      app.start_stream("mock-node", role);
+      execution.start_stream("mock-node", role);
 
       let buffer = "";
       const words = content.split(" ");
       for (let i = 0; i < words.length; i++) {
         buffer += (i === 0 ? "" : " ") + words[i];
-        app.streaming.content = buffer;
+        execution.stream.content = buffer;
         await new Promise((resolve) => setTimeout(resolve, 60));
       }
 
-      await session_driver.log_message(content, role, entity?.name || label_map[role], { turn_type: turn_map[role] });
+      await session.log_message(content, role, entity?.name || label_map[role], { turn_type: turn_map[role] });
     } finally {
-      simulation_state.complete();
-      app.end_stream();
+      execution.complete();
+      execution.end_stream();
     }
   }
-
-  // Bind handlers into app for backwards compatibility
-  app.take_photo_handler = take_photo;
-  app.regenerate_image_handler = regenerate_image;
 </script>
 
 <script>
@@ -250,9 +239,9 @@
   function build_storymode_actions(type) {
     const in_dev = app.settings.dev_mode;
     const entity_map = {
-      ai: app.selected_ai || runtime.active_ai,
-      user: app.selected_user || runtime.active_user,
-      fractal: app.selected_fractal || runtime.active_fractal,
+      ai: app.selected_ai || session.active_ai,
+      user: app.selected_user || session.active_user,
+      fractal: app.selected_fractal || session.active_fractal,
     };
     const entity = entity_map[type];
 
@@ -264,13 +253,13 @@
     const raw_fallback = render_optics_fallback({ tier, subject: type, ai: entity_map.ai, user: entity_map.user, fractal: entity_map.fractal });
     const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
 
-    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];
+    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity, type), disabled: !entity }];
 
     if (entity?.profile_picture) {
       items.push({
         label: "Profile Picture",
         onSelect: () =>
-          app.open_image_preview({
+          open_image_preview({
             src: entity.profile_picture,
             metadata:
               entity.modifiers ?
@@ -291,10 +280,10 @@
     items.push({
       label: photo_label,
       onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "story_scene" : "story_character"),
-      disabled: simulation_state.busy,
+      disabled: execution.busy,
     });
     if (type === "fractal") {
-      items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: simulation_state.busy });
+      items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: execution.busy });
     }
     if (type === "user") {
       items.push({
@@ -306,11 +295,11 @@
         },
       });
       items.push({ separator: true });
-      items.push({ label: "Ghostwrite", onSelect: () => ghostwrite(), disabled: simulation_state.busy });
+      items.push({ label: "Ghostwrite", onSelect: () => ghostwrite(), disabled: execution.busy });
     }
 
     if (in_dev) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock(type), disabled: simulation_state.busy });
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock(type), disabled: execution.busy });
     }
 
     return items;
@@ -319,36 +308,36 @@
   let card_actions = $derived({ ai: build_storymode_actions("ai"), user: build_storymode_actions("user"), fractal: build_storymode_actions("fractal") });
 
   // --- FEED ACTIVE TURN ORCHESTRATION ---
-  let is_active_turn = $derived(simulation_state.phase === "generating" || app.streaming.active);
+  let is_active_turn = $derived(execution.phase === "generating" || execution.stream.active);
   let active_turn_role = $derived.by(() => {
-    if (app.streaming.active) return app.streaming.role;
-    if (simulation_state.phase === "generating") {
+    if (execution.stream.active) return execution.stream.role;
+    if (execution.phase === "generating") {
       if (
-        simulation_state.role === "selfie" ||
-        simulation_state.role === "character" ||
-        simulation_state.role === "characters" ||
-        simulation_state.role === "setting" ||
-        simulation_state.role === "paparazzi" ||
-        simulation_state.role === "story_entities" ||
-        simulation_state.role === "story_character" ||
-        simulation_state.role === "solo_entity" ||
-        simulation_state.role === "story_scene"
+        execution.role === "selfie" ||
+        execution.role === "character" ||
+        execution.role === "characters" ||
+        execution.role === "setting" ||
+        execution.role === "paparazzi" ||
+        execution.role === "story_entities" ||
+        execution.role === "story_character" ||
+        execution.role === "solo_entity" ||
+        execution.role === "story_scene"
       )
         return "ai";
-      return simulation_state.role ?? "ai";
+      return execution.role ?? "ai";
     }
-    return simulation_state.role;
+    return execution.role;
   });
 
   let active_turn_name = $derived.by(() => {
-    if (simulation_state.generating_entity_name) return simulation_state.generating_entity_name;
+    if (execution.generating_entity?.name) return execution.generating_entity.name;
     if (active_turn_role === "ai") return app.selected_ai?.name;
     if (active_turn_role === "fractal") return app.selected_fractal?.name;
     return "";
   });
 
   let visible_feed = $derived.by(() => {
-    let list = [...simulation_log.feed];
+    let list = [...session.feed];
     if (!app.settings.dev_mode) {
       list = list.filter((entry) => entry.role !== "system");
     }
@@ -370,18 +359,18 @@
       return text.length > 0;
     });
 
-    if (is_active_turn && app.streaming.active) {
-      const active_id = app.streaming.node_id ?? "temp";
-      const stream_role = simulation_state.generating_entity_type ?? active_turn_role ?? "ai";
+    if (is_active_turn && execution.stream.active) {
+      const active_id = execution.stream.node_id ?? "temp";
+      const stream_role = execution.generating_entity?.type ?? active_turn_role ?? "ai";
       if (stream_role !== "system" && !list.some((entry) => entry.id === active_id)) {
         list.push({
           id: active_id,
-          text: app.streaming.content ?? "",
+          text: execution.stream.content ?? "",
           role: stream_role,
           character_name: active_turn_name ?? "",
           created_at: Date.now(),
           busy: true,
-          meta: { is_prologue: app.streaming.role === "fractal" },
+          meta: { is_prologue: execution.stream.role === "fractal" },
         });
       }
     }
@@ -482,8 +471,8 @@
   });
 
   $effect(() => {
-    const _is_active = app.streaming.active;
-    const _stream_len = _is_active ? String(app.streaming.content ?? "").length : 0;
+    const _is_active = execution.stream.active;
+    const _stream_len = _is_active ? String(execution.stream.content ?? "").length : 0;
     const _pending = app.begin_story_pending;
     const current_len = visible_feed.length;
 
@@ -583,7 +572,7 @@
       const copy = { ...pending_deletes };
       delete copy[id];
       pending_deletes = copy;
-      await simulation_log.delete_entry(String(id));
+      await session.delete_entry(String(id));
     }, UNDO_DELETE_WINDOW_MS);
     pending_deletes = { ...pending_deletes, [id]: { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS } };
   }
@@ -603,7 +592,7 @@
   }
 
   async function handle_save_edit(id, updated_text) {
-    await simulation_log.edit_entry(id.toString(), updated_text);
+    await session.edit_entry(id.toString(), updated_text);
     editing_index = null;
   }
 
@@ -686,16 +675,22 @@
                   }}
                   meta={entry.meta}
                   busy={entry.busy}
+                  is_pinned={storymode_state.pinned_message_id != null && String(storymode_state.pinned_message_id) === String(entry.id)}
+                  on_toggle_pin={() => {
+                    storymode_state.pinned_message_id = storymode_state.pinned_message_id === entry.id ? null : entry.id;
+                  }}
+                  on_take_photo={take_photo}
+                  on_regenerate_image={regenerate_image}
                   {card_actions} />
               </div>
             {/if}
           {/each}
 
-          {#if visible_feed.length === 0 && !simulation_state.busy}
+          {#if visible_feed.length === 0 && !execution.busy}
             <div
               class="flex h-full flex-col items-center justify-center gap-standard p-standard text-center text-slate-600 [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]">
               <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
-              <Button variant="primary" onclick={() => chrono_engine.retry()} disabled={simulation_state.busy} label="Retry Connection" />
+              <Button variant="primary" onclick={() => chrono_engine.retry()} disabled={execution.busy} label="Retry Connection" />
             </div>
           {/if}
           <!-- SPACER for Console overlap -->

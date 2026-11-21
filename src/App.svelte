@@ -7,7 +7,7 @@
    * while Storyboard and Storymode own their respective stage regions inside the
    * persistent 12-column root grid.
    */
-  import { runtime, app } from "@state";
+  import { app, execution, session } from "@state";
   import { Audio, motion } from "@media";
   import { Tooltip, unpin_tooltip } from "@primitives";
   import { get_signature_color } from "@utils";
@@ -15,7 +15,7 @@
 
   // --- DERIVED RUNES ---
 
-  let active_fractal = $derived(runtime.active_fractal || app.selected_fractal);
+  let active_fractal = $derived(session.active_fractal || app.selected_fractal);
   let fractal_url = $derived(active_fractal?.profile_picture || "");
   let fractal_opacity = $derived("var(--opacity-muted)");
 
@@ -43,14 +43,14 @@
   });
 
   $effect(() => {
-    if (!runtime.is_ready) {
-      runtime.sync();
+    if (!session.is_ready) {
+      session.sync();
     }
   });
 
   // Centralized State Reset: Restores engine physics velocity when streaming begins
   $effect(() => {
-    if (app.streaming.active) {
+    if (execution.stream.active) {
       motion.intensity = 1.0;
     }
   });
@@ -82,7 +82,7 @@
     </div>
 
     <div
-      class="pointer-events-none fixed -inset-5 z-overlay bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating' ?
+      class="pointer-events-none fixed -inset-5 z-overlay bg-(image:--noise-url) mix-blend-overlay {execution.phase === 'generating' ?
         'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
       : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
       style:animation-play-state={motion.is_reduced ? "paused" : "running"}>

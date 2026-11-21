@@ -12,7 +12,8 @@
 <script>
   import { list_entities } from "@data";
   import { extract_entity_relationships } from "@simulation";
-  import { app, runtime } from "@state";
+  import { app, session } from "@state";
+  import { open_image_preview } from "./ImagePreview.svelte.js";
   import { get_signature_color, render_display_macros } from "@utils";
   import { Icon, pin_tooltip_menu, tooltip } from "@primitives";
   import { build_entity_preview_actions } from "./ContextMenu.svelte.js";
@@ -71,9 +72,9 @@
     const merged = [];
     const pool = [
       ...db_entities,
-      runtime.active_ai,
-      runtime.active_user,
-      runtime.active_fractal,
+      session.active_ai,
+      session.active_user,
+      session.active_fractal,
       ...(app.ai_list || []),
       ...(app.user_list || []),
       ...(app.fractal_list || []),
@@ -89,9 +90,9 @@
   });
 
   const display_entities = $derived({
-    AI: runtime.active_ai || app.selected_ai,
-    USER: runtime.active_user || app.selected_user,
-    FRACTAL: runtime.active_fractal || app.selected_fractal,
+    AI: session.active_ai || app.selected_ai,
+    USER: session.active_user || app.selected_user,
+    FRACTAL: session.active_fractal || app.selected_fractal,
     ALL: all_entities,
   });
 
@@ -482,7 +483,7 @@
                   on_open_profile: (ent) => {
                     if (typeof on_select_entity === "function") on_select_entity(ent);
                   },
-                  on_open_image_preview: (payload) => app.open_image_preview(payload),
+                  on_open_image_preview: (payload) => open_image_preview(payload),
                 });
                 pin_tooltip_menu(e.currentTarget, {
                   entity: target_entity,

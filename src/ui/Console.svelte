@@ -11,9 +11,9 @@
   import { Accordion, Backdrop, Button, Dialog, Icon, ProgressBar, ScrollArea, Shimmer, Slider, TextField, Toggle, tooltip } from "@primitives";
   import { install_begin_flight_effect, storyboard } from "./Storyboard.svelte";
   import { build_story_export_filename, export_story_markdown } from "@data";
-  import { click_outside, download_text_file, get_signature_color } from "@utils";
+  import { click_outside, download_text_file, embeddings_engine, get_signature_color } from "@utils";
   import { tick } from "svelte";
-  import { app, runtime, session_driver, simulation_log, simulation_state, force_recover_simulation } from "@state";
+  import { app, execution, session } from "@state";
   import StoryCard from "./StoryCard.svelte";
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---
@@ -28,18 +28,18 @@
 
   // Story conclusion status
   let story_concluded = $derived(
-    simulation_log.feed.some((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(runtime.story_id))),
+    session.feed.some((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.story_id))),
   );
-  let story_locked = $derived(simulation_state.phase === "locked" || story_concluded);
-  let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
+  let story_locked = $derived(execution.phase === "locked" || story_concluded);
+  let signature_color = $derived(get_signature_color(session.active_user || app.selected_user, "var(--color-gunmetal)"));
 
-  let is_locked = $derived(simulation_state.busy);
-  let send_blocked = $derived(is_locked || app.simulation.loading || app.control_panel_open);
+  let is_locked = $derived(execution.busy);
+  let send_blocked = $derived(is_locked || execution.loading || app.control_panel_open);
   let pending_count = $derived(pending.length);
 
   // Models & storyboard readiness
-  let models_ready = $derived(app.models_ready);
-  let has_active_story = $derived(Boolean(runtime.story_id));
+  let models_ready = $derived(embeddings_engine.model_ready);
+  let has_active_story = $derived(Boolean(session.story_id));
   let ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
 
   // Audio controls state (silent boot: muted until the user opts in)
@@ -63,15 +63,14 @@
   let story_cache = $state([]);
 
   async function load_story(id) {
-    app.log(`Control Panel: Loading Story [${id}]`, "system");
-    app.stash_storyboard_selection();
-    await session_driver.set_active(String(id));
-    await runtime.sync(String(id));
-    await simulation_log.refresh();
-    if (simulation_log.feed.some((e) => e.meta?.is_epilogue)) {
-      simulation_state.lock();
+    console.info(`Control Panel: Loading Story [${id}]`);
+    await session.set_active(String(id));
+    await session.sync(String(id));
+    await session.refresh_feed();
+    if (session.feed.some((e) => e.meta?.is_epilogue)) {
+      execution.lock();
     } else {
-      simulation_state.unlock();
+      execution.unlock();
     }
     await app.load_entities();
     app.set_view("storymode");
@@ -97,10 +96,9 @@
         .sortBy("created_at");
       const markdown = export_story_markdown({ ...(row || {}), ...story }, log);
       download_text_file(build_story_export_filename(story), markdown, "text/markdown;charset=utf-8");
-      app.log(`Story "${story.title}" exported as Markdown.`, "system");
+      console.info(`Story "${story.title}" exported as Markdown.`);
     } catch (err) {
-      console.error(err);
-      app.log(`Export failed: ${err.message}`, "error");
+      console.error(`Export failed: ${err.message}`, err);
     }
   }
 
@@ -122,9 +120,9 @@
       try {
         await stories.update(pending_rename_story.id, { title: trimmed });
         await refresh_stories();
-        app.log(`Story renamed to "${trimmed}".`, "system");
+        console.info(`Story renamed to "${trimmed}".`);
       } catch (err) {
-        app.log(`Rename failed: ${err.message}`, "error");
+        console.error(`Rename failed: ${err.message}`, err);
       }
     }
     pending_rename_story = null;
@@ -137,13 +135,13 @@
       await stories.delete(pending_story_delete.id);
       await refresh_stories();
       await app.load_entities();
-      app.log(`Story "${pending_story_delete.title}" deleted.`, "system");
-      if (String(runtime.story_id) === String(pending_story_delete.id)) {
-        await session_driver.clear_active();
+      console.info(`Story "${pending_story_delete.title}" deleted.`);
+      if (String(session.story_id) === String(pending_story_delete.id)) {
+        await session.clear_active();
         app.set_view("storyboard");
       }
     } catch (err) {
-      app.log(`Delete failed: ${err.message}`, "error");
+      console.error(`Delete failed: ${err.message}`, err);
     } finally {
       pending_story_delete = null;
     }
@@ -163,7 +161,7 @@
   let phrase_index = $state(0);
 
   $effect(() => {
-    if (!app.simulation.loading) {
+    if (!execution.loading) {
       phrase_index = 0;
       return;
     }
@@ -174,7 +172,7 @@
   });
 
   let label_text = $derived(
-    app.simulation.loading ? PROLOGUE_PHRASES[phrase_index]
+    execution.loading ? PROLOGUE_PHRASES[phrase_index]
     : has_active_story ? "ENTER STORYMODE"
     : ready_to_begin ? "BEGIN STORY"
     : `SELECT ENTITIES (${app.selected_count}/3)`,
@@ -194,7 +192,7 @@
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    generate_user_draft(get_transport(), previous_text, null, null, { runtime, app, feed: simulation_log.feed })
+    generate_user_draft(get_transport(), previous_text, null, null, { session, app, feed: session.feed })
       .then(async (generated_text) => {
         if (generated_text && generated_text.trim()) {
           value = generated_text;
@@ -315,30 +313,27 @@
   function handle_primary_storyboard_click() {
     if (has_active_story) {
       app.set_view("storymode");
-    } else if (ready_to_begin && !app.simulation.loading) {
+    } else if (ready_to_begin && !execution.loading) {
       storyboard.begin();
     }
   }
 
   async function handle_rewind() {
-    if (is_rewinding || !runtime.story_id) return;
+    if (is_rewinding || !session.story_id) return;
     is_rewinding = true;
     try {
-      const epilogues = simulation_log.feed.filter(
-        (e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(runtime.story_id)),
-      );
+      const epilogues = session.feed.filter((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.story_id)));
       for (const ep of epilogues) {
-        if (ep?.id != null) await simulation_log.delete_entry(String(ep.id));
+        if (ep?.id != null) await session.delete_entry(String(ep.id));
       }
-      simulation_state.phase = "idle";
-      if (runtime.story_id) {
-        await stories.update(runtime.story_id, { is_concluded: 0, conclusion_status: null });
-        await session_driver.set_active(runtime.story_id);
+      execution.phase = "idle";
+      if (session.story_id) {
+        await stories.update(session.story_id, { is_concluded: 0, conclusion_status: null });
+        await session.set_active(session.story_id);
       }
-      app.log("Story rewound: you can continue chatting.", "system");
+      console.info("Story rewound: you can continue chatting.");
     } catch (err) {
       console.error("[Rewind Error]", err);
-      app.log(`Rewind failed: ${err.message || err}`, "error");
     } finally {
       is_rewinding = false;
     }
@@ -348,18 +343,17 @@
     if (is_exporting) return;
     is_exporting = true;
     try {
-      const story_id = runtime.story_id;
+      const story_id = session.story_id;
       if (!story_id) return;
-      const story_record = (await stories.get(story_id)) || runtime.active_story || {};
-      const entries = await session_driver.load_log(story_id);
+      const story_record = (await stories.get(story_id)) || session.active_story || {};
+      const entries = await session.load_log(story_id);
       const md = export_story_markdown(story_record, entries);
-      const title = story_record.title || runtime.active_story?.title || "story";
+      const title = story_record.title || session.active_story?.title || "story";
       const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-export.md`;
       download_text_file(filename, md);
-      app.log("Story exported as Markdown.", "system");
+      console.info("Story exported as Markdown.");
     } catch (err) {
       console.error("[Export Error]", err);
-      app.log(`Export failed: ${err.message || err}`, "error");
     } finally {
       is_exporting = false;
     }
@@ -370,14 +364,13 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      await generate_closing(runtime.story_id);
-      if (runtime.story_id) {
-        await stories.conclude(runtime.story_id);
+      await generate_closing(session.story_id);
+      if (session.story_id) {
+        await stories.conclude(session.story_id);
         await app.load_entities();
       }
     } catch (err) {
       console.error("[End Story Error]", err);
-      app.log(`Failed to end story: ${err.message || err}`, "error");
     } finally {
       is_ending_story = false;
       show_end_story_modal = false;
@@ -389,14 +382,13 @@
     is_ending_story = true;
     try {
       app.control_panel_open = false;
-      if (runtime.story_id) {
-        await stories.conclude(runtime.story_id);
+      if (session.story_id) {
+        await stories.conclude(session.story_id);
         await chrono_engine.stop?.();
         await app.load_entities();
       }
     } catch (err) {
       console.error("[End Story Immediate Error]", err);
-      app.log(`Failed to conclude story: ${err.message || err}`, "error");
     } finally {
       is_ending_story = false;
       show_end_story_modal = false;
@@ -435,13 +427,13 @@
   {@render settings_gear(app.control_panel_open ? "secondary" : "invisible")}
 
   {#if !models_ready && !has_active_story}
-    <ProgressBar value={app.models_progress} class="flex-1" />
+    <ProgressBar value={embeddings_engine.load_progress} class="flex-1" />
   {:else}
     <Button
       class="group touch-target-coarse flex-1"
       data-ready={ready_to_begin}
       variant="invisible"
-      busy={!ready_to_begin || app.simulation.loading}
+      busy={!ready_to_begin || execution.loading}
       disabled={app.control_panel_open}
       onclick={handle_primary_storyboard_click}
       actions={[pulse]}>
@@ -464,7 +456,7 @@
     aria-label="Shuffle Storyboard"
     onclick={() => storyboard.shuffle()}
     class="touch-target-coarse shrink-0"
-    disabled={storyboard.is_shuffling || app.simulation.loading || app.control_panel_open}>
+    disabled={storyboard.is_shuffling || execution.loading || app.control_panel_open}>
     <Icon name="shuffle" class="block size-icon-medium" />
   </Button>
 {/snippet}
@@ -514,11 +506,11 @@
     </span>
   {/if}
 
-  {#if (app.streaming.active || app.simulation.loading) && (runtime.round > 0 || app.simulation.loading)}
+  {#if (execution.stream.active || execution.loading) && (session.round > 0 || execution.loading)}
     <Button
       variant="invisible"
       disabled={app.control_panel_open}
-      onclick={() => app.trigger_interrupt()}
+      onclick={() => execution.abort_stream()}
       aria-label="Interrupt Generation"
       actions={[tooltip]}
       class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!">
@@ -527,7 +519,7 @@
   {:else if is_locked}
     <Button
       variant="invisible"
-      onclick={() => force_recover_simulation("Manual unstick from composer")}
+      onclick={() => execution.recover("Manual unstick from composer")}
       aria-label="Unstick Simulation"
       actions={[tooltip]}
       class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!">
@@ -652,7 +644,7 @@
                     <div class="min-w-0" in:item_in>
                       <StoryCard
                         {story}
-                        active={runtime.story_id === String(story.id)}
+                        active={session.story_id === String(story.id)}
                         onclick={() => load_story(story.id)}
                         ondelete={delete_story}
                         onrename={start_rename_story}
@@ -740,7 +732,7 @@
     style:view-transition-name="unified-console"
     style:width={!app.control_panel_open && story_locked ? "fit-content" : null}
     data-testid="unified-console">
-    {#if app.simulation.loading || app.is_ghostwriting || (simulation_state.busy && app.control_panel_open)}
+    {#if execution.loading || is_ghostwriting || (execution.busy && app.control_panel_open)}
       <Shimmer />
     {/if}
 
@@ -754,7 +746,7 @@
         {@render storyboard_bar()}
       {:else if story_locked}
         <div class="flex w-full flex-col items-center gap-tight">
-          {#if app.conclusion_status === "COLLAPSED"}
+          {#if session.active_story?.conclusion_status === "COLLAPSED"}
             <span class="text-[10px] font-bold tracking-widest text-rose-400/90 uppercase">💀 Story Collapsed</span>
           {:else}
             <span class="text-[10px] font-bold tracking-widest text-amber-300/90 uppercase">✨ Story Concluded</span>
@@ -766,7 +758,7 @@
               size="small"
               onclick={async () => {
                 app.control_panel_open = false;
-                await session_driver.clear_active();
+                await session.clear_active();
                 app.set_view("storyboard");
               }} />
             <Button label="Export Story" variant="primary" size="small" loading={is_exporting} onclick={handle_export_story} />
@@ -807,15 +799,14 @@
   on_confirm={async () => {
     is_concluding = true;
     try {
-      if (runtime.story_id) {
-        await stories.conclude(runtime.story_id);
+      if (session.story_id) {
+        await stories.conclude(session.story_id);
       }
-      await session_driver.clear_active();
+      await session.clear_active();
       await app.load_entities();
       show_active_guard = false;
     } catch (err) {
       console.error("[Storyboard End Story Error]", err);
-      app.log(`Failed to conclude story: ${err.message || err}`, "error");
     } finally {
       is_concluding = false;
     }

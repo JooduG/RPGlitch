@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ContextMenu from "./ContextMenu.svelte";
 import { claim_menu } from "./ContextMenu.svelte.js";
 import EntityCard from "./EntityCard.svelte";
+import * as imagePreviewModule from "./ImagePreview.svelte.js";
 import MacroText from "./MacroText.svelte";
 import RelationalGraph from "./RelationalGraph.svelte";
 
@@ -228,7 +229,7 @@ describe("RelationalGraph (Radial Constellation UI)", () => {
 
   it("opens profile on @ID left-click and pins card-back ContextMenu with entity actions on @ID right-click in MacroText", async () => {
     const open_spy = vi.spyOn(app, "open_profile").mockImplementation(() => {});
-    const preview_spy = vi.spyOn(app, "open_image_preview").mockImplementation(() => {});
+    const preview_spy = vi.spyOn(imagePreviewModule, "open_image_preview").mockImplementation(() => {});
     const target = {
       id: "silvers",
       name: "Lord Benedict Silvers",

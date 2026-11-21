@@ -24,7 +24,7 @@
  */
 
 import { merge_abort_signals } from "@utils";
-import { streaming } from "@state";
+import { execution } from "@state";
 import { sanitize_llm } from "@simulation";
 import { resolve_priority, enqueue_llm_job } from "@utils";
 
@@ -70,7 +70,7 @@ async function run_mock_generation(payload, options = {}) {
 
   if (!options.silent) {
     const role = payload.role || "ai";
-    streaming.start_stream(payload.node_id || "temp", role);
+    execution.start_stream(payload.node_id || "temp", role);
   }
   try {
     while (index < text.length) {
@@ -85,7 +85,7 @@ async function run_mock_generation(payload, options = {}) {
 
       deliver(chunk);
       if (!options.silent) {
-        streaming.update_stream(chunk);
+        execution.update_stream(chunk);
       }
 
       index = end;
@@ -98,7 +98,7 @@ async function run_mock_generation(payload, options = {}) {
     return text;
   } finally {
     if (!options.silent) {
-      streaming.end_stream();
+      execution.end_stream();
     }
   }
 }
@@ -180,7 +180,7 @@ async function run_completion(ai_engine, job, options = {}, gate_signal = null) 
     const piece = to_piece(chunk);
     if (!piece) return;
     accumulated += piece;
-    if (!options.silent) streaming.update_stream(piece);
+    if (!options.silent) execution.update_stream(piece);
     if (options.onChunk) {
       options.onChunk(piece);
     }
@@ -206,7 +206,7 @@ async function run_completion(ai_engine, job, options = {}, gate_signal = null) 
   };
 
   if (!options.silent) {
-    streaming.start_stream(node_id, role);
+    execution.start_stream(node_id, role);
   }
   try {
     // Invoke WITHOUT awaiting so the engine's .stop() handle survives;
@@ -241,7 +241,7 @@ async function run_completion(ai_engine, job, options = {}, gate_signal = null) 
     throw err;
   } finally {
     if (!options.silent) {
-      streaming.end_stream();
+      execution.end_stream();
     }
   }
 }
