@@ -18,69 +18,39 @@
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div id="svelte-root"></div>
-
-    <!--PERCHANCE_CONFIG_TARGET-->
 
     <!-- Plugins exported from Left Panel directly -->
     <script data-no-vault>
-      // Initialize Plugin Aliases with strict hygiene by polling for lexical variables
-      // since Perchance plugins might load asynchronously and not attach to window.
+      // Initialize canonical Perchance plugin globals by polling lexical bindings,
+      // since plugins may load asynchronously without attaching to window.
       (function () {
+        const PLUGIN_NAMES = ["generate_text", "generate_image", "fetch_web"];
         const MAX_POLLS = 100;
         let polls = 0;
 
-        function capturePlugins() {
-          let allFound = true;
+        function capture_plugins() {
+          let all_found = true;
 
-          if (typeof window.generate_text === "undefined") {
+          for (const name of PLUGIN_NAMES) {
+            if (typeof window[name] !== "undefined") continue;
             try {
-              if (typeof generate_text !== "undefined") {
-                window.generate_text = generate_text;
-                window.pluginGenerateText = generate_text;
+              const candidate = (0, eval)(`typeof ${name} !== "undefined" ? ${name} : undefined`);
+              if (typeof candidate !== "undefined") {
+                window[name] = candidate;
               } else {
-                allFound = false;
+                all_found = false;
               }
-            } catch (e) {
-              allFound = false;
-            }
-          }
-          if (typeof window.generate_image === "undefined") {
-            try {
-              if (typeof generate_image !== "undefined") {
-                window.generate_image = generate_image;
-                window.pluginGenerateImage = generate_image;
-              } else if (typeof t2i !== "undefined") {
-                window.generate_image = t2i;
-                window.pluginGenerateImage = t2i;
-              } else {
-                allFound = false;
-              }
-            } catch (e) {
-              allFound = false;
-            }
-          }
-          if (typeof window.fetch_web === "undefined") {
-            try {
-              if (typeof fetch_web !== "undefined") {
-                window.fetch_web = fetch_web;
-                window.pluginFetchWeb = fetch_web;
-              } else if (typeof pluginFetchWeb !== "undefined") {
-                window.fetch_web = pluginFetchWeb;
-              } else {
-                allFound = false;
-              }
-            } catch (e) {
-              allFound = false;
+            } catch {
+              all_found = false;
             }
           }
 
-          if (!allFound && polls < MAX_POLLS) {
+          if (!all_found && polls < MAX_POLLS) {
             polls++;
-            setTimeout(capturePlugins, 50);
+            setTimeout(capture_plugins, 50);
           }
         }
-        capturePlugins();
+        capture_plugins();
       })();
     </script>
 

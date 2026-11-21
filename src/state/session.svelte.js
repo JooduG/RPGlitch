@@ -20,6 +20,7 @@ import {
   load_log as load_story_log,
   load_session_checkpoint,
   log_message as write_log_message,
+  normalize_entity,
   record_session_access,
   regenerate as regenerate_trailing_turns,
   send as send_user_turn,
@@ -452,11 +453,11 @@ export class SessionStore {
         ]);
 
         if (user_data) {
-          this.active_user = { ...user_data };
+          this.active_user = await this.#reconcile_entity_vectors("character", { ...user_data });
         }
 
         if (ai_data) {
-          this.active_ai = ai_data;
+          this.active_ai = await this.#reconcile_entity_vectors("character", ai_data);
           this.#ai_dynamics =
             story.ai_dynamics ? { ...story.ai_dynamics }
             : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics }
@@ -467,11 +468,11 @@ export class SessionStore {
           const effective_visual_style = story.visual_style || story.entity_snapshots?.fractal?.visual_style || fractal_data.visual_style;
           const effective_narrative_style = story.narrative_style || story.entity_snapshots?.fractal?.narrative_style || fractal_data.narrative_style;
 
-          this.active_fractal = {
+          this.active_fractal = await this.#reconcile_entity_vectors("fractal", {
             ...fractal_data,
             ...(effective_visual_style ? { visual_style: effective_visual_style } : {}),
             ...(effective_narrative_style ? { narrative_style: effective_narrative_style } : {}),
-          };
+          });
           this.#fractal_dynamics =
             story.fractal_dynamics ? { ...story.fractal_dynamics }
             : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics }
@@ -516,6 +517,27 @@ export class SessionStore {
     } finally {
       this.#auto_save_suspended = false;
     }
+  }
+
+  /**
+   * Normalizes legacy array/over-cap `past`/`future` fields on synced entities and persists if changed.
+   * @param {"character" | "fractal"} type
+   * @param {any} entity
+   */
+  async #reconcile_entity_vectors(type, entity) {
+    if (!entity) return entity;
+    try {
+      const normalized = normalize_entity(entity);
+      const changed = JSON.stringify(normalized.past) !== JSON.stringify(entity.past) || JSON.stringify(normalized.future) !== JSON.stringify(entity.future);
+      if (changed) {
+        entity.past = normalized.past;
+        entity.future = normalized.future;
+        await entities.update(type, entity.id, { past: entity.past, future: entity.future });
+      }
+    } catch (err) {
+      console.warn("[Session] Vector reconciliation failed for", entity.id, err);
+    }
+    return entity;
   }
 
   /**

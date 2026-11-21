@@ -119,6 +119,33 @@ export function ensure_theme_tokens() {
   }
 }
 
+/**
+ * Resolves a Perchance plugin function from `window` or its cross-origin-safe `window.parent`.
+ * @param {string} plugin_name
+ * @returns {Function | null}
+ */
+export function resolve_perchance_plugin(plugin_name) {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const local_fn = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (window))[plugin_name];
+    if (typeof local_fn === "function") return local_fn;
+  } catch {
+    /* Ignore sandbox access */
+  }
+
+  try {
+    if (window.parent && window.parent !== window) {
+      const parent_fn = /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (window.parent))[plugin_name];
+      if (typeof parent_fn === "function") return parent_fn;
+    }
+  } catch {
+    /* Ignore cross-origin iframe boundary */
+  }
+
+  return null;
+}
+
 // ============================================================================
 // 2. CSS Token Computed Resolvers
 // ============================================================================

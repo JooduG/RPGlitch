@@ -1,18 +1,11 @@
 /**
  * RPGlitch Main Entry Point (Vite)
- * Handles core library exposure and the app_bootstrap boot sequence
- * (seed premades, session sync, auto-resume, mount).
+ * Orchestrates the app_bootstrap boot sequence
+ * (hardening, theme tokens, seed premades, session sync, auto-resume, mount).
  */
 import "@media/design.css";
-import Dexie from "dexie";
-import DOMPurify from "dompurify";
-Object.assign(window, { Dexie, DOMPurify });
-
-install_environment_hardening();
-ensure_theme_tokens();
-
 import App from "@/App.svelte";
-import { normalize_entity, save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
+import { save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
 import { Audio, sweep_stale_ghosts } from "@media";
 import { app, execution, install_freeze_watchdog, session } from "@state";
 import { embeddings_engine, ensure_theme_tokens, install_environment_hardening, sanitize_to_fragment } from "@utils";
@@ -42,47 +35,29 @@ export const app_bootstrap = {
     has_initialized = true;
 
     try {
+      install_environment_hardening();
+      ensure_theme_tokens();
+
       await seed_premades();
 
       embeddings_engine?.load_model?.()?.catch?.((err) => console.warn("[Boot] Embeddings pre-download error:", err));
 
       await Promise.all([session.sync(), app.init(), Audio.init()]);
+      await app?.load_entities?.();
       install_freeze_watchdog();
 
       if (session.active_id) {
         try {
           await session.refresh_feed?.();
           await sweep_stale_ghosts?.({ session });
-          await app?.load_entities?.();
           app?.set_view?.("storymode");
         } catch (syncErr) {
           console.warn("[Boot] Active story auto-resume failed:", syncErr);
         }
       }
 
-      for (const { entity, type } of [
-        { entity: session.active_ai, type: "character" },
-        { entity: session.active_user, type: "character" },
-        { entity: session.active_fractal, type: "fractal" },
-      ]) {
-        if (!entity) continue;
-        try {
-          const normalized = normalize_entity(entity);
-          const changed =
-            JSON.stringify(normalized.past) !== JSON.stringify(entity.past) || JSON.stringify(normalized.future) !== JSON.stringify(entity.future);
-          if (changed) {
-            entity.past = normalized.past;
-            entity.future = normalized.future;
-            await session.update_entity(type, entity.id, { past: entity.past, future: entity.future });
-          }
-        } catch (err) {
-          console.warn("[Boot] Vector reconciliation failed for", entity.id, err);
-        }
-      }
-
       mount(App, { target: document.body });
 
-      document.getElementById("svelte-root")?.remove();
       console.info("[Engine] >> System Online.");
     } catch (err) {
       console.error("[Engine] 🚫 Critical Failure:", err);

@@ -84,6 +84,7 @@ describe("app_bootstrap", () => {
     expect(repository.seed_premades).toHaveBeenCalled();
     expect(vi.mocked(_mock_session.sync)).toHaveBeenCalled();
     expect(_mock_app.init).toHaveBeenCalled();
+    expect(_mock_app.load_entities).toHaveBeenCalled();
     expect(vi.mocked(mount)).toHaveBeenCalled();
 
     const seed_premades_order = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
@@ -97,7 +98,6 @@ describe("app_bootstrap", () => {
     const parallel_init_max_order = Math.max(session_sync_order, app_init_order);
     expect(mount_order).toBeGreaterThan(parallel_init_max_order);
 
-    expect(document.getElementById("svelte-root")).toBeNull();
     expect(console_info_spy).toHaveBeenCalledWith(expect.stringContaining("System Online"));
     console_info_spy.mockRestore();
   });
@@ -115,25 +115,5 @@ describe("app_bootstrap", () => {
 
     console_spy.mockRestore();
     inner_htmlspy.mockRestore();
-  });
-
-  test("normalizes entity vector pools on boot preserving truthiness contract", async () => {
-    const mock_entity = {
-      id: "char-legacy",
-      type: "character",
-      name: "Legacy Character",
-      past: ["Legacy memory 1", "Legacy memory 2"],
-      future: "Old future plan",
-    };
-
-    _mock_session.active_ai = mock_entity;
-    _mock_session.active_user = null;
-    _mock_session.active_fractal = null;
-    _mock_session.update_entity = vi.fn().mockResolvedValue(true);
-    _mock_session.is_ready = true;
-
-    await app_bootstrap.init();
-
-    expect(_mock_session.update_entity).toHaveBeenCalledWith("character", "char-legacy", expect.objectContaining({ past: expect.any(String) }));
   });
 });

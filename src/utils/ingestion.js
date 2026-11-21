@@ -5,6 +5,7 @@
  */
 
 import { IMAGE_POLICY, LENGTH_THRESHOLDS } from "@config";
+import { resolve_perchance_plugin } from "./dom.js";
 import { html_to_plain_text } from "./html.js";
 
 /**
@@ -105,31 +106,7 @@ export function blob_to_data_url(blob) {
  * @returns {((url: string) => Promise<any>) | null}
  */
 export function get_super_fetch_engine() {
-  if (typeof window === "undefined") return null;
-
-  try {
-    if (typeof window.fetch_web === "function") return window.fetch_web;
-  } catch {
-    /* Ignore sandbox access */
-  }
-  try {
-    // @ts-ignore
-    if (typeof window.pluginFetchWeb === "function") return window.pluginFetchWeb;
-  } catch {
-    /* Ignore sandbox access */
-  }
-  try {
-    if (typeof window.parent !== "undefined") {
-      // @ts-ignore
-      if (typeof window.parent.fetch_web === "function") return window.parent.fetch_web;
-      // @ts-ignore
-      if (typeof window.parent.pluginFetchWeb === "function") return window.parent.pluginFetchWeb;
-    }
-  } catch {
-    /* Ignore cross-origin iframe errors */
-  }
-
-  return null;
+  return /** @type {((url: string) => Promise<any>) | null} */ (resolve_perchance_plugin("fetch_web"));
 }
 
 /**

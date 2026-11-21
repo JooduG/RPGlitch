@@ -28,17 +28,16 @@ describe("image-generation", () => {
   });
 
   afterEach(() => {
-    delete window.pluginGenerateImage;
     delete window.generate_image;
     vi.restoreAllMocks();
   });
 
   it("discovers and caches host image engine on window", () => {
     const mock_fn = vi.fn();
-    window.pluginGenerateImage = mock_fn;
+    window.generate_image = mock_fn;
     expect(find_image_engine()).toBe(mock_fn);
 
-    delete window.pluginGenerateImage;
+    delete window.generate_image;
     expect(find_image_engine()).toBe(mock_fn);
 
     reset_cached_image_engine();

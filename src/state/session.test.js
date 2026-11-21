@@ -115,6 +115,16 @@ describe("SessionStore (session)", () => {
     expect(mock_checkpoint.clear_session_checkpoint).toHaveBeenCalled();
   });
 
+  it("normalizes legacy array past/future fields on sync()", async () => {
+    const story_id = await seed_story(1);
+    await db.entities.put({ ...base_entity("ai-1", "Legacy Sync", "character"), past: ["Legacy memory 1", "Legacy memory 2"], future: "Old future plan" });
+
+    await session.sync(String(story_id));
+
+    expect(typeof session.active_ai?.past).toBe("string");
+    expect(typeof session.active_ai?.future).toBe("string");
+  });
+
   it("hydrates NPCs with active presence and keeps CRUD consistent", async () => {
     const story_id = await seed_story(3, [
       { id: "npc-elias", name: "Elias" },

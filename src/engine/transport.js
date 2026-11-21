@@ -23,33 +23,12 @@
  * generate_text keeps mock-or-throw policy and AbortError-to-"" mapping.
  */
 
-import { merge_abort_signals } from "@utils";
+import { enqueue_llm_job, merge_abort_signals, resolve_perchance_plugin, resolve_priority } from "@utils";
 import { execution } from "@state";
 import { sanitize_llm } from "@simulation";
-import { resolve_priority, enqueue_llm_job } from "@utils";
 
 export function get_mock_message() {
   return `<think>Evaluating physical variables and drafting response vector.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
-}
-
-function resolve_ai_engine() {
-  if (typeof window === "undefined") return null;
-
-  if (typeof window.generate_text === "function") return window.generate_text;
-  if (typeof window.generateText === "function") return window.generateText;
-  if (typeof window.pluginGenerateText === "function") return window.pluginGenerateText;
-
-  try {
-    if (window.parent && window.parent !== window) {
-      if (typeof window.parent.generate_text === "function") return window.parent.generate_text;
-      if (typeof window.parent.generateText === "function") return window.parent.generateText;
-      if (typeof window.parent.pluginGenerateText === "function") return window.parent.pluginGenerateText;
-    }
-  } catch {
-    // Cross-origin iframe boundary
-  }
-
-  return null;
 }
 
 /**
@@ -253,7 +232,7 @@ async function run_completion(ai_engine, job, options = {}, gate_signal = null) 
  */
 export function create_live_stream_fn() {
   return (prompt, options = {}) => {
-    const ai_engine = resolve_ai_engine();
+    const ai_engine = resolve_perchance_plugin("generate_text");
 
     if (!ai_engine || typeof ai_engine !== "function") {
       return run_mock_generation({ role: options.role || "ai", node_id: options.node_id }, options);
@@ -293,7 +272,7 @@ export function reset_transport() {
  * on cancellation.
  */
 export async function generate_text(payload, options = {}) {
-  const ai_engine = resolve_ai_engine();
+  const ai_engine = resolve_perchance_plugin("generate_text");
 
   if (!ai_engine || typeof ai_engine !== "function") {
     const is_mockable =

@@ -3,7 +3,7 @@
    * @file src/App.svelte
    * THE CORE SHELL
    * Central view orchestration shell executing view-switching logic natively.
-   *Console is mounted ONCE here and never destroyed during view transitions,
+   * Console is mounted ONCE here and never destroyed during view transitions,
    * while Storyboard and Storymode own their respective stage regions inside the
    * persistent 12-column root grid.
    */
@@ -11,42 +11,35 @@
   import { Audio, motion } from "@media";
   import { Tooltip, unpin_tooltip } from "@primitives";
   import { get_signature_color } from "@utils";
-  import { Console, ContextMenu, EntityCard, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
+  import { Console, ContextMenu, DevGrid, EntityCard, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
+  const FRACTAL_OPACITY = "var(--opacity-muted)";
   let active_fractal = $derived(session.active_fractal || app.selected_fractal);
   let fractal_url = $derived(active_fractal?.profile_picture || "");
-  let fractal_opacity = $derived("var(--opacity-muted)");
 
-  let container_class = $derived(
-    app.viewport.mobile ?
-      app.view === "storymode" ?
-        "h-[100dvh] w-grid-width grid-cols-2 grid-rows-[min-content_16rem_1fr_min-content] overflow-hidden"
-      : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
-    : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden",
-  );
+  let container_class = $derived.by(() => {
+    if (app.viewport.mobile && app.view === "storymode") {
+      return "h-[100dvh] w-grid-width grid-cols-2 grid-rows-[min-content_16rem_1fr_min-content] overflow-hidden";
+    }
+    return "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden";
+  });
 
-  let footer_class = $derived(
-    app.viewport.mobile ?
-      app.view === "storymode" ?
-        "relative inset-auto col-span-full row-4 h-auto items-center"
-      : "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center"
-    : app.view === "storymode" ? "col-start-1 col-end-13 row-start-12 h-row-unit items-start self-stretch"
-    : "col-start-2 col-end-12 row-start-11 h-row-unit items-center self-stretch",
-  );
+  let footer_class = $derived.by(() => {
+    if (app.viewport.mobile) {
+      if (app.view === "storymode") {
+        return "relative inset-auto col-span-full row-4 h-auto items-center";
+      }
+      return "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center";
+    }
+    if (app.view === "storymode") {
+      return "col-start-1 col-end-13 row-start-12 h-row-unit items-start self-stretch";
+    }
+    return "col-start-2 col-end-12 row-start-11 h-row-unit items-center self-stretch";
+  });
 
   // --- LIFECYCLE EFFECTS ---
-
-  $effect(() => {
-    app.load_entities();
-  });
-
-  $effect(() => {
-    if (!session.is_ready) {
-      session.sync();
-    }
-  });
 
   // Centralized State Reset: Restores engine physics velocity when streaming begins
   $effect(() => {
@@ -77,7 +70,7 @@
     <div
       class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-[opacity,filter] duration-ambient ease-in-out will-change-[opacity,filter]"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
-      style:opacity={fractal_url ? fractal_opacity : 0}
+      style:opacity={fractal_url ? FRACTAL_OPACITY : 0}
       style:view-transition-name={app.view === "storymode" && !app.transitioning_profile ? "entity-morph-fractal" : undefined}>
     </div>
 
@@ -150,25 +143,7 @@
 </Tooltip>
 
 {#if app.settings.dev_grid_visible}
-  <div data-dev="grid" data-view={app.view} aria-hidden="true">
-    {#each ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"] as colId (colId)}
-      <div data-axis="col" style:grid-column="col-{colId}">
-        <span data-label="col">{colId}</span>
-      </div>
-    {/each}
-    <div data-axis="col" data-end="true" style:grid-column="col-end">
-      <span data-label="col">END</span>
-    </div>
-
-    {#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as rowId (rowId)}
-      <div data-axis="row" style:grid-row="row-{rowId}">
-        <span data-label="row">{rowId}</span>
-      </div>
-    {/each}
-    <div data-axis="row" data-end="true" style:grid-row="row-end">
-      <span data-label="row">END</span>
-    </div>
-  </div>
+  <DevGrid view={app.view} />
 {/if}
 
 <style>
@@ -185,70 +160,6 @@
     background-size: cover;
     background-attachment: fixed;
     background-repeat: no-repeat;
-  }
-
-  /* ── Diagnostic Global Grid ─────────────────────────────────── */
-
-  [data-dev="grid"] {
-    position: fixed;
-    inset: 0;
-    margin: auto;
-    width: var(--spacing-grid-width);
-    height: var(--spacing-grid-height);
-    display: grid;
-    grid-template-columns:
-      [col-a] 1fr [col-b] 1fr [col-c] 1fr [col-d] 1fr [col-e] 1fr [col-f] 1fr
-      [col-g] 1fr [col-h] 1fr [col-i] 1fr [col-j] 1fr [col-k] 1fr [col-l] 1fr [col-end];
-    grid-template-rows:
-      [row-1] 1fr [row-2] 1fr [row-3] 1fr [row-4] 1fr [row-5] 1fr [row-6] 1fr
-      [row-7] 1fr [row-8] 1fr [row-9] 1fr [row-10] 1fr [row-11] 1fr [row-12] 1fr [row-end];
-    pointer-events: none;
-    z-index: var(--z-index-max);
-    opacity: var(--opacity-whisper);
-    outline: var(--spacing-pixel) dashed var(--color-frozen);
-    outline-offset: calc(-1 * var(--spacing-pixel));
-    background-image: radial-gradient(
-      circle at 0 0,
-      var(--color-frozen) calc(var(--spacing-unit) / 2),
-      transparent calc(var(--spacing-unit) / 2 + var(--spacing-pixel))
-    );
-    background-size: calc(100% / 12) calc(100% / 12);
-    background-repeat: repeat;
-  }
-
-  [data-dev="grid"] [data-axis="col"] {
-    border-left: var(--spacing-pixel) solid var(--color-frozen);
-    height: 100%;
-    grid-row: 1 / -1;
-    position: relative;
-  }
-
-  [data-dev="grid"] [data-axis="row"] {
-    border-top: var(--spacing-pixel) solid var(--color-frozen);
-    width: 100%;
-    grid-column: 1 / -1;
-    position: relative;
-  }
-
-  [data-dev="grid"] [data-label] {
-    position: absolute;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--color-frozen);
-    background: var(--color-void-black);
-    padding: 0 var(--spacing-tight);
-    opacity: var(--opacity-whisper);
-  }
-
-  [data-dev="grid"] [data-label="col"] {
-    top: calc(var(--spacing-unit) * 2);
-    left: calc(var(--spacing-unit) * 2);
-    text-transform: uppercase;
-  }
-
-  [data-dev="grid"] [data-label="row"] {
-    left: calc(var(--spacing-unit) * 2);
-    top: calc(var(--spacing-unit) * 2);
   }
 
   /* ── 3D Hover Preview Card-Back Rotor ───────────────────────── */

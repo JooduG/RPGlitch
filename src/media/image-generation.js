@@ -27,7 +27,7 @@ import {
   resolve_story_beat_style,
   sanitize_visual_text,
 } from "@simulation";
-import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed } from "@utils";
+import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, resolve_perchance_plugin } from "@utils";
 
 // ============================================================================
 // [SECTION 1: HOST ENGINE DISCOVERY]
@@ -45,35 +45,10 @@ export function find_image_engine() {
     if (typeof cached_image_engine === "function") return cached_image_engine;
     cached_image_engine = null;
   }
-  if (typeof window === "undefined") return null;
 
-  // 1. Check local frame scope
-  if (typeof window.pluginGenerateImage === "function") {
-    cached_image_engine = window.pluginGenerateImage;
-    return cached_image_engine;
-  }
-  if (typeof window.generate_image === "function") {
-    cached_image_engine = window.generate_image;
-    return cached_image_engine;
-  }
-
-  // 2. Insulate cross-origin parent frame lookup
-  try {
-    if (typeof window.parent !== "undefined") {
-      if (typeof window.parent.pluginGenerateImage === "function") {
-        cached_image_engine = window.parent.pluginGenerateImage;
-        return cached_image_engine;
-      }
-      if (typeof window.parent.generate_image === "function") {
-        cached_image_engine = window.parent.generate_image;
-        return cached_image_engine;
-      }
-    }
-  } catch {
-    /* Swallow cross-origin sandboxed access restrictions */
-  }
-
-  return null;
+  const engine = resolve_perchance_plugin("generate_image");
+  if (engine) cached_image_engine = engine;
+  return engine;
 }
 
 export function reset_cached_image_engine() {
