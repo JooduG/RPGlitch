@@ -9,9 +9,10 @@
    */
   import { app, execution, session } from "@state";
   import { Audio, motion } from "@media";
-  import { Tooltip, unpin_tooltip } from "@primitives";
+  import { LayoutGrid, Tooltip, unpin_tooltip } from "@atoms";
+  import { ContextMenu, EntityCard } from "@organisms";
   import { get_signature_color } from "@utils";
-  import { Console, ContextMenu, DevGrid, EntityCard, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
+  import { Console, ImagePreview, Profile, Storyboard, Storymode } from "@ui";
 
   // --- DERIVED RUNES ---
 
@@ -103,14 +104,15 @@
   {/if}
 
   <ImagePreview />
+  <ContextMenu />
 </main>
 
 <Tooltip>
-  {#snippet entity_preview(preview)}
+  {#snippet preview_content({ preview, pinned, closing })}
     {@const preview_entity = preview?.entity ?? preview}
-    {@const is_pinned = Boolean(preview?.pinned)}
-    {@const is_closing = Boolean(preview?.closing)}
-    <div class="perspective-distant">
+    {@const is_pinned = Boolean(pinned)}
+    {@const is_closing = Boolean(closing)}
+    <div class="perspective-distant" data-testid="relational-hover-card">
       <div class="relative" data-card-flip-rotor data-pinned={is_pinned} data-closing={is_closing} data-reduced={motion.is_reduced}>
         <div class="pointer-events-none transform-[rotateY(0deg)] rounded-standard backface-hidden">
           <EntityCard
@@ -131,7 +133,8 @@
           <ContextMenu
             embedded={true}
             open={is_pinned}
-            actions={preview?.actions ?? []}
+            entity={preview_entity}
+            surface="preview"
             target_name={preview_entity?.name || ""}
             portrait_src={preview_entity?.profile_picture || ""}
             signature_color={get_signature_color(preview_entity)}
@@ -143,7 +146,7 @@
 </Tooltip>
 
 {#if app.settings.dev_grid_visible}
-  <DevGrid view={app.view} />
+  <LayoutGrid view={app.view} />
 {/if}
 
 <style>
