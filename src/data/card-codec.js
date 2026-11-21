@@ -10,8 +10,6 @@
  * ============================================================================
  */
 
-import { normalize_entity, serialize_entity_for_export } from "./records.js";
-
 // ============================================================================
 // 1. FORMAT DETECTION
 // ============================================================================
@@ -207,14 +205,4 @@ export function serialize_character_card(entity) {
       extensions: {},
     },
   };
-}
-
-/**
- * Serializes an RPGlitch entity into native standalone normalized JSON format.
- *
- * @param {Record<string, any> | null | undefined} entity - RPGlitch entity object.
- * @returns {Record<string, any>} Export-ready sanitized entity object.
- */
-export function serialize_rpglitch_entity(entity) {
-  return serialize_entity_for_export(normalize_entity(entity));
 }

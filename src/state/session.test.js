@@ -26,14 +26,7 @@ function base_entity(id, name, type, extra = {}) {
 }
 
 async function clear_all_tables() {
-  await Promise.all([
-    db.simulation_log.clear(),
-    db.stories.clear(),
-    db.entities.clear(),
-    db.kv_settings.clear(),
-    db.sessions.clear(),
-    db.mutation_ledger.clear(),
-  ]);
+  await Promise.all([db.simulation_log.clear(), db.stories.clear(), db.entities.clear(), db.kv_settings.clear(), db.sessions.clear()]);
 }
 
 describe("SessionStore (session)", () => {

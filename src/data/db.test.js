@@ -1,15 +1,16 @@
 /**
  * @file src/data/db.test.js
- * Unit tests for Dexie premade seeding (entities + premade story history & ledger).
+ * Unit tests for Dexie premade seeding and entity CRUD.
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { active_entity_ids, db, seed_premades } from "./db.js";
-import { query_entity_history } from "./ledger.js";
+import { db } from "./db.js";
+import { entities, seed_premades } from "./entity-repository.js";
+import { active_entity_ids } from "./story-library.js";
 
-describe("seed_premades", () => {
+describe("seed_premades & entity-repository", () => {
   beforeEach(async () => {
-    await Promise.all([db.entities.clear(), db.stories.clear(), db.simulation_log.clear(), db.mutation_ledger.clear()]);
+    await Promise.all([db.entities.clear(), db.stories.clear(), db.simulation_log.clear()]);
   });
 
   it("seeds starter entities and the 10-round Orion/Glitch/Nova story idempotently without claiming entities", async () => {
@@ -25,13 +26,6 @@ describe("seed_premades", () => {
     // STORY_START + 10 * (user + ai) + EPILOGUE = 22
     expect(logs).toHaveLength(22);
 
-    const orion_history = await query_entity_history("orion");
-    const glitch_history = await query_entity_history("glitch");
-    const nova_history = await query_entity_history("nova");
-    expect(orion_history.some((entry) => entry.round === 10)).toBe(true);
-    expect(glitch_history.some((entry) => entry.round === 10)).toBe(true);
-    expect(nova_history.some((entry) => entry.round === 8)).toBe(true);
-
     // Concluded premade story must not lock orion, glitch, or nova on Storyboard
     const claimed = await active_entity_ids();
     expect(claimed).not.toContain("orion");
@@ -41,11 +35,11 @@ describe("seed_premades", () => {
 
   it("preserves user DB edits (including pov) on existing premades across subsequent boots", async () => {
     await seed_premades();
-    await db.entities.update("orion", { pov: "3rd_person", signature_color: "Electric Cyan" });
+    await entities.update("orion", { pov: "3rd_person", signature_color: "Electric Cyan" });
 
     await seed_premades();
 
-    const orion = await db.entities.get("orion");
+    const orion = await entities.get("orion");
     expect(orion?.pov).toBe("3rd_person");
     expect(orion?.signature_color).toBe("Electric Cyan");
   });

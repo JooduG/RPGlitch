@@ -4,7 +4,7 @@
    * 🧪 ENTITY EDITOR - Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import { serialize_character_card, serialize_rpglitch_entity } from "@data";
+  import { serialize_character_card, serialize_entity_for_export } from "@data";
   import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE } from "@definitions";
   import { app, execution, session } from "@state";
   import { get_signature_color } from "@utils";
@@ -383,7 +383,7 @@
   /** Downloads the entity as a standalone native RPGlitch .json backup. */
   function export_entity_json() {
     if (!profile_state.char) return;
-    download_json_file(export_entity_filename("json"), serialize_rpglitch_entity({ ...profile_state.char, type: entity_type }));
+    download_json_file(export_entity_filename("json"), serialize_entity_for_export({ ...profile_state.char, type: entity_type }));
   }
 
   /** Downloads the entity as a standard Character Card V2 .json (Tavern/Chub/Janitor). */

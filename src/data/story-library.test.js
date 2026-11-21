@@ -1,41 +1,35 @@
 /**
- * @file src/data/session.test.js
- * Unit tests for the pure session store: pointer tracking, story creation,
- * simulation-log CRUD, and turn writers - all against real Dexie tables
- * (fake-indexeddb in the shared test setup).
+ * @file src/data/story-library.test.js
+ * Unit tests for session pointer tracking, story creation, simulation-log
+ * CRUD, and turn writers against real Dexie tables (fake-indexeddb).
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import { db } from "./db.js";
 import {
   SESSION_ID_KEY,
   clear_active_session_id,
+  db,
+  get_active_session_id,
+  get_recent_sessions,
+  record_session_access,
+  require_active,
+  set_active_session_id,
+} from "./db.js";
+import {
   create_from_selection,
   delete_log_attachment,
   delete_log_entry,
   delete_story_log,
   edit_log_entry,
-  get_active_session_id,
-  get_recent_sessions,
   load_log,
   log_message,
-  record_session_access,
   regenerate,
-  require_active,
   resolve_log_entity_id,
   send,
-  set_active_session_id,
-} from "./session.js";
+} from "./story-library.js";
 
 async function clear_all_tables() {
-  await Promise.all([
-    db.simulation_log.clear(),
-    db.stories.clear(),
-    db.entities.clear(),
-    db.kv_settings.clear(),
-    db.sessions.clear(),
-    db.mutation_ledger.clear(),
-  ]);
+  await Promise.all([db.simulation_log.clear(), db.stories.clear(), db.entities.clear(), db.kv_settings.clear(), db.sessions.clear()]);
 }
 
 async function seed_story() {
@@ -47,7 +41,7 @@ beforeEach(async () => {
   await clear_all_tables();
 });
 
-describe("src/data/session.js - pure session store", () => {
+describe("src/data/db.js & story-library.js", () => {
   describe("session pointer (kv_settings)", () => {
     it("round-trips the active session id", async () => {
       expect(await get_active_session_id()).toBeNull();
@@ -103,7 +97,6 @@ describe("src/data/session.js - pure session store", () => {
 
     it("deletes emptied image bubbles but keeps text entries on attachment removal", async () => {
       const story_id = await seed_story();
-      // Empty-text bubbles are refused by the write guard, so seed directly.
       const bubble_id = await db.simulation_log.add({
         story_id,
         role: "fractal",

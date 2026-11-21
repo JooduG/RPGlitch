@@ -6,7 +6,6 @@
    * Part of the RPGlitch UI.
    */
   import { DYNAMICS } from "@config";
-  import { query_entity_history } from "@data";
   import { Accordion } from "@primitives";
   import Meter from "./Meter.svelte";
   import { format_datetime } from "@utils";
@@ -18,27 +17,6 @@
 
   /** @type {Props} */
   let { profile_state } = $props();
-
-  let show_ledger_feed = $state(false);
-  /** @type {Array<any>} */
-  let ledger_records = $state([]);
-  let is_ledger_loading = $state(false);
-
-  $effect(() => {
-    if (show_ledger_feed && profile_state.char?.id) {
-      is_ledger_loading = true;
-      query_entity_history(profile_state.char.id)
-        .then((records) => {
-          ledger_records = records.slice().reverse().slice(0, 30);
-        })
-        .catch(() => {
-          ledger_records = [];
-        })
-        .finally(() => {
-          is_ledger_loading = false;
-        });
-    }
-  });
 
   /**
    * Dynamically computes which dynamics are available on the current character.
@@ -86,35 +64,11 @@
     {/each}
   </div>
 
-  <!-- RAW EXPLORER & HISTORY INSPECTOR -->
+  <!-- RAW EXPLORER -->
   <Accordion label="View JSON Data">
     <div class="terminal-box max-h-60 overflow-y-auto bg-black/10 p-standard text-sm">
       <pre class="m-0 font-[inherit] text-xs whitespace-pre-wrap">{JSON.stringify(profile_state.char, null, 2)}</pre>
     </div>
-  </Accordion>
-
-  <Accordion label="Mutation Ledger" bind:open={show_ledger_feed}>
-    {#if is_ledger_loading}
-      <span class="font-mono text-[10px] text-slate-400">Loading ledger...</span>
-    {:else if ledger_records.length === 0}
-      <span class="font-mono text-[10px] text-slate-500">No ledger events recorded.</span>
-    {:else}
-      <div class="flex max-h-56 flex-col divide-y divide-white/5 overflow-y-auto font-mono text-[10px]">
-        {#each ledger_records as rec (rec.id || `${rec.round}-${rec.seq}-${rec.timestamp}`)}
-          <div class="flex flex-col gap-0.5 py-1.5 text-left first:pt-0 last:pb-0">
-            <div class="flex items-center justify-between text-slate-400">
-              <span class="font-bold text-cyan-400">R{rec.round}:S{rec.seq} · {rec.field}</span>
-              <span class="text-[9px] text-slate-500">{format_datetime(rec.timestamp)}</span>
-            </div>
-            <div class="text-slate-200">
-              {#if rec.key}<span class="text-cyan-300">[{rec.key}]</span>
-              {/if}
-              {rec.new_value ?? "cleared (null)"}
-            </div>
-          </div>
-        {/each}
-      </div>
-    {/if}
   </Accordion>
 
   <!-- META FOOTER -->

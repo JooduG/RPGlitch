@@ -175,31 +175,12 @@ export function normalize_entity(raw = {}) {
  */
 export function create_entity(type = "character", overrides = {}) {
   const entity_type = type === "fractal" ? "fractal" : "character";
-  const now = Date.now();
-
-  const base = {
-    id: generate_uuid(),
+  return normalize_entity({
     name: entity_type === "character" ? "New Character" : "New Fractal",
     type: entity_type,
-    description: "",
-    profile_picture: "",
-    signature_color: "",
-    visual_style: "none",
-    pov: entity_type === "fractal" ? "3rd_person" : "1st_person",
-    speaking_style: "casual",
-    narrative_style: "cormac_mccarthy",
-    tags: [],
-    voice: { name: "", cadence: "standard" },
-    created_at: now,
-    updated_at: now,
-    eternal: { physical: "", non_physical: "" },
-    present: { physical: "", non_physical: "" },
-    future: "",
-    past: "",
-    dynamics: entity_type === "character" ? default_dynamics_for_scope("somatic") : default_dynamics_for_scope("fractal"),
-  };
-
-  return normalize_entity({ ...base, ...overrides });
+    dynamics: default_dynamics_for_scope(entity_type === "character" ? "somatic" : "fractal"),
+    ...overrides,
+  });
 }
 
 /**

@@ -36,7 +36,7 @@
  */
 
 import { IMAGE_POLICY } from "@config";
-import { append_ledger_entries, db, normalize_entity } from "@data";
+import { db, normalize_entity } from "@data";
 import {
   apply_tagged_field_deltas,
   calculate_turn_tempo,
@@ -1087,42 +1087,13 @@ export async function dispatch_consolidation({ ai, user, fractal, history, round
     if (!target_entity) return;
 
     let has_changes = false;
-    const ledger_entries = [];
-    const story_id = session.story_id ?? null;
     const entry_round = Number(context_round ?? 0);
-    const entity_id = String(target_entity.id || target_key.toLowerCase());
-
-    const helper_record_ledger = (field, delta_text) => {
-      if (!delta_text) return;
-      const parsed_items = parse_tagged_fields(delta_text);
-      for (const item of parsed_items) {
-        ledger_entries.push({
-          story_id,
-          round: entry_round,
-          seq: 3, // Caretaker continuum phase
-          entity_id,
-          field,
-          key: item.key,
-          new_value: item.value,
-          visibility:
-            item.flags ?
-              item.flags.hide ? "hide"
-              : item.flags.show ? "show"
-              : null
-            : item.visibility || null,
-          weight: item.flags ? (item.flags.weight ?? null) : (item.weight ?? null),
-          writer: "caretaker",
-          decider: "caretaker",
-        });
-      }
-    };
 
     // 1. Present physical
     if (caretaker_outcome.present_physical) {
       target_entity.present = target_entity.present || { physical: "", non_physical: "" };
       const current_phys = typeof target_entity.present.physical === "string" ? target_entity.present.physical : "";
       target_entity.present.physical = apply_tagged_field_deltas(current_phys, caretaker_outcome.present_physical);
-      helper_record_ledger("present.physical", caretaker_outcome.present_physical);
       has_changes = true;
     }
 
@@ -1131,7 +1102,6 @@ export async function dispatch_consolidation({ ai, user, fractal, history, round
       target_entity.present = target_entity.present || { physical: "", non_physical: "" };
       const current_non = typeof target_entity.present.non_physical === "string" ? target_entity.present.non_physical : "";
       target_entity.present.non_physical = apply_tagged_field_deltas(current_non, caretaker_outcome.present_non_physical);
-      helper_record_ledger("present.non_physical", caretaker_outcome.present_non_physical);
       has_changes = true;
     }
 
@@ -1139,7 +1109,6 @@ export async function dispatch_consolidation({ ai, user, fractal, history, round
     if (caretaker_outcome.future_text) {
       const current_future = typeof target_entity.future === "string" ? target_entity.future : "";
       target_entity.future = apply_tagged_field_deltas(current_future, caretaker_outcome.future_text);
-      helper_record_ledger("future", caretaker_outcome.future_text);
       has_changes = true;
     }
 
@@ -1147,21 +1116,12 @@ export async function dispatch_consolidation({ ai, user, fractal, history, round
     if (caretaker_outcome.past_text) {
       const current_past = typeof target_entity.past === "string" ? target_entity.past : "";
       target_entity.past = apply_tagged_field_deltas(current_past, caretaker_outcome.past_text);
-      helper_record_ledger("past", caretaker_outcome.past_text);
       has_changes = true;
     }
 
     if (has_changes) {
       const entity_type = target_key === "FRACTAL" ? "fractal" : "character";
       await session.save_entity(entity_type, target_entity);
-
-      if (ledger_entries.length > 0) {
-        try {
-          await append_ledger_entries(ledger_entries);
-        } catch (ledger_err) {
-          console.warn("[Bridge] Failed to append caretaker ledger entries:", ledger_err);
-        }
-      }
 
       // Emit CONTINUUM_FORMATION telemetry card so Caretaker consolidation appears in the timeline
       if (session.story_id) {

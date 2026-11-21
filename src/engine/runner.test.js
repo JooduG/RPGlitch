@@ -1,4 +1,3 @@
-import * as dataModule from "@data";
 import * as media_module from "@media";
 // Phase 5: runner.js merges turns.js + runs.js; canonical turn physics/history live in @simulation.
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -422,7 +421,6 @@ Routing: Present physical gets lockpick, mood vigilant.
       session.back_shot_cursor = 0;
       session.story_id = null;
       const save_entity_spy = vi.spyOn(session, "save_entity").mockResolvedValue(true);
-      vi.spyOn(dataModule, "append_ledger_entries").mockResolvedValue([]);
 
       const mock_transport = {
         stream: vi

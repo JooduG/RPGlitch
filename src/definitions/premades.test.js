@@ -85,7 +85,7 @@ describe("premades registry", () => {
       return files;
     };
 
-    const allowed_suffixes = ["src/data/db.js", "src/definitions/"];
+    const allowed_suffixes = ["src/data/entity-repository.js", "src/definitions/"];
     const violations = [];
     for (const file_path of collect_files(src_root)) {
       const normalized_path = file_path.replace(/\\/g, "/");

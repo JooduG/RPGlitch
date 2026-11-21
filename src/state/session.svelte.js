@@ -447,9 +447,9 @@ export class SessionStore {
         this.last_dynamics_beat_round = typeof story.last_dynamics_beat_round === "number" ? story.last_dynamics_beat_round : -1;
 
         const [user_data, ai_data, fractal_data] = await Promise.all([
-          /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
-          /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.ai_id || "unknown_ai")),
-          /** @type {Promise<SimulationEntity | null>} */ (entities.get("fractal", story.fractal_id)),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get(story.user_id, "character")),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get(story.ai_id || "unknown_ai", "character")),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get(story.fractal_id, "fractal")),
         ]);
 
         if (user_data) {
@@ -488,7 +488,7 @@ export class SessionStore {
 
         const npc_ids = Array.isArray(story.npc_ids) ? story.npc_ids : [];
         if (npc_ids.length) {
-          const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get("character", nid)))).filter(Boolean);
+          const npc_list = (await Promise.all(npc_ids.map((nid) => entities.get(nid, "character")))).filter(Boolean);
           this.active_npcs = Object.fromEntries(npc_list.map((n) => [String(n.id), { ...n, presence: "active" }]));
         } else {
           this.active_npcs = {};
@@ -532,7 +532,7 @@ export class SessionStore {
       if (changed) {
         entity.past = normalized.past;
         entity.future = normalized.future;
-        await entities.update(type, entity.id, { past: entity.past, future: entity.future });
+        await entities.update(entity.id, { past: entity.past, future: entity.future });
       }
     } catch (err) {
       console.warn("[Session] Vector reconciliation failed for", entity.id, err);
@@ -577,7 +577,7 @@ export class SessionStore {
   async save_entity(type, entity) {
     try {
       const entity_payload = $state.snapshot(entity);
-      await entities.upsert(type, entity_payload);
+      await entities.upsert(entity_payload);
       if (this.active_ai?.id === entity.id) Object.assign(this.active_ai, entity);
       if (this.active_user?.id === entity.id) Object.assign(this.active_user, entity);
       if (this.active_fractal?.id === entity.id) Object.assign(this.active_fractal, entity);
@@ -613,7 +613,7 @@ export class SessionStore {
           unproxied_data = data;
         }
         const payload = { ...unproxied_data, updated_at: Date.now() };
-        await entities.update(type, String(id), payload);
+        await entities.update(String(id), payload);
         for (const target of new SvelteSet([this.active_user, this.active_ai, this.active_fractal])) {
           if (target && target.id === id) Object.assign(target, payload);
         }
@@ -639,7 +639,7 @@ export class SessionStore {
    */
   async delete_entity(type, id) {
     try {
-      await entities.remove(type, String(id));
+      await entities.delete(String(id));
       if (type === "character") {
         if (this.active_ai?.id === id) this.active_ai = null;
         if (this.active_user?.id === id) this.active_user = null;
