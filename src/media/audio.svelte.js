@@ -21,6 +21,12 @@ let current_master_volume = 1.0;
 // Silent boot: SFX stay off until the user unmutes (Console mute toggle clears this).
 let is_muted = $state(true);
 
+const DEFAULT_NOTIFICATION_SOUND = "https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav";
+/** @type {AudioBuffer | null} */
+let cached_notification_buffer = null;
+/** @type {Promise<AudioBuffer | null> | null} */
+let pending_notification_fetch = null;
+
 /**
  * Lazily initializes and returns the shared hardware AudioContext.
  * @returns {AudioContext | null}
@@ -250,18 +256,68 @@ function schedule_sfx(context, master_gain, type, volume) {
     }
 
     case "notification": {
-      const osc = context.createOscillator();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(587.33, now);
-      osc.frequency.setValueAtTime(880, now + 0.06);
+      const play_buffer = (buffer) => {
+        if (is_muted) return;
+        const source = context.createBufferSource();
+        source.buffer = buffer;
+        const gain = context.createGain();
+        gain.gain.setValueAtTime(volume, context.currentTime);
+        source.connect(gain);
+        gain.connect(master_gain);
+        source.onended = () => cleanup(source, gain);
+        source.start(context.currentTime);
+      };
 
-      sfx_gain.gain.setValueAtTime(volume * 0.25, now);
-      sfx_gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+      const play_procedural_fallback = () => {
+        if (is_muted) return;
+        const t = context.currentTime;
+        const osc = context.createOscillator();
+        const gain = context.createGain();
+        gain.connect(master_gain);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(587.33, t);
+        osc.frequency.setValueAtTime(880, t + 0.06);
+        gain.gain.setValueAtTime(volume * 0.25, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+        osc.connect(gain);
+        osc.onended = () => cleanup(osc, gain);
+        osc.start(t);
+        osc.stop(t + 0.16);
+      };
 
-      osc.connect(sfx_gain);
-      osc.onended = () => cleanup(osc, sfx_gain);
-      osc.start(now);
-      osc.stop(now + 0.16);
+      cleanup(null, sfx_gain);
+
+      if (cached_notification_buffer) {
+        play_buffer(cached_notification_buffer);
+        break;
+      }
+
+      if (typeof fetch !== "function" || typeof context.decodeAudioData !== "function") {
+        play_procedural_fallback();
+        break;
+      }
+
+      if (!pending_notification_fetch) {
+        pending_notification_fetch = fetch(DEFAULT_NOTIFICATION_SOUND)
+          .then((res) => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.arrayBuffer();
+          })
+          .then((buf) => context.decodeAudioData(buf))
+          .then((decoded) => {
+            cached_notification_buffer = decoded;
+            return decoded;
+          })
+          .catch(() => null)
+          .finally(() => {
+            pending_notification_fetch = null;
+          });
+      }
+
+      pending_notification_fetch.then((decoded) => {
+        if (decoded) play_buffer(decoded);
+        else play_procedural_fallback();
+      });
       break;
     }
 

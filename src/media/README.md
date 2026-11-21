@@ -16,7 +16,7 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 
 ### 1. Procedural Web Audio SFX & Speech (`audio.svelte.js`)
 
-- `play_sfx(type, options = {})`: Synthesizes `"click"`, `"pop"`, `"glitch"`, `"alert"`, `"subtle_hum"`, `"notification"`, and default fallback cues, disconnecting and clearing `onended` on completion.
+- `play_sfx(type, options = {})`: Synthesizes `"click"`, `"pop"`, `"glitch"`, `"alert"`, `"subtle_hum"`, and default fallback cues procedurally, and plays `"notification"` via cached `DEFAULT_NOTIFICATION_SOUND` `.wav` fetch with procedural chime fallback, disconnecting and clearing `onended` on completion.
 - `init_audio_on_gesture()`, `suspend_audio()`, `close_audio_context()`, `get_audio_context()`, `get_master_gain()`: Hardware `AudioContext` and `GainNode` lifecycle management.
 - `VOICE_CADENCES`, `voice_role_key(role)`, `resolve_voice_uri(name_or_uri)`, `resolve_voice_name(name_or_uri)`, `get_cadence_rate(cadence, dynamics_value = 50)`.
 - `VoiceEngine`: Reactive speech controller (`enabled`, `selected_voice`, `rate`, `volume`, `is_speaking`, `is_paused`, `active_message_id`, `entity_voice`, `voices`, `_stream_role`, `_stream_emitted_length`) with `is_role_enabled()`, `load_voices()`, `preview()`, `resume_context()`, `set_volume()`, `speak()`, `stop()`, `pause()`, `resume()`, `toggle_pause()`, `destroy()`, `apply_stream_role()`, `queue_stream_sentence()`, `flush_stream_remainder()`, and `reset_stream()`.

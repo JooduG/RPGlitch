@@ -43,7 +43,7 @@ description: >-
    - Use `suspend_audio()` for temporary pauses and `close_audio_context()` / `Audio.destroy()` on teardown ([App.svelte](../../../src/App.svelte#L74-L81) invokes `Audio.destroy()` on `pagehide` and unmount).
 2. **Zero-Asset Procedural SFX Cues**:
    - Every SFX is synthesized at runtime with `OscillatorNode`, noise `AudioBufferSourceNode`, and `GainNode` — never fetch remote `.wav`/audio files.
-   - Supported cues in `play_sfx(type, options = {})` (and `Audio.play(sound_key)`): `"click"` (`800 -> 200Hz` sine, `0.03s`), `"pop"` (`300 -> 600Hz` sine, `0.05s`), `"glitch"` (white-noise buffer, `0.08s`), `"alert"` (`520 -> 660Hz` triangle, `0.2s`), `"subtle_hum"` (`60Hz` sine ramp, `0.4s`), `"notification"` (`587.33 -> 880Hz` sine chime, `0.16s`; `Audio.play("notification")` is gated by `Audio.notifications_enabled`), and `default` fallback (`440Hz` sine, `0.04s`).
+   - Supported cues in `play_sfx(type, options = {})` (and `Audio.play(sound_key)`): `"click"` (`800 -> 200Hz` sine, `0.03s`), `"pop"` (`300 -> 600Hz` sine, `0.05s`), `"glitch"` (white-noise buffer, `0.08s`), `"alert"` (`520 -> 660Hz` triangle, `0.2s`), `"subtle_hum"` (`60Hz` sine ramp, `0.4s`), `"notification"` (fetches & caches `DEFAULT_NOTIFICATION_SOUND` `.wav` with `587.33 -> 880Hz` procedural fallback when offline; `Audio.play("notification")` is gated by `Audio.notifications_enabled`), and `default` fallback (`440Hz` sine, `0.04s`).
    - All cues connect through `sfx_gain` to `master_gain_node` and clear `source.onended = null`, `source.disconnect()`, and `gain.disconnect()` on completion to avoid Web Audio node leaks.
 
 ## 4. Web Speech API Engine (`VoiceEngine`) & Cadence Shaping
