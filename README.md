@@ -74,7 +74,7 @@ Root-level manifests configure build tooling, verification gates, and module ali
 - **Repository Tooling & Gates**:
   - [package.json](./package.json): Defines `dev`, `build`, `verify`, `lint` (`lint:js`, `lint:css`, `lint:md`, `lint:prettier`, `lint:svelte`), `audit` (`audit:backlog`, `audit:design`, `audit:hygiene`, `audit:layers`, `audit:simulation`, `audit:svelte`), `test`, `test:unit`, `test:sync`, `test:hooks`, and `sync` scripts.
   - [vite.config.js](./vite.config.js) & [vitest.config.js](./vitest.config.js): Define `@*` resolve aliases, Vite build plugins (`designTokenSync`, `tailwindcss`, `svelte`, `viteSingleFile`, `perchanceBase64Vault`), and `jsdom` Vitest test discovery.
-  - [eslint.config.js](./eslint.config.js), [.markdownlint-cli2.mjs](./.markdownlint-cli2.mjs), & [jsconfig.json](./jsconfig.json): Enforce JS/Svelte/Tailwind/Markdown lint rules and IDE path mappings.
+  - [eslint.config.js](./eslint.config.js), [.markdownlint-cli2.mjs](./.markdownlint-cli2.mjs), & [tsconfig.json](./tsconfig.json): Enforce JS/Svelte/Tailwind/Markdown lint rules and IDE path mappings.
 
 ## Subdirectories & System Boundaries
 

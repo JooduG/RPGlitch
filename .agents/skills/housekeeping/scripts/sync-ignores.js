@@ -119,15 +119,15 @@ export function sync_workspace(root_directory = ROOT_DIRECTORY) {
     tally(write_if_changed(vscode_settings_path, JSON.stringify(settings_object, null, 2) + "\n", ".vscode/settings.json"));
   }
 
-  // 1d. JSConfig Configuration
-  const jsconfig_path = path.join(root_directory, "jsconfig.json");
-  if (fs.existsSync(jsconfig_path) && master_configuration.jsconfig?.exclude) {
+  // 1d. TSConfig Configuration
+  const tsconfig_path = path.join(root_directory, "tsconfig.json");
+  if (fs.existsSync(tsconfig_path) && master_configuration.tsconfig?.exclude) {
     try {
-      const jsconfig_object = JSON.parse(fs.readFileSync(jsconfig_path, "utf8"));
-      jsconfig_object.exclude = master_configuration.jsconfig.exclude;
-      tally(write_if_changed(jsconfig_path, JSON.stringify(jsconfig_object, null, 2) + "\n", "jsconfig.json"));
+      const tsconfig_object = JSON.parse(fs.readFileSync(tsconfig_path, "utf8"));
+      tsconfig_object.exclude = master_configuration.tsconfig.exclude;
+      tally(write_if_changed(tsconfig_path, JSON.stringify(tsconfig_object, null, 2) + "\n", "tsconfig.json"));
     } catch (parse_error) {
-      console.warn(`⚠️ Could not sync jsconfig.json: ${parse_error.message}`);
+      console.warn(`⚠️ Could not sync tsconfig.json: ${parse_error.message}`);
     }
   }
 

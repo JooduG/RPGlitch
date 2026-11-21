@@ -42,7 +42,7 @@
     "**/.stylelintcache"
   ],
   "gitignore": ["!.env.example", "!package-lock.json", "!**/*main.pjs", "!**/templates/**", "act_output.log", "gha-creds-*.json"],
-  "jsconfig": {
+  "tsconfig": {
     "exclude": [
       "**/.agents/**",
       "**/.git/**",
@@ -59,7 +59,7 @@
   "linters": {
     "eslint": [],
     "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
-    "prettier": ["**/suggestion*", "package-lock.json", "package.json", "eslint.config.js", ".vscode/settings.json", "jsconfig.json", "vitest.config.js"],
+    "prettier": ["**/suggestion*", "package-lock.json", "package.json", "eslint.config.js", ".vscode/settings.json", "tsconfig.json", "vitest.config.js"],
     "stylelint": []
   },
   "vitest": { "exclude": ["**/node_modules/**", "**/dist/**", "**/.git/**", "**/tmp/**", "**/archive/**"] },

@@ -3,12 +3,11 @@
  * 🧹 HYGIENE RULE PACK - code/structural, lexical, legislative + backlog-debt rules.
  *
  * Moved verbatim from workspace.js §4 (single rule home for audit.js).
- * Only change: path constants + safe_stat_sync import from ../lib/io.js.
  */
 
 import fs from "fs";
 import path from "path";
-import { PROJECT_ROOT_DIRECTORY, ROOT_DIRECTORY, SKILLS_DIRECTORY, TEMPLATES_DIRECTORY, safe_stat_sync } from "../lib/io.js";
+import { PROJECT_ROOT_DIRECTORY, ROOT_DIRECTORY, SKILLS_DIRECTORY, safe_stat_sync } from "../lib/io.js";
 
 // --- Group A: Code & Structural Hygiene Rules ---
 export const code_hygiene_rules = [
@@ -149,128 +148,6 @@ export const lexical_hygiene_rules = [
 ];
 
 // --- Group C: Legislative & Backlog Debt Rules ---
-const clean_header_label = (raw_header_text) => {
-  return raw_header_text
-    .replace(/[(\s#]_?(Mandatory|Optional)_?([)\s#\n]|$)/gi, "")
-    .replace(/[🌀-🛿😀-🙏☀-⛿✀-➿]/gu, "")
-    .trim();
-};
-
-const is_header_match = (template_header, actual_level, actual_text) => {
-  if (template_header.level !== actual_level) return false;
-
-  const actual_clean = clean_header_label(actual_text);
-  const template_clean = template_header.cleanLabel;
-
-  if (template_header.isPlaceholder) {
-    const parts = template_clean.split(/\{\{[^}]+\}\}/);
-    const escaped_parts = parts.map((part) => part.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&"));
-    const regex = new RegExp("^" + escaped_parts.join(".*") + "$", "i");
-    const full_actual_text = actual_text.trim();
-    if (regex.test(full_actual_text) || regex.test(actual_clean)) {
-      return true;
-    }
-  }
-
-  const template_lower = template_clean.toLowerCase();
-  const actual_lower = actual_clean.toLowerCase();
-  return actual_lower === template_lower || actual_lower.startsWith(template_lower) || template_lower.startsWith(actual_lower);
-};
-
-const strip_code_blocks = (raw_content) => raw_content.replace(/```[\s\S]*?```/g, "");
-
-export const get_template_structure = (template_type) => {
-  if (!fs.existsSync(TEMPLATES_DIRECTORY)) return { fields: [], headers: [] };
-  const template_file_path = path.join(TEMPLATES_DIRECTORY, `${template_type}.template.md`);
-  if (!fs.existsSync(template_file_path)) return { fields: [], headers: [] };
-
-  const raw_template_content = fs.readFileSync(template_file_path, "utf-8");
-  const content_without_code = strip_code_blocks(raw_template_content);
-
-  const frontmatter_fields = [];
-  const frontmatter_match = raw_template_content.match(/^---\r?\n([\s\S]+?)\r?\n---/m);
-  if (frontmatter_match) {
-    const frontmatter_lines = frontmatter_match[1].split(/\r?\n/);
-    for (const single_line of frontmatter_lines) {
-      const match = single_line.match(/^(\w+):/);
-      if (match) {
-        frontmatter_fields.push({ name: match[1], isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(single_line) });
-      }
-    }
-  }
-
-  const section_headers = [];
-  const header_matches = content_without_code.matchAll(/^(#|##|###)\s+(.+)$/gm);
-  for (const match of header_matches) {
-    const heading_level = match[1].length;
-    const heading_text = match[2].trim();
-    section_headers.push({
-      level: heading_level,
-      text: `${match[1]} ${heading_text}`,
-      cleanLabel: clean_header_label(heading_text),
-      isOptional: /[(\s#]_?Optional_?([)\s#\n]|$)/i.test(heading_text),
-      isPlaceholder: /\{\{/.test(heading_text),
-    });
-  }
-
-  return { fields: frontmatter_fields, headers: section_headers };
-};
-
-export const validate_against_structure = (document_content, template_structure, report_callback) => {
-  if (template_structure.fields.length === 0 && template_structure.headers.length === 0) return;
-  const content_without_code = strip_code_blocks(document_content);
-
-  const frontmatter_match = document_content.match(/^---\r?\n([\s\S]+?)\r?\n---/);
-  if (!frontmatter_match) {
-    report_callback("HERESY", "🚨 Mandatory YAML frontmatter block is missing.");
-    return;
-  }
-
-  const frontmatter_lines = frontmatter_match[1].split(/\r?\n/);
-  const actual_fields = {};
-  for (const single_line of frontmatter_lines) {
-    const match = single_line.match(/^(\w+):\s*(.*)$/);
-    if (match) {
-      actual_fields[match[1]] = match[2]
-        .trim()
-        .replace(/^["']|["']$/g, "")
-        .split(" #")[0]
-        .trim();
-    }
-  }
-
-  const template_field_names = new Set(template_structure.fields.map((field) => field.name));
-  for (const field of template_structure.fields) {
-    if (!field.isOptional && !actual_fields[field.name]) {
-      report_callback("DEBT", `⚠️ Missing mandatory frontmatter field: "${field.name}".`);
-    }
-  }
-
-  for (const field_name in actual_fields) {
-    if (!template_field_names.has(field_name)) {
-      report_callback("HERESY", `🚨 Illegal frontmatter field detected: "${field_name}". Not in Sovereign Template.`);
-    }
-  }
-
-  const header_matches = content_without_code.matchAll(/^(#|##|###)\s+(.+)$/gm);
-  const actual_headers = Array.from(header_matches).map((match) => ({ level: match[1].length, text: match[2].trim() }));
-
-  for (const template_header of template_structure.headers) {
-    const has_matching_header = actual_headers.some((actual_header) => is_header_match(template_header, actual_header.level, actual_header.text));
-    if (!has_matching_header && !template_header.isOptional) {
-      report_callback("ADVICE", `💡 Missing mandatory section: "${"#".repeat(template_header.level)} ${template_header.cleanLabel}".`);
-    }
-  }
-
-  for (const actual_header of actual_headers) {
-    if (actual_header.level > 2) continue;
-    const is_recognized = template_structure.headers.some((template_header) => is_header_match(template_header, actual_header.level, actual_header.text));
-    if (!is_recognized) {
-      report_callback("HERESY", `🚨 Illegal section detected: "${"#".repeat(actual_header.level)} ${actual_header.text}". Not in Sovereign Template.`);
-    }
-  }
-};
-
 const audit_skill_directory = (skill_name) => {
   const skill_directory_path = path.join(SKILLS_DIRECTORY, skill_name);
   const skill_markdown_path = path.join(skill_directory_path, "SKILL.md");
@@ -288,10 +165,9 @@ const audit_skill_directory = (skill_name) => {
     const file_content = fs.readFileSync(skill_markdown_path, "utf-8");
     const content_without_code = file_content.replace(/```[\s\S]*?```/g, "");
 
-    const template_structure = get_template_structure("SKILL");
-    validate_against_structure(file_content, template_structure, (severity, message) => {
-      record_issue(severity === "HERESY" ? "🛑 HERESY" : "🔥 CRITICAL", message, severity === "HERESY" ? 30 : 15);
-    });
+    if (!/^---\r?\n[\s\S]+?\r?\n---/.test(file_content)) {
+      record_issue("🛑 HERESY", "Mandatory YAML frontmatter block is missing.", 30);
+    }
 
     const allowed_subfolders = ["scripts", "assets", "templates", "data", "references", "rules"];
     const current_subfolders = fs.readdirSync(skill_directory_path).filter((entry) => {
@@ -334,26 +210,6 @@ const audit_skill_directory = (skill_name) => {
   };
 };
 
-const create_template_rule = (rule_id, template_type) => ({
-  id: rule_id,
-  severity: "HERESY",
-  message: `🚨 ${template_type} file deviates from Sovereign Template structure.`,
-  validate: (file_content, file_path) => {
-    if (!file_path.endsWith(".md")) return true;
-    const relative_path = path.relative(PROJECT_ROOT_DIRECTORY, file_path).replace(/\\/g, "/");
-    const target_directory_prefix = `.agents/${template_type.toLowerCase()}s/`;
-    if (!relative_path.startsWith(target_directory_prefix)) return true;
-
-    const validation_errors = [];
-    const template_structure = get_template_structure(template_type);
-    validate_against_structure(file_content, template_structure, (severity, message) => {
-      validation_errors.push(`${severity === "HERESY" ? "🛑" : "⚠️"} ${message}`);
-    });
-
-    return { valid: validation_errors.length === 0, errors: validation_errors };
-  },
-});
-
 export const legislative_debt_rules = [
   {
     id: "SKILL_TEMPLATE_ALIGNMENT",
@@ -367,8 +223,6 @@ export const legislative_debt_rules = [
       return audit_skill_directory(skill_name);
     },
   },
-  create_template_rule("RULE_TEMPLATE_ALIGNMENT", "RULE"),
-  create_template_rule("WORKFLOW_TEMPLATE_ALIGNMENT", "WORKFLOW"),
   {
     id: "PROJECT_TODO_AI_TAG",
     severity: "DEBT",
@@ -394,5 +248,6 @@ export const legislative_debt_rules = [
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-11-21: Removed dead TEMPLATES_DIRECTORY / get_template_structure scaffolding while preserving YAML frontmatter, subfolder, placeholder, and line-cap checks.
  * 2026-11-10: Moved verbatim from workspace.js §4 into the hygiene rule pack for audit.js.
  */

@@ -24,6 +24,8 @@ Located in `.agents/skills/housekeeping/scripts/` and invoked via `npm run`:
 | `npm run test:hooks` | `scripts/tests/` | Contract tests for every registered gate in `GATE_TABLE` plus `proxy.js`. |
 | `node .agents/skills/housekeeping/scripts/audit.js all` | `audit.js all` | Combined `sync` + `hygiene` + `layers` pass. |
 
+- **Local `SKILL.md` Hygiene Guard (`rules/hygiene.js`)**: `audit:hygiene` rejects any `.agents/skills/*/SKILL.md` over `600` lines or with `> 3` `[UPPERCASE]` tokens (length `>= 3`, not followed by `(link)`) outside fenced code blocks; format tags such as `` `NEW` `` / `` `EDIT` `` / `` `DELETE` `` in backticks instead of square brackets.
+
 ### Windows PowerShell 5.1 & Concurrency Notes
 
 - **Command Chaining**: PowerShell 5.1 rejects `&&`; chain dependent commands with `; if ($?) { ... }`.
@@ -58,4 +60,4 @@ flowchart LR
 - **PostToolUse**: `grep-truncation-breaker` (`50`-match truncation stop) and `strike-circuit-breaker` (`3` consecutive tool failures).
 - **Stop**: `planning-handoff-gate` (`src/` changes reflected in `CHANGELOG.md` / `ROADMAP.md`) and `workspace-hygiene-gate` (blocks transient root debris).
 
-Hook Invariants: commands run relative to `.agents/` (`node skills/housekeeping/scripts/hooks.js <subcommand>`), read `stdin` synchronously, fail open on parse errors, and must pass `npm run test:hooks` after edits.
+Hook Invariants: commands run relative to `.agents/` (`node skills/housekeeping/scripts/hooks.js <subcommand>`), read `stdin` synchronously, fail open on parse errors, and must pass `npm run test:hooks` after edits. Antigravity caches `.agents/hooks.json` at session startup; after moving or renaming a hook script, update `gates.js` + `hooks.json` cleanly and reload the session before invoking `run_command` verification gates.

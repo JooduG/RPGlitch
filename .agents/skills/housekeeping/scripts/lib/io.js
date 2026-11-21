@@ -17,14 +17,6 @@ export const ROOT_DIRECTORY = path.resolve(CURRENT_DIRECTORY, "..", "..", "..", 
 export const PROJECT_ROOT_DIRECTORY = ROOT_DIRECTORY;
 export const SKILLS_DIRECTORY = path.join(PROJECT_ROOT_DIRECTORY, ".agents", "skills");
 
-export let TEMPLATES_DIRECTORY = path.join(CURRENT_DIRECTORY, "..", "..", "templates");
-if (!fs.existsSync(TEMPLATES_DIRECTORY)) {
-  const alternative_templates_path = path.join(ROOT_DIRECTORY, ".agents", "skills", "directives", "templates");
-  if (fs.existsSync(alternative_templates_path)) {
-    TEMPLATES_DIRECTORY = alternative_templates_path;
-  }
-}
-
 export const COLORS = Object.freeze({ RED: "\x1b[31m", YELLOW: "\x1b[33m", GREEN: "\x1b[32m", CYAN: "\x1b[36m", RESET: "\x1b[0m" });
 
 /**

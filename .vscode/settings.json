@@ -26,7 +26,7 @@
     "*.svelte.js": "$(capture).test.js, $(capture).svelte.test.js",
     "App.svelte": "main.js, main.test.js, index.html, *.pjs, config.js",
     "ignores.master.json": "*ignore",
-    "package.json": "package-lock.json, .npmrc, .prettierrc*, .markdownlint*.mjs, eslint.config.*, *cache, stylelint.config.*, svelte.config.*, vite.config.*, vitest.config.*, jsconfig.json, types.d.ts, *.code-workspace",
+    "package.json": "package-lock.json, .npmrc, .prettierrc*, .markdownlint*.mjs, eslint.config.*, *cache, stylelint.config.*, svelte.config.*, vite.config.*, vitest.config.*, tsconfig.json, types.d.ts, *.code-workspace",
     "README.md": "CHANGELOG.md, DESIGN.md, GEMINI.md, ROADMAP.md, SECURITY.md"
   },
   "files.encoding": "utf8",

@@ -42,5 +42,5 @@ package-lock.json
 package.json
 eslint.config.js
 .vscode/settings.json
-jsconfig.json
+tsconfig.json
 vitest.config.js
