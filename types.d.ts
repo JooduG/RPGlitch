@@ -1,7 +1,6 @@
 /// <reference types="vite/client" />
 /**
  * 🛸 RPGlitch: Global Type Definitions
- * Mariana Trench SOTA Refactor: Clarity, Robustness, Optimal Flow.
  */
 
 import type { Table } from "dexie";
@@ -26,6 +25,8 @@ declare global {
     seed?: number;
     width?: number;
     height?: number;
+    guidanceScale?: number;
+    resolution?: string;
     removeBackground?: boolean;
   }
 
@@ -39,47 +40,23 @@ declare global {
   /** Result type for image generation plugins */
   type T2IResult = string | T2IObject;
 
-  /** Perchance AI streaming interface (generate_text) */
-  function generate_text(prompt: string, options?: JsonMap): Promise<string>;
+  /** Perchance AI text generation bridge (`src/index.html`) */
+  function generate_text(prompt: string | JsonMap, options?: JsonMap): Promise<unknown>;
+  function generateText(prompt: string | JsonMap, options?: JsonMap): Promise<unknown>;
+  function pluginGenerateText(prompt: string | JsonMap, options?: JsonMap): Promise<unknown>;
 
-  /** Primary text-to-image generator (generate_image) */
+  /** Perchance text-to-image generation bridge (`src/index.html`) */
   function generate_image(options: T2IOptions): Promise<T2IResult>;
-
-  /** Legacy/Plugin text-to-image interface */
   function pluginGenerateImage(options: T2IOptions): Promise<T2IResult>;
 
-  /** Asset upload utility */
-  function upload(data: unknown, options?: JsonMap): Promise<unknown>;
-  function upload(callback: (dataUrl: string | null | undefined) => void): void;
-
-  /** Forces a UI tick/update */
-  function update(): void;
+  /** Perchance super-fetch web bridge (`src/index.html`) */
+  function fetch_web(url: string, options?: JsonMap): Promise<unknown>;
+  function pluginFetchWeb(url: string, options?: JsonMap): Promise<unknown>;
 
   // =========================================================================
-  // [3] EXTERNAL MODULES & DATA STRUCTURES
+  // [3] SECURITY & SANITIZATION KERNEL
   // =========================================================================
 
-  /** Perchance Output Context (OC) structure */
-  interface PerchanceOC {
-    characters?: unknown[];
-    worlds?: unknown[];
-    settings?: JsonMap;
-    sounds?: JsonMap;
-    thread: { on: (event: string, callback: (...args: unknown[]) => void) => void; customData?: unknown };
-    [key: string]: unknown;
-  }
-
-  const oc: PerchanceOC;
-
-  /** Global RPG shared lists */
-  interface RPGLists {
-    sounds?: unknown;
-    [key: string]: unknown;
-  }
-
-  const LISTS: RPGLists;
-
-  /** Security & Sanitization kernel */
   interface PurifyKernel {
     sanitize: (input: string, config?: JsonMap) => string;
   }
@@ -91,29 +68,22 @@ declare global {
   // =========================================================================
 
   interface Window {
-    chrono: unknown;
     webkitAudioContext: typeof AudioContext;
-    RPGLITCH_CONFIG: JsonMap;
-    app: unknown;
-    runtime: unknown;
-    rpgApp: unknown;
-    state: unknown;
-    GameMaster: unknown;
-    Engine: unknown;
     Dexie: typeof Dexie;
     DOMPurify: PurifyKernel;
-    generate_text: typeof generate_text;
-    generate_image: typeof generate_image;
-    LISTS: RPGLists;
-    pluginGenerateImage: typeof pluginGenerateImage;
-    oc: PerchanceOC;
-    update: typeof update;
+    generate_text?: typeof generate_text;
+    generateText?: typeof generateText;
+    pluginGenerateText?: typeof pluginGenerateText;
+    generate_image?: typeof generate_image;
+    pluginGenerateImage?: typeof pluginGenerateImage;
+    fetch_web?: typeof fetch_web;
+    pluginFetchWeb?: typeof pluginFetchWeb;
     ontouchstart?: unknown;
   }
 }
 
 // =========================================================================
-// [5] DATABASE SCHEMA
+// [5] DATABASE SCHEMA (DEXIE V2)
 // =========================================================================
 
 declare module "dexie" {
@@ -124,17 +94,8 @@ declare module "dexie" {
     sessions: Table<JsonMap, number>;
     kv_settings: Table<JsonMap, string>;
     audio_prefs: Table<JsonMap, string>;
+    mutation_ledger: Table<JsonMap, number>;
   }
-}
-
-declare module "@simulation" {
-  const content: Record<string, unknown>;
-  export default content;
-}
-
-declare module "@state" {
-  const content: Record<string, unknown>;
-  export default content;
 }
 
 export {};
