@@ -52,8 +52,7 @@
             is_blurred={blur}
             busy={is_busy}
             {is_pass_through}
-            {actions}
-            class={className}>
+            {actions}>
             <Dialog.Content
               {...rest}
               forceMount
@@ -62,7 +61,7 @@
               onOpenAutoFocus={(e) => {
                 e.preventDefault();
               }}
-              class="pointer-events-none contents [&>*:not(.pointer-events-none)]:pointer-events-auto">
+              class={className ? ["pointer-events-auto", className] : "pointer-events-none contents [&>*:not(.pointer-events-none)]:pointer-events-auto"}>
               {@render children?.()}
             </Dialog.Content>
           </Backdrop>
