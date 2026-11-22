@@ -5,7 +5,9 @@
    * and embedded 3D card-back preview mode.
    */
   import { set_tooltip_suppressed } from "@atoms";
-  import { app } from "@state";
+  import { capture_story_image, ghostwrite_user_draft, run_mock } from "@engine";
+  import { Audio } from "@media";
+  import { app, execution } from "@state";
   import { open_image_preview } from "./ImagePreview.svelte.js";
 
   /**
@@ -55,38 +57,120 @@
    * @param {any} entity
    * @param {string} surface
    * @param {Object} [deps={}]
-   * @returns {Array<{ label: string, onSelect: () => void, disabled?: boolean, separator?: boolean, danger?: boolean }>}
+   * @returns {Array<{ label: string, onSelect: () => void, disabled?: boolean, separator?: boolean, danger?: boolean, active?: boolean }>}
    */
   export function build_entity_actions(entity, surface, deps = {}) {
     if (!entity) return [];
     const items = [];
-    const on_open_profile = deps.on_open_profile || ((ent) => app.open_profile(ent));
+    const type = deps.type || context_menu_state.type || (entity.type === "fractal" ? "fractal" : "ai");
+    const on_open_profile = deps.on_open_profile || ((ent) => app.toggle_profile(true, ent, type));
     const on_open_image = deps.on_open_image || ((payload) => open_image_preview(payload));
 
+    const portrait_meta =
+      entity.modifiers ?
+        { prompt: entity.modifiers.prompt, negative_prompt: entity.modifiers.negative_prompt, seed: entity.modifiers.last_generated_seed }
+      : null;
+
     if (surface === "preview") {
-      items.push({ label: "Profile", onSelect: () => on_open_profile(entity) });
+      items.push({ label: "Profile", onSelect: () => app.open_profile(entity) });
       if (entity.profile_picture) {
-        items.push({
-          label: "Profile Picture",
-          onSelect: () =>
-            on_open_image({
-              src: entity.profile_picture,
-              metadata:
-                entity.modifiers ?
-                  { prompt: entity.modifiers.prompt, negative_prompt: entity.modifiers.negative_prompt, seed: entity.modifiers.last_generated_seed }
-                : null,
-            }),
-        });
+        items.push({ label: "Profile Picture", onSelect: () => on_open_image({ src: entity.profile_picture, metadata: portrait_meta }) });
       }
       return items;
     }
 
-    items.push({ label: "Inspect Profile", onSelect: () => on_open_profile(entity) });
+    if (surface === "storyboard") {
+      items.push({ label: "Profile", onSelect: () => on_open_profile(entity), disabled: !entity });
+      if (entity.profile_picture) {
+        items.push({ label: "Profile Picture", onSelect: () => on_open_image({ src: entity.profile_picture, metadata: portrait_meta }) });
+      }
+      if (type === "ai" || type === "fractal") {
+        const voice_role = type === "fractal" ? "fractal" : "ai";
+        const voice_noun = type === "fractal" ? "Fractal Voice" : "AI Voice";
+        items.push({
+          label: Audio.is_role_enabled(voice_role) ? `Disable ${voice_noun}` : `Enable ${voice_noun}`,
+          active: Audio.is_role_enabled(voice_role),
+          onSelect: () => Audio.toggle_entity_voice(voice_role),
+        });
+      }
+      items.push({ separator: true });
+      items.push({ label: "Swap", onSelect: () => app.open_card_hand(type) });
+      return items;
+    }
 
+    if (surface === "storymode" || surface === "npc") {
+      items.push({ label: "Profile", onSelect: () => on_open_profile(entity), disabled: !entity });
+      if (entity.profile_picture) {
+        items.push({ label: "Profile Picture", onSelect: () => on_open_image({ src: entity.profile_picture, metadata: portrait_meta }) });
+      }
+
+      if (type === "ai" || type === "fractal" || surface === "npc") {
+        const voice_role = type === "fractal" ? "fractal" : "ai";
+        const voice_noun = type === "fractal" ? "Fractal Voice" : "AI Voice";
+        items.push({
+          label: Audio.is_role_enabled(voice_role) ? `Disable ${voice_noun}` : `Enable ${voice_noun}`,
+          active: Audio.is_role_enabled(voice_role),
+          onSelect: () => Audio.toggle_entity_voice(voice_role),
+        });
+      }
+
+      items.push({ separator: true });
+      if (surface === "npc") {
+        items.push({
+          label: "Generate NPC Picture",
+          onSelect: () => capture_story_image({ subject: "npc", kind: "story_character", target_entity: entity }),
+          disabled: execution.busy,
+        });
+        return items;
+      }
+
+      const photo_label =
+        type === "ai" ? "Generate AI Character Image"
+        : type === "user" ? "Generate User Persona Image"
+        : "Generate Fractal Image";
+      items.push({
+        label: photo_label,
+        onSelect: () => capture_story_image({ subject: type, kind: type === "fractal" ? "story_scene" : "story_character" }),
+        disabled: execution.busy,
+      });
+
+      if (type === "fractal") {
+        items.push({
+          label: "Generate Story Image",
+          onSelect: () =>
+            capture_story_image({
+              subject: "fractal",
+              prompt: "A scene featuring both the AI character and the user persona together",
+              kind: "story_entities",
+            }),
+          disabled: execution.busy,
+        });
+      }
+
+      if (type === "user") {
+        items.push({
+          label: app.settings.call_mode ? "Disable Microphone" : "Enable Microphone",
+          active: app.settings.call_mode,
+          onSelect: () => {
+            app.settings.call_mode = !app.settings.call_mode;
+            app.save_settings();
+          },
+        });
+        items.push({ separator: true });
+        items.push({ label: "Ghostwrite", onSelect: () => ghostwrite_user_draft(), disabled: execution.busy });
+      }
+
+      if (app.settings.dev_mode) {
+        items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock(type), disabled: execution.busy });
+      }
+
+      return items;
+    }
+
+    items.push({ label: "Inspect Profile", onSelect: () => app.open_profile(entity) });
     if (entity.profile_picture) {
       items.push({ label: "View Portrait", onSelect: () => on_open_image({ src: entity.profile_picture, metadata: entity.modifiers || null }) });
     }
-
     return items;
   }
 </script>
@@ -213,13 +297,16 @@
             variant="bare"
             class={[
               "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left font-sans text-xs font-medium tracking-wide transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
-              item.danger ?
-                "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
+              item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
+              : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
               : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",
             ]}
             disabled={item.disabled}
             onclick={() => handle_select(item)}
             role="menuitem">
+            {#if item.active}
+              <span class="size-1.5 shrink-0 rounded-full bg-(--signature-color) shadow-(--signature-glow)"></span>
+            {/if}
             <span class="truncate">{item.label}</span>
           </Button>
         {/if}

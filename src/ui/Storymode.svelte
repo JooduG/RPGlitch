@@ -1,311 +1,27 @@
-<script module>
-  /**
-   * @file src/ui/Storymode.svelte
-   * 📖 THE STORYMODE STAGE
-   * Master story transcript stage unifying the continuous message feed,
-   * markdown/dialogue rendering pipeline, streaming typewriter follow,
-   * soft-delete undo timers, and contextual storymode action dispatches.
-   */
-  import { render_optics_fallback } from "@simulation";
-  import { get_mock_message, refine_image_prompt } from "@engine";
-  import { app, execution, session } from "@state";
-  import { open_image_preview, run_image_regeneration } from "./ImagePreview.svelte.js";
-  import { Audio, visual_engine } from "@media";
-
-  // --- STORYMODE SHARED STATE ---
-  class StorymodeState {
-    /** @type {string | number | null} */
-    pinned_message_id = $state(null);
-  }
-  export const storymode_state = new StorymodeState();
-
-  // --- STORYMODE ACTION DISPATCHERS ---
-
-  /**
-   * Portrait generation helper - logs a placeholder message immediately, then fills in the image.
-   * @param {string} subject
-   * @param {string} prompt
-   * @param {string} [kind]
-   * @param {any} [target_entity]
-   */
-  export async function take_photo(subject, prompt, kind, target_entity = null) {
-    if (execution.busy) return;
-    const entity_map = {
-      ai: session.active_ai || app.selected_ai,
-      user: session.active_user || app.selected_user,
-      fractal: session.active_fractal || app.selected_fractal,
-    };
-    const label_map = { ai: "AI", user: "User", fractal: "Fractal", npc: "NPC" };
-    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN", npc: "AI_TURN" };
-    const entity = target_entity || entity_map[subject];
-    const role_label = entity?.name || label_map[subject] || subject;
-    const turn_type = turn_map[subject] || "AI_TURN";
-    /** @type {{ id?: string|number } | null} */
-    let placeholder_entry = null;
-    let target_mode = "";
-    try {
-      execution.role = subject;
-      execution.start_generation(subject);
-      execution.start_media_stage({
-        type: subject,
-        name: role_label,
-        avatar: entity?.profile_picture || entity?.avatar || null,
-        color: entity?.signature_color || entity?.color || null,
-      });
-
-      target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
-
-      let refined_prompt = prompt;
-      let enhanced_negative = "";
-      try {
-        const configured_style = app.settings?.visual_style;
-        const story_style = session.active_fractal?.visual_style;
-        const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
-        const enhanced = await refine_image_prompt(prompt, subject, entity, app_style);
-        if (enhanced?.prompt) {
-          refined_prompt = enhanced.prompt;
-        }
-        if (enhanced?.negative_prompt) {
-          enhanced_negative = enhanced.negative_prompt;
-        }
-      } catch (envision_err) {
-        console.warn("[take_photo] Envision failed, falling back to draft prompt:", envision_err);
-      }
-
-      placeholder_entry = await session.log_message("", subject, role_label, {
-        turn_type,
-        attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
-      });
-
-      const result = await visual_engine.visualize(refined_prompt, kind, { subject, entity, negative_prompt: enhanced_negative }, { app, session });
-
-      if (result?.image_url && placeholder_entry?.id) {
-        await session.update_log_attachment(placeholder_entry.id, 0, {
-          src: result.image_url,
-          metadata: { mode: target_mode, ...result.metadata, prompt: result.refined_prompt },
-        });
-      } else if (!result?.image_url) {
-        await session.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: target_mode, prompt, failed: true, error: "Image generation returned no image" },
-        });
-        console.error(`${role_label} image generation failed. Please try again.`);
-      }
-    } catch (err) {
-      console.error(`[Photo Error: ${subject}]`, err);
-      if (placeholder_entry?.id) {
-        await session.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: target_mode, prompt, failed: true, error: err?.message || "Image generation failed" },
-        });
-      }
-    } finally {
-      execution.complete();
-    }
-  }
-
-  /**
-   * Group shot helper - logs placeholder immediately, then fills in the image.
-   */
-  export async function take_group_photo() {
-    if (execution.busy) return;
-    /** @type {{ id?: string|number } | null} */
-    let placeholder_entry = null;
-    try {
-      execution.role = "fractal";
-      execution.start_generation("fractal");
-      const fractal = session.active_fractal || app.selected_fractal;
-      execution.start_media_stage({
-        type: "fractal",
-        name: fractal?.name || "Scene",
-        avatar: fractal?.profile_picture || fractal?.avatar || null,
-        color: fractal?.signature_color || fractal?.color || null,
-      });
-      const group_prompt = "A scene featuring both the AI character and the user persona together";
-
-      placeholder_entry = await session.log_message("", "fractal", fractal?.name || "Scene", {
-        turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: { mode: "story_entities", prompt: group_prompt } }],
-      });
-
-      const result = await visual_engine.visualize(group_prompt, "story_entities", {}, { app, session });
-
-      if (result?.image_url && placeholder_entry?.id) {
-        await session.update_log_attachment(placeholder_entry.id, 0, {
-          src: result.image_url,
-          metadata: { ...result.metadata, prompt: result.refined_prompt },
-        });
-      } else if (!result?.image_url) {
-        await session.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: "story_entities", prompt: group_prompt, failed: true, error: "Image generation returned no image" },
-        });
-        console.error("Story Image generation failed. Please try again.");
-      }
-    } catch (err) {
-      console.error("[Story Image Error]", err);
-      if (placeholder_entry?.id) {
-        await session.update_log_attachment(placeholder_entry.id, 0, {
-          src: null,
-          metadata: { mode: "story_entities", failed: true, error: err?.message || "Image generation failed" },
-        });
-      }
-    } finally {
-      execution.complete();
-    }
-  }
-
-  /**
-   * Regenerate orchestration - generates 3 candidates in the background.
-   * @param {{ prompt: string, negative_prompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
-   */
-  export async function regenerate_image(ctx) {
-    const { prompt, negative_prompt, mode = "story_character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
-    const key = `${log_id}:${attach_idx}`;
-
-    await run_image_regeneration({
-      key,
-      prompt,
-      negative_prompt,
-      mode,
-      signature_color,
-      regenerate_count,
-      refine_prompt: refine_image_prompt,
-      on_select: (candidate) => {
-        if (log_id) {
-          session.update_log_attachment(log_id, attach_idx, {
-            src: candidate.url,
-            metadata: { ...candidate.metadata, regenerate_count: regenerate_count + 1 },
-          });
-        }
-      },
-    });
-  }
-
-  /**
-   * Ghostwriter trigger - fires a signal the Console watches.
-   */
-  export function ghostwrite() {
-    if (execution.busy) return;
-    app.ghostwrite_request++;
-  }
-
-  /**
-   * Mock message - streams a placeholder message for the given entity role (devmode only).
-   * @param {string} role
-   */
-  export async function run_mock(role) {
-    if (execution.busy) return;
-    const entity_map = {
-      ai: session.active_ai || app.selected_ai,
-      user: session.active_user || app.selected_user,
-      fractal: session.active_fractal || app.selected_fractal,
-    };
-    const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
-    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
-    const entity = entity_map[role];
-    const content = get_mock_message();
-
-    execution.start_generation(role);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2500));
-      execution.start_stream("mock-node", role);
-
-      let buffer = "";
-      const words = content.split(" ");
-      for (let i = 0; i < words.length; i++) {
-        buffer += (i === 0 ? "" : " ") + words[i];
-        execution.stream.content = buffer;
-        await new Promise((resolve) => setTimeout(resolve, 60));
-      }
-
-      await session.log_message(content, role, entity?.name || label_map[role], { turn_type: turn_map[role] });
-    } finally {
-      execution.complete();
-      execution.end_stream();
-    }
-  }
-</script>
-
 <script>
   import { chrono_engine } from "@engine";
   import { clear_card_location, item_in, motion, update_card_scrub } from "@media";
-  import { Button, Dialog, ScrollArea, Shimmer } from "@primitives";
+  import { Button, ScrollArea } from "@atoms";
+  import { CardSkeleton, Dialog, UndoToast } from "@molecules";
+  import { ChatBubble, DevBubble, ImageBubble } from "@organisms";
+  import { app, execution, session } from "@state";
   import { onDestroy, tick } from "svelte";
-  import ChatBubble from "./ChatBubble.svelte";
-  import UndoToast from "./UndoToast.svelte";
 
-  // --- CONTEXT MENU BUILDERS ---
-  function build_storymode_actions(type) {
-    const in_dev = app.settings.dev_mode;
-    const entity_map = {
-      ai: app.selected_ai || session.active_ai,
-      user: app.selected_user || session.active_user,
-      fractal: app.selected_fractal || session.active_fractal,
-    };
-    const entity = entity_map[type];
+  // --- STORYMODE FEED HELPERS ---
+  const TELEMETRY_TYPES = new Set(["DYNAMICS_DELTA", "STORY_START", "VECTOR_RESOLUTION", "CONTINUUM_FORMATION", "MEMORY_FORMATION"]);
 
-    const photo_label =
-      type === "ai" ? "Generate AI Character Image"
-      : type === "user" ? "Generate User Persona Image"
-      : "Generate Fractal Image";
-    const tier = type === "fractal" ? "story_scene" : "story_character";
-    const raw_fallback = render_optics_fallback({ tier, subject: type, ai: entity_map.ai, user: entity_map.user, fractal: entity_map.fractal });
-    const photo_prompt = raw_fallback.replace(/<\/?image_prompt>/g, "").trim();
-
-    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity, type), disabled: !entity }];
-
-    if (entity?.profile_picture) {
-      items.push({
-        label: "Profile Picture",
-        onSelect: () =>
-          open_image_preview({
-            src: entity.profile_picture,
-            metadata:
-              entity.modifiers ?
-                { prompt: entity.modifiers.prompt, negative_prompt: entity.modifiers.negative_prompt, seed: entity.modifiers.last_generated_seed }
-              : null,
-          }),
-      });
-    }
-
-    if (type === "ai" || type === "fractal") {
-      const voice_role = type === "fractal" ? "fractal" : "ai";
-      const voice_noun = type === "fractal" ? "Fractal Voice" : "AI Voice";
-      const voice_label = Audio.is_role_enabled(voice_role) ? `Disable ${voice_noun}` : `Enable ${voice_noun}`;
-      items.push({ label: voice_label, active: Audio.is_role_enabled(voice_role), onSelect: () => Audio.toggle_entity_voice(voice_role) });
-    }
-
-    items.push({ separator: true });
-    items.push({
-      label: photo_label,
-      onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "story_scene" : "story_character"),
-      disabled: execution.busy,
-    });
-    if (type === "fractal") {
-      items.push({ label: "Generate Story Image", onSelect: () => take_group_photo(), disabled: execution.busy });
-    }
-    if (type === "user") {
-      items.push({
-        label: app.settings.call_mode ? "Disable Microphone" : "Enable Microphone",
-        active: app.settings.call_mode,
-        onSelect: () => {
-          app.settings.call_mode = !app.settings.call_mode;
-          app.save_settings();
-        },
-      });
-      items.push({ separator: true });
-      items.push({ label: "Ghostwrite", onSelect: () => ghostwrite(), disabled: execution.busy });
-    }
-
-    if (in_dev) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock(type), disabled: execution.busy });
-    }
-
-    return items;
+  function is_telemetry(entry) {
+    return Boolean(entry?.meta?.type && TELEMETRY_TYPES.has(entry.meta.type));
   }
 
-  let card_actions = $derived({ ai: build_storymode_actions("ai"), user: build_storymode_actions("user"), fractal: build_storymode_actions("fractal") });
+  function is_image_only(entry) {
+    const has_attachments = Array.isArray(entry?.attachments) && entry.attachments.length > 0;
+    const has_text = typeof entry?.text === "string" && entry.text.trim().length > 0;
+    return has_attachments && !has_text;
+  }
+
+  // --- STORYMODE PINNED MESSAGE STATE ---
+  let pinned_message_id = $state(null);
 
   // --- FEED ACTIVE TURN ORCHESTRATION ---
   let is_active_turn = $derived(execution.phase === "generating" || execution.stream.active);
@@ -437,7 +153,8 @@
       const t = e.target;
       if (!(t instanceof Element)) return;
       if (is_inside_scrollable(t)) return;
-      if (t.closest("[data-modal-variant], [data-backdrop], .dropdown-portal-wrapper, [data-dropdown-menu], .menu, .tooltip-portal")) return;
+      if (t.closest("[data-modal-layer], [data-dropdown-menu], [role='menu'], [data-tooltip-preview], .dropdown-portal-wrapper, .menu, .tooltip-portal"))
+        return;
       if (e.deltaY === 0) return;
       let dy = e.deltaY;
       if (e.deltaMode === 1) dy *= 16;
@@ -608,12 +325,6 @@
   );
 </script>
 
-{#snippet card_skeleton()}
-  <div class="relative isolate h-full min-h-50 w-full overflow-hidden rounded-xl border border-solid border-white/10 bg-zinc-900/40 backdrop-blur-sm">
-    <Shimmer color="rgba(255, 255, 255, 0.4)" />
-  </div>
-{/snippet}
-
 <Dialog
   type="confirm"
   bind:open={show_delete_confirm}
@@ -626,7 +337,7 @@
 <section style="display: flex;" class="relative z-10 flex min-h-0 flex-col justify-center {stage_class}">
   <div class="relative flex h-full w-full flex-col overflow-hidden">
     {#if !app.entities_loaded}
-      {@render card_skeleton()}
+      <CardSkeleton />
     {:else}
       <div class="flex min-h-80 w-full flex-1 flex-col gap-0 overflow-hidden px-0" bind:this={scroll_ref}>
         <ScrollArea data-id="storymode-scroll-area" style="height: 100%; width: 100%;">
@@ -646,6 +357,18 @@
                 <div class="w-[calc(var(--spacing-column-unit)*5)]">
                   <UndoToast undo_window_ms={UNDO_DELETE_WINDOW_MS} on_undo={() => undo_delete(entry.id)} />
                 </div>
+              </div>
+            {:else if is_telemetry(entry)}
+              <div data-entry-id={entry.id} class="w-full shrink-0" in:item_in={{ duration: 200 }}>
+                <DevBubble meta={entry.meta} timestamp={entry.created_at ? new Date(entry.created_at) : new Date()} />
+              </div>
+            {:else if is_image_only(entry)}
+              <div data-entry-id={entry.id} class="w-full shrink-0" in:item_in={{ duration: 200 }}>
+                <ImageBubble
+                  id={entry.id}
+                  sender={map_role(entry.role)}
+                  character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
+                  attachments={entry.attachments} />
               </div>
             {:else}
               <div
@@ -675,13 +398,10 @@
                   }}
                   meta={entry.meta}
                   busy={entry.busy}
-                  is_pinned={storymode_state.pinned_message_id != null && String(storymode_state.pinned_message_id) === String(entry.id)}
+                  is_pinned={pinned_message_id != null && String(pinned_message_id) === String(entry.id)}
                   on_toggle_pin={() => {
-                    storymode_state.pinned_message_id = storymode_state.pinned_message_id === entry.id ? null : entry.id;
-                  }}
-                  on_take_photo={take_photo}
-                  on_regenerate_image={regenerate_image}
-                  {card_actions} />
+                    pinned_message_id = pinned_message_id === entry.id ? null : entry.id;
+                  }} />
               </div>
             {/if}
           {/each}
