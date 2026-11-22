@@ -5,7 +5,7 @@
  */
 import { describe, expect, it } from "vitest";
 
-import { claimed_entity_lock, deck_geometry, StoryboardController, storyboard } from "./Storyboard.svelte";
+import { claimed_entity_lock, deck_geometry, StoryboardController, storyboard } from "./Storyboard.svelte.js";
 import { compute_initials } from "@utils";
 
 // ---------------------------------------------------------------------------------------------

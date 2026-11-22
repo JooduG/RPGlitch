@@ -8,11 +8,13 @@
    * persistent 12-column root grid.
    */
   import { app, execution, session } from "@state";
-  import { Audio, motion } from "@media";
+  import { Audio, capture_storyboard_flight, fly_storyboard_cards_into_prologue, motion } from "@media";
   import { LayoutGrid, Tooltip, unpin_tooltip } from "@atoms";
   import { ContextMenu, EntityCard, ImagePreview } from "@organisms";
+  import { parse_think_block } from "@simulation";
   import { get_signature_color } from "@utils";
-  import { Console, Profile, Storyboard, Storymode } from "@ui";
+  import { Console, Profile, Storyboard, storyboard, Storymode } from "@ui";
+  import { tick } from "svelte";
 
   // --- DERIVED RUNES ---
 
@@ -58,6 +60,55 @@
       window.removeEventListener("pagehide", handle_page_hide);
       Audio.destroy();
     };
+  });
+
+  // Begin-story flight watcher: flies storyboard cards into prologue once streaming starts
+  $effect(() => {
+    const _pending = app.begin_story_pending;
+    if (!_pending) return;
+    const has_prologue_entry = session.feed.some((entry) => entry.meta?.is_prologue);
+    if (!has_prologue_entry || storyboard.begin_flight_started || app.begin_flight_claimed) return;
+
+    if (execution.stream.active && execution.stream.content) {
+      const content = String(execution.stream.content);
+      const think_ended = /<\/think\s*>/i.test(content);
+      const parsed_content = parse_think_block(content).content.trim();
+      if (!think_ended && !parsed_content) return;
+    } else {
+      return;
+    }
+
+    storyboard.begin_flight_started = true;
+    app.begin_flight_claimed = true;
+    const assets = capture_storyboard_flight();
+
+    Promise.resolve().then(async () => {
+      await tick();
+      if (!app.begin_story_pending) return;
+      await app.set_view("storymode");
+      await tick();
+      if (!app.begin_story_pending) return;
+      if (!document.querySelector("[data-msg-prologue]")) {
+        app.begin_story_pending = false;
+        app.suppress_card_transitions = false;
+        app.begin_flight_claimed = false;
+        return;
+      }
+      const vp = document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
+      if (vp) vp.scrollTop = 0;
+      const dst_rects = {};
+      const row = document.querySelector("[data-msg-prologue]");
+      if (row) {
+        for (const type of ["ai", "fractal", "user"]) {
+          const card = row.querySelector(`[data-msg-card="${type}"] [data-card-root]`);
+          if (card) dst_rects[type] = card.getBoundingClientRect();
+        }
+      }
+      fly_storyboard_cards_into_prologue(assets, dst_rects);
+      app.begin_story_pending = false;
+      app.suppress_card_transitions = false;
+      app.begin_flight_claimed = false;
+    });
   });
 </script>
 

@@ -10,7 +10,7 @@
   import { Audio, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Icon, ProgressBar, ScrollArea, Shimmer, Slider, Toggle, tooltip } from "@atoms";
   import { Dialog, StoryCard, TextField } from "@molecules";
-  import { install_begin_flight_effect, storyboard } from "./Storyboard.svelte";
+  import { storyboard } from "./Storyboard.svelte.js";
   import { build_story_export_filename, export_story_markdown } from "@data";
   import { click_outside, download_text_file, embeddings_engine, get_signature_color } from "@utils";
   import { tick } from "svelte";
@@ -177,9 +177,6 @@
     : ready_to_begin ? "BEGIN STORY"
     : `SELECT ENTITIES (${app.selected_count}/3)`,
   );
-
-  // Install begin-story flight watcher on mount
-  install_begin_flight_effect();
 
   // Ghostwriter trigger watcher
   let handled_ghostwrite_req = 0;
