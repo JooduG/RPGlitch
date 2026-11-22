@@ -123,6 +123,12 @@
     }
   });
 
+  $effect(() => {
+    if (is_open && app.selected_count >= 3) {
+      app.close_card_hand();
+    }
+  });
+
   const max_fan_tilt = $derived(motion.is_reduced ? 0 : Math.min(35, Math.max(10, total_cards * 1.4)));
   const fan_rotation = $derived(motion.is_reduced ? 0 : -cursor_x * max_fan_tilt + scroll_angle);
 

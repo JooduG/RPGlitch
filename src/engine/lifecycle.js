@@ -275,11 +275,13 @@ export async function generate_closing(story_id, conclusion_status = "CONCLUDED"
     const fractal_style = typeof fractal_quadrant?.speaking_style === "string" ? fractal_quadrant.speaking_style : "casual";
     const cleaned_prose = clean_generated_prose(parse_think_block(response || "").prose, fractal_style);
 
-    await session.log_message(cleaned_prose, "fractal", fractal_name, {
-      turn_type: "SYSTEM_TURN",
-      story_id,
-      meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
-    });
+    if (cleaned_prose && cleaned_prose.trim()) {
+      await session.log_message(cleaned_prose, "fractal", fractal_name, {
+        turn_type: "SYSTEM_TURN",
+        story_id,
+        meta: { id: node_id, is_epilogue: true, conclusion_status, story_status: conclusion_status },
+      });
+    }
 
     execution.lock();
     return cleaned_prose;
