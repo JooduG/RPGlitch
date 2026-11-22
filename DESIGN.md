@@ -358,7 +358,7 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 
 ## Components
 
-Interactive UI primitives (headless `bits-ui` wrappers, buttons, dialogs, dropdowns, sliders, fields, and badges) are documented authoritatively in [src/ui/primitives/README.md](src/ui/primitives/README.md).
+Interactive UI primitives (headless `bits-ui` wrappers, buttons, dialogs, dropdowns, sliders, fields, and meters) are split across domain-agnostic [src/ui/atoms/README.md](src/ui/atoms/README.md) (`@atoms`) and [src/ui/molecules/README.md](src/ui/molecules/README.md) (`@molecules`).
 
 Active T4 utilities compiled from this specification:
 

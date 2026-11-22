@@ -5,7 +5,7 @@
 Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design tokens, deterministic palette resolution, numeric/vector math, string/XML escaping, inline Markdown tokenization, dot-path traversal, `@ENTITY` macro resolution, HTML sanitization/extraction, web/image ingestion, browser DOM actions, MiniLM embeddings, and async concurrency control.
 
 - **Barrel Entry Point**: [`index.js`](./index.js) re-exports `*` from all 12 implementation modules (`tokens.js`, `palette.js`, `math.js`, `text.js`, `markdown.js`, `field-path.js`, `macros.js`, `html.js`, `ingestion.js`, `dom.js`, `embeddings.svelte.js`, `async.js`).
-- **Dependency Boundary**: Modules import only intra-package siblings, `@config`, `dompurify`, `svelte/reactivity`, and the dynamic ESM import of `@huggingface/transformers@3.5.2` in [`embeddings.svelte.js`](./embeddings.svelte.js). Upward imports from `@ui`, `@primitives`, `@engine`, `@state`, `@data`, `@media`, `@simulation`, or `@definitions` are forbidden.
+- **Dependency Boundary**: Modules import only intra-package siblings, `@config`, `dompurify`, `svelte/reactivity`, and the dynamic ESM import of `@huggingface/transformers@3.5.2` in [`embeddings.svelte.js`](./embeddings.svelte.js). Upward imports from `@ui`, `@atoms`, `@molecules`, `@organisms`, `@engine`, `@state`, `@data`, `@media`, `@simulation`, or `@definitions` are forbidden.
 
 ## Interface
 
