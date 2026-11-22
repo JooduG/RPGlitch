@@ -471,7 +471,7 @@
         <h5
           data-card-text
           class={[
-            "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]",
+            "line-clamp-3 w-full text-center text-lg leading-[1.375] wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]",
             is_empty && "text-frisk opacity-60 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
           ]}>
           {is_empty ? role_label || "Create New" : entity?.name || name}
@@ -480,7 +480,7 @@
         <h3
           data-card-text
           class={[
-            "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]",
+            "line-clamp-3 w-full text-center text-[1.5rem] leading-[1.375] wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]",
             is_empty && "text-frisk opacity-60 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
           ]}>
           {is_empty ? role_label || "Create New" : entity?.name || name}
