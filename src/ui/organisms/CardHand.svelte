@@ -74,8 +74,12 @@
       // Select the entities this import actually created. Never guess by
       // list position: lobby order is key order, not insertion order, so
       // `list[length - 1]` picks an arbitrary unrelated entity.
-      if (import_character && !app.selected_ai && created.character) app.selected_ai = created.character;
-      if (import_fractal && !app.selected_fractal && created.fractal) app.selected_fractal = created.fractal;
+      if (import_character && created.character) {
+        app.select_entity(card_hand_type === "user" ? "user" : "ai", created.character);
+      }
+      if (import_fractal && created.fractal) {
+        app.select_entity("fractal", created.fractal);
+      }
 
       import_raw_text = "";
       import_image_data = null;
@@ -83,6 +87,7 @@
       // modal teardown below never batches into the same giant flush.
       await tick();
       show_import_modal = false;
+      app.close_card_hand();
     } catch (err) {
       console.error(err);
       import_error_message = err.message || "Failed to import entities.";
@@ -209,7 +214,6 @@
     import_fractal = card_hand_type === "fractal";
     import_error_message = "";
     show_import_modal = true;
-    app.close_card_hand();
   }
 
   /** @param {any} entity */
@@ -296,110 +300,111 @@
 <svelte:window onkeydown={handle_keydown} onpointermove={handle_pointer_move} onwheel={handle_wheel} />
 
 {#if is_open}
-  <Backdrop onclick={() => app.close_card_hand()} layer="cardhand" />
-  <div
-    in:card_hand_in
-    out:card_hand_out
-    class="pointer-events-none fixed right-0 bottom-0 left-0 isolate z-overlay flex h-dvh w-screen flex-col items-center justify-end overflow-hidden pb-[calc(var(--spacing-row-unit)*0.1)]"
-    role="dialog"
-    aria-labelledby="hand-title">
-    <header class="pointer-events-auto z-20 -mb-standard text-center">
-      <h2 id="hand-title" class="text-slate-600 text-shadow-(--shadow-standard)">
-        {hand_title}
-      </h2>
-    </header>
-
+  <Backdrop onclick={() => app.close_card_hand()} layer="cardhand">
     <div
-      class="relative block h-[calc(var(--spacing-row-unit)*3.5)] w-full max-w-(--grid-width-max) origin-bottom pb-[calc(var(--spacing-row-unit)*0.2)] transition-transform duration-standard"
-      style:--total-count={total_cards}>
-      <!-- IMPORT CARD -->
+      in:card_hand_in
+      out:card_hand_out
+      class="pointer-events-none fixed right-0 bottom-0 left-0 isolate z-overlay flex h-dvh w-screen flex-col items-center justify-end overflow-hidden pb-[calc(var(--spacing-row-unit)*0.1)]"
+      role="dialog"
+      aria-labelledby="hand-title">
+      <header class="pointer-events-auto z-20 -mb-standard text-center">
+        <h2 id="hand-title" class="text-slate-600 text-shadow-(--shadow-standard)">
+          {hand_title}
+        </h2>
+      </header>
+
       <div
-        class="pointer-events-auto absolute bottom-0 left-1/2 ml-[calc(-0.425*var(--spacing-column-unit))] h-[calc(var(--spacing-row-unit)*2.8)] w-[calc(var(--spacing-column-unit)*0.85)] hover:z-20!"
-        role="presentation"
-        style:transform="rotate({import_angle + fan_rotation}deg) translateY(0)"
-        style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
-        style:z-index="0"
-        onmouseenter={() => (hovered_index = -2)}
-        onmouseleave={() => (hovered_index = null)}>
-        <Button
-          variant="bare"
-          class="absolute inset-0 z-0 h-full w-full cursor-pointer border-none bg-none opacity-0 disabled:pointer-events-none disabled:cursor-default"
-          aria-label="Import"
-          onclick={handle_open_import}></Button>
-        <div
-          class="relative z-10 h-full w-full rounded-md transition-transform duration-standard ease-in-out will-change-transform"
-          style:transform={hovered_index === -2 ?
-            `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
-          : "none"}>
-          <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" launch_gesture={false} onclick={handle_open_import} />
-        </div>
-      </div>
-
-      <!-- CREATE NEW CARD -->
-      <div
-        class="pointer-events-auto absolute bottom-0 left-1/2 ml-[calc(-0.425*var(--spacing-column-unit))] h-[calc(var(--spacing-row-unit)*2.8)] w-[calc(var(--spacing-column-unit)*0.85)] hover:z-20!"
-        role="presentation"
-        style:transform="rotate({create_angle + fan_rotation}deg) translateY(0)"
-        style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
-        style:z-index="0"
-        onmouseenter={() => (hovered_index = -1)}
-        onmouseleave={() => (hovered_index = null)}>
-        <Button
-          variant="bare"
-          class="absolute inset-0 z-0 h-full w-full cursor-pointer border-none bg-none opacity-0 disabled:pointer-events-none disabled:cursor-default"
-          aria-label="Create New"
-          onclick={handle_create_new}></Button>
-        <div
-          class="relative z-10 h-full w-full rounded-md transition-transform duration-standard ease-in-out will-change-transform"
-          style:transform={hovered_index === -1 ?
-            `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
-          : "none"}>
-          <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" launch_gesture={false} onclick={handle_create_new} />
-        </div>
-      </div>
-
-      {#each entity_list as entity, idx (entity.id)}
-        {@const dynamic_angle = (idx - (total_cards - 1) / 2) * card_step}
-        {@const is_hovered = hovered_index === idx}
-
+        class="relative block h-[calc(var(--spacing-row-unit)*3.5)] w-full max-w-(--grid-width-max) origin-bottom pb-[calc(var(--spacing-row-unit)*0.2)] transition-transform duration-standard"
+        style:--total-count={total_cards}>
+        <!-- IMPORT CARD -->
         <div
           class="pointer-events-auto absolute bottom-0 left-1/2 ml-[calc(-0.425*var(--spacing-column-unit))] h-[calc(var(--spacing-row-unit)*2.8)] w-[calc(var(--spacing-column-unit)*0.85)] hover:z-20!"
           role="presentation"
-          data-entity-id={entity.id}
-          style:transform="rotate({dynamic_angle + fan_rotation}deg) translateY(0)"
+          style:transform="rotate({import_angle + fan_rotation}deg) translateY(0)"
           style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
-          style:z-index={idx + 1}
-          onmouseenter={() => (hovered_index = idx)}
+          style:z-index="0"
+          onmouseenter={() => (hovered_index = -2)}
           onmouseleave={() => (hovered_index = null)}>
           <Button
             variant="bare"
             class="absolute inset-0 z-0 h-full w-full cursor-pointer border-none bg-none opacity-0 disabled:pointer-events-none disabled:cursor-default"
-            aria-label="Select {entity.name}"
-            onclick={() => handle_select(entity)}
-            disabled={is_disabled(entity)}></Button>
-
+            aria-label="Import"
+            onclick={handle_open_import}></Button>
           <div
-            class="relative z-10 h-full w-full rounded-md transition-[transform,filter,opacity] duration-300 ease-in-out will-change-transform {(
-              is_disabled(entity)
-            ) ?
-              'opacity-85 grayscale-[0.6]'
-            : ''} {hovered_index !== null && !is_hovered && !is_disabled(entity) ? 'blur-[1px] brightness-[0.35] grayscale-[0.4]' : ''}"
-            use:tooltip={get_unavailable_reason(entity)}
-            style:transform={is_hovered && !is_disabled(entity) ?
-              `rotate(${-(dynamic_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)`
+            class="relative z-10 h-full w-full rounded-md transition-transform duration-standard ease-in-out will-change-transform"
+            style:transform={hovered_index === -2 ?
+              `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
             : "none"}>
-            <EntityCard
-              variant="library"
-              {entity}
-              type={card_hand_type ?? undefined}
-              disabled={is_disabled(entity)}
-              launch_gesture={false}
-              onclick={() => handle_select(entity)} />
+            <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" launch_gesture={false} onclick={handle_open_import} />
           </div>
         </div>
-      {/each}
+
+        <!-- CREATE NEW CARD -->
+        <div
+          class="pointer-events-auto absolute bottom-0 left-1/2 ml-[calc(-0.425*var(--spacing-column-unit))] h-[calc(var(--spacing-row-unit)*2.8)] w-[calc(var(--spacing-column-unit)*0.85)] hover:z-20!"
+          role="presentation"
+          style:transform="rotate({create_angle + fan_rotation}deg) translateY(0)"
+          style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
+          style:z-index="0"
+          onmouseenter={() => (hovered_index = -1)}
+          onmouseleave={() => (hovered_index = null)}>
+          <Button
+            variant="bare"
+            class="absolute inset-0 z-0 h-full w-full cursor-pointer border-none bg-none opacity-0 disabled:pointer-events-none disabled:cursor-default"
+            aria-label="Create New"
+            onclick={handle_create_new}></Button>
+          <div
+            class="relative z-10 h-full w-full rounded-md transition-transform duration-standard ease-in-out will-change-transform"
+            style:transform={hovered_index === -1 ?
+              `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
+            : "none"}>
+            <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" launch_gesture={false} onclick={handle_create_new} />
+          </div>
+        </div>
+
+        {#each entity_list as entity, idx (entity.id)}
+          {@const dynamic_angle = (idx - (total_cards - 1) / 2) * card_step}
+          {@const is_hovered = hovered_index === idx}
+
+          <div
+            class="pointer-events-auto absolute bottom-0 left-1/2 ml-[calc(-0.425*var(--spacing-column-unit))] h-[calc(var(--spacing-row-unit)*2.8)] w-[calc(var(--spacing-column-unit)*0.85)] hover:z-20!"
+            role="presentation"
+            data-entity-id={entity.id}
+            style:transform="rotate({dynamic_angle + fan_rotation}deg) translateY(0)"
+            style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
+            style:z-index={idx + 1}
+            onmouseenter={() => (hovered_index = idx)}
+            onmouseleave={() => (hovered_index = null)}>
+            <Button
+              variant="bare"
+              class="absolute inset-0 z-0 h-full w-full cursor-pointer border-none bg-none opacity-0 disabled:pointer-events-none disabled:cursor-default"
+              aria-label="Select {entity.name}"
+              onclick={() => handle_select(entity)}
+              disabled={is_disabled(entity)}></Button>
+
+            <div
+              class="relative z-10 h-full w-full rounded-md transition-[transform,filter,opacity] duration-300 ease-in-out will-change-transform {(
+                is_disabled(entity)
+              ) ?
+                'opacity-85 grayscale-[0.6]'
+              : ''} {hovered_index !== null && !is_hovered && !is_disabled(entity) ? 'blur-[1px] brightness-[0.35] grayscale-[0.4]' : ''}"
+              use:tooltip={get_unavailable_reason(entity)}
+              style:transform={is_hovered && !is_disabled(entity) ?
+                `rotate(${-(dynamic_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)`
+              : "none"}>
+              <EntityCard
+                variant="library"
+                {entity}
+                type={card_hand_type ?? undefined}
+                disabled={is_disabled(entity)}
+                launch_gesture={false}
+                onclick={() => handle_select(entity)} />
+            </div>
+          </div>
+        {/each}
+      </div>
     </div>
-  </div>
+  </Backdrop>
 {/if}
 
 <Modal
