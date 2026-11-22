@@ -48,11 +48,23 @@
       "@state/*": [
         "./src/state/*"
       ],
-      "@primitives": [
-        "./src/ui/primitives/index.js"
+      "@atoms": [
+        "./src/ui/atoms/index.js"
       ],
-      "@primitives/*": [
-        "./src/ui/primitives/*"
+      "@atoms/*": [
+        "./src/ui/atoms/*"
+      ],
+      "@molecules": [
+        "./src/ui/molecules/index.js"
+      ],
+      "@molecules/*": [
+        "./src/ui/molecules/*"
+      ],
+      "@organisms": [
+        "./src/ui/organisms/index.js"
+      ],
+      "@organisms/*": [
+        "./src/ui/organisms/*"
       ],
       "@ui": [
         "./src/ui/index.js"
