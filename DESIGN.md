@@ -78,8 +78,8 @@ spacing:
   spacing-kinetic-stab-distance: "{spacing.spacing-unit}"
   spacing-pixel: 1px
   spacing-row-unit: calc(var(--spacing-grid-height) / 12)
-  spacing-standard: 1rem
-  spacing-tight: 0.5rem
+  spacing-standard: calc(var(--spacing-unit) * 4)
+  spacing-tight: calc(var(--spacing-unit) * 2)
   spacing-unit: 0.25rem
 theme:
   blur-mist: blur(calc(var(--spacing-unit) * 4))
@@ -98,7 +98,6 @@ theme:
   noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
   opacity-ghost: "0.1"
   opacity-muted: "0.6"
-  opacity-none: "0"
   opacity-solid: "1"
   opacity-whisper: "0.3"
   scale-lift: "1.02"
@@ -144,15 +143,31 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 
 ## Typography
 
-- **Body & Interface (`--font-sans`)**: `"Inter", sans-serif` — neutral legibility for dialogue, forms, and long-form reading.
-- **Structural Headings (`--font-heading`)**: `"Ubuntu", sans-serif` — tightly tracked hierarchy across `h1`–`h6`.
-- **Display & Narrative Script (`--font-display`)**: `"Satisfy", cursive` — reserved for atmospheric titles and storybook accents.
-- **Telemetry & Brackets (`--font-mono`)**: `"JetBrains Mono", monospace` — monospaced precision for prompt brackets, token counters, and ledger diffs.
+Each font family owns a single exclusive territory so typefaces never compete for the same UI job:
+
+- **Structural Hierarchy (`--font-heading`)**: `"Ubuntu", sans-serif` — styled natively on bare `h1`–`h5` tags.
+- **Human Voice & Controls (`--font-sans`)**: `"Inter", sans-serif` — baseline body/prose (`body`, `<p>`, `type-body`) and interactive UI chrome (`type-interact`).
+- **Machine & Terminal Voice (`--font-mono`)**: `"JetBrains Mono", monospace` — section eyebrows (`<h6>`, `type-uppercase-label`), telemetry readouts, brackets, code, and numeric counters (`<code>`, `type-data`).
+- **One-Off Exception (`--font-display`)**: `"Satisfy", cursive` — reserved exclusively for story titles (`StoryboardTitle.svelte`). Do not introduce `font-display` into general UI chrome.
 - **Offline & Iframe Resilience**: Every `--font-*` stack terminates in a native system fallback (`sans-serif`, `cursive`, `monospace`) so typography remains legible without layout breakage if external font CDNs are blocked inside sandboxed iframes.
+
+### Usage Contract
+
+Follow this decision order whenever styling text in a Svelte component:
+
+1. **Structural headings (`<h1>`–`<h6>`)**: Use the bare semantic tag with **zero** font, size, weight, tracking, or leading utilities. Pick the tag by document outline (`h1` view hero → `h2` panel/modal → `h3` card/section → `h4` body-sized subhead/speaker → `h5` compact header → `h6` mono uppercase eyebrow).
+2. **Inline-editable or clickable headings/prose**: Keep the semantic tag (`<h1>`–`<h6>`, `<p>`) mounted in both read and edit modes and place the `<input>`, `<textarea>`, or `<button>` _inside_ it. Form controls inherit all typographic properties (`font`, `letter-spacing`, `text-transform`, `text-shadow`, `color`) automatically—never duplicate heading classes onto an `<input>` or swap out the heading tag in edit mode.
+3. **Non-heading UI elements**: Apply exactly one of the four everyday primitives directly on the leaf text element (never on a layout wrapper):
+   - `type-body` — dialogue prose, bios, empty-state copy, and standalone `<textarea>` composers.
+   - `type-interact` — buttons, dropdown triggers/items, context menu actions, toggles, sliders, and tooltips.
+   - `type-uppercase-label` — non-heading uppercase labels, accordion triggers, badges, and telemetry tags (visually identical to `<h6>`).
+   - `type-data` — uncapped monospace telemetry, prompt brackets, dev logs, timestamps, and tabular numeric meters.
+4. **Allowed orthogonal modifiers**: Layer only semantic state or formatting on top of a base tag or `type-*` primitive: color/opacity, `italic`, `font-bold`, `truncate`/`line-clamp-*`, alignment, or a single size nudge (`text-sm` for dense secondary copy). Never hand-assemble raw `font-*` + `tracking-*` + `leading-*` + `uppercase` recipes in templates.
 
 ```css
 @theme {
-  --breakpoint-mobile: 48rem;
+  --tracking-*: initial;
+  --leading-*: initial;
 }
 
 @layer base {
@@ -169,6 +184,8 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
     height: 100%;
     overflow: hidden;
     font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: calc(1.5 / 1);
     color: var(--color-frisk);
     background-color: var(--color-chalk);
     text-align: left;
@@ -192,52 +209,64 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
     outline: var(--spacing-pixel) solid var(--color-pure-white);
   }
 
+  /* Structural Headings (locked to 0.25rem vertical rhythm; h4 = body size) */
   h1,
   h2,
   h3,
   h4,
-  h5,
-  h6 {
-    font-family: var(--font-heading);
+  h5 {
     margin: 0;
-    line-height: 1.5;
+    font-family: var(--font-heading);
+    font-weight: 700;
     color: var(--color-pure-white);
     text-shadow: var(--shadow-ambient);
-    letter-spacing: -0.01em;
-    font-weight: 700;
   }
 
   h1 {
-    font-size: clamp(3rem, 5vw + 2rem, 6rem);
+    font-size: clamp(2.25rem, 4vw + 1rem, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
   }
 
   h2 {
-    font-size: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem);
+    font-size: 1.5rem;
+    line-height: calc(2 / 1.5);
+    letter-spacing: -0.02em;
   }
 
   h3 {
-    font-size: clamp(2rem, 3vw + 1.6rem, 3.2rem);
+    font-size: 1.25rem;
+    line-height: calc(1.75 / 1.25);
+    letter-spacing: -0.01em;
   }
 
   h4 {
-    font-size: clamp(1.6rem, 2vw + 1.4rem, 2.4rem);
+    font-size: 1rem;
+    line-height: calc(1.5 / 1);
+    letter-spacing: 0;
   }
 
   h5 {
-    font-size: clamp(1.1rem, 1.2vw + 1rem, 1.5rem);
+    font-size: 0.875rem;
+    line-height: calc(1.25 / 0.875);
+    letter-spacing: 0;
   }
 
   h6 {
-    font-size: clamp(1rem, 1vw + 0.9rem, 1.25rem);
-  }
-
-  small {
-    font-size: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: calc(1 / 0.75);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
   }
 
   code {
     font-family: var(--font-mono);
-    font-size: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
+    font-size: 0.875em;
+    font-variant-numeric: tabular-nums;
     background: var(--color-glass-sunken);
     padding: var(--spacing-pixel) var(--spacing-unit);
     border-radius: var(--radius-sharp);
@@ -249,14 +278,16 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
     transition: color var(--transition-duration-fast) var(--ease-out);
   }
 
+  /* Chameleon form controls: inherit full typography from parent headings/containers */
   button,
   input,
   optgroup,
   select,
   textarea {
-    font-family: inherit;
-    font-size: 100%;
-    line-height: inherit;
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    text-shadow: inherit;
     margin: 0;
     color: inherit;
   }
@@ -273,6 +304,42 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
   select:focus {
     outline: none;
   }
+}
+
+/* --- Everyday Typography Primitives --- */
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: calc(1.5 / 1);
+  letter-spacing: 0;
+}
+
+@utility type-interact {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: calc(1.25 / 0.875);
+  letter-spacing: 0;
+}
+
+@utility type-uppercase-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: calc(1 / 0.75);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@utility type-data {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: calc(1.25 / 0.75);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 ```
 
@@ -771,3 +838,7 @@ html:active-view-transition *::after {
 - **Don't**: Paint pure `#000` shadows for elevation drops; use `--color-background-gradient-1` tinted shadows so depth blends into the midnight palette.
 - **Don't**: Mix `view-transition-name` with Svelte transition directives (`transition:`, `in:`, `out:`) on the same DOM node.
 - **Don't**: Edit generated outputs (`src/media/design.css`, `src/media/tokens.js`) by hand; always edit `DESIGN.md` and run `npm run sync:css`.
+- **Do**: Use bare `<h1>`–`<h6>` for headings and one of the four `type-*` utilities (`type-body`, `type-interact`, `type-uppercase-label`, `type-data`) for non-heading UI text.
+- **Do**: Nest `<input>` / `<textarea>` inside `<h1>`–`<h6>` or `<p>` for inline edit modes so typography inherits automatically with zero class duplication.
+- **Don't**: Hand-assemble raw typography stacks (`font-*` + `tracking-*` + `leading-*` + `uppercase`) in Svelte templates, override `h1`–`h6` with font/size utilities, or apply `type-*` to layout wrappers.
+- **Don't**: Use `font-display` outside `StoryboardTitle.svelte`, or write inline `style="font-..."` / scoped `<style>` font declarations in Svelte components.

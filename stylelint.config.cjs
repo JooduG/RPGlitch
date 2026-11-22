@@ -2,10 +2,13 @@ const master = require("./ignores.master.json");
 
 /** @type {import('stylelint').Config} */
 module.exports = {
-  // One source of truth for ignore globs (complemented by .stylelintignore)
+  // One source of truth for ignore globs
   ignoreFiles: master.linters?.stylelint || [],
   extends: ["stylelint-config-standard", "stylelint-config-html/svelte", "stylelint-prettier/recommended"],
-  overrides: [{ files: ["**/*.svelte"], customSyntax: "postcss-html" }],
+  overrides: [
+    { files: ["**/*.svelte"], customSyntax: "postcss-html" },
+    { files: ["src/**/*.svelte"], rules: { "property-disallowed-list": ["/^font(-|$)/", "line-height", "letter-spacing", "text-transform"] } },
+  ],
   rules: {
     /* ========================================================================
        STANDARD ARCHITECTURE RULES

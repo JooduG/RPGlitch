@@ -216,10 +216,10 @@
     .filter((it) => clean_text_debris(it.value))}
   {#if chip_items.length > 0}
     <div
-      class="flex gap-standard rounded border-l-2 px-3 py-tight font-mono text-xs leading-relaxed {isMuted ? 'border-l-slate-500 bg-black/20' : (
+      class="flex gap-standard rounded border-l-2 px-3 py-tight type-data {isMuted ? 'border-l-slate-500 bg-black/20' : (
         'border-l-(--color-dev-accent) bg-black/40'
       )}">
-      <span class="inline-flex w-28 shrink-0 items-center gap-1.5 uppercase {isMuted ? 'text-slate-400' : 'text-(--color-dev-accent)'}">
+      <span class="inline-flex w-28 shrink-0 items-center gap-1.5 uppercase {isMuted ? 'text-slate-400' : 'text-dev-accent'}">
         <Icon name={label.toLowerCase().startsWith("past") ? "past" : label.toLowerCase()} class="size-3.5 shrink-0" />
         {label}
       </span>
@@ -227,7 +227,7 @@
         {#each chip_items as item, i (i)}
           {#if item.key}
             <span class="inline-flex max-w-full items-baseline gap-tight rounded border border-white/10 bg-white/5 px-2.5 py-1">
-              <span class="shrink-0 text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">{item.key}</span>
+              <span class="shrink-0 type-uppercase-label text-dev-accent">{item.key}</span>
               <span class="min-w-0 text-slate-100">
                 <MacroText text={item.value} entities={session.display_entities} on_select={(ent) => app.open_profile(ent)} />
               </span>
@@ -253,38 +253,37 @@
           <!-- display:flex inline: unlayered normalize.css v3 resets header to block, defeating Tailwind's layered flex utility -->
           <header
             style="display: flex;"
-            class="flex min-h-10 items-center gap-tight border-b border-white/10 px-standard py-tight font-mono text-xs leading-none font-bold tracking-[0.18em] text-(--color-dev-accent) uppercase">
-            <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+            class="flex min-h-10 items-center gap-tight border-b border-white/10 px-standard py-tight type-uppercase-label text-dev-accent">
+            <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-dev-accent shadow-[0_0_6px_var(--color-dev-accent)]"></span>
             <span class="min-w-0 translate-y-[1px] truncate">{telemetry_card_label}</span>
-            <span class="ml-auto shrink-0 translate-y-[1px] text-[10px] font-normal tracking-widest text-white/40">{time_label}</span>
+            <span class="ml-auto shrink-0 translate-y-[1px] type-data text-white/40">{time_label}</span>
           </header>
         {/if}
         <div class="p-standard">
           <div class="flex flex-col gap-standard">
             {#if meta.type === "STORY_START"}
-              <p class="font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
+              <p class="type-data text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
             {:else}
               {#if meta.trigger_image === true || meta.image_trigger === true}
                 <div class="flex flex-wrap items-center gap-tight rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-tight text-xs">
-                  <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_6px_var(--color-dev-accent)]"></span>
-                  <span class="font-mono font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+                  <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-dev-accent shadow-[0_0_6px_var(--color-dev-accent)]"></span>
+                  <span class="type-uppercase-label text-dev-accent">Trigger Image</span>
                   {#if meta.image_tier}
-                    <span
-                      class="rounded bg-(--color-dev-accent)/15 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase">
+                    <span class="rounded bg-dev-accent/15 px-1.5 py-0.5 type-uppercase-label text-dev-accent">
                       {meta.image_tier}
                     </span>
                   {/if}
                   {#if meta.image_source}
-                    <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase">({meta.image_source})</span>
+                    <span class="type-uppercase-label text-slate-400">({meta.image_source})</span>
                   {/if}
                   {#if meta.image_signals?.band_entry}
-                    <span class="font-mono text-[10px] text-slate-400">
+                    <span class="type-data text-slate-400">
                       · Band: {meta.image_signals.band_entry.axis}
                       {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to} ({meta.image_signals.band_entry.band})
                     </span>
                   {/if}
                   {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 50)}
-                    <span class="font-mono text-[10px] text-slate-400">
+                    <span class="type-data text-slate-400">
                       · Displacement: {meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}
                     </span>
                   {/if}
@@ -300,11 +299,11 @@
                         <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                           <div class="absolute h-full" style="left: 0%; width: {row.fill}%; background: var(--color-dev-accent);"></div>
                         </div>
-                        <div class="flex min-w-16 items-center justify-end gap-tight font-mono text-xs">
-                          <span class="text-slate-50">{row.level != null ? get_percentage(row.level) : `${row.delta > 0 ? "+" : ""}${row.delta}`}</span>
+                        <div class="flex min-w-16 items-center justify-end gap-tight type-data">
+                          <span class="text-frisk">{row.level != null ? get_percentage(row.level) : `${row.delta > 0 ? "+" : ""}${row.delta}`}</span>
                           {#if row.level != null}
                             <span
-                              class={row.delta > 0 ? "text-(--color-dev-accent)"
+                              class={row.delta > 0 ? "text-dev-accent"
                               : row.delta < 0 ? "text-slate-500"
                               : "text-slate-500"}>
                               ({row.delta > 0 ? "+" : ""}{row.delta})
@@ -318,20 +317,20 @@
               {/if}
 
               {#if meta.thoughts}
-                <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed">
-                  <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Thoughts</span>
+                <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight type-data">
+                  <span class="w-28 shrink-0 text-dev-accent uppercase">Thoughts</span>
                   <span class="flex-1 text-slate-200">{meta.thoughts}</span>
                 </div>
               {/if}
               {#if meta.camera_note}
-                <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight font-mono text-xs leading-relaxed">
-                  <span class="w-28 shrink-0 text-(--color-dev-accent) uppercase">Camera</span>
+                <div class="flex gap-standard rounded border-l-2 border-l-(--color-dev-accent) bg-black/40 px-3 py-tight type-data">
+                  <span class="w-28 shrink-0 text-dev-accent uppercase">Camera</span>
                   <span class="flex-1 text-slate-200">{meta.camera_note}</span>
                 </div>
               {/if}
 
               {#if meta.type === "CONTINUUM_FORMATION" || meta.type === "MEMORY_FORMATION"}
-                <p class="font-mono text-[11px] leading-relaxed text-slate-400">
+                <p class="type-data text-slate-400">
                   Updated brackets merged into {get_entity_name(meta.target) || String(meta.target || "target entity")}’s profile fields.
                 </p>
                 <div class="flex flex-col gap-tight pb-tight">
@@ -354,7 +353,7 @@
                     {@render temporal_quadrant(vector_label(meta.vector.type, "past"), [meta.vector.content], true)}
                   {/if}
                   {#if meta.resolution}
-                    <div class="flex gap-standard rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-tight font-mono text-xs leading-relaxed">
+                    <div class="flex gap-standard rounded border-l-2 border-l-slate-500 bg-black/20 px-3 py-tight type-data">
                       <span class="w-28 shrink-0 text-slate-400 uppercase">RESOLUTION</span>
                       <span class="flex-1 text-slate-300" use:safe_html={render_telemetry_text(meta.resolution)}></span>
                     </div>

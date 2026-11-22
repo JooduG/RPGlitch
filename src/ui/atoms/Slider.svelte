@@ -164,7 +164,7 @@
     {#snippet child({ props })}
       <div {...props} class={["relative flex h-4 cursor-pointer touch-none items-center select-none", horizontal ? "flex-1" : "w-full"]}>
         <span
-          class="relative h-1 w-full rounded-full border-none bg-[linear-gradient(to_right,var(--empty-fill)_0%,var(--empty-fill)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-end),var(--empty-fill)_var(--state-fill-end),var(--empty-fill)_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-[filter] duration-300 ease-in-out group-hover/slider:brightness-125"
+          class="relative h-1 w-full rounded-full border-none bg-[linear-gradient(to_right,var(--empty-fill)_0%,var(--empty-fill)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-end),var(--empty-fill)_var(--state-fill-end),var(--empty-fill)_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-[filter] duration-standard ease-in-out group-hover/slider:brightness-125"
         ></span>
         <Slider.Thumb index={0}>
           {#snippet child({ props: thumbProps })}
@@ -172,9 +172,9 @@
               bind:this={thumb_el}
               {...thumbProps}
               class={[
-                "absolute h-4 w-4 scale-100 cursor-pointer rounded-full border-none transition-[scale,filter,background-color,box-shadow] duration-300 ease-in-out",
-                is_disabled ? "bg-[#555d66] opacity-30 shadow-none" : (
-                  [value > min ? "bg-white" : "bg-slate-50", "shadow-[0_2px_8px_rgba(0,0,0,0.4)] active:scale-[1.1]"]
+                "absolute h-4 w-4 scale-100 cursor-pointer rounded-full border-none transition-[scale,filter,background-color,box-shadow] duration-standard ease-in-out",
+                is_disabled ? "bg-frozen opacity-30 shadow-none" : (
+                  [value > min ? "bg-pure-white" : "bg-frisk", "shadow-[0_2px_8px_rgba(0,0,0,0.4)] active:scale-[1.1]"]
                 ),
               ]}
               style="{thumbProps.style}; top: 50%; transform: translateY(-50%);">
@@ -190,13 +190,13 @@
   <div
     bind:this={tooltip_el}
     class={[
-      "pointer-events-none fixed z-popover mb-standard w-max max-w-100 -translate-x-1/2 -translate-y-full rounded-md border border-slate-600 bg-neutral-900/98 px-tight py-1.5 text-center font-sans text-xs/normal tracking-normal whitespace-normal text-slate-50 normal-case shadow-lg transition-[opacity,transform] duration-fast ease-out",
+      "pointer-events-none fixed z-popover mb-standard w-max max-w-100 -translate-x-1/2 -translate-y-full rounded-sharp border border-gunmetal bg-chalk/95 px-tight py-1.5 text-center type-interact text-xs whitespace-normal text-frisk shadow-standard transition-[opacity,transform] duration-fast ease-out",
       is_hovered || is_active ? "scale-100 opacity-100" : "scale-95 opacity-0",
     ]}
     style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;">
     {is_disabled ? disabled_label : format(value ?? 1.0)}
-    <div class="absolute bottom-[-8px] left-1/2 z-0 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-slate-600">
-      <div class="absolute bottom-px left-1/2 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-neutral-900"></div>
+    <div class="absolute bottom-[-8px] left-1/2 z-0 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-gunmetal">
+      <div class="absolute bottom-px left-1/2 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-chalk"></div>
     </div>
   </div>
 {/if}

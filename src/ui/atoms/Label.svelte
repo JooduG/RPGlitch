@@ -26,11 +26,7 @@
 </script>
 
 <Label.Root
-  class={[
-    "flex w-full items-center gap-standard text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase",
-    disabled ? "cursor-default" : "cursor-pointer",
-    className,
-  ]}
+  class={["flex w-full items-center gap-standard text-left type-uppercase-label text-slate-400", disabled ? "cursor-default" : "cursor-pointer", className]}
   onclick={handleClick}
   {...rest}>
   {@render children?.()}

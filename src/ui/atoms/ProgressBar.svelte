@@ -36,10 +36,10 @@
 
 <div class={["flex w-full flex-col gap-tight", className]} {style}>
   {#if label}
-    <Label id={label_id} class="w-full justify-between font-mono">
+    <Label id={label_id} class="w-full justify-between">
       <span>{label}</span>
       {#if !is_indeterminate}
-        <span class="tabular-nums opacity-70">{Math.round(pct_tween.current)}%</span>
+        <span class="type-data opacity-70">{Math.round(pct_tween.current)}%</span>
       {/if}
     </Label>
   {/if}

@@ -163,7 +163,7 @@
           <div class="flex flex-col gap-tight text-left">
             <TextField value={preview_state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
               {#snippet status()}
-                <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
+                <span class="type-uppercase-label text-frisk">Positive Prompt</span>
               {/snippet}
               {#snippet header_actions()}
                 <Button
@@ -190,7 +190,7 @@
               signature_color="var(--color-frozen)"
               class="max-h-40">
               {#snippet status()}
-                <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
+                <span class="type-uppercase-label text-frisk">Negative Prompt</span>
               {/snippet}
               {#snippet header_actions()}
                 <Button
@@ -340,7 +340,7 @@
           </div>
           <!-- Polaroid label area -->
           <div class="absolute right-0 bottom-0 left-0 flex h-10 items-center justify-center">
-            <span class="font-mono text-xl font-bold tracking-widest text-neutral-800 uppercase">{letter}</span>
+            <span class="type-uppercase-label text-xl text-neutral-800">{letter}</span>
           </div>
         </Button>
       {/each}
@@ -348,19 +348,19 @@
 
     {#if image_picker.selected_index === null}
       <div class="flex flex-wrap items-center justify-center gap-tight" in:fade={{ duration: motion.is_reduced ? 0 : 300 }}>
-        <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
+        <span class="type-uppercase-label text-sm text-slate-400">Choose One or</span>
         <Button
           variant="bare"
-          class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-white transition-colors duration-200 hover:bg-white/20"
+          class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-pure-white transition-colors duration-200 hover:bg-white/20"
           onclick={handle_picker_regenerate}>
           <Icon name="refresh" class="size-4 stroke-[1.5]" />
-          <span class="font-mono text-xs tracking-widest uppercase">Discard & Regenerate</span>
+          <span class="type-uppercase-label">Discard & Regenerate</span>
         </Button>
       </div>
     {/if}
   {:else}
     <div class="flex flex-col items-center gap-standard" in:fade={{ duration: motion.is_reduced ? 0 : 200 }}>
-      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No pictures available</p>
+      <p class="type-uppercase-label text-sm text-slate-500">No pictures available</p>
       <Button variant="bare" class="rounded-lg bg-white/10 px-6 py-tight font-bold text-white transition-colors hover:bg-white/20" onclick={close_regenerate}>
         Close
       </Button>

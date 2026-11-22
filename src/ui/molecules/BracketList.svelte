@@ -166,8 +166,7 @@
           <span
             style={key_color && !item.is_hidden ? `color: ${key_color};` : undefined}
             class={[
-              "text-left font-mono font-bold uppercase",
-              compact ? "text-[10px] tracking-tight" : "text-xs tracking-wider",
+              "text-left type-uppercase-label",
               item.is_hidden ? "text-frisk/55"
               : key_color ? ""
               : "text-(--signature-color)",
@@ -182,11 +181,11 @@
           </span>
           {#if item.quadrant}
             {#if compact}
-              <span title={item.quadrant} aria-label={item.quadrant} class="inline-flex shrink-0 items-center font-mono text-xs/none font-normal text-frisk/60">
+              <span title={item.quadrant} aria-label={item.quadrant} class="inline-flex shrink-0 items-center type-data text-frisk/60">
                 <Icon name={item.quadrant.toLowerCase()} class="size-3.5" />
               </span>
             {:else}
-              <span class="inline-flex shrink-0 items-center gap-1 font-mono text-xs/none font-normal text-frisk/60">
+              <span class="inline-flex shrink-0 items-center gap-1 type-data text-frisk/60">
                 <Icon name={item.quadrant.toLowerCase()} class="size-3.5" />
                 {item.quadrant}
               </span>
@@ -194,11 +193,7 @@
           {/if}
         </div>
         <span
-          class={[
-            "text-left",
-            compact ? ["text-xs leading-snug", compact_clamp_class] : "text-sm leading-normal",
-            item.is_hidden ? "text-frisk/55 italic" : "text-frisk/90",
-          ]}>
+          class={["text-left type-body", compact ? ["text-xs", compact_clamp_class] : "text-sm", item.is_hidden ? "text-frisk/55 italic" : "text-frisk/90"]}>
           {@render RenderFormattedValue(item.value)}
         </span>
       </div>
@@ -210,7 +205,7 @@
   {#each nodes as part, i (i)}
     {#if part.is_var}
       <span
-        class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-xs text-slate-300">
+        class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 type-data text-slate-300">
         <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
         {#each part.choices as choiceNodes, idx (idx)}
           <span class="inline-flex items-center">

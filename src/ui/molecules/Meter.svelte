@@ -64,7 +64,7 @@
 
 <div
   class={[
-    "meter-card group relative flex min-h-16 flex-col items-center justify-center overflow-hidden rounded-sm border border-transparent bg-neutral-900/60 p-standard transition duration-300 ease-in-out select-none",
+    "meter-card group relative flex min-h-16 flex-col items-center justify-center overflow-hidden rounded-sm border border-transparent bg-neutral-900/60 p-standard transition duration-standard ease-in-out select-none",
     editable && "cursor-default focus-within:z-10 hover:z-10 hover:brightness-125",
     className,
   ]}
@@ -84,7 +84,7 @@
 
       <input
         type="number"
-        class="meter-input w-10 [appearance:textfield] bg-transparent py-1 text-center font-mono text-base text-slate-50 tabular-nums outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        class="meter-input w-10 [appearance:textfield] bg-transparent py-1 text-center type-data text-base text-frisk outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         value={clamped_value}
         oninput={handle_input}
         {min}
@@ -95,7 +95,7 @@
         <Icon name="plus" class="size-icon-small" />
       </Button>
     {:else}
-      <span class="meter-value py-1 font-mono text-base text-slate-50 tabular-nums">
+      <span class="meter-value py-1 type-data text-base text-frisk">
         {clamped_value}{unit}
       </span>
     {/if}

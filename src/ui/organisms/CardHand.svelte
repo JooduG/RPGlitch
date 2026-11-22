@@ -123,12 +123,6 @@
     }
   });
 
-  $effect(() => {
-    if (is_open && app.selected_count >= 3) {
-      app.close_card_hand();
-    }
-  });
-
   const max_fan_tilt = $derived(motion.is_reduced ? 0 : Math.min(35, Math.max(10, total_cards * 1.4)));
   const fan_rotation = $derived(motion.is_reduced ? 0 : -cursor_x * max_fan_tilt + scroll_angle);
 
@@ -309,13 +303,13 @@
     role="dialog"
     aria-labelledby="hand-title">
     <header class="pointer-events-auto z-20 -mb-standard text-center">
-      <h4 id="hand-title" class="m-0 font-bold tracking-widest text-slate-600 uppercase text-shadow-(--shadow-standard)">
+      <h2 id="hand-title" class="text-slate-600 text-shadow-(--shadow-standard)">
         {hand_title}
-      </h4>
+      </h2>
     </header>
 
     <div
-      class="relative block h-[calc(var(--spacing-row-unit)*3.5)] w-full max-w-(--grid-width-max) origin-bottom pb-[calc(var(--spacing-row-unit)*0.2)] transition-transform duration-300"
+      class="relative block h-[calc(var(--spacing-row-unit)*3.5)] w-full max-w-(--grid-width-max) origin-bottom pb-[calc(var(--spacing-row-unit)*0.2)] transition-transform duration-standard"
       style:--total-count={total_cards}>
       <!-- IMPORT CARD -->
       <div
@@ -332,7 +326,7 @@
           aria-label="Import"
           onclick={handle_open_import}></Button>
         <div
-          class="relative z-10 h-full w-full rounded-md transition-transform duration-300 ease-in-out will-change-transform"
+          class="relative z-10 h-full w-full rounded-md transition-transform duration-standard ease-in-out will-change-transform"
           style:transform={hovered_index === -2 ?
             `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
           : "none"}>
@@ -355,7 +349,7 @@
           aria-label="Create New"
           onclick={handle_create_new}></Button>
         <div
-          class="relative z-10 h-full w-full rounded-md transition-transform duration-300 ease-in-out will-change-transform"
+          class="relative z-10 h-full w-full rounded-md transition-transform duration-standard ease-in-out will-change-transform"
           style:transform={hovered_index === -1 ?
             `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
           : "none"}>
@@ -431,8 +425,8 @@
       on_source={handle_import_source}>
       {#snippet status()}
         <div class="flex items-center gap-standard">
-          <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Source Payload</span>
-          <div class="flex items-center gap-tight font-mono text-[10px] text-slate-200" style="--signature-color: rgb(255 255 255 / 0.28);">
+          <span class="type-uppercase-label text-frisk">Source Payload</span>
+          <div class="flex items-center gap-tight type-data text-slate-200" style="--signature-color: rgb(255 255 255 / 0.28);">
             <Toggle size="small" label="Character" bind:value={import_character} disabled={import_loading} />
             <Toggle size="small" label="Fractal" bind:value={import_fractal} disabled={import_loading} />
           </div>

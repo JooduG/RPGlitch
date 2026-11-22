@@ -274,15 +274,15 @@
   {@render menu_shell_layers()}
   {#if target_name}
     <header class="relative z-10 border-b border-white/10 px-standard py-tight text-left">
-      <div class="truncate pb-0.5 font-heading text-sm font-bold tracking-normal text-(--signature-color) text-shadow-(--shadow-ambient)">
+      <h5 class="truncate pb-0.5 text-(--signature-color)">
         {target_name}
-      </div>
+      </h5>
     </header>
   {/if}
   {#if resolved_actions.length === 0}
     <div
       class={[
-        "relative z-10 flex font-mono text-xs tracking-wide text-frisk/50 select-none",
+        "relative z-10 flex type-data text-frisk/50 select-none",
         embedded ? "flex-1 items-center justify-center p-standard text-center" : "items-center px-standard py-3 text-left",
       ]}>
       No actions available
@@ -296,7 +296,7 @@
           <Button
             variant="bare"
             class={[
-              "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left font-sans text-xs font-medium tracking-wide transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
+              "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left type-interact text-xs transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
               item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
               : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
               : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",

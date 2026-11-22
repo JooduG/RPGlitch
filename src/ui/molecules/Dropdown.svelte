@@ -52,7 +52,7 @@
     {id}
     class={[
       variant === "default" && [
-        "group/trigger inline-flex min-h-12 w-full cursor-pointer items-center justify-between gap-tight rounded-xl border border-solid border-transparent bg-(--signature-color,#555d66) px-standard py-tight text-left font-sans text-sm text-white transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out hover:brightness-125 focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-white active:scale-[0.99] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale data-[state=open]:brightness-110",
+        "group/trigger inline-flex min-h-12 w-full cursor-pointer items-center justify-between gap-tight rounded-xl border border-solid border-transparent bg-(--signature-color,#555d66) px-standard py-tight text-left type-interact text-pure-white transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out hover:brightness-125 focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-white active:scale-[0.99] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-30 disabled:grayscale data-[state=open]:brightness-110",
         uppercase && "uppercase",
       ],
       className,
@@ -96,7 +96,7 @@
               <div class="scrollbar-none [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
                 {#each items as item (item.value)}
                   <Select.Item
-                    class="flex w-full cursor-pointer items-center justify-between gap-standard bg-(--signature-color,#555d66) px-3 py-tight text-left font-sans text-sm text-frisk transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out outline-none select-none focus:outline-none active:scale-sink aria-selected:brightness-110 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-30 data-disabled:grayscale data-highlighted:text-white data-highlighted:brightness-125 data-[selected=true]:brightness-110 data-[state=checked]:brightness-110"
+                    class="flex w-full cursor-pointer items-center justify-between gap-standard bg-(--signature-color,#555d66) px-3 py-tight text-left type-interact text-frisk transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out outline-none select-none focus:outline-none active:scale-sink aria-selected:brightness-110 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-30 data-disabled:grayscale data-highlighted:text-pure-white data-highlighted:brightness-125 data-[selected=true]:brightness-110 data-[state=checked]:brightness-110"
                     value={item.value}
                     label={item.label}
                     disabled={item.disabled}>

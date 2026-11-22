@@ -79,7 +79,7 @@
   type="button"
   class={[
     variant !== "bare" && [
-      "pointer-events-auto inline-flex cursor-pointer items-center justify-center gap-tight rounded-xl border border-solid border-transparent font-[inherit] text-base leading-normal font-extrabold text-white no-underline shadow-sm shadow-black/20 select-none focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-white active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:shadow-none disabled:grayscale data-[kinetic=true]:active:scale-100 [&_.icon]:pointer-events-none",
+      "pointer-events-auto inline-flex cursor-pointer items-center justify-center gap-tight rounded-xl border border-solid border-transparent type-interact font-bold text-pure-white no-underline shadow-sm shadow-black/20 select-none focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-white active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:shadow-none disabled:grayscale data-[kinetic=true]:active:scale-100 [&_.icon]:pointer-events-none",
       !cover && "relative",
       height_class,
       width_class,

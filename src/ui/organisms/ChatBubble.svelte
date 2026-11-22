@@ -322,12 +322,12 @@
 {#snippet header_bar()}
   {#if is_extended}
     <div
-      class="relative flex h-9 w-full items-center justify-between overflow-hidden rounded-t-[15px] border-b border-white/10 bg-(--signature-color) px-standard font-mono tracking-widest uppercase opacity-100 transition-opacity duration-300 ease-out">
+      class="relative flex h-9 w-full items-center justify-between overflow-hidden rounded-t-[15px] border-b border-white/10 bg-(--signature-color) px-standard opacity-100 transition-opacity duration-standard ease-out">
       <div class="flex items-center gap-tight overflow-hidden">
-        <span class="text-xs font-bold whitespace-nowrap text-white">
+        <span class="type-uppercase-label whitespace-nowrap text-pure-white">
           {entity_display_name}
         </span>
-        <span class="text-[10px] font-normal text-white/60">
+        <span class="type-data text-pure-white/60">
           {time_label}
         </span>
       </div>
@@ -461,7 +461,7 @@
       <Accordion label="Thoughts">
         {#if show_director_split}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
+            class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-sm text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-tight py-1 text-cyan-200">
               <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
             </div>
@@ -471,7 +471,7 @@
           </div>
         {:else}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard text-sm leading-relaxed text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
+            class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-sm text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
           </div>
         {/if}
@@ -483,7 +483,7 @@
     <TextField bind:value={local_text} is_edit={true} {signature_color} variant="bare" placeholder="Edit message..." />
   {:else if has_display_text || busy}
     <div
-      class="text-left text-base leading-relaxed text-pretty text-white [&_.dialogue]:text-[1.12em] [&_.dialogue]:font-medium [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard [&_p:last-child]:mb-0 [&_strong]:font-bold [&_strong]:text-(--signature-color,var(--color-slate-400)) [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)] {(
+      class="text-left type-body text-pretty text-pure-white [&_.dialogue]:text-[1.12em] [&_.dialogue]:font-medium [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard [&_p:last-child]:mb-0 [&_strong]:font-bold [&_strong]:text-(--signature-color,var(--color-slate-400)) [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)] {(
         is_fractal
       ) ?
         'text-center'
@@ -541,9 +541,9 @@
                       class="rounded-[inherit]">
                       {#snippet overlay()}
                         <div
-                          class="pointer-events-none absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center justify-end overflow-hidden rounded-b-[inherit] bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent px-1 pt-standard pb-tight text-center opacity-0 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-100">
+                          class="pointer-events-none absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center justify-end overflow-hidden rounded-b-[inherit] bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent px-1 pt-standard pb-tight text-center opacity-0 transition-opacity duration-standard ease-in-out group-hover/badge:opacity-100">
                           <span
-                            class="[display:-webkit-box] w-full overflow-hidden text-center font-heading text-[clamp(0.45rem,4.5cqi,0.65rem)] leading-tight font-bold tracking-widest wrap-break-word text-(--signature-color,var(--color-slate-50)) uppercase [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [line-clamp:2] [text-shadow:0_2px_4px_var(--color-void-black)]"
+                            class="line-clamp-2 w-full text-center type-uppercase-label wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]"
                             >{tile.name}</span>
                         </div>
                       {/snippet}

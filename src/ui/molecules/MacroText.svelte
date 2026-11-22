@@ -35,7 +35,7 @@
           use:tooltip={{ preview: { entity: seg.entity }, text: seg.entity.name || seg.text }}
           onclick={(e) => open_handle_profile(e, seg.entity)}
           oncontextmenu={(e) => open_handle_menu(e, seg.entity, seg.text)}
-          class="inline cursor-pointer font-mono text-xs font-semibold hover:underline focus:outline-hidden"
+          class="inline cursor-pointer type-data font-semibold hover:underline focus:outline-hidden"
           style="color: {color_of(seg)};">{seg.text}</button>
       {:else}
         <span
@@ -43,11 +43,11 @@
           tabindex="-1"
           use:tooltip={{ preview: { entity: seg.entity }, text: seg.entity.name || seg.text }}
           oncontextmenu={(e) => open_handle_menu(e, seg.entity, seg.text)}
-          class="inline font-mono text-xs font-semibold"
+          class="inline type-data font-semibold"
           style="color: {color_of(seg)};">{seg.text}</span>
       {/if}
     {:else}
-      <span class={seg.text.startsWith("@") ? "font-mono text-xs font-semibold" : undefined} style="color: {color_of(seg)};">{seg.text}</span>
+      <span class={seg.text.startsWith("@") ? "type-data font-semibold" : undefined} style="color: {color_of(seg)};">{seg.text}</span>
     {/if}
   {:else}
     {seg.text}

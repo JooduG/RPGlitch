@@ -70,7 +70,7 @@
             <span
               {...thumbProps}
               class={[
-                "absolute rounded-full bg-slate-50 transition-[transform,background-color,filter] duration-300 ease-out group-data-[state=checked]:bg-white group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)] hover:brightness-125 active:scale-[1.1]",
+                "absolute rounded-full bg-frisk transition-[transform,background-color,filter] duration-standard ease-out group-data-[state=checked]:bg-pure-white group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)] hover:brightness-125 active:scale-[1.1]",
                 size === "small" ?
                   "top-0.5 left-0.5 size-3 group-data-[state=checked]:translate-x-3"
                 : "top-[4px] left-[4px] size-4 group-data-[state=checked]:translate-x-4",

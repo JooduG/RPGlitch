@@ -231,25 +231,25 @@
             src={image_data}
             alt={is_image_mode ? "Portrait" : "Import Avatar"}
             class="h-7 w-7 shrink-0 rounded-md border border-white/10 object-cover shadow-md" />
-          <span class="shrink-0 text-[10px] font-bold tracking-widest text-slate-300 uppercase">
+          <span class="shrink-0 type-uppercase-label text-slate-300">
             {is_image_mode ? "Portrait" : "Avatar"}
           </span>
         {/if}
         {#if !is_image_mode && fetched_from}
-          <span class="truncate font-mono text-[10px] text-(--signature-color)">{fetched_from}</span>
+          <span class="truncate type-data text-(--signature-color)">{fetched_from}</span>
         {/if}
         {#if !is_image_mode && value && value.trim()}
-          <span class="shrink-0 font-mono text-[10px] text-slate-500">{value.length.toLocaleString()} chars</span>
+          <span class="shrink-0 type-data text-slate-500">{value.length.toLocaleString()} chars</span>
         {/if}
       </div>
 
       {#if is_url}
         <Button variant="secondary" size="small" onclick={fetch_url} disabled={dropzone_disabled}>
           {#if is_fetching}
-            <span class="animate-pulse text-[11px] font-bold tracking-widest uppercase">Fetching...</span>
+            <span class="animate-pulse type-uppercase-label">Fetching...</span>
           {:else}
             <Icon name="fetch_url" class="size-3.5" />
-            <span class="text-[11px] font-bold tracking-widest uppercase">
+            <span class="type-uppercase-label">
               {is_image_mode || is_image_url ? "Load Image" : "Fetch Page"}
             </span>
           {/if}

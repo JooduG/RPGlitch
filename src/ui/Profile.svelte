@@ -548,60 +548,33 @@
               data-testid="profile-header"
               role="banner">
               <div class="w-full min-w-0 shrink-0">
-                {#if profile_state.is_editing}
-                  <div class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
-                    <input
-                      bind:this={name_input}
-                      value={profile_state.draft_name ?? profile_state.char.name ?? ""}
-                      class="
-                      z-20
-                      box-border
-                      w-full
-                      border-none
-                      bg-transparent
-                      p-standard
-                      {entity_type === 'fractal' ? 'text-left' : 'text-right'}
-                      font-heading
-                      text-4xl
-                      leading-none
-                      font-extrabold
-                      tracking-normal
-                      outline-none
-                      sm:text-5xl
-                      md:text-6xl
-                    "
-                      style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem);"
-                      oninput={(event) => {
-                        profile_state.draft_name = event.currentTarget.value;
-                        profile_state.identity_error = "";
-                        profile_state.mark_mutated();
-                      }}
-                      onfocus={() => profile_state.set_active_field("name", PROFILE_FIELDS.name.label)}
-                      onblur={() => {
-                        if (!profile_state.commit_draft_name()) {
-                          profile_state.identity_error = "Name is required.";
-                        }
-                        profile_state.set_active_field("", "");
-                      }} />
-                  </div>
-                {:else}
-                  <h1
-                    class="
-                    m-0
-                    block
-                    {entity_type === 'fractal' ? 'text-left' : 'text-right'}
-                    font-heading
-                    text-6xl leading-none font-extrabold
-                    tracking-tight
-                    text-balance
-                    sm:text-7xl
-                    md:text-8xl
-                    lg:text-[5.5rem]
-                  "
-                    style="margin: 0; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem); filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));">
+                <h1
+                  class={["text-balance", entity_type === "fractal" ? "text-left" : "text-right"]}
+                  style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));">
+                  {#if profile_state.is_editing}
+                    <span class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
+                      <input
+                        bind:this={name_input}
+                        value={profile_state.draft_name ?? profile_state.char.name ?? ""}
+                        aria-label={PROFILE_FIELDS.name.label}
+                        class="z-20 box-border w-full border-none bg-transparent p-standard text-inherit outline-none"
+                        oninput={(event) => {
+                          profile_state.draft_name = event.currentTarget.value;
+                          profile_state.identity_error = "";
+                          profile_state.mark_mutated();
+                        }}
+                        onfocus={() => profile_state.set_active_field("name", PROFILE_FIELDS.name.label)}
+                        onblur={() => {
+                          if (!profile_state.commit_draft_name()) {
+                            profile_state.identity_error = "Name is required.";
+                          }
+                          profile_state.set_active_field("", "");
+                        }} />
+                    </span>
+                  {:else}
                     {format_header_name(profile_state.char.name)}
-                  </h1>
-                {/if}
+                  {/if}
+                </h1>
               </div>
 
               {#if profile_state.is_editing}
@@ -619,11 +592,10 @@
                     bg-transparent
                     p-standard
                     text-left
-                    font-sans
+                    type-body
                     text-sm
-                    leading-relaxed
                     [text-wrap:auto]
-                    text-slate-50
+                    text-frisk
                     outline-none
                     placeholder:text-slate-400
                     placeholder:italic
@@ -646,10 +618,9 @@
                   class="
                   m-0
                   rounded-md
+                  type-body
                   {entity_type === 'fractal' ? 'text-left' : 'text-right'}
-                  font-sans
                   text-sm
-                  leading-relaxed
                   text-balance
                   whitespace-pre-wrap
                   text-slate-200
@@ -665,7 +636,7 @@
               {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
               {#if profile_state.is_editing || !is_default_style}
                 <div class="mt-tight flex w-full flex-col gap-tight">
-                  <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
+                  <span class="type-uppercase-label text-slate-400"> Narrative Style </span>
                   {#if profile_state.is_editing}
                     <div class="relative flex w-full max-w-sm rounded-md">
                       <Dropdown
@@ -676,7 +647,7 @@
                         matchWidth={false} />
                     </div>
                   {:else}
-                    <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
+                    <span class="cursor-default type-body text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
                       {active_style.name}
                     </span>
                   {/if}
@@ -689,7 +660,7 @@
               {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
               {#if profile_state.is_editing || !is_default_vstyle}
                 <div class="mt-tight flex w-full flex-col gap-tight">
-                  <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
+                  <span class="type-uppercase-label text-slate-400"> Visual Style (Story Exclusive) </span>
                   {#if profile_state.is_editing}
                     <div class="relative flex w-full max-w-sm rounded-md">
                       <Dropdown
@@ -748,10 +719,10 @@
                 // would otherwise paint over + eat clicks on anything under it.
                 (!app.viewport.mobile && entity_type !== "fractal" ? " pl-[calc(var(--spacing-column-unit)*2)]" : "")}>
               <!-- Left: Paired @ID · POV -->
-              <div class="flex min-w-0 flex-col gap-0.5 {!app.viewport.mobile ? 'pl-[calc(2rem+var(--spacing-standard))]' : ''}">
+              <div class="flex min-w-0 flex-1 flex-col gap-0.5 overflow-hidden {!app.viewport.mobile ? 'pl-[calc(2rem+var(--spacing-standard))]' : ''}">
                 {#if profile_state.is_editing}
-                  <div class="flex items-center gap-tight font-mono text-xs" style="color: {signature_color};">
-                    <span aria-hidden="true" class="opacity-70">@</span>
+                  <div class="flex min-w-0 items-center gap-tight type-data" style="color: {signature_color};">
+                    <span aria-hidden="true" class="shrink-0 opacity-70">@</span>
                     <input
                       type="text"
                       value={profile_state.draft_id ?? profile_state.char.id ?? ""}
@@ -759,7 +730,7 @@
                       maxlength="36"
                       aria-label={PROFILE_FIELDS.id.label}
                       use:tooltip={PROFILE_FIELDS.id.description}
-                      class="w-28 border-b border-white/25 bg-transparent px-1 py-0.5 font-mono text-xs tracking-wider text-slate-100 uppercase outline-none focus:border-white/60"
+                      class="w-24 max-w-28 min-w-0 flex-1 border-b border-white/25 bg-transparent px-1 py-0.5 type-uppercase-label text-slate-100 outline-none focus:border-white/60"
                       oninput={(event) => {
                         profile_state.draft_id = event.currentTarget.value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 36);
                         profile_state.identity_error = "";
@@ -772,12 +743,12 @@
                         profile_state.set_active_field("", "");
                       }}
                       onfocus={() => profile_state.set_active_field("id", PROFILE_FIELDS.id.label)} />
-                    <span class="text-slate-400" aria-hidden="true">·</span>
+                    <span class="shrink-0 text-slate-400" aria-hidden="true">·</span>
                     <button
                       type="button"
                       aria-label={PROFILE_FIELDS.pov.label}
                       use:tooltip={PROFILE_FIELDS.pov.description}
-                      class="cursor-pointer rounded-md border border-white/15 bg-black/25 px-2 py-0.5 font-mono text-[11px] tracking-wider text-slate-200 uppercase transition-colors outline-none hover:border-white/35"
+                      class="shrink-0 cursor-pointer rounded-md border border-white/15 bg-black/25 px-2 py-0.5 type-uppercase-label whitespace-nowrap text-slate-200 transition-colors outline-none hover:border-white/35"
                       onclick={() => {
                         profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
                         profile_state.mark_mutated();
@@ -788,13 +759,12 @@
                     </button>
                   </div>
                   {#if profile_state.identity_error}
-                    <div role="alert" class="font-mono text-[10px] tracking-wide text-red-300/95">
+                    <div role="alert" class="type-data text-red-300/95">
                       {profile_state.identity_error}
                     </div>
                   {/if}
                 {:else if profile_state.char.id}
-                  <div
-                    class="flex items-center gap-tight rounded-md border border-white/10 bg-black/25 px-2.5 py-1 font-mono text-[11px] tracking-wider text-slate-200 uppercase">
+                  <div class="flex items-center gap-tight rounded-md border border-white/10 bg-black/25 px-2.5 py-1 type-uppercase-label text-slate-200">
                     <span class="cursor-help" style="color: {signature_color};" use:tooltip={PROFILE_FIELDS.id.description}
                       >@{profile_state.char.id.toUpperCase()}</span>
                     <span class="text-slate-500" aria-hidden="true">·</span>
@@ -936,7 +906,7 @@
         role="presentation">
         <div class="relative flex w-full flex-col items-center" style={get_inner_section_style(section.id)}>
           <h6
-            class="relative m-0 flex items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
+            class="relative flex items-center justify-center text-center transition-colors duration-standard"
             style="color: var(--signature-color); text-shadow: none;">
             <span
               class={get_label_span_class()}
@@ -999,9 +969,9 @@
               {#snippet status()}
                 {#if field.label}
                   <span
-                    class="block max-w-full truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 {field.description ?
-                      'cursor-help'
-                    : 'cursor-default'}"
+                    class="block max-w-full truncate type-interact text-xs whitespace-nowrap text-pure-white opacity-80 {field.description ? 'cursor-help' : (
+                      'cursor-default'
+                    )}"
                     use:tooltip
                     aria-label={field.description}>{field.label}</span>
                 {/if}
@@ -1026,11 +996,10 @@
 
             {#if should_show_bracket_tip(field.key, raw)}
               <div
-                class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-tight py-1 text-[11px] leading-tight text-cyan-300/80"
+                class="flex items-center gap-tight rounded-md border border-cyan-500/20 bg-cyan-950/20 px-tight py-1 text-xs text-cyan-300/80"
                 transition:fade={{ duration: 150 }}>
-                <span class="shrink-0 font-mono text-[10px] font-semibold tracking-wider text-cyan-400 uppercase">Tip</span>
-                <span
-                  >The engine reasons best with multiple bracketed directives <code class="font-mono text-[10px] text-cyan-200">[KEY: value]</code> or distinct lines.</span>
+                <span class="shrink-0 type-uppercase-label text-cyan-400">Tip</span>
+                <span>The engine reasons best with multiple bracketed directives <code class="text-cyan-200">[KEY: value]</code> or distinct lines.</span>
               </div>
             {/if}
           </div>
@@ -1045,7 +1014,7 @@
       role="presentation">
       <div class="relative flex w-full flex-col items-center" style={get_inner_section_style("relationships")}>
         <h6
-          class="relative m-0 flex items-center justify-center text-center tracking-wider uppercase transition-colors duration-300"
+          class="relative flex items-center justify-center text-center transition-colors duration-standard"
           style="color: var(--signature-color); text-shadow: none;">
           <span
             class={get_label_span_class()}

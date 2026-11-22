@@ -67,7 +67,7 @@
                 <div
                   {...contentProps}
                   class={[
-                    "pointer-events-auto relative isolate z-modal flex w-(--dialog-width) cursor-default flex-col justify-between gap-standard overflow-hidden rounded-standard bg-glass-elevated p-standard duration-300 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay sm:w-[calc(var(--spacing-column-unit)*3)]",
+                    "pointer-events-auto relative isolate z-modal flex w-(--dialog-width) cursor-default flex-col justify-between gap-standard overflow-hidden rounded-standard bg-glass-elevated p-standard duration-standard before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay sm:w-[calc(var(--spacing-column-unit)*3)]",
                     busy && "pointer-events-none cursor-wait brightness-75 grayscale",
                   ]}
                   style="
@@ -79,11 +79,11 @@
                   in:overlay_in={{ duration: duration_in }}
                   out:overlay_out={{ duration: duration_out }}>
                   <AlertDialog.Title class="m-0 p-0 text-left">
-                    <h6 class="m-0 uppercase">{title}</h6>
+                    <h3>{title}</h3>
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
-                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
+                    <p class="m-0 text-left type-body whitespace-pre-wrap text-frisk">
                       {message}
                     </p>
                   </AlertDialog.Description>

@@ -70,7 +70,7 @@
   role="group"
   aria-label={story.title || "Story card"}
   class={[
-    "group @container relative flex w-full transform-[translateZ(0)] cursor-pointer items-center justify-start overflow-hidden rounded-md border bg-black/15 p-tight text-left backdrop-blur-sm transition duration-300 ease-in-out @sm:p-standard",
+    "group @container relative flex w-full transform-[translateZ(0)] cursor-pointer items-center justify-start overflow-hidden rounded-md border bg-black/15 p-tight text-left backdrop-blur-sm transition duration-standard ease-in-out @sm:p-standard",
     active ?
       "border-(--signature-color) bg-white/10 shadow-[var(--signature-glow),var(--shadow-standard)]"
     : "border-white/5 shadow-sm hover:border-(--signature-color) hover:bg-white/10 hover:shadow-md",
@@ -81,32 +81,35 @@
   <Button variant="invisible" cover={true} {onclick} />
 
   <div class="pointer-events-none relative z-10 flex flex-col gap-tight pl-tight">
-    {#if is_editing_title}
-      <input
-        bind:this={title_input}
-        bind:value={title_draft}
-        class="pointer-events-auto max-w-48 rounded-sm border border-(--signature-color) bg-black/40 px-1 py-0 text-base font-bold text-slate-50 outline-none"
-        onkeydown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            commit_title();
-          }
-          if (e.key === "Escape") {
-            e.preventDefault();
-            cancel_edit_title();
-          }
-        }}
-        onblur={commit_title}
-        onclick={(e) => e.stopPropagation()} />
-    {:else}
-      <span class="text-base font-bold text-slate-50">{story.title}</span>
-    {/if}
+    <h4 class="text-frisk">
+      {#if is_editing_title}
+        <input
+          bind:this={title_input}
+          bind:value={title_draft}
+          aria-label="Story title"
+          class="pointer-events-auto max-w-48 rounded-sm border border-(--signature-color) bg-black/40 px-1 py-0 outline-none"
+          onkeydown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commit_title();
+            }
+            if (e.key === "Escape") {
+              e.preventDefault();
+              cancel_edit_title();
+            }
+          }}
+          onblur={commit_title}
+          onclick={(e) => e.stopPropagation()} />
+      {:else}
+        {story.title}
+      {/if}
+    </h4>
     <span
       class={[
-        "text-xs",
+        "type-data",
         story.state === "concluded" ? "font-bold text-amber-400"
         : active ? "font-bold text-(--signature-color)"
-        : "text-slate-50",
+        : "text-frisk",
       ]}>
       {format_datetime(story.last_played)}{#if story.state === "concluded"}
         · CONCLUDED{:else if active}

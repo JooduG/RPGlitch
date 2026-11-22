@@ -398,7 +398,7 @@
             style="border-color: {center_color}; box-shadow: 0 0 20px color-mix(in srgb, {center_color} 25%, transparent);">
             <Avatar {...entity_avatar_props(entity)} class="rounded-full" />
           </div>
-          <span class="mt-tight max-w-22.5 truncate text-center font-mono text-xs font-bold drop-shadow-md" style="color: {center_color};">
+          <span class="mt-tight max-w-22.5 truncate text-center type-data font-bold drop-shadow-md" style="color: {center_color};">
             @{get_entity_slug(entity) || "ACTIVE"}
           </span>
         </div>
@@ -446,7 +446,7 @@
                 style="border-color: {sat_color}; box-shadow: 0 0 12px color-mix(in srgb, {sat_color} 20%, transparent);">
                 <Avatar {...entity_avatar_props(sat_entity || node.item)} class="rounded-full" />
               </div>
-              <span class="mt-tight max-w-20 truncate text-center font-mono text-xs font-bold drop-shadow-md" style="color: {sat_color};">
+              <span class="mt-tight max-w-20 truncate text-center type-data font-bold drop-shadow-md" style="color: {sat_color};">
                 {sat_handle}
               </span>
             </button>

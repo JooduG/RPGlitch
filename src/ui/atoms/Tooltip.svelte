@@ -418,7 +418,7 @@
                     </div>
 
                     <div
-                      class="isolate w-max max-w-100 transform-gpu rounded-sharp border border-gunmetal bg-chalk/95 px-tight py-1.5 text-center font-sans text-xs/normal tracking-normal text-balance whitespace-pre-line text-frisk normal-case shadow-standard backface-hidden">
+                      class="isolate w-max max-w-100 transform-gpu rounded-sharp border border-gunmetal bg-chalk/95 px-tight py-1.5 text-center type-interact text-xs text-balance whitespace-pre-line text-frisk shadow-standard backface-hidden">
                       {display_snapshot.text}
                     </div>
                   {/if}

@@ -105,13 +105,12 @@
             </div>
           </div>
           <div class="flex items-center gap-tight transition-transform duration-fast group-hover:scale-lift">
-            <span
-              class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-fast group-hover:text-white">
+            <span class="type-uppercase-label text-(--signature-color,slate-300) transition-colors duration-fast group-hover:text-pure-white">
               Click to select
             </span>
             <Icon
               name="chevron_right"
-              class="size-3.5 text-(--signature-color,slate-300) transition duration-fast group-hover:translate-x-0.5 group-hover:text-white" />
+              class="size-3.5 text-(--signature-color,slate-300) transition duration-fast group-hover:translate-x-0.5 group-hover:text-pure-white" />
           </div>
         </Button>
       {:else if image_picker.isRegenerating(regenerate_key)}

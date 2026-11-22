@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+### Changed
+
+- `DESIGN.md`, `.agents/skills/design/scripts/check-typography.mjs`, `stylelint.config.cjs`, & `src/ui/`: Harmonized typography onto bare semantic HTML (`<h1>`–`<h6>`, `<code>`, chameleon form controls) and 4 `@utility` primitives (`type-body`, `type-interact`, `type-uppercase-label`, `type-data`), enforced `--tracking-*: initial` / `--leading-*: initial` lockout in `DESIGN.md`, added `lint:typography` (`.agents/skills/design/scripts/check-typography.mjs`) and Stylelint `property-disallowed-list` for `src/**/*.svelte`, and migrated all Svelte UI components to 0 violations.
+- `DESIGN.md` & `src/ui/` (`Slider`, `Dialog`, `Dropdown`, `Meter`, `StoryboardTitle`, `StoryCard`, `UndoToast`, `CardHand`): Refined `@layer base` typography (`line-height: 1.5` body, `1.2` / `-0.02em` headings), removed unused `--opacity-none` token, and standardized raw duration/color/radius literals to native Tailwind v4 `@theme` utilities (`duration-fast`, `duration-standard`, `text-frisk`, `text-pure-white`, `bg-chalk`, `bg-dev-accent`, `rounded-sharp`, `shadow-standard`).
+
 ### Added
 
 - `src/ui/atoms/`, `src/ui/molecules/`, & `src/ui/organisms/` (`index.js`, `README.md`): Added `src/ui/atoms/Avatar.svelte` (pure `bits-ui` portrait leaf), `src/ui/molecules/CardSkeleton.svelte` (shared story-card shimmer skeleton), `src/ui/organisms/entity-actions.js` (`build_entity_preview_actions`), and tier barrels/contract docs.
@@ -31,7 +36,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `engine-atoms.md`: Stage 1 Goldfish atom inventory for `src/engine/` and coupled `@utils` modules.
 - `.github/dependabot.yml`: Weekly `github-actions` update schedule.
 
-### Changed
+### Changes
 
 - `src/ui/` (`atoms/`, `molecules/`, `organisms/`, views), `vite.config.js`, `vitest.config.js`, `tsconfig.json`, `graphit.architecture.json`, `src/App.svelte`, & docs/skills: Executed Phase 1 of the Atomic Design UI refactor (`@atoms` -> `@molecules` -> `@organisms` -> `@ui` stage views). Generalized `Tooltip.svelte` onto opaque `preview` and `preview_content`, thinned `ProfilePicture.svelte` onto `<Avatar />`, decoupled `Meter.svelte` (`tabular-nums` + `scaleX` progress bar), added declarative `dismissible` to `Modal.svelte`, collapsed duplicated `StyleBadge.svelte` tiles into a shared snippet, moved `ImagePreview.svelte` off raw `bits-ui` onto `<Modal variant="bare" layer="image" dismissible={false}>` (`text-frisk`, `85dvh`), converted class interpolations to Svelte 5 array classes, and synced root/skill documentation.
 - `src/engine/` (`transport.js`, `steps.js`, `turns.js`, `lifecycle.js`, `chrono.svelte.js`, `index.js`, `README.md`), `src/state/session.svelte.js`, `src/ui/Console.svelte`, `SECURITY.md`, `README.md`, `GEMINI.md`, & `.agents/skills/simulation/`: Split `runner.js` into stateless `steps.js` (zero `@state`) and stateful `turns.js`; purged dead `generate_text`, `enhance_text`, `runner.js`, and the legacy `session.story_id` alias; collapsed duplicate JSON-step, abort-detection, first-chunk staging, and continuation-separator helpers; preserved `dynamics_baseline` across `normalize_entity()` for gravity settling, routed `ChronoEngine.start()` through `#with_stream_lock` with abortable `generate_opening()`, removed duplicate `session.save()` per turn, and fixed orphan-retry execution phase cleanup; narrowed `@engine` barrel exports; added `lifecycle.test.js` and rewrote/deslopped `src/engine/README.md` + simulation skill docs.
@@ -101,6 +106,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- `src/ui/Profile.svelte`, `src/ui/organisms/CardHand.svelte`, & `src/ui/organisms/Console.svelte`: Prevented `@ID · POV` footer overflow in Profile edit mode (`min-w-0 flex-1` on `@ID` input + `shrink-0` on `POV` toggle), removed premature `selected_count >= 3` auto-close in `CardHand` so `"Swap"` works when all 3 slots are filled, and guarded `Console` `Escape` handler when a nested dialog is open.
 - `src/ui/atoms/` (`Backdrop.svelte`, `ProgressBar.svelte`, `Typewriter.svelte`), `src/ui/molecules/` (`ContextMenu.svelte`, `Dropdown.svelte`, `TextField.svelte`), & `src/ui/ImagePreview.svelte`: Hardened `Typewriter.svelte` active word HTML via `sanitize()` and dropped its redundant `_is_finished` `$state`/`$effect` mirror, fixed `ContextMenu.svelte` `handle_keydown` listener cleanup, migrated `ProgressBar.svelte` to `$props.id()`, and guarded transition durations on `motion.is_reduced` across `Backdrop.svelte`, `Dropdown.svelte`, `TextField.svelte`, and `ImagePreview.svelte`.
 - `src/state/session.svelte.js`: Fixed `entities.update(type, id, payload)` passing `type` as `id` by aligning `#reconcile_entity_vectors` and `update_entity` onto the non-polymorphic `entities.update(id, changes)` signature.
 

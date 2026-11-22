@@ -467,42 +467,25 @@
       "linear-gradient(to top, rgb(from var(--color-background-gradient-1) r g b / 0.96) 0%, rgb(from var(--color-background-gradient-1) r g b / 0.86) calc(100% - 2rem), transparent 100%)"
     : undefined}>
     {#if !hide_title_for_brackets}
-      <span
-        data-card-text
-        class="
-          line-clamp-3
-          w-full
-          text-center
-          font-heading
-          font-bold
-          wrap-break-word
-          text-(--signature-color,var(--color-frisk))
-          uppercase
-
-          {variant === 'library' ?
-          `
-            text-sm
-            leading-snug
-            tracking-wide
-            [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]
-          `
-        : `
-            text-[clamp(1rem,12cqi,1.5rem)]
-            leading-tight
-            tracking-widest
-            [text-shadow:0_2px_4px_var(--color-void-black)]
-          `}
-          {is_empty ?
-          `
-            text-frisk
-            opacity-15
-            transition-opacity
-            duration-standard
-            ease-in-out
-
-            group-hover/card:opacity-100
-          `
-        : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span>
+      {#if variant === "library"}
+        <h5
+          data-card-text
+          class={[
+            "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]",
+            is_empty && "text-frisk opacity-15 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
+          ]}>
+          {is_empty ? role_label || "Create New" : entity?.name || name}
+        </h5>
+      {:else}
+        <h3
+          data-card-text
+          class={[
+            "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]",
+            is_empty && "text-frisk opacity-15 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
+          ]}>
+          {is_empty ? role_label || "Create New" : entity?.name || name}
+        </h3>
+      {/if}
     {/if}
     {#if incoming_only}
       <div
@@ -522,10 +505,8 @@
           text-center
           [backdrop-filter:var(--blur-mist)]
         ">
-        <span class="font-mono text-[0.625rem] font-bold tracking-widest text-(--signature-color,var(--color-dev-accent)) uppercase">
-          Unidirectional Relation
-        </span>
-        <p class="font-sans text-xs leading-relaxed text-balance text-frisk">
+        <span class="type-uppercase-label text-(--signature-color,var(--color-dev-accent))"> Unidirectional Relation </span>
+        <p class="type-body text-xs text-balance text-frisk">
           This connection originates exclusively from <span class="font-semibold text-frisk">{entity?.name || name}</span>'s profile. Open their profile to
           inspect.
         </p>
@@ -543,41 +524,13 @@
     {:else if !is_empty && (Boolean(description_override) || (variant !== "library" && variant !== "message" && app.view !== "storymode"))}
       <p
         data-card-text
-        class="
-          font-sans
-          wrap-break-word
-          whitespace-normal
-          text-frisk
-          transition-opacity
-          duration-standard
-          ease-in-out
-          [text-shadow:0_1px_3px_rgb(from_var(--color-background-gradient-1)_r_g_b/0.8)]
-
-          {variant === 'library' && description_override ?
-          `
-            mt-0.5
-            line-clamp-2
-            max-h-9
-            text-xs
-            leading-snug
-            opacity-90
-          `
-        : `
-            mt-tight
-            line-clamp-3
-            max-h-18
-            text-sm
-            leading-relaxed
-            opacity-80
-          `}
-
-          {(variant === 'library' || variant === 'message') && !description_override ?
-          `
-            m-0
-            max-h-0
-            opacity-0
-          `
-        : ''}">
+        class={[
+          "type-body wrap-break-word whitespace-normal text-frisk transition-opacity duration-standard ease-in-out [text-shadow:0_1px_3px_rgb(from_var(--color-background-gradient-1)_r_g_b/0.8)]",
+          variant === "library" && description_override ?
+            "mt-0.5 line-clamp-2 max-h-9 text-xs opacity-90"
+          : "mt-tight line-clamp-3 max-h-18 text-sm opacity-80",
+          (variant === "library" || variant === "message") && !description_override && "m-0 max-h-0 opacity-0",
+        ]}>
         {#if description_override}
           <MacroText text={description_override} owner={description_owner || entity} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
         {:else if entity?.description}

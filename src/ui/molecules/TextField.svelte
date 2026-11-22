@@ -245,7 +245,7 @@
         <textarea
           {...rest}
           class={[
-            "relative z-10 m-0 box-border block min-h-10 w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent overflow-x-hidden overflow-y-auto border-none bg-transparent p-standard text-left font-sans leading-relaxed text-wrap text-slate-50 outline-none placeholder:font-normal placeholder:text-slate-400/60 placeholder:italic focus:outline-none [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-xl [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb:hover]:bg-slate-50 [&::-webkit-scrollbar-track]:bg-transparent",
+            "relative z-10 m-0 box-border block min-h-10 w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent overflow-x-hidden overflow-y-auto border-none bg-transparent p-standard text-left type-body text-wrap text-frisk outline-none placeholder:font-normal placeholder:text-slate-400/60 placeholder:italic focus:outline-none [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-xl [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb:hover]:bg-slate-50 [&::-webkit-scrollbar-track]:bg-transparent",
             font_size_class,
             busy && "cursor-wait",
           ]}
@@ -265,7 +265,7 @@
           <div
             {...rest}
             class={[
-              "relative z-10 box-border min-h-10 w-full p-standard text-left font-sans leading-relaxed text-wrap text-slate-200 outline-none select-text",
+              "relative z-10 box-border min-h-10 w-full p-standard text-left type-body text-wrap text-slate-200 outline-none select-text",
               font_size_class,
               busy ? "cursor-wait" : "cursor-text",
             ]}

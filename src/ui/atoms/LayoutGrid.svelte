@@ -9,20 +9,20 @@
 <div data-dev="grid" data-view={view} aria-hidden="true">
   {#each ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"] as col_id (col_id)}
     <div data-axis="col" style:grid-column="col-{col_id}">
-      <span data-label="col">{col_id}</span>
+      <span data-label="col" class="type-data uppercase">{col_id}</span>
     </div>
   {/each}
   <div data-axis="col" data-end="true" style:grid-column="col-end">
-    <span data-label="col">END</span>
+    <span data-label="col" class="type-data uppercase">END</span>
   </div>
 
   {#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as row_id (row_id)}
     <div data-axis="row" style:grid-row="row-{row_id}">
-      <span data-label="row">{row_id}</span>
+      <span data-label="row" class="type-data">{row_id}</span>
     </div>
   {/each}
   <div data-axis="row" data-end="true" style:grid-row="row-end">
-    <span data-label="row">END</span>
+    <span data-label="row" class="type-data">END</span>
   </div>
 </div>
 
@@ -70,8 +70,6 @@
 
   [data-dev="grid"] [data-label] {
     position: absolute;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
     color: var(--color-frozen);
     background: var(--color-void-black);
     padding: 0 var(--spacing-tight);
@@ -81,7 +79,6 @@
   [data-dev="grid"] [data-label="col"] {
     top: calc(var(--spacing-unit) * 2);
     left: calc(var(--spacing-unit) * 2);
-    text-transform: uppercase;
   }
 
   [data-dev="grid"] [data-label="row"] {

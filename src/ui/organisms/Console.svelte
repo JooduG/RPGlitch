@@ -303,10 +303,11 @@
 <svelte:window
   onkeydown={(e) => {
     if (e.key === "Escape") {
+      if (is_confirming_reset || show_end_story_modal || document.querySelector('[role="alertdialog"], [role="dialog"]')) {
+        return;
+      }
       if (app.control_panel_open) {
         app.control_panel_open = false;
-      } else if (show_end_story_modal && !is_ending_story) {
-        show_end_story_modal = false;
       }
     }
   }} />
@@ -342,7 +343,7 @@
       onclick={handle_primary_storyboard_click}
       actions={[pulse]}>
       <h6
-        class="m-0 text-[clamp(0.65rem,1.2vw,0.875rem)] tracking-widest whitespace-nowrap transition duration-300 {ready_to_begin ?
+        class="whitespace-nowrap transition duration-standard {ready_to_begin ?
           'group-hover:scale-105 group-hover:brightness-125'
         : 'text-slate-400 opacity-80'}"
         style={ready_to_begin ?
@@ -380,10 +381,8 @@
       border-none
       bg-transparent
       p-standard
-      font-sans
-      text-base
-      leading-normal
-      text-slate-50
+      type-body
+      text-frisk
       outline-none
       placeholder:text-slate-500
       disabled:cursor-wait
@@ -401,7 +400,7 @@
 
   {#if pending_count > 0}
     <span
-      class="flex shrink-0 items-center gap-tight text-[10px] font-bold tracking-widest text-amber-300 uppercase"
+      class="flex shrink-0 items-center gap-tight type-uppercase-label text-amber-300"
       use:tooltip={pending_count > 1 ?
         `${pending_count} messages queued; they send when the current turn finishes.`
       : "Message queued; it sends when the current turn finishes."}>
@@ -557,7 +556,7 @@
               <Toggle label="GRID" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
               <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
                 <Icon name="trash" class="size-3.5 -translate-y-kinetic-shimmy-y" />
-                <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
+                <span>Delete All</span>
               </Button>
             </Accordion>
           </div>
@@ -625,9 +624,9 @@
       {:else if story_locked}
         <div class="flex w-full flex-col items-center gap-tight">
           {#if session.active_story?.conclusion_status === "COLLAPSED"}
-            <span class="text-[10px] font-bold tracking-widest text-rose-400/90 uppercase">💀 Story Collapsed</span>
+            <span class="type-uppercase-label text-rose-400/90">💀 Story Collapsed</span>
           {:else}
-            <span class="text-[10px] font-bold tracking-widest text-amber-300/90 uppercase">✨ Story Concluded</span>
+            <span class="type-uppercase-label text-amber-300/90">✨ Story Concluded</span>
           {/if}
           <div class="flex w-full items-center justify-center gap-tight">
             <Button

@@ -56,6 +56,12 @@
     "**/.gemini/**",
     "**/tmp/**"
   ],
+  "markdown.preview.fontFamily": "'Inter', system-ui, -apple-system, sans-serif",
+  "markdown.preview.fontSize": 15,
+  "markdown.preview.lineHeight": 1.65,
+  "markdown.styles": [
+    ".vscode/markdown-preview.css"
+  ],
   "markdown.validate.enabled": true,
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",

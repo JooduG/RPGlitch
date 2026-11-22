@@ -56,13 +56,13 @@
   </Accordion>
 
   <footer class="flex flex-col gap-tight">
-    <div class="flex justify-between gap-standard font-mono text-[10px] tracking-widest uppercase">
-      <span class="text-cyan-400 opacity-60">Born:</span>
-      <span class="text-slate-50">{format_datetime(profile_state.char.created_at)}</span>
+    <div class="flex justify-between gap-standard">
+      <span class="type-uppercase-label text-cyan-400 opacity-60">Born:</span>
+      <span class="type-data text-frisk">{format_datetime(profile_state.char.created_at)}</span>
     </div>
-    <div class="flex justify-between gap-standard font-mono text-[10px] tracking-widest uppercase">
-      <span class="text-cyan-400 opacity-60">Sync:</span>
-      <span class="text-slate-50">{format_datetime(profile_state.char.updated_at)}</span>
+    <div class="flex justify-between gap-standard">
+      <span class="type-uppercase-label text-cyan-400 opacity-60">Sync:</span>
+      <span class="type-data text-frisk">{format_datetime(profile_state.char.updated_at)}</span>
     </div>
   </footer>
 </section>

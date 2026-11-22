@@ -240,12 +240,12 @@
     on_source={handle_source_field}>
     {#snippet status()}
       <div class="flex items-center gap-tight">
-        <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
+        <span class="type-uppercase-label text-frisk">Positive Prompt</span>
         {#if generate_error}
           <div class="flex items-center gap-tight rounded-full border border-red-500/15 bg-red-500/15 p-tight text-red-500" data-loading={is_prompt_busy}>
             <div class="box-border flex items-center gap-tight">
-              <span class="font-mono text-[0.625rem] tracking-widest text-inherit uppercase">ERROR</span>
-              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{generate_error}</span>
+              <span class="type-uppercase-label text-inherit">ERROR</span>
+              <span class="type-uppercase-label text-slate-400 opacity-80">{generate_error}</span>
             </div>
           </div>
         {/if}
@@ -299,7 +299,7 @@
     oninput={() => profile_state.mark_mutated()}
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}>
     {#snippet status()}
-      <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
+      <span class="type-uppercase-label text-frisk">Negative Prompt</span>
     {/snippet}
   </TextField>
 
