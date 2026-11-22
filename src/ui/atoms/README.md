@@ -9,7 +9,7 @@ Domain-agnostic UI primitives (`@atoms`) wrapping `bits-ui` headless elements an
 - [`index.js`](./index.js): Barrel exporting all 14 components (`Accordion`, `Avatar`, `Backdrop`, `Button`, `DevGrid`, `Icon`, `Label`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `Toggle`, `Tooltip`, `Typewriter`) and the tooltip control API (`tooltip_state`, `tooltip`, `hide_tooltip`, `pin_tooltip_menu`, `unpin_tooltip`, `set_tooltip_suppressed`).
 - [`Accordion.svelte`](./Accordion.svelte): Collapsible container wrapping `bits-ui` `Collapsible`.
 - [`Avatar.svelte`](./Avatar.svelte): Media portrait and error/no-media initials renderer wrapping `bits-ui` `Avatar` (`src`, `alt`, `initials`, `signature_color`, `flipped`, `contain`, `landscape`, `delay_ms`).
-- [`Backdrop.svelte`](./Backdrop.svelte): Viewport overlay backdrop mapping `layer` (`sticky`/`console`/`cardhand`, `overlay`, `modal`, `image`/`lightbox`, `max`) to `--z-index-*`.
+- [`Backdrop.svelte`](./Backdrop.svelte): Viewport overlay backdrop mapping `layer` (`sticky`/`console`, `overlay`/`cardhand`, `modal`, `image`/`lightbox`, `max`) to `--z-index-*`.
 - [`Button.svelte`](./Button.svelte): Multi-variant button (`primary`, `secondary`, `danger`, `invisible`, `bare`) wrapping `bits-ui` `Button.Root` with kinetic `data-kinetic` coordination.
 - [`DevGrid.svelte`](./DevGrid.svelte): 12x12 diagnostic stage grid overlay.
 - [`Icon.svelte`](./Icon.svelte): 24x24 SVG `<path d="..." />` registry.

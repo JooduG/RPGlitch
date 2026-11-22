@@ -213,7 +213,9 @@
     import_character = card_hand_type !== "fractal";
     import_fractal = card_hand_type === "fractal";
     import_error_message = "";
-    show_import_modal = true;
+    queueMicrotask(() => {
+      show_import_modal = true;
+    });
   }
 
   /** @param {any} entity */

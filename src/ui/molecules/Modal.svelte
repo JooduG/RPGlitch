@@ -62,7 +62,7 @@
               onOpenAutoFocus={(e) => {
                 e.preventDefault();
               }}
-              class="pointer-events-none contents *:pointer-events-auto">
+              class="pointer-events-none contents [&>*:not(.pointer-events-none)]:pointer-events-auto">
               {@render children?.()}
             </Dialog.Content>
           </Backdrop>

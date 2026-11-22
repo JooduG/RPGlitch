@@ -22,7 +22,7 @@
 
   const is_profile = $derived(className === "profile");
   const computed_z_index = $derived(
-    layer === "sticky" || layer === "console" || layer === "cardhand" ? "var(--z-index-sticky)"
+    layer === "sticky" || layer === "console" ? "var(--z-index-sticky)"
     : layer === "image" || layer === "lightbox" ? "calc(var(--z-index-modal) + 10)"
     : layer === "modal" ? "var(--z-index-modal)"
     : layer === "max" ? "var(--z-index-max)"
@@ -69,7 +69,7 @@
   transition:backdrop_transition
   use:use_actions={actions}>
   <div class={["pointer-events-none flex min-h-full w-full items-center justify-center", is_profile ? "p-0" : "p-standard"]}>
-    <div class="contents *:pointer-events-auto">
+    <div class="contents [&>*:not(.pointer-events-none)]:pointer-events-auto">
       {@render children?.()}
     </div>
   </div>
