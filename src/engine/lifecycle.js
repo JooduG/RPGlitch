@@ -342,6 +342,10 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
   }
 
   if (name) entity.name = name;
+  // Backstop: the sorter must never wipe an explicitly provided description.
+  // Only fills when the profile step left it empty, so enriched sorter
+  // output is never clobbered with the raw draft text.
+  if (description && !entity.description) entity.description = description;
   if (raw_color) entity.signature_color = raw_color;
 
   const saved_entity = await upsert_entity(entity);
@@ -604,7 +608,7 @@ export async function generate_image_candidates(prompt, options = {}) {
  * @param {boolean} [options.import_character=true]
  * @param {boolean} [options.import_fractal=false]
  * @param {string | null} [options.image_data=null]
- * @returns {Promise<void>}
+ * @returns {Promise<{ character: any | null, fractal: any | null }>} the created entities (null per skipped target)
  */
 export async function import_entities(raw_text, options = {}) {
   const { import_character = true, import_fractal = false, image_data = null } = options;
@@ -629,25 +633,27 @@ export async function import_entities(raw_text, options = {}) {
   if (import_character) targets.push("character");
   if (import_fractal) targets.push("fractal");
 
+  const created = { character: null, fractal: null };
   for (const type of targets) {
     if (is_structured) {
       if (format === "rpglitch") {
         const merged = { ...parsed };
         if (image_data) merged.profile_picture = image_data;
-        await create_entity_with_profile(type, merged, { run_sorter: false, generate_portrait: false });
+        created[type] = await create_entity_with_profile(type, merged, { run_sorter: false, generate_portrait: false });
       } else {
         const flat = parse_character_card(parsed);
         if (image_data) flat.profile_picture = image_data;
-        await create_entity_with_profile(type, flat, { generate_portrait: !image_data });
+        created[type] = await create_entity_with_profile(type, flat, { generate_portrait: !image_data });
       }
     } else {
       const draft = { description: raw_text };
       if (image_data) draft.profile_picture = image_data;
-      await create_entity_with_profile(type, draft, { run_sorter: true, generate_portrait: !image_data });
+      created[type] = await create_entity_with_profile(type, draft, { run_sorter: true, generate_portrait: !image_data });
     }
   }
 
   await app.load_entities();
+  return created;
 }
 
 /**

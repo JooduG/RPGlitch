@@ -13,6 +13,7 @@
   import { app, execution } from "@state";
   import { create_entity as create_new, upsert_entity } from "@data";
   import { quartOut } from "svelte/easing";
+  import { tick } from "svelte";
 
   /**
    * @typedef {Object} Props
@@ -67,20 +68,20 @@
     execution.set_intent_active(true);
 
     try {
-      await import_entities(import_raw_text, { import_character, import_fractal, image_data: import_image_data });
+      const created = await import_entities(import_raw_text, { import_character, import_fractal, image_data: import_image_data });
 
       console.info("Import successful.");
-      if (import_character && !app.selected_ai) {
-        const latest_char = app.ai_list[app.ai_list.length - 1];
-        if (latest_char) app.selected_ai = latest_char;
-      }
-      if (import_fractal && !app.selected_fractal) {
-        const latest_fractal = app.fractal_list[app.fractal_list.length - 1];
-        if (latest_fractal) app.selected_fractal = latest_fractal;
-      }
+      // Select the entities this import actually created. Never guess by
+      // list position: lobby order is key order, not insertion order, so
+      // `list[length - 1]` picks an arbitrary unrelated entity.
+      if (import_character && !app.selected_ai && created.character) app.selected_ai = created.character;
+      if (import_fractal && !app.selected_fractal && created.fractal) app.selected_fractal = created.fractal;
 
       import_raw_text = "";
       import_image_data = null;
+      // Let selection-driven updates (title, fan, counts) flush first so the
+      // modal teardown below never batches into the same giant flush.
+      await tick();
       show_import_modal = false;
     } catch (err) {
       console.error(err);
