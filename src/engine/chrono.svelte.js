@@ -6,7 +6,8 @@
 
 import { build_turn_summary } from "@simulation";
 import { app, execution, session } from "@state";
-import { generate_opening } from "./lifecycle.js";
+import { stories } from "@data";
+import { generate_closing, generate_opening } from "./lifecycle.js";
 import { is_abort_error } from "./transport.js";
 import { continue_turn, run_turn } from "./turns.js";
 
@@ -314,6 +315,66 @@ export class ChronoEngine {
       await session.save();
     }
     await session.clear_active();
+  }
+
+  /**
+   * Starts a new story session from the currently staged entities in interface store.
+   * @returns {Promise<string | null>}
+   */
+  async begin_selected_story() {
+    if (!app.selected_ai || !app.selected_user || !app.selected_fractal) {
+      this.error = "Select all three cast roles (AI, User, Fractal) to begin.";
+      return null;
+    }
+    await this.start({ ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal });
+    return session.active_id;
+  }
+
+  /**
+   * Concludes the active story session, optionally generating an epilogue.
+   * Keeps the concluded story loaded in Storymode in read-only state.
+   *
+   * @param {{ with_epilogue?: boolean, conclusion_status?: "CONCLUDED" | "COLLAPSED" }} [options={}]
+   * @returns {Promise<void>}
+   */
+  async conclude_active_story(options = {}) {
+    const { with_epilogue = false, conclusion_status = "CONCLUDED" } = options;
+    const story_id = session.active_id;
+    if (!story_id) return;
+
+    this.error = null;
+    try {
+      if (with_epilogue) {
+        await generate_closing(story_id, conclusion_status);
+      }
+      await stories.conclude(story_id);
+      await session.save();
+      app.bump_stories_version();
+      execution.lock();
+    } catch (err) {
+      console.error("[Chrono] Conclude Failed:", err);
+      this.error = /** @type {Error} */ (err).message;
+    }
+  }
+
+  /**
+   * Rewinds a concluded active story back to active state.
+   * @returns {Promise<void>}
+   */
+  async rewind_active_story() {
+    const story_id = session.active_id;
+    if (!story_id) return;
+
+    this.error = null;
+    try {
+      await stories.rewind(story_id);
+      await session.sync(story_id);
+      app.bump_stories_version();
+      execution.unlock();
+    } catch (err) {
+      console.error("[Chrono] Rewind Failed:", err);
+      this.error = /** @type {Error} */ (err).message;
+    }
   }
 }
 

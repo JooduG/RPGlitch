@@ -1,7 +1,19 @@
 import * as data_module from "@data";
 import { app, execution, session } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { create_entity_with_profile, generate_closing, generate_opening, generate_user_draft, parse_entity_profile, refine_image_prompt } from "./lifecycle.js";
+import {
+  capture_story_image,
+  create_entity_with_profile,
+  generate_closing,
+  generate_image_candidates,
+  generate_opening,
+  generate_user_draft,
+  ghostwrite_user_draft,
+  import_entities,
+  parse_entity_profile,
+  refine_image_prompt,
+  run_mock,
+} from "./lifecycle.js";
 import * as transport_module from "./transport.js";
 import * as turns_module from "./turns.js";
 
@@ -127,6 +139,40 @@ describe("src/engine/lifecycle.js", () => {
       expect(on_token).toHaveBeenCalledTimes(2);
       expect(on_token.mock.calls[0]).toEqual(["First half", true]);
       expect(on_token.mock.calls[1]).toEqual([" second half", false]);
+    });
+  });
+
+  describe("ghostwrite_user_draft", () => {
+    it("updates app.composer_draft with generated draft", async () => {
+      vi.spyOn(transport_module, "get_transport").mockReturnValue({ stream: vi.fn().mockResolvedValue("<think>plan</think>You step forward.") });
+      app.composer_draft = "";
+      const draft = await ghostwrite_user_draft();
+      expect(draft).toBe("You step forward.");
+      expect(app.composer_draft).toBe("You step forward.");
+    });
+  });
+
+  describe("capture_story_image", () => {
+    it("logs placeholder and updates attachment upon generation", async () => {
+      vi.spyOn(session, "log_message").mockResolvedValue({ id: "img-1", created_at: Date.now() });
+      const update_spy = vi.spyOn(session, "update_attachment").mockResolvedValue();
+
+      await capture_story_image({ subject: "ai", prompt: "A portrait", kind: "story_character" });
+      expect(session.log_message).toHaveBeenCalled();
+      expect(update_spy).toHaveBeenCalled();
+    });
+  });
+
+  describe("additional lifecycle helpers", () => {
+    it("generate_image_candidates and run_mock execute cleanly", async () => {
+      const candidates = await generate_image_candidates("Prompt text");
+      expect(Array.isArray(candidates)).toBe(true);
+      await run_mock("ai");
+      expect(execution.busy).toBe(false);
+    });
+
+    it("import_entities rejects empty input", async () => {
+      await expect(import_entities("")).rejects.toThrow();
     });
   });
 });

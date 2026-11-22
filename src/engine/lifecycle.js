@@ -4,10 +4,29 @@
  * prologue/epilogue beats, entity birth, and user draft ghostwriting.
  */
 
-import { apply_profile_to_entity, create_entity, get_story, normalize_entity, update_cast, update_entity, upsert_entity } from "@data";
+import {
+  apply_profile_to_entity,
+  create_entity,
+  detect_card_format,
+  get_story,
+  normalize_entity,
+  parse_character_card,
+  update_cast,
+  update_entity,
+  upsert_entity,
+} from "@data";
 import { get_visual_style } from "@definitions";
 import { clear_generation_in_flight, mark_generation_in_flight, visual_engine } from "@media";
-import { clean_generated_prose, compile_prompt, get_resolution_string, parse_think_block, reconstruct_history_from_feed } from "@simulation";
+import {
+  clean_generated_prose,
+  compile_prompt,
+  get_resolution_string,
+  parse_think_block,
+  reconstruct_history_from_feed,
+  render_optics_fallback,
+  rescue_visual_prose,
+  sanitize_visual_text,
+} from "@simulation";
 import { app, execution, session } from "@state";
 import { run_generation_step, run_image_prompt_step, run_schema_extraction_step } from "./steps.js";
 import { get_transport } from "./transport.js";
@@ -154,8 +173,14 @@ export async function generate_opening(story_id, { signal = null } = {}) {
 
     await session.edit_entry(node_id, prologue_text, { think: prologue_think });
 
+    const prologue_image_id = `prologue-img-${Date.now()}`;
     const prologue_image_requested_at = Date.now();
-    await session.update_attachment(node_id, 0, { src: null, metadata: { mode: "story_scene", requested_at: prologue_image_requested_at } });
+    await session.log_message("", "fractal", fractal_name, {
+      turn_type: "SYSTEM_TURN",
+      story_id,
+      meta: { id: prologue_image_id, round: 0, is_prologue_image: true },
+      attachments: [{ src: null, metadata: { mode: "story_scene", requested_at: prologue_image_requested_at } }],
+    });
 
     let release_prologue_image = () => {};
     const prologue_image_gate = new Promise((resolve) => {
@@ -164,7 +189,7 @@ export async function generate_opening(story_id, { signal = null } = {}) {
 
     if (visual_engine) {
       (async () => {
-        mark_generation_in_flight?.(node_id, 0);
+        mark_generation_in_flight?.(prologue_image_id, 0);
         await prologue_image_gate;
         try {
           const img_result = await visual_engine.visualize(
@@ -173,8 +198,8 @@ export async function generate_opening(story_id, { signal = null } = {}) {
             { silent: true, refine_prompt: refine_image_prompt },
             { app, session },
           );
-          if (img_result?.image_url) {
-            await session.update_attachment(node_id, 0, {
+          if (img_result?.image_url && session.active_id === story_id) {
+            await session.update_attachment(prologue_image_id, 0, {
               src: img_result.image_url,
               metadata: {
                 ...(img_result.metadata || {}),
@@ -183,11 +208,27 @@ export async function generate_opening(story_id, { signal = null } = {}) {
                 requested_at: prologue_image_requested_at,
               },
             });
+          } else if (!img_result?.image_url && session.active_id === story_id) {
+            await session.update_attachment(prologue_image_id, 0, {
+              src: null,
+              metadata: { mode: "story_scene", requested_at: prologue_image_requested_at, failed: true, error: "Image generation returned no image" },
+            });
           }
         } catch (img_err) {
           console.warn("[Prologue Image Error]", img_err);
+          if (session.active_id === story_id) {
+            await session.update_attachment(prologue_image_id, 0, {
+              src: null,
+              metadata: {
+                mode: "story_scene",
+                requested_at: prologue_image_requested_at,
+                failed: true,
+                error: img_err?.message || "Prologue image generation failed",
+              },
+            });
+          }
         } finally {
-          clear_generation_in_flight?.(node_id, 0);
+          clear_generation_in_flight?.(prologue_image_id, 0);
         }
       })().catch(() => {});
     }
@@ -402,4 +443,224 @@ export async function generate_user_draft(
   });
 
   return (outcome?.prose || "").trim();
+}
+
+/**
+ * Triggers draft ghostwriting directly into interface store composer_draft.
+ * @returns {Promise<string>}
+ */
+export async function ghostwrite_user_draft() {
+  if (execution.busy) return "";
+  const draft = await generate_user_draft(app.composer_draft);
+  if (draft) {
+    app.composer_draft = draft;
+  }
+  return draft;
+}
+
+/**
+ * Unified story-image capture helper across solo entities and group scene shots.
+ *
+ * @param {Object} options
+ * @param {"ai" | "user" | "fractal" | "npc"} [options.subject="ai"]
+ * @param {string} [options.prompt=""]
+ * @param {string} [options.kind]
+ * @param {any} [options.target_entity=null]
+ * @param {boolean} [options.background=false]
+ * @returns {Promise<any>}
+ */
+export async function capture_story_image({ subject = "ai", prompt = "", kind = "", target_entity = null, background = false } = {}) {
+  if (execution.busy && !background) return null;
+
+  const story_id = session.active_id;
+  if (!story_id) return null;
+
+  const entity_map = {
+    ai: session.active_ai || app.selected_ai,
+    user: session.active_user || app.selected_user,
+    fractal: session.active_fractal || app.selected_fractal,
+  };
+  const label_map = { ai: "AI", user: "User", fractal: "Fractal", npc: "NPC" };
+  const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN", npc: "AI_TURN" };
+
+  const entity = target_entity || entity_map[subject];
+  const role_label = entity?.name || label_map[subject] || subject;
+  const turn_type = turn_map[subject] || "AI_TURN";
+  const target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
+
+  let placeholder_entry = null;
+  const attach_idx = 0;
+
+  try {
+    if (!background) {
+      execution.role = subject;
+      execution.start_generation(subject);
+      execution.start_media_stage({
+        type: subject,
+        name: role_label,
+        avatar: entity?.profile_picture || entity?.avatar || null,
+        color: entity?.signature_color || entity?.color || null,
+      });
+    }
+
+    let refined_prompt = prompt;
+    let enhanced_negative = "";
+    try {
+      const configured_style = app.settings?.visual_style;
+      const story_style = session.active_fractal?.visual_style;
+      const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
+      const enhanced = await refine_image_prompt(prompt, subject, entity, app_style);
+      if (enhanced?.prompt) refined_prompt = enhanced.prompt;
+      if (enhanced?.negative_prompt) enhanced_negative = enhanced.negative_prompt;
+    } catch (envision_err) {
+      console.warn("[capture_story_image] Envision failed, falling back to draft prompt:", envision_err);
+    }
+
+    if (!refined_prompt && !prompt) {
+      refined_prompt = render_optics_fallback({
+        tier: target_mode,
+        subject,
+        ai: session.active_ai,
+        user: session.active_user,
+        fractal: session.active_fractal,
+      });
+    }
+
+    placeholder_entry = await session.log_message("", subject, role_label, {
+      turn_type,
+      story_id,
+      attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
+    });
+
+    const result = await visual_engine.visualize(refined_prompt, target_mode, { subject, entity, negative_prompt: enhanced_negative }, { app, session });
+
+    if (session.active_id === story_id && placeholder_entry?.id) {
+      if (result?.image_url) {
+        await session.update_attachment(placeholder_entry.id, attach_idx, {
+          src: result.image_url,
+          metadata: { mode: target_mode, ...(result.metadata || {}), prompt: result.refined_prompt || refined_prompt },
+        });
+      } else {
+        await session.update_attachment(placeholder_entry.id, attach_idx, {
+          src: null,
+          metadata: { mode: target_mode, prompt: refined_prompt, failed: true, error: "Image generation returned no image" },
+        });
+      }
+    }
+    return result;
+  } catch (err) {
+    console.error(`[capture_story_image: ${subject}]`, err);
+    if (session.active_id === story_id && placeholder_entry?.id) {
+      await session.update_attachment(placeholder_entry.id, attach_idx, {
+        src: null,
+        metadata: { mode: target_mode, prompt, failed: true, error: err?.message || "Image generation failed" },
+      });
+    }
+    throw err;
+  } finally {
+    if (!background) {
+      execution.complete();
+    }
+  }
+}
+
+/**
+ * Generates image candidates using visual engine and prompt recovery helpers.
+ *
+ * @param {string} prompt
+ * @param {Object} [options={}]
+ * @returns {Promise<Array<any>>}
+ */
+export async function generate_image_candidates(prompt, options = {}) {
+  const { mode = "story_character", negative_prompt = "", count = 3, min_success = 2 } = options;
+  let final_prompt = rescue_visual_prose(prompt) || prompt;
+  let final_negative = negative_prompt;
+
+  if (final_prompt.trim().startsWith("{")) {
+    try {
+      const parsed = JSON.parse(final_prompt.trim());
+      if (parsed.prompt && typeof parsed.prompt === "string") {
+        final_prompt = parsed.prompt;
+        if (parsed.negative_prompt) final_negative = parsed.negative_prompt;
+      }
+    } catch {
+      /* Prose or partial JSON falls through */
+    }
+  }
+
+  final_prompt = sanitize_visual_text(final_prompt);
+  final_negative = sanitize_visual_text(final_negative);
+
+  return await visual_engine.generate_candidates(final_prompt, { mode, negative_prompt: final_negative, count, min_success });
+}
+
+/**
+ * Imports entities from native JSON, character card formats, or raw text descriptions.
+ *
+ * @param {string} raw_text
+ * @param {Object} options
+ * @param {boolean} [options.import_character=true]
+ * @param {boolean} [options.import_fractal=false]
+ * @param {string | null} [options.image_data=null]
+ * @returns {Promise<void>}
+ */
+export async function import_entities(raw_text, options = {}) {
+  const { import_character = true, import_fractal = false, image_data = null } = options;
+  if (!raw_text || !raw_text.trim()) {
+    throw new Error("Please provide raw text to import.");
+  }
+  if (!import_character && !import_fractal) {
+    throw new Error("Please select at least one target to import (Character or Fractal).");
+  }
+
+  let parsed = null;
+  try {
+    parsed = JSON.parse(raw_text);
+  } catch {
+    /* Prose falls through */
+  }
+
+  const format = parsed && typeof parsed === "object" ? detect_card_format(parsed) : "unknown";
+  const is_structured = format !== "unknown";
+
+  const targets = [];
+  if (import_character) targets.push("character");
+  if (import_fractal) targets.push("fractal");
+
+  for (const type of targets) {
+    if (is_structured) {
+      if (format === "rpglitch") {
+        const merged = { ...parsed };
+        if (image_data) merged.profile_picture = image_data;
+        await create_entity_with_profile(type, merged, { run_sorter: false, generate_portrait: false });
+      } else {
+        const flat = parse_character_card(parsed);
+        if (image_data) flat.profile_picture = image_data;
+        await create_entity_with_profile(type, flat, { generate_portrait: !image_data });
+      }
+    } else {
+      const draft = { description: raw_text };
+      if (image_data) draft.profile_picture = image_data;
+      await create_entity_with_profile(type, draft, { run_sorter: true, generate_portrait: !image_data });
+    }
+  }
+
+  await app.load_entities();
+}
+
+/**
+ * Dev-mode mock turn runner.
+ * @param {string} role
+ * @returns {Promise<void>}
+ */
+export async function run_mock(role) {
+  if (execution.busy) return;
+  execution.role = role;
+  execution.start_generation(role);
+  try {
+    const node_id = `mock-${Date.now()}`;
+    await get_transport().stream("", { role, node_id, is_mock: true });
+  } finally {
+    execution.complete();
+  }
 }

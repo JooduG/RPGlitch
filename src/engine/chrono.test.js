@@ -132,4 +132,18 @@ describe("ChronoEngine", () => {
       expect(session.round).toBe(initial_round);
     });
   });
+
+  describe("story conclusion and rewind", () => {
+    it("concludes story and bumps version", async () => {
+      const bump_spy = vi.spyOn(app, "bump_stories_version").mockImplementation(() => {});
+      await chrono_engine.conclude_active_story({ with_epilogue: false });
+      expect(bump_spy).toHaveBeenCalled();
+    });
+
+    it("rewinds story and bumps version", async () => {
+      const bump_spy = vi.spyOn(app, "bump_stories_version").mockImplementation(() => {});
+      await chrono_engine.rewind_active_story();
+      expect(bump_spy).toHaveBeenCalled();
+    });
+  });
 });
