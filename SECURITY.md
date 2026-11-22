@@ -9,7 +9,7 @@
 RPGlitch has no backend server; all state lives locally in the browser (IndexedDB via Dexie.js). Untrusted inputs enter through four client-side vectors:
 
 - **User text & chat inputs** (`Console.svelte`, `Profile.svelte`)
-- **Imported character cards & JSON/PNG files** (`src/data/card-conversion.js`, `src/ui/primitives/SourceField.svelte`)
+- **Imported character cards & JSON/PNG files** (`src/data/card-conversion.js`, `src/ui/molecules/SourceField.svelte`)
 - **External web fetches** (`validate_url` / `fetch_web` in `src/utils/ingestion.js`)
 - **Streaming LLM responses** (`src/engine/transport.js`, `src/engine/steps.js`)
 
@@ -24,9 +24,9 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 
 ### 2.2 HTML Sanitization & Markdown Rendering
 
-- **AST-Based Markdown (`src/utils/markdown.js`, `src/ui/primitives/TextField.svelte`)**: Markdown is parsed into an AST token array and rendered via native Svelte snippets (`{@render token_content(...)}`) without evaluating HTML strings.
+- **AST-Based Markdown (`src/utils/markdown.js`, `src/ui/molecules/TextField.svelte`)**: Markdown is parsed into an AST token array and rendered via native Svelte snippets (`{@render token_content(...)}`) without evaluating HTML strings.
 - **DOMPurify (`src/utils/html.js`)**: `sanitize()` and `sanitize_to_fragment()` enforce `{ SANITIZE_NAMED_PROPS: true, SANITIZE_DOM: true }` to prevent XSS and DOM clobbering (verified by `SECURITY_DOMPURIFY_CONFIG` in `npm run audit:hygiene`).
-- **Known Gap**: `src/ui/Typewriter.svelte` uses `{@html sliced_html}` for structural character slicing without calling `sanitize()`.
+- **Sanitized Typewriter (`src/ui/atoms/Typewriter.svelte`)**: `current_word_html` runs through `sanitize()` once per phrase before `{@html sliced_html}` character slicing.
 
 ### 2.3 LLM Response & Domain Bounds
 

@@ -34,13 +34,13 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 
 - **Rank Topology (Strictly Downward)**:
   1. `src/main.js`, `src/App.svelte` (Shell)
-  2. `src/ui/*` (`@ui`) & `src/ui/primitives/**` (`@primitives`, restricted to `@config`, `@utils`, `@media`) (Rank 5)
+  2. `src/ui/*` (`@ui` views) -> `src/ui/organisms/` (`@organisms`) -> `src/ui/molecules/` (`@molecules`) -> `src/ui/atoms/` (`@atoms`, restricted to `@config`, `@utils`, `@media`) (Rank 5)
   3. `src/engine/` (`@engine`: `chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`) (Rank 4)
   4. `src/state/` (`@state`: `session.svelte.js`, `execution.svelte.js`, `interface.svelte.js`) (Rank 3)
   5. `src/data/` (`@data`) & `src/media/` (`@media`) — mutually isolated peer leaves (Rank 2)
   6. `src/simulation/` (`@simulation`: `brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`) (Rank 1)
   7. `src/definitions/` (`@definitions`) & `src/utils/` (`@utils`) (Rank 0) -> `src/config.js` (`@config`, zero-dependency leaf)
-- **Cross-Folder Barrel Mandate**: Use module alias barrels (`@data`, `@engine`, `@media`, `@primitives`, `@simulation`, `@state`, `@ui`, `@utils`) for **all** cross-folder imports; use relative `./file.js` strictly inside the same folder (**no self-barrel `@<own-folder>` imports**). Keep `tsconfig.json` (`baseUrl` + `paths` matching `vite.config.js`) in sync so `graph-it` resolves all `@alias` edges. Re-export public symbols cleanly through `index.js` and target barrels in unit test mocks.
+- **Cross-Folder Barrel Mandate**: Use module alias barrels (`@atoms`, `@data`, `@engine`, `@media`, `@molecules`, `@organisms`, `@simulation`, `@state`, `@ui`, `@utils`) for **all** cross-folder imports; use relative `./file.js` strictly inside the same folder (**no self-barrel `@<own-folder>` imports**). Keep `tsconfig.json` (`baseUrl` + `paths` matching `vite.config.js`) in sync so `graph-it` resolves all `@alias` edges. Re-export public symbols cleanly through `index.js` and target barrels in unit test mocks.
 - **Prompt Sovereign & Zero Downward LLM Leaks**:
   - All XML prompt compilation envelopes (`<SYSTEM>`, `<AXIOMATIC_CONSTITUTION>`, `PURPOSE_CORES`) live exclusively in [src/simulation/prompts.js](./src/simulation/prompts.js).
   - Lower layers (`@data`, `@media`, `@simulation`, `@definitions`, `@utils`) must never initiate LLM jobs; all LLM queuing and single-flight preemption flow from `src/engine/transport.js` (`LLM_PRIORITY.FOREGROUND = 10`, `BACKGROUND = 1`).
@@ -55,7 +55,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 
 - **Active Session, Cast & Feed**: `session` in [src/state/session.svelte.js](./src/state/session.svelte.js) (`active_user`, `active_ai`, `active_fractal`, `active_npcs`, `ai_dynamics`, `fractal_dynamics`, `round`, `feed`). Assign nullable dynamics via store setters rather than `Object.assign`.
 - **Turn Execution & Streaming**: `execution` in [src/state/execution.svelte.js](./src/state/execution.svelte.js) (`phase`, `role`, `busy`, `loading`, `stream`, `recover`).
-- **UI Navigation, Settings & Staging**: `app` in [src/state/interface.svelte.js](./src/state/interface.svelte.js) (`view`, `profile_open`, `settings`, `selected_*`); image lightbox state lives in [src/ui/ImagePreview.svelte.js](./src/ui/ImagePreview.svelte.js) (`image_preview`).
+- **UI Navigation, Settings & Staging**: `app` in [src/state/interface.svelte.js](./src/state/interface.svelte.js) (`view`, `profile_open`, `settings`, `selected_*`); image lightbox state lives in [src/ui/organisms/ImagePreview.svelte.js](./src/ui/organisms/ImagePreview.svelte.js) (`image_preview`).
 - **Audio Engine**: [src/media/audio.svelte.js](./src/media/audio.svelte.js) (`Audio`).
 - **Simulation & Vector Caps**: Detailed 3-turn heartbeat, Speaking Styles (`casual`, `lyrical`, `primal`, `clinical` + `detox_prose`), and Quad-Partitioned Entity schemas (`eternal`, `present`, `past`, `future`) live in [README.md](./README.md) and [.agents/skills/simulation/SKILL.md](./.agents/skills/simulation/SKILL.md). Ephemeral 384-d retrieval cache enforces `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` in [src/config.js](./src/config.js#L104); `usr_` memories carry `is_origin` (`1.5x` relevance multiplier).
 

@@ -6,7 +6,7 @@
 
 ## Next Up
 
-- _To be decided._
+- **Phase 2 UI Monolith Decomposition** (`src/ui/organisms/ChatBubble.svelte`, `src/ui/Storyboard.svelte`, `src/ui/Profile.svelte`, `src/ui/Console.svelte`, `src/ui/Storymode.svelte`): Extract focused flat organisms from the five remaining large UI views/organisms cleanly on top of the 4-tier Atomic Design architecture.
 
 ---
 

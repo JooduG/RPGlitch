@@ -17,7 +17,7 @@ The codebase enforces strict unidirectional dependency flow verified by `npm run
 ```mermaid
 flowchart TD
     Root["src/ (Bootstrap, Shell & Config)"]
-    UI["src/ui/ & src/ui/primitives/ (Rank 4: Presentation & Primitives)"]
+    UI["src/ui/ (Rank 5: Views, Organisms, Molecules & Atoms)"]
     Engine["src/engine/ (Rank 2: Kernel, Turns & Priority Gate)"]
     Data["src/data/ (Rank 2: Dexie DB, Ledger & Parser)"]
     Media["src/media/ (Rank 2: Audio, Motion & Visuals)"]
@@ -64,7 +64,7 @@ flowchart TD
 
 ## Local Interface & Invariants
 
-Root-level manifests configure build tooling, verification gates, and module aliases (`@`, `@ui`, `@primitives`, `@engine`, `@data`, `@definitions`, `@media`, `@utils`, `@config`), while direct application entry points live in [src/](./src/README.md):
+Root-level manifests configure build tooling, verification gates, and module aliases (`@`, `@ui`, `@atoms`, `@molecules`, `@organisms`, `@engine`, `@data`, `@definitions`, `@media`, `@utils`, `@config`), while direct application entry points live in [src/](./src/README.md):
 
 - **Application Boot & Root Shell**:
   - [src/main.js](./src/main.js): Exposes `app_bootstrap` (`{ async init() }`) and test-only `reset_bootstrap_guard()`. Hydrates theme tokens and environment hardening (`ensure_theme_tokens`, `install_environment_hardening`) before seeding premades, reconciling entity fields, and mounting `<App />`.
@@ -83,8 +83,7 @@ RPGlitch organizes its source code into clean, isolated subsystems:
 - [src/](./src/README.md): Application boot entrypoint (`main.js`), root Svelte shell (`App.svelte`), canonical `config.js` constants, and Perchance host integration (`main.pjs`, `index.html`).
 - [src/engine/](./src/engine/README.md): Simulation engine & turn orchestration (`ChronoEngine`, `transport.js`, `steps.js`, `turns.js`, `lifecycle.js`).
 - [src/state/](./src/state/README.md): Acyclic 3-store Svelte 5 reactive state layer (`interface.svelte.js` / `app`, `execution.svelte.js` / `execution`, `session.svelte.js` / `session`).
-- [src/ui/](./src/ui/README.md): Domain presentation layer (`Storymode`, `Storyboard`, `Console`, `Profile`, `VisualWing`, `AudioWing`, `DevWing`, `RelationalGraph`, `ChatBubble`, `EntityCard`, `ImagePreview`, `ContextMenu`, `Typewriter`, `StoryCard`, `MacroText`, `ProfilePicture`, `Meter`, `StyleBadge`, `UndoToast`) and reactive controllers (`ProfileState`, `ImagePreview`).
-  - [src/ui/primitives/](./src/ui/primitives/README.md): 15 design-system Svelte 5 UI primitives and the global `tooltip` action wrapping `bits-ui`.
+- [src/ui/](./src/ui/README.md): Presentation layer organized into [atoms/](./src/ui/atoms/README.md) (`@atoms`), [molecules/](./src/ui/molecules/README.md) (`@molecules`), [organisms/](./src/ui/organisms/README.md) (`@organisms`), and top-level stage views (`Storyboard`, `Storymode`, `Console`, `Profile`, `ImagePreview`).
 - [src/data/](./src/data/README.md): Unified Dexie persistence & `mutation_ledger` replay (`db.js`), 4-quadrant entity normalization & genesis (`entities.js`), bracket parser & epistemic filters (`parser.js`), TavernAI/PNG card conversion (`card-conversion.js`), and pure session/log persistence (`session.js`).
 - [src/definitions/](./src/definitions/README.md): Declarative registries (without an `index.js` barrel) for dynamics rules & protocols (`dynamics-registry.js`), 24 literary narrative styles (`narrative-styles.js`), premade character & fractal blueprints (`premades.js`), 4-layer entity taxonomy (`profile-taxonomy.js`), 95 speaking-style & 30 anti-AI detox rules (`speaking-styles.js`), and 26 visual styles (`visual-styles.js`).
 - [src/media/](./src/media/README.md): Procedural Web Audio SFX & Web Speech synthesis (`audio.svelte.js`), Svelte 5 kinetic motion & card-flight physics (`motion.svelte.js`), Perchance image dispatch & queue bookkeeping (`visual.svelte.js`), pure optics taxonomy (`optics.js`), and generated design tokens (`palette.js`, `tokens.js`).

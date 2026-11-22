@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- `src/ui/atoms/`, `src/ui/molecules/`, & `src/ui/organisms/` (`index.js`, `README.md`): Added `src/ui/atoms/Avatar.svelte` (pure `bits-ui` portrait leaf), `src/ui/molecules/CardSkeleton.svelte` (shared story-card shimmer skeleton), `src/ui/organisms/entity-actions.js` (`build_entity_preview_actions`), and tier barrels/contract docs.
 - `graphit.architecture.json`, `.agents/skills/graph-it-live/references/glossary.md`: Made all declared rank/test/tooling elements strictly disjoint (`["src/<folder>/**", "!*.test.js"]` and `["src/ui/*", "!src/ui/primitives", "!*.test.js"]`), keyed `"roles"` by element name (`"tooling": "tooling"`) for compatibility across both npm CLI `v1.25.3` and VS Code extension `v1.25.6`, and synced the CLI/MCP glossary with `v1.25.5+`/`v1.25.6` contracts.
 - `src/ui/primitives/Icon.svelte` (`@primitives`) and `src/ui/` (`AudioWing`, `BracketList`, `ChatBubble`, `Console`, `Dropdown`, `EntityCard`, `ImagePreview`, `Meter`, `Profile`, `RelationalGraph`, `SourceField`, `Storyboard`, `StoryCard`, `Storymode`, `TextField`, `VisualWing`): Added a centralized `24×24` SVG `<Icon />` primitive featuring the Pure Teardrop temporal set (`past`, `present`, `future`, `eternal`) and consolidated all UI icon `<svg>` elements across `src/ui/` into the shared registry.
 
@@ -32,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- `src/ui/` (`atoms/`, `molecules/`, `organisms/`, views), `vite.config.js`, `vitest.config.js`, `tsconfig.json`, `graphit.architecture.json`, `src/App.svelte`, & docs/skills: Executed Phase 1 of the Atomic Design UI refactor (`@atoms` -> `@molecules` -> `@organisms` -> `@ui` stage views). Generalized `Tooltip.svelte` onto opaque `preview` and `preview_content`, thinned `ProfilePicture.svelte` onto `<Avatar />`, decoupled `Meter.svelte` (`tabular-nums` + `scaleX` progress bar), added declarative `dismissible` to `Modal.svelte`, collapsed duplicated `StyleBadge.svelte` tiles into a shared snippet, moved `ImagePreview.svelte` off raw `bits-ui` onto `<Modal variant="bare" layer="image" dismissible={false}>` (`text-frisk`, `85dvh`), converted class interpolations to Svelte 5 array classes, and synced root/skill documentation.
 - `src/engine/` (`transport.js`, `steps.js`, `turns.js`, `lifecycle.js`, `chrono.svelte.js`, `index.js`, `README.md`), `src/state/session.svelte.js`, `src/ui/Console.svelte`, `SECURITY.md`, `README.md`, `GEMINI.md`, & `.agents/skills/simulation/`: Split `runner.js` into stateless `steps.js` (zero `@state`) and stateful `turns.js`; purged dead `generate_text`, `enhance_text`, `runner.js`, and the legacy `session.story_id` alias; collapsed duplicate JSON-step, abort-detection, first-chunk staging, and continuation-separator helpers; preserved `dynamics_baseline` across `normalize_entity()` for gravity settling, routed `ChronoEngine.start()` through `#with_stream_lock` with abortable `generate_opening()`, removed duplicate `session.save()` per turn, and fixed orphan-retry execution phase cleanup; narrowed `@engine` barrel exports; added `lifecycle.test.js` and rewrote/deslopped `src/engine/README.md` + simulation skill docs.
 
 - `src/data/records.js` & `src/state/session.svelte.js`: Added array-to-bracket migration in `normalize_past_to_brackets()`/`normalize_future_to_brackets()` and updated `#reconcile_entity_vectors()` to diff against raw `db.entities` rows and reconcile `active_npcs` on `sync()`.
@@ -90,6 +92,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `src/ui/primitives/` (`@primitives`), `src/ui/Storyboard.svelte`, & `src/ui/Storymode.svelte`: Retired the `@primitives` alias and deleted `src/ui/primitives/` along with inline `card_skeleton` snippets in `Storyboard.svelte` and `Storymode.svelte`.
 - `src/definitions/orion-nova-glitch.js` & `src/data/entity-repository.js`: Removed the `ORION_NOVA_GLITCH_STORY` premade story fixture and `seed_premade_story()` boot seeding.
 - `src/data/ledger.js`, `src/data/db.js`, `src/engine/{lifecycle,runner}.js`, & `src/ui/DevWing.svelte`: Removed the `mutation_ledger` table, `ledger.js` time-travel replay/query module, genesis/caretaker ledger writes, and the DevWing "Mutation Ledger" inspector.
 - `src/ui/Profile.svelte`: Removed the clock/time-travel button, inline `profile-time-travel-bar` scrub UI, and timeline replay/branch/revert handlers while keeping `DevWing`'s Mutation Ledger intact.
@@ -98,6 +101,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Fixed
 
+- `src/ui/atoms/` (`Backdrop.svelte`, `ProgressBar.svelte`, `Typewriter.svelte`), `src/ui/molecules/` (`ContextMenu.svelte`, `Dropdown.svelte`, `TextField.svelte`), & `src/ui/ImagePreview.svelte`: Hardened `Typewriter.svelte` active word HTML via `sanitize()` and dropped its redundant `_is_finished` `$state`/`$effect` mirror, fixed `ContextMenu.svelte` `handle_keydown` listener cleanup, migrated `ProgressBar.svelte` to `$props.id()`, and guarded transition durations on `motion.is_reduced` across `Backdrop.svelte`, `Dropdown.svelte`, `TextField.svelte`, and `ImagePreview.svelte`.
 - `src/state/session.svelte.js`: Fixed `entities.update(type, id, payload)` passing `type` as `id` by aligning `#reconcile_entity_vectors` and `update_entity` onto the non-polymorphic `entities.update(id, changes)` signature.
 
 - `src/ui/EntityCard.svelte`, `src/ui/BracketList.svelte`, `src/ui/Profile.svelte`, & `src/ui/RelationalGraph.test.js`: Eliminated `overflow-y-auto` scrollbars on `EntityCard` relationship previews by hiding the card's entity title first when multiple/long `bracket_items` would overflow and clamping compact `BracketList` rows (`1`–`3` lines) second; and added `use:tooltip` guidance to the `@ID` handle and `POV` badges/controls in `Profile.svelte`'s footer in both read-only and edit modes.
