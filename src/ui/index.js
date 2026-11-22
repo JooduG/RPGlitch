@@ -1,4 +1,4 @@
-export { default as Console } from "./Console.svelte";
+export { Console, StoryLibrary } from "./organisms/index.js";
 export { default as Profile } from "./Profile.svelte";
 export { ProfileState } from "./Profile.svelte.js";
 export { default as Storyboard } from "./Storyboard.svelte";

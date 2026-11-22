@@ -145,7 +145,7 @@
     <!-- display:flex inline: unlayered normalize.css v3 resets footer to block, defeating Tailwind's layered flex utility -->
     <footer style="display: flex;" class="pointer-events-none relative z-sticky flex justify-center {footer_class}">
       {#if app.entities_loaded}
-        <Console />
+        <Console on_shuffle={() => storyboard.shuffle()} on_begin={() => storyboard.begin()} is_shuffling={storyboard.is_shuffling} />
       {/if}
     </footer>
   </div>

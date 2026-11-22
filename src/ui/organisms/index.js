@@ -1,6 +1,7 @@
 export { default as AudioWing } from "./AudioWing.svelte";
 export { default as CardHand } from "./CardHand.svelte";
 export { default as ChatBubble, parse_message } from "./ChatBubble.svelte";
+export { default as Console } from "./Console.svelte";
 export { default as ContextMenu, build_entity_actions, close_context_menu, context_menu_state, open_context_menu } from "./ContextMenu.svelte";
 export { default as DevBubble, get_telemetry_label, process_entity_blocks, resolve_entity_name } from "./DevBubble.svelte";
 export { default as DevWing } from "./DevWing.svelte";
@@ -19,4 +20,5 @@ export {
   select_candidate,
 } from "./ImagePreview.svelte.js";
 export { default as RelationalGraph } from "./RelationalGraph.svelte";
+export { default as StoryLibrary } from "./StoryLibrary.svelte";
 export { default as VisualWing } from "./VisualWing.svelte";

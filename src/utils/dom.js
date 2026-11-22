@@ -471,32 +471,6 @@ export function use_actions(node, actions) {
 }
 
 /**
- * Fires `handler` on capturing pointerdown events outside `node`.
- * @param {HTMLElement} node
- * @param {(event: PointerEvent) => void} handler
- */
-export function click_outside(node, handler) {
-  /** @param {PointerEvent} event */
-  const handle_click = (event) => {
-    if (!document.body.contains(/** @type {Node} */ (event.target))) return;
-    if (node && !node.contains(/** @type {Node} */ (event.target)) && !event.defaultPrevented) {
-      handler(event);
-    }
-  };
-
-  const timer = setTimeout(() => {
-    document.addEventListener("pointerdown", handle_click, true);
-  }, 10);
-
-  return {
-    destroy() {
-      clearTimeout(timer);
-      document.removeEventListener("pointerdown", handle_click, true);
-    },
-  };
-}
-
-/**
  * Injects DOMPurify-sanitized HTML fragments into `node` without `innerHTML`.
  * @param {HTMLElement} node
  * @param {string | null | undefined} content

@@ -1,23 +1,32 @@
 <script>
   /**
-   * @file src/ui/Console.svelte
+   * @file src/ui/organisms/Console.svelte
    * 🎛️ THE SOVEREIGN CORE CONSOLE
    * Polymorphic command control system merging persistent glass pill chassis,
    * storyboard controls, storymode input composer, settings control panel, and conclusion modals.
    */
-  import { db, stories } from "@data";
-  import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
-  import { Audio, item_in, pulse, roll, shimmy, stab } from "@media";
   import { Accordion, Backdrop, Button, Icon, ProgressBar, ScrollArea, Shimmer, Slider, Toggle, tooltip } from "@atoms";
-  import { Dialog, StoryCard, TextField } from "@molecules";
-  import { storyboard } from "./Storyboard.svelte.js";
-  import { build_story_export_filename, export_story_markdown } from "@data";
-  import { click_outside, download_text_file, embeddings_engine, get_signature_color } from "@utils";
-  import { tick } from "svelte";
+  import { export_story_record, reset_database, stories } from "@data";
+  import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
+  import { Audio, pulse, roll, shimmy, stab } from "@media";
+  import { Dialog, TextField } from "@molecules";
+  import { StoryLibrary } from "@organisms";
   import { app, execution, session } from "@state";
+  import { download_text_file, embeddings_engine, get_signature_color } from "@utils";
+  import { tick } from "svelte";
+
+  /**
+   * @typedef {Object} Props
+   * @property {() => void} [on_shuffle] Callback when storyboard shuffle is clicked.
+   * @property {() => void} [on_begin] Callback when storyboard begin is clicked.
+   * @property {boolean} [is_shuffling=false] Whether storyboard is currently shuffling.
+   */
+
+  /** @type {Props} */
+  let { on_shuffle = () => {}, on_begin = () => {}, is_shuffling = false } = $props();
 
   // --- STORYMODE CONSOLE & COMPOSER STATE ---
-  let value = $state("");
+  let value = $state(app.composer_draft);
   let has_text = $derived(value.length > 0);
   let is_ghostwriting = $state(false);
   /** Messages typed while composer is busy - sent the moment it's free */
@@ -25,6 +34,11 @@
 
   /** @type {HTMLTextAreaElement | undefined} */
   let textarea = $state();
+
+  // Keep app.composer_draft synchronized with local value
+  $effect(() => {
+    app.composer_draft = value;
+  });
 
   // Story conclusion status
   let story_concluded = $derived(
@@ -53,108 +67,6 @@
   let is_exporting = $state(false);
   let is_rewinding = $state(false);
   let is_confirming_reset = $state(false);
-
-  // Library / Story Manager state
-  let is_confirming_story_delete = $state(false);
-  let pending_story_delete = $state(null);
-  let is_renaming_story = $state(false);
-  let pending_rename_story = $state(null);
-  let rename_draft = $state("");
-  let story_cache = $state([]);
-
-  async function load_story(id) {
-    console.info(`Control Panel: Loading Story [${id}]`);
-    await session.set_active(String(id));
-    await session.sync(String(id));
-    await session.refresh_feed();
-    if (session.feed.some((e) => e.meta?.is_epilogue)) {
-      execution.lock();
-    } else {
-      execution.unlock();
-    }
-    await app.load_entities();
-    app.set_view("storymode");
-    app.control_panel_open = false;
-  }
-
-  async function refresh_stories() {
-    try {
-      if (db.isOpen()) {
-        story_cache = await stories.list();
-      }
-    } catch {
-      // Ignore if db is closed during teardown
-    }
-  }
-
-  async function export_story(story) {
-    try {
-      const row = await stories.get(story.id);
-      const log = await db.simulation_log
-        .where("story_id")
-        .anyOf([String(story.id), story.id])
-        .sortBy("created_at");
-      const markdown = export_story_markdown({ ...(row || {}), ...story }, log);
-      download_text_file(build_story_export_filename(story), markdown, "text/markdown;charset=utf-8");
-      console.info(`Story "${story.title}" exported as Markdown.`);
-    } catch (err) {
-      console.error(`Export failed: ${err.message}`, err);
-    }
-  }
-
-  async function delete_story(story) {
-    pending_story_delete = story;
-    is_confirming_story_delete = true;
-  }
-
-  async function start_rename_story(story) {
-    pending_rename_story = story;
-    rename_draft = story.title || "";
-    is_renaming_story = true;
-  }
-
-  async function confirm_rename_story() {
-    if (!pending_rename_story) return;
-    const trimmed = rename_draft.trim();
-    if (trimmed && trimmed !== pending_rename_story.title) {
-      try {
-        await stories.update(pending_rename_story.id, { title: trimmed });
-        await refresh_stories();
-        console.info(`Story renamed to "${trimmed}".`);
-      } catch (err) {
-        console.error(`Rename failed: ${err.message}`, err);
-      }
-    }
-    pending_rename_story = null;
-    rename_draft = "";
-  }
-
-  async function confirm_story_delete() {
-    if (!pending_story_delete) return;
-    try {
-      await stories.delete(pending_story_delete.id);
-      await refresh_stories();
-      await app.load_entities();
-      console.info(`Story "${pending_story_delete.title}" deleted.`);
-      if (String(session.active_id) === String(pending_story_delete.id)) {
-        await session.clear_active();
-        app.set_view("storyboard");
-      }
-    } catch (err) {
-      console.error(`Delete failed: ${err.message}`, err);
-    } finally {
-      pending_story_delete = null;
-    }
-  }
-
-  $effect(() => {
-    const _stories_version = app.stories_version;
-    refresh_stories();
-  });
-
-  // Active story guard on storyboard
-  let show_active_guard = $state(false);
-  let is_concluding = $state(false);
 
   // Prologue loading phrase ticker
   const PROLOGUE_PHRASES = ["INITIALIZING SIMULATION...", "SETTING THE STAGE...", "ONCE UPON A TIMING...", "WRITING PROLOGUE..."];
@@ -302,8 +214,7 @@
   }
 
   async function hard_reset() {
-    db.close();
-    await db.delete();
+    await reset_database();
     setTimeout(() => window.location.reload(), 150);
   }
 
@@ -311,7 +222,7 @@
     if (has_active_story) {
       app.set_view("storymode");
     } else if (ready_to_begin && !execution.loading) {
-      storyboard.begin();
+      on_begin();
     }
   }
 
@@ -342,12 +253,8 @@
     try {
       const story_id = session.active_id;
       if (!story_id) return;
-      const story_record = (await stories.get(story_id)) || session.active_story || {};
-      const entries = await session.load_log(story_id);
-      const md = export_story_markdown(story_record, entries);
-      const title = story_record.title || session.active_story?.title || "story";
-      const filename = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-export.md`;
-      download_text_file(filename, md);
+      const { markdown, filename } = await export_story_record(story_id, session.active_story);
+      download_text_file(filename, markdown, "text/markdown;charset=utf-8");
       console.info("Story exported as Markdown.");
     } catch (err) {
       console.error("[Export Error]", err);
@@ -451,9 +358,9 @@
     variant="invisible"
     actions={[shimmy, tooltip]}
     aria-label="Shuffle Storyboard"
-    onclick={() => storyboard.shuffle()}
+    onclick={on_shuffle}
     class="touch-target-coarse shrink-0"
-    disabled={storyboard.is_shuffling || execution.loading || app.control_panel_open}>
+    disabled={is_shuffling || execution.loading || app.control_panel_open}>
     <Icon name="shuffle" class="block size-icon-medium" />
   </Button>
 {/snippet}
@@ -634,25 +541,7 @@
             {/if}
 
             <!-- DECK D: LIBRARY (Always available) -->
-            <Accordion label="Library" content_class="flex flex-col gap-standard">
-              {#if story_cache.length > 0}
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-standard">
-                  {#each story_cache as story (story.id)}
-                    <div class="min-w-0" in:item_in>
-                      <StoryCard
-                        {story}
-                        active={session.active_id === String(story.id)}
-                        onclick={() => load_story(story.id)}
-                        ondelete={delete_story}
-                        onrename={start_rename_story}
-                        onexport={export_story} />
-                    </div>
-                  {/each}
-                </div>
-              {:else}
-                <p class="m-0 py-standard text-center text-sm text-slate-500 italic">No stories yet..</p>
-              {/if}
-            </Accordion>
+            <StoryLibrary />
 
             <!-- DECK E: ADVANCED -->
             <Accordion label="Advanced" content_class="flex w-full flex-wrap items-center justify-between gap-standard">
@@ -692,14 +581,6 @@
     justify-center
   ">
   <div
-    use:click_outside={(e) => {
-      if (!app.control_panel_open) return;
-      const target = /** @type {HTMLElement|null} */ (e?.target || document.activeElement);
-      if (target?.closest?.(".custom-dropdown-panel") || target?.closest?.(".modal-backdrop") || target?.closest?.("[role='dialog']")) {
-        return;
-      }
-      app.control_panel_open = false;
-    }}
     class="
       pointer-events-auto
       z-sticky
@@ -783,64 +664,3 @@
     <Button variant="danger" onclick={handle_conclude_immediately} label="Conclude Immediately" disabled={is_ending_story} />
   {/snippet}
 </Dialog>
-
-<!-- ========================================================================= -->
-<!-- MODAL: ACTIVE STORY GUARD (CONFIRM BEFORE OVERWRITING IN STORYBOARD)       -->
-<!-- ========================================================================= -->
-<Dialog
-  type="confirm"
-  bind:open={show_active_guard}
-  title="Conclude Active Story?"
-  message="Ending this story will archive it in your library and free up its entities so you can select them for a new story."
-  confirm_label={is_concluding ? "Concluding..." : "Conclude & Free Entities"}
-  on_confirm={async () => {
-    is_concluding = true;
-    try {
-      if (session.active_id) {
-        await stories.conclude(session.active_id);
-      }
-      await session.clear_active();
-      await app.load_entities();
-      show_active_guard = false;
-    } catch (err) {
-      console.error("[Storyboard End Story Error]", err);
-    } finally {
-      is_concluding = false;
-    }
-  }} />
-
-<Dialog
-  type="confirm"
-  bind:open={is_confirming_story_delete}
-  title="Delete Story?"
-  message={`This will permanently delete "${pending_story_delete?.title ?? ""}" and its entire simulation log. This action cannot be undone.`}
-  confirm_label="Delete"
-  on_confirm={confirm_story_delete} />
-
-<Dialog
-  type="confirm"
-  bind:open={is_renaming_story}
-  title="Rename Story"
-  message={`Enter a new title for "${pending_rename_story?.title ?? ""}":`}
-  confirm_label="Save"
-  show_input={true}
-  input_placeholder="New story title..."
-  bind:input_value={rename_draft}
-  on_confirm={confirm_rename_story} />
-
-<style>
-  /* Shuffle deal reveal - flying clones are art-only (strip_card_text); the
-     landed cards fade their text/badges back in after arrival.
-     Scoped with specificity to override component inline styles cleanly without !important. */
-  :global(.deal-reveal [data-card-text]),
-  :global(.deal-reveal [data-card-badge]) {
-    opacity: 0;
-    transition: none;
-  }
-
-  :global(.deal-revealed [data-card-text]),
-  :global(.deal-revealed [data-card-badge]) {
-    opacity: 1;
-    transition: opacity 0.45s ease 0.1s;
-  }
-</style>
