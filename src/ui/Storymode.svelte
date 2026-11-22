@@ -340,7 +340,7 @@
       <CardSkeleton />
     {:else}
       <div class="flex min-h-80 w-full flex-1 flex-col gap-0 overflow-hidden px-0" bind:this={scroll_ref}>
-        <ScrollArea data-id="storymode-scroll-area" style="height: 100%; width: 100%;">
+        <ScrollArea data-id="storymode-scroll-area" class="h-full w-full">
           {#each visible_feed as entry, index (entry.id)}
             {#if pending_deletes[entry.id]}
               <div

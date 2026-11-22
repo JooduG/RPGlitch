@@ -624,7 +624,7 @@
                   text-balance
                   whitespace-pre-wrap
                   text-slate-200
-                  opacity-75
+                  opacity-90
                 ">
                   {profile_state.char.description}
                 </p>

@@ -397,7 +397,7 @@
         justify-center
         gap-standard
         text-slate-50
-        opacity-15
+        opacity-60
 
         group-hover/card:opacity-100
       `
@@ -472,7 +472,7 @@
           data-card-text
           class={[
             "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]",
-            is_empty && "text-frisk opacity-15 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
+            is_empty && "text-frisk opacity-60 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
           ]}>
           {is_empty ? role_label || "Create New" : entity?.name || name}
         </h5>
@@ -481,7 +481,7 @@
           data-card-text
           class={[
             "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]",
-            is_empty && "text-frisk opacity-15 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
+            is_empty && "text-frisk opacity-60 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
           ]}>
           {is_empty ? role_label || "Create New" : entity?.name || name}
         </h3>

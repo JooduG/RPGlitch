@@ -463,16 +463,16 @@
           <div
             class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-sm text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-tight py-1 text-cyan-200">
-              <div class="think-block-container" style="display: contents" use:safe_html={director_think_html}></div>
+              <div class="think-block-container contents" use:safe_html={director_think_html}></div>
             </div>
             {#if remainder_think_html}
-              <div class="think-block-container" style="display: contents" use:safe_html={remainder_think_html}></div>
+              <div class="think-block-container contents" use:safe_html={remainder_think_html}></div>
             {/if}
           </div>
         {:else}
           <div
             class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-sm text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
-            <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
+            <div class="think-block-container contents" use:safe_html={think_block}></div>
           </div>
         {/if}
       </Accordion>
@@ -498,7 +498,7 @@
           </div>
         {/if}
       {:else if has_display_text}
-        <div class="display-text-container" style="display: contents" use:safe_html={display_text}></div>
+        <div class="display-text-container contents" use:safe_html={display_text}></div>
       {:else if busy}
         <div class="relative h-6 w-24 overflow-hidden rounded">
           <Shimmer color={signature_color || "var(--color-electric-cyan)"} />
@@ -509,17 +509,17 @@
 {/snippet}
 
 {#snippet entity_trio()}
-  <div class="my-tight flex h-character-card-height w-full items-stretch gap-tight md:gap-standard" data-msg-trio>
+  <div class="my-tight flex h-character-card-height w-full items-stretch gap-tight max-md:overflow-x-auto md:gap-standard" data-msg-trio>
     {#if session.active_ai || app.selected_ai}
       {@const a = session.active_ai || app.selected_ai}
-      <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
+      <div class="min-w-0 grow max-md:min-w-28" data-msg-card="ai">
         <EntityCard entity={a} type="ai" variant="message" onclick={() => app.open_profile(a, "ai")} />
       </div>
     {/if}
     {#if session.active_fractal || app.selected_fractal}
       {@const f = session.active_fractal || app.selected_fractal}
       {@const f_tiles = resolve_entity_style_tiles(f)}
-      <div class="min-w-0" style="flex-grow: 2" data-msg-card="fractal">
+      <div class="min-w-0 grow-[2] max-md:min-w-56" data-msg-card="fractal">
         <div class="flex h-full w-full flex-col gap-tight md:gap-standard">
           <div class="min-h-0 flex-1">
             <EntityCard entity={f} type="fractal" variant="message" onclick={() => app.open_profile(f, "fractal")} />
@@ -530,8 +530,7 @@
               <div class="pointer-events-none flex w-full justify-center gap-tight md:gap-standard">
                 {#each [f_tiles.narrative, f_tiles.visual].filter(Boolean) as tile (tile.name)}
                   <div
-                    style="flex: 1 1 0%; aspect-ratio: 1 / 1; min-width: 0;"
-                    class="group/badge pointer-events-auto relative flex transform-gpu items-center justify-center overflow-hidden rounded-[clamp(0.5rem,9cqi,1rem)] border border-solid border-(--signature-color) bg-black/40 opacity-100 shadow-md transition duration-300 ease-in-out hover:scale-lift hover:brightness-glow">
+                    class="group/badge pointer-events-auto relative flex aspect-square min-w-0 flex-1 transform-gpu items-center justify-center overflow-hidden rounded-[clamp(0.5rem,9cqi,1rem)] border border-solid border-(--signature-color) bg-black/40 opacity-100 shadow-md transition duration-300 ease-in-out hover:scale-lift hover:brightness-glow">
                     <Avatar
                       src={tile.portrait}
                       alt={tile.name}
@@ -558,7 +557,7 @@
     {/if}
     {#if session.active_user || app.selected_user}
       {@const u = session.active_user || app.selected_user}
-      <div class="min-w-0" style="flex-grow: 1" data-msg-card="user">
+      <div class="min-w-0 grow max-md:min-w-28" data-msg-card="user">
         <EntityCard entity={u} type="user" variant="message" onclick={() => app.open_profile(u, "user")} />
       </div>
     {/if}

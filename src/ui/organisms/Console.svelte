@@ -344,11 +344,8 @@
       actions={[pulse]}>
       <h6
         class="whitespace-nowrap transition duration-standard {ready_to_begin ?
-          'group-hover:scale-105 group-hover:brightness-125'
-        : 'text-slate-400 opacity-80'}"
-        style={ready_to_begin ?
-          "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
-        : undefined}>
+          'text-(--color-emerald-green) [text-shadow:0_0_0.5rem_color-mix(in_srgb,var(--color-emerald-green)_25%,transparent)] group-hover:scale-105 group-hover:brightness-125'
+        : 'text-slate-300'}">
         {label_text}
       </h6>
     </Button>
