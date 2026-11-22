@@ -171,14 +171,15 @@ describe("src/data/db.js & story-library.js", () => {
       expect(entry.round).toBe(7);
     });
 
-    it("prunes trailing turns but protects STORY_START", async () => {
+    it("prunes trailing turns but protects STORY_START and is_prologue_image", async () => {
       const story_id = String(await seed_story());
       await log_message("Story Started: T", "system", "", { story_id, meta: { type: "STORY_START" }, turn_type: "SYSTEM_TURN" });
+      await log_message("", "fractal", "Setting", { story_id, meta: { is_prologue_image: true }, round: 0 });
       await log_message("go", "user", "Orion", { story_id, round: 3 });
       await log_message("reply", "ai", "Glitch", { story_id, round: 3 });
       await regenerate({ active_id: story_id });
       const remaining = await load_log(story_id);
-      expect(remaining.map((entry) => entry.text)).toEqual(["Story Started: T", "go"]);
+      expect(remaining.map((entry) => entry.text)).toEqual(["Story Started: T", "", "go"]);
     });
   });
 });

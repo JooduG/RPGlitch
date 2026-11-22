@@ -147,6 +147,15 @@ export async function conclude_story(id) {
 }
 
 /**
+ * Rewinds a concluded story back to active (non-concluded) state.
+ * @param {string | number} id
+ * @returns {Promise<number>}
+ */
+export async function rewind_story(id) {
+  return await db.stories.update(coerce_story_key(id), { is_concluded: 0, updated_at: Date.now() });
+}
+
+/**
  * Deletes a story and cascades to its simulation logs.
  * @param {string | number} id
  * @returns {Promise<void>}
@@ -165,6 +174,7 @@ export const stories = {
   update_cast,
   active_entity_ids,
   conclude: conclude_story,
+  rewind: rewind_story,
   delete: delete_story,
 };
 
@@ -566,7 +576,7 @@ export async function regenerate(deps = {}) {
 
   for (let index = logs.length - 1; index >= 0; index--) {
     const entry = logs[index];
-    const is_protected_init = entry.meta?.type === "STORY_START" || entry.meta?.is_prologue || entry.meta?.is_epilogue;
+    const is_protected_init = entry.meta?.type === "STORY_START" || entry.meta?.is_prologue || entry.meta?.is_epilogue || entry.meta?.is_prologue_image;
     if (target_round != null && entry.round != null && entry.round < target_round) break;
 
     if (!found_user_turn) {

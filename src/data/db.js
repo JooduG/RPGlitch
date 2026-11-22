@@ -170,3 +170,11 @@ export async function set_active_session_id(session_id) {
 export async function clear_active_session_id() {
   await db.kv_settings.delete(SESSION_ID_KEY);
 }
+
+/**
+ * Resets the entire IndexedDB database, wiping all tables and clearing session pointers.
+ * @returns {Promise<void>}
+ */
+export async function reset_database() {
+  await Promise.all([db.entities.clear(), db.stories.clear(), db.simulation_log.clear(), db.kv_settings.clear(), db.sessions.clear(), db.audio_prefs.clear()]);
+}

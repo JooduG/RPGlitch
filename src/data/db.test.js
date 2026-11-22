@@ -5,7 +5,7 @@
 
 import { ALL_PREMADES } from "@definitions";
 import { beforeEach, describe, expect, it } from "vitest";
-import { db } from "./db.js";
+import { db, reset_database } from "./db.js";
 import { entities, seed_premades } from "./entity-repository.js";
 
 describe("seed_premades & entity-repository", () => {
@@ -29,5 +29,16 @@ describe("seed_premades & entity-repository", () => {
     const orion = await entities.get("orion");
     expect(orion?.pov).toBe("3rd_person");
     expect(orion?.signature_color).toBe("Electric Cyan");
+  });
+
+  it("resets all database tables cleanly on reset_database", async () => {
+    await seed_premades();
+    await db.stories.add({ title: "To Delete", round: 1 });
+    expect(await db.entities.count()).toBeGreaterThan(0);
+    expect(await db.stories.count()).toBeGreaterThan(0);
+
+    await reset_database();
+    expect(await db.entities.count()).toBe(0);
+    expect(await db.stories.count()).toBe(0);
   });
 });

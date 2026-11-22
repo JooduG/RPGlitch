@@ -20,6 +20,8 @@
 import { CANONICAL_ROLES, NARRATOR_ROLES } from "@config";
 import { filter_narrative_messages, normalize_history_beat } from "@simulation";
 import { format_datetime } from "@utils";
+import { coerce_story_key, db } from "./db.js";
+import { load_log } from "./story-library.js";
 
 // ============================================================================
 // [SECTION 1: JSDOC SCHEMAS]
@@ -158,6 +160,23 @@ export function build_story_export_filename(story = {}, date = new Date()) {
 
   const stamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
   return `story-${slug}-${stamp}.md`;
+}
+
+/**
+ * Loads a story and its full simulation log from IndexedDB and exports a Markdown document with filename.
+ * @param {string | number} story_id
+ * @param {StoryRecord | null} [fallback_story=null]
+ * @param {StoryExportOptions} [options={}]
+ * @returns {Promise<{ markdown: string, filename: string, story: StoryRecord }>}
+ */
+export async function export_story_record(story_id, fallback_story = null, options = {}) {
+  const coerced_id = coerce_story_key(story_id);
+  const row = await db.stories.get(coerced_id);
+  const story = { ...(row || {}), ...(fallback_story || {}) };
+  const entries = await load_log(story_id);
+  const markdown = export_story_markdown(story, entries, options);
+  const filename = build_story_export_filename(story);
+  return { markdown, filename, story };
 }
 
 /**
