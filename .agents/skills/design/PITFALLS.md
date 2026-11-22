@@ -14,7 +14,7 @@
 
 - **Trigger**: Hiding scrollbars or adding custom semantic class names inside `.svelte` templates.
 - **Wrong Behavior**: Using `.no-scrollbar` or inventing ad-hoc CSS classes not registered in [DESIGN.md](../../../DESIGN.md) `@utility` or [eslint.config.js](../../../eslint.config.js) (`better-tailwindcss/no-unknown-classes`).
-- **Correct Behavior**: Use [ScrollArea.svelte](../../../src/ui/primitives/ScrollArea.svelte) or `scrollbar-none [&::-webkit-scrollbar]:hidden`. Register any new custom utility as an `@utility` block in `DESIGN.md` (and whitelist non-Tailwind component classes in `eslint.config.js`).
+- **Correct Behavior**: Use [ScrollArea.svelte](../../../src/ui/atoms/ScrollArea.svelte) or `scrollbar-none [&::-webkit-scrollbar]:hidden`. Register any new custom utility as an `@utility` block in `DESIGN.md` (and whitelist non-Tailwind component classes in `eslint.config.js`).
 
 ## Pitfall 3: Unguarded View Transitions or Mixing Directives (Occurrences: 1)
 
@@ -28,11 +28,11 @@
 - **Wrong Behavior**: Setting a solid `var(--signature-color)` background with `text-white` (`--color-pure-white` / `--color-frisk`), which drops contrast to `1.22:1`–`1.78:1` on bright signatures (`#fde047`, `#fbbf24`, `#84cc16`).
 - **Correct Behavior**: Use translucent `color-mix(in srgb, var(--signature-color) 10%, var(--color-glass-sunken))` wells over dark surfaces (as in `ChatBubble.svelte` and `Profile.svelte`) or gradient scrims (`from-black/95`), or switch foreground text to dark `--color-chalk` ink when painting a solid high-luminance fill.
 
-## Pitfall 5: Bypassing `src/ui/primitives/` for Direct `bits-ui` Imports (Occurrences: 1)
+## Pitfall 5: Bypassing `@atoms` / `@molecules` for Direct `bits-ui` Imports (Occurrences: 1)
 
-- **Trigger**: Building buttons, dialogs, modals, dropdowns, sliders, toggles, meters, progress bars, scroll areas, or tooltips in view components.
-- **Wrong Behavior**: Importing raw primitives directly from `bits-ui` in feature views or referencing nonexistent wrappers (`Popover`, `DropdownMenu`).
-- **Correct Behavior**: Import project wrappers from [src/ui/primitives/](../../../src/ui/primitives/README.md). Keep direct `bits-ui` (`^2.20.6`) imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) inside primitive wrappers (plus `Avatar` in [ProfilePicture.svelte](../../../src/ui/ProfilePicture.svelte)).
+- **Trigger**: Building buttons, dialogs, modals, dropdowns, sliders, toggles, meters, progress bars, scroll areas, or tooltips in organisms or views.
+- **Wrong Behavior**: Importing raw primitives directly from `bits-ui` in organisms/views or referencing nonexistent wrappers (`Popover`, `DropdownMenu`, `NumberField`).
+- **Correct Behavior**: Import wrappers from [src/ui/atoms/](../../../src/ui/atoms/README.md) (`@atoms`) and [src/ui/molecules/](../../../src/ui/molecules/README.md) (`@molecules`). Keep direct `bits-ui` (`^2.20.6`) imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) encapsulated inside atoms and molecules.
 
 ## Pitfall 6: Box-in-a-Box Bracket Shells & Redundant `(i)` Tooltip Icons (Occurrences: 1)
 
@@ -90,7 +90,7 @@
 
 ## Pitfall 15: `{@html}` in `Icon.svelte` (`audit:hygiene` Heresy) & SVG `currentColor` (Occurrences: 1)
 
-- **Trigger**: Adding or consolidating inline `<svg>` icons into [Icon.svelte](../../../src/ui/primitives/Icon.svelte) or previewing SVGs standalone.
+- **Trigger**: Adding or consolidating inline `<svg>` icons into [Icon.svelte](../../../src/ui/atoms/Icon.svelte) or previewing SVGs standalone.
 - **Wrong Behavior**: Rendering an `ICONS` HTML-string map with `{@html ICONS[name]}` (rejected by `npm run audit:hygiene` Phase A), or using `fill="currentColor"` on inner paths when `<svg>` sets `stroke="#..."` without setting `color` (inherits dark `#000` text).
 - **Correct Behavior**: Express every icon in `Icon.svelte` `ICONS` as a single SVG `<path d="..." />` string and render declaratively via `<path d={ICONS[name]} fill={...} stroke={...} />` (forwarding `...rest` props onto `<svg>`). Always style `<svg>` via `color` + `stroke="currentColor"` when child elements use `currentColor`.
 

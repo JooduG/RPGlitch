@@ -7,7 +7,7 @@ description: >-
 # Design System & Static Layout Governance
 
 **Role**: Visual Token & Static Layout Architect  
-**Objective**: Anchor every color, typographic scale, elevation surface, and layout geometry in `DESIGN.md` tokens and `src/ui/primitives/` wrappers with zero viewport overflow or drift.
+**Objective**: Anchor every color, typographic scale, elevation surface, and layout geometry in `DESIGN.md` tokens across `src/ui/atoms/` and `src/ui/molecules/` with zero viewport overflow or drift.
 
 ## 1. Mandatory Pre-Flight & Pitfalls Check
 
@@ -24,7 +24,7 @@ description: >-
 - [scripts/audit-design.js](./scripts/audit-design.js) — Static CSS/Svelte rule scanner, hallucinated `var(--*)` detector, and unused-token auditor.
 - [scripts/audit-google-design.js](./scripts/audit-google-design.js) — `@google/design.md` frontmatter schema validator.
 - [scripts/token-utils.js](./scripts/token-utils.js) — Shared token parser, `{category.token}` resolver, and source walker.
-- Core workspace contracts: [DESIGN.md](../../../DESIGN.md), [README.md](../../../README.md), and [src/ui/primitives/README.md](../../../src/ui/primitives/README.md).
+- Core workspace contracts: [DESIGN.md](../../../DESIGN.md), [README.md](../../../README.md), [src/ui/atoms/README.md](../../../src/ui/atoms/README.md), and [src/ui/molecules/README.md](../../../src/ui/molecules/README.md).
 
 ## 2. Scope, When to Skip & Exclusivity Boundary
 
@@ -66,16 +66,18 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 
 - **Viewport Grid & Mobile Breakpoint**: Use the 12x12 golden-ratio stage grid (`--spacing-grid-width`, `--spacing-grid-height`, bounded via `min(clamp(...), 100vw / 100dvh)`), `min-h-dvh` over `h-screen`, and the `< 48rem` (`768px`) mobile breakpoint tracked in [interface.svelte.js](../../../src/state/interface.svelte.js).
 - **Defensive Columns & Numeric Stability**: Place `min-w-0` on text flex/grid children (`minmax(0, 1fr)`), `wrap-anywhere` on long unbroken values, `shrink-0` on avatars/icons, and `tabular-nums` on dynamic counters and telemetry figures.
-- **Scrollbar Suppression**: Never use `.no-scrollbar` (fails ESLint). Use [ScrollArea.svelte](../../../src/ui/primitives/ScrollArea.svelte) or `scrollbar-none [&::-webkit-scrollbar]:hidden` (as in `Dropdown.svelte` and `Modal.svelte`).
+- **Scrollbar Suppression**: Never use `.no-scrollbar` (fails ESLint). Use [ScrollArea.svelte](../../../src/ui/atoms/ScrollArea.svelte) or `scrollbar-none [&::-webkit-scrollbar]:hidden` (as in `Dropdown.svelte` and `Modal.svelte`).
 - **Modal & Dialog Layout**: Left-align header titles and body copy (`items-start text-left`); right-align footer actions (`justify-end gap-standard` in `Dialog.svelte`, `gap-2` in custom modal footers). Add inline `style="display: flex;"` on HTML5 landmark `<footer>`/`<header>` containers alongside Perchance `normalize.css v3` `:where(...)` rules in `DESIGN.md`.
 - **Disabled vs. Busy States**: Reserve `opacity-30 cursor-not-allowed` for `disabled` controls. Busy controls (`Button`, `Dialog`, `Modal`, `Slider`, `Toggle`) apply `brightness-90` / `brightness-75`, `grayscale*`, `cursor-wait`, `pointer-events-none`, and `finally`-guarded lock release.
 
-## 5. UI Primitives & State Sovereignty
+## 5. UI Atoms, Molecules, Organisms & State Sovereignty
 
 - **Directory Structure**:
-  - [src/ui/primitives/](../../../src/ui/primitives/README.md) (`19` wrappers + `tooltip` action): `Accordion`, `Backdrop`, `Button`, `Dialog`, `Dropdown`, `Icon`, `Label`, `Meter`, `Modal`, `NumberField`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `SourceField`, `StyleBadge`, `TextField`, `Toggle`, `Tooltip`.
-  - `src/ui/` feature views: `Storymode.svelte`, `Storyboard.svelte`, `StoryCard.svelte`, `Console.svelte`, `EntityCard.svelte`, `Profile.svelte`, `ProfilePicture.svelte`, `VisualWing.svelte`, `AudioWing.svelte`, `DevWing.svelte`, `ChatBubble.svelte`, `ContextMenu.svelte`, `ImagePreview.svelte`, `MacroText.svelte`, `RelationalGraph.svelte`, `Typewriter.svelte`, `UndoToast.svelte`.
-- **Bits UI (`^2.20.6`) Boundary**: Feature views must consume `src/ui/primitives/` first. Direct `bits-ui` imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) stay encapsulated inside `src/ui/primitives/` (plus `Avatar` in `ProfilePicture.svelte`). `Dropdown.svelte` wraps `Select` (no `DropdownMenu` or `Popover` exists). Use `{#snippet child({ props })}` for render delegation and keep `bind:ref` and `origin-(--transform-origin)` internal to primitive wrappers. Rely on `bits-ui` for ARIA roles and modal focus management.
+  - [src/ui/atoms/](../../../src/ui/atoms/README.md) (`14` atoms + `tooltip` action): `Accordion`, `Avatar`, `Backdrop`, `Button`, `DevGrid`, `Icon`, `Label`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `Toggle`, `Tooltip`, `Typewriter`.
+  - [src/ui/molecules/](../../../src/ui/molecules/README.md) (`9` molecules): `CardSkeleton`, `ContextMenu`, `Dialog`, `Dropdown`, `Meter`, `Modal`, `SourceField`, `TextField`, `UndoToast`.
+  - [src/ui/organisms/](../../../src/ui/organisms/README.md): `AudioWing`, `BracketList`, `ChatBubble`, `DevWing`, `EntityCard`, `entity-actions.js`, `ImagePreview.svelte.js`, `MacroText`, `Profile.svelte.js`, `ProfilePicture`, `RelationalGraph`, `StoryCard`, `StyleBadge`, `VisualWing`.
+  - `src/ui/` root stage views: `Storyboard.svelte`, `Storymode.svelte`, `Console.svelte`, `Profile.svelte`, `ImagePreview.svelte`.
+- **Bits UI (`^2.20.6`) Boundary**: Organisms and stage views consume `@atoms` and `@molecules` first. Direct `bits-ui` imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) stay encapsulated inside `src/ui/atoms/` and `src/ui/molecules/`. `Dropdown.svelte` wraps `Select` (no `DropdownMenu` or `Popover` exists). Use `{#snippet child({ props })}` for render delegation and keep `bind:ref` and `origin-(--transform-origin)` internal to wrappers. Rely on `bits-ui` for ARIA roles and modal focus management.
 - **Reactive State Ownership Matrix**:
   - [src/state/session.svelte.js](../../../src/state/session.svelte.js) (`session`): Active entities (`active_user`, `active_ai`, `active_fractal`, `active_npcs`), dynamics (`ai_dynamics`, `fractal_dynamics`), `round`, `feed`.
   - [src/state/execution.svelte.js](../../../src/state/execution.svelte.js) (`execution`): Simulation lifecycle (`phase` = `"idle"` | `"generating"` | `"locked"`, `busy`, `loading`, `stream`, watchdog).
@@ -104,7 +106,7 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 - **NEVER** edit `src/media/design.css` or `src/utils/tokens.js` by hand — edit `DESIGN.md` and run `npm run sync:css`.
 - **NEVER** invent `.no-scrollbar` or unregistered CSS classes without defining `@utility` in `DESIGN.md` or whitelisting in `eslint.config.js`.
 - **NEVER** call raw `document.startViewTransition()` or mix `view-transition-name` with Svelte transition directives.
-- **NEVER** import raw `bits-ui` directly inside feature views when a wrapper exists in `src/ui/primitives/`.
+- **NEVER** import raw `bits-ui` directly inside organisms or stage views when a wrapper exists in `src/ui/atoms/` or `src/ui/molecules/`.
 - **ALWAYS** apply `min-w-0` + `wrap-anywhere` on flex/grid text columns, `shrink-0` on avatars/icons, and `style="display: flex;"` on modal `<header>`/`<footer>` containers.
 
 ### Verification Checklist

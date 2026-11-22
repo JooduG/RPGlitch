@@ -31,7 +31,7 @@ describe("gate sequential-thinking-gate", () => {
     expect(is_high_risk_file("src/engine/runs.js")).toBe(true);
     expect(is_high_risk_file("src/engine/prompts.js")).toBe(true);
     expect(is_high_risk_file("src/data/db.js")).toBe(true);
-    expect(is_high_risk_file("src/ui/ChatBubble.svelte")).toBe(false);
+    expect(is_high_risk_file("src/ui/organisms/ChatBubble.svelte")).toBe(false);
   });
 
   it("no longer references eradicated intelligence/state paths", () => {

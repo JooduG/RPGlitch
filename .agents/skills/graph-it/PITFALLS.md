@@ -58,7 +58,7 @@
 
 ### `[PF-005]` Bare `@alias` Barrels Require Root `tsconfig.json` with `baseUrl` (Occurrences: 1)
 
-- **Trigger**: Running `check-architecture`, `scan_dead_code`, or `trace` in RPGlitch where cross-folder imports use bare Vite barrel aliases (`@config`, `@data`, `@utils`, `@state`, `@engine`, `@media`, `@simulation`, `@definitions`, `@primitives`, `@ui`).
+- **Trigger**: Running `check-architecture`, `scan_dead_code`, or `trace` in RPGlitch where cross-folder imports use bare Vite barrel aliases (`@config`, `@data`, `@utils`, `@state`, `@engine`, `@media`, `@simulation`, `@definitions`, `@atoms`, `@molecules`, `@organisms`, `@ui`).
 - **Wrong Behavior (Root Cause)**: `graph-it-live v1.25.3` does not resolve bare `@alias` imports from `jsconfig.json` without `baseUrl`, marking them `:::external`. This drops cross-rank edges (`interGroupEdges=0`) and flags `src/*/index.js` barrels as unreferenced.
 - **Correct Behavior (Prevention Rule)**: Keep root `tsconfig.json` (`"baseUrl": "."`, `"allowJs": true`, `"noEmit": true`, and `paths` matching `vite.config.js`) in sync. If `architecture --folder src` ever drops to `interGroupEdges=0` or `scan_dead_code` flags `src/*/index.js`, check `tsconfig.json` before trusting results.
 
@@ -86,7 +86,7 @@
 - **Wrong Behavior (Root Cause)**:
   1. Combining trailing-slash directory rules (`"src/*/"`) with `"!*.test.js"` — `node-ignore` ignores file negations inside an already-matched parent directory, causing overlap warnings with `"test-suites"` in `v1.25.5+`.
   2. Using `"roles"` keys like `"(root)"` or `"src"` (warns in `v1.25.5+`) or `"test"` role values (fails Zod validation in `v1.25.3` CLI).
-- **Correct Behavior (Prevention Rule)**: Keep declared `elements` strictly disjoint using `["src/<folder>/**", "!*.test.js"]` (and `["src/ui/*", "!src/ui/primitives", "!*.test.js"]` for `rank5-ui`), omit redundant umbrella elements when `allowOnly` rank rules already form an acyclic DAG, and key `"roles"` by declared element names with `v1.25.3`-compatible values (e.g., `"tooling": "tooling"`).
+- **Correct Behavior (Prevention Rule)**: Keep declared `elements` strictly disjoint using `["src/<folder>/**", "!*.test.js"]` (and `["src/ui/*", "!src/ui/atoms", "!src/ui/molecules", "!src/ui/organisms", "!*.test.js"]` for `rank5-ui`), omit redundant umbrella elements when `allowOnly` rank rules already form an acyclic DAG, and key `"roles"` by declared element names with `v1.25.3`-compatible values (e.g., `"tooling": "tooling"`).
 
 ---
 

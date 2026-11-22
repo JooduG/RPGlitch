@@ -1,21 +1,21 @@
 # RPGlitch Motion Recipes
 
-Verified Svelte 5, Tailwind v4, `DESIGN.md`, `@primitives`, and `@media` (`src/media/motion.svelte.js`) motion patterns. Use exact exported symbols and canonical aliases (`@primitives`, `@media`, `@utils`).
+Verified Svelte 5, Tailwind v4, `DESIGN.md`, `@atoms`, `@molecules`, and `@media` (`src/media/motion.svelte.js`) motion patterns. Use exact exported symbols and canonical aliases (`@atoms`, `@molecules`, `@media`, `@utils`).
 
-## 1. Tactile Button Press & Kinetic Actions (`@primitives`)
+## 1. Tactile Button Press & Kinetic Actions (`@atoms`)
 
-Use `<Button actions={[...]}>` from `@primitives`; `Button.svelte` handles `active:scale-sink` and yields CSS `transform` transitions whenever `@media` kinetic actions set `data-kinetic="true"`:
+Use `<Button actions={[...]}>` from `@atoms`; `Button.svelte` handles `active:scale-sink` and yields CSS `transform` transitions whenever `@media` kinetic actions set `data-kinetic="true"`:
 
 ```svelte
 <script>
   import { stab } from "@media";
-  import { Button } from "@primitives";
+  import { Button } from "@atoms";
 </script>
 
 <Button actions={[stab]} onclick={submit_turn}>Send</Button>
 ```
 
-When authoring a custom kinetic-compatible primitive in `src/ui/primitives/`, keep color/shadow transitions alive while dropping CSS `transform` transitions during active JS motion (verbatim `Button.svelte` pattern):
+When authoring a custom kinetic-compatible control in `src/ui/atoms/` or `src/ui/molecules/`, keep color/shadow transitions alive while dropping CSS `transform` transitions during active JS motion (verbatim `Button.svelte` pattern):
 
 ```svelte
 <button
@@ -29,9 +29,9 @@ When authoring a custom kinetic-compatible primitive in `src/ui/primitives/`, ke
 </button>
 ```
 
-## 2. Floating Overlays (`src/ui/primitives/` `Tooltip` / `Dropdown`)
+## 2. Floating Overlays (`@atoms` `Tooltip` / `@molecules` `Dropdown`)
 
-Feature views import `<Tooltip>` and `<Dropdown>` from `@primitives` — direct `bits-ui` imports stay encapsulated in `src/ui/primitives/` (no `Popover` wrapper exists). Inside a `bits-ui` primitive wrapper (`Tooltip.svelte` pattern), anchor transforms via `origin-(--transform-origin)` and scale from `0.95` (never `0`):
+Organisms and views import `<Tooltip>` (`@atoms`) and `<Dropdown>` (`@molecules`) — direct `bits-ui` imports stay encapsulated in `src/ui/atoms/` and `src/ui/molecules/` (no `Popover` wrapper exists). Inside a `bits-ui` wrapper (`Tooltip.svelte` pattern), anchor transforms via `origin-(--transform-origin)` and scale from `0.95` (never `0`):
 
 ```svelte
 <script>
@@ -54,12 +54,12 @@ Feature views import `<Tooltip>` and `<Dropdown>` from `@primitives` — direct 
 
 ## 3. Modals, Dialogs & Lane 5 Inter-Surface Handoffs
 
-Use `@media` `overlay_in` (`300ms` default) and `overlay_out` (`160ms` default) for overlay panels (both auto-collapse to `0ms` when `motion.is_reduced` is `true`), paired with `@primitives` `<Backdrop>`. When `is_profile_view` is `true`, pass `duration: 0` so Svelte's scale/translate does not collide with the View Transition profile flip (`Modal.svelte` pattern):
+Use `@media` `overlay_in` (`300ms` default) and `overlay_out` (`160ms` default) for overlay panels (both auto-collapse to `0ms` when `motion.is_reduced` is `true`), paired with `@atoms` `<Backdrop>`. When `is_profile_view` is `true`, pass `duration: 0` so Svelte's scale/translate does not collide with the View Transition profile flip (`Modal.svelte` pattern):
 
 ```svelte
 <script>
   import { overlay_in, overlay_out } from "@media";
-  import { Backdrop } from "@primitives";
+  import { Backdrop } from "@atoms";
 
   let { is_open = false, is_profile_view = false } = $props();
 </script>

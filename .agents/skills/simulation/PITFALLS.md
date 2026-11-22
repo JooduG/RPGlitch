@@ -33,3 +33,9 @@
 - **Trigger**: Authoring relationship brackets, Caretaker prompt instructions, or `<MEMORIES>` rendering in `src/simulation/prompts.js` and `src/simulation/brackets.js`.
 - **Wrong Behavior**: Requiring `[@TARGET: ...]` as the bracket key (LLMs naturally emit `[GOAL: ... @TARGET ...]` and key-based entries clobber multiple facets toward the same target) or rendering `m.text` alone in `<MEMORIES>` (drops `m.key`).
 - **Correct Behavior**: Use value-referenced `[KEY: ... @TARGET ... | flags]`, inject active-cast `@ID` slugs into `PURPOSE_CORES.CARETAKER`, and render `[${m.key}: ${m.text}]` in `<MEMORIES>`.
+
+## 6. `normalize_entity()` Strips `dynamics_baseline` Before Gravity Stepping (Occurrences: 1)
+
+- **Trigger**: Building transient turn copies with `normalize_entity()` in `src/engine/turns.js` before calling `step_dynamics()`.
+- **Wrong Behavior**: Passing raw `normalize_entity(source)` output to `extract_metric_baselines()`, which drops `dynamics_baseline` and silently defaults every axis baseline to `50`.
+- **Correct Behavior**: Copy `source.dynamics_baseline` onto the transient normalized entity (e.g., via `clone_entity_for_turn()`) before `step_dynamics()` runs.

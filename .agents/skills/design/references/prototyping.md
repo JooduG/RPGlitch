@@ -7,7 +7,7 @@ Temporary exploration harness for comparing 2–3 competing UI or spatial intera
 - **Prototype when** layout topology, information hierarchy, or interactive pacing admits 2–3 genuinely distinct approaches with clear tradeoffs.
 - **Skip prototyping when** the `DESIGN.md` token/component pattern is already settled, the change affects a single visual tweak, or you are editing existing copy/controls.
 - **Vary one axis at a time**: generate 2–3 materially different layouts or interaction models rather than cosmetic color, border-radius, or padding variations.
-- **Cleanup obligation**: keep prototype code strictly scoped to a temporary harness during exploration. Once a variant is promoted to `src/ui/` (wired to `DESIGN.md` tokens and `src/ui/primitives/`), **delete all temporary prototype files and `.proto-picker` CSS** so `npm run audit:design`, `npm run lint`, and the 4.00 MB Perchance bundle limit remain clean.
+- **Cleanup obligation**: keep prototype code strictly scoped to a temporary harness during exploration. Once a variant is promoted to `src/ui/` (wired to `DESIGN.md` tokens and `@atoms` / `@molecules`), **delete all temporary prototype files and `.proto-picker` CSS** so `npm run audit:design`, `npm run lint`, and the 4.00 MB Perchance bundle limit remain clean.
 
 ## 2. Svelte 5 `{#key}` Stage & State Contract
 
@@ -73,6 +73,6 @@ Before deleting the prototype and implementing the chosen variant in `src/ui/`, 
 
 After selecting the winner:
 
-1. Port the markup and styling into `src/ui/` using compiled `DESIGN.md` utilities (`--duration-*`, `--ease-*`, `--color-*`), `src/ui/primitives/`, and `@media` motion helpers.
+1. Port the markup and styling into `src/ui/` using compiled `DESIGN.md` utilities (`--duration-*`, `--ease-*`, `--color-*`), `@atoms` / `@molecules`, and `@media` motion helpers.
 2. Delete the temporary prototype file(s) and `.proto-picker` rules.
 3. Run `npm run audit:design` and `npm run verify` to confirm zero leftover CSS classes or unused symbols.

@@ -47,7 +47,7 @@ flowchart LR
 1. **Secrets & Ignore Reconciliation**: Compare `.env` against `.env.example` (zero secrets in tracked templates) and run `npm run sync:ignores`.
 2. **Developer Database Alignment**: Inspect Pinecone namespace counts via `dev-database` `status`, refresh stale rules/specs via `search` / `ingest`, and verify cold storage logs via `search_archive`. Consult [README.md](../../../README.md) as the authoritative system blueprint.
 3. **Workspace Hygiene & P4 Purity**: Keep all transient scripts/logs inside `tmp/**` (never root), triage `#TODO-AI` comments via `npm run audit:backlog`, and prune dead exports via [graph-it](../graph-it/SKILL.md) (`npm run audit:dead-code`).
-4. **Verification Gate**: Run `npm run test:hooks; if ($?) { npm run verify }` and confirm 0 errors.
+4. **Verification Gate**: If `npm run sync` / `sync:gates` regenerated `.agents/hooks.json`, run `npx prettier --write .agents/hooks.json` before `npm run test:hooks; if ($?) { npm run verify }`.
 5. **Pulse Synchronization**: When shipping tracked work, update `[Unreleased]` in `CHANGELOG.md` and prune shipped items from `ROADMAP.md`.
 
 ---

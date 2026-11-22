@@ -12,7 +12,7 @@ description: >-
 
 - [PITFALLS.md](./PITFALLS.md) — Empirical scar tissue (View Transition snapshot conflicts, reduced-motion scope, Tailwind class gates, `fly_card_*` contracts, `Button.svelte` suppression, `$effect.root`/race cleanup, overlay-to-overlay handoffs, non-morph View Transitions, and `$effect`/`requestAnimationFrame`/`setTimeout` mount state machines).
 - [references/audit-and-standards.md](./references/audit-and-standards.md) — Canonical `DESIGN.md` token/budget reference, purpose decision test, 3-layer reduced-motion model, numeric thresholds, and `P0`–`P2` audit rubric.
-- [references/recipes.md](./references/recipes.md) — Verified RPGlitch Svelte 5 + Tailwind v4 + `@primitives` + `@media` patterns.
+- [references/recipes.md](./references/recipes.md) — Verified RPGlitch Svelte 5 + Tailwind v4 + `@atoms` / `@molecules` + `@media` patterns.
 - Core workspace contracts: [DESIGN.md](../../../DESIGN.md), [src/media/README.md](../../../src/media/README.md), [src/media/motion.svelte.js](../../../src/media/motion.svelte.js).
 
 Sibling skills (out of scope): [design](../design/SKILL.md), [audio](../audio/SKILL.md), [simulation](../simulation/SKILL.md).
