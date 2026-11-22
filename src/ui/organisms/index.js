@@ -17,6 +17,5 @@ export {
   run_image_regeneration,
   select_candidate,
 } from "./ImagePreview.svelte.js";
-export { ProfileState } from "./Profile.svelte.js";
 export { default as RelationalGraph } from "./RelationalGraph.svelte";
 export { default as VisualWing } from "./VisualWing.svelte";

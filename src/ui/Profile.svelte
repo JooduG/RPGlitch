@@ -16,10 +16,11 @@
   import { motion } from "@media";
   import { safe_parse_pseudo_json } from "@simulation";
   import { app, execution, session } from "@state";
-  import { auto_resize, download_json_file, entity_avatar_props, get_signature_color } from "@utils";
+  import { auto_resize, download_json_file, entity_avatar_props, get_signature_color, to_style_dropdown_items } from "@utils";
   import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
   import { BracketList, Dialog, Dropdown, MacroText, Modal, TextField } from "@molecules";
-  import { AudioWing, DevWing, ProfileState, RelationalGraph, VisualWing } from "@organisms";
+  import { AudioWing, DevWing, RelationalGraph, VisualWing } from "@organisms";
+  import { ProfileState } from "./Profile.svelte.js";
   import { fade } from "svelte/transition";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -59,8 +60,8 @@
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
-    if (app.settings.dev_mode && profile_state.char?.id) {
-      const live_entity = [session.active_user, session.active_fractal].find((e) => e && e.id === profile_state.char.id);
+    if (app.settings.dev_mode && !profile_state.is_editing && profile_state.char?.id) {
+      const live_entity = [session.active_user, session.active_ai, session.active_fractal].find((e) => e && e.id === profile_state.char.id);
       if (live_entity?.dynamics && profile_state.char.dynamics) {
         Object.assign(profile_state.char.dynamics, live_entity.dynamics);
       }
@@ -126,21 +127,8 @@
     ALL: known_entities,
   });
 
-  const author_options = Object.values(NARRATIVE_STYLES)
-    .sort((a, b) => {
-      if (a.id === "default") return -1;
-      if (b.id === "default") return 1;
-      return a.name.localeCompare(b.name);
-    })
-    .map((style) => ({ value: style.id, label: style.name, portrait: style.portrait, tag: style.description, tooltip: `${style.name}: ${style.description}` }));
-
-  const visual_style_options = Object.values(VISUAL_STYLES)
-    .sort((a, b) => {
-      if (a.id === "none") return -1;
-      if (b.id === "none") return 1;
-      return a.name.localeCompare(b.name);
-    })
-    .map((style) => ({ value: style.id, label: style.name, portrait: style.portrait, tag: style.description, tooltip: `${style.name}: ${style.description}` }));
+  const author_options = to_style_dropdown_items(NARRATIVE_STYLES, "default");
+  const visual_style_options = to_style_dropdown_items(VISUAL_STYLES, "none");
 
   const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
 
@@ -266,7 +254,7 @@
       (entity_type === "fractal" ?
         "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
       : "h-full w-full border-0 " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
-      (app.viewport.mobile ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-(--spacing-pixel) rounded-md" : ""),
+      (app.viewport.mobile ? "h-48 w-full border-(--spacing-pixel) rounded-md" : ""),
   );
 
   const info_container_class = $derived(
@@ -896,7 +884,7 @@
         data-wings-container
         class={"relative isolate z-0 flex scrollbar-none gap-standard [&::-webkit-scrollbar]:hidden " +
           (app.viewport.mobile ?
-            "col-span-full w-full items-start overflow-x-visible"
+            "col-span-full w-full items-start overflow-x-auto"
           : "col-[9/12] row-start-1 min-h-0 flex-col items-center justify-center-safe overflow-y-auto")}
         bind:this={wings_ref}
         style:pointer-events={has_wings ? "auto" : "none"}>

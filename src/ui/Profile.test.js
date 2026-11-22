@@ -52,10 +52,7 @@ describe("ProfileState setImage", () => {
     expect(state.char.profile_picture).toBe("data:image/png;base64,trimmed123");
 
     // Assert persistence
-    const { db } = await import("@data");
     const { session } = await import("@state");
-
-    expect(db.entities.update).toHaveBeenCalledWith("test-char", { profile_picture: "data:image/png;base64,trimmed123", updated_at: expect.any(Number) });
 
     expect(session.update_entity).toHaveBeenCalledWith("character", "test-char", { profile_picture: "data:image/png;base64,trimmed123" });
   });

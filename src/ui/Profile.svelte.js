@@ -1,8 +1,8 @@
 /**
- * @file src/ui/profile/Profile.svelte.js
+ * @file src/ui/Profile.svelte.js
  * 🧬 PROFILE STATE - Reactive controller for entity editing.
  */
-import { db, normalize_entity as normalize } from "@data";
+import { normalize_entity as normalize } from "@data";
 import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "@definitions";
 import { parse_entity_profile } from "@engine";
 import { motion, resolve_voice_name, resolve_voice_uri } from "@media";
@@ -541,7 +541,6 @@ export class ProfileState {
     const id = this.char.id;
     if (id) {
       const type = resolve_entity_type(this.char?.type);
-      await db.entities.update(id, { profile_picture: clean_url, updated_at: Date.now() });
       await session.update_entity(type, id, { profile_picture: clean_url });
       this._user_mutated = true;
     }

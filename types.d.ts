@@ -14,6 +14,38 @@ declare global {
   /** Common JSON-compatible map */
   type JsonMap = Record<string, unknown>;
 
+  /** Ambient Profile controller interface for Profile wings */
+  interface ProfileController {
+    is_editing: boolean;
+    is_saving: boolean;
+    show_delete_confirm: boolean;
+    is_packing_up: boolean;
+    hovered_section: string | null;
+    active_field: { key: string; label: string };
+    busy_fields: Set<string>;
+    char: any;
+    draft_id: string | null;
+    draft_name: string | null;
+    identity_error: string;
+    can_edit: boolean;
+    id_valid: boolean;
+    name_valid: boolean;
+    identity_valid: boolean;
+    sync: () => void;
+    start_editing: () => void;
+    cancel: () => void;
+    save: (entity_type: string) => Promise<void>;
+    delete: (entity_type: string) => Promise<void>;
+    setImage: (data_url: string) => Promise<void>;
+    set_field_value: (key: string, value: any) => void;
+    set_active_field: (key: string, label: string) => void;
+    get_safe_value: (key: string) => string;
+    mark_mutated: () => void;
+    commit_draft_id: () => boolean;
+    enhance: (key: string, value: string) => Promise<void>;
+    enhance_profile: (entity_type: string) => Promise<void>;
+  }
+
   // =========================================================================
   // [2] RUNTIME CONTEXT (PERCHANCE GLOBALS)
   // =========================================================================
