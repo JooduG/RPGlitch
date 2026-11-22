@@ -15,7 +15,7 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 ### 2. Dexie Cabinet, Key Helpers & Session Bookmark (`db.js`)
 
 - [`db.js`](./db.js):
-  - `db`, `init_db()`, `set_versionchange_quiesce(quiesce_callback)`.
+  - `db`, `init_db()`, `set_versionchange_quiesce(quiesce_callback)`, `reset_database()`.
   - `coerce_story_key(id)`, `story_key_variants(id)`, `coerce_log_key(id)`.
   - `SESSION_ID_KEY` (`"active_session_id"`), `record_session_access(session_id)`, `get_recent_sessions(limit = 10)`, `get_active_session_id()`, `require_active()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
 
@@ -29,7 +29,7 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 
 - [`story-library.js`](./story-library.js):
   - `stories`: Facade `{ list, get, create, update, update_cast, active_entity_ids, conclude, delete }`.
-  - `list_stories()`, `get_story(id)`, `create_story(data)`, `update_story(id, changes)`, `update_cast(id, npc_ids)`, `active_entity_ids()`, `conclude_story(id)`, `delete_story(id)`.
+  - `list_stories()`, `get_story(id)`, `create_story(data)`, `update_story(id, changes)`, `update_cast(id, npc_ids)`, `active_entity_ids()`, `conclude_story(id)`, `rewind_story(id)`, `delete_story(id)`.
   - `find_log_entry(id, feed = null)`, `resolve_log_entity_id(role, character_name, snapshots = null, story_id = null)`, `resolve_story_round(story_id)`.
   - `log_message(...)`, `load_log(story_id)`, `delete_story_log(story_id)`, `delete_log_entry(id, env = null)`, `edit_log_entry(id, new_text, meta_patch = null, env = null)`, `update_log_attachment(id, attachment_index, new_attachment, env = null)`, `delete_log_attachment(id, attachment_index, env = null)`.
   - `create_from_selection(selection, deps = {})`, `send(text, deps = {})`, `regenerate(deps = {})`.
@@ -60,7 +60,7 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 ### 8. Story Markdown Transcript & Export (`exporters.js`)
 
 - [`exporters.js`](./exporters.js):
-  - `format_story_beat(entry, options = {})`, `export_story_markdown(story = {}, entries = [], options = {})`, `build_story_export_filename(story = {}, date = new Date())`.
+  - `format_story_beat(entry, options = {})`, `export_story_markdown(story = {}, entries = [], options = {})`, `build_story_export_filename(story = {}, date = new Date())`, `export_story_record(story_id, fallback_story = null, options = {})`.
 
 ## Invariants
 
@@ -78,4 +78,4 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 
 ## Verification
 
-- Run: `npm run test:unit`
+- Run: `npm test` (or `npx vitest run src/data/`)

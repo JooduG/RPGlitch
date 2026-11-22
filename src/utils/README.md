@@ -52,4 +52,5 @@ Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design to
 
 ## Verification
 
-- Run unit tests: `npx vitest run src/utils/`
+- Run full suite: `npm test`
+- Run package unit tests: `npx vitest run src/utils/`

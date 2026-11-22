@@ -25,4 +25,4 @@ Rank 3 Svelte 5 rune store layer (`@state`) owning shared cross-subsystem state 
 
 ## Verification
 
-- Run state unit tests: `npx vitest run src/state/`
+- Run: `npm test` (or `npx vitest run src/state/`)

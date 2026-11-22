@@ -10,13 +10,13 @@ Rank 1 deterministic simulation domain (`@simulation`) housing pure bracket/pseu
 - [`brackets.js`](./brackets.js):
   - `parse_tagged_fields`, `format_tagged_fields`, `apply_tagged_field_deltas`, `extract_entity_relationships`, `has_bracket_bond`
   - `safe_parse_pseudo_json`, `balance_brackets`, `strip_leading_key_echo`, `normalize_physical_entries`
-  - `parse_relational_vector`, `format_relational_vector`, `derive_vector_title`
+  - `parse_relational_vector`, `format_relational_vector`, `derive_vector_title`, `parse_relationship_brackets`
   - Constants: `CLEAR_TOKENS`, `AGGREGATE_KEYS`, `VISUAL_EXCLUDED_KEYS`, `CLOTHING_KEYS`, `PHYSICAL_KEY_ALIASES`
 - [`dynamics.js`](./dynamics.js): `step_dynamics`, `extract_metric_baselines`, `evaluate_dynamics_directives`, `CARETAKER_ROTATION`, `resolve_caretaker_target`, `evaluate_image_trigger`.
 - [`history.js`](./history.js): `role_display_label`, `canonicalize_role`, `normalize_history_beat`, `is_narrative_role`, `collapse_history`, `filter_narrative_messages`, `format_history_entries`, `decompose_story_title`, `calculate_turn_tempo`, `build_turn_summary`, `reconstruct_history_from_feed`, `match_speaker_snapshots`, `resolve_entity_id_by_name`, `is_telemetry_meta`, `is_empty_narrative_message`.
 - [`llm-output.js`](./llm-output.js): `strip_cognition_blocks`, `safe_parse_json`, `sanitize_llm`, `strip_covert_directives`, `parse_think_block`, `first_sentence`, `clean_generated_prose`, `SLOP_PATTERNS`, `lint_narrative_slop`, `cap_somatic_markers`, `resolve_speaking_style`, `audit_macro_shape`.
 - [`retrieval.js`](./retrieval.js): `TOTAL_FIELD_FLOORS_CHARACTERS` (`1700`), `extract_memory_candidates`, `create_vector_cache`, `rank_memories`, `select_context_memories`.
-- [`prompts.js`](./prompts.js): `PURPOSE_CORES`, `render_thinking_mode`, `compile_prompt`, `extract_tag_sequence`, `verify_tag_balance`, `verify_system_envelope`, `verify_tag_order`, `verify_prompt_hygiene`, `verify_compiled_prompt`, `clean_image_prompts`, `rescue_visual_prose`, `sanitize_visual_text`, `IMAGE_TIERS`, `TIER_RESOLUTIONS`, `normalize_image_tier`, `get_resolution`, `get_resolution_string`, `get_tier_guidance_scale`, `resolve_image_trigger`, `ORDERED_VISUAL_STYLE_KEYS`, `resolve_visual_engine_tokens`, `build_aesthetic_map`, `flatten_aesthetic_map`, `extract_aesthetic_traits`, `render_optics_fallback`, `resolve_portrait_visual_style_key`, `resolve_story_beat_style`, `compose_story_beat_prompt`.
+- [`prompts.js`](./prompts.js): `PURPOSE_CORES`, `render_thinking_mode`, `compile_prompt`, `extract_tag_sequence`, `verify_tag_balance`, `verify_system_envelope`, `verify_tag_order`, `verify_prompt_hygiene`, `verify_compiled_prompt`, `clean_image_prompts`, `rescue_visual_prose`, `sanitize_visual_text`, `IMAGE_TIERS`, `TIER_RESOLUTIONS`, `normalize_image_tier`, `get_resolution`, `resolve_image_resolution`, `get_resolution_string`, `get_tier_guidance_scale`, `resolve_image_trigger`, `ORDERED_VISUAL_STYLE_KEYS`, `resolve_visual_engine_tokens`, `build_aesthetic_map`, `flatten_aesthetic_map`, `extract_aesthetic_traits`, `render_optics_fallback`, `resolve_portrait_visual_style_key`, `resolve_story_beat_style`, `compose_story_beat_prompt`.
 
 ## Invariants
 
@@ -37,5 +37,5 @@ Rank 1 deterministic simulation domain (`@simulation`) housing pure bracket/pseu
 
 ## Verification
 
-- Run simulation tests: `npx vitest run src/simulation/`
+- Run simulation tests: `npm test` (or `npx vitest run src/simulation/`)
 - Run prompt/simulation gate: `npm run audit:simulation`

@@ -48,6 +48,12 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 - **Bounded Queue & Stale Ghost Sweep**: Pending image beats and queue depth are capped at `IMAGE_POLICY.MAX_PENDING_IMAGES` (`5`), and `sweep_stale_ghosts(ctx)` sweeps unresolved entries older than `TIMING_MS.CEILING` (`120000` ms) while sparing `_in_flight_image_generations`.
 - **P4 Snake-Case Purity**: `VisualEngine.generate()` and `VisualEngine.visualize()` return `snake_case` fields (`image_url`, `refined_prompt`, `seed`, `metadata`) without camelCase compatibility aliases.
 
+## Side Effects
+
+- **Web Audio & Speech Synthesis (`audio.svelte.js`)**: Lazily constructs and resumes `AudioContext` on user gesture, fetches `DEFAULT_NOTIFICATION_SOUND` for `"notification"` cues, and drives `window.speechSynthesis` utterances.
+- **DOM & CSS Animations (`motion.svelte.js`)**: Attaches `prefers-reduced-motion` media query listeners, clones/animates floating card elements on `document.body`, and updates CSS custom properties during card scrubs.
+- **Host Image Plugin & Queue State (`image-generation.js`)**: Invokes the host Perchance image plugin (or SVG fallback), mutates `_in_flight_image_generations` and `_image_generation_queue`, and updates beat attachments via `ctx`.
+
 ## Verification
 
-- Run: `npx vitest run src/media/` (runs `audio.test.js`, `motion.test.js`, `image-generation.test.js`)
+- Run: `npm test` (or `npx vitest run src/media/`)

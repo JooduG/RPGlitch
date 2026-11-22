@@ -12,12 +12,12 @@ Internally, the five modules form a one-way dependency chain:
 4. [`lifecycle.js`](./lifecycle.js): Non-turn jobs for visual prompt refinement, profile structuring, prologue/epilogue beats, entity creation, and user draft ghostwriting.
 5. [`chrono.svelte.js`](./chrono.svelte.js): Reactive session facade (`ChronoEngine` / `chrono_engine`) that owns the stream lock, abort rollback, and single-attempt orphan recovery.
 
-## Public Interface (`index.js`)
+## Interface (`index.js`)
 
 External callers (`@ui`) import only from [`index.js`](./index.js). Internal helpers in [`steps.js`](./steps.js) and [`turns.js`](./turns.js) are imported directly by engine siblings, `sim-check.js`, and colocated unit tests.
 
 - **Session Facade** ([`chrono.svelte.js`](./chrono.svelte.js)): `ChronoEngine`, `chrono_engine` (`start(selection)`, `send(text)`, `retry()`, `continue(target_id)`, `advance_turn(input, options)`, `stop()`).
-- **Lifecycle Jobs** ([`lifecycle.js`](./lifecycle.js)): `refine_image_prompt`, `parse_entity_profile`, `generate_opening`, `generate_closing`, `create_entity_with_profile`, `generate_user_draft`.
+- **Lifecycle Jobs** ([`lifecycle.js`](./lifecycle.js)): `refine_image_prompt`, `parse_entity_profile`, `generate_opening`, `generate_closing`, `create_entity_with_profile`, `generate_user_draft`, `ghostwrite_user_draft`, `capture_story_image`, `generate_image_candidates`, `import_entities`, `run_mock`.
 - **Transport** ([`transport.js`](./transport.js)): `get_transport`, `reset_transport`, `get_mock_message`.
 
 ## Internal Modules
@@ -41,5 +41,5 @@ External callers (`@ui`) import only from [`index.js`](./index.js). Internal hel
 
 ## Verification
 
-- `npx vitest run src/engine/`
+- `npm test` (or `npx vitest run src/engine/`)
 - `npm run audit:simulation`

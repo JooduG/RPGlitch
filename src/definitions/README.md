@@ -2,13 +2,13 @@
 
 ## Overview
 
-`src/definitions/` holds the declarative rules, taxonomies, and style catalogs for **RPGlitch**: dynamics equilibrium protocols and trigger predicates, literary narrative style catalogs, the 4-layer character/fractal profile taxonomy, starter character and fractal blueprints, regex-based speaking-style and anti-AI prose detox dictionaries, and diffusion visual style specifications. Its public barrel [`index.js`](./index.js) (`@definitions`) re-exports `*` from all 6 definition modules, accompanied by 5 unit test suites (`narrative-styles.test.js`, `premades.test.js`, `profile-taxonomy.test.js`, `speaking-styles.test.js`, `visual-styles.test.js`).
+`src/definitions/` holds the declarative rules, taxonomies, and style catalogs for **RPGlitch**: dynamics equilibrium protocols and trigger predicates, literary narrative style catalogs, the 4-layer character/fractal profile taxonomy, starter character and fractal blueprints, regex-based speaking-style and anti-AI prose detox dictionaries, diffusion visual style specifications, and unified style tile resolution. Its public barrel [`index.js`](./index.js) (`@definitions`) re-exports `*` from all 7 definition modules, accompanied by 5 unit test suites (`narrative-styles.test.js`, `premades.test.js`, `profile-taxonomy.test.js`, `speaking-styles.test.js`, `visual-styles.test.js`).
 
 ## Interface
 
 ### 1. Barrel Entry Point (`index.js`)
 
-- [`index.js`](./index.js) (`@definitions`): Re-exports `*` from `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, `speaking-styles.js`, and `visual-styles.js`.
+- [`index.js`](./index.js) (`@definitions`): Re-exports `*` from `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, `speaking-styles.js`, `styles.js`, and `visual-styles.js`.
 
 ### 2. Dynamics Registry & Physics Rules (`dynamics-registry.js`)
 
@@ -72,9 +72,14 @@
   - `get_premade_characters()`: Returns `PREMADE_CHARACTERS`.
   - `get_premade_fractals()`: Returns `PREMADE_FRACTALS`.
 
+### 8. Style Tile Resolution (`styles.js`)
+
+- [`styles.js`](./styles.js):
+  - `resolve_entity_style_tiles(entity, options = {})`: Maps `entity.narrative_style` (or `entity.narrative_engine`) and `entity.visual_style` (or `entity.visual_engine`) into `{ narrative: StyleTileDescriptor | null, visual: StyleTileDescriptor | null }` (`{ name, portrait, fallback, tooltip, size_tier: "sm" }`), omitting `"default"` and `"none"` unless `options.include_defaults` is `true`.
+
 ## Invariants
 
-- **Barrel Re-Export & Strictly Downward Imports (`index.js`)**: `src/definitions/index.js` re-exports `*` from all 6 definition modules; modules import solely from `@config`, `@utils`, and `@media` (`profile-taxonomy.js`).
+- **Barrel Re-Export & Strictly Downward Imports (`index.js`)**: `src/definitions/index.js` re-exports `*` from all 7 definition modules; modules import solely from `@config`, `@utils`, and `@media` (`profile-taxonomy.js`).
 - **Dynamics Axis & Rule Alignment (`dynamics-registry.js`)**: All 27 `DYNAMICS_RULES` IDs exist in `PHYSICS_PROTOCOLS` and default missing axes to `50` (`?? 50`); `AVAILABLE_KEYWORDS` contains only the 12 somatic archetype keys (3 of which — `ABANDONMENT`, `DOMINANCE`, `DECEPTION` — have no threshold rule in `DYNAMICS_RULES`).
 - **Narrative Style Key & Voice Integrity (`narrative-styles.js`)**: Every entry in `NARRATIVE_STYLES` enforces `key === record.id` and `speaking_style` in `{"casual", "lyrical", "primal", "clinical"}`. `get_style_keywords()` returns fresh array copies; `extract_style_dna()` always returns strings (`internal_ratio` defaults to `"0.50"`).
 - **Symmetric 4-Layer Schema & Merge Semantics (`profile-taxonomy.js`)**: Only `character` and `fractal` temporal layers become `FIELD_ATOMS` (excluding `name`, `description`, `signature_color`, `pov`); `merge` is `"append"` exclusively for `past` and `"replace"` for all other layers. `canonicalize_field_key()` checks `fractal` aliases before `character` aliases when `entity_type === "fractal"` (otherwise checking `character` aliases only) and requires string inputs.
@@ -85,8 +90,9 @@
 ## Side Effects
 
 - **Rule & Word Registry Hydration (`speaking-styles.js`)**: Evaluating `speaking-styles.js` executes three top-level calls (`register_speaking_rules(SPEAKING_STYLE_RULES)`, `register_anti_ai_rules(ANTI_AI_REPLACEMENTS)`, `register_cluster_words(TIER_2_CLUSTER_WORDS)`) that populate registries inside `@utils`.
-- **Pure Definitions Elsewhere**: `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, and `visual-styles.js` perform no external I/O, storage writes, or cross-module mutations.
+- **Pure Definitions Elsewhere**: `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, `styles.js`, and `visual-styles.js` perform no external I/O, storage writes, or cross-module mutations.
 
 ## Verification
 
-- Run: `npx vitest run src/definitions/` (runs all 5 test suites: `narrative-styles.test.js`, `premades.test.js`, `profile-taxonomy.test.js`, `speaking-styles.test.js`, `visual-styles.test.js`)
+- Run full suite: `npm test`
+- Run package unit tests: `npx vitest run src/definitions/` (runs all 5 test suites: `narrative-styles.test.js`, `premades.test.js`, `profile-taxonomy.test.js`, `speaking-styles.test.js`, `visual-styles.test.js`)
