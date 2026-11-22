@@ -1,5 +1,13 @@
 <script>
   /**
+   * @file src/ui/atoms/Slider.svelte
+   * Range slider atom wrapping bits-ui Slider with centered neutral gradient track and optional value tooltip.
+   */
+  import { use_actions } from "@utils";
+  import { Slider } from "bits-ui";
+  import Label from "./Label.svelte";
+
+  /**
    * @typedef {Object} Props
    * @property {number} [value] - Current slider value.
    * @property {number} [min] - Minimum range value.
@@ -8,20 +16,16 @@
    * @property {boolean} [disabled] - Interactive lock state.
    * @property {boolean} [busy] - Async lock state.
    * @property {string} [label] - Descriptive label.
-   * @property {number | null} [neutral] - The 'zero' point for the fill gradient.
-   * @property {(v: number) => string} [format] - Optional custom value formatter function.
-   * @property {any[]} [actions] - Svelte actions orchestration.
+   * @property {number | null} [neutral] - Center origin for the fill gradient.
+   * @property {(v: number) => string} [format] - Value formatter callback.
+   * @property {any[]} [actions] - Svelte actions.
    * @property {string} [class] - External styling.
    * @property {string} [style] - Inline styling.
    * @property {(val: number) => void} [onchange] - Change callback.
    * @property {boolean} [horizontal] - Render in horizontal row layout.
-   * @property {string} [disabled_label] - Override label text when disabled.
-   * @property {boolean} [show_value_tooltip] - Show reactive value tooltip.
+   * @property {string} [disabled_label] - Label suffix when disabled.
+   * @property {boolean} [show_value_tooltip] - Show floating value tooltip.
    */
-
-  import { use_actions } from "@utils";
-  import { Slider } from "bits-ui";
-  import Label from "./Label.svelte";
 
   /** @type {Props} */
   let {
@@ -44,7 +48,6 @@
     ...rest
   } = $props();
 
-  // Logic Calculations for Gradient Track
   const center_val = $derived(neutral ?? (min + max) / 2);
   const val_pct = $derived(((value - min) / (max - min)) * 100);
   const center_pct = $derived(((center_val - min) / (max - min)) * 100);
@@ -52,10 +55,6 @@
   const fill_start = $derived(Math.min(val_pct, center_pct));
   const fill_end = $derived(Math.max(val_pct, center_pct));
 
-  // Thumb is w-4 (16px). bits-ui constrains thumb so its center tracks:
-  // position = calc(pct% * (100% - 16px) / 100% + 8px)
-  // We invert that: css_pct = (pct / 100) * (1 - 16/track_px) * 100 + 8/track_px * 100
-  // Since we can't read track_px reactively, we emit the calc() string directly.
   const fill_start_css = $derived(
     fill_start === 0 ? "0px"
     : fill_start === 100 ? "100%"
@@ -67,14 +66,10 @@
     : `calc(${fill_end} * (100% - 16px) / 100 + 8px)`,
   );
 
-  // Diagnostic identifier
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider");
-
   let is_disabled = $derived(disabled);
 
-  /**
-   * @param {number} val
-   */
+  /** @param {number} val */
   function handle_value_change(val) {
     value = val;
     onchange?.(val);
@@ -108,7 +103,6 @@
     }
   }
 
-  // Tooltip Portal Logic
   let tooltip_pos = $state({ x: 0, y: 0 });
   let thumb_el = $state();
   let tooltip_el = $state();
@@ -125,7 +119,6 @@
   });
 
   $effect(() => {
-    // Reactive dependencies
     value;
     if (show_value_tooltip && (is_hovered || is_active) && thumb_el && tooltip_el) {
       const rect = thumb_el.getBoundingClientRect();
@@ -138,29 +131,13 @@
 <svelte:window onpointerup={handle_pointer_up} />
 
 <div
-  class="
-    group/slider
-    relative
-    flex
-    cursor-pointer
-    {horizontal ? 'flex-1 flex-row items-center justify-between gap-standard py-1' : 'w-full flex-col justify-center gap-tight'}
-
-    {is_disabled || busy ?
-    `
-      opacity-30
-      grayscale
-    `
-  : ''}
-    {busy ?
-    `
-      cursor-wait
-      brightness-90
-      grayscale-50
-
-      *:pointer-events-none
-    `
-  : ''}
-    {className}"
+  class={[
+    "group/slider relative flex cursor-pointer",
+    horizontal ? "flex-1 flex-row items-center justify-between gap-standard py-1" : "w-full flex-col justify-center gap-tight",
+    (is_disabled || busy) && "opacity-30 grayscale",
+    busy && "cursor-wait brightness-90 grayscale-50 *:pointer-events-none",
+    className,
+  ]}
   style="{style}; --state-fill-start: {fill_start_css}; --state-fill-end: {fill_end_css};"
   data-testid={test_id}
   aria-busy={busy}
@@ -176,7 +153,7 @@
     <Label
       for={test_id}
       disabled={is_disabled || busy}
-      class="{horizontal ? '' : 'mt-tight'} w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] {!is_disabled ? 'group-hover/slider:brightness-125' : ''}">
+      class={[!horizontal && "mt-tight", "w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)]", !is_disabled && "group-hover/slider:brightness-125"]}>
       {label}: {busy ? "BUSY..."
       : is_disabled ? disabled_label
       : format(value ?? 1.0)}
@@ -185,63 +162,21 @@
 
   <Slider.Root type="single" {value} onValueChange={handle_value_change} {min} {max} {step} disabled={is_disabled || busy} id={test_id} {...rest}>
     {#snippet child({ props })}
-      <div
-        {...props}
-        class="
-          relative
-          flex
-          h-4
-          {horizontal ? 'flex-1' : 'w-full'}
-          cursor-pointer
-          touch-none
-          items-center
-          select-none
-        ">
+      <div {...props} class={["relative flex h-4 cursor-pointer touch-none items-center select-none", horizontal ? "flex-1" : "w-full"]}>
         <span
-          class="
-            relative
-            h-1
-            w-full
-            rounded-full
-            border-none
-            bg-[linear-gradient(to_right,var(--empty-fill)_0%,var(--empty-fill)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-end),var(--empty-fill)_var(--state-fill-end),var(--empty-fill)_100%)]
-            shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]
-            transition-[filter]
-            duration-300
-            ease-in-out
-
-            group-hover/slider:brightness-125
-          "></span>
+          class="relative h-1 w-full rounded-full border-none bg-[linear-gradient(to_right,var(--empty-fill)_0%,var(--empty-fill)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-end),var(--empty-fill)_var(--state-fill-end),var(--empty-fill)_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-[filter] duration-300 ease-in-out group-hover/slider:brightness-125"
+        ></span>
         <Slider.Thumb index={0}>
           {#snippet child({ props: thumbProps })}
             <span
               bind:this={thumb_el}
               {...thumbProps}
-              class="
-                absolute
-                h-4
-                w-4
-                scale-100
-                cursor-pointer
-                rounded-full
-                border-none
-                transition-[scale,filter,background-color,box-shadow]
-                duration-300
-                ease-in-out
-
-                {is_disabled ?
-                `
-                  bg-[#555d66]
-                  opacity-30
-                  shadow-none
-                `
-              : `
-                  ${value > min ? 'bg-white' : 'bg-slate-50'}
-                  shadow-[0_2px_8px_rgba(0,0,0,0.4)]
-
-                  active:scale-[1.1]
-                `}
-              "
+              class={[
+                "absolute h-4 w-4 scale-100 cursor-pointer rounded-full border-none transition-[scale,filter,background-color,box-shadow] duration-300 ease-in-out",
+                is_disabled ? "bg-[#555d66] opacity-30 shadow-none" : (
+                  [value > min ? "bg-white" : "bg-slate-50", "shadow-[0_2px_8px_rgba(0,0,0,0.4)] active:scale-[1.1]"]
+                ),
+              ]}
               style="{thumbProps.style}; top: 50%; transform: translateY(-50%);">
             </span>
           {/snippet}
@@ -254,20 +189,12 @@
 {#if show_value_tooltip}
   <div
     bind:this={tooltip_el}
-    class="
-      pointer-events-none fixed z-popover
-      mb-standard w-max max-w-100
-      -translate-x-1/2 -translate-y-full
-      rounded-md border border-slate-600 bg-neutral-900/98
-      px-tight py-1.5
-      text-center font-sans text-xs/normal tracking-normal whitespace-normal text-slate-50 normal-case
-      shadow-lg
-      transition-[opacity,transform] duration-fast ease-out
-      {is_hovered || is_active ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}
-    "
+    class={[
+      "pointer-events-none fixed z-popover mb-standard w-max max-w-100 -translate-x-1/2 -translate-y-full rounded-md border border-slate-600 bg-neutral-900/98 px-tight py-1.5 text-center font-sans text-xs/normal tracking-normal whitespace-normal text-slate-50 normal-case shadow-lg transition-[opacity,transform] duration-fast ease-out",
+      is_hovered || is_active ? "scale-100 opacity-100" : "scale-95 opacity-0",
+    ]}
     style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;">
     {is_disabled ? disabled_label : format(value ?? 1.0)}
-    <!-- Down Arrow -->
     <div class="absolute bottom-[-8px] left-1/2 z-0 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-slate-600">
       <div class="absolute bottom-px left-1/2 size-0 -translate-x-1/2 border-x-8 border-t-8 border-x-transparent border-t-neutral-900"></div>
     </div>

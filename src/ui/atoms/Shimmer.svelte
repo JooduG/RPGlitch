@@ -1,14 +1,12 @@
 <script>
   /**
-   * @file src/ui/motion/Shimmer.svelte
-   * ✨ THE SOVEREIGN SHIMMER
-   * Reusable light-sweep kinetic indicator for loading states, ghostwriting,
-   * and modal backgrounds. Uses background-position to remain view-transition safe.
+   * @file src/ui/atoms/Shimmer.svelte
+   * Light-sweep indicator for loading placeholders and busy panels.
    */
 
   /**
    * @typedef {Object} Props
-   * @property {string} [color="var(--color-electric-cyan)"] - The signature or accent color for the sweep.
+   * @property {string} [color="var(--color-electric-cyan)"] - Sweep tint color.
    * @property {string} [class] - Extra CSS classes.
    */
 
@@ -16,7 +14,7 @@
   let { color = "var(--color-electric-cyan)", class: className = "" } = $props();
 </script>
 
-<div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-20 {className}" aria-hidden="true">
+<div class={["pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-20", className]} aria-hidden="true">
   <div
     data-shimmer-sweep
     class="absolute inset-0 h-full w-full"

@@ -1,42 +1,29 @@
 <script>
   /**
-   * @file Dialog.svelte
-   * 🛡️ THE UNIFIED SYSTEM DIALOG
-   * Standardizes Alert and Confirm into a single bits-ui/AlertDialog primitive.
-   * Svelte 5 runes · Fully accessible.
+   * @file src/ui/molecules/Dialog.svelte
+   * Unified alert and confirmation dialog built on bits-ui AlertDialog and @atoms.
    */
   import { overlay_in, overlay_out } from "@media";
-  import Backdrop from "./Backdrop.svelte";
-  import Button from "./Button.svelte";
+  import { Backdrop, Button } from "@atoms";
   import { resolve_ms } from "@utils";
   import { AlertDialog } from "bits-ui";
 
   let {
-    // Data
     title = "System Message",
     message = "",
-    type = "alert", // 'alert' | 'confirm'
-
-    // State
+    type = "alert",
     open = $bindable(false),
     busy = false,
-
-    // Labels
     confirm_label = "Confirm",
     ok_label = "OK",
-
-    // Input support
     input_value = $bindable(""),
     show_input = false,
     input_placeholder = "",
-
-    // Handlers
     on_confirm = () => {},
     on_cancel = () => {},
     footer = null,
   } = $props();
 
-  // Derived action config - single source of truth for the action button
   const action = $derived(
     type === "confirm" ?
       { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
@@ -74,39 +61,15 @@
     <AlertDialog.Overlay forceMount>
       {#snippet child({ props: overlayProps, open: is_open })}
         {#if is_open}
-          <Backdrop {...overlayProps} onclick={handle_cancel} layer="modal" {busy} variant="mini">
+          <Backdrop {...overlayProps} onclick={handle_cancel} layer="modal" {busy}>
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div
                   {...contentProps}
-                  class="
-                    pointer-events-auto
-                    relative
-                    isolate
-                    z-modal
-                    flex
-                    w-(--dialog-width)
-                    cursor-default
-                    flex-col
-                    justify-between
-                    gap-standard
-                    overflow-hidden
-                    rounded-standard
-                    bg-glass-elevated
-                    p-standard
-                    duration-300
-
-                    before:pointer-events-none
-                    before:absolute
-                    before:inset-0
-                    before:-z-10
-                    before:bg-(--noise-url)
-                    before:opacity-10
-                    before:mix-blend-overlay
-
-                    sm:w-[calc(var(--spacing-column-unit)*3)]
-
-                    {busy ? 'pointer-events-none cursor-wait brightness-75 grayscale' : ''}"
+                  class={[
+                    "pointer-events-auto relative isolate z-modal flex w-(--dialog-width) cursor-default flex-col justify-between gap-standard overflow-hidden rounded-standard bg-glass-elevated p-standard duration-300 before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay sm:w-[calc(var(--spacing-column-unit)*3)]",
+                    busy && "pointer-events-none cursor-wait brightness-75 grayscale",
+                  ]}
                   style="
                     --dialog-width: 90vw;
 

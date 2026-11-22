@@ -1,0 +1,92 @@
+<script>
+  /**
+   * @file src/ui/atoms/Toggle.svelte
+   * Switch control atom wrapping bits-ui Switch.Root with built-in label.
+   */
+
+  /**
+   * @typedef {Object} Props
+   * @property {boolean} [value] - Current toggle state.
+   * @property {string} [label] - Optional label text.
+   * @property {"md" | "small"} [size] - Component scale.
+   * @property {boolean} [disabled] - Interactive lock state.
+   * @property {boolean} [busy] - Async lock state.
+   * @property {boolean} [always_signature] - Use signature color background for both states.
+   * @property {any[]} [actions] - Svelte actions.
+   * @property {string} [class] - External styling.
+   * @property {string} [style] - Inline styling.
+   * @property {(checked: boolean) => void} [onchange] - Change callback.
+   */
+
+  import { use_actions } from "@utils";
+  import { Switch } from "bits-ui";
+  import Label from "./Label.svelte";
+
+  /** @type {Props} */
+  let {
+    value = $bindable(false),
+    label = "",
+    size = "md",
+    disabled = false,
+    busy = false,
+    always_signature = false,
+    actions = [],
+    class: className = "",
+    style = "",
+    onchange = undefined,
+    ...rest
+  } = $props();
+
+  const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);
+  let is_disabled = $derived(disabled);
+</script>
+
+<div
+  class={[
+    "group/toggle relative inline-flex cursor-pointer items-center gap-standard transition-opacity duration-300 ease-in-out select-none",
+    (is_disabled || busy) && "cursor-default! opacity-30",
+    busy && "cursor-wait! brightness-90 grayscale-50 *:pointer-events-none",
+    className,
+  ]}
+  aria-busy={busy}
+  aria-disabled={is_disabled || busy}
+  {style}
+  use:use_actions={actions}>
+  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={(checked) => onchange?.(checked)} id={test_id} {...rest}>
+    {#snippet child({ props })}
+      <button
+        {...props}
+        aria-label={label || rest["aria-label"] || undefined}
+        class={[
+          "group relative box-border shrink-0 cursor-pointer rounded-full backdrop-blur-sm transition-[background-color,box-shadow,filter,transform] duration-fast ease-out group-hover/toggle:brightness-125 focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-slate-600 active:scale-sink disabled:cursor-default data-disabled:cursor-default data-[state=checked]:group-hover/toggle:brightness-125",
+          always_signature ? "bg-(--signature-color,#555d66)" : (
+            "border border-white/10 bg-neutral-900/60 data-[state=checked]:border-transparent data-[state=checked]:bg-(--signature-color,#555d66)"
+          ),
+          size === "small" ? "h-4 w-7" : "h-6 w-10",
+        ]}
+        data-testid={test_id}>
+        <Switch.Thumb>
+          {#snippet child({ props: thumbProps })}
+            <span
+              {...thumbProps}
+              class={[
+                "absolute rounded-full bg-slate-50 transition-[transform,background-color,filter] duration-300 ease-out group-data-[state=checked]:bg-white group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)] hover:brightness-125 active:scale-[1.1]",
+                size === "small" ?
+                  "top-0.5 left-0.5 size-3 group-data-[state=checked]:translate-x-3"
+                : "top-[4px] left-[4px] size-4 group-data-[state=checked]:translate-x-4",
+              ]}></span>
+          {/snippet}
+        </Switch.Thumb>
+      </button>
+    {/snippet}
+  </Switch.Root>
+
+  {#if label}
+    <Label
+      for={test_id}
+      disabled={is_disabled || busy}
+      class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125">
+      {label}
+    </Label>
+  {/if}
+</div>

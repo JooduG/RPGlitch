@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/DevGrid.svelte
+   * @file src/ui/atoms/LayoutGrid.svelte
    * 12x12 diagnostic grid overlay for layout verification.
    */
   let { view = "storyboard" } = $props();

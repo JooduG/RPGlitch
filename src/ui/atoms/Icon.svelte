@@ -1,7 +1,7 @@
 <script>
   /**
-   * @file src/ui/primitives/Icon.svelte
-   * Minimalist 24x24 stroke icon primitive & central icon registry.
+   * @file src/ui/atoms/Icon.svelte
+   * Minimalist 24x24 stroke icon atom and central icon registry.
    */
 
   const ICONS = {
@@ -63,7 +63,7 @@
   /**
    * @typedef {Object} Props
    * @property {keyof typeof ICONS} [name="past"] - Icon identifier
-   * @property {string} [class] - Additional CSS classes (e.g. size-icon-small)
+   * @property {string} [class] - Additional CSS classes
    * @property {string} [style] - Optional inline style
    */
 

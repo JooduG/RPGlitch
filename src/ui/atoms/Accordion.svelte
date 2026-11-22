@@ -1,9 +1,7 @@
 <script>
   /**
-   * @file src/ui/primitives/Accordion.svelte
-   * 📂 ACCORDION ATOM
-   * Collapsible section with ARIA support via bits-ui Collapsible.
-   * Uses the grid-rows animation trick for smooth height transitions.
+   * @file src/ui/atoms/Accordion.svelte
+   * Collapsible section atom with ARIA support via bits-ui Collapsible.
    */
   import { Collapsible } from "bits-ui";
 
@@ -14,25 +12,25 @@
    * @property {boolean} [default_open] - Uncontrolled initial open state.
    * @property {boolean} [disabled] - Disable toggling.
    * @property {string} [class] - External class on the root.
-   * @property {string} [content_class] - External class on the content wrapper (for layout).
-   * @property {Snippet} [children] - Section content.
+   * @property {string} [content_class] - External class on the content wrapper.
+   * @property {import("svelte").Snippet} [children] - Section content.
    */
 
   /** @type {Props} */
   let { label = "", open = $bindable(false), default_open = false, disabled = false, class: className = "", content_class = "", children } = $props();
 </script>
 
-<Collapsible.Root bind:open {default_open} {disabled} class="w-full {className}">
+<Collapsible.Root bind:open {default_open} {disabled} class={["w-full", className]}>
   <Collapsible.Trigger
     class="group flex w-full cursor-pointer items-center justify-between py-tight text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
     <span>{label}</span>
-    <span class="opacity-50 transition-transform {open ? 'rotate-180' : ''}">▼</span>
+    <span class={["opacity-50 transition-transform", open && "rotate-180"]}>▼</span>
   </Collapsible.Trigger>
   <Collapsible.Content forceMount>
     {#snippet child({ props })}
-      <div {...props} class="grid min-h-0 w-full transition-[grid-template-rows] duration-300 ease-in-out {open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
+      <div {...props} class={["grid min-h-0 w-full transition-[grid-template-rows] duration-300 ease-in-out", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"]}>
         <div class="min-h-0 overflow-hidden">
-          <div class="pt-tight pb-standard {content_class}">
+          <div class={["pt-tight pb-standard", content_class]}>
             {@render children?.()}
           </div>
         </div>

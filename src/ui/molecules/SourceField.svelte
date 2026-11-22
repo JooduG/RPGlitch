@@ -1,30 +1,17 @@
 <script>
   /**
-   * @file SourceField.svelte
-   * ⬇️ UNIFIED INGESTION FIELD
-   * One field that accepts every entity source: dropped files (.json / .png cards,
-   * images), pasted URLs, and raw prose - no tabs, no modes. Auto-detection decides
-   * the path; everything funnels into `value` (the text) + `image_data` (the avatar).
-   *
-   * `mode="image"` narrows it to portraits: every source is treated as an image
-   * (drop, paste, browse, URL fetch) and the result is reported via
-   * `on_source({kind:"image", data_url})`.
-   *
-   * The heavy lifting is delegated: URLs go through @utils web-fetch, PNG
-   * card decoding through an optional `decode_png_card` prop, file/image reading
-   * through @utils `blob_to_data_url`. This component only routes sources.
+   * @file src/ui/molecules/SourceField.svelte
+   * Multi-source ingestion molecule accepting dropped files, pasted URLs, and raw prose.
    */
-  import Button from "./Button.svelte";
-  import Icon from "./Icon.svelte";
+  import { Button, Icon, tooltip } from "@atoms";
   import TextField from "./TextField.svelte";
-  import { tooltip } from "./Tooltip.svelte";
   import { blob_to_data_url, fetch_web, validate_image } from "@utils";
 
   let {
     value = $bindable(""),
     image_data = $bindable(null),
     type = "character",
-    mode = "import", // "import" | "image"
+    mode = "import",
     disabled = false,
     busy = false,
     is_edit = true,
@@ -44,11 +31,9 @@
   let is_fetching = $state(false);
   let fetched_from = $state("");
   let fetched_text = $state("");
-
-  /** Drag-over highlight for the field's drop surface. */
   let is_dragging = $state(false);
-  const dropzone_disabled = $derived(is_fetching || disabled);
 
+  const dropzone_disabled = $derived(is_fetching || disabled);
   const is_image_mode = $derived(mode === "image");
   const is_url = $derived(/^https?:\/\//i.test(value.trim()));
   const is_image_url = $derived(/\.(png|jpe?g|webp|gif|avif|svg)([?#].*)?$/i.test(value.trim()));
@@ -61,7 +46,6 @@
   });
 
   /**
-   * Validates an image file and reads it into a data URL.
    * @param {File} file
    * @returns {Promise<string | null>}
    */
@@ -71,7 +55,6 @@
   }
 
   /**
-   * Fetches an image URL through fetch_web (superFetch-backed, CORS-free) as a data URL.
    * @param {string} url
    * @returns {Promise<string>}
    */
@@ -80,11 +63,6 @@
     return data_url;
   }
 
-  /**
-   * Fetches the URL currently in the field. In image mode every URL is a portrait
-   * fetch; in import mode image URLs become the avatar and everything else is
-   * replaced with clean readable text for the sorter.
-   */
   async function fetch_url() {
     const url = value.trim();
     if (!url || is_fetching) return;
@@ -118,12 +96,7 @@
     }
   }
 
-  /**
-   * Routes a dropped/selected file. Image mode: any image becomes the portrait.
-   * Import mode: .json cards load as text, .png chara cards extract their embedded
-   * prompt AND their image, plain images attach as the avatar.
-   * @param {File} file
-   */
+  /** @param {File} file */
   async function process_file(file) {
     if (!file) return;
     try {
@@ -161,12 +134,7 @@
     }
   }
 
-  /**
-   * Intercepts pastes: clipboard files are routed to process_file, and a URL pasted
-   * into an empty field fetches immediately (one paste = one import source). In
-   * image mode any pasted URL fetches immediately.
-   * @param {ClipboardEvent} e
-   */
+  /** @param {ClipboardEvent} e */
   function handle_paste(e) {
     const file = e.clipboardData?.files?.[0];
     if (file) {
@@ -194,9 +162,10 @@
     input.type = "file";
     input.accept = is_image_mode ? "image/png,image/jpeg,image/webp,image/gif,image/avif" : ".json,.png,.jpg,.jpeg,.webp,.txt";
     input.onchange = (e) => {
-      const file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+      const target = /** @type {HTMLInputElement} */ (e.target);
+      const file = target.files?.[0];
       if (file) process_file(file);
-      e.target.value = "";
+      target.value = "";
     };
     input.click();
   }
@@ -220,17 +189,11 @@
   </div>
 {/snippet}
 
-<div class="flex flex-col {has_footer ? 'gap-tight' : ''}">
+<div class={["flex flex-col", has_footer && "gap-tight"]}>
   <div
     role="group"
     aria-label={is_image_mode ? "Drop an image to set the portrait" : "Drop a file here"}
-    class="
-      rounded-xl
-      transition
-      duration-200
-      {is_dragging ? 'ring-2 ring-(--signature-color)/70' : ''}
-      {dropzone_disabled ? 'pointer-events-none opacity-60' : ''}
-    "
+    class={["rounded-xl transition duration-200", is_dragging && "ring-2 ring-(--signature-color)/70", dropzone_disabled && "pointer-events-none opacity-60"]}
     ondragover={(e) => {
       if (dropzone_disabled) return;
       e.preventDefault();

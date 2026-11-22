@@ -1,31 +1,27 @@
 <script>
   /**
-   * @file src/ui/profile/VisualWing.svelte
-   * ❄️ THE ENTITY SHOWCASE ENGINE
-   * Manages signature colors, generation prompts, and image modifiers.
-   * Part of the RPGlitch UI.
+   * @file src/ui/organisms/VisualWing.svelte
+   * Signature color, diffusion style, prompt authoring, and portrait generation wing for Profile.
    */
   import { VISUAL_STYLES } from "@definitions";
   import { refine_image_prompt } from "@engine";
   import { visual_engine } from "@media";
   import { get_signature_label, PALETTE, PALETTE_CSS_VARIABLES, SIGNATURE_COLORS } from "@utils";
-  import { Button, Dropdown, Icon, Label, SourceField, TextField, Toggle, tooltip } from "@primitives";
+  import { Button, Icon, Label, Toggle, tooltip } from "@atoms";
+  import { Dropdown, SourceField, TextField } from "@molecules";
   import { app } from "@state";
   import { extract_aesthetic_traits, sanitize_visual_text } from "@simulation";
 
   /**
    * @typedef {Object} Props
-   * @property {import('./Profile.svelte.js').ProfileState} profile_state - The profile state controller
+   * @property {ProfileController} profile_state - Profile state controller
    */
 
   /** @type {Props} */
   let { profile_state } = $props();
 
-  // --- CONSTANTS ---
-
   /**
-   * Returns the HSL hue (0–360) for a hex color.
-   * Achromatic colors (neutrals) return 361 so they sort to the end.
+   * Returns the HSL hue (0-360) for a hex color; neutrals sort last.
    * @param {string} hex
    */
   function hex_hue(hex) {
@@ -48,11 +44,6 @@
     .filter(([name]) => SIGNATURE_COLORS.includes(name))
     .sort(([, a], [, b]) => hex_hue(a) - hex_hue(b));
 
-  // --- INITIALIZATION ---
-
-  /**
-   * Ensures the modifiers object exists with all required fields.
-   */
   const sync_modifiers = () => {
     if (!profile_state.char) return;
     if (!profile_state.char.modifiers) {
@@ -71,19 +62,12 @@
   sync_modifiers();
   $effect(sync_modifiers);
 
-  // --- DERIVED ---
-
   const current_label = $derived(get_signature_label(profile_state.char));
-
   let generate_error = $state("");
 
   const is_prompt_busy = $derived(profile_state.busy_fields.has("generating-image") || profile_state.busy_fields.has("visual-prompt"));
-
   const prompt_value = $derived((profile_state.char?.modifiers?.prompt || "").trim());
-
-  /** True when the prompt is freeform text (not a URL or data URI). */
   const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"));
-
   const is_creative_disabled = $derived(!profile_state.is_editing || is_prompt_busy);
 
   const visual_style_options = Object.values(VISUAL_STYLES)
@@ -94,12 +78,6 @@
     })
     .map((style) => ({ value: style.id, label: style.name, portrait: style.portrait, tag: style.description, tooltip: `${style.name}: ${style.description}` }));
 
-  // --- HANDLERS ---
-
-  /**
-   * Triggers AI envision refinement for the visual prompt field, or extracts optics metadata
-   * when no prompt text is present.
-   */
   async function handle_creative_action() {
     if (profile_state.busy_fields.has("visual-prompt")) return;
     profile_state.busy_fields.add("visual-prompt");
@@ -111,13 +89,9 @@
       } else if (has_prompt_text) {
         const result = await refine_image_prompt(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char, app.settings?.visual_style);
         if (result) {
-          // Rescue prose out of any JSON-shaped leftovers (older builds could
-          // persist raw blobs) and strip template-significant braces - the
-          // image plugin evaluates `{...}` / `[...]` as Perchance syntax.
           const positive = sanitize_visual_text(result.prompt || "").trim();
           const negative = sanitize_visual_text(result.negative_prompt || "").trim();
 
-          // Guard against persisting prefill or internal thought markers as prompt
           if (!positive || positive.includes("_thought_process") || positive.trimStart().startsWith('{"_thought_process')) {
             console.warn("Envision returned no usable prose - draft kept");
           } else {
@@ -134,10 +108,6 @@
     }
   }
 
-  /**
-   * Triggers AI image generation for the current prompt. URL-fetch and upload
-   * routes now live in the SourceField portrait field, so this is generation only.
-   */
   async function handle_generate() {
     if (profile_state.busy_fields.has("visual-prompt")) return;
     if (!has_prompt_text) return;
@@ -148,9 +118,6 @@
     console.info(`[VisualWing] Painting... Prompt: ${prompt_value}`);
 
     try {
-      // Profile pictures follow the entity's nature: fractals are scenes
-      // (landscape tier), characters are portraits (solo tier). A hardcoded
-      // solo_entity tier rendered every fractal profile at portrait ratio.
       const mode = profile_state.char?.type === "fractal" ? "story_scene" : "solo_entity";
       const payload = await visual_engine.generate(prompt_value, {
         mode,
@@ -179,11 +146,7 @@
     }
   }
 
-  /**
-   * Handles ingestion results from the portrait SourceField: images become the
-   * entity portrait (persisted), failures surface in the console log.
-   * @param {{kind: string, data_url?: string, url?: string, name?: string, message?: string}} info
-   */
+  /** @param {{kind: string, data_url?: string, url?: string, name?: string, message?: string}} info */
   function handle_source_field(info) {
     if (info.kind === "image" && info.data_url) {
       profile_state.setImage(info.data_url);
@@ -193,66 +156,28 @@
     }
   }
 
-  /**
-   * Prevents default behavior to maintain active focus states.
-   * @param {MouseEvent} e
-   */
+  /** @param {MouseEvent} e */
   function prevent_default(e) {
     e.preventDefault();
   }
 </script>
 
 <section
-  class="
-  flex w-full
-  flex-col
-  gap-tight
-  rounded-standard
-  bg-glass-elevated
-  p-standard
-  [backdrop-filter:var(--blur-mist)]
-"
+  class="flex w-full flex-col gap-tight rounded-standard bg-glass-elevated p-standard [backdrop-filter:var(--blur-mist)]"
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
   style:--signature-color="var(--color-frozen)">
   <div class="flex flex-col gap-tight">
     <Label>Signature Color</Label>
 
-    <div
-      class="
-      isolate
-      grid
-    grid-cols-5
-    gap-tight
-  ">
+    <div class="isolate grid grid-cols-5 gap-tight">
       {#each SPECTRUM_COLORS as [name, hex] (name)}
         {@const color = PALETTE_CSS_VARIABLES[/** @type {keyof typeof PALETTE_CSS_VARIABLES} */ (hex)] || hex}
         <div
-          class="
-          relative
-          aspect-square
-          w-full
-          rounded-xl
-          shadow-ghost
-          transition-shadow
-          duration-fast
-          ease-out
-          has-not-disabled:hover:z-20
-          has-not-disabled:hover:shadow-standard
-          has-not-disabled:hover:brightness-125
-          has-not-disabled:active:scale-sink
-          {current_label === name ?
-            `
-            z-20
-            scale-[1.1]
-            cursor-default
-            [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--color-swatch-active)]
-            outline-[calc(var(--spacing-pixel)*3)]
-            outline-offset-[calc(var(--spacing-pixel)*2)]
-            outline-white
-            brightness-110
-            outline-solid
-          `
-          : ''}"
+          class={[
+            "relative aspect-square w-full rounded-xl shadow-ghost transition-shadow duration-fast ease-out has-not-disabled:hover:z-20 has-not-disabled:hover:shadow-standard has-not-disabled:hover:brightness-125 has-not-disabled:active:scale-sink",
+            current_label === name &&
+              "z-20 scale-[1.1] cursor-default [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--color-swatch-active)] outline-[calc(var(--spacing-pixel)*3)] outline-offset-[calc(var(--spacing-pixel)*2)] outline-white brightness-110 outline-solid",
+          ]}
           style="--color-swatch-active: {color}; background-color: var(--color-swatch-active);">
           <Button
             square={true}
@@ -317,33 +242,9 @@
       <div class="flex items-center gap-tight">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
         {#if generate_error}
-          <div
-            class="
-              flex
-              items-center
-              gap-tight
-              rounded-full
-              border
-              border-red-500/15
-              bg-red-500/15
-              p-tight
-              text-red-500"
-            data-loading={is_prompt_busy}>
-            <div
-              class="
-              box-border
-              flex
-              items-center
-              gap-tight
-            ">
-              <span
-                class="
-                  font-mono
-                  text-[0.625rem]
-                  tracking-widest
-                  text-inherit
-                  uppercase
-                ">ERROR</span>
+          <div class="flex items-center gap-tight rounded-full border border-red-500/15 bg-red-500/15 p-tight text-red-500" data-loading={is_prompt_busy}>
+            <div class="box-border flex items-center gap-tight">
+              <span class="font-mono text-[0.625rem] tracking-widest text-inherit uppercase">ERROR</span>
               <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{generate_error}</span>
             </div>
           </div>
@@ -353,12 +254,7 @@
 
     {#snippet header_actions()}
       {#if profile_state.is_editing}
-        <div
-          class="
-          flex
-          items-center
-          gap-tight
-        ">
+        <div class="flex items-center gap-tight">
           <Button
             variant="invisible"
             size="small"
@@ -408,7 +304,6 @@
   </TextField>
 
   <div class="flex items-center justify-between gap-tight">
-    <!-- Left: Toggles -->
     <div class="flex flex-col gap-tight">
       <Toggle
         label="Flip Image"

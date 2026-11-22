@@ -1,26 +1,22 @@
 <script>
   /**
-   * @file Typewriter.svelte
-   * 📝 UNIFIED KINETIC TEXT ENGINE
-   * Combines HTML token-safe parsing with multi-word cycling phase loops.
+   * @file src/ui/atoms/Typewriter.svelte
+   * HTML-tag-safe typewriter reveal atom with multi-phrase cycling support.
    */
   import { untrack } from "svelte";
   import { motion, Audio } from "@media";
+  import { sanitize } from "@utils";
 
-  // Fast check for Unicode surrogate pairs (e.g. emojis)
   const SURROGATE_PAIR_REGEX = /[\uD800-\uDFFF]/;
 
-  // --- PROP MATRIX BOUNDARIES ---
   let {
     target_html = "",
-
-    // Core parameters
     text = "",
     words = null,
     class: className = "",
-    type_speed = null, // ms per char (null falls back to smart engine pacing)
-    delete_speed = null, // ms per char (null falls back to fast engine reverse)
-    delay = 0, // Delay before initial phrase entry begins
+    type_speed = null,
+    delete_speed = null,
+    delay = 0,
     pause_delay = 1000,
     loop = false,
     as = "div",
@@ -30,19 +26,12 @@
     is_finished = $bindable(false),
   } = $props();
 
-  let _is_finished = $state(is_finished);
-  $effect(() => {
-    is_finished = _is_finished;
-  });
-
-  // --- UNIFIED REACTIVE TRACKERS ---
   let current_char_index = $state(0);
   let current_word_index = $state(0);
   let phase = $state("typing"); // 'typing' | 'pause' | 'deleting'
   let pause_accumulator = $state(0);
   let initial_delay_elapsed = $state(0);
 
-  // Normalize all input sources into a single array stream dependency
   const words_to_animate = $derived.by(() => {
     if (words && words.length > 0) return words;
     if (text) return [text];
@@ -51,12 +40,9 @@
   });
 
   const has_multiple_words = $derived(words_to_animate.length > 1);
-  const current_word_html = $derived(words_to_animate[current_word_index] ?? "");
+  const current_word_html = $derived(sanitize(words_to_animate[current_word_index] ?? ""));
 
-  /**
-   * Parse active text input stream into structural tag/text tokens.
-   * Protects code layout from fracturing mid-way through formatting strings.
-   */
+  /** Parse sanitized markup into structural tag and plain-text tokens. */
   const token_buffer = $derived.by(() => {
     const tokens = [];
     const regex = /(<[^>]+>|[^<]+)/g;
@@ -74,10 +60,16 @@
     return tokens;
   });
 
-  // Count text-only characters inside active token allocation frame
   const total_length = $derived(token_buffer.reduce((acc, t) => acc + (t.type === "text" ? t.length : 0), 0));
 
-  // Reconstruct structural markup up to current plain-text length limits
+  const cursor_glyph = $derived.by(() => {
+    if (cursor_style === "block") return "▌";
+    if (cursor_style === "underscore") return "_";
+    return "|";
+  });
+
+  const should_show_cursor = $derived(show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length));
+
   const sliced_html = $derived.by(() => {
     let output = "";
     let text_count = 0;
@@ -129,10 +121,8 @@
         `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--transition-duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`
       : "";
 
-    // Insert cursor before closing open tags so it renders inline with the active paragraph
     output += cursor_html;
 
-    // Auto-close any unclosed tags to guarantee layout safety frames
     for (let i = open_tags.length - 1; i >= 0; i--) {
       output += `</${open_tags[i]}>`;
     }
@@ -140,29 +130,16 @@
     return output;
   });
 
-  // Determine active cursor element style representation
-  const cursor_glyph = $derived.by(() => {
-    if (cursor_style === "block") return "▌";
-    if (cursor_style === "underscore") return "_";
-    return "|";
-  });
-
-  // Secondary evaluation to show trailing typing pointers
-  const should_show_cursor = $derived(show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length));
-
-  // Compute delta progress increments across execution phases
   const active_speed = $derived.by(() => {
     if (phase === "typing") {
       if (type_speed !== null && type_speed > 0) return 1 / type_speed;
 
-      // Inherited smart-acceleration matrix for chat streams
       const remaining = total_length - current_char_index;
-      let base_speed = 0.02; // Default typing speed
-      if (remaining > 300)
-        base_speed = 0.3; // Catching up (fast forward)
+      let base_speed = 0.02;
+      if (remaining > 300) base_speed = 0.3;
       else if (remaining > 150) base_speed = 0.15;
       else if (remaining > 50) base_speed = 0.08;
-      else if (remaining < 15) base_speed = 0.01; // Almost caught up to stream (slow down)
+      else if (remaining < 15) base_speed = 0.01;
 
       const intensity = motion.is_reduced ? 0 : motion.intensity;
       const voice_rate_factor = Audio.voice.enabled && Audio.voice.is_speaking ? Audio.voice.rate : 1.0;
@@ -177,7 +154,7 @@
     return 0;
   });
 
-  // Raw state caches to prevent Svelte 5 derived_inert warnings inside async callbacks
+  // Raw state caches prevent Svelte 5 derived_inert warnings inside the interval callback.
   let words_to_animate_raw = $state([]);
   let has_multiple_words_raw = $state(false);
   let total_length_raw = $state(0);
@@ -191,7 +168,6 @@
   });
 
   $effect(() => {
-    // When text or length changes mid-stream (e.g. detox_prose replacements), clamp index safely without resetting to 0
     if (current_char_index > total_length) {
       current_char_index = total_length;
     }
@@ -199,21 +175,19 @@
 
   let is_mounted = true;
 
-  // High-frequency physics interval loop processing frame updates
   $effect(() => {
     let last_time = performance.now();
 
     const interval_id = setInterval(() => {
       untrack(() => {
         if (!is_mounted) return;
-        const words = words_to_animate_raw;
-        if (words.length === 0) return;
+        const words_list = words_to_animate_raw;
+        if (words_list.length === 0) return;
 
         const now = performance.now();
         const elapsed = now - last_time;
         last_time = now;
 
-        // Handle the initial start delay prop safely before writing characters
         if (current_char_index === 0 && phase === "typing" && delay > 0 && initial_delay_elapsed < delay) {
           initial_delay_elapsed += elapsed;
           return;
@@ -222,9 +196,9 @@
         if (phase === "typing") {
           if (current_char_index < total_length_raw) {
             current_char_index = Math.min(total_length_raw, current_char_index + elapsed * active_speed_raw);
-            if (_is_finished) _is_finished = false;
+            if (is_finished) is_finished = false;
           } else {
-            if (!_is_finished && !has_multiple_words_raw && !loop) _is_finished = true;
+            if (!is_finished && !has_multiple_words_raw && !loop) is_finished = true;
             if (has_multiple_words_raw || loop) {
               phase = "pause";
               pause_accumulator = 0;
@@ -232,17 +206,15 @@
           }
         } else if (phase === "pause") {
           pause_accumulator += elapsed;
-          if (pause_accumulator >= pause_delay) {
-            if (has_multiple_words_raw || loop) {
-              phase = "deleting";
-            }
+          if (pause_accumulator >= pause_delay && (has_multiple_words_raw || loop)) {
+            phase = "deleting";
           }
         } else if (phase === "deleting") {
           if (current_char_index > 0) {
             current_char_index = Math.max(0, current_char_index - elapsed * active_speed_raw);
           } else {
             const next_index = current_word_index + 1;
-            if (next_index >= words.length) {
+            if (next_index >= words_list.length) {
               if (loop) {
                 current_word_index = 0;
                 phase = "typing";
@@ -263,13 +235,7 @@
   });
 </script>
 
-<svelte:element
-  this={as}
-  class="
-    font-[inherit]
-    {as === 'span' ? 'inline-block' : 'block'}
-    {className}"
-  style="content-visibility: auto;">
+<svelte:element this={as} class={["font-[inherit]", as === "span" ? "inline-block" : "block", className]} style="content-visibility: auto;">
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html sliced_html}
 </svelte:element>

@@ -1,4 +1,8 @@
 <script>
+  /**
+   * @file src/ui/atoms/Label.svelte
+   * Accessible label atom wrapping bits-ui Label.Root with dropdown trigger forwarding.
+   */
   import { Label } from "bits-ui";
 
   let { class: className = "", disabled = false, children, onclick, ...rest } = $props();
@@ -7,15 +11,13 @@
     if (rest.for) {
       const target = document.getElementById(rest.for);
 
-      // If the target is a dropdown trigger, clicking the label usually only focuses it natively.
-      // We want it to open! We exclude switches since native label clicks handle them perfectly.
+      // Clicking a label tied to a dropdown trigger opens it rather than only focusing.
+      // Switches handle native label clicks directly.
       if (target && target.tagName === "BUTTON" && target.getAttribute("role") !== "switch") {
         e.preventDefault();
-        // Headless UI libraries (like bits-ui / radix) often listen to `pointerdown`
-        // to open dropdowns to avoid focus stealing, so `target.click()` is ignored.
         requestAnimationFrame(() => {
           target.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
-          target.click(); // Fallback for standard buttons
+          target.click();
         });
       }
     }
@@ -24,9 +26,11 @@
 </script>
 
 <Label.Root
-  class="flex w-full items-center gap-standard {disabled ? 'cursor-default' : (
-    'cursor-pointer'
-  )} text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase {className}"
+  class={[
+    "flex w-full items-center gap-standard text-left text-[10px] font-bold tracking-widest text-slate-400 uppercase",
+    disabled ? "cursor-default" : "cursor-pointer",
+    className,
+  ]}
   onclick={handleClick}
   {...rest}>
   {@render children?.()}
