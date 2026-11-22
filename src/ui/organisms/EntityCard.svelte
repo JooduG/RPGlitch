@@ -242,7 +242,7 @@
     overflow-visible
     border
     border-(--signature-color)
-    bg-chalk/95
+    bg-gunmetal/25
     shadow-standard
     transition
     duration-standard
@@ -429,7 +429,7 @@
       justify-end
       overflow-hidden
       rounded-b-[inherit]
-      {has_brackets || incoming_only ? '' : 'bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent'}
+      {has_brackets || incoming_only ? '' : 'bg-linear-to-t from-black/75 via-black/55 via-45% to-transparent'}
       text-center
       transition-opacity
       duration-300
