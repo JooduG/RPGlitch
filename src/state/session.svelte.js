@@ -107,6 +107,36 @@ export class SessionStore {
   /** @type {Record<string, any>} */
   #story_by_id = $state({});
 
+  // --- MEMOIZED ENTITY COLLECTIONS ---
+  #known_entities = $derived.by(() => {
+    return [
+      this.active_ai,
+      this.active_user,
+      this.active_fractal,
+      ...Object.values(this.active_npcs || {}),
+      ...(app.ai_list || []),
+      ...(app.user_list || []),
+      ...(app.fractal_list || []),
+    ].filter(Boolean);
+  });
+
+  #display_entities = $derived.by(() => {
+    return {
+      AI: this.active_ai || app.selected_ai,
+      USER: this.active_user || app.selected_user,
+      FRACTAL: this.active_fractal || (app.selected_fractal?.id !== "active_fractal" ? app.selected_fractal : null),
+      ALL: this.#known_entities,
+    };
+  });
+
+  get known_entities() {
+    return this.#known_entities;
+  }
+
+  get display_entities() {
+    return this.#display_entities;
+  }
+
   // --- REACTIVE SIMULATION FEED ---
   /** @type {LogEntry[]} */
   feed = $state([]);

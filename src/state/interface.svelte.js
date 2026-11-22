@@ -70,6 +70,9 @@ export class InterfaceStore {
   /** Entity IDs currently claimed by active (non-concluded) stories. */
   claimed_entity_ids = new SvelteSet();
 
+  /** User draft input bound to Console composer textarea across views and ghostwriting. */
+  composer_draft = $state("");
+
   /** @type {CardHandState} */
   card_hand = $state({ open: false, type: null, regenerate_count: 0 });
 

@@ -9,6 +9,7 @@ import {
   resolve_px,
   resolve_string,
   safe_html,
+  on_dismiss_outside,
 } from "./dom.js";
 import * as html_utils from "./html.js";
 
@@ -142,5 +143,36 @@ describe("safe_html action", () => {
 
     action.update(null);
     expect(html_utils.sanitize_to_fragment).toHaveBeenCalledWith("");
+  });
+});
+
+describe("on_dismiss_outside", () => {
+  it("triggers dismissal when gesture is outside", () => {
+    const on_dismiss = vi.fn();
+    const should_ignore = vi.fn(() => false);
+    const teardown = on_dismiss_outside(should_ignore, on_dismiss);
+
+    const outside_event = new PointerEvent("pointerdown", { bubbles: true });
+    window.dispatchEvent(outside_event);
+    expect(should_ignore).toHaveBeenCalledWith(outside_event);
+    expect(on_dismiss).toHaveBeenCalledTimes(1);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(on_dismiss).toHaveBeenCalledTimes(2);
+
+    teardown();
+    window.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    expect(on_dismiss).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not trigger when should_ignore returns true", () => {
+    const on_dismiss = vi.fn();
+    const should_ignore = vi.fn(() => true);
+    const teardown = on_dismiss_outside(should_ignore, on_dismiss);
+
+    window.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    expect(on_dismiss).not.toHaveBeenCalled();
+
+    teardown();
   });
 });

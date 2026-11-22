@@ -432,6 +432,7 @@ export function is_empty_narrative_message(text, { attachments = [], meta = {} }
     (!attachments || attachments.length === 0) &&
     !meta?.is_prologue &&
     !meta?.is_epilogue &&
+    !meta?.is_prologue_image &&
     !is_telemetry_meta(meta)
   );
 }

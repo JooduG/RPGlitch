@@ -276,10 +276,21 @@ export async function sweep_stale_ghosts(ctx) {
           const requested_at = Number(attachment.metadata?.requested_at) || entry.created_at || 0;
           const is_stale = now - requested_at > TIMING_MS.CEILING;
           const is_empty_text = !entry.text || !entry.text.trim();
+          const is_prologue_image = entry.meta?.is_prologue_image === true;
 
           if (is_empty_text && (is_failed || is_stale)) {
-            await ctx.session?.delete_entry(entry.id);
-            ctx.session?.remove?.(entry.id);
+            if (is_prologue_image) {
+              // Preserve failed prologue scene image row so user can retry or remove manually
+              if (!is_failed) {
+                await ctx.session?.update_attachment(entry.id, attachment_index, {
+                  src: null,
+                  metadata: { ...(attachment.metadata || {}), failed: true, image_ghost_swept: true, error: "Prologue image timed out." },
+                });
+              }
+            } else {
+              await ctx.session?.delete_entry(entry.id);
+              ctx.session?.remove?.(entry.id);
+            }
           } else if (is_stale && !is_failed) {
             await ctx.session?.update_attachment(entry.id, attachment_index, {
               src: null,
