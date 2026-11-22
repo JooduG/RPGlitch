@@ -585,7 +585,7 @@
       bg-glass-elevated
       shadow-2xl
       shadow-black/50 [backdrop-filter:var(--blur-mist)]
-      transition-[height,max-height]
+      transition-[height,min-height,max-height,width,max-width]
       duration-500
       ease-in-out
       md:max-h-[calc(var(--spacing-row-unit)*9)]
