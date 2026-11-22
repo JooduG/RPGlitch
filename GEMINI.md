@@ -34,7 +34,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 
 - **Rank Topology (Strictly Downward)**:
   1. `src/main.js`, `src/App.svelte` (Shell)
-  2. `src/ui/*` (`@ui` views) -> `src/ui/organisms/` (`@organisms`) -> `src/ui/molecules/` (`@molecules`) -> `src/ui/atoms/` (`@atoms`, restricted to `@config`, `@utils`, `@media`) (Rank 5)
+  2. `src/ui/*` (`@ui` views) -> `src/ui/organisms/` (`@organisms`) -> `src/ui/molecules/` (`@molecules`, stateless presentation/input widgets; domain-aware but decoupled from `@state`/`@engine`/`@data`) -> `src/ui/atoms/` (`@atoms`, domain-agnostic leaves restricted to `@config`, `@utils`, `@media`) (Rank 5)
   3. `src/engine/` (`@engine`: `chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`) (Rank 4)
   4. `src/state/` (`@state`: `session.svelte.js`, `execution.svelte.js`, `interface.svelte.js`) (Rank 3)
   5. `src/data/` (`@data`) & `src/media/` (`@media`) — mutually isolated peer leaves (Rank 2)

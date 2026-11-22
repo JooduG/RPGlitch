@@ -99,3 +99,9 @@
 - **Trigger**: Rendering `[KEY: value]` telemetry rows (`ChatBubble.svelte`), standalone portalled `ContextMenu.svelte` headers/items, or `Console.svelte` generation action buttons.
 - **Wrong Behavior**: Using `use:safe_html={render_telemetry_text(...)}` for bracket values (strips `@ENTITY` signature colors and `<MacroText />` hover/profile links); rendering `ContextMenu` headers as `text-xs uppercase` smaller than `text-xs font-semibold` items inside `max-w-60` (truncating `"Generate AI Character Image"`); or showing `warning_fill` ("Unstick Simulation") during normal non-streaming `execution.loading` turns.
 - **Correct Behavior**: Render telemetry bracket values with `<MacroText text={item.value} entities={display_entities} />`, give `ContextMenu` headers natural-case `text-sm font-bold` above `text-xs font-medium` items with `max-w-72`, and route all active generations (`execution.stream.active || execution.loading`) to `Interrupt Generation`, reserving `warning_fill` strictly for `is_locked`.
+
+## Pitfall 17: UI Organisms Importing from `@ui` Views (Occurrences: 1)
+
+- **Trigger**: Relocating a component from `src/ui/` into `src/ui/organisms/` while retaining imports from `@ui` (or sibling stage views).
+- **Wrong Behavior**: Importing view-level singletons or controllers (e.g. `import { storyboard } from "@ui"`) inside `@organisms`, violating `rank5-organisms-downward` in `graphit.architecture.json`.
+- **Correct Behavior**: Pass view/controller actions and state down into the organism via props/callbacks from `App.svelte` (e.g. `<Console on_shuffle={() => storyboard.shuffle()} />`), preserving the strictly downward Rank 5 hierarchy.
