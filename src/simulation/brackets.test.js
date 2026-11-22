@@ -10,6 +10,7 @@ import {
   format_relational_vector,
   format_tagged_fields,
   has_bracket_bond,
+  parse_relationship_brackets,
   parse_relational_vector,
   parse_tagged_fields,
   safe_parse_pseudo_json,
@@ -347,5 +348,15 @@ describe("extract_entity_relationships & has_bracket_bond", () => {
     const fractal = { id: "nova", name: "Nova City", present: { physical: "[STAGE: @ORION is busting out some moves]" } };
     expect(has_bracket_bond(fractal, { id: "orion", name: "Orion" })).toBe(true);
     expect(has_bracket_bond(fractal, { id: "silvers", name: "Silvers" })).toBe(false);
+  });
+
+  it("parse_relationship_brackets parses quadrant links and extracts display flags", () => {
+    const links = { present: ["[BOND: @TARGET loyal | show]", "[SECRET: @TARGET rival | hide]"], eternal: ["[PACT: Blood oath]"] };
+    const items = parse_relationship_brackets(links);
+    expect(items).toEqual([
+      { key: "BOND", value: "@TARGET loyal", is_hidden: false, quadrant: "present" },
+      { key: "SECRET", value: "@TARGET rival", is_hidden: true, quadrant: "present" },
+      { key: "PACT", value: "Blood oath", is_hidden: false, quadrant: "eternal" },
+    ]);
   });
 });

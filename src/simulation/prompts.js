@@ -946,6 +946,23 @@ export function get_resolution(mode) {
 }
 
 /**
+ * Resolves standard resolution dimensions from an entity/item or fallback mode.
+ * @param {Record<string, any> | string | null | undefined} item
+ * @param {string} [fallback_mode="character"]
+ * @returns {{ width: number, height: number }}
+ */
+export function resolve_image_resolution(item, fallback_mode = "character") {
+  if (typeof item === "string" && item.trim()) {
+    return get_resolution(item);
+  }
+  if (item && typeof item === "object") {
+    const candidate_mode = item.mode || item.tier || item.type || item.image_tier || fallback_mode;
+    return get_resolution(candidate_mode);
+  }
+  return get_resolution(fallback_mode);
+}
+
+/**
  * Resolves standard render resolution string "WIDTHxHEIGHT" for a tier mode or alias.
  * @param {string | null | undefined} mode
  * @returns {string} E.g., "512x768", "768x512", "768x768"

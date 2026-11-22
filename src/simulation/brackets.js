@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { collapse_whitespace, create_relational_context, parse_macros, truncate_at_word } from "@utils";
+import { collapse_whitespace, create_relational_context, parse_bracket_display_flags, parse_macros, truncate_at_word } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
 /**
@@ -1008,4 +1008,45 @@ export function derive_vector_title(text, max_len = 38) {
   const cleaned = collapse_whitespace(text.replace(/^["'“”«»]+|["'“”«»]+$/g, ""));
   if (!cleaned) return "";
   return truncate_at_word(cleaned, max_len, { min_bound_chars: 15, strip_trailing_punctuation: true });
+}
+
+/**
+ * Parses structured relationship links across quadrants into unified bracket items.
+ *
+ * @param {Array<Record<string, any>> | Record<string, any>} links_list
+ * @param {boolean} [force_hidden=false]
+ * @returns {Array<{ key: string, value: string, is_hidden: boolean, quadrant: string }>}
+ */
+export function parse_relationship_brackets(links_list, force_hidden = false) {
+  const items = [];
+  const seen = new Set();
+  const list = Array.isArray(links_list) ? links_list : [links_list];
+
+  for (const links of list) {
+    if (!links || typeof links !== "object") continue;
+    for (const [quadrant, bucket] of [
+      ["present", links.present],
+      ["eternal", links.eternal],
+      ["past", links.past],
+      ["future", links.future],
+    ]) {
+      if (!Array.isArray(bucket)) continue;
+      for (const raw_entry of bucket) {
+        const text = String(raw_entry || "").trim();
+        if (!text) continue;
+        const match = text.match(/^\[([^:\]]+):([\s\S]*)\]$/);
+        const key = match ? match[1].trim() : "BOND";
+        const raw_val = match ? match[2].trim() : text;
+        const { value: parsed_val, is_hidden: flag_hidden } = parse_bracket_display_flags(raw_val);
+        const is_hidden = force_hidden || flag_hidden || /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val);
+        const value = parsed_val.replace(/^[→—=>:-]+\s*/, "").trim();
+        if (!value) continue;
+        const dedupe_key = `${quadrant}:${key.toUpperCase()}:${value}`;
+        if (seen.has(dedupe_key)) continue;
+        seen.add(dedupe_key);
+        items.push({ key, value, is_hidden, quadrant });
+      }
+    }
+  }
+  return items;
 }

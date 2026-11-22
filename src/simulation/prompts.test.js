@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compile_prompt, PURPOSE_CORES, resolve_portrait_visual_style_key, verify_compiled_prompt } from "./prompts.js";
+import { compile_prompt, PURPOSE_CORES, resolve_image_resolution, resolve_portrait_visual_style_key, verify_compiled_prompt } from "./prompts.js";
 
 describe("compile_prompt", () => {
   const entities = {
@@ -59,5 +59,11 @@ describe("purpose cores + portrait", () => {
   });
   it("portrait resolver is pure (entity + explicit app value)", () => {
     expect(resolve_portrait_visual_style_key({ visual_style: "x" }, null)).toBe("none");
+  });
+
+  it("resolve_image_resolution resolves dimensions across objects, strings, and fallbacks", () => {
+    expect(resolve_image_resolution("story_scene")).toEqual({ width: 768, height: 512 });
+    expect(resolve_image_resolution({ mode: "solo_entity" })).toEqual({ width: 512, height: 768 });
+    expect(resolve_image_resolution(null, "story_scene")).toEqual({ width: 768, height: 512 });
   });
 });
