@@ -7,7 +7,7 @@
   import { Dialog } from "bits-ui";
 
   let {
-    busy = null,
+    busy = false,
     blur = true,
     is_pass_through = false,
     dismissible = true,
@@ -21,46 +21,30 @@
     ...rest
   } = $props();
 
-  let is_busy = $derived(busy !== null ? busy : false);
-
-  $effect(() => {
-    if (!open && dismissible) {
-      on_close();
-    }
-  });
+  function dismiss() {
+    if (!open || !dismissible) return;
+    open = false;
+    on_close();
+  }
 </script>
 
 <Dialog.Root
   {open}
-  onOpenChange={(v) => {
-    if (!v && dismissible) on_close();
+  onOpenChange={(next) => {
+    if (!next) dismiss();
   }}
   preventScroll={false}>
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
         {#if open}
-          <Backdrop
-            {...overlayProps}
-            onclick={() => {
-              if (dismissible) {
-                on_close();
-              }
-            }}
-            {layer}
-            {animate}
-            is_blurred={blur}
-            busy={is_busy}
-            {is_pass_through}
-            {actions}>
+          <Backdrop {...overlayProps} onclick={dismiss} {layer} {animate} is_blurred={blur} busy={Boolean(busy)} {is_pass_through} {actions}>
             <Dialog.Content
               {...rest}
               forceMount
               interactOutsideBehavior="ignore"
               escapeKeydownBehavior={dismissible ? "close" : "ignore"}
-              onOpenAutoFocus={(e) => {
-                e.preventDefault();
-              }}
+              onOpenAutoFocus={(e) => e.preventDefault()}
               class={className ? ["pointer-events-auto", className] : "pointer-events-none contents [&>*:not(.pointer-events-none)]:pointer-events-auto"}>
               {@render children?.()}
             </Dialog.Content>

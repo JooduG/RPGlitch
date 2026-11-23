@@ -11,14 +11,6 @@
   const segments = $derived(segment ? [segment] : resolve_display_macro_segments(String(text ?? ""), owner, entities));
   const color_of = (seg) => (seg.entity ? get_signature_color(seg.entity, fallback_color) : fallback_color);
 
-  function open_handle_profile(e, target_entity) {
-    e.stopPropagation();
-    hide_tooltip();
-    if (typeof on_select === "function") {
-      on_select(target_entity);
-    }
-  }
-
   function open_handle_menu(e, target_entity, fallback_text = "") {
     e.preventDefault();
     e.stopPropagation();
@@ -33,10 +25,14 @@
         <button
           type="button"
           use:tooltip={{ preview: { entity: seg.entity }, text: seg.entity.name || seg.text }}
-          onclick={(e) => open_handle_profile(e, seg.entity)}
+          onclick={(e) => {
+            e.stopPropagation();
+            hide_tooltip();
+            on_select(seg.entity);
+          }}
           oncontextmenu={(e) => open_handle_menu(e, seg.entity, seg.text)}
           class="inline cursor-pointer type-data font-semibold hover:underline focus:outline-hidden"
-          style="color: {color_of(seg)};">{seg.text}</button>
+          style:color={color_of(seg)}>{seg.text}</button>
       {:else}
         <span
           role="button"
@@ -44,10 +40,10 @@
           use:tooltip={{ preview: { entity: seg.entity }, text: seg.entity.name || seg.text }}
           oncontextmenu={(e) => open_handle_menu(e, seg.entity, seg.text)}
           class="inline type-data font-semibold"
-          style="color: {color_of(seg)};">{seg.text}</span>
+          style:color={color_of(seg)}>{seg.text}</span>
       {/if}
     {:else}
-      <span class={seg.text.startsWith("@") ? "type-data font-semibold" : undefined} style="color: {color_of(seg)};">{seg.text}</span>
+      <span class={seg.text.startsWith("@") ? "type-data font-semibold" : undefined} style:color={color_of(seg)}>{seg.text}</span>
     {/if}
   {:else}
     {seg.text}
