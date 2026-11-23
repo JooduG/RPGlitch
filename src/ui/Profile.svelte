@@ -548,6 +548,7 @@
               data-testid="profile-header"
               role="banner">
               <div class="w-full min-w-0 shrink-0">
+                <!-- ignore-next-line -->
                 <h1
                   class={["text-[clamp(3rem,7vw,6rem)] leading-[1.1] text-balance", entity_type === "fractal" ? "text-left" : "text-right"]}
                   style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));">
@@ -593,7 +594,6 @@
                     p-standard
                     text-left
                     type-body
-                    text-sm
                     [text-wrap:auto]
                     text-frisk
                     outline-none
@@ -620,7 +620,6 @@
                   rounded-md
                   type-body
                   {entity_type === 'fractal' ? 'text-left' : 'text-right'}
-                  text-sm
                   text-balance
                   whitespace-pre-wrap
                   text-slate-200
@@ -647,7 +646,7 @@
                         matchWidth={false} />
                     </div>
                   {:else}
-                    <span class="cursor-default type-body text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
+                    <span class="cursor-default type-body text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
                       {active_style.name}
                     </span>
                   {/if}
@@ -969,7 +968,7 @@
               {#snippet status()}
                 {#if field.label}
                   <span
-                    class="block max-w-full truncate type-interact text-xs whitespace-nowrap text-pure-white opacity-80 {field.description ? 'cursor-help' : (
+                    class="block max-w-full truncate type-interact whitespace-nowrap text-pure-white opacity-80 {field.description ? 'cursor-help' : (
                       'cursor-default'
                     )}"
                     use:tooltip

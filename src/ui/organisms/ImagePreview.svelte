@@ -145,8 +145,7 @@
     {/if}
 
     {#if preview_state.caption && !preview_state.metadata}
-      <div
-        class="z-10 mt-standard max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-frisk shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+      <div class="z-10 mt-standard max-w-[80%] rounded bg-black/30 text-center type-body text-frisk shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
         {preview_state.caption}
       </div>
     {/if}
@@ -260,7 +259,7 @@
             onchange={handle_use_as_profile}
             class="col-span-2 row-start-3 h-12! w-full!">
             {#snippet trigger_content()}
-              <span class="flex w-full items-center justify-center gap-tight truncate text-[0.8125rem] font-semibold">
+              <span class="flex w-full items-center justify-center gap-tight truncate type-interact">
                 <Icon name="character" class="size-4 shrink-0" />
                 <span class="truncate">Use as Profile Picture</span>
                 <Icon name="chevron_down" class="size-4 shrink-0 opacity-60" />
@@ -340,7 +339,7 @@
           </div>
           <!-- Polaroid label area -->
           <div class="absolute right-0 bottom-0 left-0 flex h-10 items-center justify-center">
-            <span class="type-uppercase-label text-xl text-neutral-800">{letter}</span>
+            <span class="type-uppercase-label text-neutral-800">{letter}</span>
           </div>
         </Button>
       {/each}
@@ -348,7 +347,7 @@
 
     {#if image_picker.selected_index === null}
       <div class="flex flex-wrap items-center justify-center gap-tight" in:fade={{ duration: motion.is_reduced ? 0 : 300 }}>
-        <span class="type-uppercase-label text-sm text-slate-400">Choose One or</span>
+        <span class="type-uppercase-label text-slate-400">Choose One or</span>
         <Button
           variant="bare"
           class="flex items-center gap-tight rounded-lg bg-white/10 px-standard py-tight font-bold text-pure-white transition-colors duration-200 hover:bg-white/20"
@@ -360,7 +359,7 @@
     {/if}
   {:else}
     <div class="flex flex-col items-center gap-standard" in:fade={{ duration: motion.is_reduced ? 0 : 200 }}>
-      <p class="type-uppercase-label text-sm text-slate-500">No pictures available</p>
+      <p class="type-uppercase-label text-slate-500">No pictures available</p>
       <Button variant="bare" class="rounded-lg bg-white/10 px-6 py-tight font-bold text-white transition-colors hover:bg-white/20" onclick={close_regenerate}>
         Close
       </Button>

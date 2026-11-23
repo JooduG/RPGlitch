@@ -84,7 +84,7 @@
 
       <input
         type="number"
-        class="meter-input w-10 [appearance:textfield] bg-transparent py-1 text-center type-data text-base text-frisk outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        class="meter-input w-10 [appearance:textfield] bg-transparent py-1 text-center type-data text-frisk outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         value={clamped_value}
         oninput={handle_input}
         {min}
@@ -95,7 +95,7 @@
         <Icon name="plus" class="size-icon-small" />
       </Button>
     {:else}
-      <span class="meter-value py-1 type-data text-base text-frisk">
+      <span class="meter-value py-1 type-data text-frisk">
         {clamped_value}{unit}
       </span>
     {/if}

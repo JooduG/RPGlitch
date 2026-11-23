@@ -343,7 +343,7 @@
       onclick={handle_primary_storyboard_click}
       actions={[pulse]}>
       <h6
-        class="text-base font-semibold tracking-[0.08em] whitespace-nowrap transition duration-standard {ready_to_begin ?
+        class="whitespace-nowrap transition duration-standard {ready_to_begin ?
           'text-emerald-green [text-shadow:0_0_0.5rem_color-mix(in_srgb,var(--color-emerald-green)_25%,transparent)] group-hover:scale-105 group-hover:brightness-125'
         : 'text-slate-300'}">
         {label_text}

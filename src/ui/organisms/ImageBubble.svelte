@@ -125,13 +125,13 @@
           style={container_style}>
           <Icon name="warning" class="size-8 text-red-400/80" />
           <p class="text-center text-xs font-medium text-red-300">Image generation failed</p>
-          <p class="text-center text-[10px] text-red-400/70">The image service timed out. Retry or remove.</p>
+          <p class="text-center type-data text-red-400/70">The image service timed out. Retry or remove.</p>
           <div class="flex items-center gap-tight">
             {#if preview_options.on_regenerate}
               <Button
                 variant="bare"
                 onclick={preview_options.on_regenerate}
-                class="rounded-md border border-red-400/40 bg-red-950/40 px-3 py-1 text-[11px] font-medium text-red-200 transition-colors hover:border-red-300/70 hover:text-white">
+                class="rounded-md border border-red-400/40 bg-red-950/40 px-3 py-1 type-interact text-red-200 transition-colors hover:border-red-300/70 hover:text-white">
                 Retry
               </Button>
             {/if}

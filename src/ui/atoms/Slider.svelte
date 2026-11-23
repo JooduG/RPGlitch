@@ -190,7 +190,7 @@
   <div
     bind:this={tooltip_el}
     class={[
-      "pointer-events-none fixed z-popover mb-standard w-max max-w-100 -translate-x-1/2 -translate-y-full rounded-sharp border border-gunmetal bg-chalk/95 px-tight py-1.5 text-center type-interact text-xs whitespace-normal text-frisk shadow-standard transition-[opacity,transform] duration-fast ease-out",
+      "pointer-events-none fixed z-popover mb-standard w-max max-w-100 -translate-x-1/2 -translate-y-full rounded-sharp border border-gunmetal bg-chalk/95 px-tight py-1.5 text-center type-interact whitespace-normal text-frisk shadow-standard transition-[opacity,transform] duration-fast ease-out",
       is_hovered || is_active ? "scale-100 opacity-100" : "scale-95 opacity-0",
     ]}
     style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;">

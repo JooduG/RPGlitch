@@ -27,6 +27,7 @@
 </script>
 
 {#snippet fallback_initials()}
+  <!-- ignore-next-line -->
   <div
     data-card-text
     class={[

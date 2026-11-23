@@ -461,7 +461,7 @@
       <Accordion label="Thoughts">
         {#if show_director_split}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-sm text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
+            class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="mb-tight border-l-2 border-cyan-400 bg-cyan-400/10 px-tight py-1 text-cyan-200">
               <div class="think-block-container contents" use:safe_html={director_think_html}></div>
             </div>
@@ -471,7 +471,7 @@
           </div>
         {:else}
           <div
-            class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-sm text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
+            class="terminal-box max-h-75 overflow-y-auto p-standard type-data text-pretty text-[#f2f7fa] [&_.think-block-container]:font-mono! [&_.think-block-container_*]:font-mono! [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard">
             <div class="think-block-container contents" use:safe_html={think_block}></div>
           </div>
         {/if}

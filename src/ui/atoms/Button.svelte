@@ -79,7 +79,7 @@
   type="button"
   class={[
     variant !== "bare" && [
-      "pointer-events-auto inline-flex cursor-pointer items-center justify-center gap-tight rounded-xl border border-solid border-transparent type-interact font-bold text-pure-white no-underline shadow-sm shadow-black/20 select-none focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-white active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:shadow-none disabled:grayscale data-[kinetic=true]:active:scale-100 [&_.icon]:pointer-events-none",
+      "pointer-events-auto inline-flex cursor-pointer items-center justify-center gap-tight rounded-xl border border-solid border-transparent type-interact text-pure-white no-underline shadow-sm shadow-black/20 select-none focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-white active:scale-sink disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:shadow-none disabled:grayscale data-[kinetic=true]:active:scale-100 [&_.icon]:pointer-events-none",
       !cover && "relative",
       height_class,
       width_class,
@@ -93,7 +93,6 @@
     variant === "danger" && "bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125",
     variant === "invisible" && "bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125",
     variant === "bare" && "border-none bg-transparent p-0 outline-none",
-    size === "small" && variant !== "bare" && "text-xs",
     square && variant !== "bare" && "aspect-square shrink-0",
     full_width && !square && variant !== "bare" && "flex-1",
     cover && variant !== "bare" && "absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!",

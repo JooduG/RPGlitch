@@ -192,8 +192,7 @@
             {/if}
           {/if}
         </div>
-        <span
-          class={["text-left type-body", compact ? ["text-xs", compact_clamp_class] : "text-sm", item.is_hidden ? "text-frisk/55 italic" : "text-frisk/90"]}>
+        <span class={["text-left type-body", compact && compact_clamp_class, item.is_hidden ? "text-frisk/55 italic" : "text-frisk/90"]}>
           {@render RenderFormattedValue(item.value)}
         </span>
       </div>
@@ -206,13 +205,13 @@
     {#if part.is_var}
       <span
         class="mx-0.5 inline-flex flex-wrap items-center gap-tight rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 type-data text-slate-300">
-        <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
+        <span class="mr-0.5 type-data text-(--signature-color) opacity-70">⌥</span>
         {#each part.choices as choiceNodes, idx (idx)}
           <span class="inline-flex items-center">
             {@render RenderChoiceNodes(choiceNodes)}
           </span>
           {#if idx < part.choices.length - 1}
-            <span class="mx-0.5 text-[9px] text-(--signature-color)/40">/</span>
+            <span class="mx-0.5 type-data text-(--signature-color)/40">/</span>
           {/if}
         {/each}
       </span>

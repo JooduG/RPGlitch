@@ -296,7 +296,7 @@
           <Button
             variant="bare"
             class={[
-              "flex min-h-9 w-full! shrink-0 cursor-pointer items-center justify-start gap-tight rounded-none px-standard py-2 text-left type-interact text-xs transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
+              "flex min-h-9 w-full! shrink-0 cursor-pointer items-center justify-start gap-tight rounded-none px-standard py-2 text-left type-interact transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
               item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
               : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
               : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",

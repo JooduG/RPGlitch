@@ -471,7 +471,7 @@
         <h5
           data-card-text
           class={[
-            "line-clamp-3 w-full text-center text-lg leading-[1.375] wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]",
+            "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_1px_3px_var(--color-background-gradient-1),0_2px_6px_var(--color-background-gradient-1)]",
             is_empty && "text-frisk opacity-60 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
           ]}>
           {is_empty ? role_label || "Create New" : entity?.name || name}
@@ -480,7 +480,7 @@
         <h3
           data-card-text
           class={[
-            "line-clamp-3 w-full text-center text-[1.5rem] leading-[1.375] wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]",
+            "line-clamp-3 w-full text-center wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]",
             is_empty && "text-frisk opacity-60 transition-opacity duration-standard ease-in-out group-hover/card:opacity-100",
           ]}>
           {is_empty ? role_label || "Create New" : entity?.name || name}
@@ -506,7 +506,7 @@
           [backdrop-filter:var(--blur-mist)]
         ">
         <span class="type-uppercase-label text-(--signature-color,var(--color-dev-accent))"> Unidirectional Relation </span>
-        <p class="type-body text-xs text-balance text-frisk">
+        <p class="type-body text-balance text-frisk">
           This connection originates exclusively from <span class="font-semibold text-frisk">{entity?.name || name}</span>'s profile. Open their profile to
           inspect.
         </p>
@@ -526,9 +526,7 @@
         data-card-text
         class={[
           "type-body wrap-break-word whitespace-normal text-frisk transition-opacity duration-standard ease-in-out [text-shadow:0_1px_3px_rgb(from_var(--color-background-gradient-1)_r_g_b/0.8)]",
-          variant === "library" && description_override ?
-            "mt-0.5 line-clamp-2 max-h-9 text-xs opacity-90"
-          : "mt-tight line-clamp-3 max-h-18 text-sm opacity-80",
+          variant === "library" && description_override ? "mt-0.5 line-clamp-2 max-h-9 opacity-90" : "mt-tight line-clamp-3 max-h-18 opacity-80",
           (variant === "library" || variant === "message") && !description_override && "m-0 max-h-0 opacity-0",
         ]}>
         {#if description_override}

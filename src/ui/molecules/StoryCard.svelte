@@ -107,8 +107,8 @@
     <span
       class={[
         "type-data",
-        story.state === "concluded" ? "font-bold text-amber-400"
-        : active ? "font-bold text-(--signature-color)"
+        story.state === "concluded" ? "text-amber-400"
+        : active ? "text-(--signature-color)"
         : "text-frisk",
       ]}>
       {format_datetime(story.last_played)}{#if story.state === "concluded"}
