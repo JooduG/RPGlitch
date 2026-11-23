@@ -4,6 +4,7 @@
  * (hardening, theme tokens, seed premades, session sync, auto-resume, mount).
  */
 import "@media/design.css";
+import "@media/perchance-shield.css";
 import App from "@/App.svelte";
 import { save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
 import { Audio, sweep_stale_ghosts } from "@media";

@@ -3,7 +3,6 @@
    * @file src/ui/Profile.svelte
    * Entity profile modal orchestrating viewing, editing, time-travel inspection, and auxiliary wings.
    */
-  import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
   import { serialize_character_card, serialize_entity_for_export } from "@data";
   import {
     NARRATIVE_STYLES,
@@ -15,13 +14,14 @@
     resolve_entity_style_tiles,
   } from "@definitions";
   import { motion } from "@media";
-  import { BracketList, Dialog, Dropdown, MacroText, Modal, TextField } from "@molecules";
-  import { AudioWing, DevWing, RelationalGraph, VisualWing } from "@organisms";
   import { safe_parse_pseudo_json } from "@simulation";
   import { app, execution, session } from "@state";
   import { auto_resize, download_json_file, entity_avatar_props, get_signature_color, to_style_dropdown_items } from "@utils";
-  import { fade } from "svelte/transition";
+  import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
+  import { BracketList, Dialog, Dropdown, MacroText, Modal, TextField } from "@molecules";
+  import { AudioWing, DevWing, RelationalGraph, VisualWing } from "@organisms";
   import { ProfileState } from "./Profile.svelte.js";
+  import { fade } from "svelte/transition";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -294,7 +294,7 @@
   };
 
   const get_ai_action_btn_class = (fieldKey) => {
-    let cls = "text-slate-400 transition duration-200 hover:text-(--signature-color) ";
+    let cls = "text-white/70 transition duration-200 hover:text-white ";
     cls += profile_state.active_field?.key === fieldKey ? "opacity-100" : "opacity-0 group-data-[expanded=true]/textfield:opacity-100";
     return cls;
   };
@@ -552,7 +552,8 @@
                 <!-- normalize shield: h1 font-size/margin MUST be inline — platform normalize.css v3 (unlayered h1{font-size:2em;margin:.67em 0}) beats all layered Tailwind (see check-typography.mjs rule 1 carve-out) -->
                 <h1
                   class={["text-[clamp(3rem,7vw,6rem)] leading-[1.1] text-balance", entity_type === "fractal" ? "text-left" : "text-right"]}
-                  style="/* stylelint-disable-line property-disallowed-list */ color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4)); font-size: clamp(3rem, 7vw, 6rem); margin: 0;">
+                  style="/* stylelint-disable-next-line property-disallowed-list */
+                  color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4)); font-size: clamp(3rem, 7vw, 6rem); margin: 0;">
                   {#if profile_state.is_editing}
                     <span class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">
                       <input

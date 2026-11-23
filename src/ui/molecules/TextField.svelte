@@ -203,7 +203,7 @@
       {/if}
       <div class="ml-auto flex h-full shrink-0 items-center gap-tight">
         {#if is_edit}
-          <div class="mr-tight flex items-center gap-0.5" in:fade={{ duration: motion.is_reduced ? 0 : 150 }}>
+          <div class={["mr-tight flex items-center gap-0.5", !can_undo && !can_redo && "invisible"]} in:fade={{ duration: motion.is_reduced ? 0 : 150 }}>
             <Button
               variant="invisible"
               size="small"
@@ -213,8 +213,8 @@
               tooltip="Undo (Ctrl+Z)"
               disabled={!can_undo || is_disabled}
               onclick={undo}
-              class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20">
-              <Icon name="undo" class="size-3.5" />
+              class="h-5! w-5! rounded p-0.5! text-white/70 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-40">
+              <Icon name="undo" class="size-4" />
             </Button>
             <Button
               variant="invisible"
@@ -225,8 +225,8 @@
               tooltip="Redo (Ctrl+Y)"
               disabled={!can_redo || is_disabled}
               onclick={redo}
-              class="h-5! w-5! rounded p-0.5! text-slate-400 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20">
-              <Icon name="redo" class="size-3.5" />
+              class="h-5! w-5! rounded p-0.5! text-white/70 transition duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-40">
+              <Icon name="redo" class="size-4" />
             </Button>
           </div>
         {/if}

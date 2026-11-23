@@ -1,0 +1,21 @@
+/**
+ * @file src/media/perchance-shield.css
+ * Perchance normalize shield — this file MUST stay unlayered (no @layer).
+ * The platform injects normalize.css v3 unlayered ahead of the app bundle, so
+ * its h1{font-size:2em;margin:.67em 0} and button,select{text-transform:none}
+ * beat every layered Tailwind rule on the same property (vite dev has no
+ * normalize, which is why these render larger/correct locally and shrink or
+ * de-case on Perchance). This file re-asserts the value-free half of that
+ * fight for all current and future elements. Per-element h1 font-size still
+ * MUST be delivered inline (the values genuinely differ per title — see the
+ * normalize-shield comments in StoryboardTitle.svelte and Profile.svelte).
+ * Imported in main.js AFTER design.css so it wins ties by document order.
+ */
+h1[class] {
+  margin: 0;
+}
+
+button[class*="type-uppercase-label"],
+select[class*="type-uppercase-label"] {
+  text-transform: uppercase;
+}
