@@ -141,7 +141,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
 
     let result = raw_engine(engine_arguments);
     if (result && typeof result.then === "function") {
-      result = await result;
+      result = await with_attempt_timeout(result);
     }
 
     const image_url = typeof result === "string" ? result : result?.dataUrl || result?.url || result?.imageUrl || result?.image_url || result?.image;
@@ -378,6 +378,31 @@ export class VisualEngine {
 }
 
 export const visual_engine = new VisualEngine();
+
+/**
+ * Runs one plugin attempt against the ceiling timeout. A hung plugin promise
+ * previously wedged the manual image path forever (no timeout around the
+ * engine call); now it fails visibly so the retryer/breaker and the caller's
+ * failed-placeholder marking can engage.
+ * @template T
+ * @param {Promise<T>} pending
+ * @returns {Promise<T>}
+ */
+function with_attempt_timeout(pending) {
+  let timer;
+  const timeout = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      try {
+        if (pending && typeof pending.stop === "function") pending.stop();
+      } catch {
+        /* best-effort cancellation */
+      }
+      if (pending && typeof pending.then === "function") pending.then(null, () => {});
+      reject(new Error("IMAGE_ATTEMPT_TIMEOUT: Engine did not settle in time."));
+    }, TIMING_MS.CEILING);
+  });
+  return Promise.race([pending, timeout]).finally(() => clearTimeout(timer));
+}
 
 /**
  * Runs a promise against the ceiling timeout and clears the timer on settlement.

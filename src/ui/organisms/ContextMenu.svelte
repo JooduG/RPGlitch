@@ -5,7 +5,7 @@
    * and embedded 3D card-back preview mode.
    */
   import { set_tooltip_suppressed } from "@atoms";
-  import { capture_story_image, ghostwrite_user_draft, run_mock } from "@engine";
+  import { capture_story_image, run_mock } from "@engine";
   import { Audio } from "@media";
   import { app, execution } from "@state";
   import { open_image_preview } from "./ImagePreview.svelte.js";
@@ -157,7 +157,7 @@
           },
         });
         items.push({ separator: true });
-        items.push({ label: "Ghostwrite", onSelect: () => ghostwrite_user_draft(), disabled: execution.busy });
+        items.push({ label: "Ghostwrite", onSelect: () => app.request_ghostwrite(), disabled: execution.busy });
       }
 
       if (app.settings.dev_mode) {
