@@ -28,7 +28,6 @@
   } = $props();
 
   const selected_item = $derived(items.find((item) => item.value === value));
-  const computed_height = $derived(dropdownHeight || `max-h-[min(70dvh,calc(${rows}*3.25rem))]`);
   const computed_height_css = $derived(dropdownHeight || `min(70dvh, calc(${rows} * 3.25rem))`);
 
   let is_open = $derived.by(() => {
@@ -86,34 +85,31 @@
             data-dropdown-menu
             class={[
               "flex flex-col overflow-hidden rounded-xl border border-solid border-transparent bg-(--signature-color,#555d66) shadow-[0_4px_16px_rgba(0,0,0,0.3)]",
-              computed_height,
               dropdownWidth ? dropdownWidth
               : matchWidth ? "w-(--bits-select-anchor-width)"
               : "w-[calc(var(--bits-select-anchor-width)+3.5rem)]",
             ]}
             transition:scale={{ duration: motion.is_reduced ? 0 : 150, start: 0.95, opacity: 0 }}>
-            <Select.Viewport class="overflow-hidden p-0">
-              <div class="scrollbar-none [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
-                {#each items as item (item.value)}
-                  <Select.Item
-                    class="flex w-full cursor-pointer items-center justify-between gap-standard bg-(--signature-color,#555d66) px-3 py-tight text-left type-interact text-frisk transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out outline-none select-none focus:outline-none active:scale-sink aria-selected:brightness-110 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-30 data-disabled:grayscale data-highlighted:text-pure-white data-highlighted:brightness-125 data-[selected=true]:brightness-110 data-[state=checked]:brightness-110"
-                    value={item.value}
-                    label={item.label}
-                    disabled={item.disabled}>
-                    {#if item.portrait}
-                      <img src={item.portrait} alt="" class="size-6 shrink-0 rounded object-cover shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+            <Select.Viewport class="scrollbar-none overflow-y-auto p-0 [&::-webkit-scrollbar]:hidden" style={`max-height: ${computed_height_css};`}>
+              {#each items as item (item.value)}
+                <Select.Item
+                  class="flex w-full cursor-pointer items-center justify-between gap-standard bg-(--signature-color,#555d66) px-3 py-tight text-left type-interact text-frisk transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out outline-none select-none focus:outline-none active:scale-sink aria-selected:brightness-110 data-disabled:pointer-events-none data-disabled:cursor-not-allowed data-disabled:opacity-30 data-disabled:grayscale data-highlighted:text-pure-white data-highlighted:brightness-125 data-[selected=true]:brightness-110 data-[state=checked]:brightness-110"
+                  value={item.value}
+                  label={item.label}
+                  disabled={item.disabled}>
+                  {#if item.portrait}
+                    <img src={item.portrait} alt="" class="size-6 shrink-0 rounded object-cover shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                  {/if}
+                  <span
+                    use:tooltip={item.tooltip ? { text: item.tooltip, placement: "left" } : undefined}
+                    class={["flex-1 truncate", uppercase && "uppercase"]}>
+                    {item.label}
+                    {#if item.region || item.tag}
+                      <span class="opacity-50"> - {item.region || item.tag}</span>
                     {/if}
-                    <span
-                      use:tooltip={item.tooltip ? { text: item.tooltip, placement: "left" } : undefined}
-                      class={["flex-1 truncate", uppercase && "uppercase"]}>
-                      {item.label}
-                      {#if item.region || item.tag}
-                        <span class="opacity-50"> - {item.region || item.tag}</span>
-                      {/if}
-                    </span>
-                  </Select.Item>
-                {/each}
-              </div>
+                  </span>
+                </Select.Item>
+              {/each}
             </Select.Viewport>
           </div>
         </div>
