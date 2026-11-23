@@ -88,9 +88,9 @@
     !is_flank &&
       variant !== "bare" &&
       "transition-[background-color,color,box-shadow,transform,filter,border-color] duration-fast ease-out data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]",
-    variant === "primary" && "bg-slate-600 hover:brightness-125",
-    variant === "secondary" && "bg-(--signature-color) text-white hover:brightness-125",
-    variant === "danger" && "bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125",
+    variant === "primary" && "bg-slate-600 hover:bg-(--signature-color)",
+    variant === "secondary" && "bg-(--signature-color) hover:brightness-125",
+    variant === "danger" && "bg-slate-600 hover:bg-red-500",
     variant === "invisible" && "bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125",
     variant === "bare" && "border-none bg-transparent p-0 outline-none",
     square && variant !== "bare" && "aspect-square shrink-0",
