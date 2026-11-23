@@ -33,6 +33,11 @@ function get_line_num(content, index) {
   return content.slice(0, index).split(/\r?\n/).length;
 }
 
+function is_inside_h1_open_tag(content, index) {
+  const before = content.slice(0, index);
+  return /<h1[\s>][^>]*$/.test(before);
+}
+
 function has_ignore_comment(lines, line_num) {
   if (has_ignore_next_line(lines, line_num)) return true;
   for (let i = line_num - 2; i >= Math.max(0, line_num - 3); i--) {
@@ -54,13 +59,34 @@ for (const file of walk(ROOT_DIR)) {
   const lines = content.split(/\r?\n/);
 
   // 1. no-inline-font-style
+  // PERCHANCE CARVE-OUT: platform-injected normalize.css v3 is UNLAYERED, so its
+  // h1{font-size:2em;margin:.67em 0} beats every layered Tailwind font-size/margin
+  // on h1 (vite has no normalize, so vite renders the layered value and the two
+  // disagree). Sizing an h1 MUST therefore be delivered unlayered — inline style
+  // is the sanctioned pattern (same as the display:flex precedent). Allow exactly
+  // that: inline font-size and/or margin inside an <h1> opening tag. Everything
+  // else (font-family/weight/tracking/line-height/text-transform, or inline type
+  // on any other element) stays banned.
   const inline_style_re = /(?:style\s*=\s*"([^"]*)"|style:(font[a-z-]*|line-height|letter-spacing|text-transform)\s*=)/gi;
   let sm;
   while ((sm = inline_style_re.exec(content)) !== null) {
     const line_num = get_line_num(content, sm.index);
     if (has_ignore_comment(lines, line_num)) continue;
     if (sm[2] || /\b(font(?:-[a-z-]+)?|line-height|letter-spacing|text-transform)\s*:/i.test(sm[1] || "")) {
-      report(rel, line_num, "no-inline-font-style", sm[0], "Move inline typography styling to bare h1–h6 or a type-* utility.");
+      const decls = (sm[1] || "")
+        .split(";")
+        .map((d) => d.split(":")[0].trim().toLowerCase())
+        .filter(Boolean);
+      const typo_props = decls.filter((p) => /^(font(?:-[a-z-]+)?|line-height|letter-spacing|text-transform)$/.test(p));
+      const shield_only = typo_props.length > 0 && typo_props.every((p) => p === "font-size" || p === "margin" || p === "margin-top" || p === "margin-bottom");
+      if (shield_only && is_inside_h1_open_tag(content, sm.index)) continue;
+      report(
+        rel,
+        line_num,
+        "no-inline-font-style",
+        sm[0],
+        "Move inline typography styling to bare h1–h6 or a type-* utility (EXCEPTION: h1 font-size/margin MUST stay inline — normalize shield, see above).",
+      );
     }
   }
 

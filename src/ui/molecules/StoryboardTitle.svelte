@@ -51,7 +51,9 @@
 </script>
 
 {#if editable}
+  <!-- normalize shield: h1 font-size/margin MUST be inline — platform normalize.css v3 (unlayered h1{font-size:2em;margin:.67em 0}) beats all layered Tailwind (see check-typography.mjs rule 1 carve-out) -->
   <h1
+    style="/* stylelint-disable-line property-disallowed-list */ font-size: clamp(2rem, 5vw, 4rem); margin: 0;"
     class={[
       "pointer-events-none z-sticky inline-block max-w-[90vw] cursor-text px-standard text-center font-display text-[clamp(2rem,5vw,4rem)] font-normal text-balance transition-[background-color,box-shadow] duration-standard select-none hover:rounded-md hover:bg-white/5 focus:rounded-md focus:bg-black/20 focus:shadow-md focus:outline-none [&>span]:pointer-events-auto",
       className,
