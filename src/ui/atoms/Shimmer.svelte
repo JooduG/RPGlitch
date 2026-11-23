@@ -1,41 +1,36 @@
+<!-- src/ui/atoms/Shimmer.svelte -->
 <script>
-  /**
-   * @file src/ui/atoms/Shimmer.svelte
-   * Light-sweep indicator for loading placeholders and busy panels.
-   */
-
-  /**
-   * @typedef {Object} Props
-   * @property {string} [color="var(--color-electric-cyan)"] - Sweep tint color.
-   * @property {string} [class] - Extra CSS classes.
-   */
-
-  /** @type {Props} */
   let { color = "var(--color-electric-cyan)", class: className = "" } = $props();
 </script>
 
-<div class={["pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit] opacity-20", className]} aria-hidden="true">
-  <div
-    data-shimmer-sweep
-    class="absolute inset-0 h-full w-full"
-    style="
-      background: linear-gradient(
-        115deg,
-        transparent 35%,
-        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 30%, transparent) 48%,
-        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 45%, white) 50%,
-        color-mix(in srgb, var(--shimmer-color, var(--color-electric-cyan)) 30%, transparent) 52%,
-        transparent 65%
-      );
-      background-size: 250% 100%;
-      --shimmer-color: {color};
-    ">
-  </div>
+<div
+  data-shimmer-sweep
+  aria-hidden="true"
+  class={["pointer-events-none absolute inset-0 z-30 rounded-[inherit] opacity-20", className]}
+  style="
+    --shimmer-color: {color};
+
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      color-mix(in srgb, var(--shimmer-color) 30%, transparent) 48%,
+      color-mix(in srgb, var(--shimmer-color) 45%, white) 50%,
+      color-mix(in srgb, var(--shimmer-color) 30%, transparent) 52%,
+      transparent 65%
+    );
+    background-size: 250% 100%;
+  ">
 </div>
 
 <style>
   [data-shimmer-sweep] {
     animation: shimmer-sweep-anim 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-shimmer-sweep] {
+      animation: none;
+    }
   }
 
   @keyframes shimmer-sweep-anim {

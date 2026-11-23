@@ -1,9 +1,4 @@
-<script>
-  /**
-   * @file src/ui/atoms/Icon.svelte
-   * Minimalist 24x24 stroke icon atom and central icon registry.
-   */
-
+<script module>
   const ICONS = {
     // --- Temporal (Pure Teardrop) ---
     past: "M4 12C7.8 10.5 10.2 6.5 14.5 6.5A5.5 5.5 0 1 1 14.5 17.5C10.2 17.5 7.8 13.5 4 12Z",
@@ -60,15 +55,13 @@
   };
 
   const FILLED_ONLY = new Set(["chevron_down", "send", "shuffle", "interrupt", "play", "pause", "stop", "volume", "volume_mute", "settings", "warning_fill"]);
+</script>
 
+<script>
   /**
-   * @typedef {Object} Props
-   * @property {keyof typeof ICONS} [name="past"] - Icon identifier
-   * @property {string} [class] - Additional CSS classes
-   * @property {string} [style] - Optional inline style
+   * @file src/ui/atoms/Icon.svelte
+   * Minimalist 24x24 stroke icon atom and central icon registry.
    */
-
-  /** @type {Props & Record<string, any>} */
   let { name = "past", class: class_name = "size-icon-small", ...rest } = $props();
 </script>
 

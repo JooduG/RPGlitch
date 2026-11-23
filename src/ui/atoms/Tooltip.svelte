@@ -1,26 +1,19 @@
 <script module>
   /**
    * @file src/ui/atoms/Tooltip.svelte
-   * Global Tooltip & Pinned Preview Portal System powered by bits-ui/Tooltip and Svelte 5.
+   * Global Tooltip & Pinned Preview Portal System powered by bits-ui Tooltip and Svelte 5.
    */
-
-  /**
-   * @typedef {Object} TooltipState
-   * @property {string | null} text - Current tooltip text
-   * @property {any | null} preview - Optional opaque payload rendered via preview_content snippet
-   * @property {boolean} pinned - Whether the preview card is pinned interactively
-   * @property {HTMLElement | null} target - The element currently hovered or pinned
-   * @property {boolean} active - Visibility toggle
-   * @property {number} x - Viewport cursor X coordinate
-   * @property {number} y - Viewport cursor Y coordinate
-   * @property {boolean} has_cursor - Whether cursor tracking anchors the tooltip
-   */
-
-  /**
-   * Global reactive state for the tooltip system.
-   * @type {TooltipState}
-   */
-  export const tooltip_state = $state({ text: null, preview: null, pinned: false, target: null, active: false, x: 0, y: 0, has_cursor: false });
+  export const tooltip_state = $state({
+    text: /** @type {string | null} */ (null),
+    preview: /** @type {any} */ (null),
+    pinned: false,
+    side: /** @type {"top" | "bottom" | "left" | "right"} */ ("top"),
+    target: /** @type {HTMLElement | null} */ (null),
+    active: false,
+    x: 0,
+    y: 0,
+    has_cursor: false,
+  });
 
   /** @type {number | null} */
   let timer = null;
@@ -50,13 +43,10 @@
     tooltip_state.text = null;
     tooltip_state.preview = null;
     tooltip_state.pinned = false;
+    tooltip_state.side = "top";
     tooltip_state.target = null;
   }
 
-  /**
-   * Suppresses or restores hover tooltips globally (e.g. while a standalone ContextMenu is open).
-   * @param {boolean} suppressed
-   */
   export function set_tooltip_suppressed(suppressed) {
     is_suppressed = Boolean(suppressed);
     if (is_suppressed) {
@@ -65,18 +55,14 @@
     }
   }
 
-  /**
-   * Triggers tooltip visibility with kinetic comfort delay, enforcing the single-tooltip rule.
-   * @param {HTMLElement} target
-   * @param {string | null} text
-   * @param {any | { preview?: any, delay?: number }} [options]
-   */
   export function show_tooltip(target, text, options = null) {
     if (is_suppressed || tooltip_state.pinned) return;
-    const opts = options && typeof options === "object" && "preview" in options ? options : { preview: options };
+    const is_opts = options && typeof options === "object" && ("preview" in options || "delay" in options || "side" in options || "placement" in options);
+    const opts = is_opts ? options : { preview: options };
     const resolved_preview = opts?.preview ?? null;
     if (!text && !resolved_preview) return;
 
+    const side = opts?.placement || opts?.side || "top";
     const delay =
       typeof opts?.delay === "number" ? opts.delay
       : resolved_preview ? 120
@@ -88,6 +74,7 @@
       tooltip_state.text = text || null;
       tooltip_state.preview = resolved_preview;
       tooltip_state.pinned = false;
+      tooltip_state.side = side;
       tooltip_state.target = target;
       tooltip_state.active = true;
     };
@@ -101,11 +88,6 @@
     }
   }
 
-  /**
-   * Pins and activates a rich preview payload interactively at `(x, y)`.
-   * @param {HTMLElement} target
-   * @param {{ preview: any, text?: string | null, x: number, y: number }} options
-   */
   export function pin_tooltip_menu(target, options) {
     if (!options?.preview) return;
     clear_tooltip_timers();
@@ -115,66 +97,62 @@
     tooltip_state.text = options.text ?? null;
     tooltip_state.preview = options.preview;
     tooltip_state.pinned = true;
+    tooltip_state.side = "top";
     tooltip_state.target = target;
     tooltip_state.active = true;
   }
 
-  /**
-   * Unpins and closes any pinned preview card.
-   */
   export function unpin_tooltip() {
     if (!tooltip_state.pinned) return;
     clear_tooltip_timers();
     reset_tooltip_state();
   }
 
-  /**
-   * Immediately hides the tooltip and clears active timers (no-op while pinned).
-   */
   export function hide_tooltip() {
     if (tooltip_state.pinned) return;
     clear_tooltip_timers();
-    // Defer state mutation to avoid Svelte 5 state_unsafe_mutation during reactive teardown.
     hide_timer = window.setTimeout(() => {
       hide_timer = null;
-      if (!tooltip_state.pinned) {
-        reset_tooltip_state();
-      }
+      if (!tooltip_state.pinned) reset_tooltip_state();
     }, 0);
+  }
+
+  function restore_title(node) {
+    if ("tooltipTitle" in node.dataset) {
+      node.setAttribute("title", node.dataset.tooltipTitle || "");
+      delete node.dataset.tooltipTitle;
+    }
   }
 
   /**
    * Svelte Action: use:tooltip
    * @param {HTMLElement} node
-   * @param {string | { text?: string, preview?: any, delay?: number } | null} param
+   * @param {string | { text?: string, preview?: any, delay?: number, placement?: "top" | "bottom" | "left" | "right", side?: "top" | "bottom" | "left" | "right" } | null} param
    */
   export function tooltip(node, param) {
     const resolve_payload = (input) => {
       const is_obj = input && typeof input === "object";
       const resolved_text = is_obj ? input?.text : input;
       const resolved_preview = is_obj ? (input?.preview ?? null) : null;
-      const active_text = resolved_text || node.getAttribute("aria-label") || node.getAttribute("title") || null;
-      return { active_text, resolved_preview, delay: is_obj ? input?.delay : undefined };
+      const active_text = resolved_text || node.getAttribute("aria-label") || node.dataset.tooltipTitle || node.getAttribute("title") || null;
+      const side = is_obj ? input?.placement || input?.side || "top" : "top";
+      return { active_text, resolved_preview, delay: is_obj ? input?.delay : undefined, side };
     };
 
-    /** @param {MouseEvent | PointerEvent} e */
     const handle_move = (e) => {
-      if (is_suppressed) return;
+      if (is_suppressed || (!e.clientX && !e.clientY)) return;
       if (tooltip_state.pinned) {
-        if (pinned_switch_timer && (e.clientX || e.clientY)) {
+        if (pinned_switch_timer) {
           tooltip_state.x = e.clientX;
           tooltip_state.y = e.clientY;
         }
         return;
       }
-      if (e.clientX || e.clientY) {
-        tooltip_state.x = e.clientX;
-        tooltip_state.y = e.clientY;
-        tooltip_state.has_cursor = true;
-      }
+      tooltip_state.x = e.clientX;
+      tooltip_state.y = e.clientY;
+      tooltip_state.has_cursor = true;
     };
 
-    /** @param {MouseEvent | FocusEvent} e */
     const handle_enter = (e) => {
       if (is_suppressed) return;
       if (e instanceof MouseEvent && e.type === "mouseover" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
@@ -182,33 +160,25 @@
       const payload = resolve_payload(param);
 
       if (tooltip_state.pinned) {
-        if (node === tooltip_state.target || node.closest?.("[data-tooltip-preview]")) return;
-        if (payload.resolved_preview) {
-          if (pinned_switch_timer) {
-            window.clearTimeout(pinned_switch_timer);
-            pinned_switch_timer = null;
-          }
-          const cursor_x = e instanceof MouseEvent ? e.clientX : tooltip_state.x;
-          const cursor_y = e instanceof MouseEvent ? e.clientY : tooltip_state.y;
-          pinned_switch_timer = window.setTimeout(() => {
-            pinned_switch_timer = null;
-            if (!tooltip_state.pinned) return;
-            unpin_tooltip();
-
-            timer = window.setTimeout(() => {
-              timer = null;
-              if (tooltip_state.pinned || is_suppressed) return;
-              if (cursor_x || cursor_y) {
-                tooltip_state.x = cursor_x;
-                tooltip_state.y = cursor_y;
-                tooltip_state.has_cursor = true;
-              } else {
-                tooltip_state.has_cursor = false;
-              }
-              show_tooltip(node, payload.active_text, { preview: payload.resolved_preview, delay: 0 });
-            }, 260);
-          }, 150);
-        }
+        if (node === tooltip_state.target || node.closest?.("[data-tooltip-preview]") || !payload.resolved_preview) return;
+        if (pinned_switch_timer) window.clearTimeout(pinned_switch_timer);
+        const cursor_x = e instanceof MouseEvent ? e.clientX : tooltip_state.x;
+        const cursor_y = e instanceof MouseEvent ? e.clientY : tooltip_state.y;
+        pinned_switch_timer = window.setTimeout(() => {
+          pinned_switch_timer = null;
+          if (!tooltip_state.pinned) return;
+          unpin_tooltip();
+          timer = window.setTimeout(() => {
+            timer = null;
+            if (tooltip_state.pinned || is_suppressed) return;
+            tooltip_state.has_cursor = Boolean(cursor_x || cursor_y);
+            if (tooltip_state.has_cursor) {
+              tooltip_state.x = cursor_x;
+              tooltip_state.y = cursor_y;
+            }
+            show_tooltip(node, payload.active_text, { preview: payload.resolved_preview, delay: 0, side: payload.side });
+          }, 260);
+        }, 150);
         return;
       }
 
@@ -223,26 +193,21 @@
       if (payload.active_text || payload.resolved_preview) {
         if (node.hasAttribute("title")) {
           node.dataset.tooltipTitle = node.getAttribute("title") || "";
-          node.setAttribute("title", "");
+          node.removeAttribute("title");
         }
-        show_tooltip(node, payload.active_text, { preview: payload.resolved_preview, delay: payload.delay });
+        show_tooltip(node, payload.active_text, { preview: payload.resolved_preview, delay: payload.delay, side: payload.side });
       }
     };
 
-    /** @param {MouseEvent | FocusEvent} e */
     const handle_leave = (e) => {
+      if (e instanceof MouseEvent && e.type === "mouseout" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
       if (pinned_switch_timer) {
         window.clearTimeout(pinned_switch_timer);
         pinned_switch_timer = null;
       }
-      clear_tooltip_timers();
+      restore_title(node);
       if (tooltip_state.pinned) return;
-      if (e instanceof MouseEvent && e.type === "mouseout" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
-      if (node.dataset.tooltipTitle) {
-        node.setAttribute("title", node.dataset.tooltipTitle);
-        delete node.dataset.tooltipTitle;
-      }
-      hide_tooltip();
+      if (tooltip_state.target === node || timer) hide_tooltip();
     };
 
     node.addEventListener("mouseover", handle_enter);
@@ -252,13 +217,17 @@
     node.addEventListener("focusout", handle_leave);
 
     return {
-      /** @param {string | { text?: string, preview?: any, delay?: number } | null} new_param */
       update(new_param) {
         param = new_param;
         if (tooltip_state.target === node && tooltip_state.active && !tooltip_state.pinned) {
           const payload = resolve_payload(param);
-          if (payload.active_text) tooltip_state.text = payload.active_text;
+          if (!payload.active_text && !payload.resolved_preview) {
+            hide_tooltip();
+            return;
+          }
+          tooltip_state.text = payload.active_text;
           tooltip_state.preview = payload.resolved_preview;
+          tooltip_state.side = payload.side;
         }
       },
       destroy() {
@@ -271,10 +240,7 @@
         node.removeEventListener("mouseout", handle_leave);
         node.removeEventListener("focusin", handle_enter);
         node.removeEventListener("focusout", handle_leave);
-        if (node.dataset.tooltipTitle) {
-          node.setAttribute("title", node.dataset.tooltipTitle);
-          delete node.dataset.tooltipTitle;
-        }
+        restore_title(node);
         if (tooltip_state.target === node) {
           if (tooltip_state.pinned) unpin_tooltip();
           else hide_tooltip();
@@ -292,11 +258,16 @@
 
   let { preview_content = null } = $props();
 
-  let display_snapshot = $state({ text: /** @type {string | null} */ (null), preview: /** @type {any} */ (null), pinned: false });
+  let display_snapshot = $state({
+    text: /** @type {string | null} */ (null),
+    preview: /** @type {any} */ (null),
+    pinned: false,
+    side: /** @type {"top" | "bottom" | "left" | "right"} */ ("top"),
+  });
 
   $effect(() => {
     if (tooltip_state.active) {
-      display_snapshot = { text: tooltip_state.text, preview: tooltip_state.preview, pinned: tooltip_state.pinned };
+      display_snapshot = { text: tooltip_state.text, preview: tooltip_state.preview, pinned: tooltip_state.pinned, side: tooltip_state.side };
     }
   });
 
@@ -320,17 +291,10 @@
 
   $effect(() => {
     if (!tooltip_state.pinned) return;
-
     return on_dismiss_outside(
-      (event) => {
-        const target = /** @type {HTMLElement | null} */ (event.target);
-        if (target?.closest?.("[data-tooltip-preview]")) return true;
-        if (event instanceof MouseEvent && event.button === 2) return true;
-        return false;
-      },
-      () => {
-        unpin_tooltip();
-      },
+      (event) =>
+        Boolean(event.target instanceof Element && event.target.closest("[data-tooltip-preview]")) || (event instanceof MouseEvent && event.button === 2),
+      unpin_tooltip,
     );
   });
 </script>
@@ -342,7 +306,7 @@
         <Tooltip.Content
           customAnchor={active_anchor}
           updatePositionStrategy="always"
-          side="top"
+          side={display_snapshot.side}
           sideOffset={display_snapshot.preview ? 14 : 10}
           align="center"
           avoidCollisions={true}
@@ -358,9 +322,8 @@
                   {...props}
                   class={[
                     props.class,
-                    "group relative flex origin-(--transform-origin) flex-col items-center drop-shadow-lg transition-opacity duration-fast ease-out",
+                    "group relative flex origin-(--transform-origin) flex-col items-center opacity-100 drop-shadow-lg transition-opacity duration-fast ease-out",
                     display_snapshot.pinned ? "pointer-events-auto" : "pointer-events-none",
-                    open ? "opacity-100" : "opacity-0",
                   ]}
                   transition:scale={{
                     duration:
@@ -372,48 +335,13 @@
                   }}>
                   {#if display_snapshot.preview && preview_content}
                     <div data-tooltip-preview>
-                      {@render preview_content({ preview: display_snapshot.preview, pinned: display_snapshot.pinned, closing: !open })}
+                      {@render preview_content({ preview: display_snapshot.preview, pinned: display_snapshot.pinned, closing: false })}
                     </div>
                   {:else}
                     <div
-                      class="
-                        absolute
-                        left-1/2
-                        z-0
-                        size-0
-                        -translate-x-1/2
-
-                        group-data-[side=bottom]:top-[-8px]
-                        group-data-[side=bottom]:border-x-8
-                        group-data-[side=bottom]:border-b-8
-                        group-data-[side=bottom]:border-x-transparent
-                        group-data-[side=bottom]:border-b-gunmetal
-
-                        group-data-[side=top]:bottom-[-8px]
-                        group-data-[side=top]:border-x-8
-                        group-data-[side=top]:border-t-8
-                        group-data-[side=top]:border-x-transparent
-                        group-data-[side=top]:border-t-gunmetal
-                      ">
+                      class="absolute left-1/2 z-0 size-0 -translate-x-1/2 group-data-[side=bottom]:-top-2 group-data-[side=bottom]:border-x-8 group-data-[side=bottom]:border-b-8 group-data-[side=bottom]:border-x-transparent group-data-[side=bottom]:border-b-gunmetal group-data-[side=top]:-bottom-2 group-data-[side=top]:border-x-8 group-data-[side=top]:border-t-8 group-data-[side=top]:border-x-transparent group-data-[side=top]:border-t-gunmetal">
                       <div
-                        class="
-                          absolute
-                          left-1/2
-                          size-0
-                          -translate-x-1/2
-
-                          group-data-[side=bottom]:top-px
-                          group-data-[side=bottom]:border-x-8
-                          group-data-[side=bottom]:border-b-8
-                          group-data-[side=bottom]:border-x-transparent
-                          group-data-[side=bottom]:border-b-chalk
-
-                          group-data-[side=top]:bottom-px
-                          group-data-[side=top]:border-x-8
-                          group-data-[side=top]:border-t-8
-                          group-data-[side=top]:border-x-transparent
-                          group-data-[side=top]:border-t-chalk
-                        ">
+                        class="absolute left-1/2 size-0 -translate-x-1/2 group-data-[side=bottom]:top-px group-data-[side=bottom]:border-x-8 group-data-[side=bottom]:border-b-8 group-data-[side=bottom]:border-x-transparent group-data-[side=bottom]:border-b-chalk group-data-[side=top]:bottom-px group-data-[side=top]:border-x-8 group-data-[side=top]:border-t-8 group-data-[side=top]:border-x-transparent group-data-[side=top]:border-t-chalk">
                       </div>
                     </div>
 

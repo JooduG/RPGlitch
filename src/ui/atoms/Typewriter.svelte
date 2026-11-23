@@ -1,13 +1,16 @@
+<script module>
+  const SURROGATE_PAIR_REGEX = /[\uD800-\uDFFF]/;
+  const VOID_TAGS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
+</script>
+
 <script>
   /**
    * @file src/ui/atoms/Typewriter.svelte
    * HTML-tag-safe typewriter reveal atom with multi-phrase cycling support.
    */
-  import { untrack } from "svelte";
-  import { motion, Audio } from "@media";
+  import { Audio, motion } from "@media";
   import { sanitize } from "@utils";
-
-  const SURROGATE_PAIR_REGEX = /[\uD800-\uDFFF]/;
+  import { untrack } from "svelte";
 
   let {
     target_html = "",
@@ -29,45 +32,39 @@
   let current_char_index = $state(0);
   let current_word_index = $state(0);
   let phase = $state("typing"); // 'typing' | 'pause' | 'deleting'
-  let pause_accumulator = $state(0);
-  let initial_delay_elapsed = $state(0);
+  let pause_accumulator = 0;
+  let initial_delay_elapsed = 0;
 
-  const words_to_animate = $derived.by(() => {
-    if (words && words.length > 0) return words;
-    if (text) return [text];
-    if (target_html) return [target_html];
-    return [];
-  });
-
+  const words_to_animate = $derived(
+    words?.length ? words
+    : text ? [text]
+    : target_html ? [target_html]
+    : [],
+  );
   const has_multiple_words = $derived(words_to_animate.length > 1);
   const current_word_html = $derived(sanitize(words_to_animate[current_word_index] ?? ""));
 
-  /** Parse sanitized markup into structural tag and plain-text tokens. */
   const token_buffer = $derived.by(() => {
     const tokens = [];
     const regex = /(<[^>]+>|[^<]+)/g;
     let match;
-
     while ((match = regex.exec(current_word_html)) !== null) {
       const val = match[0];
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });
       } else {
-        const has_surrogates = SURROGATE_PAIR_REGEX.test(val);
-        tokens.push({ type: "text", value: val, length: has_surrogates ? [...val].length : val.length });
+        tokens.push({ type: "text", value: val, length: SURROGATE_PAIR_REGEX.test(val) ? [...val].length : val.length });
       }
     }
     return tokens;
   });
 
   const total_length = $derived(token_buffer.reduce((acc, t) => acc + (t.type === "text" ? t.length : 0), 0));
-
-  const cursor_glyph = $derived.by(() => {
-    if (cursor_style === "block") return "▌";
-    if (cursor_style === "underscore") return "_";
-    return "|";
-  });
-
+  const cursor_glyph = $derived(
+    cursor_style === "block" ? "▌"
+    : cursor_style === "underscore" ? "_"
+    : "|",
+  );
   const should_show_cursor = $derived(show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length));
 
   const sliced_html = $derived.by(() => {
@@ -82,14 +79,11 @@
         const tag = token.value;
         if (tag.startsWith("</")) {
           open_tags.pop();
-          output += tag;
         } else if (tag.startsWith("<") && !tag.endsWith("/>") && !tag.startsWith("<!")) {
-          const name_match = tag.match(/<([a-zA-Z0-9:-]+)/);
-          if (name_match) open_tags.push(name_match[1]);
-          output += tag;
-        } else {
-          output += tag;
+          const name = tag.match(/<([a-zA-Z0-9:-]+)/)?.[1]?.toLowerCase();
+          if (name && !VOID_TAGS.has(name)) open_tags.push(name);
         }
+        output += tag;
       } else {
         const remaining = target_count - text_count;
         if (remaining <= 0) break;
@@ -97,95 +91,96 @@
         if (token.length <= remaining) {
           output += token.value;
           text_count += token.length;
+        } else if (token.value.length === token.length) {
+          output += token.value.slice(0, remaining);
+          break;
         } else {
-          let sliced;
-          if (token.value.length === token.length) {
-            sliced = token.value.slice(0, remaining);
-          } else {
-            let index = 0;
-            const len = token.value.length;
-            for (let i = 0; i < remaining && index < len; i++) {
-              const code = token.value.charCodeAt(index);
-              index += code >= 0xd800 && code <= 0xdbff ? 2 : 1;
-            }
-            sliced = token.value.slice(0, index);
+          let idx = 0;
+          for (let i = 0; i < remaining && idx < token.value.length; i++) {
+            const code = token.value.charCodeAt(idx);
+            idx += code >= 0xd800 && code <= 0xdbff ? 2 : 1;
           }
-          output += sliced;
+          output += token.value.slice(0, idx);
           break;
         }
       }
     }
 
-    const cursor_html =
-      should_show_cursor ?
-        `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--transition-duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`
-      : "";
-
-    output += cursor_html;
+    if (should_show_cursor) {
+      output += `<span class="ml-0.5 inline text-(--signature-color) ${blink_cursor ? "animate-[blink_var(--transition-duration-slow,500ms)_step-end_infinite]" : ""}">${cursor_glyph}</span>`;
+    }
 
     for (let i = open_tags.length - 1; i >= 0; i--) {
       output += `</${open_tags[i]}>`;
     }
-
     return output;
   });
 
   const active_speed = $derived.by(() => {
+    if (motion.is_reduced || motion.intensity <= 0) return 0;
     if (phase === "typing") {
       if (type_speed !== null && type_speed > 0) return 1 / type_speed;
-
       const remaining = total_length - current_char_index;
-      let base_speed = 0.02;
-      if (remaining > 300) base_speed = 0.3;
-      else if (remaining > 150) base_speed = 0.15;
-      else if (remaining > 50) base_speed = 0.08;
-      else if (remaining < 15) base_speed = 0.01;
-
-      const intensity = motion.is_reduced ? 0 : motion.intensity;
-      const voice_rate_factor = Audio.voice.enabled && Audio.voice.is_speaking ? Audio.voice.rate : 1.0;
-      return base_speed * intensity * voice_rate_factor;
+      const base_speed =
+        remaining > 300 ? 0.3
+        : remaining > 150 ? 0.15
+        : remaining > 50 ? 0.08
+        : remaining < 15 ? 0.01
+        : 0.02;
+      const voice_rate_factor = Audio?.voice?.enabled && Audio.voice.is_speaking ? Audio.voice.rate : 1.0;
+      return base_speed * motion.intensity * voice_rate_factor;
     }
-
     if (phase === "deleting") {
-      if (delete_speed !== null && delete_speed > 0) return 1 / delete_speed;
-      return 0.08 * (motion.is_reduced ? 0 : motion.intensity);
+      return delete_speed !== null && delete_speed > 0 ? 1 / delete_speed : 0.08 * motion.intensity;
     }
-
     return 0;
   });
 
-  // Raw state caches prevent Svelte 5 derived_inert warnings inside the interval callback.
-  let words_to_animate_raw = $state([]);
-  let has_multiple_words_raw = $state(false);
-  let total_length_raw = $state(0);
-  let active_speed_raw = $state(0);
+  // Plain snapshots read inside rAF (avoids extra $state allocations and derived_inert warnings)
+  let snap_words = [];
+  let snap_multi = false;
+  let snap_total = 0;
+  let snap_speed = 0;
 
   $effect(() => {
-    words_to_animate_raw = words_to_animate;
-    has_multiple_words_raw = has_multiple_words;
-    total_length_raw = total_length;
-    active_speed_raw = active_speed;
+    snap_words = words_to_animate;
+    snap_multi = has_multiple_words;
+    snap_total = total_length;
+    snap_speed = active_speed;
   });
 
   $effect(() => {
-    if (current_char_index > total_length) {
+    if (current_char_index > total_length) current_char_index = total_length;
+  });
+
+  // Reveal immediately under reduced motion instead of freezing at 0 chars
+  $effect(() => {
+    if (words_to_animate.length === 0) return;
+    if (motion.is_reduced || motion.intensity <= 0) {
       current_char_index = total_length;
+      if (!has_multiple_words && !loop && !is_finished) is_finished = true;
     }
   });
 
-  let is_mounted = true;
+  const needs_animation = $derived(
+    words_to_animate.length > 0 && !motion.is_reduced && motion.intensity > 0 && (has_multiple_words || loop || current_char_index < total_length),
+  );
 
   $effect(() => {
+    if (!needs_animation) return;
+    let raf_id = 0;
     let last_time = performance.now();
 
-    const interval_id = setInterval(() => {
-      untrack(() => {
-        if (!is_mounted) return;
-        const words_list = words_to_animate_raw;
-        if (words_list.length === 0) return;
+    const step = (now) => {
+      raf_id = 0;
+      let keep_going = true;
 
-        const now = performance.now();
-        const elapsed = now - last_time;
+      untrack(() => {
+        if (snap_words.length === 0) {
+          keep_going = false;
+          return;
+        }
+        const elapsed = Math.min(100, now - last_time);
         last_time = now;
 
         if (current_char_index === 0 && phase === "typing" && delay > 0 && initial_delay_elapsed < delay) {
@@ -194,30 +189,33 @@
         }
 
         if (phase === "typing") {
-          if (current_char_index < total_length_raw) {
-            current_char_index = Math.min(total_length_raw, current_char_index + elapsed * active_speed_raw);
+          if (current_char_index < snap_total) {
+            current_char_index = Math.min(snap_total, current_char_index + elapsed * snap_speed);
             if (is_finished) is_finished = false;
-          } else {
-            if (!is_finished && !has_multiple_words_raw && !loop) is_finished = true;
-            if (has_multiple_words_raw || loop) {
+          }
+          if (current_char_index >= snap_total) {
+            if (snap_multi || loop) {
               phase = "pause";
               pause_accumulator = 0;
+            } else {
+              if (!is_finished) is_finished = true;
+              keep_going = false;
             }
           }
         } else if (phase === "pause") {
           pause_accumulator += elapsed;
-          if (pause_accumulator >= pause_delay && (has_multiple_words_raw || loop)) {
-            phase = "deleting";
-          }
+          if (pause_accumulator >= pause_delay && (snap_multi || loop)) phase = "deleting";
         } else if (phase === "deleting") {
           if (current_char_index > 0) {
-            current_char_index = Math.max(0, current_char_index - elapsed * active_speed_raw);
+            current_char_index = Math.max(0, current_char_index - elapsed * snap_speed);
           } else {
             const next_index = current_word_index + 1;
-            if (next_index >= words_list.length) {
+            if (next_index >= snap_words.length) {
               if (loop) {
                 current_word_index = 0;
                 phase = "typing";
+              } else {
+                keep_going = false;
               }
             } else {
               current_word_index = next_index;
@@ -226,11 +224,13 @@
           }
         }
       });
-    }, 16);
 
+      if (keep_going) raf_id = requestAnimationFrame(step);
+    };
+
+    raf_id = requestAnimationFrame(step);
     return () => {
-      is_mounted = false;
-      clearInterval(interval_id);
+      if (raf_id) cancelAnimationFrame(raf_id);
     };
   });
 </script>

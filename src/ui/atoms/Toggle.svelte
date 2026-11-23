@@ -1,28 +1,9 @@
+<!-- src/ui/atoms/Toggle.svelte -->
 <script>
-  /**
-   * @file src/ui/atoms/Toggle.svelte
-   * Switch control atom wrapping bits-ui Switch.Root with built-in label.
-   */
-
-  /**
-   * @typedef {Object} Props
-   * @property {boolean} [value] - Current toggle state.
-   * @property {string} [label] - Optional label text.
-   * @property {"md" | "small"} [size] - Component scale.
-   * @property {boolean} [disabled] - Interactive lock state.
-   * @property {boolean} [busy] - Async lock state.
-   * @property {boolean} [always_signature] - Use signature color background for both states.
-   * @property {any[]} [actions] - Svelte actions.
-   * @property {string} [class] - External styling.
-   * @property {string} [style] - Inline styling.
-   * @property {(checked: boolean) => void} [onchange] - Change callback.
-   */
-
   import { use_actions } from "@utils";
   import { Switch } from "bits-ui";
   import Label from "./Label.svelte";
 
-  /** @type {Props} */
   let {
     value = $bindable(false),
     label = "",
@@ -37,22 +18,23 @@
     ...rest
   } = $props();
 
+  const control_id = $props.id();
+  const is_locked = $derived(disabled || busy);
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);
-  let is_disabled = $derived(disabled);
 </script>
 
 <div
   class={[
     "group/toggle relative inline-flex cursor-pointer items-center gap-standard transition-opacity duration-300 ease-in-out select-none",
-    (is_disabled || busy) && "cursor-default! opacity-30",
+    is_locked && "cursor-default! opacity-30",
     busy && "cursor-wait! brightness-90 grayscale-50 *:pointer-events-none",
     className,
   ]}
   aria-busy={busy}
-  aria-disabled={is_disabled || busy}
+  aria-disabled={is_locked}
   {style}
   use:use_actions={actions}>
-  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={(checked) => onchange?.(checked)} id={test_id} {...rest}>
+  <Switch.Root bind:checked={value} disabled={is_locked} onCheckedChange={(checked) => onchange?.(checked)} id={control_id} {...rest}>
     {#snippet child({ props })}
       <button
         {...props}
@@ -73,7 +55,7 @@
                 "absolute rounded-full bg-frisk transition-[transform,background-color,filter] duration-standard ease-out group-data-[state=checked]:bg-pure-white group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)] hover:brightness-125 active:scale-[1.1]",
                 size === "small" ?
                   "top-0.5 left-0.5 size-3 group-data-[state=checked]:translate-x-3"
-                : "top-[4px] left-[4px] size-4 group-data-[state=checked]:translate-x-4",
+                : "top-1 left-1 size-4 group-data-[state=checked]:translate-x-4",
               ]}></span>
           {/snippet}
         </Switch.Thumb>
@@ -82,10 +64,7 @@
   </Switch.Root>
 
   {#if label}
-    <Label
-      for={test_id}
-      disabled={is_disabled || busy}
-      class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125">
+    <Label for={control_id} disabled={is_locked} class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125">
       {label}
     </Label>
   {/if}

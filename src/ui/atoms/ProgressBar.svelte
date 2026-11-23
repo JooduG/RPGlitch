@@ -1,34 +1,19 @@
+<!-- src/ui/atoms/ProgressBar.svelte -->
 <script>
-  /**
-   * @file src/ui/atoms/ProgressBar.svelte
-   * Monotonic task completion bar wrapping bits-ui Progress.Root.
-   * For fluctuating range measurements, use Meter.
-   */
   import { motion } from "@media";
+  import { clamp } from "@utils";
   import { Progress } from "bits-ui";
   import { quartOut } from "svelte/easing";
   import { Tween } from "svelte/motion";
   import Label from "./Label.svelte";
 
-  /**
-   * @typedef {Object} Props
-   * @property {number | null} [value] - Current progress (0-max). `null` = indeterminate.
-   * @property {number} [max] - Maximum value.
-   * @property {number} [min] - Minimum value.
-   * @property {string} [label] - Optional visible label.
-   * @property {string} [value_label] - Optional aria-valuetext override.
-   * @property {string} [variant] - Visual variant: "thin" (1px line) or "full" (rounded bar).
-   * @property {string} [class] - External styling overrides.
-   * @property {string} [style] - Inline styling.
-   */
-
-  /** @type {Props} */
   let { value = 0, max = 100, min = 0, label = "", value_label = "", variant = "full", class: className = "", style = "" } = $props();
 
   const label_id = $props.id();
   const is_indeterminate = $derived(value === null);
-  const clamped_pct = $derived(is_indeterminate ? 0 : Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)));
+  const clamped_pct = $derived(is_indeterminate || max <= min ? 0 : clamp(((value - min) / (max - min)) * 100, 0, 100));
   const pct_tween = new Tween(0, { duration: 300, easing: quartOut });
+
   $effect(() => {
     pct_tween.set(clamped_pct, { duration: motion.is_reduced ? 0 : 300, easing: quartOut });
   });
@@ -56,10 +41,13 @@
     ]}>
     {#if is_indeterminate}
       <div
-        class="absolute inset-y-0 w-1/3 animate-[progress-indeterminate_var(--transition-duration-slow)_var(--ease-in-out)_infinite] rounded-full bg-electric-cyan shadow-[0_0_8px_var(--color-electric-cyan)]">
+        class="absolute inset-y-0 w-1/3 animate-[progress-indeterminate_var(--transition-duration-slow)_var(--ease-in-out)_infinite] rounded-full bg-electric-cyan shadow-[0_0_8px_var(--color-electric-cyan)]"
+        style:animation-play-state={motion.is_reduced ? "paused" : "running"}>
       </div>
     {:else}
-      <div class="absolute inset-y-0 left-0 rounded-full bg-electric-cyan shadow-[0_0_8px_var(--color-electric-cyan)]" style="width: {pct_tween.current}%;">
+      <div
+        class="absolute inset-0 origin-left rounded-full bg-electric-cyan shadow-[0_0_8px_var(--color-electric-cyan)]"
+        style:transform="scaleX({pct_tween.current / 100})">
       </div>
     {/if}
   </Progress.Root>
