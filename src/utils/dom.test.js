@@ -175,4 +175,20 @@ describe("on_dismiss_outside", () => {
 
     teardown();
   });
+
+  it("ignores child element blur events and only dismisses on window blur", () => {
+    const on_dismiss = vi.fn();
+    const teardown = on_dismiss_outside(() => false, on_dismiss);
+
+    const btn = document.createElement("button");
+    document.body.appendChild(btn);
+    btn.dispatchEvent(new FocusEvent("blur", { bubbles: false }));
+    expect(on_dismiss).not.toHaveBeenCalled();
+
+    window.dispatchEvent(new FocusEvent("blur"));
+    expect(on_dismiss).toHaveBeenCalledTimes(1);
+
+    btn.remove();
+    teardown();
+  });
 });

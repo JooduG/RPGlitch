@@ -177,7 +177,7 @@
 
 <script>
   import { Button } from "@atoms";
-  import { on_dismiss_outside } from "@utils";
+  import { get_signature_color, on_dismiss_outside } from "@utils";
 
   let {
     embedded = false,
@@ -198,7 +198,7 @@
   const active_entity = $derived(embedded ? entity : context_menu_state.entity);
   const active_surface = $derived(embedded ? surface : context_menu_state.surface);
   const target_name = $derived(explicit_name || active_entity?.name || "");
-  const signature_color = $derived(active_entity?.signature_color || active_entity?.color || "var(--color-frisk)");
+  const signature_color = $derived(get_signature_color(active_entity, "var(--color-frisk)"));
   const resolved_portrait_src = $derived(portrait_src || active_entity?.profile_picture || "");
 
   const resolved_actions = $derived(explicit_actions || build_entity_actions(active_entity, active_surface));
@@ -288,15 +288,15 @@
       No actions available
     </div>
   {:else}
-    <div class="relative z-10 flex min-h-0 flex-1 scrollbar-none flex-col gap-0.5 overflow-y-auto p-tight [&::-webkit-scrollbar]:hidden">
+    <div class="relative z-10 flex min-h-0 flex-1 scrollbar-none flex-col overflow-y-auto [&::-webkit-scrollbar]:hidden">
       {#each resolved_actions as item, i (i)}
         {#if item.separator}
-          <div class="my-1 block h-px shrink-0 bg-white/10"></div>
+          <div class="block h-px shrink-0 bg-white/10"></div>
         {:else}
           <Button
             variant="bare"
             class={[
-              "flex min-h-8 w-full shrink-0 cursor-pointer items-center gap-tight rounded-sharp px-tight py-1.5 text-left type-interact text-xs transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
+              "flex min-h-9 w-full! shrink-0 cursor-pointer items-center justify-start gap-tight rounded-none px-standard py-2 text-left type-interact text-xs transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
               item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
               : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
               : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",
@@ -319,7 +319,7 @@
   {#if is_visible}
     <div
       bind:this={menu_el}
-      class="relative isolate flex h-full w-full flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
+      class="pointer-events-auto relative isolate flex h-full w-full flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
       style:--signature-color={signature_color}
       role="menu"
       tabindex="-1"
@@ -332,7 +332,8 @@
   <div
     bind:this={menu_el}
     use:portal_and_clamp={{ x: open_x, y: open_y }}
-    class="fixed isolate z-tooltip flex max-w-72 min-w-48 flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
+    class="pointer-events-auto fixed isolate flex max-w-72 min-w-48 flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']"
+    style:z-index="var(--z-index-tooltip)"
     style:--signature-color={signature_color}
     role="menu"
     tabindex="-1"

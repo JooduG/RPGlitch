@@ -26,14 +26,24 @@ try {
 
   const findings = result.findings ?? [];
   const errorFindings = findings.filter((f) => f.severity === "error");
+  const warningFindings = findings.filter((f) => f.severity === "warning");
+  const infoFindings = findings.filter((f) => f.severity === "info");
 
   if (errorFindings.length > 0) {
     console.log(`\x1b[31m[ERRORS]\x1b[0m ${errors} broken token reference(s):`);
     errorFindings.forEach((f) => console.log(`  ⛔ ${f.path}: ${f.message}`));
     console.log("");
   }
-
-  // Warnings are intentionally muted due to custom RPGlitch component schema
+  if (warningFindings.length > 0) {
+    console.log(`\x1b[33m[WARNINGS]\x1b[0m ${warnings} warning(s):`);
+    warningFindings.forEach((f) => console.log(`  ⚠️  ${f.path}: ${f.message}`));
+    console.log("");
+  }
+  if (infoFindings.length > 0) {
+    console.log(`\x1b[36m[INFO]\x1b[0m ${infos} info(s):`);
+    infoFindings.forEach((f) => console.log(`  ℹ️  ${f.path}: ${f.message}`));
+    console.log("");
+  }
 
   console.log(`📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
   has_errors = errors > 0;
@@ -44,6 +54,8 @@ try {
     const result = JSON.parse(err.stdout ?? "{}");
     const { errors = 0, warnings = 0, infos = 0 } = result.summary ?? {};
     const errorFindings = (result.findings ?? []).filter((f) => f.severity === "error");
+    const warningFindings = (result.findings ?? []).filter((f) => f.severity === "warning");
+    const infoFindings = (result.findings ?? []).filter((f) => f.severity === "info");
 
     console.log("\n================================================================================");
     console.log("📐 AUDIT: DESIGN.md SPEC COMPLIANCE (@google/design.md)");
@@ -54,8 +66,16 @@ try {
       errorFindings.forEach((f) => console.log(`  ⛔ ${f.path}: ${f.message}`));
       console.log("");
     }
-
-    // Warnings are intentionally muted due to custom RPGlitch component schema
+    if (warningFindings.length > 0) {
+      console.log(`\x1b[33m[WARNINGS]\x1b[0m ${warnings} warning(s):`);
+      warningFindings.forEach((f) => console.log(`  ⚠️  ${f.path}: ${f.message}`));
+      console.log("");
+    }
+    if (infoFindings.length > 0) {
+      console.log(`\x1b[36m[INFO]\x1b[0m ${infos} info(s):`);
+      infoFindings.forEach((f) => console.log(`  ℹ️  ${f.path}: ${f.message}`));
+      console.log("");
+    }
     console.log(`\n📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
     has_errors = errors > 0;
     console.log(

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { has_ignore_next_line } from "../../housekeeping/scripts/lib/io.js";
 
 const warn_only = process.argv.includes("--warn");
 const ROOT_DIR = path.resolve("src");
@@ -14,7 +15,9 @@ function walk(dir) {
   return results;
 }
 
-const FONT_SIZE_RE = /^(?:[a-z0-9_-]+:)*text-(?:xs|sm|base|lg|xl|[2-9]xl)$/;
+const FONT_SIZE_RE = /^(?:[a-z0-9_-]+:)*text-(?:xs|sm|base|lg|xl|[2-9]xl|\[(?:[0-9.]+(?:px|rem|em|vw|vh|ch|%)|clamp\([^\]]+\))\])$/;
+const ARBITRARY_SIZE_RE = /^(?:[a-z0-9_-]+:)*text-\[(?:[0-9.]+(?:px|rem|em|vw|vh|ch|%)|clamp\([^\]]+\))\]$/;
+const TYPE_UTILITY_RE = /^type-(?:body|interact|uppercase-label|data)$/;
 const WEIGHT_RE = /^(?:[a-z0-9_-]+:)*font-(?:thin|extralight|light|normal|medium|semibold|bold|extrabold|black)$/;
 const TRACKING_RE = /^(?:[a-z0-9_-]+:)*tracking-(?:tighter|tight|normal|wide|wider|widest|\[[^\]]+\])$/;
 const LEADING_RE = /^(?:[a-z0-9_-]+:)*leading-(?:none|tight|snug|normal|relaxed|loose|\[[^\]]+\]|\d+)$/;
@@ -31,6 +34,7 @@ function get_line_num(content, index) {
 }
 
 function has_ignore_comment(lines, line_num) {
+  if (has_ignore_next_line(lines, line_num)) return true;
   for (let i = line_num - 2; i >= Math.max(0, line_num - 3); i--) {
     if (/<!--\s*typography-ignore:\s*\S+[\s\S]*?-->/.test(lines[i])) return true;
   }
@@ -102,6 +106,7 @@ for (const file of walk(ROOT_DIR)) {
     }
 
     // 5. no-heading-override
+    let reported_override = false;
     if (/^h[1-6]$/i.test(tag) && !is_storyboard_title) {
       const has_override =
         base_tokens.has("font-sans") ||
@@ -111,12 +116,47 @@ for (const file of walk(ROOT_DIR)) {
         base_tokens.has("uppercase") ||
         all_tokens.some((t) => WEIGHT_RE.test(t) || FONT_SIZE_RE.test(t) || TRACKING_RE.test(t) || LEADING_RE.test(t));
       if (has_override) {
+        reported_override = true;
         report(
           rel,
           tag_line,
           "no-heading-override",
           `<${tag} class="${all_tokens.join(" ")}">`,
           "Bare h1–h6 tags are pre-styled in DESIGN.md; remove override or use the appropriate heading level.",
+        );
+      }
+    }
+
+    // 6. no-type-utility-override
+    if (all_tokens.some((t) => TYPE_UTILITY_RE.test(split_prefix(t).base))) {
+      const has_type_override =
+        base_tokens.has("font-sans") ||
+        base_tokens.has("font-mono") ||
+        base_tokens.has("font-heading") ||
+        base_tokens.has("font-display") ||
+        all_tokens.some((t) => WEIGHT_RE.test(t) || FONT_SIZE_RE.test(t) || TRACKING_RE.test(t) || LEADING_RE.test(t));
+      if (has_type_override) {
+        reported_override = true;
+        report(
+          rel,
+          tag_line,
+          "no-type-utility-override",
+          `<${tag} class="${all_tokens.join(" ")}">`,
+          "type-* utilities already define family, size, weight, tracking, and leading; remove inline overrides.",
+        );
+      }
+    }
+
+    // 7. no-raw-typography
+    if (!is_storyboard_title && !reported_override && !(base_tokens.has("uppercase") && all_tokens.some((t) => TRACKING_RE.test(t))) && !has_font_family) {
+      const has_raw = all_tokens.some((t) => TRACKING_RE.test(t) || LEADING_RE.test(t) || ARBITRARY_SIZE_RE.test(t));
+      if (has_raw) {
+        report(
+          rel,
+          tag_line,
+          "no-raw-typography",
+          `<${tag} class="${all_tokens.join(" ")}">`,
+          "Replace raw tracking/leading/arbitrary font-size with bare h1–h6 or a type-* utility.",
         );
       }
     }

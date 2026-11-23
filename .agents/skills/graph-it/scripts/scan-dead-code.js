@@ -10,6 +10,7 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { has_ignore_next_line } from "../../housekeeping/scripts/lib/io.js";
 
 const ROOT = process.cwd();
 const SRC_DIR = path.join(ROOT, "src");
@@ -49,7 +50,8 @@ function load_source_files(dir) {
       results.push(...load_source_files(full));
     } else if (entry.isFile() && (entry.name.endsWith(".js") || entry.name.endsWith(".svelte"))) {
       const rel = path.relative(ROOT, full).replace(/\\/g, "/");
-      results.push({ rel, code: strip_comments(fs.readFileSync(full, "utf8")) });
+      const raw_text = fs.readFileSync(full, "utf8");
+      results.push({ rel, code: strip_comments(raw_text), lines: raw_text.split(/\r?\n/) });
     }
   }
   return results;
@@ -83,6 +85,10 @@ function main() {
     const own_file = files.find((f) => f.rel === file_rel);
 
     for (const sym of entry.unusedSymbols || []) {
+      if (own_file && sym.line && has_ignore_next_line(own_file.lines, sym.line)) {
+        filtered_false_positives++;
+        continue;
+      }
       const escaped = escape_regex(sym.name);
       const pattern = `(?<![\\w$])${escaped}(?![\\w$])`;
       const test_re = new RegExp(pattern);

@@ -549,7 +549,7 @@
               role="banner">
               <div class="w-full min-w-0 shrink-0">
                 <h1
-                  class={["text-[2.5rem] leading-[1.1] text-balance", entity_type === "fractal" ? "text-left" : "text-right"]}
+                  class={["text-[clamp(3rem,7vw,6rem)] leading-[1.1] text-balance", entity_type === "fractal" ? "text-left" : "text-right"]}
                   style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));">
                   {#if profile_state.is_editing}
                     <span class="glass-input" data-expanded={profile_state.active_field?.key === "name"} style="--signature-color: {signature_color};">

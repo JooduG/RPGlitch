@@ -141,6 +141,7 @@ export function run_audit({ title, root_directory = ROOT_DIRECTORY, scan_directo
         if (rule.regex) {
           content_lines.forEach((line_content, line_index) => {
             if (rule.regex.test(line_content)) {
+              if (has_ignore_next_line(content_lines, line_index + 1)) return;
               if (rule.validate && !rule.validate(line_content, file_path)) return;
               violation_count++;
               const color = rule.severity === "HERESY" ? COLORS.RED : COLORS.YELLOW;
@@ -185,6 +186,21 @@ export function run_audit({ title, root_directory = ROOT_DIRECTORY, scan_directo
   }
 
   return { scanned: scanned_count, violations: violation_count, has_heresy: has_heresy_violation };
+}
+
+const IGNORE_NEXT_LINE_RE = /(?:<!--\s*ignore-next-line\b[\s\S]*?-->|\/\/\s*ignore-next-line\b|\/\*\s*ignore-next-line\b[\s\S]*?\*\/)/i;
+
+/**
+ * Returns true if an `ignore-next-line` comment appears 1–2 lines above `line_num` (1-indexed).
+ * @param {string[]} lines
+ * @param {number} line_num
+ * @returns {boolean}
+ */
+export function has_ignore_next_line(lines, line_num) {
+  for (let i = line_num - 2; i >= Math.max(0, line_num - 3); i--) {
+    if (IGNORE_NEXT_LINE_RE.test(lines[i] || "")) return true;
+  }
+  return false;
 }
 
 /**

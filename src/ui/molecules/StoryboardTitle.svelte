@@ -53,7 +53,7 @@
 {#if editable}
   <h1
     class={[
-      "pointer-events-none z-sticky inline-block max-w-[90vw] cursor-text px-standard text-center font-display text-[clamp(2rem,4.2vw,3.4rem)] font-normal text-balance transition-[background-color,box-shadow] duration-standard select-none hover:rounded-md hover:bg-white/5 focus:rounded-md focus:bg-black/20 focus:shadow-md focus:outline-none [&>span]:pointer-events-auto",
+      "pointer-events-none z-sticky inline-block max-w-[90vw] cursor-text px-standard text-center font-display text-[clamp(2rem,5vw,4rem)] font-normal text-balance transition-[background-color,box-shadow] duration-standard select-none hover:rounded-md hover:bg-white/5 focus:rounded-md focus:bg-black/20 focus:shadow-md focus:outline-none [&>span]:pointer-events-auto",
       className,
     ]}
     use:tooltip={{ text: "Double-click to regenerate title" }}
@@ -80,7 +80,7 @@
     {/if}
   </h1>
 {:else if title || parts.length > 0}
-  <h2 class={["mb-standard text-center font-display text-[clamp(1.7rem,3.6vw,2.9rem)] font-normal text-balance", className]} data-msg-title>
+  <h1 class={["", className]} data-msg-title>
     {#if parts.length > 0}
       {#each parts as part, i (i)}
         {#if part.color}
@@ -94,5 +94,5 @@
     {:else}
       {title}
     {/if}
-  </h2>
+  </h1>
 {/if}

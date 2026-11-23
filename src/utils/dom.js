@@ -629,13 +629,13 @@ export function on_dismiss_outside(should_ignore, on_dismiss) {
   window.addEventListener("contextmenu", handle_pointer, true);
   window.addEventListener("scroll", handle_pointer, true);
   window.addEventListener("keydown", handle_key, true);
-  window.addEventListener("blur", handle_blur, true);
+  window.addEventListener("blur", handle_blur, false);
 
   return () => {
     window.removeEventListener("pointerdown", handle_pointer, true);
     window.removeEventListener("contextmenu", handle_pointer, true);
     window.removeEventListener("scroll", handle_pointer, true);
     window.removeEventListener("keydown", handle_key, true);
-    window.removeEventListener("blur", handle_blur, true);
+    window.removeEventListener("blur", handle_blur, false);
   };
 }
