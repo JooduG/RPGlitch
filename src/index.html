@@ -21,8 +21,10 @@
 
     <!-- Plugins exported from Left Panel directly -->
     <script data-no-vault>
-      // Initialize canonical Perchance plugin globals by polling lexical bindings,
-      // since plugins may load asynchronously without attaching to window.
+      // Copy canonical Perchance plugin functions onto window for ES-module
+      // code, which cannot see pjs scope bindings directly. `root` is a real
+      // global carrying every {import:...} binding; indirect eval can NOT
+      // reach pjs scope (it evaluates in global scope only), so read root.
       (function () {
         const PLUGIN_NAMES = ["generate_text", "generate_image", "fetch_web"];
         const MAX_POLLS = 100;
@@ -34,9 +36,10 @@
           for (const name of PLUGIN_NAMES) {
             if (typeof window[name] !== "undefined") continue;
             try {
-              const candidate = (0, eval)(`typeof ${name} !== "undefined" ? ${name} : undefined`);
-              if (typeof candidate !== "undefined") {
-                window[name] = candidate;
+              const holder = typeof globalThis.root !== "undefined" ? globalThis.root : undefined;
+              const candidate = holder ? holder[name] : undefined;
+              if (typeof candidate === "function") {
+                window[name] = candidate.bind ? candidate.bind(holder) : candidate;
               } else {
                 all_found = false;
               }

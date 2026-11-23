@@ -120,11 +120,22 @@ export function ensure_theme_tokens() {
 }
 
 /**
- * Resolves a Perchance plugin function from `window` or its cross-origin-safe `window.parent`.
+ * Resolves a Perchance plugin function from the pjs `root` namespace first
+ * (the only place `{import:...}` bindings canonically live — ES modules
+ * cannot see pjs scope, and indirect eval cannot reach it either), then
+ * from `window` / cross-origin-safe `window.parent` (test stubs, bridges).
  * @param {string} plugin_name
  * @returns {Function | null}
  */
 export function resolve_perchance_plugin(plugin_name) {
+  try {
+    const holder = typeof globalThis !== "undefined" ? /** @type {Record<string, unknown>} */ (/** @type {unknown} */ (globalThis).root) : undefined;
+    const root_fn = holder ? holder[plugin_name] : undefined;
+    if (typeof root_fn === "function") return root_fn;
+  } catch {
+    /* Ignore sandbox access */
+  }
+
   if (typeof window === "undefined") return null;
 
   try {
