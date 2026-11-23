@@ -141,7 +141,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
 
     let result = raw_engine(engine_arguments);
     if (result && typeof result.then === "function") {
-      result = await with_attempt_timeout(result);
+      result = await with_attempt_timeout(result, options.signal);
     }
 
     const image_url = typeof result === "string" ? result : result?.dataUrl || result?.url || result?.imageUrl || result?.image_url || result?.image;
@@ -383,14 +383,23 @@ export const visual_engine = new VisualEngine();
  * Runs one plugin attempt against the ceiling timeout. A hung plugin promise
  * previously wedged the manual image path forever (no timeout around the
  * engine call); now it fails visibly so the retryer/breaker and the caller's
- * failed-placeholder marking can engage.
+ * failed-placeholder marking can engage. An abort signal (Interrupt/Unstick)
+ * rejects immediately instead of waiting out the ceiling.
  * @template T
  * @param {Promise<T>} pending
+ * @param {AbortSignal | null} [signal=null]
  * @returns {Promise<T>}
  */
-function with_attempt_timeout(pending) {
+function with_attempt_timeout(pending, signal = null) {
   let timer;
+  let on_abort = null;
   const timeout = new Promise((_, reject) => {
+    const abort_err = new Error("Image generation aborted by user.");
+    abort_err.name = "AbortError";
+    if (signal?.aborted) {
+      reject(abort_err);
+      return;
+    }
     timer = setTimeout(() => {
       try {
         if (pending && typeof pending.stop === "function") pending.stop();
@@ -400,8 +409,24 @@ function with_attempt_timeout(pending) {
       if (pending && typeof pending.then === "function") pending.then(null, () => {});
       reject(new Error("IMAGE_ATTEMPT_TIMEOUT: Engine did not settle in time."));
     }, TIMING_MS.CEILING);
+    if (signal) {
+      on_abort = () => {
+        clearTimeout(timer);
+        try {
+          if (pending && typeof pending.stop === "function") pending.stop();
+        } catch {
+          /* best-effort cancellation */
+        }
+        if (pending && typeof pending.then === "function") pending.then(null, () => {});
+        reject(abort_err);
+      };
+      signal.addEventListener("abort", on_abort, { once: true });
+    }
   });
-  return Promise.race([pending, timeout]).finally(() => clearTimeout(timer));
+  return Promise.race([pending, timeout]).finally(() => {
+    clearTimeout(timer);
+    if (signal && on_abort) signal.removeEventListener("abort", on_abort);
+  });
 }
 
 /**

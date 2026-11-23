@@ -18,3 +18,4 @@ export {
   run_mock,
 } from "./lifecycle.js";
 export { get_mock_message, get_transport, reset_transport } from "./transport.js";
+export { reset_turn_scope_for_testing } from "./turns.js";

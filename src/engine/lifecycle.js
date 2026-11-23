@@ -20,6 +20,7 @@ import { clear_generation_in_flight, mark_generation_in_flight, visual_engine } 
 import {
   clean_generated_prose,
   compile_prompt,
+  extract_aesthetic_traits,
   get_resolution_string,
   parse_think_block,
   reconstruct_history_from_feed,
@@ -497,6 +498,13 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
   let placeholder_entry = null;
   const attach_idx = 0;
 
+  // Owns an AbortController so Interrupt/Unstick can cancel BOTH legs below
+  // (the visualizer LLM refine + the diffusion dispatch). Stored on the shared
+  // execution stream, which is what interrupt()/recover() abort.
+  const controller = new AbortController();
+  const signal = controller.signal;
+  let owned_controller = false;
+
   try {
     if (!background) {
       execution.role = subject;
@@ -507,6 +515,21 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
         avatar: entity?.profile_picture || entity?.avatar || null,
         color: entity?.signature_color || entity?.color || null,
       });
+      execution.stream.abort_controller = controller;
+      owned_controller = true;
+    }
+
+    // The context-menu picture items must hit BOTH the visualizer LLM and the
+    // image engine. The menu passes no prompt for solo portraits, so derive an
+    // envision draft from the entity itself instead of skipping the LLM leg.
+    let envision_source = prompt;
+    if (!envision_source || !envision_source.trim()) {
+      try {
+        const traits = extract_aesthetic_traits(entity || {});
+        envision_source = (traits && traits.trim()) || entity?.description || entity?.name || "";
+      } catch {
+        envision_source = entity?.description || entity?.name || "";
+      }
     }
 
     let refined_prompt = prompt;
@@ -515,7 +538,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       const configured_style = app.settings?.visual_style;
       const story_style = session.active_fractal?.visual_style;
       const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
-      const enhanced = await refine_image_prompt(prompt, subject, entity, app_style);
+      const enhanced = await refine_image_prompt(envision_source, subject, entity, app_style, signal);
       if (enhanced?.prompt) refined_prompt = enhanced.prompt;
       if (enhanced?.negative_prompt) enhanced_negative = enhanced.negative_prompt;
     } catch (envision_err) {
@@ -538,7 +561,12 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
     });
 
-    const result = await visual_engine.visualize(refined_prompt, target_mode, { subject, entity, negative_prompt: enhanced_negative }, { app, session });
+    const result = await visual_engine.visualize(
+      refined_prompt,
+      target_mode,
+      { subject, entity, negative_prompt: enhanced_negative, signal },
+      { app, session },
+    );
 
     if (session.active_id === story_id && placeholder_entry?.id) {
       if (result?.image_url) {
@@ -555,15 +583,28 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
     }
     return result;
   } catch (err) {
-    console.error(`[capture_story_image: ${subject}]`, err);
+    const aborted = signal?.aborted || err?.name === "AbortError" || String(err?.message || "").includes("aborted");
+    if (aborted) {
+      console.warn(`[capture_story_image: ${subject}] Interrupted by user.`);
+    } else {
+      console.error(`[capture_story_image: ${subject}]`, err);
+    }
     if (session.active_id === story_id && placeholder_entry?.id) {
       await session.update_attachment(placeholder_entry.id, attach_idx, {
         src: null,
-        metadata: { mode: target_mode, prompt, failed: true, error: err?.message || "Image generation failed" },
+        metadata: { mode: target_mode, prompt, failed: true, error: aborted ? "Interrupted by user." : err?.message || "Image generation failed" },
       });
+    }
+    if (aborted) {
+      const abort_err = new Error("Image capture aborted by user.");
+      abort_err.name = "AbortError";
+      throw abort_err;
     }
     throw err;
   } finally {
+    if (owned_controller && execution.stream.abort_controller === controller) {
+      execution.stream.abort_controller = null;
+    }
     if (!background) {
       execution.complete();
     }

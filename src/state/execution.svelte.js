@@ -182,6 +182,7 @@ export class ExecutionStore {
 
   /**
    * Aborts the in-flight request via AbortController and stops queued voice speech.
+   * Alias `abort_stream` is kept for the Console interrupt button contract.
    */
   interrupt() {
     if (this.stream.abort_controller) {
@@ -199,7 +200,19 @@ export class ExecutionStore {
   }
 
   /**
+   * Interrupt-button contract: aborts the in-flight request (LLM or image).
+   * The Console wires its Interrupt affordance to this method.
+   */
+  abort_stream() {
+    this.interrupt();
+  }
+
+  /**
    * Forcefully recovers execution state from a frozen or hung condition.
+   * Clears every busy visual source owned by this store (phase, intent,
+   * loading, stream, generating entity) even if voice teardown throws.
+   * Callers (Console unstick) additionally reset the turn guard, image
+   * in-flight sets, and local ghostwrite state, which live outside this store.
    * @param {string} reason
    */
   recover(reason) {
@@ -211,13 +224,34 @@ export class ExecutionStore {
       streaming_active: this.stream.active,
     });
 
-    this.complete();
-    this.unlock();
+    try {
+      this.complete();
+    } catch {
+      /* phase/entity reset is best-effort */
+    }
+    try {
+      this.unlock();
+    } catch {
+      /* unlock is best-effort */
+    }
     this.intent_active = false;
     this.loading = false;
-    this.interrupt();
-    this.stream.abort_controller = null;
-    this.end_stream();
+    try {
+      this.interrupt();
+    } catch (err) {
+      console.error("[ExecutionStore] Failed to interrupt during recover:", err);
+    } finally {
+      this.stream.abort_controller = null;
+      try {
+        this.end_stream();
+      } catch {
+        /* stream reset is best-effort */
+      }
+      this.stream.active = false;
+      this.stream.content = "";
+      this.stream.node_id = null;
+      this.stream.role = "ai";
+    }
   }
 }
 

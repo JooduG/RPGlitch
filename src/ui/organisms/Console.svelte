@@ -7,8 +7,8 @@
    */
   import { Accordion, Backdrop, Button, Icon, ProgressBar, ScrollArea, Shimmer, Slider, Toggle, tooltip } from "@atoms";
   import { export_story_record, reset_database, stories } from "@data";
-  import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
-  import { Audio, pulse, roll, shimmy, stab } from "@media";
+  import { chrono_engine, generate_closing, generate_user_draft, reset_turn_scope_for_testing } from "@engine";
+  import { Audio, pulse, reset_generation_in_flight, reset_image_generation_queue, roll, shimmy, stab } from "@media";
   import { Dialog, TextField } from "@molecules";
   import { StoryLibrary } from "@organisms";
   import { app, execution, session } from "@state";
@@ -92,17 +92,24 @@
 
   // Ghostwriter trigger watcher
   let handled_ghostwrite_req = 0;
+  let ghostwrite_generation = 0;
+  /** @type {AbortController | null} */
+  let ghostwrite_controller = null;
   $effect(() => {
     const req = app.ghostwrite_request;
     if (req === 0 || req === handled_ghostwrite_req) return;
     if (is_ghostwriting || is_locked) return;
 
     handled_ghostwrite_req = req;
+    const my_generation = ++ghostwrite_generation;
     is_ghostwriting = true;
     const previous_text = value;
     value = "";
-    generate_user_draft(previous_text)
+    const controller = new AbortController();
+    ghostwrite_controller = controller;
+    generate_user_draft(previous_text, { signal: controller.signal })
       .then(async (generated_text) => {
+        if (my_generation !== ghostwrite_generation || controller.signal.aborted) return;
         if (generated_text && generated_text.trim()) {
           value = generated_text;
         } else {
@@ -112,17 +119,58 @@
         adjust_height();
       })
       .catch((err) => {
+        if (my_generation !== ghostwrite_generation || controller.signal.aborted) return;
         console.error("Ghostwriter failed:", err);
         value = previous_text;
         adjust_height();
       })
       .finally(async () => {
+        if (my_generation !== ghostwrite_generation) return;
+        ghostwrite_controller = null;
         is_ghostwriting = false;
         await tick();
         adjust_height();
         drain_pending_queue();
       });
   });
+
+  /**
+   * Manual unstick: recovers execution AND clears every busy-visual source
+   * the recover path cannot reach — the local ghostwrite flag (Shimmer +
+   * disabled textarea), the turn re-entrancy guard (else the next send throws
+   * "Simulation is locked"), and image in-flight sets/queue (else future
+   * beats stay capped). Late ghostwrite results are ignored via generation.
+   */
+  async function handle_unstick() {
+    ghostwrite_generation += 1;
+    handled_ghostwrite_req = app.ghostwrite_request;
+    is_ghostwriting = false;
+    try {
+      ghostwrite_controller?.abort();
+    } catch {
+      /* abort is best-effort */
+    }
+    ghostwrite_controller = null;
+    try {
+      execution.recover("Manual unstick from composer");
+    } finally {
+      try {
+        if (typeof reset_turn_scope_for_testing === "function") reset_turn_scope_for_testing();
+      } catch {
+        /* turn guard reset is best-effort */
+      }
+      try {
+        if (typeof reset_generation_in_flight === "function") reset_generation_in_flight();
+      } catch {
+        /* image bookkeeping reset is best-effort */
+      }
+      try {
+        if (typeof reset_image_generation_queue === "function") reset_image_generation_queue();
+      } catch {
+        /* image queue reset is best-effort */
+      }
+    }
+  }
 
   // Focus textarea when entering storymode
   $effect(() => {
@@ -410,7 +458,7 @@
     <Button
       variant="invisible"
       disabled={app.control_panel_open}
-      onclick={() => execution.abort_stream()}
+      onclick={() => execution.interrupt()}
       aria-label="Interrupt Generation"
       actions={[tooltip]}
       class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!">
@@ -419,7 +467,7 @@
   {:else if is_locked}
     <Button
       variant="invisible"
-      onclick={() => execution.recover("Manual unstick from composer")}
+      onclick={handle_unstick}
       aria-label="Unstick Simulation"
       actions={[tooltip]}
       class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!">
