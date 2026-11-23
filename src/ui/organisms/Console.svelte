@@ -423,7 +423,7 @@
       aria-label="Unstick Simulation"
       actions={[tooltip]}
       class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!">
-      <Icon name="warning_fill" class="block size-icon-medium" />
+      <Icon name="octagon" class="block size-icon-medium" />
     </Button>
   {:else}
     <Button

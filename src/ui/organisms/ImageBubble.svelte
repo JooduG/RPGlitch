@@ -123,7 +123,7 @@
         <div
           class="relative flex flex-col items-center justify-center gap-tight overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-standard"
           style={container_style}>
-          <Icon name="warning" class="size-8 text-red-400/80" />
+          <Icon name="octagon" class="size-8 text-red-400/80" />
           <p class="text-center text-xs font-medium text-red-300">Image generation failed</p>
           <p class="text-center type-data text-red-400/70">The image service timed out. Retry or remove.</p>
           <div class="flex items-center gap-tight">

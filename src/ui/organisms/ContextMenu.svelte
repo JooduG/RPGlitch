@@ -118,7 +118,8 @@
       if (surface === "npc") {
         items.push({
           label: "Generate NPC Picture",
-          onSelect: () => capture_story_image({ subject: "npc", kind: "story_character", target_entity: entity }),
+          // Fire-and-forget: capture logs + marks the placeholder failed internally; swallow here so a late failure can't surface as an unhandled rejection.
+          onSelect: () => void capture_story_image({ subject: "npc", kind: "story_character", target_entity: entity }).catch(() => {}),
           disabled: execution.busy,
         });
         return items;
@@ -130,7 +131,8 @@
         : "Generate Fractal Image";
       items.push({
         label: photo_label,
-        onSelect: () => capture_story_image({ subject: type, kind: type === "fractal" ? "story_scene" : "story_character" }),
+        // Fire-and-forget: capture logs + marks the placeholder failed internally; swallow here so a late failure can't surface as an unhandled rejection.
+        onSelect: () => void capture_story_image({ subject: type, kind: type === "fractal" ? "story_scene" : "story_character" }).catch(() => {}),
         disabled: execution.busy,
       });
 
@@ -138,11 +140,12 @@
         items.push({
           label: "Generate Story Image",
           onSelect: () =>
-            capture_story_image({
+            // Fire-and-forget (see above): swallow late failures; placeholder already marked failed.
+            void capture_story_image({
               subject: "fractal",
               prompt: "A scene featuring both the AI character and the user persona together",
               kind: "story_entities",
-            }),
+            }).catch(() => {}),
           disabled: execution.busy,
         });
       }
