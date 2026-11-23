@@ -722,9 +722,7 @@
               <!-- Left: Paired @ID · POV -->
               <div class="flex min-w-0 flex-1 flex-col gap-0.5 overflow-hidden {!app.viewport.mobile ? 'pl-[calc(2rem+var(--spacing-standard))]' : ''}">
                 {#if profile_state.is_editing}
-                  <div
-                    class="flex items-center gap-tight self-start rounded-md border border-white/10 bg-black/25 px-2.5 py-1 type-uppercase-label"
-                    style="color: {signature_color};">
+                  <div class="flex min-w-0 items-center gap-tight type-data" style="color: {signature_color};">
                     <span aria-hidden="true" class="shrink-0 opacity-70">@</span>
                     <input
                       type="text"
@@ -733,7 +731,7 @@
                       maxlength="36"
                       aria-label={PROFILE_FIELDS.id.label}
                       use:tooltip={PROFILE_FIELDS.id.description}
-                      class="w-full max-w-28 min-w-0 flex-1"
+                      class="w-24 max-w-28 min-w-0 flex-1 border-b border-white/25 bg-transparent px-1 py-0.5 type-uppercase-label text-slate-100 outline-none focus:border-white/60"
                       oninput={(event) => {
                         profile_state.draft_id = event.currentTarget.value.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 36);
                         profile_state.identity_error = "";
@@ -751,7 +749,7 @@
                       type="button"
                       aria-label={PROFILE_FIELDS.pov.label}
                       use:tooltip={PROFILE_FIELDS.pov.description}
-                      class="text-slate-300"
+                      class="shrink-0 cursor-pointer rounded-md border border-white/15 bg-black/25 px-2 py-0.5 type-uppercase-label whitespace-nowrap text-white transition-colors outline-none hover:border-white/35"
                       onclick={() => {
                         profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
                         profile_state.mark_mutated();
@@ -768,11 +766,11 @@
                   {/if}
                 {:else if profile_state.char.id}
                   <div
-                    class="flex items-center gap-tight self-start rounded-md border border-white/10 bg-black/25 px-2.5 py-1 type-uppercase-label text-slate-300">
+                    class="flex max-w-full items-center gap-tight self-start rounded-md border border-white/10 bg-black/25 px-2.5 py-1 type-uppercase-label text-slate-200">
                     <span class="cursor-help" style="color: {signature_color};" use:tooltip={PROFILE_FIELDS.id.description}
                       >@{profile_state.char.id.toUpperCase()}</span>
-                    <span class="text-slate-400" aria-hidden="true">·</span>
-                    <span class="cursor-help" use:tooltip={PROFILE_FIELDS.pov.description}
+                    <span class="text-slate-500" aria-hidden="true">·</span>
+                    <span class="cursor-help text-slate-300" use:tooltip={PROFILE_FIELDS.pov.description}
                       >{profile_state.char.pov === "1st_person" ? "1st person" : "3rd person"}</span>
                   </div>
                 {/if}
