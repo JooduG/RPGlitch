@@ -121,12 +121,12 @@ export class SessionStore {
   });
 
   #display_entities = $derived.by(() => {
-    return {
-      AI: this.active_ai || app.selected_ai,
-      USER: this.active_user || app.selected_user,
-      FRACTAL: this.active_fractal || (app.selected_fractal?.id !== "active_fractal" ? app.selected_fractal : null),
-      ALL: this.#known_entities,
-    };
+    const resolved_fractal =
+      this.active_fractal?.id && this.active_fractal.id !== "active_fractal" ?
+        this.active_fractal
+      : app.selected_fractal || (app.selected_fractal?.id !== "active_fractal" ? app.selected_fractal : null);
+
+    return { AI: this.active_ai || app.selected_ai, USER: this.active_user || app.selected_user, FRACTAL: resolved_fractal, ALL: this.#known_entities };
   });
 
   get known_entities() {
@@ -135,6 +135,23 @@ export class SessionStore {
 
   get display_entities() {
     return this.#display_entities;
+  }
+
+  /**
+   * Resolves the live entity for a feed row (`ChatBubble` / `ImageBubble`).
+   * @param {string} sender
+   * @param {string} [character_name=""]
+   */
+  resolve_feed_entity(sender, character_name = "") {
+    if (sender === "user") return this.active_user || app.selected_user;
+    if (sender === "ai") return this.active_ai || app.selected_ai;
+    if (sender === "npc") {
+      return Object.values(this.active_npcs || {}).find((n) => String(n.name) === character_name) || null;
+    }
+    if (sender === "fractal") {
+      return this.#display_entities.FRACTAL;
+    }
+    return null;
   }
 
   // --- REACTIVE SIMULATION FEED ---

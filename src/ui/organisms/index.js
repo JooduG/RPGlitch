@@ -1,6 +1,6 @@
 export { default as AudioWing } from "./AudioWing.svelte";
 export { default as CardHand } from "./CardHand.svelte";
-export { default as ChatBubble, parse_message } from "./ChatBubble.svelte";
+export { default as ChatBubble } from "./ChatBubble.svelte";
 export { default as Console } from "./Console.svelte";
 export { default as ContextMenu, build_entity_actions, close_context_menu, context_menu_state, open_context_menu } from "./ContextMenu.svelte";
 export { default as DevBubble, get_telemetry_label, process_entity_blocks, resolve_entity_name } from "./DevBubble.svelte";

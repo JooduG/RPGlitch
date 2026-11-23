@@ -9,3 +9,4 @@ export * from "./history.js";
 export * from "./dynamics.js";
 export * from "./retrieval.js";
 export * from "./prompts.js";
+export * from "./prose.js";

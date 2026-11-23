@@ -6,7 +6,7 @@
    */
   import { format_tagged_fields, parse_tagged_fields as parse_bracket_entries } from "@simulation";
   import { get_percentage, safe_html } from "@utils";
-  import { parse_message } from "./ChatBubble.svelte";
+  import { parse_message } from "@simulation";
 
   const ENTITY_KEYS = { AI_CHARACTER: "ai", USER_PERSONA: "user", FRACTAL: "fractal" };
   const DIRECTOR_AXES = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];
@@ -206,7 +206,7 @@
 {#if app.settings.dev_mode}
   <div class="relative flex w-full justify-center p-standard transition duration-200" data-testid="dev-bubble">
     <div
-      class="group relative flex w-[calc(var(--spacing-column-unit)*6)] min-w-0 flex-col overflow-hidden rounded border border-transparent bg-[color-mix(in_srgb,var(--signature-color)_5%,rgba(15,15,15,0.7))] shadow-[0_8px_32px_rgba(0,0,0,0.5)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)] before:mask-border-solid before:p-px before:opacity-30 before:content-['']!"
+      class="group glass-panel relative flex w-[calc(var(--spacing-column-unit)*6)] min-w-0 flex-col overflow-hidden rounded"
       style:--signature-color="var(--color-dev-accent)">
       {#if telemetry_card_label}
         <div class="flex min-h-10 items-center gap-tight border-b border-white/10 px-standard py-tight type-uppercase-label text-dev-accent">

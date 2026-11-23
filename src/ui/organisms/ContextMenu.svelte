@@ -8,6 +8,7 @@
   import { Audio } from "@media";
   import { app, execution } from "@state";
   import { open_image_preview } from "./ImagePreview.svelte.js";
+  import { extract_portrait_meta, get_signature_color, on_dismiss_outside } from "@utils";
 
   export const context_menu_state = $state({ open: false, entity: null, type: "ai", surface: "default", x: 0, y: 0, on_close: null });
 
@@ -51,9 +52,7 @@
     const on_open_profile = deps.on_open_profile || ((ent) => app.toggle_profile(true, ent, type));
     const on_open_image = deps.on_open_image || ((payload) => open_image_preview(payload));
 
-    const m = entity.modifiers;
-    const portrait_meta = m ? { prompt: m.prompt, negative_prompt: m.negative_prompt, seed: m.last_generated_seed } : null;
-
+    const portrait_meta = extract_portrait_meta(entity);
     const push_voice_toggle = (items) => {
       const role = type === "fractal" ? "fractal" : "ai";
       const noun = role === "fractal" ? "Fractal Voice" : "AI Voice";
@@ -141,7 +140,6 @@
 
 <script>
   import { Button } from "@atoms";
-  import { get_signature_color, on_dismiss_outside } from "@utils";
 
   let {
     embedded = false,
@@ -220,8 +218,9 @@
   <div
     bind:this={menu_el}
     use:portal_and_clamp={{ enabled: !embedded, x: open_x, y: open_y }}
+    data-active="true"
     class={[
-      "pointer-events-auto isolate flex flex-col overflow-hidden rounded-standard bg-[color-mix(in_srgb,var(--signature-color)_7%,var(--color-glass-sunken))] shadow-standard [backdrop-filter:var(--blur-mist)] outline-none before:pointer-events-none before:absolute before:inset-0 before:z-20 before:rounded-[inherit] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color)_65%,transparent),rgb(from_var(--color-frisk)_r_g_b/0.12)_35%,transparent_85%)] before:mask-border-solid before:p-px before:content-['']",
+      "glass-panel pointer-events-auto isolate flex flex-col overflow-hidden rounded-standard outline-none",
       embedded ? "relative h-full w-full" : "fixed max-w-72 min-w-48",
     ]}
     style:z-index={embedded ? undefined : "var(--z-index-tooltip)"}

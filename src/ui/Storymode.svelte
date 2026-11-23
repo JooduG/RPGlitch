@@ -1,21 +1,18 @@
 <script>
+  import { Button, ScrollArea } from "@atoms";
   import { chrono_engine } from "@engine";
   import { Audio, clear_card_location, item_in, motion, update_card_scrub } from "@media";
-  import { Button, ScrollArea } from "@atoms";
   import { CardSkeleton, Dialog, UndoToast } from "@molecules";
   import { ChatBubble, DevBubble, ImageBubble } from "@organisms";
+  import { canonicalize_role, is_telemetry_meta } from "@simulation";
   import { app, execution, session } from "@state";
   import { onDestroy, tick } from "svelte";
 
-  const TELEMETRY_TYPES = new Set(["DYNAMICS_DELTA", "STORY_START", "VECTOR_RESOLUTION", "CONTINUUM_FORMATION", "MEMORY_FORMATION"]);
-  const KNOWN_ROLES = new Set(["ai", "user", "fractal", "system", "npc"]);
   const AUTO_SCROLL_SLACK = 40;
   const UNDO_DELETE_WINDOW_MS = 5000;
   const WHEEL_IGNORE_SELECTOR =
     "[data-modal-layer], [data-dropdown-menu], [role='menu'], [data-tooltip-preview], .dropdown-portal-wrapper, .menu, .tooltip-portal";
 
-  const is_telemetry = (entry) => Boolean(entry?.meta?.type && TELEMETRY_TYPES.has(entry.meta.type));
-  const map_role = (role) => (KNOWN_ROLES.has(role) ? role : "ai");
   const is_image_only = (entry) =>
     Array.isArray(entry?.attachments) && entry.attachments.length > 0 && !(typeof entry?.text === "string" && entry.text.trim().length > 0);
 
@@ -29,7 +26,7 @@
   const is_active_turn = $derived(execution.phase === "generating" || execution.stream.active);
   const active_turn_role = $derived(
     execution.stream.active ? execution.stream.role
-    : execution.phase === "generating" ? map_role(execution.role)
+    : execution.phase === "generating" ? canonicalize_role(execution.role)
     : execution.role,
   );
 
@@ -43,7 +40,14 @@
   const visible_feed = $derived.by(() => {
     const list = session.feed.filter((entry) => {
       if (!app.settings.dev_mode && entry.role === "system") return false;
-      if (entry.busy || entry.role === "system" || entry.attachments?.length || entry.meta?.is_prologue || entry.meta?.is_epilogue || is_telemetry(entry)) {
+      if (
+        entry.busy ||
+        entry.role === "system" ||
+        entry.attachments?.length ||
+        entry.meta?.is_prologue ||
+        entry.meta?.is_epilogue ||
+        is_telemetry_meta(entry.meta)
+      ) {
         return true;
       }
       return typeof entry.text === "string" && entry.text.trim().length > 0;
@@ -68,8 +72,6 @@
   });
 
   // --- SCROLLING & VIEWPORT INTEGRATION ---
-  /** @type {HTMLElement | undefined} */
-  let scroll_ref = $state();
   /** @type {HTMLElement | null} */
   let viewport_el = $state(null);
   let user_scrolled_up = $state(false);
@@ -106,13 +108,7 @@
     follow_raf = requestAnimationFrame(ease_follow);
   }
 
-  // Resolve ScrollArea viewport once when entities load & DOM mounts
-  $effect(() => {
-    void app.entities_loaded;
-    viewport_el = scroll_ref?.querySelector(".scroll-area-viewport") ?? null;
-  });
-
-  // Viewport lifecycle observers (scroll, wheel-anywhere, resize, DOM growth) — mounted ONCE per viewport
+  // Viewport lifecycle observers (scroll, wheel-anywhere, resize, DOM growth) — mounted once per viewport
   $effect(() => {
     const vp = viewport_el;
     if (!vp) return;
@@ -206,7 +202,7 @@
     if (id == null) return;
     delete_target_id = null;
 
-    if (Audio.voice?.active_message_id === id) Audio.voice.stop();
+    if (Audio?.voice?.active_message_id === id) Audio.voice.stop();
     if (pending_deletes[id]) clearTimeout(pending_deletes[id].timer);
 
     const timer = setTimeout(async () => {
@@ -250,7 +246,6 @@
 <div
   role="region"
   aria-label="Story feed"
-  bind:this={scroll_ref}
   class={[
     "relative z-10 flex h-full min-h-0 flex-col justify-center overflow-hidden",
     app.viewport.mobile ? "inset-auto col-span-full row-3 items-center" : "col-start-2 col-end-12 row-start-1 row-end-13 items-center",
@@ -258,9 +253,9 @@
   {#if !app.entities_loaded}
     <CardSkeleton />
   {:else}
-    <ScrollArea data-id="storymode-scroll-area" class="h-full min-h-80 w-full flex-1">
+    <ScrollArea data-id="storymode-scroll-area" bind:viewport_ref={viewport_el} fixed_scrollbar allow_overflow_x class="h-full min-h-80 w-full flex-1">
       {#each visible_feed as entry, index (entry.id)}
-        {@const role = map_role(entry.role)}
+        {@const role = canonicalize_role(entry.role)}
         {@const timestamp = entry.created_at ? new Date(entry.created_at) : new Date()}
         {#if pending_deletes[entry.id]}
           <div
@@ -273,7 +268,7 @@
               <UndoToast undo_window_ms={UNDO_DELETE_WINDOW_MS} on_undo={() => undo_delete(entry.id)} />
             </div>
           </div>
-        {:else if is_telemetry(entry)}
+        {:else if is_telemetry_meta(entry.meta)}
           <div data-entry-id={entry.id} class="w-full shrink-0" in:item_in={{ duration: 200 }}>
             <DevBubble meta={entry.meta} {timestamp} />
           </div>
@@ -326,18 +321,3 @@
     </ScrollArea>
   {/if}
 </div>
-
-<style>
-  :global([data-id="storymode-scroll-area"]) {
-    overflow-x: visible;
-  }
-
-  :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    height: 100dvh;
-    z-index: var(--z-index-max);
-  }
-</style>

@@ -53,42 +53,10 @@
    * Shared renderer for structured `[KEY: value]` entries and relationship previews.
    */
   import { Icon } from "@atoms";
-  import { get_signature_color, parse_bracket_display_flags, resolve_display_macro_segments } from "@utils";
+  import { get_signature_color, match_entity_in_roster, parse_bracket_display_flags, resolve_display_macro_segments } from "@utils";
   import MacroText from "./MacroText.svelte";
 
   let { record = null, entries = [], owner = null, entities = {}, compact = false, sort_by_length = true, on_select = null } = $props();
-
-  const known_entities = $derived(Array.isArray(entities?.ALL) ? entities.ALL : []);
-
-  function resolve_bracket_target_color(key) {
-    if (!key?.startsWith("@")) return null;
-    const raw_slug = key.slice(1).trim().toLowerCase();
-    if (!raw_slug) return null;
-    if (raw_slug === "user" && entities?.USER) return get_signature_color(entities.USER, null);
-    if ((raw_slug === "char" || raw_slug === "ai") && entities?.AI) return get_signature_color(entities.AI, null);
-    if (raw_slug === "fractal" && entities?.FRACTAL) return get_signature_color(entities.FRACTAL, null);
-
-    const spaced = raw_slug.replace(/_/g, " ");
-    const exact = known_entities.find((e) => {
-      const id = String(e?.id || "")
-        .trim()
-        .toLowerCase();
-      const name = String(e?.name || "")
-        .trim()
-        .toLowerCase();
-      return id === raw_slug || id === spaced || name === raw_slug || name === spaced;
-    });
-    if (exact) return get_signature_color(exact, null);
-
-    const token_match = known_entities.find((e) =>
-      String(e?.name || "")
-        .trim()
-        .toLowerCase()
-        .split(/\s+/)
-        .includes(spaced),
-    );
-    return token_match ? get_signature_color(token_match, null) : null;
-  }
 
   const normalized_entries = $derived.by(() => {
     const source =
@@ -124,7 +92,7 @@
 {#if normalized_entries.length > 0}
   <div class={["flex w-full flex-col divide-y text-left", compact ? "divide-white/10" : "divide-white/5"]}>
     {#each normalized_entries as item, idx (`${item.key}_${idx}`)}
-      {@const key_color = resolve_bracket_target_color(item.key)}
+      {@const key_color = item.key?.startsWith("@") ? get_signature_color(match_entity_in_roster(item.key.slice(1), entities, owner), null) : null}
       {@const key_parts = compact && item.key.includes("_") ? item.key.split("_") : null}
       <div class={["flex flex-col items-start gap-0.5 first:pt-0 last:pb-0", compact ? "py-1" : "py-1.5", item.is_hidden && "opacity-muted"]}>
         <div class="flex w-full items-baseline justify-between gap-tight">

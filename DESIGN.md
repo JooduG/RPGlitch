@@ -463,6 +463,46 @@ Two-tier motion discipline governs animations:
   opacity: 0;
 }
 
+@utility glass-panel {
+  position: relative;
+  border: var(--spacing-pixel) solid transparent;
+  background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 5%, var(--color-glass-sunken));
+  box-shadow: var(--shadow-standard);
+  backdrop-filter: var(--blur-mist);
+  transition-property: background-color, border-color, box-shadow, opacity;
+  transition-duration: var(--transition-duration-standard);
+  transition-timing-function: var(--ease-out);
+
+  &::before {
+    @apply mask-border-solid;
+
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: var(--spacing-pixel);
+    opacity: var(--opacity-whisper);
+    transition: var(--motion-dissolve);
+    content: "";
+    background: linear-gradient(to bottom, color-mix(in srgb, transparent, var(--signature-color, var(--color-frozen)) 40%), transparent 40%);
+  }
+
+  &[data-active="true"],
+  &[data-expanded="true"] {
+    background-color: color-mix(in srgb, var(--signature-color, var(--color-frozen)) 10%, var(--color-glass-sunken));
+
+    &::before {
+      opacity: var(--opacity-solid);
+      background: linear-gradient(
+        to bottom,
+        var(--signature-color, var(--color-frozen)),
+        color-mix(in srgb, var(--signature-color, var(--color-frozen)), transparent 60%) 30%,
+        transparent 80%
+      );
+    }
+  }
+}
+
 @utility glass-input {
   position: relative;
   display: flex;

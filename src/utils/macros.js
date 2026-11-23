@@ -7,17 +7,6 @@ const MACRO_TOKEN_REGEX = /(?<!\w)@([a-zA-Z0-9_-]+)\b/gi;
 
 const FALLBACK_LABELS = Object.freeze({ user: "the traveler", you: "the traveler", fractal: "the realm", char: "the companion" });
 
-/**
- * Creates a frozen relational context tuple consolidating identity, perspective, and interlocutors.
- * @param {Object} [parameters={}]
- * @param {any} [parameters.me]
- * @param {any} [parameters.you]
- * @param {any} [parameters.speaker]
- * @param {any} [parameters.listener]
- * @param {any} [parameters.owner]
- * @param {any} [parameters.target]
- * @param {any[]} [parameters.witnesses=[]]
- */
 export function create_relational_context({ me = null, you = null, speaker = null, listener = null, owner = null, target = null, witnesses = [] } = {}) {
   return Object.freeze({
     me,
@@ -31,24 +20,12 @@ export function create_relational_context({ me = null, you = null, speaker = nul
   });
 }
 
-/**
- * True when two entity references point at the same entity (by identity or matching string ID).
- * @param {any} a
- * @param {any} b
- * @returns {boolean}
- */
 function entity_ids_match(a, b) {
   if (!a || !b) return false;
   if (a === b) return true;
-  return !!(a.id && b.id && String(a.id) === String(b.id));
+  return Boolean(a.id && b.id && String(a.id) === String(b.id));
 }
 
-/**
- * Classifies `owner` into its macro perspective (`"user"`, `"ai"`, `"fractal"`, `"entity:<id>"`, or `null`).
- * @param {any} owner
- * @param {{ AI?: any, USER?: any, FRACTAL?: any }} [entities={}]
- * @returns {string | null}
- */
 function resolve_owner_perspective(owner, entities = {}) {
   if (!owner) return null;
   if (owner.type === "user" || entity_ids_match(owner, entities?.USER)) return "user";
@@ -58,12 +35,6 @@ function resolve_owner_perspective(owner, entities = {}) {
   return null;
 }
 
-/**
- * Builds shared perspective and interlocutor state for macro parsing and display segmentation.
- * @param {any} owner_or_context
- * @param {any} entities
- * @param {Object} [context={}]
- */
 function build_macro_state(owner_or_context, entities = {}, context = {}) {
   const rel_ctx =
     owner_or_context?.is_relational_context ? owner_or_context
@@ -91,12 +62,12 @@ function build_macro_state(owner_or_context, entities = {}, context = {}) {
 }
 
 /**
- * Formats an entity's canonical uppercase `@ID` handle for display segments.
+ * Formats an entity's canonical uppercase `@ID` handle for display segments and graph nodes.
  * @param {any} entity
- * @param {string} fallback_token
+ * @param {string} [fallback_token=""]
  * @returns {string}
  */
-function format_handle(entity, fallback_token) {
+export function format_entity_handle(entity, fallback_token = "") {
   const raw = entity?.id || fallback_token || entity?.name || "";
   const cleaned = String(raw)
     .trim()
@@ -107,17 +78,27 @@ function format_handle(entity, fallback_token) {
 }
 
 /**
- * Resolves a concrete `@ENTITY` token against active scene entities and `entities.ALL`.
+ * Resolves a concrete `@ENTITY` token or slug against ambient role slots and `entities.ALL`.
+ * Shared across `macros.js`, `BracketList.svelte`, and `RelationalGraph.svelte`.
  * @param {string} raw_token
- * @param {any} state
- * @param {any} entities
+ * @param {{ AI?: any, USER?: any, FRACTAL?: any, ALL?: any[] }} [entities={}]
+ * @param {any} [owner=null]
  * @returns {any | null}
  */
-function find_roster_entity(raw_token, state, entities) {
-  const token_lc = raw_token.toLowerCase();
+export function match_entity_in_roster(raw_token, entities = {}, owner = null) {
+  const token_lc = String(raw_token || "")
+    .trim()
+    .replace(/^@+/, "")
+    .toLowerCase();
+  if (!token_lc) return null;
+
+  if (token_lc === "user" && entities?.USER) return entities.USER;
+  if ((token_lc === "char" || token_lc === "ai") && entities?.AI) return entities.AI;
+  if (token_lc === "fractal" && entities?.FRACTAL) return entities.FRACTAL;
+
   const spaced_token = token_lc.replace(/_/g, " ");
-  const extra = Array.isArray(entities.ALL) ? entities.ALL : [];
-  const candidates = [state.ai_entity, state.user_entity, state.fractal_entity, state.owner, ...extra].filter(Boolean);
+  const extra = Array.isArray(entities?.ALL) ? entities.ALL : [];
+  const candidates = [entities?.AI, entities?.USER, entities?.FRACTAL, owner, ...extra].filter(Boolean);
 
   const exact = candidates.find((cand) => {
     const cand_id = String(cand.id || "")
@@ -131,22 +112,15 @@ function find_roster_entity(raw_token, state, entities) {
   if (exact) return exact;
 
   return (
-    candidates.find((cand) =>
-      String(cand.name || "")
+    candidates.find((cand) => {
+      const cand_name = String(cand.name || "")
         .trim()
-        .toLowerCase()
-        .split(/\s+/)
-        .includes(spaced_token),
-    ) || null
+        .toLowerCase();
+      return cand_name.split(/\s+/).includes(spaced_token) || spaced_token.split(/\s+/).includes(cand_name);
+    }) || null
   );
 }
 
-/**
- * Resolves role and perspective tokens (`@USER`, `@CHAR`, `@FRACTAL`, `@TARGET`, `@SPEAKER`, `@ME`, `@OWNER`, `@LISTENER`, `@YOU`).
- * @param {string} token - Uppercased token name.
- * @param {ReturnType<typeof build_macro_state>} state
- * @returns {{ matched: boolean, entity: any, fallback_text: string | null }}
- */
 function resolve_role_token(token, state) {
   const { rel_ctx, owner, ai_entity, user_entity, fractal_entity, perspective, speaker_entity, listener_entity } = state;
 
@@ -186,15 +160,6 @@ function resolve_role_token(token, state) {
   return { matched: false, entity: null, fallback_text: null };
 }
 
-/**
- * Resolves role/perspective `@TOKEN` macros in text for LLM prompt compilation,
- * keeping unknown or concrete `@ENTITY` tokens verbatim.
- * @param {string} text
- * @param {any} owner_or_context
- * @param {any} [entities={}]
- * @param {Object} [context={}]
- * @returns {string}
- */
 export function parse_macros(text, owner_or_context, entities = {}, context = {}) {
   if (!text || !entities) return text || "";
   const state = build_macro_state(owner_or_context, entities, context);
@@ -207,15 +172,6 @@ export function parse_macros(text, owner_or_context, entities = {}, context = {}
   });
 }
 
-/**
- * Resolves `@TOKEN` and concrete `@ENTITY` mentions into display segments
- * (`{ text, macro, entity }`) for signature-colored UI rendering.
- * @param {string} text
- * @param {any} owner
- * @param {{ AI?: any, USER?: any, FRACTAL?: any, ALL?: any[] }} [entities={}]
- * @param {Object} [context={}]
- * @returns {Array<{ text: string, macro: string | null, entity: any | null }>}
- */
 export function resolve_display_macro_segments(text, owner, entities = {}, context = {}) {
   if (!text) return [];
   const state = build_macro_state(owner, entities, context);
@@ -232,13 +188,13 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
 
     const raw_token = match[1];
     const role_result = resolve_role_token(raw_token.toUpperCase(), state);
-    const resolved_entity = role_result.matched ? role_result.entity : find_roster_entity(raw_token, state, entities);
+    const resolved_entity = role_result.matched ? role_result.entity : match_entity_in_roster(raw_token, entities, state.owner);
 
     let label;
     let entity = null;
     if (resolved_entity?.name?.trim() || resolved_entity?.id) {
       entity = resolved_entity;
-      label = format_handle(resolved_entity, raw_token);
+      label = format_entity_handle(resolved_entity, raw_token);
     } else if (role_result.matched && role_result.fallback_text) {
       label = role_result.fallback_text;
     } else {
@@ -255,13 +211,6 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
   return segments;
 }
 
-/**
- * Resolves `@TOKEN` and concrete `@ENTITY` mentions into a plain display string.
- * @param {string} text
- * @param {any} owner
- * @param {{ AI?: any, USER?: any, FRACTAL?: any, ALL?: any[] }} [entities={}]
- * @returns {string}
- */
 export function render_display_macros(text, owner, entities = {}) {
   if (!text) return "";
   return resolve_display_macro_segments(text, owner, entities)

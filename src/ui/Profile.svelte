@@ -3,6 +3,7 @@
    * @file src/ui/Profile.svelte
    * Entity profile modal orchestrating viewing, editing, time-travel inspection, and auxiliary wings.
    */
+  import { Avatar, Button, Icon, Label, Shimmer, StyleTile, tooltip } from "@atoms";
   import { serialize_character_card, serialize_entity_for_export } from "@data";
   import {
     NARRATIVE_STYLES,
@@ -14,14 +15,13 @@
     resolve_entity_style_tiles,
   } from "@definitions";
   import { motion } from "@media";
-  import { safe_parse_pseudo_json } from "@simulation";
-  import { app, execution, session } from "@state";
-  import { auto_resize, download_json_file, entity_avatar_props, get_signature_color, to_style_dropdown_items } from "@utils";
-  import { Avatar, Button, Icon, Label, Shimmer, tooltip } from "@atoms";
   import { BracketList, Dialog, Dropdown, MacroText, Modal, TextField } from "@molecules";
   import { AudioWing, DevWing, RelationalGraph, VisualWing } from "@organisms";
-  import { ProfileState } from "./Profile.svelte.js";
+  import { safe_parse_pseudo_json } from "@simulation";
+  import { app, execution, session } from "@state";
+  import { auto_resize, download_json_file, entity_avatar_props, get_signature_color, normalize_comma_spacing, to_style_dropdown_items } from "@utils";
   import { fade } from "svelte/transition";
+  import { ProfileState } from "./Profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -53,19 +53,6 @@
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
   const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
   const wing_card_class = $derived(is_mobile ? "w-[85vw] max-w-sm shrink-0" : "w-full");
-
-  const known_entities = $derived(
-    [session.active_ai, session.active_user, session.active_fractal, ...(app.ai_list || []), ...(app.user_list || []), ...(app.fractal_list || [])].filter(
-      Boolean,
-    ),
-  );
-
-  const display_entities = $derived({
-    AI: session.active_ai || app.selected_ai,
-    USER: session.active_user || app.selected_user,
-    FRACTAL: session.active_fractal || app.selected_fractal,
-    ALL: known_entities,
-  });
 
   const target_morph_name = $derived.by(() => {
     const id = profile_state.char?.id;
@@ -220,7 +207,7 @@
     if (!res || !Object.keys(res).length || res.__raw_prose__) return null;
     const standardized = {};
     for (const [k, v] of Object.entries(res)) {
-      standardized[k] = typeof v === "string" ? v.replace(/,([^\s])/g, ", $1") : v;
+      standardized[k] = typeof v === "string" ? normalize_comma_spacing(v) : v;
     }
     return standardized;
   }
@@ -368,18 +355,7 @@
                     trigger_style="width: 8.5rem; height: 8.5rem;"
                     onchange={() => profile_state.mark_mutated()}>
                     {#snippet trigger_content({ selected_item })}
-                      <div
-                        use:tooltip={selected_item?.tooltip}
-                        class="group/badge pointer-events-auto relative flex h-full w-full transform-gpu items-center justify-center overflow-hidden rounded-xl border border-solid border-(--signature-color) bg-black/40 shadow-md transition duration-300 ease-in-out"
-                        style:--signature-color={signature_color}>
-                        <Avatar
-                          src={style_cfg.tile?.portrait || ""}
-                          alt={style_cfg.tile?.name || `No ${style_cfg.label}`}
-                          initials={style_cfg.tile?.fallback || "?"}
-                          {signature_color}
-                          fallback_class="text-lg"
-                          class="rounded-[inherit]" />
-                      </div>
+                      <StyleTile tile={style_cfg.tile} {signature_color} tooltip_text={selected_item?.tooltip} class="size-full transform-gpu rounded-xl" />
                     {/snippet}
                   </Dropdown>
                 {/if}
@@ -392,7 +368,7 @@
         <div
           bind:this={info_container_el}
           class={[
-            "flex min-h-0 min-w-0 flex-1 scrollbar-none scrollbar-track-transparent flex-col gap-standard overflow-x-clip overflow-y-auto pt-standard transition-opacity duration-fast ease-out",
+            "flex min-h-0 min-w-0 flex-1 scrollbar-thin scrollbar-track-transparent flex-col gap-standard overflow-x-clip overflow-y-auto pt-standard transition-opacity duration-fast ease-out",
             content_dipping && !motion.is_reduced && "opacity-0",
           ]}>
           <header
@@ -488,7 +464,7 @@
                     {/if}
 
                     {#snippet bracketed_content()}
-                      <BracketList record={parsed} owner={profile_state.char} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
+                      <BracketList record={parsed} owner={profile_state.char} entities={session.display_entities} on_select={(ent) => app.open_profile(ent)} />
                     {/snippet}
 
                     <TextField
@@ -746,27 +722,28 @@
 {/if}
 
 {#snippet SectionLabel(id, label, first_field_key = "")}
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
   <h6
     data-section={id}
     class={[
       "my-auto flex w-full min-w-0 items-center justify-center text-center transition-colors duration-standard",
-      profile_state.is_editing && first_field_key ? "cursor-pointer" : "cursor-default",
       !is_mobile && "rotate-180 [text-orientation:mixed] [writing-mode:vertical-rl]",
     ]}
     style="color: var(--signature-color); text-shadow: none;"
-    onclick={() => {
-      if (profile_state.is_editing && first_field_key) {
-        document.getElementById(`field-${first_field_key.replace(".", "-")}`)?.focus();
-      }
-    }}
     onmouseenter={() => (profile_state.hovered_section = id)}
     onmouseleave={() => (profile_state.hovered_section = null)}>
-    {label}
+    {#if profile_state.is_editing && first_field_key}
+      <button
+        type="button"
+        class="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] tracking-[inherit] text-inherit uppercase outline-none focus-visible:underline"
+        onclick={() => document.getElementById(`field-${first_field_key.replace(".", "-")}`)?.focus()}>
+        {label}
+      </button>
+    {:else}
+      {label}
+    {/if}
   </h6>
 {/snippet}
 
 {#snippet inline_macro_text(text)}
-  <MacroText {text} owner={profile_state.char} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
+  <MacroText {text} owner={profile_state.char} entities={session.display_entities} on_select={(ent) => app.open_profile(ent)} />
 {/snippet}

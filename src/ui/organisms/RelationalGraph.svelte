@@ -1,10 +1,10 @@
 <script module>
-  // i <script module>
   let graph_uid = 0;
   function next_graph_uid() {
     graph_uid += 1;
     return graph_uid;
   }
+
   const SIZE = 380;
   const CENTER = SIZE / 2;
   const RADIUS = 135;
@@ -14,13 +14,6 @@
     String(name || "")
       .trim()
       .toLowerCase();
-
-  function get_entity_slug(ent) {
-    if (!ent) return "";
-    return String(ent.id || ent.name || "")
-      .toUpperCase()
-      .replace(/[^A-Z0-9_-]/g, "_");
-  }
 
   function clean_dynamic_text(text) {
     if (!text || typeof text !== "string") return "";
@@ -33,33 +26,6 @@
   function summarize_links(links) {
     return links?.present?.[0] || links?.eternal?.[0] || links?.past?.[0] || links?.future?.[0] || "Connected";
   }
-
-  function collect_bracket_items(links_list, force_hidden = false) {
-    const items = [];
-    const seen = new Set();
-    for (const links of Array.isArray(links_list) ? links_list : [links_list]) {
-      if (!links) continue;
-      for (const quadrant of ["present", "eternal", "past", "future"]) {
-        const bucket = links[quadrant];
-        if (!Array.isArray(bucket)) continue;
-        for (const raw_entry of bucket) {
-          const text = String(raw_entry || "").trim();
-          if (!text) continue;
-          const match = text.match(/^\[([^:\]]+):([\s\S]*)\]$/);
-          const key = match ? match[1].trim() : "BOND";
-          const raw_val = match ? match[2].trim() : text;
-          const is_hidden = force_hidden || /(?:^|\s)\|(?:\s*(?:hide|private)\b)/i.test(raw_val);
-          const value = clean_dynamic_text(raw_val);
-          if (!value) continue;
-          const dedupe_key = `${quadrant}:${key.toUpperCase()}:${value}`;
-          if (seen.has(dedupe_key)) continue;
-          seen.add(dedupe_key);
-          items.push({ key, value, is_hidden, quadrant });
-        }
-      }
-    }
-    return items;
-  }
 </script>
 
 <script>
@@ -69,23 +35,23 @@
    */
   import { Avatar, Icon, pin_tooltip_menu, tooltip } from "@atoms";
   import { list_entities } from "@data";
-  import { extract_entity_relationships } from "@simulation";
+  import { extract_entity_relationships, parse_relationship_brackets } from "@simulation";
   import { app, session } from "@state";
-  import { entity_avatar_props, get_signature_color, render_display_macros } from "@utils";
+  import { entity_avatar_props, format_entity_handle, get_signature_color, match_entity_in_roster, render_display_macros } from "@utils";
 
   let { entity, on_select_entity = () => {}, class: custom_class = "" } = $props();
 
-  // i <script>
   const uid = next_graph_uid();
-  let db_entities = $state([]);
+  let fallback_db_entities = $state([]);
   let hovered_edge = $state(null);
   let hovered_node = $state(null);
   let center_hovered = $state(false);
 
   $effect(() => {
+    if (app.entities_loaded) return;
     let cancelled = false;
     Promise.all([list_entities("character"), list_entities("fractal")]).then(([chars, fracs]) => {
-      if (!cancelled) db_entities = [...chars, ...fracs];
+      if (!cancelled) fallback_db_entities = [...chars, ...fracs];
     });
     return () => {
       cancelled = true;
@@ -102,15 +68,7 @@
   const all_entities = $derived.by(() => {
     const seen = new Set();
     const merged = [];
-    const pool = [
-      ...db_entities,
-      session.active_ai,
-      session.active_user,
-      session.active_fractal,
-      ...(app.ai_list || []),
-      ...(app.user_list || []),
-      ...(app.fractal_list || []),
-    ];
+    const pool = [...(session.known_entities || []), ...fallback_db_entities];
     for (const item of pool) {
       if (!item) continue;
       const key = norm(item.id) || norm(item.name);
@@ -121,28 +79,11 @@
     return merged;
   });
 
-  const display_entities = $derived({
-    AI: session.active_ai || app.selected_ai,
-    USER: session.active_user || app.selected_user,
-    FRACTAL: session.active_fractal || app.selected_fractal,
-    ALL: all_entities,
-  });
+  const roster_context = $derived({ ...session.display_entities, ALL: all_entities });
 
-  function find_matched_entity(target_name) {
+  function resolve_target_entity(target_name) {
     if (!target_name) return null;
-    const n = norm(target_name);
-    const spaced = n.replace(/_/g, " ");
-    const exact = all_entities.find((e) => {
-      const en = norm(e.name);
-      const eid = norm(e.id);
-      return en === n || en === spaced || eid === n || eid === spaced;
-    });
-    if (exact) return exact;
-    const token_match = all_entities.find((e) => {
-      const en = norm(e.name);
-      return en.split(/\s+/).includes(n) || en.split(/\s+/).includes(spaced) || spaced.split(/\s+/).includes(en);
-    });
-    return token_match || { name: target_name.replace(/_/g, " ") };
+    return match_entity_in_roster(target_name, roster_context, entity) || { name: String(target_name).replace(/_/g, " ") };
   }
 
   const resolved_edges = $derived.by(() => {
@@ -155,7 +96,7 @@
 
     for (const [target_key, links] of extract_entity_relationships(entity, all_entities, "owner")) {
       if (is_self(norm(target_key))) continue;
-      const target_entity = find_matched_entity(target_key);
+      const target_entity = resolve_target_entity(target_key);
       edges.push({
         source_name: entity.name,
         target_name: target_entity?.name || target_key,
@@ -195,7 +136,7 @@
     for (const edge of resolved_edges) {
       const other_name = edge.is_outgoing ? edge.target_name : edge.source_name;
       const other_entity = edge.is_outgoing ? edge.target_entity : edge.source_entity;
-      const resolved = other_entity?.id ? other_entity : find_matched_entity(other_name);
+      const resolved = other_entity?.id ? other_entity : resolve_target_entity(other_name);
       const key = norm(resolved?.name || other_name);
       if (!key || key === current_name) continue;
 
@@ -212,7 +153,7 @@
       const is_incoming_only = item.outgoing_links.length === 0 && item.incoming_links.length > 0;
       const angle = (idx * 2 * Math.PI) / items.length - Math.PI / 2;
       const sat_entity = item.entity;
-      const bracket_items = is_incoming_only ? [] : collect_bracket_items(item.outgoing_links, false);
+      const bracket_items = is_incoming_only ? [] : parse_relationship_brackets(item.outgoing_links, false);
       return {
         ...item,
         key: norm(item.name),
@@ -221,7 +162,7 @@
         x: CENTER + RADIUS * Math.cos(angle),
         y: CENTER + RADIUS * Math.sin(angle),
         color: get_signature_color(sat_entity),
-        handle: `@${get_entity_slug(sat_entity || item)}`,
+        handle: format_entity_handle(sat_entity, item.name),
         preview_payload: { entity: sat_entity || { name: item.name }, bracket_items, description_owner: entity, incoming_only: is_incoming_only },
       };
     });
@@ -269,7 +210,7 @@
         target_key: norm(edge.target_name),
         tooltip_text:
           edge.is_outgoing ?
-            `@${get_entity_slug(edge.source_entity)} → @${get_entity_slug(edge.target_entity)}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, display_entities)}`
+            `${format_entity_handle(edge.source_entity)} → ${format_entity_handle(edge.target_entity)}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, roster_context)}`
           : null,
       });
     }
@@ -281,7 +222,7 @@
     incoming_edges
       .map(
         (edge) =>
-          `@${get_entity_slug(edge.source_entity || { name: edge.source_name })}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, display_entities)}`,
+          `${format_entity_handle(edge.source_entity, edge.source_name)}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, roster_context)}`,
       )
       .join("\n") || null,
   );
@@ -358,7 +299,7 @@
           <Avatar {...entity_avatar_props(entity)} class="rounded-full" />
         </div>
         <span class="mt-tight max-w-22.5 truncate text-center type-data drop-shadow-md" style:color={center_color}>
-          @{get_entity_slug(entity) || "ACTIVE"}
+          {format_entity_handle(entity, "ACTIVE")}
         </span>
       </div>
 

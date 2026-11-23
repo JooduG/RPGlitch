@@ -6,7 +6,7 @@
    */
   import { Button, Icon, Shimmer } from "@atoms";
   import { resolve_image_resolution } from "@simulation";
-  import { app, session } from "@state";
+  import { session } from "@state";
   import { get_signature_color } from "@utils";
   import { image_picker, open_image_preview, open_picker, regenerate_image } from "./ImagePreview.svelte.js";
 
@@ -14,16 +14,7 @@
 
   const is_fractal = $derived(sender === "fractal");
 
-  const entity = $derived(
-    sender === "user" ? session.active_user || app.selected_user
-    : sender === "ai" ? session.active_ai || app.selected_ai
-    : sender === "npc" ? Object.values(session.active_npcs || {}).find((n) => String(n.name) === character_name) || null
-    : is_fractal ?
-      session.active_fractal?.id && session.active_fractal.id !== "active_fractal" ?
-        session.active_fractal
-      : app.selected_fractal || session.active_fractal
-    : null,
-  );
+  const entity = $derived(session.resolve_feed_entity(sender, character_name));
 
   const signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
 

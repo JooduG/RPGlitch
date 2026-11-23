@@ -287,3 +287,13 @@ export function to_style_dropdown_items(styles_map, default_key = "default") {
     tooltip: style.description || style.name || "",
   }));
 }
+
+/**
+ * Extracts standard image-preview metadata from an entity's modifiers.
+ * @param {Record<string, any> | null | undefined} entity
+ * @returns {{ prompt: string, negative_prompt: string, seed: any } | null}
+ */
+export function extract_portrait_meta(entity) {
+  const m = entity?.modifiers;
+  return m ? { prompt: m.prompt, negative_prompt: m.negative_prompt, seed: m.last_generated_seed } : null;
+}

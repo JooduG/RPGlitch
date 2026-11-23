@@ -1,71 +1,3 @@
-<script module>
-  import { clean_generated_prose, clean_image_prompts, format_tagged_fields, parse_think_block, strip_covert_directives } from "@simulation";
-  import { sanitize } from "@utils";
-  import MarkdownIt from "markdown-it";
-
-  const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
-
-  /**
-   * Stateful parser to wrap text inside double quotes with a `<span class="dialogue">` tag.
-   * @param {string} html
-   * @returns {string}
-   */
-  export function wrap_dialogue(html) {
-    if (!html) return "";
-    const parts = html.split(/(<[^>]+>)/);
-    let in_quote = false;
-
-    for (let i = 0; i < parts.length; i++) {
-      if (parts[i].startsWith("<")) continue;
-
-      const text = parts[i].replace(/&quot;/g, '"').replace(/&apos;/g, "'");
-      let new_text = "";
-      let last_index = 0;
-
-      for (let j = 0; j < text.length; j++) {
-        if (text[j] === '"') {
-          new_text += text.substring(last_index, j);
-          new_text += in_quote ? "&rdquo;</span>" : '<span class="dialogue">&ldquo;';
-          in_quote = !in_quote;
-          last_index = j + 1;
-        }
-      }
-      parts[i] = new_text + text.substring(last_index);
-    }
-
-    return parts.join("") + (in_quote ? "</span>" : "");
-  }
-
-  /**
-   * Lightweight think-block markdown renderer (skips image-prompt & dialogue passes).
-   * @param {string|null|undefined} raw_think
-   * @param {"plain"|"ornate"|"raw"|"clinical"} [register="plain"]
-   * @returns {string|null}
-   */
-  function render_think_html(raw_think, register = "plain") {
-    if (!raw_think || !raw_think.trim()) return null;
-    const detoxed = clean_generated_prose(raw_think, register);
-    return sanitize(markdown.render(detoxed).trim());
-  }
-
-  /**
-   * Master parser: image prompt stripping, think extraction, cliché detox, markdown, sanitization, dialogue wrapping.
-   * @param {string|null|undefined} rawText
-   * @param {"plain"|"ornate"|"raw"|"clinical"} [register="plain"]
-   * @returns {{ displayText: string, think: string|null, rawThink: string|null, detoxedText: string }}
-   */
-  export function parse_message(rawText, register = "plain") {
-    let text = clean_image_prompts(rawText || "");
-    const { content, think } = parse_think_block(text);
-
-    text = clean_generated_prose(content, register);
-    text = format_tagged_fields(strip_covert_directives(text), { see_hidden: "none" });
-
-    const rendered = wrap_dialogue(sanitize(markdown.render(text).trim()));
-    return { displayText: rendered, think: render_think_html(think, register), rawThink: think || null, detoxedText: text };
-  }
-</script>
-
 <script>
   /**
    * @file src/ui/organisms/ChatBubble.svelte
@@ -74,11 +6,11 @@
   import { resolve_entity_style_tiles } from "@definitions";
   import { app, execution, session } from "@state";
   import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
-  import { Accordion, Avatar, Button, Icon, Shimmer, Typewriter, tooltip } from "@atoms";
   import { StoryboardTitle, TextField } from "@molecules";
   import { open_context_menu } from "./ContextMenu.svelte";
   import EntityCard from "./EntityCard.svelte";
-  import { resolve_speaking_style } from "@simulation";
+  import { Avatar, Button, Icon, Shimmer, StyleTile, Typewriter, tooltip, Accordion } from "@atoms";
+  import { parse_message, render_think_html, resolve_speaking_style } from "@simulation";
   import { entity_avatar_props, get_signature_color, safe_html } from "@utils";
 
   let {
@@ -119,16 +51,7 @@
   const voice_audible = $derived(Boolean(Audio?.is_role_enabled?.(speak_role)));
   const is_speaking_this = $derived(Boolean(Audio?.voice?.is_speaking && Audio.voice.active_message_id === id));
 
-  const entity = $derived(
-    is_user ? session.active_user || app.selected_user
-    : is_ai ? session.active_ai || app.selected_ai
-    : is_npc ? Object.values(session.active_npcs || {}).find((n) => String(n.name) === character_name) || null
-    : is_fractal ?
-      session.active_fractal?.id && session.active_fractal.id !== "active_fractal" ?
-        session.active_fractal
-      : app.selected_fractal || session.active_fractal
-    : null,
-  );
+  const entity = $derived(session.resolve_feed_entity(sender, character_name));
 
   const signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
   const is_extended = $derived(is_pinned || is_focused || is_editing);
@@ -260,25 +183,12 @@
           {@const f_color = get_signature_color(f, "var(--color-gunmetal)")}
           <div class="pointer-events-none flex w-full shrink-0 justify-center gap-tight md:gap-standard" data-msg-style-badge>
             {#each active_tiles as tile (tile.name)}
-              <div
-                class="group/badge pointer-events-auto relative flex aspect-square min-w-0 flex-1 transform-gpu items-center justify-center overflow-hidden rounded-[clamp(0.5rem,9cqi,1rem)] border border-solid border-(--signature-color) bg-black/40 shadow-md transition duration-300 ease-in-out hover:scale-lift hover:brightness-glow">
-                <Avatar
-                  src={tile.portrait}
-                  alt={tile.name}
-                  initials={tile.fallback}
-                  signature_color={f_color}
-                  fallback_class="text-[clamp(0.75rem,8cqi,1.1rem)]"
-                  class="rounded-[inherit]">
-                  {#snippet overlay()}
-                    <div
-                      class="pointer-events-none absolute right-0 bottom-0 left-0 z-10 flex flex-col items-center justify-end overflow-hidden rounded-b-[inherit] bg-linear-to-t from-black/95 via-black/75 via-45% to-transparent px-1 pt-standard pb-tight text-center opacity-0 transition-opacity duration-standard ease-in-out group-hover/badge:opacity-100">
-                      <span
-                        class="line-clamp-2 w-full text-center type-uppercase-label wrap-break-word text-(--signature-color,var(--color-frisk)) [text-shadow:0_2px_4px_var(--color-void-black)]"
-                        >{tile.name}</span>
-                    </div>
-                  {/snippet}
-                </Avatar>
-              </div>
+              <StyleTile
+                {tile}
+                signature_color={f_color}
+                show_label_overlay={true}
+                fallback_class="text-[clamp(0.75rem,8cqi,1.1rem)]"
+                class="aspect-square min-w-0 flex-1 transform-gpu rounded-[clamp(0.5rem,9cqi,1rem)] hover:scale-lift hover:brightness-glow" />
             {/each}
           </div>
         {/if}
@@ -330,16 +240,12 @@
       {@render speaker_gutter("left", `${is_fractal ? "Fractal" : "Character"} Menu`)}
     {/if}
 
-    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
-      class={[
-        "group relative flex w-[calc(var(--spacing-column-unit)*5)] min-w-0 flex-col rounded-2xl border border-transparent shadow-[0_8px_32px_rgba(0,0,0,0.5)] [backdrop-filter:var(--blur-mist)] transition duration-300 ease-out outline-none before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:mask-border-solid before:p-px before:transition before:duration-300 before:content-['']!",
-        is_extended ?
-          "bg-[color-mix(in_srgb,var(--signature-color)_10%,rgba(15,15,15,0.75))] shadow-[0_8px_32px_color-mix(in_srgb,var(--signature-color),transparent_95%)] before:bg-[linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)] before:opacity-100"
-        : "bg-[color-mix(in_srgb,var(--signature-color)_5%,rgba(15,15,15,0.7))] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)] before:opacity-30",
-      ]}
+      data-active={is_extended}
+      class="group glass-panel relative flex w-[calc(var(--spacing-column-unit)*5)] min-w-0 flex-col rounded-2xl transition duration-300 ease-out outline-none"
       style:--signature-color={signature_color}
       tabindex="0"
       onclick={handle_message_click}
