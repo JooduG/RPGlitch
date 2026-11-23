@@ -765,7 +765,8 @@
                     </div>
                   {/if}
                 {:else if profile_state.char.id}
-                  <div class="flex items-center gap-tight rounded-md border border-white/10 bg-black/25 px-2.5 py-1 type-uppercase-label text-slate-200">
+                  <div
+                    class="flex max-w-full items-center gap-tight self-start rounded-md border border-white/10 bg-black/25 px-2.5 py-1 type-uppercase-label text-slate-200">
                     <span class="cursor-help" style="color: {signature_color};" use:tooltip={PROFILE_FIELDS.id.description}
                       >@{profile_state.char.id.toUpperCase()}</span>
                     <span class="text-slate-500" aria-hidden="true">·</span>
