@@ -634,32 +634,82 @@ function reset_title(title) {
   if (title) title.style.transform = "";
 }
 
-/** Removes every hidden style and reset positions when storymode unmounts. */
+/**
+ * Flies a title element from `from_rect` to `to_rect` using transform translation + uniform scale
+ * (avoids mid-flight line-wrap jitter), revealing the real destination title on land.
+ * @param {HTMLElement} source_el
+ * @param {Rect} from_rect
+ * @param {Rect} to_rect
+ * @param {{ duration?: number, delay?: number, on_land?: () => void }} [options]
+ */
+function fly_title_element(source_el, from_rect, to_rect, options = {}) {
+  const { duration = 420, delay = 0, on_land } = options;
+  return new Promise((resolve) => {
+    const clone = /** @type {HTMLElement} */ (source_el.cloneNode(true));
+    clone.setAttribute("data-begin-flight", "true");
+    clone.setAttribute("aria-hidden", "true");
+    clone.style.position = "fixed";
+    clone.style.margin = "0";
+    clone.style.zIndex = "var(--z-index-max)";
+    clone.style.pointerEvents = "none";
+    clone.style.willChange = "transform, opacity";
+    clone.style.transformOrigin = "top left";
+    clone.style.transition = "none";
+    place(clone, from_rect);
+    document.body.appendChild(clone);
+
+    const dx = to_rect.left - from_rect.left;
+    const dy = to_rect.top - from_rect.top;
+    const scale = Math.min(to_rect.width / Math.max(1, from_rect.width), to_rect.height / Math.max(1, from_rect.height));
+
+    let landed = false;
+    const land = () => {
+      if (landed) return;
+      landed = true;
+      try {
+        on_land?.();
+      } finally {
+        dissolve_clone(clone, 140);
+        resolve();
+      }
+    };
+
+    const launch = () => {
+      requestAnimationFrame(() => {
+        clone.style.transition = `transform ${duration}ms ${GLIDE_EASE}`;
+        clone.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+        clone.addEventListener("transitionend", (e) => {
+          if (e.target === clone && e.propertyName === "transform") land();
+        });
+      });
+      setTimeout(land, duration + 40);
+    };
+
+    if (delay > 0) setTimeout(launch, delay);
+    else launch();
+  });
+}
+
 export function clear_card_location() {
   if (typeof document === "undefined") return;
-  document.querySelectorAll("[data-card-root], [data-msg-style-badge], [data-panel-style-badge]").forEach(show_card);
+  document.querySelectorAll("[data-card-root], [data-msg-style-badge], [data-panel-style-badge], [data-msg-title]").forEach(show_card);
   reset_title(msg_title());
 }
 
 export function update_card_scrub() {
-  if (typeof document === "undefined") return;
-  // Static prologue view: cards, badges, and title remain in their natural resting place throughout scrolling.
+  if (typeof document === "undefined" || _begin_flight_running) return;
   show_msg_cards();
   hide_panels();
   show_msg_badge();
   hide_panel_badge();
+  show_card(msg_title());
   reset_title(msg_title());
 }
 
-/**
- * Captures the storyboard slot cards (visuals + rects) before the view flips,
- * so the begin-story flight still has an origin once the storyboard unmounts.
- * @param {{ ai: boolean, fractal: boolean, user: boolean }} [enabled]
- * @returns {{ clones: Record<string, HTMLElement>, rects: Record<string, {left:number,top:number,width:number,height:number}>, badge?: { clone: HTMLElement, rect: any } } | null}
- */
 export function capture_storyboard_flight(enabled = { ai: true, fractal: true, user: true }) {
   if (typeof document === "undefined") return null;
   const assets = { clones: {}, rects: {} };
+
   for (const type of CARD_TYPES) {
     if (!enabled[type]) continue;
     const root = document.querySelector(`[data-slot-type="${type}"] [data-card-root]`);
@@ -669,8 +719,7 @@ export function capture_storyboard_flight(enabled = { ai: true, fractal: true, u
     assets.clones[type] = retained;
     assets.rects[type] = rect_of(/** @type {HTMLElement} */ (root));
   }
-  // The fractal's style badge (overlay on the storyboard fractal card) rides
-  // the flight and lands under the prologue's fractal card.
+
   if (enabled.fractal) {
     const badge_root = document.querySelector(`[data-slot-type="fractal"] [data-card-badge]`);
     if (badge_root) {
@@ -679,68 +728,68 @@ export function capture_storyboard_flight(enabled = { ai: true, fractal: true, u
       assets.badge = { clone: retained, rect: rect_of(/** @type {HTMLElement} */ (badge_root)) };
     }
   }
-  return assets.clones.ai || assets.clones.fractal || assets.clones.user ? assets : null;
+
+  const title_el = document.querySelector("[data-storyboard-title]");
+  if (title_el) {
+    const retained = /** @type {HTMLElement} */ (title_el.cloneNode(true));
+    retained.style.removeProperty("view-transition-name");
+    assets.title = { clone: retained, rect: rect_of(/** @type {HTMLElement} */ (title_el)) };
+  }
+
+  return assets.clones.ai || assets.clones.fractal || assets.clones.user || assets.title ? assets : null;
 }
 
-/**
- * Flies the captured storyboard cards into the prologue message's cards the
- * moment the prologue renders. Message cards stay hidden until their card
- * lands, so the flight reads as the card itself settling into the message.
- * @param {{ clones: Record<string, HTMLElement>, rects: Record<string, any>, badge?: { clone: HTMLElement, rect: any } } | null} assets
- * @param {Record<string, any>} [dst_rects] - Pre-measured destination rects (measured while the feed is pinned at the top)
- */
 export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {}) {
   if (typeof document === "undefined" || motion.is_reduced || !assets || _begin_flight_running) return;
   _begin_flight_running = true;
-  CARD_TYPES.forEach((type) => {
+
+  const jobs = [];
+
+  CARD_TYPES.forEach((type, i) => {
     const clone_src = assets.clones[type];
     const from_rect = assets.rects[type];
-    const dst = msg_card(type);
+    const dst = /** @type {HTMLElement | null} */ (msg_card(type));
     if (!clone_src || !from_rect || !dst) {
       show_card(dst);
       return;
     }
     hide_card(dst);
-  });
-  const jobs = [];
-  CARD_TYPES.forEach((type, i) => {
-    const clone_src = assets.clones[type];
-    const from_rect = assets.rects[type];
-    const dst = /** @type {HTMLElement | null} */ (msg_card(type));
-    if (!clone_src || !from_rect || !dst) return;
     jobs.push(
-      new Promise((resolve) => {
-        setTimeout(() => {
-          cover_flight(clone_src, from_rect, dst_rects[type] || rect_of(dst), {
-            tag: "data-begin-flight",
-            z: "var(--z-index-max)",
-            duration: 420,
-            delay: i * 110,
-            on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
-            on_land: () => show_card(dst),
-          }).then(resolve);
-        }, 0);
+      cover_flight(clone_src, from_rect, dst_rects[type] || rect_of(dst), {
+        tag: "data-begin-flight",
+        z: "var(--z-index-max)",
+        duration: 420,
+        delay: i * 110,
+        on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
+        on_land: () => show_card(dst),
       }),
     );
   });
 
-  // The fractal's style badge strip flies just under the fractal card and
-  // lands below the prologue message's fractal card.
   const badge_src = assets.badge?.clone;
   const badge_from = assets.badge?.rect;
   const badge_dst = document.querySelector("[data-msg-prologue] [data-msg-style-badge]");
   if (badge_src && badge_from && badge_dst) {
-    const badge_to = badge_dst.getBoundingClientRect();
+    hide_card(badge_dst);
     jobs.push(
-      new Promise((resolve) => {
-        cover_flight(badge_src, badge_from, badge_to, {
-          tag: "data-begin-flight",
-          z: "var(--z-index-max)",
-          duration: 420,
-          delay: 110,
-          on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
-        }).then(resolve);
+      cover_flight(badge_src, badge_from, badge_dst.getBoundingClientRect(), {
+        tag: "data-begin-flight",
+        z: "var(--z-index-max)",
+        duration: 420,
+        delay: 110,
+        on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
+        on_land: () => show_card(badge_dst),
       }),
+    );
+  }
+
+  const title_src = assets.title?.clone;
+  const title_from = assets.title?.rect;
+  const title_dst = /** @type {HTMLElement | null} */ (msg_title());
+  if (title_src && title_from && title_dst) {
+    hide_card(title_dst);
+    jobs.push(
+      fly_title_element(title_src, title_from, dst_rects.title || rect_of(title_dst), { duration: 420, delay: 0, on_land: () => show_card(title_dst) }),
     );
   }
 

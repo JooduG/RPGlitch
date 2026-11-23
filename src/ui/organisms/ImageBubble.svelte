@@ -10,75 +10,62 @@
   import { get_signature_color } from "@utils";
   import { image_picker, open_image_preview, open_picker, regenerate_image } from "./ImagePreview.svelte.js";
 
-  /**
-   * @typedef {Object} Props
-   * @property {string|number} [id=""]
-   * @property {string} [sender="ai"]
-   * @property {string} [character_name=""]
-   * @property {any[]} [attachments=[]]
-   */
-
-  /** @type {Props} */
   let { id = "", sender = "ai", character_name = "", attachments = [] } = $props();
 
-  let is_user = $derived(sender === "user");
-  let is_ai = $derived(sender === "ai");
-  let is_npc = $derived(sender === "npc");
-  let is_fractal = $derived(sender === "fractal");
+  const is_fractal = $derived(sender === "fractal");
 
-  let entity = $derived(
-    is_user ? session.active_user || app.selected_user
-    : is_ai ? session.active_ai || app.selected_ai
-    : is_npc ? Object.values(session.active_npcs || {}).find((n) => String(n.name) === character_name) || null
+  const entity = $derived(
+    sender === "user" ? session.active_user || app.selected_user
+    : sender === "ai" ? session.active_ai || app.selected_ai
+    : sender === "npc" ? Object.values(session.active_npcs || {}).find((n) => String(n.name) === character_name) || null
     : is_fractal ?
-      session.active_fractal && session.active_fractal.id !== "active_fractal" ?
+      session.active_fractal?.id && session.active_fractal.id !== "active_fractal" ?
         session.active_fractal
       : app.selected_fractal || session.active_fractal
     : null,
   );
 
-  let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
+  const signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
 
-  function get_attachment_resolution(attachment, regenerate_key) {
+  const get_src = (att) => (typeof att === "string" ? att : att?.src || att?.imageUrl || att?.url || "");
+
+  function get_container_style(attachment, regenerate_key) {
     const fallback_mode = (image_picker.regenerating_key === regenerate_key && image_picker.last_mode) || (is_fractal ? "landscape" : "character");
-    return resolve_image_resolution(attachment, fallback_mode);
+    const { width, height } = resolve_image_resolution(attachment, fallback_mode);
+    const box_h = 480;
+    const box_w = Math.round((box_h * width) / height);
+    return `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60dvh; aspect-ratio: ${width} / ${height};`;
   }
 
-  function build_preview_options(attachment, preview_id, attach_idx, preview_signature) {
-    const preview_options = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
-    if (!preview_options.metadata) preview_options.metadata = {};
-    preview_options.signature_color = preview_signature;
-    if (preview_id) {
-      preview_options.on_delete = () => {
-        session.delete_attachment(String(preview_id), attach_idx);
-      };
-      preview_options.on_regenerate = () => {
+  function build_preview_options(attachment, attach_idx) {
+    const opts = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment, metadata: attachment.metadata || {} };
+    opts.signature_color = signature_color;
+    if (id) {
+      opts.on_delete = () => session.delete_attachment(String(id), attach_idx);
+      opts.on_regenerate = () =>
         regenerate_image({
-          prompt: preview_options.metadata?.prompt || "A cinematic scene portrait",
-          negative_prompt: preview_options.metadata?.negative_prompt,
-          mode: preview_options.metadata?.mode || (is_fractal ? "landscape" : "character"),
-          log_id: preview_id,
+          prompt: opts.metadata.prompt || "A cinematic scene portrait",
+          negative_prompt: opts.metadata.negative_prompt,
+          mode: opts.metadata.mode || (is_fractal ? "landscape" : "character"),
+          log_id: id,
           attach_idx,
-          signature_color: preview_signature,
-          regenerate_count: preview_options.metadata?.regenerate_count || 0,
+          signature_color,
+          regenerate_count: opts.metadata.regenerate_count || 0,
         });
-      };
     }
-    return preview_options;
+    return opts;
   }
 </script>
 
 {#if attachments.length > 0}
-  <div class="relative flex w-full justify-center p-standard" style="--signature-color: {signature_color};" data-testid="image-bubble">
-    {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url || attach_idx)}
-      {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
+  <div class="relative flex w-full justify-center p-standard" style:--signature-color={signature_color} data-testid="image-bubble">
+    {#each attachments as attachment, attach_idx (get_src(attachment) || attach_idx)}
+      {@const src = get_src(attachment)}
       {@const regenerate_key = `${id}:${attach_idx}`}
-      {@const res = get_attachment_resolution(attachment, regenerate_key)}
-      {@const box_h = 480}
-      {@const box_w = Math.round((box_h * res.width) / res.height)}
-      {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60dvh; aspect-ratio: ${res.width} / ${res.height};`}
-      {@const preview_options = build_preview_options(attachment, id, attach_idx, signature_color)}
-      {@const is_failed = typeof attachment === "object" && attachment !== null && Boolean(attachment?.metadata?.failed)}
+      {@const container_style = get_container_style(attachment, regenerate_key)}
+      {@const preview_options = build_preview_options(attachment, attach_idx)}
+      {@const is_failed = typeof attachment === "object" && Boolean(attachment?.metadata?.failed)}
+
       {#if image_picker.hasError(regenerate_key)}
         <div class="flex flex-col items-center justify-center gap-tight rounded-xl bg-red-900/20 p-standard" style={container_style}>
           <p class="text-center text-sm text-red-400">{image_picker.error}</p>
@@ -92,16 +79,13 @@
           aria-label="Select image from candidates">
           <div class="relative h-16 w-24 transition-transform duration-standard group-hover:scale-pulse">
             <div
-              class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-standard group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
-              style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;">
+              class="absolute bottom-0 left-1/2 h-12 w-8 origin-bottom -translate-x-1/2 -rotate-18 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-standard group-hover:-translate-x-7 group-hover:-rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25">
             </div>
             <div
-              class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition duration-standard group-hover:-translate-y-1 group-hover:scale-pulse group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
-              style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;">
+              class="absolute bottom-0 left-1/2 z-1 h-12 w-8 origin-bottom -translate-x-1/2 rotate-0 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition duration-standard group-hover:-translate-y-1 group-hover:scale-pulse group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35">
             </div>
             <div
-              class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-standard group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
-              style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;">
+              class="absolute bottom-0 left-1/2 h-12 w-8 origin-bottom -translate-x-1/2 rotate-18 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition duration-standard group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25">
             </div>
           </div>
           <div class="flex items-center gap-tight transition-transform duration-fast group-hover:scale-lift">
@@ -113,12 +97,6 @@
               class="size-3.5 text-(--signature-color,slate-300) transition duration-fast group-hover:translate-x-0.5 group-hover:text-pure-white" />
           </div>
         </Button>
-      {:else if image_picker.isRegenerating(regenerate_key)}
-        <div
-          class="relative flex flex-col items-center justify-center gap-standard overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-          style={container_style}>
-          <Shimmer color="var(--signature-color,var(--color-electric-cyan))" />
-        </div>
       {:else if is_failed}
         <div
           class="relative flex flex-col items-center justify-center gap-tight overflow-hidden rounded-xl border border-red-900/50 bg-red-950/25 p-standard"
@@ -145,7 +123,7 @@
             {/if}
           </div>
         </div>
-      {:else if src}
+      {:else if src && !image_picker.isRegenerating(regenerate_key)}
         <Button
           variant="bare"
           class="mx-auto block w-fit overflow-hidden rounded-xl border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-[filter] duration-200 hover:brightness-110"
