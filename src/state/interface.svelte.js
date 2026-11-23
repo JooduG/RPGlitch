@@ -33,6 +33,7 @@ export class InterfaceStore {
   #active_story_title = null;
   /** @type {any[] | null} */
   #active_story_title_parts = null;
+  #profile_transition_seq = 0;
 
   // --- NAVIGATION & MODAL STATE ---
   /** @type {'storyboard' | 'storymode'} */
@@ -183,7 +184,7 @@ export class InterfaceStore {
     try {
       const [characters, fractals, claimed] = await Promise.all([entities.list("character"), entities.list("fractal"), stories.active_entity_ids()]);
       this.claimed_entity_ids.clear();
-      for (const id of claimed) this.claimed_entity_ids.add(id);
+      for (const id of claimed) this.claimed_entity_ids.add(String(id));
       this.ai_list = characters;
       this.user_list = characters;
       this.fractal_list = fractals;
@@ -305,6 +306,8 @@ export class InterfaceStore {
       this.transition_target_id = target_entity.id;
     }
 
+    const seq = ++this.#profile_transition_seq;
+
     flushSync(() => {
       this.transitioning_profile = true;
     });
@@ -318,6 +321,7 @@ export class InterfaceStore {
       },
       { className: is_opening ? `is-profile-opening-${active_type}` : `is-profile-closing-${active_type}` },
     ).finally(() => {
+      if (seq !== this.#profile_transition_seq) return;
       this.transitioning_profile = false;
       this.transition_target_id = null;
     });

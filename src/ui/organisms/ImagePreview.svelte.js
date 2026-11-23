@@ -2,7 +2,6 @@
  * @file src/ui/organisms/ImagePreview.svelte.js
  * Reactive lightbox preview and 3-candidate image regeneration picker controller.
  */
-
 import { generate_image_candidates, refine_image_prompt } from "@engine";
 import { session } from "@state";
 
@@ -10,15 +9,9 @@ import { session } from "@state";
 
 let _request_id = 0;
 let _last_story_id = null;
-
-function check_story_reset() {
-  const current_id = session?.active_id ?? null;
-  if (_last_story_id !== null && current_id !== _last_story_id) {
-    close_image_preview();
-    close_regenerate();
-  }
-  _last_story_id = current_id;
-}
+let _reset_queued = false;
+let _persisted_prompt = "";
+let _persisted_negative = "";
 
 let preview_state = $state({
   active: false,
@@ -31,9 +24,49 @@ let preview_state = $state({
   signature_color: /** @type {string | null} */ (null),
 });
 
+let picker_state = $state({
+  regenerating_key: /** @type {string | null} */ (null),
+  candidates_ready: false,
+  candidates: /** @type {Candidate[]} */ ([]),
+  picker_open: false,
+  selected_index: /** @type {number | null} */ (null),
+  on_select: /** @type {((c: Candidate, index: number) => void) | null} */ (null),
+  signature_color: /** @type {string | null} */ (null),
+  error: /** @type {string | null} */ (null),
+  last_mode: "character",
+  request_id: 0,
+});
+
+function is_story_stale() {
+  const current_id = session?.active_id ?? null;
+  return _last_story_id !== null && current_id !== _last_story_id;
+}
+
+/** Deferred cleanup for getter reads — avoids Svelte 5 state_unsafe_mutation during render. */
+function schedule_story_reset() {
+  if (_reset_queued) return;
+  _reset_queued = true;
+  queueMicrotask(() => {
+    _reset_queued = false;
+    check_story_reset();
+  });
+}
+
+function check_story_reset() {
+  const current_id = session?.active_id ?? null;
+  if (_last_story_id !== null && current_id !== _last_story_id) {
+    close_image_preview();
+    close_regenerate();
+  }
+  _last_story_id = current_id;
+}
+
 export const image_preview = {
   get active() {
-    check_story_reset();
+    if (is_story_stale()) {
+      schedule_story_reset();
+      return false;
+    }
     return preview_state.active;
   },
   get src() {
@@ -61,50 +94,27 @@ export const image_preview = {
 
 export function open_image_preview(options, caption = "") {
   check_story_reset();
+  const opts = typeof options === "string" ? { src: options, caption } : options || {};
   preview_state.active = true;
-  if (typeof options === "string") {
-    preview_state.src = options;
-    preview_state.caption = caption;
-    preview_state.canvas = null;
-    preview_state.metadata = null;
-    preview_state.on_regenerate = null;
-    preview_state.on_delete = null;
-    preview_state.signature_color = null;
-  } else if (options) {
-    preview_state.src = options.src || null;
-    preview_state.canvas = options.canvas || null;
-    preview_state.caption = options.caption || caption || "";
-    preview_state.metadata = options.metadata || null;
-    preview_state.on_regenerate = options.on_regenerate || null;
-    preview_state.on_delete = options.on_delete || null;
-    preview_state.signature_color = options.signature_color || null;
-  }
+  preview_state.src = opts.src || null;
+  preview_state.canvas = opts.canvas || null;
+  preview_state.caption = opts.caption || caption || "";
+  preview_state.metadata = opts.metadata || null;
+  preview_state.on_regenerate = opts.on_regenerate || null;
+  preview_state.on_delete = opts.on_delete || null;
+  preview_state.signature_color = opts.signature_color || null;
 }
 
 export function close_image_preview() {
   preview_state.active = false;
 }
 
-// --- REGENERATION CANDIDATES & PICKER STATE ---
-let _persisted_prompt = "";
-let _persisted_mode = "character";
-let _persisted_negative = "";
-
-let picker_state = $state({
-  regenerating_key: /** @type {string | null} */ (null),
-  candidates_ready: false,
-  candidates: /** @type {Candidate[]} */ ([]),
-  picker_open: false,
-  selected_index: /** @type {number | null} */ (null),
-  on_select: /** @type {((c: Candidate, index: number) => void) | null} */ (null),
-  signature_color: /** @type {string | null} */ (null),
-  error: /** @type {string | null} */ (null),
-  request_id: 0,
-});
-
 export const image_picker = {
   get regenerating_key() {
-    check_story_reset();
+    if (is_story_stale()) {
+      schedule_story_reset();
+      return null;
+    }
     return picker_state.regenerating_key;
   },
   get candidates_ready() {
@@ -114,7 +124,10 @@ export const image_picker = {
     return picker_state.candidates;
   },
   get picker_open() {
-    check_story_reset();
+    if (is_story_stale()) {
+      schedule_story_reset();
+      return false;
+    }
     return picker_state.picker_open;
   },
   get selected_index() {
@@ -130,47 +143,21 @@ export const image_picker = {
     return picker_state.error;
   },
   get last_mode() {
-    return _persisted_mode;
+    return picker_state.last_mode;
   },
   get request_id() {
     return picker_state.request_id;
   },
-
   isRegenerating(key) {
     return picker_state.regenerating_key === key && !picker_state.candidates_ready && !picker_state.error;
   },
-
   isReady(key) {
     return picker_state.regenerating_key === key && picker_state.candidates_ready && !picker_state.error;
   },
-
   hasError(key) {
-    return picker_state.regenerating_key === key && !!picker_state.error;
+    return picker_state.regenerating_key === key && Boolean(picker_state.error);
   },
 };
-
-function start_regenerate(key, opts, req_id) {
-  picker_state.regenerating_key = key;
-  picker_state.candidates_ready = false;
-  picker_state.candidates = [];
-  picker_state.picker_open = false;
-  picker_state.selected_index = null;
-  picker_state.on_select = opts.on_select ?? null;
-  picker_state.signature_color = opts.signature_color ?? null;
-  picker_state.error = null;
-  picker_state.request_id = req_id;
-}
-
-function deliver_candidates(candidates, meta) {
-  picker_state.candidates = candidates;
-  picker_state.candidates_ready = true;
-  picker_state.error = null;
-  if (meta) {
-    if (meta.prompt) _persisted_prompt = meta.prompt;
-    if (meta.mode) _persisted_mode = meta.mode;
-    if (meta.negative_prompt) _persisted_negative = meta.negative_prompt;
-  }
-}
 
 export function open_picker() {
   if (picker_state.candidates_ready && picker_state.candidates.length >= 2) {
@@ -180,26 +167,14 @@ export function open_picker() {
 }
 
 export function select_candidate(index) {
-  if (index < 0 || index >= picker_state.candidates.length) return;
+  if (picker_state.selected_index !== null || index < 0 || index >= picker_state.candidates.length) return;
   picker_state.selected_index = index;
+  const req_id = picker_state.request_id;
   const candidate = picker_state.candidates[index];
-  if (typeof picker_state.on_select === "function") {
-    picker_state.on_select(candidate, index);
-  }
-  setTimeout(() => close_regenerate(), 400);
-}
-
-function begin_picker_regeneration(req_id) {
-  if (picker_state.candidates.length > 0 && picker_state.candidates[0]?.metadata?.prompt && !_persisted_prompt) {
-    _persisted_prompt = picker_state.candidates[0].metadata.prompt;
-    _persisted_mode = picker_state.candidates[0].metadata.mode || _persisted_mode;
-    _persisted_negative = picker_state.candidates[0].metadata.negative_prompt || _persisted_negative;
-  }
-  picker_state.candidates_ready = false;
-  picker_state.candidates = [];
-  picker_state.selected_index = null;
-  picker_state.error = null;
-  picker_state.request_id = req_id;
+  picker_state.on_select?.(candidate, index);
+  setTimeout(() => {
+    if (picker_state.request_id === req_id) close_regenerate();
+  }, 400);
 }
 
 export function close_regenerate() {
@@ -235,14 +210,32 @@ export async function run_image_regeneration(options = {}) {
 
   const signature_color = options.signature_color ?? picker_state.signature_color;
   const regenerate_count = options.regenerate_count ?? 0;
-  const mode = options.mode || (in_picker ? _persisted_mode : "story_character");
+  const mode = options.mode || (in_picker ? picker_state.last_mode : "story_character");
   const prompt = options.prompt ?? (in_picker ? _persisted_prompt : "");
   const negative_prompt = options.negative_prompt ?? (in_picker ? _persisted_negative : "");
 
   if (in_picker) {
-    begin_picker_regeneration(current_req);
+    const first_meta = picker_state.candidates[0]?.metadata;
+    if (first_meta?.prompt && !_persisted_prompt) {
+      _persisted_prompt = first_meta.prompt;
+      picker_state.last_mode = first_meta.mode || picker_state.last_mode;
+      _persisted_negative = first_meta.negative_prompt || _persisted_negative;
+    }
+    picker_state.candidates_ready = false;
+    picker_state.candidates = [];
+    picker_state.selected_index = null;
+    picker_state.error = null;
+    picker_state.request_id = current_req;
   } else if (key) {
-    start_regenerate(key, { signature_color, on_select: options.on_select || (() => {}) }, current_req);
+    picker_state.regenerating_key = key;
+    picker_state.candidates_ready = false;
+    picker_state.candidates = [];
+    picker_state.picker_open = false;
+    picker_state.selected_index = null;
+    picker_state.on_select = options.on_select ?? null;
+    picker_state.signature_color = signature_color ?? null;
+    picker_state.error = null;
+    picker_state.request_id = current_req;
   }
 
   if (!prompt) {
@@ -254,10 +247,9 @@ export async function run_image_regeneration(options = {}) {
     let final_prompt = prompt;
     let final_negative = negative_prompt;
 
-    const is_unrefined =
-      !prompt || prompt.length < 30 || prompt.includes("<image_prompt>") || prompt.startsWith("RAW photograph or structured artistic rendering of");
-
+    const is_unrefined = prompt.length < 30 || prompt.includes("<image_prompt>") || prompt.startsWith("RAW photograph or structured artistic rendering of");
     const refiner = typeof options.refine_prompt === "function" ? options.refine_prompt : refine_image_prompt;
+
     if ((in_picker || regenerate_count >= 1 || is_unrefined) && typeof refiner === "function") {
       try {
         const refined = await refiner(prompt, mode);
@@ -267,9 +259,7 @@ export async function run_image_regeneration(options = {}) {
           final_negative = refined.negative_prompt || negative_prompt;
         }
       } catch (envision_err) {
-        if (in_picker) {
-          console.warn("[ImagePreview] Prompt envision refinement failed, using original prompt:", envision_err);
-        }
+        if (in_picker) console.warn("[ImagePreview] Prompt envision refinement failed, using original prompt:", envision_err);
       }
     }
 
@@ -281,10 +271,12 @@ export async function run_image_regeneration(options = {}) {
       return;
     }
 
-    deliver_candidates(
-      candidates.map((c) => ({ url: c.url, metadata: { ...c.metadata, prompt: final_prompt, mode }, signature_color })),
-      { prompt: final_prompt, mode, negative_prompt: final_negative },
-    );
+    picker_state.candidates = candidates.map((c) => ({ url: c.url, metadata: { ...c.metadata, prompt: final_prompt, mode }, signature_color }));
+    picker_state.candidates_ready = true;
+    picker_state.error = null;
+    _persisted_prompt = final_prompt;
+    picker_state.last_mode = mode;
+    _persisted_negative = final_negative;
   } catch (err) {
     if (current_req !== _request_id) return;
     console.error("[Regenerate Error]", err);
@@ -292,22 +284,15 @@ export async function run_image_regeneration(options = {}) {
   }
 }
 
-/**
- * Regenerate orchestration - generates 3 candidates in the background and updates log attachment on select.
- * @param {{ prompt: string, negative_prompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
- */
 export async function regenerate_image(ctx) {
   const { prompt, negative_prompt, mode = "story_character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
-  const key = `${log_id}:${attach_idx}`;
-
   await run_image_regeneration({
-    key,
+    key: `${log_id}:${attach_idx}`,
     prompt,
     negative_prompt,
     mode,
     signature_color,
     regenerate_count,
-    refine_prompt: refine_image_prompt,
     on_select: (candidate) => {
       if (log_id) {
         session.update_attachment(String(log_id), attach_idx, {

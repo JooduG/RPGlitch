@@ -1,6 +1,5 @@
 /**
  * @file src/ui/Storyboard.svelte.js
- * ❄️ THE STORYBOARD CONTROLLER & GEOMETRY
  * Reactive controller singleton and layout geometry helpers for the Storyboard stage.
  */
 import { active_entity_ids } from "@data";
@@ -9,89 +8,60 @@ import { chrono_engine } from "@engine";
 import { fly_card_in, fly_card_out, motion } from "@media";
 import { app, execution } from "@state";
 import { compute_initials, get_signature_color, pick_random } from "@utils";
-import { SvelteSet } from "svelte/reactivity";
 
-const stories = { active_entity_ids };
-
-// ---------------------------------------------------------------------------------------------
-// PURE GEOMETRY & CLAIM HELPERS
-// ---------------------------------------------------------------------------------------------
-
-/**
- * Computes the on-screen deck rect a card travels to/from during a shuffle.
- * @param {{ width: number, height: number }} viewport
- * @param {{ width: number, height: number }} slot_rect
- * @param {{ pickup_scale?: number, deck_clearance?: number }} [options]
- */
 export function deck_geometry(viewport, slot_rect, { pickup_scale = 0.62, deck_clearance = 1.25 } = {}) {
   const width = slot_rect.width * pickup_scale;
   const height = slot_rect.height * pickup_scale;
   return { left: Math.max(0, viewport.width / 2 - width / 2), top: Math.max(0, viewport.height - height * deck_clearance), width, height };
 }
 
-/**
- * Returns the first selected entity already claimed by an active story (or null),
- * so the begin flow can refuse to start with locked-in entities.
- * @param {Array<{ id: any } | null | undefined>} selected
- * @param {Iterable<unknown>} claimed_ids
- */
 export function claimed_entity_lock(selected, claimed_ids) {
-  const claimed = new SvelteSet(claimed_ids);
+  const claimed = new Set(Array.from(claimed_ids, String));
   return selected.filter(Boolean).find((e) => e.id != null && claimed.has(String(e.id))) || null;
 }
 
-/**
- * Re-dresses a flying card clone with the newly drawn entity's appearance, so
- * the deal-in doesn't carry the swapped-out card's face up to the slot.
- * @param {HTMLElement} clone
- * @param {any} entity
- */
 function dress_deal_card(clone, entity) {
   if (!entity) return;
   const color = get_signature_color(entity, "var(--color-gunmetal)");
   clone.style.setProperty("--signature-color", color);
   clone.querySelectorAll("[style]").forEach((el) => {
-    if (el.style.getPropertyValue("--signature-color")) {
-      el.style.setProperty("--signature-color", color);
-    }
+    if (el.style.getPropertyValue("--signature-color")) el.style.setProperty("--signature-color", color);
   });
-  const pic = entity.profile_picture;
-  if (pic) {
+
+  if (entity.profile_picture) {
     clone.querySelectorAll("img").forEach((img) => {
-      img.src = pic;
+      img.src = entity.profile_picture;
       img.removeAttribute("srcset");
     });
   }
-  const name_span = clone.querySelector(".bg-linear-to-t > span");
-  if (name_span) name_span.textContent = entity.name || "Untitled";
-  const desc = clone.querySelector(".bg-linear-to-t p");
+
+  const heading = clone.querySelector("h3[data-card-text], h5[data-card-text]");
+  if (heading) heading.textContent = entity.name || "Untitled";
+  const desc = clone.querySelector("p[data-card-text]");
   if (desc) desc.textContent = entity.description || "No description provided.";
+
   const initials = compute_initials(entity.name);
   clone.querySelectorAll("[class*='text-[clamp(0.6rem']").forEach((el) => {
     el.textContent = initials;
   });
 }
 
-// ---------------------------------------------------------------------------------------------
-// STORYBOARD CONTROLLER CLASS (SVELTE 5 RUNES)
-// ---------------------------------------------------------------------------------------------
+function pick_unclaimed(list, exclude_id = null) {
+  const items = Array.isArray(list) ? list : [];
+  const filtered = items.filter((e) => e && e.id !== exclude_id && !app.claimed_entity_ids.has(String(e.id)));
+  if (filtered.length) return pick_random(filtered);
+  const fallback = exclude_id != null ? items.filter((e) => e && e.id !== exclude_id) : items;
+  return pick_random(fallback.length ? fallback : items) || null;
+}
 
 export class StoryboardController {
   #is_shuffling = $state(false);
   #begin_flight_started = $state(false);
 
-  /**
-   * Whether a card deal-shuffle animation is currently in progress.
-   * @returns {boolean}
-   */
   get is_shuffling() {
     return this.#is_shuffling;
   }
 
-  /**
-   * Whether the flight transition into the prologue message has been initiated.
-   * @returns {boolean}
-   */
   get begin_flight_started() {
     return this.#begin_flight_started;
   }
@@ -101,64 +71,43 @@ export class StoryboardController {
   }
 
   async shuffle() {
-    if (execution.loading) return;
-    if (!app.ai_list.length) {
-      await app.load_entities();
-    }
+    if (execution.loading || this.#is_shuffling) return;
+    if (!app.ai_list.length) await app.load_entities();
     if (!app.ai_list.length) return;
 
-    const pick_ai = pick_random(Array.isArray(app.ai_list) ? app.ai_list : []);
-    let available_users = Array.isArray(app.user_list) ? app.user_list : [];
-    if (pick_ai) {
-      available_users = available_users.filter((u) => u.id !== pick_ai.id);
-    }
-    const pick_user = available_users.length ? pick_random(available_users) : app.user_list?.[0] || null;
+    const pick_ai = pick_unclaimed(app.ai_list);
+    const pick_user = pick_unclaimed(app.user_list, pick_ai?.id ?? null);
+    const base_fractal = pick_unclaimed(app.fractal_list);
+    const pick_fractal =
+      base_fractal ?
+        { ...base_fractal, visual_style: pick_random(Object.keys(VISUAL_STYLES)), narrative_style: pick_random(Object.keys(NARRATIVE_STYLES)) }
+      : null;
 
-    let pick_fractal = null;
-    if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
-      const random_fractal = pick_random(app.fractal_list);
-      if (random_fractal) {
-        pick_fractal = {
-          ...random_fractal,
-          visual_style: pick_random(Object.keys(VISUAL_STYLES)),
-          narrative_style: pick_random(Object.keys(NARRATIVE_STYLES)),
-        };
-      }
-    }
-
-    const commit = () => {
-      app.selected_ai = pick_ai;
-      app.selected_user = pick_user;
-      app.selected_fractal = pick_fractal;
-      if (typeof app.regenerate_title === "function") {
-        app.regenerate_title();
-      }
+    const picks = { ai: pick_ai, user: pick_user, fractal: pick_fractal };
+    const commit_slot = (type, entity) => {
+      if (type === "ai") app.selected_ai = entity;
+      else if (type === "user") app.selected_user = entity;
+      else app.selected_fractal = entity;
     };
 
     const slots = ["ai", "user", "fractal"].map((type) => {
-      const wrapper = document.querySelector(`[data-slot-type="${type}"]`);
-      const root = wrapper?.querySelector("[data-card-root]") || wrapper || null;
-      return { type, wrap: wrapper, root, rect: root ? root.getBoundingClientRect() : null };
+      const wrap = document.querySelector(`[data-slot-type="${type}"]`);
+      const root = wrap?.querySelector("[data-card-root]") || wrap || null;
+      return { type, wrap, root, rect: root ? root.getBoundingClientRect() : null };
     });
 
-    const dealable = !motion.is_reduced && app.view === "storyboard" && !this.#is_shuffling;
-    if (!dealable || slots.some((s) => !s.root || !s.rect)) {
-      if (!this.#is_shuffling) commit();
+    if (motion.is_reduced || app.view !== "storyboard" || slots.some((s) => !s.root || !s.rect)) {
+      for (const type of ["ai", "user", "fractal"]) commit_slot(type, picks[type]);
+      app.regenerate_title?.();
       return;
     }
 
     this.#is_shuffling = true;
-    slots.forEach((s) => {
-      s.wrap?.classList.remove("deal-reveal", "deal-revealed");
-      s.wrap?.classList.add("deal-reveal");
-    });
     const occupied = { ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal };
-    const picks = { ai: pick_ai, user: pick_user, fractal: pick_fractal };
-    const viewport_w = window.innerWidth;
-    const viewport_h = window.innerHeight;
+    const viewport = { width: window.innerWidth, height: window.innerHeight };
     let title_done = false;
-
     let remaining = slots.length;
+
     const finish_shuffle = () => {
       clearTimeout(safety_timer);
       this.#is_shuffling = false;
@@ -166,8 +115,11 @@ export class StoryboardController {
     const safety_timer = setTimeout(finish_shuffle, 1000);
 
     slots.forEach((s, i) => {
+      s.wrap?.classList.remove("deal-reveal", "deal-revealed");
+      s.wrap?.classList.add("deal-reveal");
+
       const r = /** @type {{ left: number, top: number, width: number, height: number }} */ (s.rect);
-      const deck = deck_geometry({ width: viewport_w, height: viewport_h }, r);
+      const deck = deck_geometry(viewport, r);
 
       if (occupied[s.type] && s.root) {
         s.root.style.transition = "none";
@@ -189,12 +141,10 @@ export class StoryboardController {
               s.root.style.transition = "";
             }
             s.wrap?.classList.add("deal-revealed");
-            app.selected_ai = picks.ai;
-            app.selected_user = picks.user;
-            app.selected_fractal = picks.fractal;
-            if (!title_done && typeof app.regenerate_title === "function") {
+            commit_slot(s.type, picks[s.type]);
+            if (!title_done) {
               title_done = true;
-              app.regenerate_title();
+              app.regenerate_title?.();
             }
             if (--remaining <= 0) finish_shuffle();
           },
@@ -206,7 +156,7 @@ export class StoryboardController {
   async begin() {
     this.#begin_flight_started = false;
     if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
-    const claimed = await stories.active_entity_ids();
+    const claimed = await active_entity_ids();
     const locked = claimed_entity_lock([app.selected_ai, app.selected_user, app.selected_fractal], claimed);
     if (locked) {
       console.error(`"${locked.name || "Entity"}" is claimed by an active story. End or delete that story first.`);
