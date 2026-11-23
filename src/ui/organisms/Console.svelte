@@ -399,7 +399,10 @@
 {/snippet}
 
 {#snippet control_panel()}
-  <div class={["grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out", panel_open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"]}>
+  <div
+    class="grid min-h-0 w-full overflow-hidden transition-[grid-template-rows] duration-500 ease-in-out"
+    style:grid-template-rows={panel_open ? "1fr" : "0fr"}
+    inert={!panel_open}>
     <div
       class={[
         "mx-auto flex min-h-0 w-full flex-col overflow-hidden transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)]",

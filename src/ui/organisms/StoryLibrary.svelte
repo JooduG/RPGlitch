@@ -1,9 +1,7 @@
 <script>
   /**
    * @file src/ui/organisms/StoryLibrary.svelte
-   * 📚 STORY LIBRARY ORGANISM
-   * Dedicated story library manager with list/card grid, story switching,
-   * markdown export, rename modal, and delete confirmation modal.
+   * Story archive manager with story switching, inline rename persistence, markdown export, and delete confirmation.
    */
   import { Accordion } from "@atoms";
   import { export_story_record, stories } from "@data";
@@ -12,12 +10,11 @@
   import { app, execution, session } from "@state";
   import { download_text_file } from "@utils";
 
-  let is_confirming_story_delete = $state(false);
-  let pending_story_delete = $state(null);
-  let is_renaming_story = $state(false);
-  let pending_rename_story = $state(null);
-  let rename_draft = $state("");
   let story_cache = $state([]);
+  let pending_delete = $state(null);
+  let show_delete_dialog = $state(false);
+
+  const is_active_story = (id) => session.active_id != null && String(session.active_id) === String(id);
 
   async function refresh_stories() {
     try {
@@ -27,18 +24,32 @@
     }
   }
 
+  $effect(() => {
+    void app.stories_version;
+    refresh_stories();
+  });
+
   async function load_story(id) {
-    await session.set_active(String(id));
-    await session.sync(String(id));
+    const story_id = String(id);
+    await session.set_active(story_id);
+    await session.sync(story_id);
     await session.refresh_feed();
-    if (session.feed.some((e) => e.meta?.is_epilogue)) {
-      execution.lock();
-    } else {
-      execution.unlock();
-    }
+    if (session.feed.some((e) => e.meta?.is_epilogue)) execution.lock();
+    else execution.unlock();
     await app.load_entities();
-    app.set_view("storymode");
+    await app.set_view("storymode");
     app.control_panel_open = false;
+  }
+
+  async function rename_story(story, next_title) {
+    const trimmed = next_title.trim();
+    if (!trimmed || trimmed === story.title) return;
+    try {
+      await stories.update(story.id, { title: trimmed });
+      await refresh_stories();
+    } catch (err) {
+      console.error(`Rename failed: ${err.message}`, err);
+    }
   }
 
   async function export_story(story) {
@@ -50,53 +61,28 @@
     }
   }
 
-  function delete_story(story) {
-    pending_story_delete = story;
-    is_confirming_story_delete = true;
+  function request_delete(story) {
+    pending_delete = story;
+    show_delete_dialog = true;
   }
 
-  function start_rename_story(story) {
-    pending_rename_story = story;
-    rename_draft = story.title || "";
-    is_renaming_story = true;
-  }
-
-  async function confirm_rename_story() {
-    if (!pending_rename_story) return;
-    const trimmed = rename_draft.trim();
-    if (trimmed && trimmed !== pending_rename_story.title) {
-      try {
-        await stories.update(pending_rename_story.id, { title: trimmed });
-        await refresh_stories();
-      } catch (err) {
-        console.error(`Rename failed: ${err.message}`, err);
-      }
-    }
-    pending_rename_story = null;
-    rename_draft = "";
-  }
-
-  async function confirm_story_delete() {
-    if (!pending_story_delete) return;
+  async function confirm_delete() {
+    const target = pending_delete;
+    if (!target) return;
     try {
-      await stories.delete(pending_story_delete.id);
+      await stories.delete(target.id);
       await refresh_stories();
       await app.load_entities();
-      if (String(session.active_id) === String(pending_story_delete.id)) {
+      if (is_active_story(target.id)) {
         await session.clear_active();
-        app.set_view("storyboard");
+        await app.set_view("storyboard");
       }
     } catch (err) {
       console.error(`Delete failed: ${err.message}`, err);
     } finally {
-      pending_story_delete = null;
+      pending_delete = null;
     }
   }
-
-  $effect(() => {
-    const _stories_version = app.stories_version;
-    refresh_stories();
-  });
 </script>
 
 <Accordion label="Library" content_class="flex flex-col gap-standard">
@@ -106,11 +92,11 @@
         <div class="min-w-0" in:item_in>
           <StoryCard
             {story}
-            active={session.active_id === String(story.id)}
+            active={is_active_story(story.id)}
             onclick={() => load_story(story.id)}
-            ondelete={delete_story}
-            onrename={start_rename_story}
-            onexport={export_story} />
+            onrename={rename_story}
+            onexport={export_story}
+            ondelete={request_delete} />
         </div>
       {/each}
     </div>
@@ -121,19 +107,8 @@
 
 <Dialog
   type="confirm"
-  bind:open={is_confirming_story_delete}
+  bind:open={show_delete_dialog}
   title="Delete Story?"
-  message={`This will permanently delete "${pending_story_delete?.title ?? ""}" and its entire simulation log. This action cannot be undone.`}
+  message={`This will permanently delete "${pending_delete?.title ?? ""}" and its entire simulation log. This action cannot be undone.`}
   confirm_label="Delete"
-  on_confirm={confirm_story_delete} />
-
-<Dialog
-  type="confirm"
-  bind:open={is_renaming_story}
-  title="Rename Story"
-  message={`Enter a new title for "${pending_rename_story?.title ?? ""}":`}
-  confirm_label="Save"
-  show_input={true}
-  input_placeholder="New story title..."
-  bind:input_value={rename_draft}
-  on_confirm={confirm_rename_story} />
+  on_confirm={confirm_delete} />
