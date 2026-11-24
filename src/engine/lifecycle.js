@@ -168,7 +168,7 @@ export async function generate_opening(story_id, { signal = null } = {}) {
       task_options: { turn_tempo: 3 },
     });
 
-    const raw_prologue = await live_transport.stream(prologue_prompt, { startWith: "<think>\n", signal });
+    const raw_prologue = await live_transport.stream(prologue_prompt, { role: "fractal", node_id, startWith: "<think>\n", signal });
     const { think: prologue_think, prose: prologue_body } = parse_think_block(raw_prologue);
     const prologue_text = (prologue_body || raw_prologue || "").trim();
 
@@ -504,6 +504,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
   const controller = new AbortController();
   const signal = controller.signal;
   let owned_controller = false;
+  let refined_prompt = prompt;
 
   try {
     if (!background) {
@@ -532,7 +533,18 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       }
     }
 
-    let refined_prompt = prompt;
+    // Show the "image is generating" visual RIGHT AWAY, before the (slow)
+    // visualizer LLM leg runs. The placeholder row renders a Shimmer while
+    // src is null, so creating it first covers both the prompt-refinement
+    // phase and the diffusion phase with a visible busy state.
+    const requested_at = Date.now();
+    placeholder_entry = await session.log_message("", subject, role_label, {
+      turn_type,
+      story_id,
+      attachments: [{ src: null, metadata: { mode: target_mode, prompt: envision_source || prompt, requested_at } }],
+    });
+    if (placeholder_entry?.id) mark_generation_in_flight?.(placeholder_entry.id, attach_idx);
+
     let enhanced_negative = "";
     try {
       const configured_style = app.settings?.visual_style;
@@ -555,11 +567,15 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       });
     }
 
-    placeholder_entry = await session.log_message("", subject, role_label, {
-      turn_type,
-      story_id,
-      attachments: [{ src: null, metadata: { mode: target_mode, prompt: refined_prompt } }],
-    });
+    // Keep the placeholder metadata honest once the LLM leg settles, so the
+    // Shimmer row already shows the refined prompt before diffusion starts.
+    if (placeholder_entry?.id && refined_prompt && refined_prompt !== (envision_source || prompt)) {
+      try {
+        await session.update_attachment(placeholder_entry.id, attach_idx, { src: null, metadata: { mode: target_mode, prompt: refined_prompt, requested_at } });
+      } catch {
+        /* placeholder metadata sync is best-effort; diffusion still proceeds */
+      }
+    }
 
     const result = await visual_engine.visualize(
       refined_prompt,
@@ -592,7 +608,12 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
     if (session.active_id === story_id && placeholder_entry?.id) {
       await session.update_attachment(placeholder_entry.id, attach_idx, {
         src: null,
-        metadata: { mode: target_mode, prompt, failed: true, error: aborted ? "Interrupted by user." : err?.message || "Image generation failed" },
+        metadata: {
+          mode: target_mode,
+          prompt: refined_prompt || prompt,
+          failed: true,
+          error: aborted ? "Interrupted by user." : err?.message || "Image generation failed",
+        },
       });
     }
     if (aborted) {
@@ -602,6 +623,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
     }
     throw err;
   } finally {
+    if (placeholder_entry?.id) clear_generation_in_flight?.(placeholder_entry.id, attach_idx);
     if (owned_controller && execution.stream.abort_controller === controller) {
       execution.stream.abort_controller = null;
     }

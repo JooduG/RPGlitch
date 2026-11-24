@@ -56,7 +56,7 @@
     if (is_active_turn && execution.stream.active) {
       const active_id = execution.stream.node_id ?? "temp";
       const stream_role = execution.generating_entity?.type ?? active_turn_role ?? "ai";
-      if (stream_role !== "system" && !list.some((entry) => entry.id === active_id)) {
+      if (stream_role !== "system" && !list.some((entry) => entry.id === active_id || entry.meta?.id === active_id)) {
         list.push({
           id: active_id,
           text: execution.stream.content ?? "",
