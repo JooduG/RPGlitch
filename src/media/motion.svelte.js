@@ -203,9 +203,10 @@ pulse.is_kinetic = true;
 /**
  * Roll Action - full 360 degree rotation powered by spring physics.
  * @param {HTMLElement} node
+ * @param {number} [direction=1]
  * @returns {import('svelte/action').ActionReturn}
  */
-export function roll(node) {
+export function roll(node, direction = 1) {
   const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
   const damping = resolve_number("--spring-damping-default", 0.8, node);
   const angle_spring = new Spring(0, { stiffness, damping });
@@ -216,7 +217,7 @@ export function roll(node) {
     const intensity = motion.is_reduced ? 0 : motion.intensity;
     if (intensity === 0) return;
     node.dataset.kinetic = "true";
-    angle_spring.target = 360;
+    angle_spring.target = 360 * direction;
   };
 
   const stop = () => {

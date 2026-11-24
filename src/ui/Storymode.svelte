@@ -254,7 +254,7 @@
     <CardSkeleton />
   {:else}
     <ScrollArea data-id="storymode-scroll-area" bind:viewport_ref={viewport_el} fixed_scrollbar allow_overflow_x class="h-full min-h-80 w-full flex-1">
-      {#each visible_feed as entry, index (entry.id)}
+      {#each visible_feed as entry, index (entry.meta?.id ?? entry.id)}
         {@const role = canonicalize_role(entry.role)}
         {@const timestamp = entry.created_at ? new Date(entry.created_at) : new Date()}
         {#if pending_deletes[entry.id]}

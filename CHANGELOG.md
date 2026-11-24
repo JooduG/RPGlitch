@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/media/motion.svelte.js` & `src/ui/organisms/Console.svelte`: Added `direction` parameter to `roll()` and wired `(node) => roll(node, -1)` (counter-clockwise) with red hover styling (`hover:text-red-500!`) to the **Stop Generation** button.
+- `src/ui/Storymode.svelte`: Keyed the `visible_feed` `{#each}` loop by `entry.meta?.id ?? entry.id` so `ChatBubble` and its `<Avatar>` no longer unmount/remount and flicker when a streaming message is persisted.
+
 - `src/ui/organisms/Console.svelte`: Restored `<Shimmer />` on the console bar whenever `execution.loading || execution.busy || is_ghostwriting` is active.
 - `src/ui/organisms/ChatBubble.svelte`: Fixed the pre-token blinking block cursor (`cursor-blink` scoped with `@keyframes blink`) and added `pointer-events-none` to the message row wrapper with `pointer-events-auto z-10` on `speaker_gutter` so adjacent rows never block avatar right-clicks.
 

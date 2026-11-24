@@ -361,8 +361,8 @@
       disabled={panel_open}
       onclick={handle_stop}
       aria-label="Stop Generation"
-      actions={[tooltip]}
-      class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!">
+      actions={[(node) => roll(node, -1), tooltip]}
+      class="touch-target-coarse text-slate-400 transition-colors hover:bg-transparent! hover:text-red-500!">
       <Icon name="octagon" class="block size-icon-medium" />
     </Button>
   {:else}
