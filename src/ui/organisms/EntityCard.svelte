@@ -244,8 +244,8 @@
       is_library ?
         has_brackets || incoming_only ?
           "max-h-full px-tight pt-8 pb-tight"
-        : "min-h-[40%] p-tight"
-      : "min-h-[50%] px-tight pt-8 pb-standard",
+        : "min-h-[45%] p-tight"
+      : "min-h-[45%] px-tight pt-8 pb-standard",
     ]}
     style:background={has_brackets || incoming_only ?
       "linear-gradient(to top, rgb(from var(--color-background-gradient-1) r g b / 0.96) 0%, rgb(from var(--color-background-gradient-1) r g b / 0.86) calc(100% - 2rem), transparent 100%)"

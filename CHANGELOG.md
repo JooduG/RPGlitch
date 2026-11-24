@@ -15,6 +15,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/ui/organisms/CardHand.svelte`: Fixed the remaining slot-landing flicker (measured per-frame in-browser): the real slot card was still mid-transition (inner opacity `0.6→1`, border slate→signature, brightness) when the opaque flight clone was removed, so it visibly dipped to ~65% and faded back. The slot card and its inner wrapper now snap to final state (`transition: none`) during the handoff before transitions are restored.
+
+- `src/media/motion.svelte.js`: Transitioned `filter` back to `none` during `fly_card_in`'s glide phase so the flying clone's `brightness(1.12)` and lift shadow ease smoothly into the resting slot card instead of snapping on removal.
+
+- `src/ui/atoms/Avatar.svelte`: Replaced `bits-ui`'s `Avatar` wrapper (which hid `<img>` with `display: none` until an async `new Image().onload` + `setTimeout` completed) with a direct native `<img>` + `onerror` fallback so cached avatars paint on frame 0 with zero flicker.
+
+- `src/ui/organisms/EntityCard.svelte` & `src/ui/organisms/CardHand.svelte`: Unified card bottom gradient height to `min-h-[45%]` across `library` and `slot`/`panel` variants, and switched `fly_card_to_slot` to art+gradient flight (`strip_card_text`) with a 200ms text fade-in on landing.
+
+- `src/media/motion.svelte.js` & `src/ui/organisms/CardHand.svelte`: Eliminated the landing flicker when slotting a card from `CardHand` into `Storyboard` by gliding `fly_card_in` directly to `(dx, dy)` at `(sx, sy)` without a ghosted set-down dissolve, awaiting `on_land` + `tick()` before restoring `old_root` opacity, and removing the clone on the next animation frame.
+
+- `src/ui/atoms/Avatar.svelte`: Changed default `delay_ms` from `200` to `0` so cached avatars render immediately with the rest of the profile UI instead of popping in 200ms later.
+
 - `src/media/motion.svelte.js` & `src/ui/organisms/Console.svelte`: Added `direction` parameter to `roll()` and wired `(node) => roll(node, -1)` (counter-clockwise) with red hover styling (`hover:text-red-500!`) to the **Stop Generation** button.
 - `src/ui/Storymode.svelte`: Keyed the `visible_feed` `{#each}` loop by `entry.meta?.id ?? entry.id` so `ChatBubble` and its `<Avatar>` no longer unmount/remount and flicker when a streaming message is persisted.
 

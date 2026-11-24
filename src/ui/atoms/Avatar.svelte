@@ -3,7 +3,6 @@
    * @file src/ui/atoms/Avatar.svelte
    * Pure avatar image renderer with blurred contain backdrop and error/no-media initials fallback.
    */
-  import { Avatar } from "bits-ui";
 
   let {
     src = null,
@@ -16,22 +15,24 @@
     tint = false,
     fallback_class = "",
     overlay = null,
-    delay_ms = 200,
     class: className = "",
     ...rest
   } = $props();
 
-  let loading_status = $state("loading");
+  let has_error = $state(false);
   const has_media = $derived(Boolean(src));
+
+  $effect(() => {
+    void src;
+    has_error = false;
+  });
 </script>
 
-<Avatar.Root
-  bind:loadingStatus={loading_status}
-  delayMs={delay_ms}
+<div
   class={["@container-size relative isolate flex h-full w-full items-center justify-center overflow-hidden", className]}
   style={`--signature-color: ${signature_color};`}
   {...rest}>
-  {#if !has_media || loading_status === "error"}
+  {#if !has_media || has_error}
     <!-- ignore-next-line -->
     <div
       data-card-text
@@ -42,10 +43,8 @@
       ]}>
       {initials}
     </div>
-  {/if}
-
-  {#if has_media}
-    {#if contain && loading_status === "loaded"}
+  {:else}
+    {#if contain}
       <img
         {src}
         alt=""
@@ -58,9 +57,10 @@
       </div>
     {/if}
 
-    <Avatar.Image
+    <img
       {src}
       {alt}
+      onerror={() => (has_error = true)}
       class={[
         "pointer-events-none z-10 block select-none",
         contain ?
@@ -74,4 +74,4 @@
   {#if overlay}
     {@render overlay()}
   {/if}
-</Avatar.Root>
+</div>

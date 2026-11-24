@@ -203,12 +203,38 @@
     }
 
     fly_card_in(source, source_rect, target_rect, {
-      on_land: () => {
+      on_land: async () => {
+        app.select_entity(card_hand_type, entity);
+        await tick();
         if (old_root) {
           old_root.style.opacity = "";
           old_root.style.transition = "";
         }
-        app.select_entity(card_hand_type, entity);
+        // The slot card transitions opacity/border/brightness from its empty state; snap it to final so the opaque clone hands off seamlessly.
+        const slot_card = document.querySelector(`[data-slot-type="${card_hand_type}"] [data-card-root]`);
+        if (slot_card) {
+          const frozen = [slot_card, slot_card.firstElementChild].filter(Boolean);
+          frozen.forEach((node) => (node.style.transition = "none"));
+          void slot_card.offsetWidth;
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => {
+              frozen.forEach((node) => (node.style.transition = ""));
+            }),
+          );
+        }
+        if (!motion.is_reduced) {
+          target.querySelectorAll("[data-card-text], [data-card-badge]").forEach((node) => {
+            node.style.transition = "none";
+            node.style.opacity = "0";
+            requestAnimationFrame(() => {
+              node.style.transition = "opacity 200ms var(--ease-out)";
+              node.style.opacity = "";
+              setTimeout(() => {
+                node.style.transition = "";
+              }, 220);
+            });
+          });
+        }
       },
     }).finally(() => {
       flight_active = false;

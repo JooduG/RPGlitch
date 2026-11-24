@@ -437,7 +437,6 @@ function dissolve_clone(clone, duration_ms, transform) {
  * @param {() => void} [options.on_land] - Commit real state here (runs under the clone, before it dissolves)
  * @param {number} [options.pickup_ms]
  * @param {number} [options.glide_ms]
- * @param {number} [options.set_down_ms]
  * @param {string} [options.tag]
  * @param {number | string} [options.z]
  * @returns {Promise<void>}
@@ -447,7 +446,7 @@ export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
     options.on_land?.();
     return Promise.resolve();
   }
-  const { on_clone, on_land, pickup_ms = 90, glide_ms = 380, set_down_ms = 130, tag = "data-flight-clone", z = "var(--z-index-overlay)" } = options;
+  const { on_clone, on_land, pickup_ms = 90, glide_ms = 380, tag = "data-flight-clone", z = "var(--z-index-overlay)" } = options;
   return new Promise((resolve) => {
     const clone = make_card_clone(source_el, tag, z);
     place(clone, from_rect);
@@ -462,22 +461,29 @@ export function fly_card_in(source_el, from_rect, to_rect, options = {}) {
     });
 
     let landed = false;
-    const land = () => {
+    const land = async () => {
       if (landed) return;
       landed = true;
       try {
-        on_land?.();
+        await on_land?.();
       } finally {
-        // Set-down: settle slightly and dissolve, revealing the destination card.
-        dissolve_clone(clone, set_down_ms, `translate(${dx}px, ${dy}px) rotate(0deg) scale(${sx * 0.96}, ${sy * 0.96})`);
-        resolve();
+        const finish = () => {
+          clone.remove();
+          resolve();
+        };
+        if (typeof requestAnimationFrame === "function") {
+          requestAnimationFrame(finish);
+        } else {
+          finish();
+        }
       }
     };
 
     // Glide: carry the card across the stage.
     setTimeout(() => {
-      clone.style.transition = `transform ${glide_ms}ms ${GLIDE_EASE}`;
-      clone.style.transform = `translate(${dx}px, ${dy + 14}px) rotate(0deg) scale(${sx}, ${sy})`;
+      clone.style.transition = `transform ${glide_ms}ms ${GLIDE_EASE}, filter ${glide_ms}ms ${GLIDE_EASE}`;
+      clone.style.transform = `translate(${dx}px, ${dy}px) rotate(0deg) scale(${sx}, ${sy})`;
+      clone.style.filter = "none";
       clone.addEventListener("transitionend", (e) => {
         if (e.target === clone && e.propertyName === "transform") land();
       });
