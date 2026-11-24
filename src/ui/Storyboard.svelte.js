@@ -8,6 +8,7 @@ import { chrono_engine } from "@engine";
 import { fly_card_in, fly_card_out, motion } from "@media";
 import { app, execution } from "@state";
 import { compute_initials, get_signature_color, pick_random } from "@utils";
+import { tick } from "svelte";
 
 export function deck_geometry(viewport, slot_rect, { pickup_scale = 0.62, deck_clearance = 1.25 } = {}) {
   const width = slot_rect.width * pickup_scale;
@@ -135,13 +136,21 @@ export class StoryboardController {
         fly_card_in(s.root, deck, s.rect, {
           tag: "data-deal-in",
           on_clone: (clone) => dress_deal_card(clone, picks[s.type]),
-          on_land: () => {
+          on_land: async () => {
+            commit_slot(s.type, picks[s.type]);
+            await tick();
             if (s.root) {
+              const frozen = [s.root, s.root.firstElementChild].filter(Boolean);
+              frozen.forEach((node) => (node.style.transition = "none"));
               s.root.style.opacity = "";
-              s.root.style.transition = "";
+              void s.root.offsetWidth;
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => {
+                  frozen.forEach((node) => (node.style.transition = ""));
+                }),
+              );
             }
             s.wrap?.classList.add("deal-revealed");
-            commit_slot(s.type, picks[s.type]);
             if (!title_done) {
               title_done = true;
               app.regenerate_title?.();

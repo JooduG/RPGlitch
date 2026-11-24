@@ -69,3 +69,21 @@
 - **Trigger**: Switching a singleton `Tooltip.Root` from a pinned 3D card-back menu on entity A to a hover preview on entity B (`Tooltip.svelte`).
 - **Wrong Behavior**: Calling `unpin_tooltip()` (`active = false`, `pinned = false`) and immediately calling `show_tooltip(newNode, ..., { delay: 0 })` (`active = true`) in the same synchronous tick. Svelte coalesces `active` to remain `true`, aborting the exit transition, keeping the old anchor coordinates while Floating UI recalculates, and visibly rotating entity A's context menu backward (`180deg -> 0deg`) over entity B.
 - **Correct Behavior**: Stage the handoff: require a short hover dwell (`150ms`) to ignore accidental cursor fly-bys, call `unpin_tooltip()` so entity A completes its `250ms` flip-to-void exit and unmounts, and only mount entity B's fresh `rotateY(0deg)` preview after the exit window (`260ms`) if the pointer is still over entity B.
+
+## Pitfall 12: Clone-to-Slot Handoff Flicker from Mid-Transition Destination Card (Occurrences: 1)
+
+- **Trigger**: Landing a `fly_card_in` clone onto a destination `EntityCard` slot (`CardHand.svelte` / `Storyboard.svelte.js` -> `Storyboard.svelte`) transitioning from empty (`opacity-60`, slate border) to filled (`opacity-100`, signature border), or swapping an occupied slot.
+- **Wrong Behavior**: Removing the opaque flying clone while the real destination card underneath is still mid-transition (`opacity` ~0.65, border mid-ramp) or clearing `opacity: 0` before `await tick()` flushes the new entity, causing a visible brightness/opacity dip or old-card flash — or iterating on visual guesses instead of profiling per-frame computed styles.
+- **Correct Behavior**: In `on_land`, commit the new entity and `await tick()` first, then snap `[data-card-root]` and its inner wrapper to their final state (`transition: none` + `void offsetWidth`) and restore `transition = ""` after two `requestAnimationFrame` ticks. For elusive visual flickers, profile per-frame computed styles in the browser before making speculative edits.
+
+## Pitfall 13: Svelte Scoped `@keyframes` vs. Tailwind `animate-[...]` & `no-unknown-classes` (Occurrences: 1)
+
+- **Trigger**: Defining `@keyframes` inside a Svelte `<style>` block and applying it via Tailwind's `animate-[name_...]` utility or a custom CSS class (`ChatBubble.svelte`).
+- **Wrong Behavior**: Svelte hashes component-scoped `@keyframes` names, so Tailwind's `animate-[blink_...]` silently fails to animate; switching to a custom class (`.cursor-blink`) fails `better-tailwindcss/no-unknown-classes`.
+- **Correct Behavior**: Bind a `data-*` attribute (e.g., `data-blink={!motion.is_reduced ? "true" : undefined}`) and target `[data-blink="true"]` inside `<style>` so Svelte scopes both `animation:` and `@keyframes` together without lint errors.
+
+## Pitfall 14: `bits-ui` Inline `style` Overrides & Async `Avatar` `display: none` (Occurrences: 1)
+
+- **Trigger**: Styling `bits-ui` primitives that inject inline `style` attributes (`ScrollArea.Scrollbar` sets `position: absolute`) or using `bits-ui` `Avatar` for cached/local portraits (`Avatar.svelte`).
+- **Wrong Behavior**: Applying Tailwind `fixed` without `!` is silently overridden by `bits-ui`'s inline `position: absolute`; using `bits-ui` `Avatar` forces `display: none` until an async `new Image().onload` + `setTimeout(delayMs)` completes, causing sequential pop-in delays on cached avatars.
+- **Correct Behavior**: Use Tailwind v4 `!important` modifiers (`fixed!`) when overriding `bits-ui` inline positioning, and use a direct native `<img>` + `onerror` initials fallback in `Avatar.svelte` for frame-0 rendering.
