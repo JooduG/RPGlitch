@@ -113,7 +113,6 @@ describe("ProfileState story editing lock", () => {
     state.start_editing();
 
     expect(state.can_edit).toBe(false);
-    expect(state.story_locked).toBe(true);
     expect(state.is_editing).toBe(false);
   });
 

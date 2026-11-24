@@ -11,7 +11,7 @@ Presentation layer organized as a strict 4-tier downward DAG:
 
 ## Interface
 
-- [`index.js`](./index.js): Barrel exporting `Profile`, `ProfileState`, `Storyboard`, `StoryboardController`, `claimed_entity_lock`, `deck_geometry`, `storyboard`, `Storymode`, and re-exporting `Console` and `StoryLibrary` from [`./organisms/index.js`](./organisms/index.js).
+- [`index.js`](./index.js): Barrel exporting `Profile`, `Storyboard`, `storyboard`, `Storymode`, and re-exporting `Console` from [`./organisms/index.js`](./organisms/index.js).
 - [`Storyboard.svelte`](./Storyboard.svelte), [`Storyboard.svelte.js`](./Storyboard.svelte.js) & [`Storyboard.test.js`](./Storyboard.test.js): Pre-story deck-selection stage, orbital card-hand dialog, and Import Entity modal; exports `deck_geometry`, `claimed_entity_lock`, `StoryboardController`, and `storyboard`.
 - [`Storymode.svelte`](./Storymode.svelte): Narrative feed stage, undo-delete window (`5000ms`), scroll follow, and `<script module>` exports `storymode_state`, `take_photo`, `take_group_photo`, `regenerate_image`, `ghostwrite`, and `run_mock`.
 - [`Profile.svelte`](./Profile.svelte), [`Profile.svelte.js`](./Profile.svelte.js) & [`Profile.test.js`](./Profile.test.js): Entity profile editor modal coordinating `ProfileState`, `RelationalGraph`, `BracketList`, `TimeTravelBar`, and auxiliary wings (`VisualWing`, `AudioWing`, `DevWing`).

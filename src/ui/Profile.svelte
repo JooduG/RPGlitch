@@ -266,7 +266,7 @@
     type="confirm"
     bind:open={profile_state.pending_swap_confirm}
     title="Discard unsaved changes?"
-    message={`You have unsaved edits to ${profile_state.char?.name || "this profile"}. Open the other entity and discard them?${profile_state.pending_swap_detail ? ` [${profile_state.pending_swap_detail}]` : ""}`}
+    message={`You have unsaved edits to ${profile_state.char?.name || "this profile"}. Open the other entity and discard them?`}
     confirm_label="Discard & Continue"
     on_confirm={() => profile_state.confirm_swap()}
     on_cancel={() => profile_state.reject_swap()} />
@@ -738,9 +738,7 @@
       "my-auto flex w-full min-w-0 items-center justify-center text-center transition-colors duration-standard",
       !is_mobile && "rotate-180 [text-orientation:mixed] [writing-mode:vertical-rl]",
     ]}
-    style="color: var(--signature-color); text-shadow: none;"
-    onmouseenter={() => (profile_state.hovered_section = id)}
-    onmouseleave={() => (profile_state.hovered_section = null)}>
+    style="color: var(--signature-color); text-shadow: none;">
     {#if profile_state.is_editing && first_field_key}
       <!-- ignore-next-line -->
       <button

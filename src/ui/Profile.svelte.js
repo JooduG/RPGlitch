@@ -5,7 +5,7 @@
 import { normalize_entity as normalize } from "@data";
 import { atom_for, canonicalize_field_key, resolve_entity_type } from "@definitions";
 import { parse_entity_profile } from "@engine";
-import { motion, resolve_voice_name, resolve_voice_uri } from "@media";
+import { motion } from "@media";
 import { app, session } from "@state";
 import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
@@ -25,8 +25,6 @@ export class ProfileState {
   is_saving = $state(false);
   show_delete_confirm = $state(false);
   is_packing_up = $state(false);
-  /** @type {string | null} */
-  hovered_section = $state(null);
   active_field = $state(DEFAULT_FIELD);
   /** @type {SvelteSet<string>} */
   busy_fields = new SvelteSet();
@@ -36,7 +34,6 @@ export class ProfileState {
   _user_mutated = $state(false);
   _original_id = null;
   _pending_swap = null;
-  _edit_snapshot = null;
 
   /** @type {string | null} */
   draft_id = $state(null);
@@ -44,7 +41,6 @@ export class ProfileState {
   draft_name = $state(null);
   identity_error = $state("");
   pending_swap_confirm = $state(false);
-  pending_swap_detail = $state("");
 
   constructor() {
     this.char = normalize(app.editing_entity || session.active_user);
@@ -69,10 +65,6 @@ export class ProfileState {
   get can_edit() {
     if (app.settings.dev_mode || !this.char?.id) return true;
     return !app.claimed_entity_ids.has(String(this.char.id));
-  }
-
-  get story_locked() {
-    return !this.can_edit;
   }
 
   sync_identity_drafts() {
@@ -111,63 +103,6 @@ export class ProfileState {
     return true;
   }
 
-  commit_identity_drafts() {
-    const id_ok = this.commit_draft_id();
-    const name_ok = this.commit_draft_name();
-    return id_ok && name_ok;
-  }
-
-  canonical_copy(char) {
-    const snap = JSON.parse(JSON.stringify(char));
-    if (!snap) return snap;
-    if (typeof snap.id === "string") snap.id = clean_id(snap.id);
-    if (snap.voice && typeof snap.voice === "object") {
-      const vkey = snap.voice.name || snap.voice.uri || "Standard Voice";
-      snap.voice.name = resolve_voice_name(vkey);
-      snap.voice.uri = resolve_voice_uri(vkey);
-      snap.voice.cadence ??= "standard";
-    }
-    return snap;
-  }
-
-  take_edit_snapshot() {
-    try {
-      this._edit_snapshot = this.canonical_copy(this.char);
-    } catch {
-      this._edit_snapshot = null;
-    }
-    this.pending_swap_detail = "";
-  }
-
-  describe_dirty() {
-    try {
-      if (!this._edit_snapshot || !this.char) return "Changed: (snapshot unavailable)";
-      const paths = this.collect_changed_paths(this._edit_snapshot, this.canonical_copy(this.char), "", [], 0);
-      return paths.length ? `Changed: ${paths.join(", ")}` : "Flag set, but no content differences found.";
-    } catch {
-      return "Changed: (diff failed)";
-    }
-  }
-
-  collect_changed_paths(a, b, base, out, depth) {
-    if (out.length >= 12 || depth > 6 || typeof a === "function" || typeof b === "function" || Object.is(a, b)) return out;
-    const ao = a !== null && typeof a === "object";
-    const bo = b !== null && typeof b === "object";
-    if (!ao || !bo) {
-      out.push(base || "(root)");
-      return out;
-    }
-    if (Array.isArray(a) || Array.isArray(b)) {
-      if (JSON.stringify(a) !== JSON.stringify(b)) out.push(base || "(root)");
-      return out;
-    }
-    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) {
-      if (out.length >= 12) break;
-      this.collect_changed_paths(a[k], b[k], base ? `${base}.${k}` : k, out, depth + 1);
-    }
-    return out;
-  }
-
   mark_mutated() {
     queueMicrotask(() => {
       this._user_mutated = true;
@@ -179,7 +114,6 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_editing = true;
     this.sync_identity_drafts();
-    this.take_edit_snapshot();
   }
 
   sync() {
@@ -187,7 +121,6 @@ export class ProfileState {
     if (this.is_dirty) {
       this._pending_swap = app.editing_entity;
       this.pending_swap_confirm = true;
-      this.pending_swap_detail = this.describe_dirty();
       return;
     }
     this.char = normalize(app.editing_entity);
@@ -195,15 +128,12 @@ export class ProfileState {
     this._user_mutated = false;
     if (this.is_editing) this.sync_identity_drafts();
     else this.clear_identity_drafts();
-    this.take_edit_snapshot();
   }
 
   confirm_swap() {
     const next = this._pending_swap;
     this._pending_swap = null;
     this.pending_swap_confirm = false;
-    this._edit_snapshot = null;
-    this.pending_swap_detail = "";
     if (!next) return;
     this.is_editing = false;
     this._user_mutated = false;
@@ -215,7 +145,6 @@ export class ProfileState {
   reject_swap() {
     this._pending_swap = null;
     this.pending_swap_confirm = false;
-    this.pending_swap_detail = "";
     if (app.editing_entity && app.editing_entity.id !== this.char?.id) {
       app.editing_entity = this.char;
     }
@@ -256,8 +185,6 @@ export class ProfileState {
     this.is_editing = false;
     this.char = normalize(app.editing_entity || session.active_user);
     this._user_mutated = false;
-    this._edit_snapshot = null;
-    this.pending_swap_detail = "";
     this.reset_active_field();
     this.clear_identity_drafts();
   }
@@ -272,7 +199,8 @@ export class ProfileState {
 
   async save(entity_type) {
     if (this.is_saving) return false;
-    this.commit_identity_drafts();
+    this.commit_draft_id();
+    this.commit_draft_name();
     if (!this.identity_valid) {
       this.identity_error = !this.id_valid ? "ID must be 2–36 chars (A–Z, a–z, 0–9, _ or -)." : "Name is required.";
       this.is_editing = true;
@@ -367,7 +295,7 @@ export class ProfileState {
       const structured = await parse_entity_profile(this.char, entity_type);
       if (structured) {
         for (const path of QUADRANT_PATHS) {
-          const output_key = path ? path.replace(/\./g, "_") : null;
+          const output_key = path.replace(/\./g, "_");
           if (structured[output_key]) set_value(this.char, path, structured[output_key]);
         }
         this._user_mutated = true;
