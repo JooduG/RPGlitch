@@ -5,8 +5,8 @@
    */
   import { Accordion, Backdrop, Button, Icon, ProgressBar, ScrollArea, Shimmer, Slider, Toggle, tooltip } from "@atoms";
   import { export_story_record, reset_database, stories } from "@data";
-  import { chrono_engine, generate_closing, generate_user_draft, reset_turn_scope_for_testing } from "@engine";
-  import { Audio, pulse, reset_generation_in_flight, reset_image_generation_queue, roll, shimmy, stab } from "@media";
+  import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
+  import { Audio, pulse, roll, shimmy, stab } from "@media";
   import { Dialog, TextField } from "@molecules";
   import { StoryLibrary } from "@organisms";
   import { app, execution, session } from "@state";
@@ -171,7 +171,7 @@
     }
   }
 
-  function handle_unstick() {
+  function handle_stop() {
     ghostwrite_generation += 1;
     handled_ghostwrite_req = app.ghostwrite_request;
     is_ghostwriting = false;
@@ -181,18 +181,7 @@
       /* best-effort */
     }
     ghostwrite_controller = null;
-
-    try {
-      execution.recover("Manual unstick from composer");
-    } finally {
-      for (const reset_fn of [reset_turn_scope_for_testing, reset_generation_in_flight, reset_image_generation_queue]) {
-        try {
-          if (typeof reset_fn === "function") reset_fn();
-        } catch {
-          /* best-effort */
-        }
-      }
-    }
+    chrono_engine.abort();
   }
 
   // --- AUDIO & STORY ACTIONS ---
@@ -366,21 +355,12 @@
     </span>
   {/if}
 
-  {#if (execution.stream.active || execution.loading) && (session.round > 0 || execution.loading)}
+  {#if execution.busy || execution.stream.active || execution.loading}
     <Button
       variant="invisible"
       disabled={panel_open}
-      onclick={() => execution.interrupt()}
-      aria-label="Interrupt Generation"
-      actions={[tooltip]}
-      class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!">
-      <Icon name="interrupt" class="block size-icon-medium" />
-    </Button>
-  {:else if execution.busy}
-    <Button
-      variant="invisible"
-      onclick={handle_unstick}
-      aria-label="Unstick Simulation"
+      onclick={handle_stop}
+      aria-label="Stop Generation"
       actions={[tooltip]}
       class="touch-target-coarse text-amber-400 transition-colors hover:bg-transparent! hover:text-amber-300!">
       <Icon name="octagon" class="block size-icon-medium" />

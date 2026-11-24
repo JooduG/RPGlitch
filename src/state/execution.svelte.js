@@ -182,7 +182,6 @@ export class ExecutionStore {
 
   /**
    * Aborts the in-flight request via AbortController and stops queued voice speech.
-   * Alias `abort_stream` is kept for the Console interrupt button contract.
    */
   interrupt() {
     if (this.stream.abort_controller) {
@@ -197,14 +196,6 @@ export class ExecutionStore {
     } catch {
       /* voice teardown is best-effort */
     }
-  }
-
-  /**
-   * Interrupt-button contract: aborts the in-flight request (LLM or image).
-   * The Console wires its Interrupt affordance to this method.
-   */
-  abort_stream() {
-    this.interrupt();
   }
 
   /**

@@ -4,12 +4,13 @@
  * retry, continue-in-place, abort rollback, and single-attempt orphan recovery.
  */
 
+import { reset_generation_in_flight, reset_image_generation_queue } from "@media";
 import { build_turn_summary } from "@simulation";
 import { app, execution, session } from "@state";
 import { stories } from "@data";
 import { generate_closing, generate_opening } from "./lifecycle.js";
 import { is_abort_error } from "./transport.js";
-import { continue_turn, run_turn } from "./turns.js";
+import { continue_turn, reset_turn_scope_for_testing, run_turn } from "./turns.js";
 
 /**
  * @typedef {Object} StorySelection
@@ -29,9 +30,58 @@ export class ChronoEngine {
   /** @type {string | null} */
   error = $state(null);
   _orphan_retry_in_flight = false;
+  /** @type {ReturnType<typeof setTimeout> | null} */
+  #stop_fallback_timer = null;
 
   #is_busy() {
     return execution.busy;
+  }
+
+  /**
+   * Force-recovers execution state and resets engine/media locks.
+   * @param {string} reason
+   */
+  #force_recover(reason) {
+    if (this.#stop_fallback_timer) {
+      clearTimeout(this.#stop_fallback_timer);
+      this.#stop_fallback_timer = null;
+    }
+    try {
+      execution.recover(reason);
+    } finally {
+      for (const reset_fn of [reset_turn_scope_for_testing, reset_generation_in_flight, reset_image_generation_queue]) {
+        try {
+          if (typeof reset_fn === "function") reset_fn();
+        } catch {
+          /* best-effort */
+        }
+      }
+    }
+  }
+
+  /**
+   * Aborts the active generation cleanly via AbortController, escalating to
+   * forced recovery if the turn does not unwind or is already wedged.
+   */
+  abort() {
+    if (this.#stop_fallback_timer) {
+      clearTimeout(this.#stop_fallback_timer);
+      this.#stop_fallback_timer = null;
+    }
+
+    const controller = execution.stream.abort_controller;
+    if (controller && !controller.signal.aborted) {
+      execution.interrupt();
+      this.#stop_fallback_timer = setTimeout(() => {
+        this.#stop_fallback_timer = null;
+        if (execution.busy || execution.stream.active || execution.loading) {
+          this.#force_recover("Stop escalation timeout");
+        }
+      }, 1500);
+      return;
+    }
+
+    this.#force_recover("Manual stop");
   }
 
   /**
