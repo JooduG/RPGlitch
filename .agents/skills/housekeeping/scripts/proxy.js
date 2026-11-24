@@ -5,7 +5,7 @@
  * Split from bridges.js (see deepwiki-bridge.js for the DeepWiki SSE bridge).
  * Usage:
  *   node proxy.js summarize --mode=parallel <cmd...>
- *   node proxy.js <knowledge|ingest-web|sync-backlog|forge-skill|audit-svelte|svelte-autofix|forge-svelte> [args...]
+ *   node proxy.js <knowledge|ingest-web|sync-backlog|forge-skill|audit-svelte|svelte-autofix|forge-svelte|audit-customizations> [args...]
  */
 
 import { spawn, spawnSync } from "child_process";
@@ -22,6 +22,7 @@ export const GLOBAL_TOOL_PATHS = Object.freeze({
   "svelte-autofix": ".gemini/config/skills/svelte/scripts/svelte-autofix.js",
   "audit-svelte": ".gemini/config/skills/svelte/scripts/audit-svelte.js",
   "forge-svelte": ".gemini/config/skills/svelte/scripts/forge-svelte.js",
+  "audit-customizations": ".gemini/config/skills/customize-antigravity/scripts/audit-customizations.js",
 });
 
 /**
@@ -105,7 +106,7 @@ const command_line_arguments = process.argv.slice(2);
 
 if (command_line_arguments.length === 0) {
   console.error(
-    "Usage: node proxy.js <summarize | knowledge | ingest-web | sync-backlog | forge-skill | audit-svelte | svelte-autofix | forge-svelte> [args...]",
+    "Usage: node proxy.js <summarize | knowledge | ingest-web | sync-backlog | forge-skill | audit-svelte | svelte-autofix | forge-svelte | audit-customizations> [args...]",
   );
   process.exit(1);
 }
@@ -115,6 +116,7 @@ await proxy_global_tool(command_line_arguments[0], command_line_arguments.slice(
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-11-24: Added `audit-customizations` to GLOBAL_TOOL_PATHS and CLI usage.
  * 2026-11-10: Split from bridges.js - global-tool proxy half. DeepWiki SSE bridge now lives in
  *   deepwiki-bridge.js. bridges.js is a deprecated re-export shim (removed next pass).
  */

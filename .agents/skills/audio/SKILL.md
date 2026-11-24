@@ -1,7 +1,7 @@
 ---
 name: audio
 description: >-
-  Procedural Web Audio SFX synthesis, hardware AudioContext lifecycle, and browser Web Speech API controller in `@media` (`src/media/audio.svelte.js`). Use when implementing or refactoring `play_sfx`, `AudioEngine`, `VoiceEngine`, `VOICE_CADENCES`, `get_cadence_rate`, user-gesture `AudioContext` unlock/teardown, or `src/ui/AudioWing.svelte` voice controls. Do NOT use for interactive animations, easing curves, or View Transitions (use motion), static visual tokens or layouts (use design), turn orchestration (use simulation), or general Svelte 5 component runes (use svelte).
+  Procedural Web Audio SFX synthesis, hardware AudioContext lifecycle, and browser Web Speech API controller in `@media` (`src/media/audio.svelte.js`). Use when implementing or refactoring `play_sfx`, `AudioEngine`, `VoiceEngine`, `VOICE_CADENCES`, `get_cadence_rate`, user-gesture `AudioContext` unlock/teardown, or `src/ui/organisms/AudioWing.svelte` voice controls. Do NOT use for interactive animations, easing curves, or View Transitions (use motion), static visual tokens or layouts (use design), turn orchestration (use simulation), or general Svelte 5 component runes (use svelte).
 ---
 
 # Audio & Speech Synthesis
@@ -11,7 +11,7 @@ description: >-
 
 ## 1. Mandatory Pre-Flight & Pitfalls Check
 
-> **CRITICAL**: Before modifying [audio.svelte.js](../../../src/media/audio.svelte.js), [AudioWing.svelte](../../../src/ui/AudioWing.svelte), or audio triggers in `src/ui/`, read [PITFALLS.md](./PITFALLS.md) to avoid known regressions.
+> **CRITICAL**: Before modifying [audio.svelte.js](../../../src/media/audio.svelte.js), [AudioWing.svelte](../../../src/ui/organisms/AudioWing.svelte), or audio triggers in `src/ui/`, read [PITFALLS.md](./PITFALLS.md) to avoid known regressions.
 
 ### Reference Map
 
@@ -21,7 +21,7 @@ description: >-
 - [src/media/index.js](../../../src/media/index.js) — `@media` barrel exports (`Audio`, `AudioEngine`, `VoiceEngine`, `VOICE_CADENCES`, `voice_role_key`, `get_cadence_rate`, `resolve_voice_uri`, `resolve_voice_name`, `play_sfx`, lifecycle helpers).
 - [audio.test.js](../../../src/media/audio.test.js) — Unit test suite covering `voice_role_key`, `get_cadence_rate`, `play_sfx`, `is_paused`, notifications gate, and `Audio` facade behavior.
 - [config.js](../../../src/config.js#L145-L158) — `VOICE_CADENCE.RATES` and `SHAPING` constants (`DYNAMICS_OFFSET`, `MIN_RATE`, `MAX_RATE`).
-- UI & Lifecycle Callers: [AudioWing.svelte](../../../src/ui/AudioWing.svelte), [Console.svelte](../../../src/ui/Console.svelte), [ChatBubble.svelte](../../../src/ui/ChatBubble.svelte), [execution.svelte.js](../../../src/state/execution.svelte.js#L145-L199), [App.svelte](../../../src/App.svelte#L72-L81), and root [README.md](../../../README.md).
+- UI & Lifecycle Callers: [AudioWing.svelte](../../../src/ui/organisms/AudioWing.svelte), [Console.svelte](../../../src/ui/organisms/Console.svelte), [ChatBubble.svelte](../../../src/ui/organisms/ChatBubble.svelte), [execution.svelte.js](../../../src/state/execution.svelte.js#L145-L199), [App.svelte](../../../src/App.svelte#L72-L81), and root [README.md](../../../README.md).
 
 ## 2. Scope, When to Skip & Exclusivity Boundary
 
@@ -61,14 +61,14 @@ description: >-
 3. **Cadence Shaping (`VOICE_CADENCE` & `get_cadence_rate`)**:
    - `CADENCE_RATES` and `VOICE_CADENCES` mirror `VOICE_CADENCE.RATES` in [config.js](../../../src/config.js#L145-L158): `drawl: 0.85`, `measured: 0.95`, `standard: 1.0`, `brisk: 1.1`, `rapid: 1.2`.
    - `get_cadence_rate(cadence, dynamics_value = 50)` adds `(clamped_dynamics - 50) * 0.001` (`VOICE_CADENCE.SHAPING.DYNAMICS_OFFSET`) and clamps within `[0.5, 2.0]` (`MIN_RATE`..`MAX_RATE`).
-   - Profile previews call `Audio.voice.preview(active_voice_name, get_cadence_rate(cadence))` ([AudioWing.svelte](../../../src/ui/AudioWing.svelte#L121), restoring previous `selected_voice` and `rate` in `finally`), whereas message replay in [ChatBubble.svelte](../../../src/ui/ChatBubble.svelte#L428-L435) sets `Audio.voice.selected_voice` and `Audio.voice.rate` before calling `Audio.voice.speak(clean_markdown, true, true)`.
+   - Profile previews call `Audio.voice.preview(active_voice_name, get_cadence_rate(cadence))` ([AudioWing.svelte](../../../src/ui/organisms/AudioWing.svelte#L121), restoring previous `selected_voice` and `rate` in `finally`), whereas message replay in [ChatBubble.svelte](../../../src/ui/organisms/ChatBubble.svelte#L428-L435) sets `Audio.voice.selected_voice` and `Audio.voice.rate` before calling `Audio.voice.speak(clean_markdown, true, true)`.
 4. **Streaming Sentence Queue**:
    - `ExecutionStore` ([execution.svelte.js](../../../src/state/execution.svelte.js#L145-L199)) calls `apply_stream_role(role, id)`, `queue_stream_sentence(content)` (matching `/[^.!?]+[.!?]+["']?/g` deltas past `_stream_emitted_length`), `flush_stream_remainder(content)`, `reset_stream()`, and `stop()` on interrupt.
    - Playback controls expose `pause()`, `resume()`, `toggle_pause()`, `stop()`, and `destroy()`.
 
 ## 5. State Sovereignty, Silent Boot & Role Gating
 
-- **Layer Isolation**: `src/media/` imports strictly downward (`@config`, `@definitions`, `@simulation`, `@utils` — never `@data`, `@state`, `@engine`, or `@ui`). Do not import Dexie/`@data` into `audio.svelte.js`; `db.audio_prefs` ([db.js](../../../src/data/db.js#L38)) is an unused frozen schema store with no active readers or writers. Per-entity `{ name, uri, cadence }` settings live on character records edited via [AudioWing.svelte](../../../src/ui/AudioWing.svelte#L24-L75).
+- **Layer Isolation**: `src/media/` imports strictly downward (`@config`, `@definitions`, `@simulation`, `@utils` — never `@data`, `@state`, `@engine`, or `@ui`). Do not import Dexie/`@data` into `audio.svelte.js`; `db.audio_prefs` ([db.js](../../../src/data/db.js#L38)) is an unused frozen schema store with no active readers or writers. Per-entity `{ name, uri, cadence }` settings live on character records edited via [AudioWing.svelte](../../../src/ui/organisms/AudioWing.svelte#L24-L75).
 - **Silent Boot & Reactivity Matrix**:
 
 | Member / Variable | Boot Default | Reactivity | Scope / Notes |
@@ -82,7 +82,7 @@ description: >-
 | `VoiceEngine.rate` / `selected_voice` | `1.0` / `"default"` | Plain fields | Non-reactive utterance defaults; read at `speak()` call time |
 | `VoiceEngine.voices` / `is_speaking` / `active_message_id` | `[]` / `false` / `null` | `$state(...)` | Drives dropdown hydration and message speech indicator buttons |
 
-- **SFX vs. TTS Mute Separation**: `master_gain_node` does **not** attenuate `window.speechSynthesis`. When muting audio globally, callers must set `Audio.is_muted = true`, zero `Audio.volume`, and call `Audio.voice.stop()` ([Console.svelte](../../../src/ui/Console.svelte#L304-L309)).
+- **SFX vs. TTS Mute Separation**: `master_gain_node` does **not** attenuate `window.speechSynthesis`. When muting audio globally, callers must set `Audio.is_muted = true`, zero `Audio.volume`, and call `Audio.voice.stop()` ([Console.svelte](../../../src/ui/organisms/Console.svelte#L304-L309)).
 - **Role Key Distinction**: `voice_role_key(role)` calls `normalize_role(role, { preserve_npc: true })` and folds `"npc"` into `"ai"`, keeping `"ai"`, `"user"`, and `"fractal"` independently toggleable while returning `null` for `"system"`.
 
 ```javascript
