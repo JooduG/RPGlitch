@@ -15,6 +15,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/ui/organisms/Console.svelte`: Restored `<Shimmer />` on the console bar whenever `execution.loading || execution.busy || is_ghostwriting` is active.
+- `src/ui/organisms/ChatBubble.svelte`: Fixed the pre-token blinking block cursor (`cursor-blink` scoped with `@keyframes blink`) and added `pointer-events-none` to the message row wrapper with `pointer-events-auto z-10` on `speaker_gutter` so adjacent rows never block avatar right-clicks.
+
 - `src/ui/organisms/ChatBubble.svelte`: Replaced the `<Shimmer />` placeholder during pre-token generation with a blinking block cursor (`▌`) matching `Typewriter.svelte` (respecting `motion.is_reduced`).
 
 - `src/ui/atoms/ScrollArea.svelte`: Changed `fixed_scrollbar` positioning from `fixed` to `fixed!` so `position: fixed !important` overrides `bits-ui`'s inline `position: absolute`, pinning the `Storymode` scrollbar to the rightmost viewport edge.

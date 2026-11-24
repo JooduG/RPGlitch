@@ -479,7 +479,7 @@
     style:view-transition-name="unified-console"
     style:width={!panel_open && story_locked ? "fit-content" : null}
     data-testid="unified-console">
-    {#if execution.loading || is_ghostwriting || (execution.busy && panel_open)}
+    {#if execution.loading || execution.busy || is_ghostwriting}
       <Shimmer />
     {/if}
 

@@ -212,7 +212,7 @@
     oncontextmenu={handle_badge_contextmenu}
     style:--signature-color={signature_color}
     class={[
-      "absolute top-1/2 isolate m-0 aspect-3/4 w-column-unit -translate-y-1/2 transform-[translateZ(0)] cursor-pointer overflow-hidden rounded-xl border border-solid border-(--signature-color,rgba(255,255,255,0.25)) bg-black/60 p-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition duration-300 ease-out select-none hover:scale-[1.02] hover:border-(--signature-color) hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)] focus-visible:outline-none",
+      "pointer-events-auto absolute top-1/2 isolate z-10 m-0 aspect-3/4 w-column-unit -translate-y-1/2 transform-[translateZ(0)] cursor-pointer overflow-hidden rounded-xl border border-solid border-(--signature-color,rgba(255,255,255,0.25)) bg-black/60 p-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition duration-300 ease-out select-none hover:scale-[1.02] hover:border-(--signature-color) hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)] focus-visible:outline-none",
       side === "right" ? "right-[calc(var(--spacing-column-unit)*0.5)]" : "left-[calc(var(--spacing-column-unit)*0.5)]",
     ]}
     aria-label={aria_label}>
@@ -226,7 +226,7 @@
 {#if (sender !== "system" || app.settings.dev_mode) && (has_display_text || think_block || busy || is_editing || is_bookend)}
   <div
     class={[
-      "relative flex w-full items-start p-standard transition duration-200",
+      "pointer-events-none relative flex w-full items-start p-standard transition duration-200",
       is_user ? "justify-end pr-[calc(var(--spacing-column-unit)*2)]"
       : is_ai || is_npc ? "justify-start pl-[calc(var(--spacing-column-unit)*2)]"
       : "justify-center",
@@ -240,7 +240,7 @@
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       data-active={is_extended}
-      class="group glass-panel relative flex w-[calc(var(--spacing-column-unit)*5)] min-w-0 flex-col rounded-2xl transition duration-300 ease-out outline-none"
+      class="group glass-panel pointer-events-auto relative flex w-[calc(var(--spacing-column-unit)*5)] min-w-0 flex-col rounded-2xl transition duration-300 ease-out outline-none"
       style:--signature-color={signature_color}
       tabindex="0"
       onclick={handle_message_click}
@@ -322,10 +322,8 @@
               <span
                 role="status"
                 aria-label="Generating response"
-                class={[
-                  "inline-block text-(--signature-color)",
-                  !motion.is_reduced && "animate-[blink_var(--transition-duration-slow,500ms)_step-end_infinite]",
-                ]}>▌</span>
+                data-blink={!motion.is_reduced ? "true" : undefined}
+                class="inline-block text-(--signature-color)">▌</span>
             {:else if should_use_typewriter}
               <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} show_cursor={true} cursor_style="block" />
             {:else}
@@ -343,6 +341,10 @@
 {/if}
 
 <style>
+  [data-blink="true"] {
+    animation: blink var(--transition-duration-slow, 500ms) step-end infinite;
+  }
+
   @keyframes blink {
     0%,
     100% {
