@@ -71,13 +71,11 @@ const visual_retryer = new ExponentialBackoffRetryer({
  * Generates an offline SVG data URI fallback for test/offline environments.
  * Renders a neutral label on purpose: the prompt text can contain spoilers
  * (character names, scene beats) and must never show in the feed.
- * @param {string} prompt
  * @param {number} width
  * @param {number} height
  * @returns {string}
  */
-function create_offline_svg(prompt, width, height) {
-  void prompt;
+function create_offline_svg(width, height) {
   const label = "Offline visual preview";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#1a1a24"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#8888aa" font-family="monospace" font-size="14">${label}</text></svg>`;
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
@@ -129,7 +127,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
   const raw_engine = options.engine || find_image_engine();
 
   if (!raw_engine) {
-    return { image_url: create_offline_svg(prompt, width, height), seed, metadata: { offline: true, resolution, guidance_scale } };
+    return { image_url: create_offline_svg(width, height), seed, metadata: { offline: true, resolution, guidance_scale } };
   }
 
   const execute_attempt = async () => {
@@ -159,8 +157,8 @@ export async function dispatch_visual_generation(payload, options = {}) {
 // [SECTION 3: IN-FLIGHT BOOKKEEPING & QUEUE]
 // ============================================================================
 
-export const _in_flight_image_generations = new Set();
-export const _image_generation_queue = [];
+const _in_flight_image_generations = new Set();
+const _image_generation_queue = [];
 
 export function mark_generation_in_flight(id, attachment_index = 0) {
   if (id == null) return;
@@ -189,7 +187,7 @@ export function reset_image_generation_queue() {
   _image_generation_queue.length = 0;
 }
 
-export function _remove_from_image_generation_queue(id) {
+function _remove_from_image_generation_queue(id) {
   const index = _image_generation_queue.findIndex((entry) => entry.id === id);
   if (index !== -1) _image_generation_queue.splice(index, 1);
 }

@@ -6,7 +6,7 @@
   import { Backdrop, Button, Icon, Toggle, tooltip } from "@atoms";
   import { create_entity as create_new, entities, extract_card_from_png } from "@data";
   import { import_entities } from "@engine";
-  import { fly_card_in, fly_card_out, motion, rect_of } from "@media";
+  import { fly_card_in, fly_card_out, motion } from "@media";
   import { Modal, SourceField } from "@molecules";
   import { app, execution } from "@state";
   import { tick } from "svelte";
@@ -179,8 +179,8 @@
       : card_hand_type === "fractal" ? app.selected_fractal
       : null;
 
-    const source_rect = rect_of(source);
-    const target_rect = rect_of(target);
+    const source_rect = source.getBoundingClientRect();
+    const target_rect = target.getBoundingClientRect();
     source.style.transition = "none";
     source.style.opacity = "0";
 
@@ -189,7 +189,7 @@
     if (existing && String(existing.id) !== String(entity.id)) {
       old_root = target.matches("[data-card-root]") ? target : target.querySelector("[data-card-root]");
       if (old_root) {
-        const out_rect = rect_of(old_root);
+        const out_rect = old_root.getBoundingClientRect();
         fly_card_out(old_root, {
           left: Math.max(0, window.innerWidth / 2 - (out_rect.width * 0.7) / 2),
           top: Math.max(0, window.innerHeight - out_rect.height * 0.72),

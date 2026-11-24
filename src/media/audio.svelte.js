@@ -31,7 +31,7 @@ let pending_notification_fetch = null;
  * Lazily initializes and returns the shared hardware AudioContext.
  * @returns {AudioContext | null}
  */
-export function get_audio_context() {
+function get_audio_context() {
   if (shared_audio_context) return shared_audio_context;
   if (typeof window === "undefined") return null;
 
@@ -45,12 +45,7 @@ export function get_audio_context() {
   return shared_audio_context;
 }
 
-export function get_master_gain() {
-  if (!master_gain_node) get_audio_context();
-  return master_gain_node;
-}
-
-export async function init_audio_on_gesture() {
+async function init_audio_on_gesture() {
   const context = get_audio_context();
   if (context && context.state === "suspended") {
     // resume() stays pending until the first user gesture in autoplay-blocked
@@ -61,15 +56,11 @@ export async function init_audio_on_gesture() {
     resume_attempt.catch(() => {
       /* Blocked by browser until gesture */
     });
-    try {
-      await Promise.race([resume_attempt, new Promise((resolve) => setTimeout(resolve, 1500))]);
-    } catch {
-      /* Blocked by browser until gesture */
-    }
+    await Promise.race([resume_attempt, new Promise((resolve) => setTimeout(resolve, 1500))]);
   }
 }
 
-export function close_audio_context() {
+function close_audio_context() {
   if (shared_audio_context) {
     try {
       shared_audio_context.close();
@@ -111,7 +102,7 @@ if (typeof document !== "undefined") {
  */
 export function play_sfx(type, options = {}) {
   const context = get_audio_context();
-  const master_gain = get_master_gain();
+  const master_gain = master_gain_node;
   if (!context || !master_gain || is_muted || typeof context.createOscillator !== "function") return;
 
   const volume = Math.max(0, Math.min(1, Number(options.volume ?? 1.0)));
@@ -378,7 +369,7 @@ export function get_cadence_rate(cadence, dynamics_value = 50) {
 // [SECTION 4: WEB SPEECH API FALLBACK ENGINE]
 // ============================================================================
 
-export class VoiceEngine {
+class VoiceEngine {
   // Silent boot: master TTS gate off until the user enables a voice.
   enabled = $state(false);
   selected_voice = "default";
@@ -469,10 +460,6 @@ export class VoiceEngine {
     }
   }
 
-  async resume_context() {
-    await init_audio_on_gesture();
-  }
-
   set_volume(vol) {
     this.volume = Math.max(0, Math.min(1, Number(vol)));
     current_master_volume = this.volume;
@@ -486,10 +473,12 @@ export class VoiceEngine {
     if (!text) return;
     if (!this.enabled && !force) return;
 
-    const was_busy = Boolean(this.#speech_synth.speaking || this.#speech_synth.pending);
+    const was_busy = Boolean(this.#speech_synth?.speaking || this.#speech_synth?.pending);
     if (should_clear_queue) {
       this.stop();
     }
+
+    if (!this.#speech_synth) return;
 
     const clean_text = strip_cognition_blocks(text)
       .replace(/[*_#`~]/g, "")
@@ -498,8 +487,6 @@ export class VoiceEngine {
       .trim();
 
     if (!clean_text) return;
-
-    if (!this.#speech_synth) return;
 
     const utterance = new SpeechSynthesisUtterance(clean_text);
     utterance.volume = this.volume;
@@ -630,7 +617,7 @@ export class VoiceEngine {
 // [SECTION 5: AUDIO SINGLETON FACADE]
 // ============================================================================
 
-export class AudioEngine {
+class AudioEngine {
   voice = new VoiceEngine();
   notifications_enabled = $state(false);
 
@@ -667,21 +654,12 @@ export class AudioEngine {
     return this.voice.is_role_enabled(role);
   }
 
-  set_entity_voice(role, is_enabled) {
-    const norm = voice_role_key(role);
-    if (!norm) return;
-    const bool = Boolean(is_enabled);
-    if (bool) {
-      this.voice_enabled = true;
-    }
-    this.voice.entity_voice[norm] = bool;
-  }
-
   toggle_entity_voice(role) {
     const norm = voice_role_key(role);
     if (!norm) return false;
     const next = !this.voice.entity_voice[norm];
-    this.set_entity_voice(norm, next);
+    if (next) this.voice_enabled = true;
+    this.voice.entity_voice[norm] = next;
     if (!next) this.voice.stop();
     return next;
   }

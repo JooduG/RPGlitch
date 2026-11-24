@@ -17,22 +17,20 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 ### 1. Procedural Web Audio SFX & Speech (`audio.svelte.js`)
 
 - `play_sfx(type, options = {})`: Synthesizes `"click"`, `"pop"`, `"glitch"`, `"alert"`, `"subtle_hum"`, and default fallback cues procedurally, and plays `"notification"` via cached `DEFAULT_NOTIFICATION_SOUND` `.wav` fetch with procedural chime fallback, disconnecting and clearing `onended` on completion.
-- `init_audio_on_gesture()`, `suspend_audio()`, `close_audio_context()`, `get_audio_context()`, `get_master_gain()`: Hardware `AudioContext` and `GainNode` lifecycle management.
 - `VOICE_CADENCES`, `voice_role_key(role)`, `resolve_voice_uri(name_or_uri)`, `resolve_voice_name(name_or_uri)`, `get_cadence_rate(cadence, dynamics_value = 50)`.
-- `VoiceEngine`: Reactive speech controller (`enabled`, `selected_voice`, `rate`, `volume`, `is_speaking`, `is_paused`, `active_message_id`, `entity_voice`, `voices`, `_stream_role`, `_stream_emitted_length`) with `is_role_enabled()`, `load_voices()`, `preview()`, `resume_context()`, `set_volume()`, `speak()`, `stop()`, `pause()`, `resume()`, `toggle_pause()`, `destroy()`, `apply_stream_role()`, `queue_stream_sentence()`, `flush_stream_remainder()`, and `reset_stream()`.
-- `AudioEngine` / `Audio`: Singleton facade exposing `voice`, `notifications_enabled`, `volume`, `is_muted`, `voice_enabled`, `entity_voice`, `is_role_enabled(role)`, `set_entity_voice(role, is_enabled)`, `toggle_entity_voice(role)`, `play(sound_key)`, `init()`, and `destroy()`.
+- `Audio`: Singleton `AudioEngine` facade backed by an internal `VoiceEngine` controller, exposing `voice`, `notifications_enabled`, `volume`, `is_muted`, `voice_enabled`, `entity_voice`, `is_role_enabled(role)`, `toggle_entity_voice(role)`, `play(sound_key)`, `init()`, and `destroy()`.
 
 ### 2. Unified Kinetic & Motion Physics (`motion.svelte.js`)
 
 - `motion`: Reactive `$state` namespace tracking `intensity` (`0.0`–`1.0`) and `is_reduced` (`prefers-reduced-motion`).
 - Kinetic Svelte Actions: `pulse(node)`, `roll(node)`, `shimmy(node)`, `stab(node)`.
 - Svelte Transitions: `overlay_in(_node, options)`, `overlay_out(_node, options)`, `item_in(_node, options)`.
-- Card Flight & Scrub Primitives: `fly_card_in(source_el, from_rect, to_rect, options)`, `fly_card_out(source_el, to_rect, options)`, `make_card_clone(el, tag, z)`, `rect_of(el)`, `strip_card_text(el)`, `capture_storyboard_flight(enabled)`, `fly_storyboard_cards_into_prologue(assets, dst_rects)`, `update_card_scrub()`, `clear_card_location()`.
+- Card Flight & Scrub Primitives: `fly_card_in(source_el, from_rect, to_rect, options)`, `fly_card_out(source_el, to_rect, options)`, `capture_storyboard_flight(enabled)`, `fly_storyboard_cards_into_prologue(assets, dst_rects)`, `update_card_scrub()`, `clear_card_location()`.
 
 ### 3. Stateless Perchance Visual Dispatcher (`image-generation.js`)
 
 - `dispatch_visual_generation(payload, options = {})`: Dispatches visual generation to the host Perchance image plugin with `AbortSignal` cancellation, `CircuitBreaker` insulation, `ExponentialBackoffRetryer` retries, or offline SVG fallback.
-- In-Flight & Queue Bookkeeping: `_in_flight_image_generations`, `_image_generation_queue`, `mark_generation_in_flight()`, `clear_generation_in_flight()`, `is_generation_in_flight()`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`, `_remove_from_image_generation_queue()`.
+- In-Flight & Queue Bookkeeping: `mark_generation_in_flight()`, `clear_generation_in_flight()`, `is_generation_in_flight()`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`.
 - Ghost & Beat Lifecycle: `spawn_image_beat(tier, options = {}, ctx)`, `sweep_stale_ghosts(ctx)`, `count_pending_ghosts(ctx)`, `mark_placeholder_failed(id, metadata = {}, ctx)`.
 - Host Plugin Discovery & Facade: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`generate`, `visualize`, `generate_candidates`), `visual_engine`.
 

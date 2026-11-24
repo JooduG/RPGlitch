@@ -344,7 +344,7 @@ let scrub_style_injected = false;
  * @param {number} z
  * @returns {HTMLElement}
  */
-export function make_card_clone(el, tag, z) {
+function make_card_clone(el, tag, z) {
   const clone = /** @type {HTMLElement} */ (el.cloneNode(true));
   clone.classList.remove("scale-96", "scale-sink");
   clone.setAttribute(tag, "true");
@@ -368,7 +368,7 @@ export function make_card_clone(el, tag, z) {
 }
 
 /** @param {HTMLElement} el */
-export function rect_of(el) {
+function rect_of(el) {
   return el.getBoundingClientRect();
 }
 
@@ -376,7 +376,7 @@ export function rect_of(el) {
  * Hides a card's text and badge layers (art-only flight).
  * @param {HTMLElement} el
  */
-export function strip_card_text(el) {
+function strip_card_text(el) {
   el.querySelectorAll("[data-card-text], [data-card-badge]").forEach((node) => {
     node.style.opacity = "0";
   });
