@@ -20,7 +20,7 @@
 import { CANONICAL_ROLES, NARRATOR_ROLES } from "@config";
 import { filter_narrative_messages, normalize_history_beat } from "@simulation";
 import { format_datetime } from "@utils";
-import { coerce_story_key, db } from "./db.js";
+import { coerce_numeric_key, db } from "./db.js";
 import { load_log } from "./story-library.js";
 
 // ============================================================================
@@ -60,7 +60,7 @@ import { load_log } from "./story-library.js";
  * @param {StoryExportOptions} [options={}]
  * @returns {string | null} Formatted markdown string, or null if filtered.
  */
-export function format_story_beat(entry, options = {}) {
+function format_story_beat(entry, options = {}) {
   if (!entry || typeof entry !== "object") return null;
 
   const beat = normalize_history_beat(entry, { include_cognition: false, normalize_whitespace: false });
@@ -109,7 +109,7 @@ export function format_story_beat(entry, options = {}) {
  * @param {StoryExportOptions} [options={}]
  * @returns {string} Fully compiled markdown transcript.
  */
-export function export_story_markdown(story = {}, entries = [], options = {}) {
+function export_story_markdown(story = {}, entries = [], options = {}) {
   const title = String(story.title || "Untitled Fragment");
   const is_collapsed = story.conclusion_status === "COLLAPSED" || story.state === "collapsed";
   const is_concluded = is_collapsed || story.state === "concluded" || !!story.is_concluded;
@@ -150,7 +150,7 @@ export function export_story_markdown(story = {}, entries = [], options = {}) {
  * @param {Date} [date=new Date()] - Date stamp for filename.
  * @returns {string} Sanitized filename string.
  */
-export function build_story_export_filename(story = {}, date = new Date()) {
+function build_story_export_filename(story = {}, date = new Date()) {
   const slug =
     String(story.title || "story")
       .toLowerCase()
@@ -170,7 +170,7 @@ export function build_story_export_filename(story = {}, date = new Date()) {
  * @returns {Promise<{ markdown: string, filename: string, story: StoryRecord }>}
  */
 export async function export_story_record(story_id, fallback_story = null, options = {}) {
-  const coerced_id = coerce_story_key(story_id);
+  const coerced_id = coerce_numeric_key(story_id);
   const row = await db.stories.get(coerced_id);
   const story = { ...(row || {}), ...(fallback_story || {}) };
   const entries = await load_log(story_id);

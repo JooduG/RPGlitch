@@ -63,28 +63,17 @@ db.on("versionchange", () => {
   }
 });
 
-/**
- * Initializes and opens the database connection.
- * @returns {Promise<typeof db>}
- */
-export async function init_db() {
-  if (!db.isOpen()) {
-    await db.open();
-  }
-  return db;
-}
-
 // ============================================================================
 // 1. KEY COERCION HELPERS
 // ============================================================================
 
 /**
- * Coerces numeric string keys into numbers for Dexie table lookups.
+ * Coerces numeric string keys into numbers for Dexie table lookups while preserving non-numeric keys.
  * @param {string | number} id
  * @returns {string | number}
  */
-export function coerce_story_key(id) {
-  if (typeof id === "string" && /^\d+$/.test(id)) return Number(id);
+export function coerce_numeric_key(id) {
+  if (typeof id === "string" && /^\d+$/.test(id.trim())) return Number(id.trim());
   return id;
 }
 
@@ -95,42 +84,13 @@ export function coerce_story_key(id) {
  * @returns {Array<string | number>}
  */
 export function story_key_variants(id) {
-  const coerced = coerce_story_key(id);
+  const coerced = coerce_numeric_key(id);
   return [...new Set([coerced, String(coerced)])];
-}
-
-/**
- * Coerces numeric string log IDs into numbers while preserving string IDs.
- * @param {string | number} id
- * @returns {string | number}
- */
-export function coerce_log_key(id) {
-  if (typeof id === "number") return id;
-  if (typeof id === "string" && id.trim() !== "" && !isNaN(Number(id))) return Number(id);
-  return id;
 }
 
 // ============================================================================
 // 2. SESSION TRACKING & KV SETTINGS
 // ============================================================================
-
-/**
- * Records a session access timestamp.
- * @param {string} session_id
- * @returns {Promise<number>}
- */
-export async function record_session_access(session_id) {
-  return await db.sessions.add({ session_id: String(session_id), timestamp: Date.now() });
-}
-
-/**
- * Retrieves recent session access entries.
- * @param {number} [limit=10]
- * @returns {Promise<Array<object>>}
- */
-export async function get_recent_sessions(limit = 10) {
-  return await db.sessions.orderBy("id").reverse().limit(limit).toArray();
-}
 
 /**
  * Retrieves the currently active session ID pointer.

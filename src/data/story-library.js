@@ -11,7 +11,7 @@
  */
 
 import { has_bracket_bond, is_empty_narrative_message, is_telemetry_meta, match_speaker_snapshots } from "@simulation";
-import { coerce_log_key, coerce_story_key, db, require_active, story_key_variants } from "./db.js";
+import { coerce_numeric_key, db, require_active, story_key_variants } from "./db.js";
 
 // ============================================================================
 // 1. STORY CRUD & CAST MANAGEMENT
@@ -21,7 +21,7 @@ import { coerce_log_key, coerce_story_key, db, require_active, story_key_variant
  * Lists all stories with associated fractal summary metadata.
  * @returns {Promise<Array<object>>}
  */
-export async function list_stories() {
+async function list_stories() {
   const all_stories = await db.stories.orderBy("updated_at").reverse().toArray();
   const fractal_ids = [...new Set(all_stories.filter((story) => story.fractal_id).map((story) => story.fractal_id))];
 
@@ -53,30 +53,8 @@ export async function list_stories() {
  * @param {string | number} id
  * @returns {Promise<object | undefined>}
  */
-export async function get_story(id) {
-  return await db.stories.get(coerce_story_key(id));
-}
-
-/**
- * Creates a new story record.
- * @param {object} data
- * @returns {Promise<number | string>} created story id
- */
-export async function create_story(data) {
-  const now = Date.now();
-  const payload = {
-    title: data.title || "Untitled Story",
-    ai_id: data.ai_id || null,
-    user_id: data.user_id || null,
-    fractal_id: data.fractal_id || null,
-    round: Number(data.round ?? 0),
-    npc_ids: Array.isArray(data.npc_ids) ? data.npc_ids : [],
-    is_concluded: 0,
-    created_at: data.created_at || now,
-    updated_at: data.updated_at || now,
-    ...data,
-  };
-  return await db.stories.add(payload);
+async function get_story(id) {
+  return await db.stories.get(coerce_numeric_key(id));
 }
 
 /**
@@ -85,9 +63,9 @@ export async function create_story(data) {
  * @param {object} changes
  * @returns {Promise<number>}
  */
-export async function update_story(id, changes) {
+async function update_story(id, changes) {
   const updated_at = changes.updated_at || Date.now();
-  return await db.stories.update(coerce_story_key(id), { ...changes, updated_at });
+  return await db.stories.update(coerce_numeric_key(id), { ...changes, updated_at });
 }
 
 /**
@@ -98,10 +76,10 @@ export async function update_story(id, changes) {
  * @param {string[]} npc_ids
  * @returns {Promise<number>}
  */
-export async function update_cast(id, npc_ids) {
+async function update_cast(id, npc_ids) {
   const sanitized_npc_ids =
     Array.isArray(npc_ids) ? [...new Set(npc_ids.map((npc_identifier) => (npc_identifier == null ? "" : String(npc_identifier).trim())).filter(Boolean))] : [];
-  return await db.stories.update(coerce_story_key(id), { npc_ids: sanitized_npc_ids, updated_at: Date.now() });
+  return await db.stories.update(coerce_numeric_key(id), { npc_ids: sanitized_npc_ids, updated_at: Date.now() });
 }
 
 /**
@@ -109,7 +87,7 @@ export async function update_cast(id, npc_ids) {
  *
  * @returns {Promise<string[]>}
  */
-export async function active_entity_ids() {
+async function active_entity_ids() {
   try {
     const all_stories = await db.stories.toArray();
     const normalized_ids = [...new Set(all_stories.flatMap((story_record) => story_key_variants(story_record.id)))];
@@ -142,8 +120,8 @@ export async function active_entity_ids() {
  * @param {string | number} id
  * @returns {Promise<number>}
  */
-export async function conclude_story(id) {
-  return await db.stories.update(coerce_story_key(id), { is_concluded: 1, updated_at: Date.now() });
+async function conclude_story(id) {
+  return await db.stories.update(coerce_numeric_key(id), { is_concluded: 1, updated_at: Date.now() });
 }
 
 /**
@@ -151,8 +129,8 @@ export async function conclude_story(id) {
  * @param {string | number} id
  * @returns {Promise<number>}
  */
-export async function rewind_story(id) {
-  return await db.stories.update(coerce_story_key(id), { is_concluded: 0, updated_at: Date.now() });
+async function rewind_story(id) {
+  return await db.stories.update(coerce_numeric_key(id), { is_concluded: 0, updated_at: Date.now() });
 }
 
 /**
@@ -160,8 +138,8 @@ export async function rewind_story(id) {
  * @param {string | number} id
  * @returns {Promise<void>}
  */
-export async function delete_story(id) {
-  const story_id = coerce_story_key(id);
+async function delete_story(id) {
+  const story_id = coerce_numeric_key(id);
   await db.simulation_log.where("story_id").anyOf(story_key_variants(story_id)).delete();
   await db.stories.delete(story_id);
 }
@@ -169,7 +147,6 @@ export async function delete_story(id) {
 export const stories = {
   list: list_stories,
   get: get_story,
-  create: create_story,
   update: update_story,
   update_cast,
   active_entity_ids,
@@ -216,7 +193,7 @@ export async function resolve_log_entity_id(role, character_name, snapshots = nu
   let trio = null;
   if (story_id != null) {
     try {
-      const story = await db.stories.get(coerce_story_key(story_id));
+      const story = await db.stories.get(coerce_numeric_key(story_id));
       trio = story?.entity_snapshots ?? null;
       if (key && (!trio || !match_speaker_snapshots({ ...trio, NPCS: [] }, key))) {
         const npc_match = await db.entities
@@ -254,10 +231,10 @@ export async function resolve_log_entity_id(role, character_name, snapshots = nu
  * @param {string|number|null} story_id
  * @returns {Promise<number>}
  */
-export async function resolve_story_round(story_id) {
+async function resolve_story_round(story_id) {
   if (story_id == null) return 0;
   try {
-    const story = await db.stories.get(coerce_story_key(story_id));
+    const story = await db.stories.get(coerce_numeric_key(story_id));
     return typeof story?.round === "number" ? story.round : 0;
   } catch {
     return 0;
@@ -275,7 +252,7 @@ export async function resolve_story_round(story_id) {
  * @param {Array<any> | null} [feed=null]
  * @returns {Promise<any | null>}
  */
-export async function find_log_entry(id, feed = null) {
+async function find_log_entry(id, feed = null) {
   const numeric_key = isNaN(Number(id)) ? null : Number(id);
   let entry = numeric_key != null ? await db.simulation_log.get(numeric_key) : null;
   if (!entry && typeof id === "string") {
@@ -369,15 +346,6 @@ export async function load_log(story_id) {
 }
 
 /**
- * Deletes all simulation log entries for a story.
- * @param {string | number} story_id
- * @returns {Promise<number>} deleted count
- */
-export async function delete_story_log(story_id) {
-  return await db.simulation_log.where("story_id").anyOf(story_key_variants(story_id)).delete();
-}
-
-/**
  * Deletes a single simulation log entry by ID or metadata reference.
  * @param {string | number} id
  * @param {{ log_store?: any } | null} [env=null]
@@ -385,7 +353,7 @@ export async function delete_story_log(story_id) {
  */
 export async function delete_log_entry(id, env = null) {
   const entry = await find_log_entry(id, env?.log_store?.feed);
-  const key = entry?.id != null ? entry.id : coerce_log_key(id);
+  const key = entry?.id != null ? entry.id : coerce_numeric_key(id);
   await db.simulation_log.delete(key);
   env?.log_store?.remove?.(key);
 }
@@ -400,7 +368,7 @@ export async function delete_log_entry(id, env = null) {
  */
 export async function edit_log_entry(id, new_text, meta_patch = null, env = null) {
   const entry = await find_log_entry(id, env?.log_store?.feed);
-  const key = entry ? entry.id : coerce_log_key(id);
+  const key = entry ? entry.id : coerce_numeric_key(id);
   const changes = { text: new_text };
   if (meta_patch && typeof meta_patch === "object") {
     changes.meta = { ...(entry?.meta || {}), ...meta_patch };
@@ -443,7 +411,7 @@ export async function delete_log_attachment(id, attachment_index, env = null) {
 
   entry.attachments.splice(attachment_index, 1);
   if (is_empty_narrative_message(entry.text, { attachments: entry.attachments, meta: entry.meta })) {
-    const key = entry.id != null ? entry.id : coerce_log_key(id);
+    const key = entry.id != null ? entry.id : coerce_numeric_key(id);
     await db.simulation_log.delete(key);
     env?.log_store?.remove?.(key);
     return;
@@ -481,11 +449,7 @@ export async function create_from_selection(selection, deps = {}) {
   const initial_npc_ids = new Set(Array.isArray(selection.npc_ids) ? selection.npc_ids.map(String).filter((id) => !excluded_ids.has(id)) : []);
 
   try {
-    const all_characters = await db.entities
-      .where("type")
-      .equals("character")
-      .toArray()
-      .catch(() => []);
+    const all_characters = await db.entities.where("type").equals("character").toArray();
 
     for (const character of all_characters) {
       const character_id = String(character.id);
@@ -551,7 +515,7 @@ export async function send(text, deps = {}) {
   let story_id = deps?.active_id ?? null;
   try {
     if (story_id == null) story_id = await require_active();
-    const story = await db.stories.get(coerce_story_key(story_id));
+    const story = await db.stories.get(coerce_numeric_key(story_id));
     speaker_name = story?.entity_snapshots?.user?.name || story?.entity_snapshots?.USER?.name || "User";
     round = typeof story?.round === "number" ? story.round : 0;
   } catch {

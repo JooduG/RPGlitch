@@ -15,9 +15,9 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 ### 2. Dexie Cabinet, Key Helpers & Session Bookmark (`db.js`)
 
 - [`db.js`](./db.js):
-  - `db`, `init_db()`, `set_versionchange_quiesce(quiesce_callback)`, `reset_database()`.
-  - `coerce_story_key(id)`, `story_key_variants(id)`, `coerce_log_key(id)`.
-  - `SESSION_ID_KEY` (`"active_session_id"`), `record_session_access(session_id)`, `get_recent_sessions(limit = 10)`, `get_active_session_id()`, `require_active()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
+  - `db`, `set_versionchange_quiesce(quiesce_callback)`, `reset_database()`.
+  - `coerce_numeric_key(id)`, `story_key_variants(id)`.
+  - `SESSION_ID_KEY` (`"active_session_id"`), `get_active_session_id()`, `require_active()`, `set_active_session_id(session_id)`, `clear_active_session_id()`.
 
 ### 3. Entity Repository & Premade Seeding (`entity-repository.js`)
 

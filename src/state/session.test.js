@@ -1,6 +1,6 @@
 import "fake-indexeddb/auto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { db, init_db } from "@data";
+import { db } from "@data";
 import { app } from "./interface.svelte.js";
 import { session } from "./session.svelte.js";
 
@@ -33,7 +33,6 @@ describe("SessionStore (session)", () => {
   beforeEach(async () => {
     mock_checkpoint.load_session_checkpoint.mockReset().mockReturnValue(null);
     mock_checkpoint.clear_session_checkpoint.mockReset();
-    await init_db();
     await clear_all_tables();
     await session.clear_active();
     session.reset_for_testing();

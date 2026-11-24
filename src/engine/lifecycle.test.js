@@ -98,9 +98,9 @@ describe("src/engine/lifecycle.js", () => {
 
   describe("create_entity_with_profile", () => {
     it("persists entity without running portrait when generate_portrait is false", async () => {
-      const upsert_spy = vi.spyOn(data_module, "upsert_entity").mockImplementation(async (e) => ({ ...e, id: "char-99" }));
-      vi.spyOn(data_module, "get_story").mockResolvedValue({ id: "story-1", npc_ids: [] });
-      const cast_spy = vi.spyOn(data_module, "update_cast").mockResolvedValue(true);
+      const upsert_spy = vi.spyOn(data_module.entities, "upsert").mockImplementation(async (e) => ({ ...e, id: "char-99" }));
+      vi.spyOn(data_module.stories, "get").mockResolvedValue({ id: "story-1", npc_ids: [] });
+      const cast_spy = vi.spyOn(data_module.stories, "update_cast").mockResolvedValue(true);
 
       const saved = await create_entity_with_profile(
         "character",

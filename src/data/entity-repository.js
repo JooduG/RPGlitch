@@ -60,7 +60,7 @@ export async function seed_premades() {
  * @param {"character" | "fractal"} [type]
  * @returns {Promise<Array<object>>}
  */
-export async function list_entities(type) {
+async function list_entities(type) {
   const records = type ? await db.entities.where("type").equals(type).toArray() : await db.entities.toArray();
   return records.map((record) => normalize_entity(record));
 }
@@ -73,7 +73,7 @@ export async function list_entities(type) {
  * @param {"character" | "fractal" | null} [expected_type=null]
  * @returns {Promise<object | null>}
  */
-export async function get_entity(id, expected_type = null) {
+async function get_entity(id, expected_type = null) {
   if (!id) return null;
   const raw = await db.entities.get(id);
   if (!raw) return null;
@@ -87,7 +87,7 @@ export async function get_entity(id, expected_type = null) {
  * @param {object} entity
  * @returns {Promise<object>} normalized entity record
  */
-export async function upsert_entity(entity) {
+async function upsert_entity(entity) {
   const normalized = normalize_entity(entity);
   await db.entities.put(normalized);
   return normalized;
@@ -100,7 +100,7 @@ export async function upsert_entity(entity) {
  * @param {Record<string, any>} changes
  * @returns {Promise<number>} Number of updated records (1 if updated, 0 if not found)
  */
-export async function update_entity(id, changes) {
+async function update_entity(id, changes) {
   if (!id) return 0;
   const updated_at = changes.updated_at || Date.now();
   return await db.entities.update(id, { ...changes, updated_at });
@@ -112,7 +112,7 @@ export async function update_entity(id, changes) {
  * @param {string} id
  * @returns {Promise<void>}
  */
-export async function delete_entity(id) {
+async function delete_entity(id) {
   if (!id) return;
   await db.entities.delete(id);
 }

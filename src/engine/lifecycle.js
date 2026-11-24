@@ -4,17 +4,7 @@
  * prologue/epilogue beats, entity birth, and user draft ghostwriting.
  */
 
-import {
-  apply_profile_to_entity,
-  create_entity,
-  detect_card_format,
-  get_story,
-  normalize_entity,
-  parse_character_card,
-  update_cast,
-  update_entity,
-  upsert_entity,
-} from "@data";
+import { apply_profile_to_entity, create_entity, detect_card_format, entities, normalize_entity, parse_character_card, stories } from "@data";
 import { get_visual_style } from "@definitions";
 import { clear_generation_in_flight, mark_generation_in_flight, visual_engine } from "@media";
 import {
@@ -348,16 +338,16 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
   if (description && !entity.description) entity.description = description;
   if (raw_color) entity.signature_color = raw_color;
 
-  const saved_entity = await upsert_entity(entity);
+  const saved_entity = await entities.upsert(entity);
 
   const story_id = options.story_id ?? session.active_id ?? null;
   if (entity_type === "character" && story_id && story_id !== "debug") {
     try {
-      const story = await get_story(story_id);
+      const story = await stories.get(story_id);
       const existing_npcs = Array.isArray(story?.npc_ids) ? story.npc_ids : [];
       const updated_npcs = [...new Set([...existing_npcs, saved_entity.id])];
       if (updated_npcs.length !== existing_npcs.length) {
-        await update_cast(story_id, updated_npcs);
+        await stories.update_cast(story_id, updated_npcs);
       }
     } catch (err) {
       console.warn(`[Lifecycle] Failed to register NPC on story ${story_id}:`, err?.message || err);
@@ -373,7 +363,7 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
             if (image_result && saved_entity.id) {
               const data_url = typeof image_result === "object" ? image_result.image_url : image_result;
               if (data_url) {
-                await update_entity(saved_entity.id, { profile_picture: data_url });
+                await entities.update(saved_entity.id, { profile_picture: data_url });
                 await session.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
               }
             }

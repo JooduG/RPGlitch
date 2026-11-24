@@ -198,18 +198,15 @@ export function create_entity(type = "character", overrides = {}) {
 }
 
 /**
- * Filters an entity's 4-quadrant bracket strings through the Epistemic Wall.
+ * Strips persistence metadata (`id`, `created_at`, `updated_at`) from a normalized
+ * entity record for portable JSON export.
  *
  * @param {object} entity
- * @param {object} options
- * @param {"all" | "own" | "none"} [options.see_hidden="own"]
- * @param {boolean} [options.is_counterpart=false]
- * @param {boolean} [options.strip_inventory=false]
- * @returns {object} cloned entity with redacted quadrant strings
+ * @returns {object} cloned entity without persistence metadata
  */
 export function serialize_entity_for_export(entity) {
   const normalized = normalize_entity(entity);
-  const { id: _id, created_at: _created_at, updated_at: _updated_at, origin_id: _origin_id, ...exportable } = normalized;
+  const { id: _id, created_at: _created_at, updated_at: _updated_at, ...exportable } = normalized;
   return exportable;
 }
 

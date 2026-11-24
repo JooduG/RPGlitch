@@ -10,7 +10,7 @@
 import {
   clear_active_session_id,
   clear_session_checkpoint,
-  coerce_story_key,
+  coerce_numeric_key,
   db,
   delete_log_attachment,
   delete_log_entry,
@@ -19,7 +19,6 @@ import {
   load_log as load_story_log,
   load_session_checkpoint,
   log_message as write_log_message,
-  record_session_access,
   SESSION_ID_KEY,
   set_active_session_id,
   update_log_attachment,
@@ -303,7 +302,6 @@ export class SessionStore {
   async set_active(id) {
     this.active_id = id;
     await set_active_session_id(id);
-    await record_session_access(id);
     await this.sync(id);
     await this.refresh_feed(id);
   }
@@ -422,7 +420,7 @@ export class SessionStore {
       this.active_id = String(resolved_id);
       const active_id = this.active_id;
 
-      const db_key = coerce_story_key(active_id);
+      const db_key = coerce_numeric_key(active_id);
       const story = await db.stories.get(db_key);
       if (!story) {
         clear_session_checkpoint();
@@ -508,7 +506,7 @@ export class SessionStore {
    */
   async #persist_story_snapshot(target_round) {
     if (this.active_id == null) return false;
-    await db.stories.update(coerce_story_key(this.active_id), {
+    await db.stories.update(coerce_numeric_key(this.active_id), {
       round: target_round,
       last_played: Date.now(),
       updated_at: Date.now(),
@@ -559,7 +557,7 @@ export class SessionStore {
    */
   async update_entity(type, id, data) {
     if (type === "story") {
-      await db.stories.update(coerce_story_key(id), data);
+      await db.stories.update(coerce_numeric_key(id), data);
       app.stories_version += 1;
       if (this.active_id != null && String(this.active_id) === String(id) && this.active_story) {
         Object.assign(this.active_story, data);

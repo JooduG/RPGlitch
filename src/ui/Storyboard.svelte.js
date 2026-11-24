@@ -2,7 +2,7 @@
  * @file src/ui/Storyboard.svelte.js
  * Reactive controller singleton and layout geometry helpers for the Storyboard stage.
  */
-import { active_entity_ids } from "@data";
+import { stories } from "@data";
 import { NARRATIVE_STYLES, VISUAL_STYLES } from "@definitions";
 import { chrono_engine } from "@engine";
 import { fly_card_in, fly_card_out, motion } from "@media";
@@ -165,7 +165,7 @@ export class StoryboardController {
   async begin() {
     this.#begin_flight_started = false;
     if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
-    const claimed = await active_entity_ids();
+    const claimed = await stories.active_entity_ids();
     const locked = claimed_entity_lock([app.selected_ai, app.selected_user, app.selected_fractal], claimed);
     if (locked) {
       console.error(`"${locked.name || "Entity"}" is claimed by an active story. End or delete that story first.`);

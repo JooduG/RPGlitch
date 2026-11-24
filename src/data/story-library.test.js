@@ -5,21 +5,11 @@
  */
 
 import { beforeEach, describe, expect, it } from "vitest";
-import {
-  SESSION_ID_KEY,
-  clear_active_session_id,
-  db,
-  get_active_session_id,
-  get_recent_sessions,
-  record_session_access,
-  require_active,
-  set_active_session_id,
-} from "./db.js";
+import { SESSION_ID_KEY, clear_active_session_id, db, get_active_session_id, require_active, set_active_session_id } from "./db.js";
 import {
   create_from_selection,
   delete_log_attachment,
   delete_log_entry,
-  delete_story_log,
   edit_log_entry,
   load_log,
   log_message,
@@ -55,13 +45,6 @@ describe("src/data/db.js & story-library.js", () => {
 
     it("uses the documented kv key", () => {
       expect(SESSION_ID_KEY).toBe("active_session_id");
-    });
-
-    it("records and lists recent sessions", async () => {
-      await record_session_access("a");
-      await record_session_access("b");
-      const recent = await get_recent_sessions(10);
-      expect(recent.map((row) => row.session_id)).toEqual(["b", "a"]);
     });
   });
 
@@ -115,14 +98,6 @@ describe("src/data/db.js & story-library.js", () => {
       const remaining = await load_log(story_id);
       expect(remaining).toHaveLength(1);
       expect(remaining[0].attachments).toEqual([]);
-    });
-
-    it("clears a whole story log", async () => {
-      const story_id = await seed_story();
-      await log_message("one", "user", "Orion", { story_id });
-      await log_message("two", "ai", "Glitch", { story_id });
-      expect(await delete_story_log(story_id)).toBe(2);
-      expect(await load_log(story_id)).toHaveLength(0);
     });
   });
 

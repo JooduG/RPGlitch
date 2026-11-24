@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/data/` (`@data`): Pruned dead exports (`create_story`, `delete_story_log`, `init_db`, `get_recent_sessions`, `record_session_access`) and un-exported internal-only helpers (`resolve_story_round`, `find_log_entry`, `format_story_beat`, `export_story_markdown`, `build_story_export_filename`, `CHECKPOINT_KEY`, `WINDOW_NAME_CHECKPOINT_PREFIX`); unified `coerce_story_key` + `coerce_log_key` into `coerce_numeric_key`; standardized entity/story CRUD on the `entities.*` and `stories.*` namespaces without altering Dexie `v1`/`v2` schemas.
+
 - `src/state/` & `src/engine/watchdog.js`: Simplified the `@state` stores (`execution.svelte.js`, `interface.svelte.js`, `session.svelte.js`) by removing dead flags (`director_thinking`, `speaker_thinking`, `media_generating`, `is_ghostwriting`), single-use pass-through wrappers, `user_list` duplication, `#reconcile_entity_vectors()`, `#story_by_id`, and defensive `try/catch` boilerplate; moved the freeze watchdog to `src/engine/watchdog.js` and linearized `execution.recover()` to reset synchronous state before aborting/stopping voice.
 
 - `src/App.svelte`: Wrapped the fractal background image in `{#key fractal_url}` with a 1200ms `transition:fade|global` (0ms when `motion.is_reduced`) so slotting, swapping, or clearing a fractal card crossfades the backdrop smoothly; `|global` is required because Svelte 5 local transitions don't play when only the enclosing `{#key}` block changes (measured: layer jumped 0 → 0.6 in one frame).

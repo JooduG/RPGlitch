@@ -34,7 +34,7 @@
    * Radial relationship constellation graph visualizing outgoing and incoming entity bonds.
    */
   import { Avatar, Icon, pin_tooltip_menu, tooltip } from "@atoms";
-  import { list_entities } from "@data";
+  import { entities } from "@data";
   import { extract_entity_relationships, parse_relationship_brackets } from "@simulation";
   import { app, session } from "@state";
   import { entity_avatar_props, format_entity_handle, get_signature_color, match_entity_in_roster, render_display_macros } from "@utils";
@@ -50,7 +50,7 @@
   $effect(() => {
     if (app.entities_loaded) return;
     let cancelled = false;
-    Promise.all([list_entities("character"), list_entities("fractal")]).then(([chars, fracs]) => {
+    Promise.all([entities.list("character"), entities.list("fractal")]).then(([chars, fracs]) => {
       if (!cancelled) fallback_db_entities = [...chars, ...fracs];
     });
     return () => {

@@ -4,7 +4,7 @@
    * Selection fan overlay and entity import modal for the Storyboard stage.
    */
   import { Backdrop, Button, Icon, Toggle, tooltip } from "@atoms";
-  import { create_entity as create_new, extract_card_from_png, upsert_entity } from "@data";
+  import { create_entity as create_new, entities, extract_card_from_png } from "@data";
   import { import_entities } from "@engine";
   import { fly_card_in, fly_card_out, motion, rect_of } from "@media";
   import { Modal, SourceField } from "@molecules";
@@ -130,7 +130,7 @@
     const type = card_hand_type === "fractal" ? "fractal" : "character";
     const plan = create_new(type, { name: `New ${type === "character" ? "Character" : "Fractal"}` });
     try {
-      const saved = await upsert_entity(plan);
+      const saved = await entities.upsert(plan);
       await app.load_entities();
       app.select_entity(card_hand_type, saved);
       app.open_profile(saved, card_hand_type);

@@ -9,10 +9,10 @@
  */
 
 /** Storage key for session checkpoint entries in sessionStorage. */
-export const CHECKPOINT_KEY = "rpglitch.session_checkpoint";
+const CHECKPOINT_KEY = "rpglitch.session_checkpoint";
 
 /** Namespaced prefix for session checkpoint payloads stored in window.name. */
-export const WINDOW_NAME_CHECKPOINT_PREFIX = "__RPGLITCH_CHECKPOINT__::";
+const WINDOW_NAME_CHECKPOINT_PREFIX = "__RPGLITCH_CHECKPOINT__::";
 
 /** @type {{ story_id: string | null; round: number; phase: string } | null} */
 let _in_memory_checkpoint = null;
