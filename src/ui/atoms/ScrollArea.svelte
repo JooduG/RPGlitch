@@ -35,7 +35,7 @@
     {orientation}
     class={[
       "flex touch-none bg-zinc-900/40 p-px backdrop-blur-sm transition-colors duration-150 select-none data-[orientation=horizontal]:h-2 data-[orientation=horizontal]:flex-col data-[orientation=vertical]:w-2",
-      fixed_scrollbar ? "fixed top-0 right-0 bottom-0 z-max h-dvh" : "z-20",
+      fixed_scrollbar ? "fixed! top-0 right-0 bottom-0 z-max h-dvh" : "z-20",
     ]}>
     <ScrollArea.Thumb class="relative flex-1 rounded-xl bg-[#555d66] opacity-30 transition-opacity duration-150 hover:opacity-100" />
   </ScrollArea.Scrollbar>

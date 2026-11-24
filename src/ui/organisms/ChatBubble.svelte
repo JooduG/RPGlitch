@@ -212,7 +212,7 @@
     oncontextmenu={handle_badge_contextmenu}
     style:--signature-color={signature_color}
     class={[
-      "group/badge absolute top-1/2 isolate m-0 aspect-3/4 w-column-unit -translate-y-1/2 transform-[translateZ(0)] cursor-pointer overflow-hidden rounded-xl border border-solid border-(--signature-color,rgba(255,255,255,0.25)) bg-black/60 p-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition duration-300 ease-out select-none hover:scale-[1.02] hover:border-(--signature-color) hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)] focus-visible:outline-none",
+      "absolute top-1/2 isolate m-0 aspect-3/4 w-column-unit -translate-y-1/2 transform-[translateZ(0)] cursor-pointer overflow-hidden rounded-xl border border-solid border-(--signature-color,rgba(255,255,255,0.25)) bg-black/60 p-0 shadow-[0_4px_20px_rgba(0,0,0,0.5)] transition duration-300 ease-out select-none hover:scale-[1.02] hover:border-(--signature-color) hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_20%,transparent)] focus-visible:outline-none",
       side === "right" ? "right-[calc(var(--spacing-column-unit)*0.5)]" : "left-[calc(var(--spacing-column-unit)*0.5)]",
     ]}
     aria-label={aria_label}>
@@ -220,11 +220,6 @@
       {...entity_avatar_props(entity)}
       alt=""
       class="h-full w-full rounded-[inherit] [&_img]:h-full [&_img]:w-full [&_img]:rounded-[inherit] [&_img]:object-cover [&_img]:object-top" />
-    <div
-      aria-hidden="true"
-      class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-20 mix-blend-color transition-opacity duration-200 group-hover/badge:opacity-0"
-      style:background-color={signature_color}>
-    </div>
   </button>
 {/snippet}
 
