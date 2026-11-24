@@ -1,16 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  clamp,
-  cosine_similarity,
-  fnv1a_hash,
-  generate_secure_seed,
-  generate_uuid,
-  get_percentage,
-  HASH_OFFSET_BASIS,
-  HASH_PRIME,
-  pick_random,
-  stable_pick,
-} from "./math.js";
+import { clamp, cosine_similarity, fnv1a_hash, generate_secure_seed, generate_uuid, pick_random, stable_pick } from "./math.js";
 
 describe("math, vector similarity, and crypto utilities", () => {
   describe("clamp", () => {
@@ -32,22 +21,6 @@ describe("math, vector similarity, and crypto utilities", () => {
       expect(clamp("50", 0, 100)).toBe(50);
       expect(clamp(NaN, 0, 100)).toBe(0);
       expect(clamp(null, 0, 100)).toBe(0);
-    });
-  });
-
-  describe("get_percentage", () => {
-    it("normalizes numbers to integers within [0, 100]", () => {
-      expect(get_percentage(75.4)).toBe(75);
-      expect(get_percentage(75.6)).toBe(76);
-      expect(get_percentage(150)).toBe(100);
-      expect(get_percentage(-20)).toBe(0);
-    });
-
-    it("defaults to 50 for nullish or NaN values (0 maps to 0)", () => {
-      expect(get_percentage(null)).toBe(50);
-      expect(get_percentage(undefined)).toBe(50);
-      expect(get_percentage(NaN)).toBe(50);
-      expect(get_percentage(0)).toBe(0);
     });
   });
 
@@ -132,10 +105,9 @@ describe("math, vector similarity, and crypto utilities", () => {
     });
   });
 
-  describe("fnv1a_hash & constants", () => {
-    it("exposes HASH_OFFSET_BASIS and HASH_PRIME constants", () => {
-      expect(HASH_OFFSET_BASIS).toBe(0x811c9dc5);
-      expect(HASH_PRIME).toBe(0x01000193);
+  describe("fnv1a_hash", () => {
+    it("matches FNV-1a 32-bit offset basis on empty string", () => {
+      expect(fnv1a_hash("")).toBe(0x811c9dc5);
     });
 
     it("should produce deterministic 32-bit hashes", () => {

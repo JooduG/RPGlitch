@@ -215,7 +215,7 @@ export function html_to_plain_text(html, options = {}) {
  * @param {string} [ellipsis="…"]
  * @returns {string}
  */
-export function truncate_readable(text, max_chars = LENGTH_THRESHOLDS.INGESTION, ellipsis = "…") {
+function truncate_readable(text, max_chars = LENGTH_THRESHOLDS.INGESTION, ellipsis = "…") {
   if (typeof text !== "string" || !text) return "";
   return truncate_at_word(text, max_chars, { ellipsis, reserve_ellipsis: true, min_bound_ratio: 0.5, strip_trailing_punctuation: true });
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { get_value, set_value, UNSAFE_PATH_KEYS } from "./field-path.js";
+import { get_value, set_value } from "./field-path.js";
 
 describe("field-path.js (Safe Nested Object Dot-Path Accessors)", () => {
   describe("get_value", () => {
@@ -70,14 +70,6 @@ describe("field-path.js (Safe Nested Object Dot-Path Accessors)", () => {
 
       set_value(obj, "prototype.polluted", true);
       expect(/** @type {any} */ ({}).polluted).toBeUndefined();
-    });
-  });
-
-  describe("UNSAFE_PATH_KEYS", () => {
-    it("contains prototype, __proto__, and constructor", () => {
-      expect(UNSAFE_PATH_KEYS.has("__proto__")).toBe(true);
-      expect(UNSAFE_PATH_KEYS.has("prototype")).toBe(true);
-      expect(UNSAFE_PATH_KEYS.has("constructor")).toBe(true);
     });
   });
 });

@@ -12,7 +12,7 @@ import { html_to_plain_text } from "./html.js";
  * Binary magic-byte header validators for supported image formats.
  * @type {Record<string, (header: Uint8Array) => boolean>}
  */
-export const IMAGE_SIGNATURE_VALIDATORS = {
+const IMAGE_SIGNATURE_VALIDATORS = {
   "image/jpeg": (header) => header[0] === 0xff && header[1] === 0xd8 && header[2] === 0xff,
   "image/png": (header) => header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4e && header[3] === 0x47,
   "image/gif": (header) => header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x38,
@@ -102,14 +102,6 @@ export function blob_to_data_url(blob) {
 }
 
 /**
- * Resolves the Perchance `super-fetch-plugin` function across window and parent frames.
- * @returns {((url: string) => Promise<any>) | null}
- */
-export function get_super_fetch_engine() {
-  return /** @type {((url: string) => Promise<any>) | null} */ (resolve_perchance_plugin("fetch_web"));
-}
-
-/**
  * Validates a web URL for ingestion, blocking unsafe schemes and enforcing optional host allowlists.
  * @param {string} raw_url
  * @param {{ allow_http?: boolean, allowed_hosts?: string[] }} [options={}]
@@ -154,7 +146,7 @@ export function validate_url(raw_url, options = {}) {
  * @returns {Promise<any>}
  */
 async function execute_fetch(url) {
-  const engine = get_super_fetch_engine();
+  const engine = /** @type {((url: string) => Promise<any>) | null} */ (resolve_perchance_plugin("fetch_web"));
   if (!engine) {
     const is_local_dev =
       typeof window !== "undefined" &&

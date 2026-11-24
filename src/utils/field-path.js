@@ -7,7 +7,7 @@
  * Prototype-member keys that dot-paths must never traverse or mutate.
  * @type {ReadonlySet<string>}
  */
-export const UNSAFE_PATH_KEYS = Object.freeze(new Set(["__proto__", "prototype", "constructor"]));
+const UNSAFE_PATH_KEYS = Object.freeze(new Set(["__proto__", "prototype", "constructor"]));
 
 /**
  * Retrieves a value from a nested object via dot-string path traversal.

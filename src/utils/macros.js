@@ -210,10 +210,3 @@ export function resolve_display_macro_segments(text, owner, entities = {}, conte
   }
   return segments;
 }
-
-export function render_display_macros(text, owner, entities = {}) {
-  if (!text) return "";
-  return resolve_display_macro_segments(text, owner, entities)
-    .map((segment) => segment.text)
-    .join("");
-}

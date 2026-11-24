@@ -11,10 +11,10 @@ import { PATIENCE_POLICY, TIMING_MS } from "@config";
 // ============================================================================
 
 /** @type {Readonly<{ cleared: true }>} */
-export const CLEARED_RESULT = Object.freeze({ cleared: true });
+const CLEARED_RESULT = Object.freeze({ cleared: true });
 
 /** @type {Readonly<{ superseded: true }>} */
-export const SUPERSEDED_RESULT = Object.freeze({ superseded: true });
+const SUPERSEDED_RESULT = Object.freeze({ superseded: true });
 
 /**
  * Creates a concurrency-bounded FIFO job queue with optional `latest`-superseding.
@@ -108,7 +108,7 @@ export function create_job_queue(options = {}) {
 // ============================================================================
 
 /** Foreground turns outrank background consolidation/optics jobs. */
-export const LLM_PRIORITY = Object.freeze({ FOREGROUND: 10, BACKGROUND: 1 });
+const LLM_PRIORITY = Object.freeze({ FOREGROUND: 10, BACKGROUND: 1 });
 
 /** @type {any} */
 let active_job = null;
@@ -140,11 +140,7 @@ function release_slot(job) {
 function preempt_active() {
   const job = active_job;
   if (!job || !active_controller) return;
-  try {
-    active_controller.abort();
-  } catch {
-    /* Already aborted */
-  }
+  active_controller.abort();
   const controller = active_controller;
   clear_preempt_timer();
   preempt_timer = setTimeout(() => {
@@ -196,9 +192,10 @@ function pump() {
  * @param {number} [priority=LLM_PRIORITY.FOREGROUND]
  * @returns {Promise<T>}
  */
-export function enqueue_llm_job(run, priority = LLM_PRIORITY.FOREGROUND) {
+export function enqueue_llm_job(run, priority = "foreground") {
+  const numeric_priority = typeof priority === "number" ? priority : resolve_priority(priority);
   return new Promise((resolve, reject) => {
-    gate_waiting.push({ run, priority, seq: sequence++, resolve, reject });
+    gate_waiting.push({ run, priority: numeric_priority, seq: sequence++, resolve, reject });
     pump();
   });
 }
@@ -208,7 +205,7 @@ export function enqueue_llm_job(run, priority = LLM_PRIORITY.FOREGROUND) {
  * @param {string} [priority_name]
  * @returns {number}
  */
-export function resolve_priority(priority_name) {
+function resolve_priority(priority_name) {
   return priority_name === "background" ? LLM_PRIORITY.BACKGROUND : LLM_PRIORITY.FOREGROUND;
 }
 
@@ -230,11 +227,7 @@ export function get_queue_status() {
  */
 export function reset_queue_for_testing() {
   if (active_controller) {
-    try {
-      active_controller.abort();
-    } catch {
-      /* Already aborted */
-    }
+    active_controller.abort();
   }
   clear_preempt_timer();
   active_job = null;

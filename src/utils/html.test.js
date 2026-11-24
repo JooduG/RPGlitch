@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BLOCK_LEVEL_TAGS, decode_html_entities, html_to_plain_text, NOISE_SELECTORS, sanitize, sanitize_to_fragment, truncate_readable } from "./html.js";
+import { BLOCK_LEVEL_TAGS, decode_html_entities, html_to_plain_text, NOISE_SELECTORS, sanitize, sanitize_to_fragment } from "./html.js";
 
 describe("sanitize & sanitize_to_fragment", () => {
   it("strips dangerous script tags and event handlers while keeping safe markup", () => {
@@ -67,14 +67,12 @@ describe("html_to_plain_text", () => {
   });
 });
 
-describe("truncate_readable & constants", () => {
+describe("html_to_plain_text truncation & constants", () => {
   it("clips at word boundary and trims trailing punctuation", () => {
-    expect(truncate_readable("short", 50)).toBe("short");
-    const out = truncate_readable("one, two, three, four, five, six, seven, eight, nine, ten.", 30);
+    expect(html_to_plain_text("<p>short</p>", { max_chars: 50 })).toBe("short");
+    const out = html_to_plain_text("<p>one, two, three, four, five, six, seven, eight, nine, ten.</p>", { max_chars: 30 });
     expect(out.endsWith("…")).toBe(true);
     expect(out).not.toMatch(/[,.\s]…$/);
-    expect(truncate_readable("")).toBe("");
-    expect(truncate_readable(null)).toBe("");
   });
 
   it("exposes BLOCK_LEVEL_TAGS and NOISE_SELECTORS", () => {

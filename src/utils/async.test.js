@@ -1,14 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  CircuitBreaker,
-  create_job_queue,
-  enqueue_llm_job,
-  ExponentialBackoffRetryer,
-  get_queue_status,
-  LLM_PRIORITY,
-  reset_queue_for_testing,
-  resolve_priority,
-} from "./async.js";
+import { CircuitBreaker, create_job_queue, enqueue_llm_job, ExponentialBackoffRetryer, get_queue_status, reset_queue_for_testing } from "./async.js";
 
 const tick = (ms = 5) => new Promise((r) => setTimeout(r, ms));
 
@@ -74,10 +65,7 @@ describe("create_job_queue", () => {
 });
 
 describe("llm priority gate", () => {
-  it("maps priority names and preempts background jobs when foreground queues", async () => {
-    expect(resolve_priority("background")).toBe(LLM_PRIORITY.BACKGROUND);
-    expect(resolve_priority()).toBe(LLM_PRIORITY.FOREGROUND);
-
+  it("preempts background jobs when foreground queues", async () => {
     reset_queue_for_testing();
     let bg_aborted = false;
     const bg = enqueue_llm_job(
@@ -88,7 +76,7 @@ describe("llm priority gate", () => {
             reject(new Error("preempted"));
           });
         }),
-      LLM_PRIORITY.BACKGROUND,
+      "background",
     );
     bg.catch(() => {});
     await tick(5);

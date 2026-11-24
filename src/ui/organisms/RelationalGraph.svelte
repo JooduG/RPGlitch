@@ -37,7 +37,7 @@
   import { entities } from "@data";
   import { extract_entity_relationships, parse_relationship_brackets } from "@simulation";
   import { app, session } from "@state";
-  import { entity_avatar_props, format_entity_handle, get_signature_color, match_entity_in_roster, render_display_macros } from "@utils";
+  import { entity_avatar_props, format_entity_handle, get_signature_color, match_entity_in_roster, resolve_display_macro_segments } from "@utils";
 
   let { entity, on_select_entity = () => {}, class: custom_class = "" } = $props();
 
@@ -210,7 +210,13 @@
         target_key: norm(edge.target_name),
         tooltip_text:
           edge.is_outgoing ?
-            `${format_entity_handle(edge.source_entity)} → ${format_entity_handle(edge.target_entity)}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, roster_context)}`
+            `${format_entity_handle(edge.source_entity)} → ${format_entity_handle(edge.target_entity)}: ${resolve_display_macro_segments(
+              clean_dynamic_text(edge.dynamic),
+              edge.source_entity,
+              roster_context,
+            )
+              .map((s) => s.text)
+              .join("")}`
           : null,
       });
     }
@@ -222,7 +228,13 @@
     incoming_edges
       .map(
         (edge) =>
-          `${format_entity_handle(edge.source_entity, edge.source_name)}: ${render_display_macros(clean_dynamic_text(edge.dynamic), edge.source_entity, roster_context)}`,
+          `${format_entity_handle(edge.source_entity, edge.source_name)}: ${resolve_display_macro_segments(
+            clean_dynamic_text(edge.dynamic),
+            edge.source_entity,
+            roster_context,
+          )
+            .map((s) => s.text)
+            .join("")}`,
       )
       .join("\n") || null,
   );

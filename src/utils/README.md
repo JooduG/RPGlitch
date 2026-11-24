@@ -4,7 +4,7 @@
 
 Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design tokens, deterministic palette resolution, numeric/vector math, string/XML escaping, inline Markdown tokenization, dot-path traversal, `@ENTITY` macro resolution, HTML sanitization/extraction, web/image ingestion, browser DOM actions, MiniLM embeddings, and async concurrency control.
 
-- **Barrel Entry Point**: [`index.js`](./index.js) re-exports `*` from all 12 implementation modules (`tokens.js`, `palette.js`, `math.js`, `text.js`, `markdown.js`, `field-path.js`, `macros.js`, `html.js`, `ingestion.js`, `dom.js`, `embeddings.svelte.js`, `async.js`).
+- **Barrel Entry Point**: [`index.js`](./index.js) re-exports `*` from all 11 implementation modules (`tokens.js`, `palette.js`, `math.js`, `text.js`, `field-path.js`, `macros.js`, `html.js`, `ingestion.js`, `dom.js`, `embeddings.svelte.js`, `async.js`).
 - **Dependency Boundary**: Modules import only intra-package siblings, `@config`, `dompurify`, `svelte/reactivity`, and the dynamic ESM import of `@huggingface/transformers@3.5.2` in [`embeddings.svelte.js`](./embeddings.svelte.js). Upward imports from `@ui`, `@atoms`, `@molecules`, `@organisms`, `@engine`, `@state`, `@data`, `@media`, `@simulation`, or `@definitions` are forbidden.
 
 ## Interface
@@ -16,10 +16,9 @@ Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design to
 
 ### 2. Math, Text, Markdown & Object Traversal
 
-- [`math.js`](./math.js): Exports `clamp`, `get_percentage`, `cosine_similarity`, `generate_uuid`, `generate_secure_seed`, `pick_random`, `HASH_OFFSET_BASIS`, `HASH_PRIME`, `fnv1a_hash`, and `stable_pick`.
-- [`text.js`](./text.js): Exports `NAME_PREFIXES`, `NAME_PREFIX_STEMS`, `collapse_whitespace`, `truncate_at_word`, `count_tokens`, `clean_text`, `compute_initials`, `match_case`, `format_key_as_label`, `format_datetime`, `normalize_comma_spacing`, `escape_xml`, `prompt_escape`, and `resolve_style`.
-- [`markdown.js`](./markdown.js): Exports `parse_markdown(text)` returning paragraph arrays of inline tokens (`text`, `strong`, `em`, `strong-em`, `quote`).
-- [`field-path.js`](./field-path.js): Exports `UNSAFE_PATH_KEYS`, `get_value(obj, path)`, and `set_value(obj, path, value)`.
+- [`math.js`](./math.js): Exports `clamp`, `cosine_similarity`, `generate_uuid`, `generate_secure_seed`, `pick_random`, `fnv1a_hash`, and `stable_pick`.
+- [`text.js`](./text.js): Exports `collapse_whitespace`, `truncate_at_word`, `count_tokens`, `clean_text`, `compute_initials`, `match_case`, `format_key_as_label`, `format_datetime`, `normalize_comma_spacing`, `escape_xml`, `prompt_escape`, `resolve_style`, `parse_bracket_display_flags`, `entity_avatar_props`, `to_style_dropdown_items`, and `parse_markdown`.
+- [`field-path.js`](./field-path.js): Exports `get_value(obj, path)` and `set_value(obj, path, value)`.
 
 ### 3. Entity Macros
 

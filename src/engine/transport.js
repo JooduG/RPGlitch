@@ -6,7 +6,7 @@
 
 import { sanitize_llm } from "@simulation";
 import { execution } from "@state";
-import { enqueue_llm_job, merge_abort_signals, resolve_perchance_plugin, resolve_priority } from "@utils";
+import { enqueue_llm_job, merge_abort_signals, resolve_perchance_plugin } from "@utils";
 
 export function get_mock_message() {
   return `<think>Evaluating physical variables and drafting response vector.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
@@ -188,11 +188,9 @@ export function create_live_stream_fn() {
       return run_mock_generation({ role: options.role || "ai", node_id: options.node_id }, options);
     }
 
-    const priority = resolve_priority(options.priority);
-
     return enqueue_llm_job(
       (gate_signal) => run_completion(ai_engine, { prompt, role: options.role, node_id: options.node_id }, options, gate_signal),
-      priority,
+      options.priority,
     );
   };
 }

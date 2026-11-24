@@ -18,19 +18,6 @@ export function clamp(value, min = 0, max = 100) {
 }
 
 /**
- * Normalizes a value to an integer percentage in [0, 100].
- * Nullish and non-finite inputs default to 50 for neutral meter displays; 0 maps to 0.
- * @param {number | unknown} value
- * @returns {number}
- */
-export function get_percentage(value) {
-  if (value === null || value === undefined) return 50;
-  const num = Number(value);
-  if (!Number.isFinite(num)) return 50;
-  return Math.max(0, Math.min(100, Math.round(num)));
-}
-
-/**
  * Computes cosine similarity between two vectors with L2 normalization.
  * @param {number[] | Float32Array | null | undefined} vec_a
  * @param {number[] | Float32Array | null | undefined} vec_b
@@ -107,10 +94,10 @@ export function pick_random(array) {
 }
 
 /** @type {number} FNV-1a 32-bit offset basis */
-export const HASH_OFFSET_BASIS = 0x811c9dc5;
+const HASH_OFFSET_BASIS = 0x811c9dc5;
 
 /** @type {number} FNV-1a 32-bit prime multiplier */
-export const HASH_PRIME = 0x01000193;
+const HASH_PRIME = 0x01000193;
 
 /**
  * Computes a deterministic 32-bit FNV-1a hash of a string.

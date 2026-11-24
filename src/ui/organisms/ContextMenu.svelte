@@ -8,7 +8,7 @@
   import { Audio } from "@media";
   import { app, execution } from "@state";
   import { open_image_preview } from "./ImagePreview.svelte.js";
-  import { extract_portrait_meta, get_signature_color, on_dismiss_outside } from "@utils";
+  import { get_signature_color, on_dismiss_outside } from "@utils";
 
   export const context_menu_state = $state({ open: false, entity: null, type: "ai", surface: "default", x: 0, y: 0, on_close: null });
 
@@ -52,7 +52,8 @@
     const on_open_profile = deps.on_open_profile || ((ent) => app.toggle_profile(true, ent, type));
     const on_open_image = deps.on_open_image || ((payload) => open_image_preview(payload));
 
-    const portrait_meta = extract_portrait_meta(entity);
+    const m = entity?.modifiers;
+    const portrait_meta = m ? { prompt: m.prompt, negative_prompt: m.negative_prompt, seed: m.last_generated_seed } : null;
     const push_voice_toggle = (items) => {
       const role = type === "fractal" ? "fractal" : "ai";
       const noun = role === "fractal" ? "Fractal Voice" : "AI Voice";

@@ -9,10 +9,9 @@ import {
   format_datetime,
   format_key_as_label,
   match_case,
-  NAME_PREFIX_STEMS,
-  NAME_PREFIXES,
   normalize_comma_spacing,
   parse_bracket_display_flags,
+  parse_markdown,
   prompt_escape,
   resolve_style,
   to_style_dropdown_items,
@@ -49,11 +48,9 @@ describe("compute_initials", () => {
     expect(compute_initials(null)).toBe("?");
   });
 
-  it("derives NAME_PREFIX_STEMS without trailing periods", () => {
-    expect(NAME_PREFIX_STEMS.has("dr")).toBe(true);
-    expect(NAME_PREFIX_STEMS.has("dr.")).toBe(false);
-    expect(NAME_PREFIXES).toContain("dr");
-    expect(NAME_PREFIXES).toContain("the");
+  it("skips title/stop prefixes without trailing periods", () => {
+    expect(compute_initials("Dr. Ada Lovelace")).toBe("AL");
+    expect(compute_initials("The Lord of the Rings")).toBe("R");
   });
 });
 
@@ -218,5 +215,92 @@ describe("to_style_dropdown_items", () => {
       { value: "default", label: "Default Prose", portrait: "", tag: "DEFAULT", tooltip: "Standard voice" },
       { value: "noir", label: "Noir Detective", portrait: "noir.png", tag: "primal", tooltip: "Gritty streets" },
     ]);
+  });
+});
+
+describe("parse_markdown", () => {
+  it("returns an empty array for empty, null, undefined, or whitespace-only inputs", () => {
+    expect(parse_markdown("")).toEqual([]);
+    expect(parse_markdown(null)).toEqual([]);
+    expect(parse_markdown(undefined)).toEqual([]);
+    expect(parse_markdown("   \n\n   ")).toEqual([]);
+  });
+
+  it("parses plain text without inline markdown markers", () => {
+    const result = parse_markdown("Hello world");
+    expect(result).toEqual([[{ type: "text", content: "Hello world" }]]);
+  });
+
+  it("splits multiple paragraphs separated by double newlines", () => {
+    const text = "First paragraph line 1.\nFirst paragraph line 2.\n\nSecond paragraph.";
+    const result = parse_markdown(text);
+    expect(result).toHaveLength(2);
+    expect(result[0]).toEqual([{ type: "text", content: "First paragraph line 1. First paragraph line 2." }]);
+    expect(result[1]).toEqual([{ type: "text", content: "Second paragraph." }]);
+  });
+
+  it("parses bold (**strong**) tokens", () => {
+    const result = parse_markdown("This is **important** info.");
+    expect(result).toEqual([
+      [
+        { type: "text", content: "This is " },
+        { type: "strong", content: "important" },
+        { type: "text", content: " info." },
+      ],
+    ]);
+  });
+
+  it("parses italic (*em*) tokens", () => {
+    const result = parse_markdown("A *whisper* in the dark.");
+    expect(result).toEqual([
+      [
+        { type: "text", content: "A " },
+        { type: "em", content: "whisper" },
+        { type: "text", content: " in the dark." },
+      ],
+    ]);
+  });
+
+  it("parses bold-italic (***strong-em***) tokens", () => {
+    const result = parse_markdown("A ***critical alert*** sounded.");
+    expect(result).toEqual([
+      [
+        { type: "text", content: "A " },
+        { type: "strong-em", content: "critical alert" },
+        { type: "text", content: " sounded." },
+      ],
+    ]);
+  });
+
+  it('parses dialogue quote ("speech") tokens', () => {
+    const result = parse_markdown('She whispered, "Stay alert."');
+    expect(result).toEqual([
+      [
+        { type: "text", content: "She whispered, " },
+        { type: "quote", content: "Stay alert." },
+      ],
+    ]);
+  });
+
+  it("parses complex mixed tokens within a single paragraph", () => {
+    const text = 'She said, "Look at ***this***!" while **running** into the *woods*.';
+    const result = parse_markdown(text);
+    expect(result).toEqual([
+      [
+        { type: "text", content: "She said, " },
+        { type: "quote", content: "Look at ***this***!" },
+        { type: "text", content: " while " },
+        { type: "strong", content: "running" },
+        { type: "text", content: " into the " },
+        { type: "em", content: "woods" },
+        { type: "text", content: "." },
+      ],
+    ]);
+  });
+
+  it("converts non-string inputs to string before parsing", () => {
+    // @ts-ignore
+    const result = parse_markdown(12345);
+    expect(result).toEqual([[{ type: "text", content: "12345" }]]);
   });
 });

@@ -30,7 +30,7 @@ let _cache_misses = 0;
  * Loads the transformers.js feature-extraction pipeline once with reactive progress.
  * @returns {Promise<any>}
  */
-export async function load_model() {
+async function load_model() {
   if (_debug_pipeline_fn) {
     _pipeline = _debug_pipeline_fn;
     _model_ready = true;
@@ -133,7 +133,7 @@ async function run_embedding_pass(text, cache_key) {
  * @param {string} text
  * @returns {Promise<Float32Array | null>}
  */
-export async function embed(text) {
+async function embed(text) {
   if (!text || !text.trim()) return null;
 
   const cache_key = text.trim();
@@ -168,7 +168,7 @@ export async function embed(text) {
  * Checks whether the embeddings model is loaded and ready.
  * @returns {boolean}
  */
-export function is_ready() {
+function is_ready() {
   return _pipeline !== null || _model_ready;
 }
 

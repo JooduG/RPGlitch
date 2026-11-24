@@ -11,7 +11,7 @@ import { get_signature_color } from "./palette.js";
  * Common title prefixes and stop words for entity naming and initials calculation.
  * @type {ReadonlyArray<string>}
  */
-export const NAME_PREFIXES = Object.freeze([
+const NAME_PREFIXES = Object.freeze([
   "mr",
   "mrs",
   "ms",
@@ -38,7 +38,7 @@ export const NAME_PREFIXES = Object.freeze([
  * Stop-word set derived from `NAME_PREFIXES` for `compute_initials`.
  * @type {ReadonlySet<string>}
  */
-export const NAME_PREFIX_STEMS = Object.freeze(new Set(NAME_PREFIXES));
+const NAME_PREFIX_STEMS = Object.freeze(new Set(NAME_PREFIXES));
 
 /**
  * Collapses every run of whitespace to a single space and trims the result.
@@ -288,12 +288,64 @@ export function to_style_dropdown_items(styles_map, default_key = "default") {
   }));
 }
 
+const INLINE_TOKEN_REGEX = /\*\*\*([\s\S]+?)\*\*\*|\*\*([\s\S]+?)\*\*|\*([\s\S]+?)\*|"([^"]+)"/g;
+
 /**
- * Extracts standard image-preview metadata from an entity's modifiers.
- * @param {Record<string, any> | null | undefined} entity
- * @returns {{ prompt: string, negative_prompt: string, seed: any } | null}
+ * @typedef {"text" | "strong" | "em" | "strong-em" | "quote"} MarkdownTokenType
  */
-export function extract_portrait_meta(entity) {
-  const m = entity?.modifiers;
-  return m ? { prompt: m.prompt, negative_prompt: m.negative_prompt, seed: m.last_generated_seed } : null;
+
+/**
+ * @typedef {Object} MarkdownToken
+ * @property {MarkdownTokenType} type
+ * @property {string} content
+ */
+
+/**
+ * @typedef {MarkdownToken[]} MarkdownParagraph
+ */
+
+/**
+ * Parses lightweight inline markdown prose into structured paragraph token arrays.
+ * @param {string | unknown} text
+ * @returns {MarkdownParagraph[]}
+ */
+export function parse_markdown(text) {
+  if (text === null || text === undefined || text === "") return [];
+
+  const raw_str = typeof text !== "string" ? String(text) : text;
+  if (!raw_str.trim()) return [];
+
+  return raw_str.split(/\n\s*\n/).map((paragraph) => {
+    const normalized = paragraph.replace(/\n/g, " ");
+    /** @type {MarkdownToken[]} */
+    const tokens = [];
+    let last_index = 0;
+    let match;
+
+    INLINE_TOKEN_REGEX.lastIndex = 0;
+
+    while ((match = INLINE_TOKEN_REGEX.exec(normalized)) !== null) {
+      if (match.index > last_index) {
+        tokens.push({ type: "text", content: normalized.substring(last_index, match.index) });
+      }
+
+      if (match[1] !== undefined) {
+        tokens.push({ type: "strong-em", content: match[1] });
+      } else if (match[2] !== undefined) {
+        tokens.push({ type: "strong", content: match[2] });
+      } else if (match[3] !== undefined) {
+        tokens.push({ type: "em", content: match[3] });
+      } else if (match[4] !== undefined) {
+        tokens.push({ type: "quote", content: match[4] });
+      }
+
+      last_index = match.index + match[0].length;
+    }
+
+    if (last_index < normalized.length) {
+      tokens.push({ type: "text", content: normalized.substring(last_index) });
+    }
+
+    return tokens;
+  });
 }

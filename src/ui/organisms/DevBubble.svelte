@@ -5,7 +5,13 @@
    * CONTINUUM_FORMATION, MEMORY_FORMATION, VECTOR_RESOLUTION).
    */
   import { format_tagged_fields, parse_tagged_fields as parse_bracket_entries } from "@simulation";
-  import { get_percentage, safe_html } from "@utils";
+  import { safe_html } from "@utils";
+
+  const get_percentage = (value) => {
+    if (value === null || value === undefined) return 50;
+    const num = Number(value);
+    return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : 50;
+  };
   import { parse_message } from "@simulation";
 
   const ENTITY_KEYS = { AI_CHARACTER: "ai", USER_PERSONA: "user", FRACTAL: "fractal" };

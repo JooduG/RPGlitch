@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { create_relational_context, parse_macros, render_display_macros, resolve_display_macro_segments } from "./macros.js";
+import { create_relational_context, parse_macros, resolve_display_macro_segments } from "./macros.js";
 
 describe("Universal @ENTITY Macro Engine", () => {
   const user = { id: "usr_protagonist", name: "Alice", type: "user" };
@@ -70,7 +70,11 @@ describe("Universal @ENTITY Macro Engine", () => {
       expect(segments).toHaveLength(4);
       expect(segments[1]).toEqual({ text: "@BEAST", macro: "BEAST", entity: beast });
       expect(segments[3]).toEqual({ text: "@ORION_ID", macro: "ORION", entity: orion });
-      expect(render_display_macros("Seen with @JULIEN", null, entities)).toBe("Seen with @CHAR_JULIEN");
+      expect(
+        resolve_display_macro_segments("Seen with @JULIEN", null, entities)
+          .map((segment) => segment.text)
+          .join(""),
+      ).toBe("Seen with @CHAR_JULIEN");
     });
   });
 });
