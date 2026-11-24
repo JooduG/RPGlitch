@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
-- `src/App.svelte`: Wrapped the fractal background image in `{#key fractal_url}` with a 1200ms `transition:fade` (0ms when `motion.is_reduced`) so slotting, swapping, or clearing a fractal card crossfades the backdrop smoothly.
+- `src/App.svelte`: Wrapped the fractal background image in `{#key fractal_url}` with a 1200ms `transition:fade|global` (0ms when `motion.is_reduced`) so slotting, swapping, or clearing a fractal card crossfades the backdrop smoothly; `|global` is required because Svelte 5 local transitions don't play when only the enclosing `{#key}` block changes (measured: layer jumped 0 → 0.6 in one frame).
 
 - `src/ui/Storyboard.svelte.js`: Applied the same `await tick()` + `transition: none` handoff snap to `shuffle()`'s `on_land` callback so shuffled cards don't flash the previous entity or dip in opacity/border when `fly_card_in` removes the deal-in clone.
 

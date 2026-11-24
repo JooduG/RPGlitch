@@ -93,7 +93,7 @@
           <div
             class="absolute inset-0 bg-cover bg-center opacity-muted filter-[var(--blur-mist)_brightness(var(--brightness-muted))]"
             style:background-image={`url('${fractal_url}')`}
-            transition:fade={{ duration: motion.is_reduced ? 0 : 1200 }}>
+            transition:fade|global={{ duration: motion.is_reduced ? 0 : 1200 }}>
           </div>
         {/if}
       {/key}
