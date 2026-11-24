@@ -1,11 +1,10 @@
 /**
  * src/definitions/profile-taxonomy.test.js
- * Unit tests for PROFILE_FIELDS taxonomy, PROFILE_FIELD_CATALOG, and build_profile_sections.
- * (FLAT_LEAF_MAP coverage lives in src/data/profile-fields.test.js against the live ingestion map.)
+ * Unit tests for PROFILE_FIELDS taxonomy, PROFILE_SECTIONS_BY_TYPE, and authority helpers.
  */
 
 import { describe, expect, it } from "vitest";
-import { PROFILE_FIELDS, PROFILE_FIELD_CATALOG, PROFILE_SECTIONS_BY_TYPE, build_profile_sections } from "./profile-taxonomy.js";
+import { PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE, atom_for, canonicalize_field_key, caretaker_brief, resolve_entity_type } from "./profile-taxonomy.js";
 
 describe("profile-taxonomy.js schema invariants", () => {
   it("defines top-level taxonomy sections and entity root schemas", () => {
@@ -25,17 +24,9 @@ describe("profile-taxonomy.js schema invariants", () => {
     expect(PROFILE_FIELDS.fractal.future).toBeDefined();
   });
 
-  it("ensures PROFILE_FIELD_CATALOG contains valid directives and enhancers", () => {
-    for (const metadata of Object.values(PROFILE_FIELD_CATALOG)) {
-      expect(typeof metadata.label).toBe("string");
-      expect(typeof (metadata.directive || "")).toBe("string");
-      expect(typeof (metadata.enhancer || "")).toBe("string");
-    }
-  });
-
-  it("builds distinct section models for character and fractal types", () => {
-    const character_sections = build_profile_sections("character");
-    const fractal_sections = build_profile_sections("fractal");
+  it("builds distinct section models in PROFILE_SECTIONS_BY_TYPE for character and fractal types", () => {
+    const character_sections = PROFILE_SECTIONS_BY_TYPE.character;
+    const fractal_sections = PROFILE_SECTIONS_BY_TYPE.fractal;
 
     expect(character_sections.length).toBeGreaterThan(0);
     expect(fractal_sections.length).toBeGreaterThan(0);
@@ -53,8 +44,12 @@ describe("profile-taxonomy.js schema invariants", () => {
     expect(fractal_metaphysics.label).toBe("Permanent Truths");
   });
 
-  it("verifies PROFILE_SECTIONS_BY_TYPE cached maps match builder output", () => {
-    expect(PROFILE_SECTIONS_BY_TYPE.character).toEqual(build_profile_sections("character"));
-    expect(PROFILE_SECTIONS_BY_TYPE.fractal).toEqual(build_profile_sections("fractal"));
+  it("resolves entity types, canonical keys, atoms, and caretaker briefs", () => {
+    expect(resolve_entity_type("fractal")).toBe("fractal");
+    expect(resolve_entity_type("user")).toBe("character");
+    expect(canonicalize_field_key("appearance", "character")).toBe("eternal.physical");
+    expect(canonicalize_field_key("Permanent Truths", "fractal")).toBe("eternal.non_physical");
+    expect(atom_for("character", "personality")?.enhancer).toBe("COGNITIVE_ARCHITECT");
+    expect(caretaker_brief("fractal").future).toContain("environmental trajectory");
   });
 });

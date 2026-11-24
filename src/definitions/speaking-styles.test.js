@@ -7,7 +7,7 @@
 
 import { SPEAKING_STYLES } from "@config";
 import { describe, expect, it } from "vitest";
-import { COMMUNITY_RULES, is_valid_speaking_style, METAPHOR_RULES, SENSORY_RULES, SOUND_RULES, SPEAKING_STYLE_RULES, VOCAL_RULES } from "./speaking-styles.js";
+import { SPEAKING_STYLE_RULES } from "./speaking-styles.js";
 
 describe("speaking-styles taxonomy", () => {
   it("exports canonical SPEAKING_STYLES containing the 4 balanced quartets", () => {
@@ -15,48 +15,10 @@ describe("speaking-styles taxonomy", () => {
     expect(Object.isFrozen(SPEAKING_STYLES)).toBe(true);
   });
 
-  it("resolves every canonical style through is_valid_speaking_style", () => {
-    expect(SPEAKING_STYLES.length).toBe(4);
-    for (const style of SPEAKING_STYLES) {
-      expect(is_valid_speaking_style(style)).toBe(true);
-    }
-  });
-
-  it("correctly validates supported and unsupported speaking styles", () => {
-    expect(is_valid_speaking_style("casual")).toBe(true);
-    expect(is_valid_speaking_style("lyrical")).toBe(true);
-    expect(is_valid_speaking_style("primal")).toBe(true);
-    expect(is_valid_speaking_style("clinical")).toBe(true);
-
-    expect(is_valid_speaking_style("plain")).toBe(false);
-    expect(is_valid_speaking_style("ornate")).toBe(false);
-    expect(is_valid_speaking_style("raw")).toBe(false);
-    expect(is_valid_speaking_style("")).toBe(false);
-    expect(is_valid_speaking_style(null)).toBe(false);
-    expect(is_valid_speaking_style(undefined)).toBe(false);
-    expect(is_valid_speaking_style(123)).toBe(false);
-    expect(is_valid_speaking_style({})).toBe(false);
-  });
-
-  it("exports comprehensive SPEAKING_STYLE_RULES and categorical subsets", () => {
+  it("exports comprehensive frozen SPEAKING_STYLE_RULES", () => {
     expect(Array.isArray(SPEAKING_STYLE_RULES)).toBe(true);
     expect(SPEAKING_STYLE_RULES.length).toBeGreaterThan(40);
     expect(Object.isFrozen(SPEAKING_STYLE_RULES)).toBe(true);
-
-    expect(Array.isArray(VOCAL_RULES)).toBe(true);
-    expect(Object.isFrozen(VOCAL_RULES)).toBe(true);
-    expect(Array.isArray(SOUND_RULES)).toBe(true);
-    expect(Object.isFrozen(SOUND_RULES)).toBe(true);
-    expect(Array.isArray(SENSORY_RULES)).toBe(true);
-    expect(Object.isFrozen(SENSORY_RULES)).toBe(true);
-    expect(Array.isArray(METAPHOR_RULES)).toBe(true);
-    expect(Object.isFrozen(METAPHOR_RULES)).toBe(true);
-    expect(Array.isArray(COMMUNITY_RULES)).toBe(true);
-    expect(Object.isFrozen(COMMUNITY_RULES)).toBe(true);
-
-    const total_subsets_count = VOCAL_RULES.length + SOUND_RULES.length + SENSORY_RULES.length + METAPHOR_RULES.length + COMMUNITY_RULES.length;
-
-    expect(SPEAKING_STYLE_RULES.length).toBe(total_subsets_count);
   });
 
   it("ensures all rules have valid regex pattern and replacement properties", () => {
@@ -67,19 +29,19 @@ describe("speaking-styles taxonomy", () => {
   });
 
   it("properly executes functional callback rules", () => {
-    const marrow_rule = METAPHOR_RULES.find((candidate_rule) => candidate_rule.regex.source.includes("marrow"));
+    const marrow_rule = SPEAKING_STYLE_RULES.find((candidate_rule) => candidate_rule.regex.source.includes("marrow"));
     expect(marrow_rule).toBeDefined();
     expect(typeof marrow_rule.replace).toBe("function");
     const marrow_replaced = "marrow of his teeth".replace(marrow_rule.regex, marrow_rule.replace);
     expect(marrow_replaced).toMatch(/teeth|jaw|bones/);
 
-    const ear_rule = METAPHOR_RULES.find((candidate_rule) => candidate_rule.regex.source.includes("shell of"));
+    const ear_rule = SPEAKING_STYLE_RULES.find((candidate_rule) => candidate_rule.regex.source.includes("shell of"));
     expect(ear_rule).toBeDefined();
     expect(typeof ear_rule.replace).toBe("function");
     const ear_replaced = "shell of his ear".replace(ear_rule.regex, ear_rule.replace);
     expect(ear_replaced).toBe("his ear");
 
-    const void_rule = COMMUNITY_RULES.find((candidate_rule) => candidate_rule.regex.source.includes("void"));
+    const void_rule = SPEAKING_STYLE_RULES.find((candidate_rule) => candidate_rule.regex.source.includes("void"));
     expect(void_rule).toBeDefined();
   });
 });

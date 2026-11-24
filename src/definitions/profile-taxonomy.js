@@ -140,22 +140,7 @@ export const PROFILE_FIELDS = {
 
 // ── 2. Field Atoms (schema authority) ─────────────────────────────────────────
 // PROFILE_FIELDS above is the content home. Everything below derives from it:
-// the flat atom list, the catalog, the enhancer directives, and the
-// routing/assembly helpers consumers call. No words are duplicated below.
-
-/**
- * @typedef {Object} CatalogEntry
- * @property {string} id - Polymorphic ID, e.g. "character.eternal.non_physical"
- * @property {string} path - Dot-notation path, e.g. "eternal.non_physical"
- * @property {string} section_label - Parent section display name, e.g. "Eternal"
- * @property {string} layer_key - Parent section key in uppercase, e.g. "ETERNAL"
- * @property {string} label - Canonical display label
- * @property {string} tag - XML tag (derived from label)
- * @property {string} [directive] - AI instruction
- * @property {string} [enhancer] - Semantic tag
- * @property {string} [description] - Human readable description / tooltip text
- * @property {string} [type] - Field type (e.g., "array")
- */
+// the flat atom list and the routing/assembly helpers consumers call.
 
 /**
  * @typedef {Object} ProfileFieldItem
@@ -229,54 +214,14 @@ function build_field_atoms(fields) {
   return atoms;
 }
 
-export const FIELD_ATOMS = Object.freeze(build_field_atoms(PROFILE_FIELDS));
+const FIELD_ATOMS = Object.freeze(build_field_atoms(PROFILE_FIELDS));
 
 /** @type {Record<string, FieldAtom>} */
-export const ATOM_BY_ID = Object.freeze(Object.fromEntries(FIELD_ATOMS.map((atom) => [atom.id, atom])));
-
-/**
- * Builds the flat polymorphic catalog from atoms. Entry shape is identical to
- * the historical hand-walked catalog (leaf fields + id/path/tag/section_label/
- * layer_key) so existing readers see zero difference.
- * @param {FieldAtom[]} atoms
- * @returns {{ catalog: Record<string, CatalogEntry> }}
- */
-function build_profile_catalog(atoms) {
-  /** @type {Record<string, CatalogEntry>} */
-  const catalog = {};
-
-  for (const atom of atoms) {
-    const layer_key = atom.path.split(".")[0];
-    const sub_key = atom.path.includes(".") ? atom.path.split(".")[1] : null;
-    catalog[atom.id] = {
-      label: atom.label,
-      description: atom.description,
-      directive: atom.directive,
-      enhancer: atom.enhancer,
-      id: atom.id,
-      path: atom.path,
-      tag:
-        atom.label ? atom.label.toUpperCase().replace(/\s+/g, "_")
-        : sub_key ? sub_key.toUpperCase()
-        : layer_key.toUpperCase(),
-      section_label: format_key_as_label(layer_key),
-      layer_key: layer_key.toUpperCase(),
-    };
-  }
-
-  return { catalog };
-}
-
-const { catalog } = build_profile_catalog(FIELD_ATOMS);
-
-/**
- * Flat registry of all entity fields, keyed by dot-notation ID.
- */
-export const PROFILE_FIELD_CATALOG = Object.freeze(catalog);
+const ATOM_BY_ID = Object.freeze(Object.fromEntries(FIELD_ATOMS.map((atom) => [atom.id, atom])));
 
 // ── 2b. Flat Leaf Map & Ingestion Aliases (single home; moved from src/data/profile-fields.js) ──
 
-export const FLAT_LEAF_MAP = Object.freeze({
+const FLAT_LEAF_MAP = Object.freeze({
   character: Object.freeze({
     appearance: "eternal.physical",
     "eternal.physical": "eternal.physical",
@@ -372,17 +317,6 @@ export function atom_for(entity_type, key) {
 }
 
 /**
- * Maps a canonical dot-path to its Caretaker structured-output key:
- * "eternal.physical" -> "eternal_physical", "future" -> "future".
- * @param {string} path
- * @returns {string | null}
- */
-export function output_key_for_path(path) {
-  if (!path || typeof path !== "string") return null;
-  return path.replace(/\./g, "_");
-}
-
-/**
  * Assembles the six Caretaker quadrant directives for an entity type.
  * Single home of the brief assembly prompts.js used to hand-roll with
  * per-type ternaries (whose missing fractal branch left ECOSYSTEM_SIMULATOR
@@ -420,8 +354,8 @@ export const PROFILE_SECTIONS_BY_TYPE = Object.freeze({
  * @param {string} [entity_type]
  * @returns {ProfileSection[]}
  */
-export function build_profile_sections(entity_type = "character") {
-  const resolved_entity_type = entity_type === "user" ? "character" : entity_type || "character";
+function build_profile_sections(entity_type = "character") {
+  const resolved_entity_type = resolve_entity_type(entity_type);
   const entity_schema = PROFILE_FIELDS[resolved_entity_type] || PROFILE_FIELDS.character;
 
   const section_keys = ["eternal", "present", "future", "past"];

@@ -34,7 +34,7 @@ export function default_dynamics_for_scope(scope) {
  * Canonical dynamics metric names. Single source for telemetry shaping.
  * @type {ReadonlyArray<string>}
  */
-export const DYNAMICS_METRIC_NAMES = Object.freeze(["chaos", "intensity", "openness", "affinity", "velocity", "entropy"]);
+const DYNAMICS_METRIC_NAMES = Object.freeze(["chaos", "intensity", "openness", "affinity", "velocity", "entropy"]);
 
 // ── 1. Physics Protocols & Directives Registry ────────────────────────────────
 
@@ -94,22 +94,6 @@ export const PHYSICS_PROTOCOLS = Object.freeze({
     "Lethargic dissociation and perceptual distortion. Heavy physical fatigue and languid actions paired with surreal, fragmented thoughts and reality glitches.",
   HARMONY: "Pristine mental clarity and physical stability. Razor-sharp recall and steady focus grounded in safe, predictable environmental physics.",
 });
-
-/** List of static archetype keyword IDs for Director available keyword listings */
-export const AVAILABLE_KEYWORDS = Object.freeze([
-  "SHAME",
-  "FEAR",
-  "VULNERABILITY",
-  "BETRAYAL",
-  "ABANDONMENT",
-  "EMOTIONAL_NEGLECT",
-  "DEFIANCE",
-  "INTIMACY",
-  "GRIEF",
-  "DOMINANCE",
-  "DECEPTION",
-  "DYSREGULATION",
-]);
 
 // ── 2. Dynamics Rules (Subtext Protocols & Somatic Reactions) ─────────────────
 

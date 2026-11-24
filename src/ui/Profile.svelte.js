@@ -3,7 +3,7 @@
  * Reactive controller for entity editing.
  */
 import { normalize_entity as normalize } from "@data";
-import { atom_for, canonicalize_field_key, output_key_for_path, resolve_entity_type } from "@definitions";
+import { atom_for, canonicalize_field_key, resolve_entity_type } from "@definitions";
 import { parse_entity_profile } from "@engine";
 import { motion, resolve_voice_name, resolve_voice_uri } from "@media";
 import { app, session } from "@state";
@@ -344,7 +344,7 @@ export class ProfileState {
     try {
       const structured = await parse_entity_profile(`Field: "${key}"\nCurrent Value: "${value}"\nEntity: ${this.char.name || "Entity"} (${type})`, type);
       if (!structured) return;
-      const output_key = output_key_for_path(canonicalize_field_key(key, type));
+      const output_key = canonicalize_field_key(key, type)?.replace(/\./g, "_") || null;
       const field_val = output_key ? structured[output_key] || "" : "";
       if (field_val) {
         set_value(this.char, key, field_val.trim());
@@ -367,7 +367,7 @@ export class ProfileState {
       const structured = await parse_entity_profile(this.char, entity_type);
       if (structured) {
         for (const path of QUADRANT_PATHS) {
-          const output_key = output_key_for_path(path);
+          const output_key = path ? path.replace(/\./g, "_") : null;
           if (structured[output_key]) set_value(this.char, path, structured[output_key]);
         }
         this._user_mutated = true;

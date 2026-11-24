@@ -16,7 +16,7 @@ Rank 3 Svelte 5 rune store layer (`@state`) owning shared cross-subsystem state 
 - **Acyclic One-Way `@state` DAG**: `interface.svelte.js` and `execution.svelte.js` have zero sibling `@state` imports; `session.svelte.js` imports `./interface.svelte.js` and `./execution.svelte.js` one-way.
 - **Draft vs Active Cast Separation (`session.svelte.js`)**: `session.sync()` hydrates `session.active_*` and updates `app.set_active_story_title()`, never overwriting `app.selected_*` storyboard draft slots.
 - **Single Execution Busy Gate (`execution.svelte.js`)**: `execution.busy` is `phase === "generating" || intent_active || loading`; `execution.recover()` clears all synchronous locks before aborting `stream.abort_controller` and stopping `Audio.voice`.
-- **Feed Deduplication (`session.svelte.js`)**: `add` deduplicates by `id` via `#id_set` and stamps missing `entity_id` via `resolve_entity_id_by_name`; `delete_attachment` removes the feed entry if it becomes empty.
+- **Feed Deduplication (`session.svelte.js`)**: `add` deduplicates by `id` via `#id_set` and stamps missing `entity_id` via `match_speaker_snapshots`; `delete_attachment` removes the feed entry if it becomes empty.
 
 ## Side Effects
 

@@ -290,7 +290,7 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
  * (`ai`/`user`/`fractal`/`npcs`) snapshot key shapes.
  * Single shared core for log-time stamping and feed-time stamping.
  * @param {{ AI?: any, USER?: any, FRACTAL?: any, NPCS?: any, ai?: any, user?: any, fractal?: any, npcs?: any } | null} [snapshots]
- * @param {string} key - lowercased trimmed speaker name
+ * @param {string} name - speaker display name (normalized internally)
  * @returns {string|null} canonical entity id
  */
 export function match_speaker_snapshots(snapshots, name) {

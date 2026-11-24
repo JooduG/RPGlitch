@@ -271,55 +271,6 @@ export const PREMADE_FRACTALS = Object.freeze([
  */
 export const ALL_PREMADES = Object.freeze([...PREMADE_CHARACTERS, ...PREMADE_FRACTALS]);
 
-/**
- * Map indexing all premade blueprints by their unique entity ID.
- */
-export const PREMADE_ENTITY_MAP = new Map(ALL_PREMADES.map((blueprint) => [blueprint.id, blueprint]));
-
-// ============================================================================
-// 4. Query Primitives & Selectors
-// ============================================================================
-
-/**
- * Retrieves a premade entity blueprint by ID.
- *
- * @param {string} id - Unique entity identifier.
- * @returns {Record<string, any>|null} The matched premade blueprint, or null if not found.
- */
-export function get_premade_entity_by_id(id) {
-  if (!id || typeof id !== "string") return null;
-  return PREMADE_ENTITY_MAP.get(id.toLowerCase()) || null;
-}
-
-/**
- * Checks whether a given entity ID belongs to the premade catalog.
- *
- * @param {string} id - Unique entity identifier.
- * @returns {boolean} True if the entity is registered in the premade catalog.
- */
-export function has_premade_entity(id) {
-  if (!id || typeof id !== "string") return false;
-  return PREMADE_ENTITY_MAP.has(id.toLowerCase());
-}
-
-/**
- * Returns all premade character blueprints.
- *
- * @returns {readonly Record<string, any>[]}
- */
-export function get_premade_characters() {
-  return PREMADE_CHARACTERS;
-}
-
-/**
- * Returns all premade fractal blueprints.
- *
- * @returns {readonly Record<string, any>[]}
- */
-export function get_premade_fractals() {
-  return PREMADE_FRACTALS;
-}
-
 /* ============================================================================
  * CHANGELOG
  * ============================================================================

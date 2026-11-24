@@ -9,14 +9,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import {
-  VISUAL_STYLES,
-  VALID_VISUAL_STYLES,
-  is_valid_visual_style,
-  get_visual_style,
-  resolve_portrait_visual_style_key,
-  resolve_story_visual_style_key,
-} from "./visual-styles.js";
+import { VISUAL_STYLES, get_visual_style } from "./visual-styles.js";
 
 // ---------------------------------------------------------------------------------------------
 // PRESET REGISTRY & XML COMPILATION TESTS
@@ -33,21 +26,8 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(VISUAL_STYLES.cinematic).toBeDefined();
   });
 
-  it("enforces immutability on VISUAL_STYLES and VALID_VISUAL_STYLES", () => {
+  it("enforces immutability on VISUAL_STYLES", () => {
     expect(Object.isFrozen(VISUAL_STYLES)).toBe(true);
-    expect(Object.isFrozen(VALID_VISUAL_STYLES)).toBe(true);
-    expect(VALID_VISUAL_STYLES.has("vintage")).toBe(true);
-    expect(VALID_VISUAL_STYLES.has("polaroid")).toBe(false);
-  });
-
-  it("validates style identifiers via is_valid_visual_style", () => {
-    expect(is_valid_visual_style("vintage")).toBe(true);
-    expect(is_valid_visual_style("cinematic")).toBe(true);
-    expect(is_valid_visual_style("none")).toBe(true);
-    expect(is_valid_visual_style("polaroid")).toBe(false);
-    expect(is_valid_visual_style("invalid_style")).toBe(false);
-    expect(is_valid_visual_style(null)).toBe(false);
-    expect(is_valid_visual_style(123)).toBe(false);
   });
 
   it("configures vintage with 35mm analog film and negative polaroid border guards", () => {
@@ -125,20 +105,6 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(get_visual_style("vintage").id).toBe("vintage");
     expect(get_visual_style("non_existent_key").id).toBe("none");
     expect(get_visual_style().id).toBe("none");
-  });
-
-  it("resolves portrait and story visual style keys correctly", () => {
-    expect(resolve_portrait_visual_style_key({ visual_style: "anime" })).toBe("anime");
-    expect(resolve_portrait_visual_style_key({ visual_style: "vintage" })).toBe("vintage");
-    expect(resolve_portrait_visual_style_key({ visual_style: "polaroid" })).toBe("none");
-    expect(resolve_portrait_visual_style_key({ visual_style: "invalid_key" })).toBe("none");
-    expect(resolve_portrait_visual_style_key({})).toBe("none");
-
-    expect(resolve_story_visual_style_key({ visual_style: "noir" })).toBe("noir");
-    expect(resolve_story_visual_style_key({ visual_style: "vintage" })).toBe("vintage");
-    expect(resolve_story_visual_style_key(null)).toBe("none");
-    expect(resolve_story_visual_style_key(null, { visual_style: "noir" })).toBe("noir");
-    expect(resolve_story_visual_style_key({ visual_style: "unknown_key" }, { visual_style: "vintage" })).toBe("none");
   });
 });
 

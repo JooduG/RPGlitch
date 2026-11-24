@@ -31,7 +31,7 @@ export function resolve_entity_style_tiles(entity, options = {}) {
   }
 
   let narrative_tile = null;
-  const narrative_id = entity.narrative_style || entity.narrative_engine;
+  const narrative_id = entity.narrative_style;
   if (narrative_id && (include_defaults || narrative_id !== "default")) {
     const style = get_narrative_style(narrative_id);
     if (style && (include_defaults || style.id !== "default")) {
@@ -46,7 +46,7 @@ export function resolve_entity_style_tiles(entity, options = {}) {
   }
 
   let visual_tile = null;
-  const visual_id = entity.visual_style || entity.visual_engine;
+  const visual_id = entity.visual_style;
   if (visual_id && (include_defaults || (visual_id !== "default" && visual_id !== "none"))) {
     const style = get_visual_style(visual_id);
     if (style && (include_defaults || (style.id !== "default" && style.id !== "none"))) {

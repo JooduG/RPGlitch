@@ -6,22 +6,15 @@
  *
  * Single source of truth for:
  * - NARRATIVE_STYLES: Declarative author voice presets & narrative engines
- * - STYLE_MOTIF_REGISTRY: Dynamic style-motif keyword registry auto-aggregated from styles
  * - get_narrative_style: Retrieves a style record by identifier with safe fallback
- * - get_style_keywords: Resolves dynamic keyword sets contributed by an active style
- * - resolve_active_style_key: Resolves the active style key from fractal or application state
- * - extract_style_dna: Reads the redistributed style-DNA fields back out of `narrative_engine`
  *
  * Architecture & Modification Rules:
- * - Pure data definition module importing downward strictly from `@utils`.
+ * - Pure data definition module.
  * - All style entries must specify a valid speaking_style ("casual" | "lyrical" | "primal" | "clinical").
- * - Dynamic motifs are co-located with their author definitions and auto-aggregated into `STYLE_MOTIF_REGISTRY`.
- * - `motif_keys`: Object.keys() of the style's motifs - fed to the Director <AVAILABLE_KEYWORDS> pool via `get_style_keywords()`.
+ * - `motif_keys`: Object.keys() of the style's motifs.
  * - `elements`: The input `keywords` array - author-genre tags rendered as `<SIGNATURE_ELEMENTS>` in the protocol layer.
  * ============================================================================
  */
-
-import { resolve_style } from "@utils";
 
 // ============================================================================
 // 1. Type Definitions
@@ -841,43 +834,8 @@ export const NARRATIVE_STYLES = Object.freeze({
 });
 
 // ============================================================================
-// 4. Style Motifs Aggregator & Helper Accessors
+// 4. Helper Accessors
 // ============================================================================
-
-/**
- * Dynamic style motifs dictionary auto-aggregated from all narrative styles.
- * Maps motif keyword -> { directive: string }.
- * @type {Record<string, { directive: string }>}
- */
-const aggregated_motifs = {};
-for (const style of Object.values(NARRATIVE_STYLES)) {
-  for (const [key, directive] of Object.entries(style.motifs || {})) {
-    aggregated_motifs[key] = { directive };
-  }
-}
-
-/** @type {Readonly<Record<string, { directive: string }>>} */
-export const STYLE_MOTIF_REGISTRY = Object.freeze(aggregated_motifs);
-
-/**
- * Extracts the style-DNA fields from a NarrativeStyle record.
- * Directly returns normalized strings from structured `style.dna`.
- *
- * @param {NarrativeStyle | { dna?: StyleDNA } | null | undefined} style
- * @returns {{ internal_ratio: string, rhythm: string, sensory: string, grounding: string }}
- */
-export function extract_style_dna(style) {
-  const dna = style?.dna;
-  if (!dna) {
-    return { internal_ratio: "0.50", rhythm: "", sensory: "", grounding: "" };
-  }
-  return {
-    internal_ratio: typeof dna.internal_ratio === "number" ? dna.internal_ratio.toFixed(2) : String(dna.internal_ratio || "0.50"),
-    rhythm: String(dna.rhythm || "").trim(),
-    sensory: String(dna.sensory || "").trim(),
-    grounding: String(dna.grounding || "").trim(),
-  };
-}
 
 /**
  * Returns a NarrativeStyle record by key with safe fallback to `default`.
@@ -886,27 +844,6 @@ export function extract_style_dna(style) {
  */
 export function get_narrative_style(style_key = "default") {
   return NARRATIVE_STYLES[style_key] || NARRATIVE_STYLES.default;
-}
-
-/**
- * Returns the motif keys a narrative style contributes to the
- * Director's <AVAILABLE_KEYWORDS> pool. Empty array for default/unknown keys.
- * @param {string} [style_key]
- * @returns {string[]}
- */
-export function get_style_keywords(style_key = "") {
-  const motif_keys = NARRATIVE_STYLES[style_key]?.motif_keys;
-  return motif_keys ? [...motif_keys] : [];
-}
-
-/**
- * Resolves the active narrative style key from an explicit fractal value or application settings.
- * Returns "" if no valid style is active.
- * @param {string} [explicit_narrative_style=""] - Explicit narrative style key (e.g. from the active fractal)
- * @returns {string}
- */
-export function resolve_active_style_key(explicit_narrative_style = "") {
-  return resolve_style(explicit_narrative_style, null, NARRATIVE_STYLES, "");
 }
 
 // ============================================================================

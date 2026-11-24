@@ -1,13 +1,6 @@
 import { SPEAKING_STYLES } from "@config";
 import { describe, expect, it } from "vitest";
-import {
-  NARRATIVE_STYLES,
-  STYLE_MOTIF_REGISTRY,
-  extract_style_dna,
-  get_narrative_style,
-  get_style_keywords,
-  resolve_active_style_key,
-} from "./narrative-styles.js";
+import { NARRATIVE_STYLES, get_narrative_style } from "./narrative-styles.js";
 
 describe("NARRATIVE_STYLES Preset Catalog", () => {
   it("exports all expected author, director, and genre presets", () => {
@@ -45,53 +38,11 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
   });
 });
 
-describe("STYLE_MOTIF_REGISTRY & Keyword Aggregation", () => {
-  it("auto-aggregates motifs from all narrative styles", () => {
-    expect(Object.keys(STYLE_MOTIF_REGISTRY).length).toBeGreaterThan(0);
-    expect(STYLE_MOTIF_REGISTRY.sensual_submersion).toBeDefined();
-    expect(STYLE_MOTIF_REGISTRY.sensual_submersion.directive).toBeTruthy();
-    expect(STYLE_MOTIF_REGISTRY.high_tech_low_life).toBeDefined();
-    expect(STYLE_MOTIF_REGISTRY.high_tech_low_life.directive).toBeTruthy();
-  });
-
-  it("is frozen and immutable", () => {
-    expect(Object.isFrozen(STYLE_MOTIF_REGISTRY)).toBe(true);
-  });
-});
-
 describe("Narrative Style Helper Accessors", () => {
   it("retrieves narrative style via get_narrative_style with fallback to default", () => {
     expect(get_narrative_style("cormac_mccarthy").id).toBe("cormac_mccarthy");
     expect(get_narrative_style("non_existent_key").id).toBe("default");
     expect(get_narrative_style().id).toBe("default");
-  });
-
-  it("returns keywords copy for styled keys and empty array for unknown keys", () => {
-    const gibson_keywords = get_style_keywords("william_gibson");
-    expect(gibson_keywords).toContain("high_tech_low_life");
-    expect(gibson_keywords).toContain("flickering_neon_data");
-
-    expect(get_style_keywords("default")).toEqual([]);
-    expect(get_style_keywords("unknown_key")).toEqual([]);
-    expect(get_style_keywords()).toEqual([]);
-  });
-
-  it("resolves active style key safely with fallback to empty string", () => {
-    expect(resolve_active_style_key()).toBe("");
-    expect(resolve_active_style_key("cormac_mccarthy")).toBe("cormac_mccarthy");
-    expect(resolve_active_style_key("unknown_key")).toBe("");
-  });
-
-  it("extracts style DNA directly from structured style object", () => {
-    const dna = extract_style_dna(NARRATIVE_STYLES.cormac_mccarthy);
-    expect(dna.internal_ratio).toBe("0.20");
-    expect(dna.rhythm).toContain("Polysyndetic");
-    expect(dna.sensory).toContain("Sight");
-    expect(dna.grounding).toContain("Fatalistic");
-
-    const empty_dna = extract_style_dna(null);
-    expect(empty_dna.internal_ratio).toBe("0.50");
-    expect(empty_dna.rhythm).toBe("");
   });
 
   it("evaluates trigger conditions without throwing errors", () => {

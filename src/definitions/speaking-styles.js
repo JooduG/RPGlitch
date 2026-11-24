@@ -27,7 +27,6 @@
  * ============================================================================
  */
 
-import { SPEAKING_STYLES } from "@config";
 import { match_case } from "@utils";
 
 // ============================================================================
@@ -978,11 +977,11 @@ const COMMUNITY_RULES_LIST = [
 // 7. Consolidated Speaking Style Rules Registry & Registration
 // ============================================================================
 
-export const VOCAL_RULES = Object.freeze(VOCAL_RULES_LIST);
-export const SOUND_RULES = Object.freeze(SOUND_RULES_LIST);
-export const SENSORY_RULES = Object.freeze(SENSORY_RULES_LIST);
-export const METAPHOR_RULES = Object.freeze(METAPHOR_RULES_LIST);
-export const COMMUNITY_RULES = Object.freeze(COMMUNITY_RULES_LIST);
+const VOCAL_RULES = Object.freeze(VOCAL_RULES_LIST);
+const SOUND_RULES = Object.freeze(SOUND_RULES_LIST);
+const SENSORY_RULES = Object.freeze(SENSORY_RULES_LIST);
+const METAPHOR_RULES = Object.freeze(METAPHOR_RULES_LIST);
+const COMMUNITY_RULES = Object.freeze(COMMUNITY_RULES_LIST);
 
 export const SPEAKING_STYLE_RULES = Object.freeze([...VOCAL_RULES, ...SOUND_RULES, ...SENSORY_RULES, ...METAPHOR_RULES, ...COMMUNITY_RULES]);
 
@@ -1101,63 +1100,6 @@ export const ANTI_AI_REPLACEMENTS = Object.freeze([
   { pattern: /\s*\bat\s+its\s+core\b(?=\s*[,;.!?]|\s*$)/gi, replace: () => "" },
   { pattern: /\bat\s+its\s+core\b\s*/gi, replace: () => "" },
 ]);
-
-/**
- * Tier 2 Cluster Words: Words legitimate on their own, but flagged when 2 or more appear together.
- */
-export const TIER_2_CLUSTER_WORDS = Object.freeze([
-  "harness",
-  "navigate",
-  "foster",
-  "elevate",
-  "unleash",
-  "streamline",
-  "empower",
-  "bolster",
-  "spearhead",
-  "resonate",
-  "revolutionize",
-  "facilitate",
-  "underpin",
-  "nuanced",
-  "crucial",
-  "multifaceted",
-  "ecosystem",
-  "myriad",
-  "plethora",
-  "encompass",
-  "catalyze",
-  "reimagine",
-  "galvanize",
-  "augment",
-  "cultivate",
-  "illuminate",
-  "elucidate",
-  "juxtapose",
-  "transformative",
-  "cornerstone",
-  "paramount",
-  "poised",
-  "burgeoning",
-  "nascent",
-  "quintessential",
-  "overarching",
-  "underpinnings",
-]);
-
-// ============================================================================
-// 9. Canonical Taxonomy & Validation (style ids live in config - views re-exported above)
-// ============================================================================
-
-/**
- * Validates whether a given candidate string is a supported speaking style.
- *
- * @param {unknown} candidate_style - The style value to test.
- * @returns {boolean} True if the value is one of the 4 canonical speaking styles.
- */
-export function is_valid_speaking_style(candidate_style) {
-  return typeof candidate_style === "string" && SPEAKING_STYLES.includes(candidate_style);
-}
 
 /**
  * ============================================================================

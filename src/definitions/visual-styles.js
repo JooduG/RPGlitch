@@ -16,8 +16,6 @@
  * - No "default" tags (reserved sentinel).
  */
 
-import { resolve_style } from "@utils";
-
 // ============================================================================
 // 1. TYPE DEFINITIONS
 // ============================================================================
@@ -537,24 +535,8 @@ const _VISUAL_STYLES = {
  */
 export const VISUAL_STYLES = Object.freeze(_VISUAL_STYLES);
 
-/**
- * Immutable set of all valid visual style identifiers.
- * @type {Readonly<Set<string>>}
- */
-export const VALID_VISUAL_STYLES = Object.freeze(new Set(Object.keys(VISUAL_STYLES)));
-
-/**
- * Validates whether candidate identifier is a recognized visual style key.
- *
- * @param {any} candidate_style - Style identifier to test
- * @returns {boolean} True if candidate is valid
- */
-export function is_valid_visual_style(candidate_style) {
-  return typeof candidate_style === "string" && VALID_VISUAL_STYLES.has(candidate_style);
-}
-
 // ============================================================================
-// 4. STYLE ACCESSORS & RESOLVERS
+// 4. STYLE ACCESSORS
 // ============================================================================
 
 /**
@@ -565,28 +547,6 @@ export function is_valid_visual_style(candidate_style) {
  */
 export function get_visual_style(style_key = "none") {
   return VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
-}
-
-/**
- * Resolves the active visual style key for a character/entity portrait.
- *
- * @param {any} [entity={}] - Character or entity record
- * @returns {string} Resolved visual style key
- */
-export function resolve_portrait_visual_style_key(entity = {}) {
-  return resolve_style(entity?.visual_style, null, VISUAL_STYLES, "none");
-}
-
-/**
- * Resolves the active visual style key for story/scene generation from a fractal or application setting.
- *
- * @param {any} [fractal=null] - Active fractal record or null
- * @param {any} [fallback_fractal=null] - Fallback fractal record (e.g. runtime-selected) or null
- * @returns {string} Resolved visual style key
- */
-export function resolve_story_visual_style_key(fractal = null, fallback_fractal = null) {
-  const explicit = fractal?.visual_style || fallback_fractal?.visual_style;
-  return resolve_style(explicit, null, VISUAL_STYLES, "none");
 }
 
 /**
