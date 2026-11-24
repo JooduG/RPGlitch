@@ -12,6 +12,7 @@
   import { Console, Profile, Storyboard, storyboard, Storymode } from "@ui";
   import { get_signature_color } from "@utils";
   import { tick } from "svelte";
+  import { fade } from "svelte/transition";
 
   const is_mobile = $derived(app.viewport.mobile);
   const is_storymode = $derived(app.view === "storymode");
@@ -86,11 +87,16 @@
   <div class="pointer-events-none fixed inset-0 z-0 h-dvh w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
-    <div
-      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-[opacity,filter] duration-ambient ease-in-out will-change-[opacity,filter]"
-      style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
-      style:opacity={fractal_url ? "var(--opacity-muted)" : 0}
-      style:view-transition-name={is_storymode && !app.transitioning_profile ? "entity-morph-fractal" : undefined}>
+    <div class="absolute inset-0" style:view-transition-name={is_storymode && !app.transitioning_profile ? "entity-morph-fractal" : undefined}>
+      {#key fractal_url}
+        {#if fractal_url}
+          <div
+            class="absolute inset-0 bg-cover bg-center opacity-muted filter-[var(--blur-mist)_brightness(var(--brightness-muted))]"
+            style:background-image={`url('${fractal_url}')`}
+            transition:fade={{ duration: motion.is_reduced ? 0 : 1200 }}>
+          </div>
+        {/if}
+      {/key}
     </div>
 
     <div

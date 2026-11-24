@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/App.svelte`: Wrapped the fractal background image in `{#key fractal_url}` with a 1200ms `transition:fade` (0ms when `motion.is_reduced`) so slotting, swapping, or clearing a fractal card crossfades the backdrop smoothly.
+
 - `src/ui/Storyboard.svelte.js`: Applied the same `await tick()` + `transition: none` handoff snap to `shuffle()`'s `on_land` callback so shuffled cards don't flash the previous entity or dip in opacity/border when `fly_card_in` removes the deal-in clone.
 
 - `src/ui/organisms/CardHand.svelte`: Fixed the remaining slot-landing flicker (measured per-frame in-browser): the real slot card was still mid-transition (inner opacity `0.6→1`, border slate→signature, brightness) when the opaque flight clone was removed, so it visibly dipped to ~65% and faded back. The slot card and its inner wrapper now snap to final state (`transition: none`) during the handoff before transitions are restored.
