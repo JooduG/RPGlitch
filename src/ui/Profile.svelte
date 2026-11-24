@@ -40,6 +40,10 @@
   let card_ref = $state();
   /** @type {HTMLElement | undefined} */
   let wings_ref = $state();
+  // Local Dialog open state: rebound to true when handle_close refuses (invalid ID),
+  // otherwise a refused close would leave app.profile_open true with no visible modal
+  // (and the storyboard card stuck at opacity 0 via its profile_open gate).
+  let modal_open = $state(true);
 
   let show_export_modal = $state(false);
   let content_dipping = $state(false);
@@ -289,9 +293,15 @@
   </Dialog>
 
   <Modal
+    bind:open={modal_open}
     animate={false}
     dismissible={!profile_state.show_delete_confirm && !show_export_modal}
-    on_close={() => (profile_state.is_editing ? profile_state.save(entity_type) : profile_state.handle_close(entity_type))}>
+    on_close={async () => {
+      // Dismiss already hid the dialog: route through handle_close so edit-mode
+      // outside clicks save AND release app.profile_open (restoring the card).
+      const ok = await profile_state.handle_close(entity_type);
+      if (!ok) modal_open = true;
+    }}>
     <div
       class={[
         "pointer-events-none m-auto grid w-grid-width grid-cols-12 transition-[grid-template-rows,transform,opacity] duration-300",
@@ -368,7 +378,7 @@
         <div
           bind:this={info_container_el}
           class={[
-            "flex min-h-0 min-w-0 flex-1 scrollbar-thin scrollbar-track-transparent flex-col gap-standard overflow-x-clip overflow-y-auto pt-standard transition-opacity duration-fast ease-out",
+            "flex min-h-0 min-w-0 flex-1 scrollbar-none scrollbar-track-transparent flex-col gap-standard overflow-x-clip overflow-y-auto pt-standard transition-opacity duration-fast ease-out",
             content_dipping && !motion.is_reduced && "opacity-0",
           ]}>
           <header
