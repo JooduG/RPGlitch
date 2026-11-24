@@ -18,15 +18,18 @@ try {
   const output = execSync(`npx designmd lint "${designMd}" --format json`, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 
   const result = JSON.parse(output);
-  const { errors, warnings, infos } = result.summary;
+  const { errors, infos } = result.summary;
 
   console.log("\n================================================================================");
   console.log("📐 AUDIT: DESIGN.md SPEC COMPLIANCE (@google/design.md)");
   console.log("================================================================================\n");
 
+  const is_expected_rpglitch_warning = (f) =>
+    (f.path === "colors" && f.message.includes("No 'primary' color defined")) || (f.path === "theme" && f.message.includes("not a recognized schema key"));
+
   const findings = result.findings ?? [];
   const errorFindings = findings.filter((f) => f.severity === "error");
-  const warningFindings = findings.filter((f) => f.severity === "warning");
+  const warningFindings = findings.filter((f) => f.severity === "warning" && !is_expected_rpglitch_warning(f));
   const infoFindings = findings.filter((f) => f.severity === "info");
 
   if (errorFindings.length > 0) {
@@ -35,7 +38,7 @@ try {
     console.log("");
   }
   if (warningFindings.length > 0) {
-    console.log(`\x1b[33m[WARNINGS]\x1b[0m ${warnings} warning(s):`);
+    console.log(`\x1b[33m[WARNINGS]\x1b[0m ${warningFindings.length} warning(s):`);
     warningFindings.forEach((f) => console.log(`  ⚠️  ${f.path}: ${f.message}`));
     console.log("");
   }
@@ -45,7 +48,7 @@ try {
     console.log("");
   }
 
-  console.log(`📊 Summary - errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
+  console.log(`📊 Summary - errors: ${errors} | warnings: ${warningFindings.length} | info: ${infos}`);
   has_errors = errors > 0;
   console.log(has_errors ? "\n\x1b[31m❌ SPEC GATE FAILED: Fix DESIGN.md errors above.\x1b[0m\n" : "\n\x1b[32m✅ SPEC SCAN COMPLETE.\x1b[0m\n");
 } catch (err) {

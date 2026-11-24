@@ -1,7 +1,10 @@
 import fs from "fs";
 import ignore from "ignore";
 import path from "path";
+import { has_ignore_next_line } from "../../housekeeping/scripts/lib/io.js";
 import { PATHS, getSourceFiles, parseDefinedTokens, parseSignatureTokens } from "./token-utils.js";
+
+const FIX_MODE = process.argv.includes("--fix");
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -130,9 +133,16 @@ function auditFile(filePath) {
 
   if (relPath.includes("audit-") || relPath.endsWith("design.css") || relPath.includes(".bak.")) return;
 
+  let modified = false;
   themeRules.forEach((rule) => {
     lines.forEach((line, i) => {
       if (rule.regex.test(line)) {
+        if (has_ignore_next_line(lines, i + 1)) return;
+        if (FIX_MODE && rule.id === "EM_DASH_VIOLATION") {
+          lines[i] = line.replace(/\u2014/g, "-");
+          modified = true;
+          return;
+        }
         violations++;
         const color = rule.severity === "HERESY" ? RED : YELLOW;
         if (rule.severity === "HERESY") hasHeresy = true;
@@ -143,6 +153,11 @@ function auditFile(filePath) {
       }
     });
   });
+
+  if (modified) {
+    fs.writeFileSync(filePath, lines.join("\n"), "utf-8");
+    console.log(`${GREEN}🔧 Fixed em-dashes in ${relPath}${RESET}`);
+  }
 }
 
 /**

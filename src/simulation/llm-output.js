@@ -521,6 +521,7 @@ const SOMATIC_MARKER_CAP = 1;
  * @param {string|null|undefined} text
  * @returns {Readonly<{ violations: ReadonlyArray<Readonly<{ kind: string, match: string }>>, somatic_count: number, over_cap: boolean }>}
  */
+// ignore-next-line: parked in ROADMAP.md (Narrative Slop & Macro-Shape Post-Processing)
 export function lint_narrative_slop(text) {
   const source = String(text || "");
   const violations = [];
@@ -546,6 +547,7 @@ export function lint_narrative_slop(text) {
  * @param {string|null|undefined} text
  * @returns {string}
  */
+// ignore-next-line: parked in ROADMAP.md (Narrative Slop & Macro-Shape Post-Processing)
 export function cap_somatic_markers(text) {
   const source = String(text || "");
   if (!source) return "";
@@ -602,6 +604,7 @@ export function resolve_speaking_style(entity = null, narrative_style = null) {
  *
  * @param {string|null|undefined} text
  */
+// ignore-next-line: parked in ROADMAP.md (Narrative Slop & Macro-Shape Post-Processing)
 export function audit_macro_shape(text) {
   const source = String(text || "").trim();
   if (!source) {

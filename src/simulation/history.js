@@ -391,7 +391,7 @@ export function match_speaker_snapshots(snapshots, key) {
 /**
  * Resolves a speaker display name to its canonical entity id against the
  * provided entity snapshots (trio + NPC cast, case-insensitive).
- * Null when no id matches. Snapshots arrive as parameters — never runtime.
+ * Null when no id matches. Snapshots arrive as parameters - never runtime.
  * @param {string} name
  * @param {{ AI?: any, USER?: any, FRACTAL?: any, NPCS?: any } | null} [snapshots=null]
  * @returns {string|null}
@@ -405,7 +405,7 @@ export function resolve_entity_id_by_name(name, snapshots = null) {
 }
 
 // ============================================================================
-// [SHARED WRITE-GUARD PREDICATES — single home for db.js + sessions write guards]
+// [SHARED WRITE-GUARD PREDICATES - single home for db.js + sessions write guards]
 // ============================================================================
 
 const TELEMETRY_MESSAGE_TYPES = new Set(["DYNAMICS_DELTA", "STORY_START", "VECTOR_RESOLUTION", "CONTINUUM_FORMATION", "MEMORY_FORMATION"]);

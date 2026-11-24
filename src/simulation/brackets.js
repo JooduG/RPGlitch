@@ -908,7 +908,6 @@ export const CLOTHING_KEYS = Object.freeze([
  * the shared vocabulary. Canonically-named keys always win over these aliases.
  * @type {Readonly<Record<string, string>>}
  */
-export const PHYSICAL_KEY_ALIASES = Object.freeze({ SHORTS: "APPAREL", SOMA: "SOMATIC", POSE: "POSTURE" });
 
 /**
  * Strips a duplicated "KEY:" prefix echoed inside its own value (e.g. the value
@@ -926,32 +925,6 @@ export function strip_leading_key_echo(value, keys = []) {
   );
   if (!patterns.length) return text.trim();
   return text.replace(new RegExp("^\\s*(?:" + patterns.join("|") + ")\\s*:\\s*", "i"), "").trim();
-}
-
-/**
- * Canonicalizes parsed physical/non-physical keys: known aliases remap to their
- * canonical SCREAMING_SNAKE name, other keys keep their original casing, echoed
- * "KEY:" value prefixes are stripped, and duplicate keys collapse (the
- * canonically-named entry wins over an alias).
- * @param {Record<string, any>} parsed
- * @returns {Record<string, string>}
- */
-export function normalize_physical_entries(parsed) {
-  const out = {};
-  for (const [k, v] of Object.entries(parsed || {})) {
-    if (k === "__raw_prose__") continue;
-    const raw_key = String(k).replace(/\s+/g, "_").trim();
-    if (!raw_key) continue;
-    const upper_key = raw_key.toUpperCase();
-    const canonical = PHYSICAL_KEY_ALIASES[upper_key] || raw_key;
-    const value = Array.isArray(v) ? v.join(", ") : String(v);
-    const cleaned = strip_leading_key_echo(value, [raw_key, upper_key, canonical]);
-    if (!cleaned) continue;
-    if (out[canonical] === undefined || raw_key === canonical) {
-      out[canonical] = cleaned;
-    }
-  }
-  return out;
 }
 
 // ============================================================================

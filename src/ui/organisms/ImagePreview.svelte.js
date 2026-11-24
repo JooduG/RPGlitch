@@ -42,7 +42,7 @@ function is_story_stale() {
   return _last_story_id !== null && current_id !== _last_story_id;
 }
 
-/** Deferred cleanup for getter reads — avoids Svelte 5 state_unsafe_mutation during render. */
+/** Deferred cleanup for getter reads - avoids Svelte 5 state_unsafe_mutation during render. */
 function schedule_story_reset() {
   if (_reset_queued) return;
   _reset_queued = true;

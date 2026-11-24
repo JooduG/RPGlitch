@@ -113,7 +113,7 @@
 {/snippet}
 
 {#if editable}
-  <!-- normalize shield: h1 font-size/margin MUST be inline — platform normalize.css v3 (unlayered h1{font-size:2em;margin:.67em 0}) beats all layered Tailwind (see check-typography.mjs rule 1 carve-out) -->
+  <!-- normalize shield: h1 font-size/margin MUST be inline - platform normalize.css v3 (unlayered h1{font-size:2em;margin:.67em 0}) beats all layered Tailwind (see check-typography.mjs rule 1 carve-out) -->
   <!-- ignore-next-line -->
   <h1
     style="/* stylelint-disable-line property-disallowed-list */ font-size: clamp(2rem, 5vw, 4rem); margin: 0;"
@@ -155,7 +155,7 @@
     {/if}
   </h1>
 {:else if title || parts.length > 0}
-  <!-- normalize shield: h1 font-size/margin MUST be inline — platform normalize.css v3 beats layered Tailwind -->
+  <!-- normalize shield: h1 font-size/margin MUST be inline - platform normalize.css v3 beats layered Tailwind -->
   <!-- ignore-next-line -->
   <h1
     style="/* stylelint-disable-line property-disallowed-list */ font-size: clamp(1.75rem, 3.5vw, 2.75rem); margin: 0;"

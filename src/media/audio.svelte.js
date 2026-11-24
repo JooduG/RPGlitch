@@ -55,7 +55,7 @@ export async function init_audio_on_gesture() {
   if (context && context.state === "suspended") {
     // resume() stays pending until the first user gesture in autoplay-blocked
     // contexts (and boot awaits this fn). Race it against a timeout so no
-    // caller — boot included — can hang forever on a black page. The pending
+    // caller - boot included - can hang forever on a black page. The pending
     // resume still fulfills on first gesture; unlock listeners below re-run it.
     const resume_attempt = context.resume();
     resume_attempt.catch(() => {
@@ -65,16 +65,6 @@ export async function init_audio_on_gesture() {
       await Promise.race([resume_attempt, new Promise((resolve) => setTimeout(resolve, 1500))]);
     } catch {
       /* Blocked by browser until gesture */
-    }
-  }
-}
-
-export async function suspend_audio() {
-  if (shared_audio_context && shared_audio_context.state === "running") {
-    try {
-      await shared_audio_context.suspend();
-    } catch {
-      /* Safe no-op */
     }
   }
 }

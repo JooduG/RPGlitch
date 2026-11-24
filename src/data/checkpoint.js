@@ -1,7 +1,7 @@
 /**
  * src/data/checkpoint.js
  * ============================================================================
- * 💾 SESSION CHECKPOINT — synchronous 3-tier reload survival
+ * 💾 SESSION CHECKPOINT - synchronous 3-tier reload survival
  * ============================================================================
  *
  * RAM -> sessionStorage -> window.name. Pure, no runes, no upward imports.

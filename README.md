@@ -1,7 +1,6 @@
 # RPGlitch System Blueprint (Hay)
 
-> **A Simulation-Driven AI Roleplay Engine**  
-> _State is Truth. The User is the Protagonist; the Engine is the Physics._
+> **A Simulation-Driven AI Roleplay Engine** _State is Truth. The User is the Protagonist; the Engine is the Physics._
 
 RPGlitch is an offline-capable, local-first web application designed for deep, stateful AI roleplay simulation. Compiled as a single-file portable bundle via Vite 8 (`vite-plugin-singlefile` and `perchanceBase64Vault` in [vite.config.js](./vite.config.js)), it decouples physical/psychological state truth from narrative prose.
 
@@ -87,7 +86,7 @@ RPGlitch organizes its source code into clean, isolated subsystems:
 - [src/data/](./src/data/README.md): Unified Dexie persistence & `mutation_ledger` replay (`db.js`), 4-quadrant entity normalization & genesis (`entities.js`), bracket parser & epistemic filters (`parser.js`), TavernAI/PNG card conversion (`card-conversion.js`), and pure session/log persistence (`session.js`).
 - [src/definitions/](./src/definitions/README.md): Declarative registries (without an `index.js` barrel) for dynamics rules & protocols (`dynamics-registry.js`), 24 literary narrative styles (`narrative-styles.js`), premade character & fractal blueprints (`premades.js`), 4-layer entity taxonomy (`profile-taxonomy.js`), 95 speaking-style & 30 anti-AI detox rules (`speaking-styles.js`), and 26 visual styles (`visual-styles.js`).
 - [src/media/](./src/media/README.md): Procedural Web Audio SFX & Web Speech synthesis (`audio.svelte.js`), Svelte 5 kinetic motion & card-flight physics (`motion.svelte.js`), Perchance image dispatch & queue bookkeeping (`visual.svelte.js`), pure optics taxonomy (`optics.js`), and generated design tokens (`palette.js`, `tokens.js`).
-- [src/utils/](./src/utils/README.md): Rank 0 shared utilities — generated tokens (`tokens.js`), deterministic palette resolution (`palette.js`), numeric/cosine math (`math.js`), text/XML/style helpers (`text.js`), inline Markdown AST (`markdown.js`), dot-path accessors (`field-path.js`), `@ENTITY` macros (`macros.js`), HTML sanitization/extraction (`html.js`), web/image ingestion (`ingestion.js`), browser DOM/actions (`dom.js`), MiniLM embeddings (`embeddings.svelte.js`), and async queues/circuit breaking (`async.js`).
+- [src/utils/](./src/utils/README.md): Rank 0 shared utilities - generated tokens (`tokens.js`), deterministic palette resolution (`palette.js`), numeric/cosine math (`math.js`), text/XML/style helpers (`text.js`), inline Markdown AST (`markdown.js`), dot-path accessors (`field-path.js`), `@ENTITY` macros (`macros.js`), HTML sanitization/extraction (`html.js`), web/image ingestion (`ingestion.js`), browser DOM/actions (`dom.js`), MiniLM embeddings (`embeddings.svelte.js`), and async queues/circuit breaking (`async.js`).
 
 ## Global Invariants
 

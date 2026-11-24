@@ -6,13 +6,13 @@ Extends global `GEMINI.md` with RPGlitch's invariant laws, live 6-Rank architect
 
 ## Operational Mandates (`P1`–`P7`)
 
-- **P1 — User Agency**: **Never speak, act, or think on behalf of the biological User.** Keep all non-user entities strictly third-person limited.
-- **P2 — Internal Consistency**: Narrative echo must mirror persisted state across turns and reloads.
-- **P3 — Narrative Momentum**: Favor sensory bridges, distinct entity voices, meaningful interactions, and minimalist UI restraint.
-- **P4 — Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims.** Update all downstream consumers cleanly and delete dead code immediately.
-- **P5 — Honest Literals & Scoped Scales**: Keep non-prose quotas and hardware limits as honest literals; restrict semantic scales to their domain and ensure every exported `src/config.js` constant has an active consumer.
-- **P6 — Audit Scope Disambiguation**: Distinguish commitments agreed in the active session from parked backlog/proposals in [ROADMAP.md](./ROADMAP.md) or [.agents/skills/architect-blueprint/](./.agents/skills/architect-blueprint/SKILL.md).
-- **P7 — Root-Fix First**: Inspect and repair shared primitives (`ProfilePicture.svelte`, `TextField.svelte`, `@data`, `@media`, `@utils`, or `{@render ...}` snippets) rather than patching symptom workarounds in parent callers.
+- **P1 - User Agency**: **Never speak, act, or think on behalf of the biological User.** Keep all non-user entities strictly third-person limited.
+- **P2 - Internal Consistency**: Narrative echo must mirror persisted state across turns and reloads.
+- **P3 - Narrative Momentum**: Favor sensory bridges, distinct entity voices, meaningful interactions, and minimalist UI restraint.
+- **P4 - Zero Backwards Compatibility (Pre-Beta Purity)**: **Never write backwards-compatible fallbacks, legacy aliases, deprecated wrappers, or schema shims.** Update all downstream consumers cleanly and delete dead code immediately.
+- **P5 - Honest Literals & Scoped Scales**: Keep non-prose quotas and hardware limits as honest literals; restrict semantic scales to their domain and ensure every exported `src/config.js` constant has an active consumer.
+- **P6 - Audit Scope Disambiguation**: Distinguish commitments agreed in the active session from parked backlog/proposals in [ROADMAP.md](./ROADMAP.md) or [.agents/skills/architect-blueprint/](./.agents/skills/architect-blueprint/SKILL.md).
+- **P7 - Root-Fix First**: Inspect and repair shared primitives (`ProfilePicture.svelte`, `TextField.svelte`, `@data`, `@media`, `@utils`, or `{@render ...}` snippets) rather than patching symptom workarounds in parent callers.
 
 ---
 
@@ -37,7 +37,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
   2. `src/ui/*` (`@ui` views) -> `src/ui/organisms/` (`@organisms`) -> `src/ui/molecules/` (`@molecules`, stateless presentation/input widgets; domain-aware but decoupled from `@state`/`@engine`/`@data`) -> `src/ui/atoms/` (`@atoms`, domain-agnostic leaves restricted to `@config`, `@utils`, `@media`) (Rank 5)
   3. `src/engine/` (`@engine`: `chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`) (Rank 4)
   4. `src/state/` (`@state`: `session.svelte.js`, `execution.svelte.js`, `interface.svelte.js`) (Rank 3)
-  5. `src/data/` (`@data`) & `src/media/` (`@media`) — mutually isolated peer leaves (Rank 2)
+  5. `src/data/` (`@data`) & `src/media/` (`@media`) - mutually isolated peer leaves (Rank 2)
   6. `src/simulation/` (`@simulation`: `brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`) (Rank 1)
   7. `src/definitions/` (`@definitions`) & `src/utils/` (`@utils`) (Rank 0) -> `src/config.js` (`@config`, zero-dependency leaf)
 - **Cross-Folder Barrel Mandate**: Use module alias barrels (`@atoms`, `@data`, `@engine`, `@media`, `@molecules`, `@organisms`, `@simulation`, `@state`, `@ui`, `@utils`) for **all** cross-folder imports; use relative `./file.js` strictly inside the same folder (**no self-barrel `@<own-folder>` imports**). Keep `tsconfig.json` (`baseUrl` + `paths` matching `vite.config.js`) in sync so `graph-it` resolves all `@alias` edges. Re-export public symbols cleanly through `index.js` and target barrels in unit test mocks.

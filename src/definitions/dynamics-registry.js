@@ -42,6 +42,7 @@ export const DYNAMICS_METRIC_NAMES = Object.freeze(["chaos", "intensity", "openn
  * Universal physics protocols: 12 somatic archetypes + 18 dynamics trigger directives.
  * @type {Record<string, { label?: string, tells?: string, directive: string } | string>}
  */
+// ignore-next-line: parked in ROADMAP.md (Physics Protocols Injection)
 export const PHYSICS_PROTOCOLS = Object.freeze({
   // ── 1.1 Universal Somatic & Trauma Archetypes ───────────────────────────────
   SHAME:

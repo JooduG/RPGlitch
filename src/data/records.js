@@ -14,7 +14,6 @@
 
 import { DYNAMICS } from "@config";
 import { canonicalize_field_key, default_dynamics_for_scope } from "@definitions";
-import { format_tagged_fields } from "@simulation";
 import { generate_uuid } from "@utils";
 
 /**
@@ -207,23 +206,6 @@ export function create_entity(type = "character", overrides = {}) {
  * @param {boolean} [options.is_counterpart=false]
  * @param {boolean} [options.strip_inventory=false]
  * @returns {object} cloned entity with redacted quadrant strings
- */
-export function filter_entity_epistemics(entity, options = {}) {
-  const copy = normalize_entity(entity);
-
-  copy.eternal = { physical: format_tagged_fields(copy.eternal.physical, options), non_physical: format_tagged_fields(copy.eternal.non_physical, options) };
-  copy.present = { physical: format_tagged_fields(copy.present.physical, options), non_physical: format_tagged_fields(copy.present.non_physical, options) };
-  copy.future = format_tagged_fields(copy.future, options);
-  copy.past = format_tagged_fields(copy.past, options);
-
-  return copy;
-}
-
-/**
- * Strips database primary keys and internal tracking timestamps for clean JSON export.
- *
- * @param {object} entity
- * @returns {object} exportable entity object
  */
 export function serialize_entity_for_export(entity) {
   const normalized = normalize_entity(entity);

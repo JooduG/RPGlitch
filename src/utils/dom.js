@@ -121,7 +121,7 @@ export function ensure_theme_tokens() {
 
 /**
  * Resolves a Perchance plugin function from the pjs `root` namespace first
- * (the only place `{import:...}` bindings canonically live — ES modules
+ * (the only place `{import:...}` bindings canonically live - ES modules
  * cannot see pjs scope, and indirect eval cannot reach it either), then
  * from `window` / cross-origin-safe `window.parent` (test stubs, bridges).
  * @param {string} plugin_name

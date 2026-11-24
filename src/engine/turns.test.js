@@ -7,6 +7,8 @@ import { continue_turn, dispatch_consolidation, maybe_spawn_turn_image, reset_tu
 describe("src/engine/turns.js", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.spyOn(console, "error").mockImplementation(() => {});
     session.active_ai = null;
     session.active_user = null;
     session.active_fractal = null;

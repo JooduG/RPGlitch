@@ -1,4 +1,4 @@
-# RPGlitch — Roadmap (Future Delta)
+# RPGlitch - Roadmap (Future Delta)
 
 > **Temporal Mirror Rule**: This document tracks **only unbuilt work** (the delta between [README.md](./README.md) and the target product). Completed work moves to [CHANGELOG.md](./CHANGELOG.md).
 
@@ -23,3 +23,5 @@
 - **Inline Console Undo** (`src/ui/Console.svelte`): Fold `UndoToast` deletion countdowns into `Console.svelte`.
 - **Feed DOM Virtualization** (`src/ui/Storymode.svelte`): Window `visible_feed` for 100+ turn sessions.
 - **Live Perchance A/B Harness**: Interactive prompt benchmarking against live Perchance endpoints.
+- **Physics Protocols Injection** (`src/definitions/dynamics-registry.js`, `src/simulation/prompts.js`): Wire somatic archetypes and dynamics trigger directives into compiled turn prompts.
+- **Narrative Slop & Macro-Shape Post-Processing** (`src/simulation/llm-output.js`): Wire prose slop linting, somatic-marker capping, and macro-shape auditing into the turn output pipeline / DevWing QA.

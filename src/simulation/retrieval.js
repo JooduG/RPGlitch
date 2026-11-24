@@ -53,7 +53,7 @@ export function extract_memory_candidates(past_text) {
 
 /**
  * Creates an in-memory ephemeral vector cache adapter.
- * Evicts the oldest entry (FIFO) when full — including when the write is an
+ * Evicts the oldest entry (FIFO) when full - including when the write is an
  * update to an existing key (no silent over-capacity growth).
  *
  * @param {number} [max_entries=200] - Memory ceiling

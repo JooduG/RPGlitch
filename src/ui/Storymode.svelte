@@ -108,7 +108,7 @@
     follow_raf = requestAnimationFrame(ease_follow);
   }
 
-  // Viewport lifecycle observers (scroll, wheel-anywhere, resize, DOM growth) — mounted once per viewport
+  // Viewport lifecycle observers (scroll, wheel-anywhere, resize, DOM growth) - mounted once per viewport
   $effect(() => {
     const vp = viewport_el;
     if (!vp) return;

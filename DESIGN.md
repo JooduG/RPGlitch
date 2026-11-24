@@ -129,7 +129,7 @@ This specification is the single source of truth for the RPGlitch visual token s
 
 ## Overview
 
-The interface is modeled as a subterranean Nordic research terminal — cool, deep, clinical, and restrained.
+The interface is modeled as a subterranean Nordic research terminal - cool, deep, clinical, and restrained.
 
 - **Atmosphere**: Abyssal four-stop backgrounds (`--color-background-gradient-1` through `--color-background-gradient-4`), subtle film grain calibrated to 10% opacity (`--opacity-ghost` with `--noise-url`), and diffused glassmorphic surfaces (`--blur-mist`).
 - **Imagery Direction**: Prefer macro/micro natural textures (ice crystals, mineral grain, fabric weave), low-saturation palettes harmonized with the active signature color, and atmospheric stillness over high-action composition.
@@ -145,10 +145,10 @@ The interface is modeled as a subterranean Nordic research terminal — cool, de
 
 Each font family owns a single exclusive territory so typefaces never compete for the same UI job:
 
-- **Structural Hierarchy (`--font-heading`)**: `"Ubuntu", sans-serif` — styled natively on bare `h1`–`h5` tags.
-- **Human Voice & Controls (`--font-sans`)**: `"Inter", sans-serif` — baseline body/prose (`body`, `<p>`, `type-body`) and interactive UI chrome (`type-interact`).
-- **Machine & Terminal Voice (`--font-mono`)**: `"JetBrains Mono", monospace` — section eyebrows (`<h6>`, `type-uppercase-label`), telemetry readouts, brackets, code, and numeric counters (`<code>`, `type-data`).
-- **One-Off Exception (`--font-display`)**: `"Satisfy", cursive` — reserved exclusively for story titles (`StoryboardTitle.svelte`). Do not introduce `font-display` into general UI chrome.
+- **Structural Hierarchy (`--font-heading`)**: `"Ubuntu", sans-serif` - styled natively on bare `h1`–`h5` tags.
+- **Human Voice & Controls (`--font-sans`)**: `"Inter", sans-serif` - baseline body/prose (`body`, `<p>`, `type-body`) and interactive UI chrome (`type-interact`).
+- **Machine & Terminal Voice (`--font-mono`)**: `"JetBrains Mono", monospace` - section eyebrows (`<h6>`, `type-uppercase-label`), telemetry readouts, brackets, code, and numeric counters (`<code>`, `type-data`).
+- **One-Off Exception (`--font-display`)**: `"Satisfy", cursive` - reserved exclusively for story titles (`StoryboardTitle.svelte`). Do not introduce `font-display` into general UI chrome.
 - **Offline & Iframe Resilience**: Every `--font-*` stack terminates in a native system fallback (`sans-serif`, `cursive`, `monospace`) so typography remains legible without layout breakage if external font CDNs are blocked inside sandboxed iframes.
 
 ### Usage Contract
@@ -156,12 +156,12 @@ Each font family owns a single exclusive territory so typefaces never compete fo
 Follow this decision order whenever styling text in a Svelte component:
 
 1. **Structural headings (`<h1>`–`<h6>`)**: Use the bare semantic tag with **zero** font, size, weight, tracking, or leading utilities. Pick the tag by document outline (`h1` view hero → `h2` panel/modal → `h3` card/section → `h4` body-sized subhead/speaker → `h5` compact header → `h6` mono uppercase eyebrow).
-2. **Inline-editable or clickable headings/prose**: Keep the semantic tag (`<h1>`–`<h6>`, `<p>`) mounted in both read and edit modes and place the `<input>`, `<textarea>`, or `<button>` _inside_ it. Form controls inherit all typographic properties (`font`, `letter-spacing`, `text-transform`, `text-shadow`, `color`) automatically—never duplicate heading classes onto an `<input>` or swap out the heading tag in edit mode.
+2. **Inline-editable or clickable headings/prose**: Keep the semantic tag (`<h1>`–`<h6>`, `<p>`) mounted in both read and edit modes and place the `<input>`, `<textarea>`, or `<button>` _inside_ it. Form controls inherit all typographic properties (`font`, `letter-spacing`, `text-transform`, `text-shadow`, `color`) automatically-never duplicate heading classes onto an `<input>` or swap out the heading tag in edit mode.
 3. **Non-heading UI elements**: Apply exactly one of the four everyday primitives directly on the leaf text element (never on a layout wrapper):
-   - `type-body` — dialogue prose, bios, empty-state copy, and standalone `<textarea>` composers.
-   - `type-interact` — buttons, dropdown triggers/items, context menu actions, toggles, sliders, and tooltips.
-   - `type-uppercase-label` — non-heading uppercase labels, accordion triggers, badges, and telemetry tags (visually identical to `<h6>`).
-   - `type-data` — uncapped monospace telemetry, prompt brackets, dev logs, timestamps, and tabular numeric meters.
+   - `type-body` - dialogue prose, bios, empty-state copy, and standalone `<textarea>` composers.
+   - `type-interact` - buttons, dropdown triggers/items, context menu actions, toggles, sliders, and tooltips.
+   - `type-uppercase-label` - non-heading uppercase labels, accordion triggers, badges, and telemetry tags (visually identical to `<h6>`).
+   - `type-data` - uncapped monospace telemetry, prompt brackets, dev logs, timestamps, and tabular numeric meters.
 4. **Allowed orthogonal modifiers**: Layer only semantic state or formatting on top of a base tag or `type-*` primitive: color/opacity, `italic`, `font-bold`, `truncate`/`line-clamp-*`, alignment, or a single size nudge (`text-sm` for dense secondary copy). Never hand-assemble raw `font-*` + `tracking-*` + `leading-*` + `uppercase` recipes in templates.
 
 ```css
@@ -437,7 +437,7 @@ Active T4 utilities compiled from this specification:
 Two-tier motion discipline governs animations:
 
 - **Tier 1 (UI Controls, < 300ms)**: Discrete interactions (buttons, toggles, menus, dialogs) stay under 300ms using `--ease-out` / `--ease-in-out` and `--scale-sink` (`0.97`).
-- **Tier 2 (Macro Card Choreography, 300ms–500ms)**: Spatial card flights, storyboard hand fan lifts (`--scale-lift`), and 3D profile flips use damped `--ease-drawer` / `--ease-out` curves — never bouncy spring overshoot.
+- **Tier 2 (Macro Card Choreography, 300ms–500ms)**: Spatial card flights, storyboard hand fan lifts (`--scale-lift`), and 3D profile flips use damped `--ease-drawer` / `--ease-out` curves - never bouncy spring overshoot.
 
 ```css
 /* --- T4: Realization (Interactive Utilities & Motion) --- */

@@ -13,7 +13,7 @@
  * - Declarative Rule System: Maps regex triggers to 4-style replacement buckets
  *   ('casual', 'lyrical', 'primal', 'clinical').
  * - Static Consumption: Consumers import the frozen tables directly from
- *   `@definitions` — no registration step, no import-order dependence.
+ *   `@definitions` - no registration step, no import-order dependence.
  * - Taxonomy Validation: Strict validation functions and frozen array constants.
  *
  * Layer Hierarchy:

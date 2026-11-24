@@ -358,17 +358,6 @@ export function canonicalize_field_key(field_name, entity_type = "character") {
 }
 
 /**
- * Historical entry point, kept for compatibility. Delegates to
- * canonicalize_field_key (superset: exotic-but-valid keys now resolve).
- * @param {string} field_name
- * @param {"character" | "fractal"} [entity_type="character"]
- * @returns {string | null}
- */
-export function resolve_flat_path(field_name, entity_type = "character") {
-  return canonicalize_field_key(field_name, entity_type);
-}
-
-/**
  * Returns the field atom for a (possibly alias, possibly human-shaped) key,
  * or null when the key addresses nothing enhanceable.
  * @param {string} entity_type
@@ -415,14 +404,6 @@ export function caretaker_brief(entity_type = "character") {
 }
 
 // ── 2c. Caretaker Enhancer Directives (derived - single home is the leaves) ──
-
-/**
- * Directives keyed by enhancer role, derived from FIELD_ATOMS so the words
- * exist in exactly one place (PROFILE_FIELDS leaves). Same 12 keys, same
- * strings, same order as the historical literal. Exported for Caretaker Core
- * in prompts and Profile Studio.
- */
-export const ENHANCER_DIRECTIVES = Object.freeze(Object.fromEntries(FIELD_ATOMS.map((atom) => [atom.enhancer, atom.directive])));
 
 // ── 3. Profile Section Layout Model ──────────────────────────────────────────
 

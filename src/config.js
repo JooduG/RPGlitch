@@ -170,14 +170,7 @@ export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "cl
 // [SECTION 3: DERIVED VIEWS & SINGLE-KEY POLICY - references §1/§2, plus a few homeless literals]
 // =============================================================================
 
-// ── 1. Telemetry ─────────────────────────────────────────────────────────────
-/** Telemetry and diagnostic ring buffer capacity caps */
-export const TELEMETRY_CAPS = Object.freeze({
-  DIRECTOR_LATENCY_POOL: 50, // Rolling window size for director execution latency tracking
-  DEVELOPER_LOG_ENTRIES: 500, // Maximum developer log buffer capacity before FIFO truncation
-});
-
-// ── 2. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
+// ── 1. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
 /**
  * Lean Floors per field (in string character length).
  * In Tier 1, every field reserves this minimum floor so core identity is never crowded out.

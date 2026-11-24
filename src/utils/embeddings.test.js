@@ -33,12 +33,15 @@ describe("embeddings.svelte.js", () => {
   });
 
   it("rejects blank inputs and wrong-dimension model outputs", async () => {
+    const warn_spy = vi.spyOn(console, "warn").mockImplementation(() => {});
     embeddings_engine._debug_set_pipeline(vi.fn().mockResolvedValue({ data: new Float32Array(10) }));
     expect(await embed("   ")).toBeNull();
     expect(await embed("bad dimension")).toBeNull();
+    warn_spy.mockRestore();
   });
 
   it("retries once when pipeline inference throws", async () => {
+    const warn_spy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const good_vec = new Float32Array(EMBEDDING_SPECS.DIMENSIONS).fill(0.1);
     const pipeline = vi.fn().mockRejectedValueOnce(new Error("transient")).mockResolvedValueOnce({ data: good_vec });
     embeddings_engine._debug_set_pipeline(pipeline);
@@ -46,5 +49,6 @@ describe("embeddings.svelte.js", () => {
     const result = await embed("retry me");
     expect(result).toHaveLength(EMBEDDING_SPECS.DIMENSIONS);
     expect(pipeline).toHaveBeenCalledTimes(2);
+    warn_spy.mockRestore();
   });
 });

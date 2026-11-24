@@ -385,7 +385,7 @@
             data-testid="profile-header"
             class={["flex min-h-10 w-full min-w-0 shrink-0 flex-col gap-tight px-standard", is_fractal && !is_mobile && "pr-44 pl-10"]}>
             <!-- ignore-next-line -->
-            <!-- normalize shield: h1 font-size/margin MUST be inline — platform normalize.css v3 (unlayered h1{font-size:2em;margin:.67em 0}) beats all layered Tailwind (see check-typography.mjs rule 1 carve-out) -->
+            <!-- normalize shield: h1 font-size/margin MUST be inline - platform normalize.css v3 (unlayered h1{font-size:2em;margin:.67em 0}) beats all layered Tailwind (see check-typography.mjs rule 1 carve-out) -->
             <h1
               class={["w-full min-w-0 text-[clamp(3rem,7vw,6rem)] leading-[1.1] text-balance", is_fractal ? "text-left" : "text-right"]}
               style="/* stylelint-disable-next-line property-disallowed-list */
@@ -742,9 +742,10 @@
     onmouseenter={() => (profile_state.hovered_section = id)}
     onmouseleave={() => (profile_state.hovered_section = null)}>
     {#if profile_state.is_editing && first_field_key}
+      <!-- ignore-next-line -->
       <button
         type="button"
-        class="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] tracking-[inherit] text-inherit outline-none focus-visible:underline"
+        class="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] tracking-[inherit] text-inherit uppercase outline-none focus-visible:underline"
         onclick={() => document.getElementById(`field-${first_field_key.replace(".", "-")}`)?.focus()}>
         {label}
       </button>

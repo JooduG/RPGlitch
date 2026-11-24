@@ -98,6 +98,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed
 
+- `src/config.js`, `src/data/records.js`, `src/definitions/dynamics-registry.js`, `src/media/audio.svelte.js`, `src/simulation/brackets.js`, & `src/simulation/llm-output.js`: Pruned 8 unreferenced exports (`TELEMETRY_CAPS`, `filter_entity_epistemics`, `PHYSICS_PROTOCOLS`, `suspend_audio`, `normalize_physical_entries`, `lint_narrative_slop`, `cap_somatic_markers`, `audit_macro_shape`) and un-exported internal `profile-taxonomy.js` helpers (`resolve_flat_path`, `ENHANCER_DIRECTIVES`); parked unwired features in `ROADMAP.md`.
+
 - `src/ui/primitives/` (`@primitives`), `src/ui/Storyboard.svelte`, & `src/ui/Storymode.svelte`: Retired the `@primitives` alias and deleted `src/ui/primitives/` along with inline `card_skeleton` snippets in `Storyboard.svelte` and `Storymode.svelte`.
 - `src/definitions/orion-nova-glitch.js` & `src/data/entity-repository.js`: Removed the `ORION_NOVA_GLITCH_STORY` premade story fixture and `seed_premade_story()` boot seeding.
 - `src/data/ledger.js`, `src/data/db.js`, `src/engine/{lifecycle,runner}.js`, & `src/ui/DevWing.svelte`: Removed the `mutation_ledger` table, `ledger.js` time-travel replay/query module, genesis/caretaker ledger writes, and the DevWing "Mutation Ledger" inspector.
