@@ -5,10 +5,11 @@
    */
   import { Collapsible } from "bits-ui";
 
-  let { label = "", default_open = false, open = $bindable(default_open), disabled = false, class: className = "", content_class = "", children } = $props();
+  let { label = "", class: className = "", content_class = "", children } = $props();
+  let open = $state(false);
 </script>
 
-<Collapsible.Root bind:open {disabled} class={["w-full", className]}>
+<Collapsible.Root bind:open class={["w-full", className]}>
   <Collapsible.Trigger
     class="group flex w-full cursor-pointer items-center justify-between py-tight text-left text-slate-400 transition-colors hover:text-pure-white disabled:cursor-not-allowed disabled:opacity-40">
     <span class="type-uppercase-label">{label}</span>

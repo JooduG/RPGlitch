@@ -12,7 +12,6 @@
     flipped = false,
     contain = false,
     landscape = false,
-    tint = false,
     fallback_class = "",
     overlay = null,
     class: className = "",
@@ -67,7 +66,6 @@
           ["relative", landscape ? "h-auto max-h-none w-auto max-w-full" : "h-auto max-h-full w-auto max-w-none"]
         : "absolute inset-0 h-full w-full object-cover",
         flipped && "-scale-x-100",
-        tint && "mix-blend-luminosity brightness-110",
       ]} />
   {/if}
 

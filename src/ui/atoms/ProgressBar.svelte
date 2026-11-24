@@ -5,11 +5,9 @@
   import { Progress } from "bits-ui";
   import { quartOut } from "svelte/easing";
   import { Tween } from "svelte/motion";
-  import Label from "./Label.svelte";
 
-  let { value = 0, max = 100, min = 0, label = "", value_label = "", variant = "full", class: className = "", style = "" } = $props();
+  let { value = 0, max = 100, min = 0, class: className = "" } = $props();
 
-  const label_id = $props.id();
   const is_indeterminate = $derived(value === null);
   const clamped_pct = $derived(is_indeterminate || max <= min ? 0 : clamp(((value - min) / (max - min)) * 100, 0, 100));
   const pct_tween = new Tween(0, { duration: 300, easing: quartOut });
@@ -19,26 +17,13 @@
   });
 </script>
 
-<div class={["flex w-full flex-col gap-tight", className]} {style}>
-  {#if label}
-    <Label id={label_id} class="w-full justify-between">
-      <span>{label}</span>
-      {#if !is_indeterminate}
-        <span class="type-data opacity-70">{Math.round(pct_tween.current)}%</span>
-      {/if}
-    </Label>
-  {/if}
-
+<div class={["flex w-full flex-col gap-tight", className]}>
   <Progress.Root
-    aria-labelledby={label ? label_id : undefined}
-    aria-valuetext={value_label || (is_indeterminate ? undefined : `${Math.round(clamped_pct)}%`)}
+    aria-valuetext={is_indeterminate ? undefined : `${Math.round(clamped_pct)}%`}
     {value}
     {min}
     {max}
-    class={[
-      "relative overflow-hidden border-none",
-      variant === "thin" ? "h-px w-full bg-slate-700/40" : "h-2.5 w-full rounded-full bg-slate-700/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]",
-    ]}>
+    class="relative h-2.5 w-full overflow-hidden rounded-full border-none bg-slate-700/50 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]">
     {#if is_indeterminate}
       <div
         class="absolute inset-y-0 w-1/3 animate-[progress-indeterminate_var(--transition-duration-slow)_var(--ease-in-out)_infinite] rounded-full bg-electric-cyan shadow-[0_0_8px_var(--color-electric-cyan)]"

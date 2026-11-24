@@ -15,7 +15,6 @@
     disabled = false,
     cover = false,
     square = false,
-    full_width = false,
     flank = false,
     class: className = "",
     actions = [],
@@ -26,10 +25,6 @@
   let element = $state(null);
   /** @type {Map<Function, { result: any, param: any }>} */
   const mounted_actions = new Map();
-
-  export function focus() {
-    element?.focus();
-  }
 
   const is_flank = $derived(
     flank ||
@@ -44,7 +39,8 @@
       size === "small" ?
         "size-4 p-0"
       : "size-12 p-0"
-    : [size === "small" ? "h-8 px-tight" : "h-10 px-standard", full_width && "w-full"],
+    : size === "small" ? "h-8 px-tight"
+    : "h-10 px-standard",
   );
 
   // Reconcile actions by function identity so array literals don't tear down active tooltips/animations
@@ -100,7 +96,6 @@
     variant === "invisible" && "bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125",
     variant === "bare" && "border-none bg-transparent p-0 outline-none",
     square && variant !== "bare" && "aspect-square shrink-0",
-    full_width && !square && variant !== "bare" && "flex-1",
     cover && variant !== "bare" && "absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!",
     busy && "pointer-events-none cursor-wait brightness-90 grayscale-30",
     is_flank &&

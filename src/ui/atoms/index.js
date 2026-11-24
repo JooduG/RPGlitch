@@ -10,6 +10,6 @@ export { default as ScrollArea } from "./ScrollArea.svelte";
 export { default as Shimmer } from "./Shimmer.svelte";
 export { default as Slider } from "./Slider.svelte";
 export { default as Toggle } from "./Toggle.svelte";
-export { hide_tooltip, pin_tooltip_menu, set_tooltip_suppressed, tooltip, tooltip_state, unpin_tooltip, default as Tooltip } from "./Tooltip.svelte";
+export { hide_tooltip, pin_tooltip_menu, set_tooltip_suppressed, tooltip, unpin_tooltip, default as Tooltip } from "./Tooltip.svelte";
 export { default as Typewriter } from "./Typewriter.svelte";
 export { default as StyleTile } from "./StyleTile.svelte";

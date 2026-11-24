@@ -1,9 +1,10 @@
 <script>
   /**
-   * @file src/ui/molecules/StyleTile.svelte
+   * @file src/ui/atoms/StyleTile.svelte
    * Unified signature-bordered style tile used by Profile, EntityCard, and prologue EntityTrio.
    */
-  import { Avatar, tooltip } from "@atoms";
+  import Avatar from "./Avatar.svelte";
+  import { tooltip } from "./Tooltip.svelte";
 
   /**
    * @typedef {Object} Props

@@ -3,7 +3,7 @@
    * @file src/ui/atoms/Tooltip.svelte
    * Global Tooltip & Pinned Preview Portal System powered by bits-ui Tooltip and Svelte 5.
    */
-  export const tooltip_state = $state({
+  const tooltip_state = $state({
     text: /** @type {string | null} */ (null),
     preview: /** @type {any} */ (null),
     pinned: false,
@@ -55,16 +55,14 @@
     }
   }
 
-  export function show_tooltip(target, text, options = null) {
+  function show_tooltip(target, text, options = null) {
     if (is_suppressed || tooltip_state.pinned) return;
-    const is_opts = options && typeof options === "object" && ("preview" in options || "delay" in options || "side" in options || "placement" in options);
-    const opts = is_opts ? options : { preview: options };
-    const resolved_preview = opts?.preview ?? null;
+    const resolved_preview = options?.preview ?? null;
     if (!text && !resolved_preview) return;
 
-    const side = opts?.placement || opts?.side || "top";
+    const side = options?.placement || options?.side || "top";
     const delay =
-      typeof opts?.delay === "number" ? opts.delay
+      typeof options?.delay === "number" ? options.delay
       : resolved_preview ? 120
       : 400;
 

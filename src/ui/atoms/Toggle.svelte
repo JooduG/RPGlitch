@@ -1,49 +1,28 @@
 <!-- src/ui/atoms/Toggle.svelte -->
 <script>
-  import { use_actions } from "@utils";
   import { Switch } from "bits-ui";
   import Label from "./Label.svelte";
 
-  let {
-    value = $bindable(false),
-    label = "",
-    size = "md",
-    disabled = false,
-    busy = false,
-    always_signature = false,
-    actions = [],
-    class: className = "",
-    style = "",
-    onchange = undefined,
-    ...rest
-  } = $props();
+  let { value = $bindable(false), label = "", size = "md", disabled = false, class: className = "", onchange = undefined, ...rest } = $props();
 
   const control_id = $props.id();
-  const is_locked = $derived(disabled || busy);
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);
 </script>
 
 <div
   class={[
     "group/toggle relative inline-flex cursor-pointer items-center gap-standard transition-opacity duration-300 ease-in-out select-none",
-    is_locked && "cursor-default! opacity-30",
-    busy && "cursor-wait! brightness-90 grayscale-50 *:pointer-events-none",
+    disabled && "cursor-default! opacity-30",
     className,
   ]}
-  aria-busy={busy}
-  aria-disabled={is_locked}
-  {style}
-  use:use_actions={actions}>
-  <Switch.Root bind:checked={value} disabled={is_locked} onCheckedChange={(checked) => onchange?.(checked)} id={control_id} {...rest}>
+  aria-disabled={disabled}>
+  <Switch.Root bind:checked={value} {disabled} onCheckedChange={(checked) => onchange?.(checked)} id={control_id} {...rest}>
     {#snippet child({ props })}
       <button
         {...props}
         aria-label={label || rest["aria-label"] || undefined}
         class={[
-          "group relative box-border shrink-0 cursor-pointer rounded-full backdrop-blur-sm transition-[background-color,box-shadow,filter,transform] duration-fast ease-out group-hover/toggle:brightness-125 focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-slate-600 active:scale-sink disabled:cursor-default data-disabled:cursor-default data-[state=checked]:group-hover/toggle:brightness-125",
-          always_signature ? "bg-(--signature-color,#555d66)" : (
-            "border border-white/10 bg-neutral-900/60 data-[state=checked]:border-transparent data-[state=checked]:bg-(--signature-color,#555d66)"
-          ),
+          "group relative box-border shrink-0 cursor-pointer rounded-full border border-white/10 bg-neutral-900/60 backdrop-blur-sm transition-[background-color,box-shadow,filter,transform] duration-fast ease-out group-hover/toggle:brightness-125 focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-slate-600 active:scale-sink disabled:cursor-default data-disabled:cursor-default data-[state=checked]:border-transparent data-[state=checked]:bg-(--signature-color,#555d66) data-[state=checked]:group-hover/toggle:brightness-125",
           size === "small" ? "h-4 w-7" : "h-6 w-10",
         ]}
         data-testid={test_id}>
@@ -64,7 +43,7 @@
   </Switch.Root>
 
   {#if label}
-    <Label for={control_id} disabled={is_locked} class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125">
+    <Label for={control_id} {disabled} class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125">
       {label}
     </Label>
   {/if}
