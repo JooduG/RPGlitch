@@ -233,7 +233,6 @@
           owner={description_owner || entity}
           entities={display_entities}
           compact={true}
-          sort_by_length={false}
           on_select={(ent) => app.open_profile(ent)} />
       </div>
     {:else if show_description}

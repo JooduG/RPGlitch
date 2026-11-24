@@ -355,7 +355,6 @@
                     bind:value={profile_state.char[style_cfg.key]}
                     items={style_cfg.items}
                     label={style_cfg.aria_label}
-                    uppercase={false}
                     matchWidth={false}
                     dropdownWidth="w-80"
                     align="center"
@@ -440,7 +439,6 @@
                       bind:value={profile_state.char[style_cfg.key]}
                       items={style_cfg.items}
                       label={style_cfg.aria_label}
-                      uppercase={false}
                       matchWidth={style_cfg.match_width_mobile}
                       class="w-full max-w-sm"
                       onchange={() => profile_state.mark_mutated()} />

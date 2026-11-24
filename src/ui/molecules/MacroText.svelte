@@ -6,10 +6,10 @@
   import { hide_tooltip, pin_tooltip_menu, tooltip } from "@atoms";
   import { get_signature_color, resolve_display_macro_segments } from "@utils";
 
-  let { text = "", owner = null, entities = {}, segment = null, fallback_color = "var(--color-frozen)", on_select = null } = $props();
+  let { text = "", owner = null, entities = {}, segment = null, on_select = null } = $props();
 
   const segments = $derived(segment ? [segment] : resolve_display_macro_segments(String(text ?? ""), owner, entities));
-  const color_of = (seg) => (seg.entity ? get_signature_color(seg.entity, fallback_color) : fallback_color);
+  const color_of = (seg) => (seg.entity ? get_signature_color(seg.entity, "var(--color-frozen)") : "var(--color-frozen)");
 
   function open_handle_menu(e, target_entity, fallback_text = "") {
     e.preventDefault();

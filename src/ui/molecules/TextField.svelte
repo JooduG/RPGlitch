@@ -9,9 +9,9 @@
    */
   import { Button, Icon, Shimmer, tooltip } from "@atoms";
   import { motion } from "@media";
-  import { auto_resize, parse_markdown, use_actions } from "@utils";
+  import { auto_resize, parse_markdown } from "@utils";
   import { onDestroy, untrack } from "svelte";
-  import { fade, slide } from "svelte/transition";
+  import { fade } from "svelte/transition";
 
   let {
     value = $bindable(""),
@@ -21,23 +21,17 @@
     busy = false,
     disabled = false,
     active = false,
-    weight = 0,
-    always_expanded = false,
-    collapsed = false,
     variant = "default",
     signature_color = "#475569",
     size = "sm",
     class: className = "",
-    style = "",
     header_actions = null,
     status = null,
     inline_snippet = null,
     content = null,
-    actions = [],
     oninput = undefined,
     onfocus = undefined,
     onblur = undefined,
-    onheaderclick = undefined,
     ...rest
   } = $props();
 
@@ -60,10 +54,8 @@
   );
   const paragraphs = $derived(!is_edit && !content && value && String(value).trim() ? parse_markdown(value) : []);
   const is_expanded = $derived(
-    (is_focused || is_sync_focused || active || busy || always_expanded || is_edit || Boolean(status)) &&
-      (Boolean(header_actions) || Boolean(status) || is_edit),
+    (is_focused || is_sync_focused || active || busy || is_edit || Boolean(status)) && (Boolean(header_actions) || Boolean(status) || is_edit),
   );
-  const intensity = $derived(weight / 10);
 
   // --- FOCUS & SYNC COUNT ---
   function set_focused(next, event = null) {
@@ -175,8 +167,8 @@
     "group/textfield relative flex h-full w-full flex-col overflow-hidden rounded-xl border border-solid border-transparent transition-[border-color,background] duration-300 ease-in-out before:pointer-events-none before:absolute before:inset-0 before:rounded-[inherit] before:mask-border-solid before:p-px before:transition-opacity before:duration-300 before:content-['']!",
     variant === "bare" && "border-none! bg-transparent! shadow-none! before:hidden!",
     is_expanded ?
-      "overflow-visible! bg-[color-mix(in_srgb,var(--color-dev-accent)_calc(10%+22%*var(--state-weight-intensity)),rgb(23_23_23/0.65))] before:bg-[linear-gradient(to_bottom,var(--color-dev-accent),color-mix(in_srgb,var(--color-dev-accent),transparent_60%)_30%,transparent_80%)] before:opacity-100"
-    : "bg-[color-mix(in_srgb,var(--color-dev-accent)_calc(4%+16%*var(--state-weight-intensity)),rgb(23_23_23/0.6))] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--color-dev-accent)_60%),transparent_50%)] before:opacity-[calc(0.2+0.6*var(--state-weight-intensity))]",
+      "overflow-visible! bg-[color-mix(in_srgb,var(--color-dev-accent)_10%,rgb(23_23_23/0.65))] before:bg-[linear-gradient(to_bottom,var(--color-dev-accent),color-mix(in_srgb,var(--color-dev-accent),transparent_60%)_30%,transparent_80%)] before:opacity-100"
+    : "bg-[color-mix(in_srgb,var(--color-dev-accent)_4%,rgb(23_23_23/0.6))] before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--color-dev-accent)_60%),transparent_50%)] before:opacity-20",
     is_disabled && "cursor-not-allowed opacity-30",
     busy && "cursor-wait *:pointer-events-none",
     className,
@@ -185,24 +177,16 @@
   data-busy={busy ? "true" : undefined}
   data-variant={variant}
   data-disabled={is_disabled ? "true" : undefined}
-  style="{style}; --color-dev-accent: {signature_color}; --state-weight-intensity: {intensity};"
+  style="--color-dev-accent: {signature_color};"
   onfocusin={handle_focus_in}
   onfocusout={handle_focus_out}
-  use:use_actions={actions}
   aria-busy={busy}
   aria-disabled={is_disabled}>
   {#if variant !== "bare"}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      onclick={onheaderclick}
-      class={[
-        "relative top-0 z-10 flex h-auto min-h-6 flex-nowrap items-center justify-between overflow-hidden rounded-t-xl bg-(--color-dev-accent) px-3 py-1 whitespace-nowrap",
-        collapsed && "rounded-b-xl",
-        onheaderclick ? "cursor-pointer" : "cursor-default",
-      ]}>
+      class="relative top-0 z-10 flex h-auto min-h-6 cursor-default flex-nowrap items-center justify-between overflow-hidden rounded-t-xl bg-(--color-dev-accent) px-3 py-1 whitespace-nowrap">
       {#if busy}
-        <Shimmer color={signature_color || "var(--color-electric-cyan)"} class={collapsed ? "rounded-xl" : "rounded-t-xl"} />
+        <Shimmer color={signature_color || "var(--color-electric-cyan)"} class="rounded-t-xl" />
       {/if}
       {#if is_expanded}
         {#if status}
@@ -225,61 +209,59 @@
     </div>
   {/if}
 
-  {#if !collapsed}
-    <div transition:slide={{ duration: motion.is_reduced ? 0 : 250 }} class="overflow-hidden">
-      {#if is_edit}
-        <textarea
-          {...rest}
-          class={[
-            "relative z-10 m-0 box-border block min-h-10 w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent overflow-x-hidden overflow-y-auto border-none bg-transparent p-standard text-left type-body text-wrap text-frisk outline-none placeholder:text-slate-400/60 placeholder:italic [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-xl [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb:hover]:bg-slate-50 [&::-webkit-scrollbar-track]:bg-transparent",
-            font_size_class,
-            busy && "cursor-wait",
-          ]}
-          data-mode="edit"
-          bind:value
-          {placeholder}
-          onkeydown={handle_textarea_keydown}
-          {oninput}
-          disabled={is_disabled}
-          use:auto_resize={{ sync_id }}
-          data-sync-id={sync_id}></textarea>
-      {:else}
-        <div
-          {...rest}
-          class={[
-            "relative z-10 box-border min-h-10 w-full scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent overflow-x-hidden overflow-y-auto p-standard text-left type-body text-wrap text-slate-200 outline-none select-text",
-            font_size_class,
-            busy ? "cursor-wait" : "cursor-text",
-          ]}
-          data-mode="view"
-          tabindex="0"
-          role="textbox"
-          aria-readonly="true">
-          {#if content}
-            {@render content()}
-          {:else if value && String(value).trim()}
-            {#each paragraphs as p, pIdx (pIdx)}
-              <p class="m-0 mb-tight last:mb-0">
-                {#each p as token, tIdx (tIdx)}
-                  {#if token.type === "text"}
-                    {@render token_content(token.content)}
-                  {:else if token.type === "strong"}
-                    <strong class="font-bold text-(--color-dev-accent)">{@render token_content(token.content)}</strong>
-                  {:else if token.type === "em"}
-                    <em class="italic opacity-30">{@render token_content(token.content)}</em>
-                  {:else if token.type === "strong-em"}
-                    <strong class="font-extrabold text-(--color-dev-accent)"><em class="italic opacity-30">{@render token_content(token.content)}</em></strong>
-                  {:else if token.type === "quote"}
-                    <span class="type-body">"{@render token_content(token.content)}"</span>
-                  {/if}
-                {/each}
-              </p>
-            {/each}
-          {:else}
-            <span class="font-normal text-slate-400/60 italic">{placeholder}</span>
-          {/if}
-        </div>
-      {/if}
-    </div>
-  {/if}
+  <div class="overflow-hidden">
+    {#if is_edit}
+      <textarea
+        {...rest}
+        class={[
+          "relative z-10 m-0 box-border block min-h-10 w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent overflow-x-hidden overflow-y-auto border-none bg-transparent p-standard text-left type-body text-wrap text-frisk outline-none placeholder:text-slate-400/60 placeholder:italic [&::-webkit-scrollbar]:h-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-xl [&::-webkit-scrollbar-thumb]:bg-slate-700 [&::-webkit-scrollbar-thumb:hover]:bg-slate-50 [&::-webkit-scrollbar-track]:bg-transparent",
+          font_size_class,
+          busy && "cursor-wait",
+        ]}
+        data-mode="edit"
+        bind:value
+        {placeholder}
+        onkeydown={handle_textarea_keydown}
+        {oninput}
+        disabled={is_disabled}
+        use:auto_resize={{ sync_id }}
+        data-sync-id={sync_id}></textarea>
+    {:else}
+      <div
+        {...rest}
+        class={[
+          "relative z-10 box-border min-h-10 w-full scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent overflow-x-hidden overflow-y-auto p-standard text-left type-body text-wrap text-slate-200 outline-none select-text",
+          font_size_class,
+          busy ? "cursor-wait" : "cursor-text",
+        ]}
+        data-mode="view"
+        tabindex="0"
+        role="textbox"
+        aria-readonly="true">
+        {#if content}
+          {@render content()}
+        {:else if value && String(value).trim()}
+          {#each paragraphs as p, pIdx (pIdx)}
+            <p class="m-0 mb-tight last:mb-0">
+              {#each p as token, tIdx (tIdx)}
+                {#if token.type === "text"}
+                  {@render token_content(token.content)}
+                {:else if token.type === "strong"}
+                  <strong class="font-bold text-(--color-dev-accent)">{@render token_content(token.content)}</strong>
+                {:else if token.type === "em"}
+                  <em class="italic opacity-30">{@render token_content(token.content)}</em>
+                {:else if token.type === "strong-em"}
+                  <strong class="font-extrabold text-(--color-dev-accent)"><em class="italic opacity-30">{@render token_content(token.content)}</em></strong>
+                {:else if token.type === "quote"}
+                  <span class="type-body">"{@render token_content(token.content)}"</span>
+                {/if}
+              {/each}
+            </p>
+          {/each}
+        {:else}
+          <span class="font-normal text-slate-400/60 italic">{placeholder}</span>
+        {/if}
+      </div>
+    {/if}
+  </div>
 </div>

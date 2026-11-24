@@ -56,19 +56,16 @@
   import { get_signature_color, match_entity_in_roster, parse_bracket_display_flags, resolve_display_macro_segments } from "@utils";
   import MacroText from "./MacroText.svelte";
 
-  let { record = null, entries = [], owner = null, entities = {}, compact = false, sort_by_length = true, on_select = null } = $props();
+  let { record = null, entries = [], owner = null, entities = {}, compact = false, on_select = null } = $props();
 
   const normalized_entries = $derived.by(() => {
     const source =
       Array.isArray(entries) && entries.length > 0 ?
         entries.map((item) => ({ key: item.key, raw: item.value, force_hidden: Boolean(item.is_hidden), quadrant: item.quadrant || null }))
       : record && typeof record === "object" ?
-        (sort_by_length ? Object.entries(record).sort((a, b) => String(a[1]).length - String(b[1]).length) : Object.entries(record)).map(([key, val]) => ({
-          key,
-          raw: val,
-          force_hidden: false,
-          quadrant: null,
-        }))
+        Object.entries(record)
+          .sort((a, b) => String(a[1]).length - String(b[1]).length)
+          .map(([key, val]) => ({ key, raw: val, force_hidden: false, quadrant: null }))
       : [];
 
     const out = [];

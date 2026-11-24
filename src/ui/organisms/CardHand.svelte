@@ -319,7 +319,6 @@
 
 <Modal
   bind:open={show_import_modal}
-  variant="bare"
   class="relative max-h-[92dvh] w-[clamp(26rem,92vw,44rem)] max-w-2xl overflow-y-auto rounded-standard shadow-standard"
   on_close={() => {
     show_import_modal = false;

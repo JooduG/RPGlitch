@@ -179,7 +179,6 @@
       bind:value={profile_state.char.visual_style}
       items={VISUAL_STYLE_OPTIONS}
       label="Select Visual Style"
-      uppercase={false}
       matchWidth={false}
       dropdownWidth="w-80"
       align="start"

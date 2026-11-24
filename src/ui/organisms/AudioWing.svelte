@@ -66,7 +66,6 @@
       items={dropdown_items}
       disabled={!profile_state.is_editing || dropdown_items.length === 0}
       label={dropdown_items.length === 0 ? "Loading Voices..." : "Select Voice"}
-      uppercase={false}
       matchWidth />
 
     <Button

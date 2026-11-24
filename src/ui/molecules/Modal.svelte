@@ -7,9 +7,6 @@
   import { Dialog } from "bits-ui";
 
   let {
-    busy = false,
-    blur = true,
-    is_pass_through = false,
     dismissible = true,
     open = $bindable(true),
     layer = "modal",
@@ -17,7 +14,6 @@
     class: className = "",
     on_close = () => {},
     children = null,
-    actions = [],
     ...rest
   } = $props();
 
@@ -38,7 +34,7 @@
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
         {#if open}
-          <Backdrop {...overlayProps} onclick={dismiss} {layer} {animate} is_blurred={blur} busy={Boolean(busy)} {is_pass_through} {actions}>
+          <Backdrop {...overlayProps} onclick={dismiss} {layer} {animate}>
             <Dialog.Content
               {...rest}
               forceMount

@@ -16,19 +16,13 @@
     open = $bindable(false),
     busy = false,
     confirm_label = "Confirm",
-    ok_label = "OK",
-    input_value = $bindable(""),
-    show_input = false,
-    input_placeholder = "",
     on_confirm = () => {},
     on_cancel = () => {},
     footer = null,
   } = $props();
 
   const action = $derived(
-    type === "confirm" ?
-      { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
-    : { variant: /** @type {"primary"} */ ("primary"), label: ok_label },
+    type === "confirm" ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label } : { variant: /** @type {"primary"} */ ("primary"), label: "OK" },
   );
 
   const duration_in = resolve_ms("--transition-duration-standard", 300);
@@ -87,19 +81,6 @@
                       {message}
                     </p>
                   </AlertDialog.Description>
-
-                  {#if show_input}
-                    <input
-                      bind:value={input_value}
-                      placeholder={input_placeholder}
-                      class="w-full rounded-md border border-white/20 bg-black/40 px-3 py-tight text-base text-slate-50 outline-none focus:border-white/40"
-                      onkeydown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handle_confirm();
-                        }
-                      }} />
-                  {/if}
 
                   <div class="flex w-full justify-end gap-standard outline-none">
                     {#if footer}

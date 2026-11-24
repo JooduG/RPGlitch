@@ -90,7 +90,7 @@
 </script>
 
 {#snippet PromptField(label, text, extra_class = "")}
-  <TextField value={text.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)" class={extra_class}>
+  <TextField value={text.trim()} is_edit={false} signature_color="var(--color-frozen)" class={extra_class}>
     {#snippet status()}
       <span class="type-uppercase-label text-frisk">{label}</span>
     {/snippet}
@@ -112,7 +112,6 @@
 <!-- 1. LIGHTBOX PREVIEW MODAL -->
 <Modal
   open={preview_state.active}
-  variant="bare"
   layer="image"
   on_close={close_image_preview}
   class="flex max-h-[95dvh] flex-col items-stretch justify-center gap-standard overflow-hidden border-none bg-transparent shadow-none md:flex-row md:gap-column-unit">
@@ -193,7 +192,6 @@
         <Dropdown
           items={profile_options}
           label="Use as Profile Picture"
-          uppercase={false}
           matchWidth
           disabled={profile_options.every((o) => o.disabled)}
           onchange={handle_use_as_profile}
@@ -214,7 +212,6 @@
 <!-- 2. THREE-CARD REGENERATE PICKER MODAL -->
 <Modal
   open={image_picker.picker_open}
-  variant="bare"
   layer="image"
   dismissible={false}
   class="relative flex min-h-[60dvh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-tight py-6">
