@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/ui/organisms/ChatBubble.svelte`: Replaced the `<Shimmer />` placeholder during pre-token generation with a blinking block cursor (`▌`) matching `Typewriter.svelte` (respecting `motion.is_reduced`).
+
 - `src/ui/atoms/ScrollArea.svelte`: Changed `fixed_scrollbar` positioning from `fixed` to `fixed!` so `position: fixed !important` overrides `bits-ui`'s inline `position: absolute`, pinning the `Storymode` scrollbar to the rightmost viewport edge.
 - `src/ui/organisms/ChatBubble.svelte`: Removed the signature-color `mix-blend-color` overlay from the `speaker_gutter` avatar button.
 - `src/engine/chrono.svelte.js`, `src/ui/organisms/Console.svelte`, `src/state/execution.svelte.js`, & `src/ui/atoms/Icon.svelte`: Consolidated **Interrupt Generation** and **Unstick Simulation** into a single **Stop Generation** button (`octagon` icon) backed by `ChronoEngine.abort()` with automatic 1500ms escalation to `#force_recover()`, moved turn/image lock resets out of `Console.svelte` into `ChronoEngine`, and purged the unused `interrupt` icon and `abort_stream()` alias.

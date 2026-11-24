@@ -5,11 +5,11 @@
    */
   import { resolve_entity_style_tiles } from "@definitions";
   import { app, execution, session } from "@state";
-  import { Audio, get_cadence_rate, resolve_voice_uri } from "@media";
+  import { Audio, get_cadence_rate, motion, resolve_voice_uri } from "@media";
   import { StoryboardTitle, TextField } from "@molecules";
   import { open_context_menu } from "./ContextMenu.svelte";
   import EntityCard from "./EntityCard.svelte";
-  import { Avatar, Button, Icon, Shimmer, StyleTile, Typewriter, tooltip, Accordion } from "@atoms";
+  import { Avatar, Button, Icon, StyleTile, Typewriter, tooltip, Accordion } from "@atoms";
   import { parse_message, render_think_html, resolve_speaking_style } from "@simulation";
   import { entity_avatar_props, get_signature_color, safe_html } from "@utils";
 
@@ -319,9 +319,13 @@
             class="type-body text-pretty text-pure-white [&_.dialogue]:text-[1.12em] [&_.dialogue]:font-medium [&_em]:italic [&_em]:opacity-75 [&_p]:mb-standard [&_p:last-child]:mb-0 [&_strong]:font-bold [&_strong]:text-(--signature-color,var(--color-slate-400)) [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]"
             style:content-visibility={!should_use_typewriter ? "auto" : undefined}>
             {#if !has_display_text}
-              <div class="relative h-6 w-24 overflow-hidden rounded">
-                <Shimmer color={signature_color || "var(--color-electric-cyan)"} />
-              </div>
+              <span
+                role="status"
+                aria-label="Generating response"
+                class={[
+                  "inline-block text-(--signature-color)",
+                  !motion.is_reduced && "animate-[blink_var(--transition-duration-slow,500ms)_step-end_infinite]",
+                ]}>▌</span>
             {:else if should_use_typewriter}
               <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} show_cursor={true} cursor_style="block" />
             {:else}
@@ -337,3 +341,16 @@
     {/if}
   </div>
 {/if}
+
+<style>
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0;
+    }
+  }
+</style>
