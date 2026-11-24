@@ -125,15 +125,6 @@ async function conclude_story(id) {
 }
 
 /**
- * Rewinds a concluded story back to active (non-concluded) state.
- * @param {string | number} id
- * @returns {Promise<number>}
- */
-async function rewind_story(id) {
-  return await db.stories.update(coerce_numeric_key(id), { is_concluded: 0, updated_at: Date.now() });
-}
-
-/**
  * Deletes a story and cascades to its simulation logs.
  * @param {string | number} id
  * @returns {Promise<void>}
@@ -151,7 +142,6 @@ export const stories = {
   update_cast,
   active_entity_ids,
   conclude: conclude_story,
-  rewind: rewind_story,
   delete: delete_story,
 };
 

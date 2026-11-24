@@ -33,7 +33,7 @@ vi.mock("@media", async (importOriginal) => {
 
 vi.mock("@utils", async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, embeddings_engine: { load_model: vi.fn().mockResolvedValue() } };
+  return { ...actual };
 });
 
 vi.mock("@data", async (importOriginal) => {

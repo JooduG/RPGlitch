@@ -15,5 +15,4 @@ export {
   refine_image_prompt,
   run_mock,
 } from "./lifecycle.js";
-export { get_transport } from "./transport.js";
 export { install_freeze_watchdog } from "./watchdog.js";

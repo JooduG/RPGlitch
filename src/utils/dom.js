@@ -439,49 +439,6 @@ export function guarded_transition(callback, options = {}) {
 // ============================================================================
 
 /**
- * Composes multiple Svelte actions on a single node and flags `data-kinetic` when kinetic actions are active.
- * @param {HTMLElement} node
- * @param {Array<any>} actions
- */
-export function use_actions(node, actions) {
-  /** @type {Map<any, any>} */
-  let instances = new Map();
-
-  /** @param {Array<any>} new_actions */
-  function update(new_actions) {
-    const next_instances = new Map();
-    let has_kinetic = false;
-
-    new_actions.forEach((item) => {
-      if (!item) return;
-
-      const [action, params] = Array.isArray(item) ? item : [item, undefined];
-      if (!action) return;
-      if (action.is_kinetic) has_kinetic = true;
-
-      const existing = instances.get(action);
-      if (existing) {
-        existing.update?.(params);
-        next_instances.set(action, existing);
-        instances.delete(action);
-      } else {
-        next_instances.set(action, action(node, params));
-      }
-    });
-
-    if (has_kinetic) node.setAttribute("data-kinetic", "true");
-    else node.removeAttribute("data-kinetic");
-
-    instances.forEach((result) => result?.destroy?.());
-    instances = next_instances;
-  }
-
-  update(actions);
-
-  return { update, destroy: () => instances.forEach((result) => result?.destroy?.()) };
-}
-
-/**
  * Injects DOMPurify-sanitized HTML fragments into `node` without `innerHTML`.
  * @param {HTMLElement} node
  * @param {string | null | undefined} content

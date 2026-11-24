@@ -3,14 +3,14 @@
    * @file src/ui/organisms/Console.svelte
    * Persistent glass pill console: storyboard bar, storymode composer, settings control panel, and story conclusion controls.
    */
-  import { Accordion, Backdrop, Button, Icon, ProgressBar, ScrollArea, Shimmer, Slider, Toggle, tooltip } from "@atoms";
+  import { Accordion, Backdrop, Button, Icon, ScrollArea, Shimmer, Slider, Toggle, tooltip } from "@atoms";
   import { export_story_record, reset_database, stories } from "@data";
   import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
   import { Audio, pulse, roll, shimmy, stab } from "@media";
   import { Dialog, TextField } from "@molecules";
   import StoryLibrary from "./StoryLibrary.svelte";
   import { app, execution, session } from "@state";
-  import { download_text_file, embeddings_engine, get_signature_color } from "@utils";
+  import { download_text_file, get_signature_color } from "@utils";
   import { tick } from "svelte";
 
   const PROLOGUE_PHRASES = ["INITIALIZING SIMULATION...", "SETTING THE STAGE...", "ONCE UPON A TIMING...", "WRITING PROLOGUE..."];
@@ -47,11 +47,8 @@
   const panel_open = $derived(app.control_panel_open);
   const has_text = $derived(value.length > 0);
   const is_muted = $derived(Audio.volume === 0 || explicitly_muted);
-  const models_ready = $derived(embeddings_engine.model_ready);
   const has_active_story = $derived(Boolean(session.active_id));
-  const ready_to_begin = $derived(
-    has_active_story || (app.selected_ai !== null && app.selected_user !== null && app.selected_fractal !== null && models_ready),
-  );
+  const ready_to_begin = $derived(has_active_story || (app.selected_ai !== null && app.selected_user !== null && app.selected_fractal !== null));
   const send_blocked = $derived(execution.busy || execution.loading || panel_open);
   const signature_color = $derived(get_signature_color(session.active_user || app.selected_user, "var(--color-gunmetal)"));
 
@@ -286,28 +283,24 @@
 {#snippet storyboard_bar()}
   {@render settings_gear()}
 
-  {#if !models_ready && !has_active_story}
-    <ProgressBar value={embeddings_engine.load_progress} class="flex-1" />
-  {:else}
-    <Button
-      class="group touch-target-coarse flex-1"
-      data-ready={ready_to_begin}
-      variant="invisible"
-      busy={!ready_to_begin || execution.loading}
-      disabled={panel_open}
-      onclick={handle_primary_storyboard_click}
-      actions={[pulse]}>
-      <h6
-        class={[
-          "whitespace-nowrap transition duration-standard",
-          ready_to_begin ?
-            "text-emerald-green [text-shadow:0_0_0.5rem_color-mix(in_srgb,var(--color-emerald-green)_25%,transparent)] group-hover:scale-105 group-hover:brightness-125"
-          : "text-slate-300",
-        ]}>
-        {label_text}
-      </h6>
-    </Button>
-  {/if}
+  <Button
+    class="group touch-target-coarse flex-1"
+    data-ready={ready_to_begin}
+    variant="invisible"
+    busy={!ready_to_begin || execution.loading}
+    disabled={panel_open}
+    onclick={handle_primary_storyboard_click}
+    actions={[pulse]}>
+    <h6
+      class={[
+        "whitespace-nowrap transition duration-standard",
+        ready_to_begin ?
+          "text-emerald-green [text-shadow:0_0_0.5rem_color-mix(in_srgb,var(--color-emerald-green)_25%,transparent)] group-hover:scale-105 group-hover:brightness-125"
+        : "text-slate-300",
+      ]}>
+      {label_text}
+    </h6>
+  </Button>
 
   <Button
     flank={true}

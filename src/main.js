@@ -10,7 +10,7 @@ import { save_session_checkpoint, seed_premades, set_versionchange_quiesce } fro
 import { install_freeze_watchdog } from "@engine";
 import { Audio, sweep_stale_ghosts } from "@media";
 import { app, execution, session } from "@state";
-import { embeddings_engine, ensure_theme_tokens, install_environment_hardening, sanitize_to_fragment } from "@utils";
+import { ensure_theme_tokens, install_environment_hardening, sanitize_to_fragment } from "@utils";
 import { mount } from "svelte";
 
 let has_initialized = false;
@@ -41,8 +41,6 @@ export const app_bootstrap = {
       ensure_theme_tokens();
 
       await seed_premades();
-
-      embeddings_engine?.load_model?.()?.catch?.((err) => console.warn("[Boot] Embeddings pre-download error:", err));
 
       await Promise.all([session.sync(), app.init(), Audio.init()]);
       await app?.load_entities?.();

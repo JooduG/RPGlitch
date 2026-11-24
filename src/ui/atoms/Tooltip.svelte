@@ -333,7 +333,7 @@
                   }}>
                   {#if display_snapshot.preview && preview_content}
                     <div data-tooltip-preview>
-                      {@render preview_content({ preview: display_snapshot.preview, pinned: display_snapshot.pinned, closing: false })}
+                      {@render preview_content({ preview: display_snapshot.preview, pinned: display_snapshot.pinned })}
                     </div>
                   {:else}
                     <div

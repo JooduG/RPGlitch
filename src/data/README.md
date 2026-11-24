@@ -29,7 +29,7 @@ The package exposes its public barrel via [`index.js`](./index.js). Unless noted
 
 - [`story-library.js`](./story-library.js):
   - `stories`: Facade `{ list, get, create, update, update_cast, active_entity_ids, conclude, delete }`.
-  - `list_stories()`, `get_story(id)`, `create_story(data)`, `update_story(id, changes)`, `update_cast(id, npc_ids)`, `active_entity_ids()`, `conclude_story(id)`, `rewind_story(id)`, `delete_story(id)`.
+  - `list_stories()`, `get_story(id)`, `create_story(data)`, `update_story(id, changes)`, `update_cast(id, npc_ids)`, `active_entity_ids()`, `conclude_story(id)`, `delete_story(id)`.
   - `find_log_entry(id, feed = null)`, `resolve_log_entity_id(role, character_name, snapshots = null, story_id = null)`, `resolve_story_round(story_id)`.
   - `log_message(...)`, `load_log(story_id)`, `delete_story_log(story_id)`, `delete_log_entry(id, env = null)`, `edit_log_entry(id, new_text, meta_patch = null, env = null)`, `update_log_attachment(id, attachment_index, new_attachment, env = null)`, `delete_log_attachment(id, attachment_index, env = null)`.
   - `create_from_selection(selection, deps = {})`, `send(text, deps = {})`, `regenerate(deps = {})`.

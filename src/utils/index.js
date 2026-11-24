@@ -12,5 +12,4 @@ export * from "./macros.js";
 export * from "./html.js";
 export * from "./ingestion.js";
 export * from "./dom.js";
-export * from "./embeddings.svelte.js";
 export * from "./async.js";

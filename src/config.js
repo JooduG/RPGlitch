@@ -25,7 +25,6 @@ export const TIMING_MS = Object.freeze({
   DELAY: 10000, // 10,000ms (10s): Maximum upper delay cap for exponential backoff retries
   HEARTBEAT: 15000, // 15,000ms (15s): Watchdog evaluation interval checking engine heartbeat health
   STEP: 30000, // 30,000ms (30s): Standard circuit breaker recovery probe timeout and prompt build vector budget
-  STALL: 60000, // 60,000ms (60s): Visual prompt extraction pass timeout and streaming stall watchdog grace
   CEILING: 120000, // 120,000ms (2m): Hard timeout for text-to-image neural diffusion synthesis
   LIFETIME: 240000, // 240,000ms (4m): Hard maximum generation lifetime and background continuum-consolidation ceiling
 });
@@ -53,7 +52,6 @@ export const DYNAMICS = Object.freeze({
   SCALE: Object.freeze({
     MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
     EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
-    LOW: 25, // Low band marker (ladder completeness; no live reader yet)
     MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
     HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
     EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
@@ -85,27 +83,16 @@ export const LENGTH_THRESHOLDS = Object.freeze({
   COMPACT: 200, // Physical & agenda baseline floor
   MEDIUM: 300, // Psychological & past memory floor
   EXPANSIVE: 500, // Core personality floor & expansive input cadence (>= 500)
-  INGESTATION: 8000, // Web bio + lore intake budget (single home; html.js caps reference this)
-  PROMPT_MAX: 20000, // Hard prompt character ceiling (policy; currently unenforced)
 });
 
 // ── 3. Visual Media Resolutions ──────────────────────────────────────────────
 export const IMAGE_RESOLUTIONS = Object.freeze({
   PORTRAIT: Object.freeze({ width: 512, height: 768 }),
   LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
-  SQUARE_SMALL: Object.freeze({ width: 512, height: 512 }),
   SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
 });
 
-// ── 4. Hardware Tensors ──────────────────────────────────────────────────────
-export const EMBEDDING_SPECS = Object.freeze({
-  DIMENSIONS: 384, // Tensor dimensionality (384-d) for all-MiniLM-L6-v2 semantic sentence embeddings
-  CACHE_CAPACITY: 1500, // Maximum number of 384-d tensor vectors held in the in-memory LRU cache
-  MAX_EPHEMERAL_VECTORS: 200, // Maximum ephemeral vectors held in the in-memory FIFO cache before eviction
-  QUANTIZE_MAX: 255, // 8-bit unsigned integer scalar ceiling (0-255) for quantized vector storage
-});
-
-// ── 5. Unified Temporal Tempo ──────────────────────────────────────────────────
+// ── 4. Unified Temporal Tempo ──────────────────────────────────────────────────
 export const TEMPO_ROUNDS = Object.freeze({
   STANDARD: 8, // 8 rounds: Working memory transcript window & soft stagnation permit
   SLOW: 16, // 16 rounds: Critical hard stagnation disruption mandate

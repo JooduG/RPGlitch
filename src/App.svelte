@@ -147,11 +147,11 @@
 </main>
 
 <Tooltip>
-  {#snippet preview_content({ preview, pinned, closing })}
+  {#snippet preview_content({ preview, pinned })}
     {@const preview_entity = preview?.entity ?? preview}
     {@const is_pinned = Boolean(pinned)}
     <div class="perspective-distant" data-testid="relational-hover-card">
-      <div class="relative" data-card-flip-rotor data-pinned={is_pinned} data-closing={Boolean(closing)} data-reduced={motion.is_reduced}>
+      <div class="relative" data-card-flip-rotor data-pinned={is_pinned} data-reduced={motion.is_reduced}>
         <div class="pointer-events-none transform-[rotateY(0deg)] rounded-standard backface-hidden">
           <EntityCard
             variant="library"
@@ -208,14 +208,6 @@
 
   [data-card-flip-rotor][data-pinned="true"] {
     transform: rotateY(180deg);
-  }
-
-  [data-card-flip-rotor][data-pinned="true"][data-closing="true"] {
-    transform: rotateY(270deg) scale(0.92);
-    opacity: 0;
-    transition:
-      transform 250ms var(--ease-drawer),
-      opacity 200ms var(--ease-out);
   }
 
   @starting-style {
