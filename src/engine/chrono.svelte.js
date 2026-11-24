@@ -7,7 +7,7 @@
 import { reset_generation_in_flight, reset_image_generation_queue } from "@media";
 import { build_turn_summary } from "@simulation";
 import { app, execution, session } from "@state";
-import { stories } from "@data";
+import { create_from_selection, regenerate as regenerate_trailing_turns, send as send_user_turn, stories } from "@data";
 import { generate_closing, generate_opening } from "./lifecycle.js";
 import { is_abort_error } from "./transport.js";
 import { continue_turn, reset_turn_scope_for_testing, run_turn } from "./turns.js";
@@ -121,15 +121,19 @@ export class ChronoEngine {
         app.reset_story_title();
         const story_title = app.story_title || `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
 
-        const story_id = await session.create_from_selection({
-          ai_id: selection.ai.id,
-          user_id: selection.user.id,
-          fractal_id: selection.fractal.id,
-          visual_style: selection.fractal?.visual_style,
-          narrative_style: selection.fractal?.narrative_style,
-          fractal: selection.fractal,
-          story_title,
-        });
+        const story_id = await create_from_selection(
+          {
+            ai_id: selection.ai.id,
+            user_id: selection.user.id,
+            fractal_id: selection.fractal.id,
+            visual_style: selection.fractal?.visual_style,
+            narrative_style: selection.fractal?.narrative_style,
+            fractal: selection.fractal,
+            story_title,
+          },
+          { log_store: session, set_active: (id) => session.set_active(id) },
+        );
+        app.stories_version += 1;
 
         await session.sync(story_id);
 
@@ -188,7 +192,7 @@ export class ChronoEngine {
     this.error = null;
     if (this.#is_busy()) return;
     try {
-      await session.rollback_for_retry();
+      await regenerate_trailing_turns({ active_id: session.active_id, log_store: session });
       await this.advance_turn(null, { is_retry: true });
     } catch (e) {
       this.error = /** @type {Error} */ (e).message;
@@ -250,7 +254,8 @@ export class ChronoEngine {
           const has_reply_after = tail.some((m) => (m.role === "ai" || m.role === "fractal") && (m.created_at ?? 0) > (last.created_at ?? 0));
           if (!has_reply_after) {
             console.warn("[Chrono] Detected orphaned turn - retrying generation once...");
-            execution.start_director_stage();
+            execution.start_generation("system");
+            execution.generating_entity = { type: "system", name: "Director", avatar: null, color: "var(--color-frozen)" };
             try {
               await run_turn(final_input, { signal: controller.signal });
               retry_landed = true;
@@ -304,13 +309,14 @@ export class ChronoEngine {
       try {
         if (final_input) {
           try {
-            await session.send_user_message(final_input);
+            await send_user_turn(final_input, { active_id: session.active_id, log_store: session });
           } catch (db_err) {
             console.error("[Chrono] Database write error during send:", db_err);
           }
         }
 
-        execution.start_director_stage();
+        execution.start_generation("system");
+        execution.generating_entity = { type: "system", name: "Director", avatar: null, color: "var(--color-frozen)" };
         try {
           await run_turn(final_input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
           try {
@@ -399,7 +405,7 @@ export class ChronoEngine {
       }
       await stories.conclude(story_id);
       await session.save();
-      app.bump_stories_version();
+      app.stories_version += 1;
       execution.lock();
     } catch (err) {
       console.error("[Chrono] Conclude Failed:", err);
@@ -419,7 +425,7 @@ export class ChronoEngine {
     try {
       await stories.rewind(story_id);
       await session.sync(story_id);
-      app.bump_stories_version();
+      app.stories_version += 1;
       execution.unlock();
     } catch (err) {
       console.error("[Chrono] Rewind Failed:", err);

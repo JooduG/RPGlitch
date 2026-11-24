@@ -102,7 +102,7 @@
       onreset={() => {
         is_custom = false;
         custom_title = "";
-        app.regenerate_title();
+        app.card_hand.regenerate_count++;
       }} />
   </div>
 {/if}

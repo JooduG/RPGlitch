@@ -17,27 +17,17 @@ describe("InterfaceStore (app)", () => {
     expect(app.settings).toEqual({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false, visual_style: "none" });
   });
 
-  it("tracks storyboard slot readiness and clears claimed selections", () => {
-    expect(app.selected_count).toBe(0);
-    expect(app.is_ready).toBe(false);
-
+  it("tracks storyboard slot selections and clears claimed selections", () => {
     app.select_entity("ai", { id: "ai-1", name: "Orion", type: "character" });
     app.select_entity("user", { id: "user-1", name: "You", type: "character" });
     app.select_entity("fractal", { id: "frac-1", name: "Nova", type: "fractal" });
 
-    expect(app.selected_count).toBe(3);
-    expect(app.is_ready).toBe(true);
+    expect(app.selected_ai?.id).toBe("ai-1");
+    expect(app.selected_user?.id).toBe("user-1");
+    expect(app.selected_fractal?.id).toBe("frac-1");
 
     app.claimed_entity_ids.add("ai-1");
     app.clean_claimed_selections();
     expect(app.selected_ai).toBeNull();
-    expect(app.selected_count).toBe(2);
-    expect(app.is_ready).toBe(false);
-  });
-
-  it("increments ghostwrite_request via request_ghostwrite()", () => {
-    app.request_ghostwrite();
-    app.request_ghostwrite();
-    expect(app.ghostwrite_request).toBe(2);
   });
 });

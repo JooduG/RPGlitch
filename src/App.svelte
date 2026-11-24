@@ -139,7 +139,7 @@
   </div>
 
   {#if app.profile_open}
-    <Profile entity_type={app.profile_target_type} />
+    <Profile entity_type={app.editing_entity?.type || null} />
   {/if}
 
   <ImagePreview />

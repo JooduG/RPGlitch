@@ -1,6 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ExecutionStore, execution, install_freeze_watchdog, uninstall_freeze_watchdog } from "./execution.svelte.js";
-import { TIMING_MS } from "@config";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ExecutionStore, execution } from "./execution.svelte.js";
 import { Audio } from "@media";
 
 vi.mock("@media", async (importOriginal) => {
@@ -49,28 +48,6 @@ describe("ExecutionStore (execution)", () => {
     expect(execution.busy).toBe(false);
   });
 
-  it("coordinates director, delegated speaker, media, and stream stages", () => {
-    execution.start_director_stage();
-    expect(execution.director_thinking).toBe(true);
-    expect(execution.generating_entity.name).toBe("Director");
-
-    execution.set_delegated_speaker({ type: "npc", name: "Sylvia", avatar: "data:avatar", color: "#00ffff" });
-    expect(execution.director_thinking).toBe(false);
-    expect(execution.speaker_thinking).toBe(true);
-    expect(execution.generating_entity.name).toBe("Sylvia");
-
-    execution.start_stream_stage();
-    expect(execution.speaker_thinking).toBe(false);
-
-    execution.start_media_stage({ type: "ai", name: "Glitch" });
-    expect(execution.media_generating).toBe(true);
-    expect(execution.director_thinking).toBe(false);
-
-    execution.complete();
-    expect(execution.media_generating).toBe(false);
-    expect(execution.generating_entity.name).toBeNull();
-  });
-
   it("manages stream lifecycle and TTS sentence queueing", () => {
     execution.start_stream("msg-1", "ai");
     expect(execution.stream.active).toBe(true);
@@ -117,19 +94,5 @@ describe("ExecutionStore (execution)", () => {
     expect(execution.stream.content).toBe("");
     expect(mock_abort).toHaveBeenCalled();
     expect(execution.stream.abort_controller).toBeNull();
-  });
-
-  describe("freeze watchdog", () => {
-    afterEach(() => {
-      uninstall_freeze_watchdog();
-    });
-
-    it("exports calibrated timing constants and installs/uninstalls cleanly", () => {
-      expect(TIMING_MS.HEARTBEAT).toBe(15000);
-      expect(TIMING_MS.CEILING).toBe(120000);
-      expect(TIMING_MS.LIFETIME).toBe(240000);
-      expect(() => install_freeze_watchdog()).not.toThrow();
-      expect(() => uninstall_freeze_watchdog()).not.toThrow();
-    });
   });
 });

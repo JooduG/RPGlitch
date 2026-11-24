@@ -17,20 +17,15 @@ describe("src/engine/turns.js", () => {
     session.active_id = null;
     session.last_director_beat_round = -1;
     session.last_dynamics_beat_round = -1;
-    session.clear_feed();
+    session.feed = [];
     reset_turn_scope_for_testing();
   });
 
   describe("Turn stage transitions & dynamics_baseline preservation", () => {
-    it("invokes set_delegated_speaker and start_stream_stage during run_turn", async () => {
-      const speaker_spy = vi.spyOn(execution, "set_delegated_speaker").mockImplementation(() => {});
-      const stage_spy = vi.spyOn(execution, "start_stream_stage").mockImplementation(() => {});
-
+    it("sets generating_entity during run_turn", async () => {
       await run_turn("Step into the light");
 
-      expect(speaker_spy).toHaveBeenCalled();
-      expect(stage_spy).toHaveBeenCalled();
-      expect(speaker_spy.mock.calls[0][0].type).toBe("ai");
+      expect(execution.generating_entity.type).toBe("ai");
     });
 
     it("preserves entity dynamics_baseline through normalize_entity for gravity settling", async () => {
@@ -187,7 +182,7 @@ describe("src/engine/turns.js", () => {
       }
     });
 
-    it("transitions stages via set_delegated_speaker and start_stream_stage", async () => {
+    it("sets generating_entity with AI metadata on first chunk", async () => {
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async () => "Extended paragraph.");
 
@@ -202,13 +197,10 @@ describe("src/engine/turns.js", () => {
       vi.spyOn(execution, "start_stream").mockImplementation(() => {});
       vi.spyOn(execution, "update_stream").mockImplementation(() => {});
       vi.spyOn(execution, "end_stream").mockImplementation(() => {});
-      const speaker_spy = vi.spyOn(execution, "set_delegated_speaker").mockImplementation(() => {});
-      const stage_spy = vi.spyOn(execution, "start_stream_stage").mockImplementation(() => {});
 
       try {
         await continue_turn(target_entry);
-        expect(speaker_spy).toHaveBeenCalledWith({ type: "ai", name: "Lyra", avatar: "avatar.png", color: "#00ffee" });
-        expect(stage_spy).toHaveBeenCalled();
+        expect(execution.generating_entity).toEqual({ type: "ai", name: "Lyra", avatar: "avatar.png", color: "#00ffee" });
       } finally {
         window.generate_text = original_gen;
       }

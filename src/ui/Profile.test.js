@@ -23,7 +23,7 @@ vi.mock("@state", async (importOriginal) => {
     app: {
       editing_entity: null,
       load_entities: vi.fn(),
-      ai_list: [],
+      characters: [],
       fractal_list: [],
       settings: { dev_mode: false },
       claimed_entity_ids: { has: vi.fn(() => false) },

@@ -122,7 +122,7 @@
             },
           },
           { separator: true },
-          { label: "Ghostwrite", onSelect: () => app.request_ghostwrite(), disabled: execution.busy },
+          { label: "Ghostwrite", onSelect: () => (app.ghostwrite_request += 1), disabled: execution.busy },
         );
       }
 

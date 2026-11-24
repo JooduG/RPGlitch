@@ -1,12 +1,10 @@
 /**
  * @file src/state/execution.svelte.js
  * Unified simulation execution state machine, LLM token streaming + TTS bridge,
- * and freeze watchdog / forced recovery (Rank 3, state).
+ * and forced recovery (Rank 3, state).
  */
 
-import { TIMING_MS } from "@config";
 import { Audio } from "@media";
-import { get_queue_status } from "@utils";
 
 /**
  * @typedef {"idle" | "generating" | "locked"} ExecutionPhase
@@ -33,9 +31,6 @@ export class ExecutionStore {
 
   intent_active = $state(false);
   loading = $state(false);
-  director_thinking = $state(false);
-  speaker_thinking = $state(false);
-  media_generating = $state(false);
 
   /** @type {GeneratingEntity} */
   generating_entity = $state({ type: null, name: null, avatar: null, color: null });
@@ -65,54 +60,7 @@ export class ExecutionStore {
   complete() {
     this.phase = "idle";
     this.role = null;
-    this.director_thinking = false;
-    this.speaker_thinking = false;
-    this.media_generating = false;
-    this.clear_generating_entity();
-  }
-
-  /**
-   * Initiates the Director thinking stage (Stage 1 of turn generation).
-   */
-  start_director_stage() {
-    this.phase = "generating";
-    this.role = "system";
-    this.director_thinking = true;
-    this.speaker_thinking = false;
-    this.media_generating = false;
-    this.set_generating_entity({ type: "system", name: "Director", avatar: null, color: "var(--color-frozen)" });
-  }
-
-  /**
-   * Transitions from Director thinking to Speaker thinking once delegated (Stage 2).
-   * @param {GeneratingEntity} [entity={}]
-   */
-  set_delegated_speaker(entity = {}) {
-    this.director_thinking = false;
-    this.speaker_thinking = true;
-    this.media_generating = false;
-    this.set_generating_entity(entity);
-  }
-
-  /**
-   * Enters the media-rendering stage (manual photo / portrait generation).
-   * @param {GeneratingEntity} [entity={}]
-   */
-  start_media_stage(entity = {}) {
-    this.phase = "generating";
-    this.director_thinking = false;
-    this.speaker_thinking = false;
-    this.media_generating = true;
-    this.set_generating_entity(entity);
-  }
-
-  /**
-   * Transitions from Speaker thinking to active prose streaming (Stage 3).
-   */
-  start_stream_stage() {
-    this.director_thinking = false;
-    this.speaker_thinking = false;
-    this.media_generating = false;
+    this.generating_entity = { type: null, name: null, avatar: null, color: null };
   }
 
   lock() {
@@ -133,15 +81,6 @@ export class ExecutionStore {
     this.loading = active;
   }
 
-  /** @param {GeneratingEntity} [entity={}] */
-  set_generating_entity({ type = null, name = null, avatar = null, color = null } = {}) {
-    this.generating_entity = { type, name, avatar, color };
-  }
-
-  clear_generating_entity() {
-    this.generating_entity = { type: null, name: null, avatar: null, color: null };
-  }
-
   /**
    * Initializes an active LLM stream for a node and role.
    * @param {string | null} id
@@ -152,7 +91,7 @@ export class ExecutionStore {
     this.stream.content = "";
     this.stream.node_id = id;
     this.stream.role = role;
-    Audio.voice?.apply_stream_role?.(role, id);
+    Audio.voice.apply_stream_role(role, id);
   }
 
   /**
@@ -161,8 +100,8 @@ export class ExecutionStore {
    */
   update_stream(chunk) {
     this.stream.content += chunk;
-    if (Audio.is_role_enabled?.(this.stream.role)) {
-      Audio.voice?.queue_stream_sentence?.(this.stream.content);
+    if (Audio.is_role_enabled(this.stream.role)) {
+      Audio.voice.queue_stream_sentence(this.stream.content);
     }
   }
 
@@ -170,14 +109,14 @@ export class ExecutionStore {
    * Concludes the active stream, flushes trailing TTS audio, and resets stream fields.
    */
   end_stream() {
-    if (this.stream.active && Audio.is_role_enabled?.(this.stream.role)) {
-      Audio.voice?.flush_stream_remainder?.(this.stream.content);
+    if (this.stream.active && Audio.is_role_enabled(this.stream.role)) {
+      Audio.voice.flush_stream_remainder(this.stream.content);
     }
     this.stream.active = false;
     this.stream.content = "";
     this.stream.node_id = null;
     this.stream.role = "ai";
-    Audio.voice?.reset_stream?.();
+    Audio.voice.reset_stream();
   }
 
   /**
@@ -191,19 +130,12 @@ export class ExecutionStore {
         console.error("[ExecutionStore] Failed to abort streaming:", err);
       }
     }
-    try {
-      Audio.voice?.stop?.();
-    } catch {
-      /* voice teardown is best-effort */
-    }
+    Audio.voice.stop();
   }
 
   /**
    * Forcefully recovers execution state from a frozen or hung condition.
-   * Clears every busy visual source owned by this store (phase, intent,
-   * loading, stream, generating entity) even if voice teardown throws.
-   * Callers (Console unstick) additionally reset the turn guard, image
-   * in-flight sets, and local ghostwrite state, which live outside this store.
+   * Resets all synchronous state fields before aborting in-flight work and stopping voice.
    * @param {string} reason
    */
   recover(reason) {
@@ -215,133 +147,28 @@ export class ExecutionStore {
       streaming_active: this.stream.active,
     });
 
-    try {
-      this.complete();
-    } catch {
-      /* phase/entity reset is best-effort */
-    }
-    try {
-      this.unlock();
-    } catch {
-      /* unlock is best-effort */
-    }
+    const controller = this.stream.abort_controller;
+    this.phase = "idle";
+    this.role = null;
     this.intent_active = false;
     this.loading = false;
-    try {
-      this.interrupt();
-    } catch (err) {
-      console.error("[ExecutionStore] Failed to interrupt during recover:", err);
-    } finally {
-      this.stream.abort_controller = null;
+    this.generating_entity = { type: null, name: null, avatar: null, color: null };
+    this.stream.active = false;
+    this.stream.content = "";
+    this.stream.node_id = null;
+    this.stream.role = "ai";
+    this.stream.abort_controller = null;
+
+    if (controller) {
       try {
-        this.end_stream();
-      } catch {
-        /* stream reset is best-effort */
+        controller.abort();
+      } catch (err) {
+        console.error("[ExecutionStore] Failed to abort streaming during recover:", err);
       }
-      this.stream.active = false;
-      this.stream.content = "";
-      this.stream.node_id = null;
-      this.stream.role = "ai";
     }
+    Audio.voice.reset_stream();
+    Audio.voice.stop();
   }
 }
 
 export const execution = new ExecutionStore();
-
-let _freeze_watchdog_started = false;
-/** @type {number | null} */
-let _freeze_watchdog_timer = null;
-
-/**
- * Stops the background freeze watchdog timer.
- */
-export function uninstall_freeze_watchdog() {
-  if (_freeze_watchdog_timer != null) {
-    clearInterval(_freeze_watchdog_timer);
-    _freeze_watchdog_timer = null;
-  }
-  _freeze_watchdog_started = false;
-}
-
-/**
- * Installs the background freeze watchdog timer once during app boot.
- * @returns {number | null}
- */
-export function install_freeze_watchdog() {
-  if (_freeze_watchdog_started || typeof window === "undefined") return null;
-  _freeze_watchdog_started = true;
-
-  let stuck_since = 0;
-  let last_stream_len = 0;
-  let last_chunk_ts = 0;
-  let ever_streamed = false;
-
-  _freeze_watchdog_timer = window.setInterval(() => {
-    const phase = execution.phase;
-    const intent_active = execution.intent_active;
-    const generating = phase === "generating";
-    const locked = phase === "locked";
-    const consolidating = phase === "idle" && intent_active;
-    const streaming_active = execution.stream.active;
-
-    if (streaming_active) ever_streamed = true;
-    const stream_len = execution.stream.content?.length ?? 0;
-
-    const stuck = (generating || locked || consolidating) && (intent_active || ever_streamed);
-    if (!stuck) {
-      stuck_since = 0;
-      ever_streamed = false;
-      last_stream_len = stream_len;
-      last_chunk_ts = streaming_active ? Date.now() : 0;
-      return;
-    }
-
-    if (get_queue_status().foreground_queued > 0) {
-      stuck_since = 0;
-      last_stream_len = stream_len;
-      last_chunk_ts = streaming_active ? Date.now() : 0;
-      return;
-    }
-
-    if (stuck_since === 0) {
-      stuck_since = Date.now();
-      last_stream_len = stream_len;
-      last_chunk_ts = streaming_active ? Date.now() : 0;
-      return;
-    }
-
-    const elapsed = Date.now() - stuck_since;
-    const stream_grew = stream_len > last_stream_len;
-    if (stream_grew) last_chunk_ts = Date.now();
-    last_stream_len = stream_len;
-
-    if (generating || locked) {
-      if (!streaming_active && elapsed >= TIMING_MS.CEILING) {
-        execution.recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
-        stuck_since = 0;
-        return;
-      }
-
-      if (streaming_active && last_chunk_ts > 0 && Date.now() - last_chunk_ts >= TIMING_MS.CEILING) {
-        execution.recover(`Stream produced no chunks for ${Math.round((Date.now() - last_chunk_ts) / 1000)}s`);
-        stuck_since = 0;
-        return;
-      }
-
-      if (elapsed >= TIMING_MS.LIFETIME && !stream_grew) {
-        execution.recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
-        stuck_since = 0;
-        return;
-      }
-      return;
-    }
-
-    if (elapsed >= TIMING_MS.LIFETIME) {
-      console.warn(`[Watchdog] Post-turn consolidation overran ${Math.round(elapsed / 1000)}s - releasing intent lock.`, { phase, intent_active });
-      execution.set_intent_active(false);
-      stuck_since = 0;
-    }
-  }, TIMING_MS.HEARTBEAT);
-
-  return _freeze_watchdog_timer;
-}

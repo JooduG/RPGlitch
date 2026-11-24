@@ -507,14 +507,13 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
 
   try {
     if (!background) {
-      execution.role = subject;
       execution.start_generation(subject);
-      execution.start_media_stage({
+      execution.generating_entity = {
         type: subject,
         name: role_label,
         avatar: entity?.profile_picture || entity?.avatar || null,
         color: entity?.signature_color || entity?.color || null,
-      });
+      };
       execution.stream.abort_controller = controller;
       owned_controller = true;
     }

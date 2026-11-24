@@ -16,7 +16,12 @@ const { _mock_app, _mock_session } = vi.hoisted(() => ({
 
 vi.mock("@state", async (importOriginal) => {
   const actual = await importOriginal();
-  return { ...actual, app: _mock_app, session: _mock_session, execution: { phase: "idle" }, install_freeze_watchdog: vi.fn() };
+  return { ...actual, app: _mock_app, session: _mock_session, execution: { phase: "idle" } };
+});
+
+vi.mock("@engine", async (importOriginal) => {
+  const actual = await importOriginal();
+  return { ...actual, install_freeze_watchdog: vi.fn() };
 });
 
 const { _mock_audio } = vi.hoisted(() => ({ _mock_audio: { init: vi.fn(), _init_promise: null, voice: { load_model: vi.fn().mockResolvedValue() } } }));

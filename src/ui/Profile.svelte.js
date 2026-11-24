@@ -294,7 +294,7 @@ export class ProfileState {
 
       await app.load_entities();
 
-      const list = entity_type === "character" ? app.ai_list : app.fractal_list;
+      const list = entity_type === "character" ? app.characters : app.fractal_list;
       const updated = Array.isArray(list) ? list.find((e) => e.id === next_id) : null;
       const match_id = prev_id || next_id;
 

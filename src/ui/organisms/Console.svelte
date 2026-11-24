@@ -50,7 +50,9 @@
   const is_muted = $derived(Audio.volume === 0 || explicitly_muted);
   const models_ready = $derived(embeddings_engine.model_ready);
   const has_active_story = $derived(Boolean(session.active_id));
-  const ready_to_begin = $derived(has_active_story || (app.is_ready && models_ready));
+  const ready_to_begin = $derived(
+    has_active_story || (app.selected_ai !== null && app.selected_user !== null && app.selected_fractal !== null && models_ready),
+  );
   const send_blocked = $derived(execution.busy || execution.loading || panel_open);
   const signature_color = $derived(get_signature_color(session.active_user || app.selected_user, "var(--color-gunmetal)"));
 
@@ -63,7 +65,7 @@
     execution.loading ? PROLOGUE_PHRASES[phrase_index]
     : has_active_story ? "ENTER STORYMODE"
     : ready_to_begin ? "BEGIN STORY"
-    : `SELECT ENTITIES (${app.selected_count}/3)`,
+    : `SELECT ENTITIES (${(app.selected_ai ? 1 : 0) + (app.selected_user ? 1 : 0) + (app.selected_fractal ? 1 : 0)}/3)`,
   );
 
   // --- EFFECTS ---
@@ -280,7 +282,7 @@
     flank={true}
     variant={panel_open ? "secondary" : "invisible"}
     aria-label="Settings"
-    onclick={app.toggle_control_panel}
+    onclick={() => (app.control_panel_open = !app.control_panel_open)}
     actions={[roll, tooltip]}
     class="touch-target-coarse">
     <Icon name="settings" class={["block size-icon-medium transition-transform", panel_open && "rotate-90 opacity-100"]} />

@@ -61,9 +61,7 @@ export class InterfaceStore {
   begin_flight_claimed = false;
 
   /** @type {any[]} */
-  ai_list = $state([]);
-  /** @type {any[]} */
-  user_list = $state([]);
+  characters = $state([]);
   /** @type {any[]} */
   fractal_list = $state([]);
   entities_loaded = $state(false);
@@ -86,29 +84,16 @@ export class InterfaceStore {
   settings = $state({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false, visual_style: "none" });
 
   ghostwrite_request = $state(0);
-  is_ghostwriting = $state(false);
   stories_version = $state(0);
 
   /** @type {any} */
   editing_entity = $state(null);
 
-  get selected_count() {
-    return (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0);
-  }
-
-  get is_ready() {
-    return this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null;
-  }
-
-  get profile_target_type() {
-    return this.editing_entity?.type || null;
-  }
-
   /**
    * Initializes viewport listeners and hydrates persistent settings from IndexedDB.
    */
   async init() {
-    if (typeof window === "undefined" || this.initialized) return;
+    if (this.initialized) return;
     this.initialized = true;
 
     this.init_viewport();
@@ -127,7 +112,7 @@ export class InterfaceStore {
    * Persists application settings to IndexedDB storage.
    */
   save_settings = async () => {
-    if (typeof window === "undefined" || !this.settings) return;
+    if (!this.settings) return;
     try {
       await db.kv_settings.put({ key: "rpg_settings", value: $state.snapshot(this.settings) });
     } catch (save_error) {
@@ -141,8 +126,6 @@ export class InterfaceStore {
    * Centralized viewport observer synced with CSS design tokens.
    */
   init_viewport() {
-    if (typeof window === "undefined") return;
-
     this.#viewport_cleanup.forEach((cleanup) => cleanup());
     this.#viewport_cleanup = [];
 
@@ -185,8 +168,7 @@ export class InterfaceStore {
       const [characters, fractals, claimed] = await Promise.all([entities.list("character"), entities.list("fractal"), stories.active_entity_ids()]);
       this.claimed_entity_ids.clear();
       for (const id of claimed) this.claimed_entity_ids.add(String(id));
-      this.ai_list = characters;
-      this.user_list = characters;
+      this.characters = characters;
       this.fractal_list = fractals;
       this.entities_loaded = true;
       this.clean_claimed_selections();
@@ -217,10 +199,6 @@ export class InterfaceStore {
     this.card_hand.open = false;
   };
 
-  regenerate_title = () => {
-    this.card_hand.regenerate_count++;
-  };
-
   /**
    * Records the active story's authoritative title and updates displayed title state.
    * @param {string} title
@@ -244,18 +222,6 @@ export class InterfaceStore {
     this.story_title = "";
     this.story_title_parts = [];
   }
-
-  bump_stories_version() {
-    this.stories_version += 1;
-  }
-
-  request_ghostwrite() {
-    this.ghostwrite_request += 1;
-  }
-
-  toggle_control_panel = () => {
-    this.control_panel_open = !this.control_panel_open;
-  };
 
   /**
    * Switches the active top-level view with a view transition.
@@ -325,10 +291,6 @@ export class InterfaceStore {
       this.transitioning_profile = false;
       this.transition_target_id = null;
     });
-  };
-
-  close_profile = () => {
-    this.toggle_profile(false);
   };
 
   /**

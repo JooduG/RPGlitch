@@ -91,14 +91,7 @@
       AI: session.active_ai || app.selected_ai,
       USER: session.active_user || app.selected_user,
       FRACTAL: session.active_fractal || app.selected_fractal,
-      ALL: [
-        session.active_ai,
-        session.active_user,
-        session.active_fractal,
-        ...(app.ai_list || []),
-        ...(app.user_list || []),
-        ...(app.fractal_list || []),
-      ].filter(Boolean),
+      ALL: [session.active_ai, session.active_user, session.active_fractal, ...(app.characters || []), ...(app.fractal_list || [])].filter(Boolean),
     };
   });
 

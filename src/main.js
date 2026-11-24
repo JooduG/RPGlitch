@@ -7,8 +7,9 @@ import "@media/design.css";
 import "@media/perchance-shield.css";
 import App from "@/App.svelte";
 import { save_session_checkpoint, seed_premades, set_versionchange_quiesce } from "@data";
+import { install_freeze_watchdog } from "@engine";
 import { Audio, sweep_stale_ghosts } from "@media";
-import { app, execution, install_freeze_watchdog, session } from "@state";
+import { app, execution, session } from "@state";
 import { embeddings_engine, ensure_theme_tokens, install_environment_hardening, sanitize_to_fragment } from "@utils";
 import { mount } from "svelte";
 

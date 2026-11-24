@@ -1,8 +1,19 @@
+import { create_from_selection, regenerate, send } from "@data";
 import { app, execution, session } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ChronoEngine, chrono_engine } from "./chrono.svelte.js";
 import { generate_opening } from "./lifecycle.js";
 import { run_turn } from "./turns.js";
+
+vi.mock("@data", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    create_from_selection: vi.fn().mockResolvedValue("story-123"),
+    send: vi.fn().mockResolvedValue({}),
+    regenerate: vi.fn().mockResolvedValue({}),
+  };
+});
 
 vi.mock("./turns.js", () => ({ run_turn: vi.fn().mockResolvedValue({}), continue_turn: vi.fn().mockResolvedValue({}) }));
 
@@ -22,13 +33,10 @@ describe("ChronoEngine", () => {
     execution.unlock();
     execution.complete();
     execution.set_loading(false);
-    session.clear_feed();
+    session.feed = [];
     session.active_id = "story-123";
     session.round = 1;
 
-    vi.spyOn(session, "create_from_selection").mockResolvedValue("story-123");
-    vi.spyOn(session, "send_user_message").mockResolvedValue({});
-    vi.spyOn(session, "rollback_for_retry").mockResolvedValue({});
     vi.spyOn(session, "load_log").mockResolvedValue([]);
     vi.spyOn(session, "log_message").mockResolvedValue({ id: 1, created_at: Date.now() });
     vi.spyOn(session, "delete_entry").mockResolvedValue(undefined);
@@ -48,27 +56,27 @@ describe("ChronoEngine", () => {
     it("rejects empty text without advancing turn", async () => {
       const result = await chrono_engine.send("   ");
       expect(result).toBe(false);
-      expect(session.send_user_message).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
     });
 
     it("rejects when execution is already loading", async () => {
       execution.set_loading(true);
       const result = await chrono_engine.send("Hello");
       expect(result).toBe(false);
-      expect(session.send_user_message).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
     });
 
     it("rejects when intent is locked", async () => {
       execution.set_intent_active(true);
       const result = await chrono_engine.send("Hello");
       expect(result).toBe(false);
-      expect(session.send_user_message).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
     });
 
     it("accepts valid text, dispatches run_turn, and avoids duplicate session.save", async () => {
       const result = await chrono_engine.send("Look around");
       expect(result).toBe(true);
-      expect(session.send_user_message).toHaveBeenCalledWith("Look around");
+      expect(send).toHaveBeenCalledWith("Look around", expect.objectContaining({ active_id: "story-123", log_store: session }));
       expect(run_turn).toHaveBeenCalled();
       expect(session.save).not.toHaveBeenCalled();
     });
@@ -110,7 +118,10 @@ describe("ChronoEngine", () => {
 
       await chrono_engine.start(selection);
 
-      expect(session.create_from_selection).toHaveBeenCalledWith(expect.objectContaining({ ai_id: "ai-1", user_id: "usr-1", fractal_id: "fr-1" }));
+      expect(create_from_selection).toHaveBeenCalledWith(
+        expect.objectContaining({ ai_id: "ai-1", user_id: "usr-1", fractal_id: "fr-1" }),
+        expect.objectContaining({ log_store: session }),
+      );
       expect(session.sync).toHaveBeenCalledWith("story-123");
       expect(generate_opening).toHaveBeenCalledWith("story-123", expect.objectContaining({ signal: expect.any(AbortSignal) }));
       expect(app.suppress_card_transitions).toBe(false);
@@ -119,9 +130,9 @@ describe("ChronoEngine", () => {
   });
 
   describe("retry and continue", () => {
-    it("calls session.rollback_for_retry on retry and advances turn", async () => {
+    it("calls regenerate on retry and advances turn", async () => {
       await chrono_engine.retry();
-      expect(session.rollback_for_retry).toHaveBeenCalled();
+      expect(regenerate).toHaveBeenCalledWith(expect.objectContaining({ active_id: "story-123", log_store: session }));
       expect(run_turn).toHaveBeenCalled();
     });
 
@@ -135,15 +146,15 @@ describe("ChronoEngine", () => {
 
   describe("story conclusion and rewind", () => {
     it("concludes story and bumps version", async () => {
-      const bump_spy = vi.spyOn(app, "bump_stories_version").mockImplementation(() => {});
+      const before = app.stories_version;
       await chrono_engine.conclude_active_story({ with_epilogue: false });
-      expect(bump_spy).toHaveBeenCalled();
+      expect(app.stories_version).toBe(before + 1);
     });
 
     it("rewinds story and bumps version", async () => {
-      const bump_spy = vi.spyOn(app, "bump_stories_version").mockImplementation(() => {});
+      const before = app.stories_version;
       await chrono_engine.rewind_active_story();
-      expect(bump_spy).toHaveBeenCalled();
+      expect(app.stories_version).toBe(before + 1);
     });
   });
 });

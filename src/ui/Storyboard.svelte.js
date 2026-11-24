@@ -73,11 +73,11 @@ export class StoryboardController {
 
   async shuffle() {
     if (execution.loading || this.#is_shuffling) return;
-    if (!app.ai_list.length) await app.load_entities();
-    if (!app.ai_list.length) return;
+    if (!app.characters.length) await app.load_entities();
+    if (!app.characters.length) return;
 
-    const pick_ai = pick_unclaimed(app.ai_list);
-    const pick_user = pick_unclaimed(app.user_list, pick_ai?.id ?? null);
+    const pick_ai = pick_unclaimed(app.characters);
+    const pick_user = pick_unclaimed(app.characters, pick_ai?.id ?? null);
     const base_fractal = pick_unclaimed(app.fractal_list);
     const pick_fractal =
       base_fractal ?
@@ -99,7 +99,7 @@ export class StoryboardController {
 
     if (motion.is_reduced || app.view !== "storyboard" || slots.some((s) => !s.root || !s.rect)) {
       for (const type of ["ai", "user", "fractal"]) commit_slot(type, picks[type]);
-      app.regenerate_title?.();
+      app.card_hand.regenerate_count++;
       return;
     }
 
@@ -153,7 +153,7 @@ export class StoryboardController {
             s.wrap?.classList.add("deal-revealed");
             if (!title_done) {
               title_done = true;
-              app.regenerate_title?.();
+              app.card_hand.regenerate_count++;
             }
             if (--remaining <= 0) finish_shuffle();
           },

@@ -25,7 +25,7 @@ describe("src/engine/lifecycle.js", () => {
     session.active_fractal = { id: "f-1", name: "Nova", type: "fractal", speaking_style: "casual" };
     session.round = 1;
     session.active_id = "story-1";
-    session.clear_feed();
+    session.feed = [];
     execution.complete();
     execution.set_loading(false);
     app.settings.visual_style = "none";

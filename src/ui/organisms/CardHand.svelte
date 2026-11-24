@@ -41,8 +41,7 @@
   const import_fetch_type = $derived(import_fractal && !import_character ? "fractal" : "character");
   const hand_title = $derived((card_hand_type && TITLES[card_hand_type]) || "Select Entity");
   const entity_list = $derived(
-    card_hand_type === "ai" ? app.ai_list
-    : card_hand_type === "user" ? app.user_list
+    card_hand_type === "ai" || card_hand_type === "user" ? app.characters
     : card_hand_type === "fractal" ? app.fractal_list
     : [],
   );

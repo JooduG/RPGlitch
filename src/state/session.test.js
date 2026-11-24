@@ -36,12 +36,7 @@ describe("SessionStore (session)", () => {
     await init_db();
     await clear_all_tables();
     await session.clear_active();
-    session.active_ai = null;
-    session.active_user = null;
-    session.active_fractal = null;
-    session.active_npcs = {};
-    session.round = 0;
-    session.is_ready = false;
+    session.reset_for_testing();
     app.selected_ai = null;
     app.selected_user = null;
     app.selected_fractal = null;
@@ -76,7 +71,7 @@ describe("SessionStore (session)", () => {
     await session.set_active(String(story_id));
 
     expect(session.active_id).toBe(String(story_id));
-    expect(session.is_ready).toBe(true);
+    expect(session.active_story?.title).toBe("Chronicles of Silas & You in Nova City");
     expect(session.active_ai?.name).toBe("Silas");
     expect(app.story_title).toBe("Chronicles of Silas & You in Nova City");
 
@@ -104,18 +99,7 @@ describe("SessionStore (session)", () => {
 
     expect(session.active_id).toBe(String(story_id));
     expect(session.round).toBe(9);
-    expect(session.is_ready).toBe(true);
     expect(mock_checkpoint.clear_session_checkpoint).toHaveBeenCalled();
-  });
-
-  it("normalizes legacy array past/future fields on sync()", async () => {
-    const story_id = await seed_story(1);
-    await db.entities.put({ ...base_entity("ai-1", "Legacy Sync", "character"), past: ["Legacy memory 1", "Legacy memory 2"], future: "Old future plan" });
-
-    await session.sync(String(story_id));
-
-    expect(typeof session.active_ai?.past).toBe("string");
-    expect(typeof session.active_ai?.future).toBe("string");
   });
 
   it("hydrates NPCs with active presence and keeps CRUD consistent", async () => {

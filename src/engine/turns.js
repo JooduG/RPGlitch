@@ -52,13 +52,12 @@ function create_first_chunk_stager(ai_quadrant) {
   return () => {
     if (staged) return;
     staged = true;
-    execution.set_delegated_speaker({
+    execution.generating_entity = {
       type: "ai",
       name: ai_quadrant.name || "AI",
       avatar: ai_quadrant.profile_picture || null,
       color: ai_quadrant.signature_color || null,
-    });
-    execution.start_stream_stage();
+    };
   };
 }
 
