@@ -7,10 +7,10 @@
 import { reset_generation_in_flight, reset_image_generation_queue } from "@media";
 import { build_turn_summary } from "@simulation";
 import { app, execution, session } from "@state";
-import { create_from_selection, regenerate as regenerate_trailing_turns, send as send_user_turn, stories } from "@data";
-import { generate_closing, generate_opening } from "./lifecycle.js";
+import { create_from_selection, regenerate as regenerate_trailing_turns, send as send_user_turn } from "@data";
+import { generate_opening } from "./lifecycle.js";
 import { is_abort_error } from "./transport.js";
-import { continue_turn, reset_turn_scope_for_testing, run_turn } from "./turns.js";
+import { continue_turn, reset_turn_scope, run_turn } from "./turns.js";
 
 /**
  * @typedef {Object} StorySelection
@@ -33,10 +33,6 @@ export class ChronoEngine {
   /** @type {ReturnType<typeof setTimeout> | null} */
   #stop_fallback_timer = null;
 
-  #is_busy() {
-    return execution.busy;
-  }
-
   /**
    * Force-recovers execution state and resets engine/media locks.
    * @param {string} reason
@@ -49,9 +45,9 @@ export class ChronoEngine {
     try {
       execution.recover(reason);
     } finally {
-      for (const reset_fn of [reset_turn_scope_for_testing, reset_generation_in_flight, reset_image_generation_queue]) {
+      for (const reset_fn of [reset_turn_scope, reset_generation_in_flight, reset_image_generation_queue]) {
         try {
-          if (typeof reset_fn === "function") reset_fn();
+          reset_fn();
         } catch {
           /* best-effort */
         }
@@ -114,7 +110,7 @@ export class ChronoEngine {
    */
   async start(selection) {
     this.error = null;
-    if (this.#is_busy()) return;
+    if (execution.busy) return;
 
     await this.#with_stream_lock(async (controller) => {
       try {
@@ -178,7 +174,7 @@ export class ChronoEngine {
    */
   async send(text) {
     this.error = null;
-    if (this.#is_busy() || !text?.trim()) {
+    if (execution.busy || !text?.trim()) {
       return false;
     }
     const result = await this.advance_turn(text);
@@ -190,7 +186,7 @@ export class ChronoEngine {
    */
   async retry() {
     this.error = null;
-    if (this.#is_busy()) return;
+    if (execution.busy) return;
     try {
       await regenerate_trailing_turns({ active_id: session.active_id, log_store: session });
       await this.advance_turn(null, { is_retry: true });
@@ -205,7 +201,7 @@ export class ChronoEngine {
    */
   async continue(target_id = null) {
     this.error = null;
-    if (this.#is_busy()) return;
+    if (execution.busy) return;
     try {
       if (!session.feed?.length) {
         await session.refresh_feed();
@@ -301,15 +297,13 @@ export class ChronoEngine {
     const story_id = session.active_id;
     if (!story_id) return;
 
-    const final_input = input;
-
     return this.#with_stream_lock(async (controller) => {
       const previous_round = Number(session.round || 0);
 
       try {
-        if (final_input) {
+        if (input) {
           try {
-            await send_user_turn(final_input, { active_id: session.active_id, log_store: session });
+            await send_user_turn(input, { active_id: session.active_id, log_store: session });
           } catch (db_err) {
             console.error("[Chrono] Database write error during send:", db_err);
           }
@@ -318,7 +312,7 @@ export class ChronoEngine {
         execution.start_generation("system");
         execution.generating_entity = { type: "system", name: "Director", avatar: null, color: "var(--color-frozen)" };
         try {
-          await run_turn(final_input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
+          await run_turn(input || "", { signal: controller.signal, is_retry: options.is_retry, is_continue: options.is_continue });
           try {
             console.info(build_turn_summary(session.feed || [], session.round));
           } catch {
@@ -342,7 +336,7 @@ export class ChronoEngine {
         if (is_abort_error(error, controller.signal)) {
           console.info("[Chrono] Generation interrupted cleanly.");
           session.round = previous_round;
-          if (final_input && story_id) {
+          if (input && story_id) {
             await this.#purge_aborted_user_message(story_id);
           }
           return false;
@@ -351,7 +345,7 @@ export class ChronoEngine {
         console.error("[Chrono] Time Fracture:", error);
         session.round = previous_round;
 
-        const retry_landed = await this.#recover_orphaned_turn(story_id, final_input, controller, error, session.round);
+        const retry_landed = await this.#recover_orphaned_turn(story_id, input, controller, error, session.round);
         if (retry_landed) {
           return true;
         }
@@ -367,7 +361,7 @@ export class ChronoEngine {
    */
   async stop() {
     this.error = null;
-    if (session?.active_id) {
+    if (session.active_id) {
       await session.save();
     }
     await session.clear_active();
@@ -384,53 +378,6 @@ export class ChronoEngine {
     }
     await this.start({ ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal });
     return session.active_id;
-  }
-
-  /**
-   * Concludes the active story session, optionally generating an epilogue.
-   * Keeps the concluded story loaded in Storymode in read-only state.
-   *
-   * @param {{ with_epilogue?: boolean, conclusion_status?: "CONCLUDED" | "COLLAPSED" }} [options={}]
-   * @returns {Promise<void>}
-   */
-  async conclude_active_story(options = {}) {
-    const { with_epilogue = false, conclusion_status = "CONCLUDED" } = options;
-    const story_id = session.active_id;
-    if (!story_id) return;
-
-    this.error = null;
-    try {
-      if (with_epilogue) {
-        await generate_closing(story_id, conclusion_status);
-      }
-      await stories.conclude(story_id);
-      await session.save();
-      app.stories_version += 1;
-      execution.lock();
-    } catch (err) {
-      console.error("[Chrono] Conclude Failed:", err);
-      this.error = /** @type {Error} */ (err).message;
-    }
-  }
-
-  /**
-   * Rewinds a concluded active story back to active state.
-   * @returns {Promise<void>}
-   */
-  async rewind_active_story() {
-    const story_id = session.active_id;
-    if (!story_id) return;
-
-    this.error = null;
-    try {
-      await stories.rewind(story_id);
-      await session.sync(story_id);
-      app.stories_version += 1;
-      execution.unlock();
-    } catch (err) {
-      console.error("[Chrono] Rewind Failed:", err);
-      this.error = /** @type {Error} */ (err).message;
-    }
   }
 }
 

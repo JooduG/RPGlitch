@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- `src/engine/` (`@engine`): Pruned dead facade methods (`ChronoEngine.conclude_active_story`, `ChronoEngine.rewind_active_story`, `ghostwrite_user_draft`), trimmed test-only/sibling-only re-exports from `index.js`, un-exported internal `persist_turn_rows`, renamed `reset_turn_scope_for_testing` to `reset_turn_scope`, inlined `ChronoEngine.#is_busy()`, reused `is_abort_error` in `lifecycle.js`, and removed redundant singleton existence guards across `chrono.svelte.js`, `turns.js`, and `lifecycle.js`.
+
 - `src/data/` (`@data`): Pruned dead exports (`create_story`, `delete_story_log`, `init_db`, `get_recent_sessions`, `record_session_access`) and un-exported internal-only helpers (`resolve_story_round`, `find_log_entry`, `format_story_beat`, `export_story_markdown`, `build_story_export_filename`, `CHECKPOINT_KEY`, `WINDOW_NAME_CHECKPOINT_PREFIX`); unified `coerce_story_key` + `coerce_log_key` into `coerce_numeric_key`; standardized entity/story CRUD on the `entities.*` and `stories.*` namespaces without altering Dexie `v1`/`v2` schemas.
 
 - `src/state/` & `src/engine/watchdog.js`: Simplified the `@state` stores (`execution.svelte.js`, `interface.svelte.js`, `session.svelte.js`) by removing dead flags (`director_thinking`, `speaker_thinking`, `media_generating`, `is_ghostwriting`), single-use pass-through wrappers, `user_list` duplication, `#reconcile_entity_vectors()`, `#story_by_id`, and defensive `try/catch` boilerplate; moved the freeze watchdog to `src/engine/watchdog.js` and linearized `execution.recover()` to reset synchronous state before aborting/stopping voice.

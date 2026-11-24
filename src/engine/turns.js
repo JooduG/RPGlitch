@@ -23,10 +23,10 @@ import { get_transport } from "./transport.js";
 let _turn_in_flight = false;
 
 /**
- * Resets the turn re-entrancy guard. Test-only: call from beforeEach so a
- * failed turn never wedges subsequent tests.
+ * Resets the turn re-entrancy guard. Used by abort recovery and test beforeEach
+ * hooks so a failed turn never wedges subsequent turns.
  */
-export function reset_turn_scope_for_testing() {
+export function reset_turn_scope() {
   _turn_in_flight = false;
 }
 
@@ -77,7 +77,7 @@ function build_turn_context(app_store, feed) {
  * Commits a finished turn to persistence and the reactive feed: the director
  * telemetry row first, then the character AI row.
  */
-export async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, round, dynamics_ai, dynamics_fractal, snapshots }) {
+async function persist_turn_rows({ prose, think, outcome, ai_name, story_id, round, dynamics_ai, dynamics_fractal, snapshots }) {
   if (!prose || !story_id) return;
 
   const levels = dynamics_ai || dynamics_fractal ? { ...(dynamics_ai || {}), ...(dynamics_fractal || {}) } : undefined;
@@ -345,13 +345,11 @@ export async function continue_turn(target_entry, _options = {}) {
       const fused_prose = outcome?.prose || target_prose;
       const fused_think = outcome?.think || target_think;
 
-      if (session && typeof session.edit_entry === "function") {
-        await session.edit_entry(target_entry.id, fused_prose, { think: fused_think });
-        const entry = feed.find((e) => String(e.id) === String(target_entry.id));
-        if (entry) {
-          entry.meta = entry.meta || {};
-          entry.meta.think = fused_think;
-        }
+      await session.edit_entry(target_entry.id, fused_prose, { think: fused_think });
+      const entry = feed.find((e) => String(e.id) === String(target_entry.id));
+      if (entry) {
+        entry.meta = entry.meta || {};
+        entry.meta.think = fused_think;
       }
 
       Audio?.play?.("notification");
@@ -369,8 +367,6 @@ export async function continue_turn(target_entry, _options = {}) {
  * and dispatches non-blocking Turn 3 Caretaker consolidation.
  */
 export async function write_back_turn_state({ ai, fractal, user, round, outcome, options = {} } = {}) {
-  if (!session) return;
-
   if (ai?.dynamics) {
     if (session.active_ai) session.active_ai.dynamics = { ...ai.dynamics };
     session.ai_dynamics = { ...ai.dynamics };
@@ -406,7 +402,7 @@ export async function write_back_turn_state({ ai, fractal, user, round, outcome,
  * quadrant brackets to active entity state and IndexedDB.
  */
 export async function dispatch_consolidation({ ai, user, fractal, history, round } = {}, transport, signal = null) {
-  if (signal?.aborted || !session) return;
+  if (signal?.aborted) return;
 
   const entities = { AI: ai ?? session.active_ai, USER: user ?? session.active_user, FRACTAL: fractal ?? session.active_fractal };
   const context_history =

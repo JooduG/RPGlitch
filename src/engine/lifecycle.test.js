@@ -8,7 +8,6 @@ import {
   generate_image_candidates,
   generate_opening,
   generate_user_draft,
-  ghostwrite_user_draft,
   import_entities,
   parse_entity_profile,
   refine_image_prompt,
@@ -139,16 +138,6 @@ describe("src/engine/lifecycle.js", () => {
       expect(on_token).toHaveBeenCalledTimes(2);
       expect(on_token.mock.calls[0]).toEqual(["First half", true]);
       expect(on_token.mock.calls[1]).toEqual([" second half", false]);
-    });
-  });
-
-  describe("ghostwrite_user_draft", () => {
-    it("updates app.composer_draft with generated draft", async () => {
-      vi.spyOn(transport_module, "get_transport").mockReturnValue({ stream: vi.fn().mockResolvedValue("<think>plan</think>You step forward.") });
-      app.composer_draft = "";
-      const draft = await ghostwrite_user_draft();
-      expect(draft).toBe("You step forward.");
-      expect(app.composer_draft).toBe("You step forward.");
     });
   });
 

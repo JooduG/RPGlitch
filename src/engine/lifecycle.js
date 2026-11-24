@@ -19,7 +19,7 @@ import {
 } from "@simulation";
 import { app, execution, session } from "@state";
 import { run_generation_step, run_image_prompt_step, run_schema_extraction_step } from "./steps.js";
-import { get_transport } from "./transport.js";
+import { get_transport, is_abort_error } from "./transport.js";
 import { run_turn } from "./turns.js";
 
 /**
@@ -126,7 +126,7 @@ export async function parse_entity_profile(raw, type = "character", signal = nul
  * @returns {Promise<any>}
  */
 export async function generate_opening(story_id, { signal = null } = {}) {
-  if (!session || !story_id) return null;
+  if (!story_id) return null;
 
   execution.set_loading(true);
 
@@ -177,51 +177,44 @@ export async function generate_opening(story_id, { signal = null } = {}) {
       release_prologue_image = resolve;
     });
 
-    if (visual_engine) {
-      (async () => {
-        mark_generation_in_flight?.(prologue_image_id, 0);
-        await prologue_image_gate;
-        try {
-          const img_result = await visual_engine.visualize(
-            prologue_text,
-            "story_scene",
-            { silent: true, refine_prompt: refine_image_prompt },
-            { app, session },
-          );
-          if (img_result?.image_url && session.active_id === story_id) {
-            await session.update_attachment(prologue_image_id, 0, {
-              src: img_result.image_url,
-              metadata: {
-                ...(img_result.metadata || {}),
-                prompt: img_result.refined_prompt || img_result.metadata?.prompt,
-                mode: "story_scene",
-                requested_at: prologue_image_requested_at,
-              },
-            });
-          } else if (!img_result?.image_url && session.active_id === story_id) {
-            await session.update_attachment(prologue_image_id, 0, {
-              src: null,
-              metadata: { mode: "story_scene", requested_at: prologue_image_requested_at, failed: true, error: "Image generation returned no image" },
-            });
-          }
-        } catch (img_err) {
-          console.warn("[Prologue Image Error]", img_err);
-          if (session.active_id === story_id) {
-            await session.update_attachment(prologue_image_id, 0, {
-              src: null,
-              metadata: {
-                mode: "story_scene",
-                requested_at: prologue_image_requested_at,
-                failed: true,
-                error: img_err?.message || "Prologue image generation failed",
-              },
-            });
-          }
-        } finally {
-          clear_generation_in_flight?.(prologue_image_id, 0);
+    (async () => {
+      mark_generation_in_flight(prologue_image_id, 0);
+      await prologue_image_gate;
+      try {
+        const img_result = await visual_engine.visualize(prologue_text, "story_scene", { silent: true, refine_prompt: refine_image_prompt }, { app, session });
+        if (img_result?.image_url && session.active_id === story_id) {
+          await session.update_attachment(prologue_image_id, 0, {
+            src: img_result.image_url,
+            metadata: {
+              ...(img_result.metadata || {}),
+              prompt: img_result.refined_prompt || img_result.metadata?.prompt,
+              mode: "story_scene",
+              requested_at: prologue_image_requested_at,
+            },
+          });
+        } else if (!img_result?.image_url && session.active_id === story_id) {
+          await session.update_attachment(prologue_image_id, 0, {
+            src: null,
+            metadata: { mode: "story_scene", requested_at: prologue_image_requested_at, failed: true, error: "Image generation returned no image" },
+          });
         }
-      })().catch(() => {});
-    }
+      } catch (img_err) {
+        console.warn("[Prologue Image Error]", img_err);
+        if (session.active_id === story_id) {
+          await session.update_attachment(prologue_image_id, 0, {
+            src: null,
+            metadata: {
+              mode: "story_scene",
+              requested_at: prologue_image_requested_at,
+              failed: true,
+              error: img_err?.message || "Prologue image generation failed",
+            },
+          });
+        }
+      } finally {
+        clear_generation_in_flight(prologue_image_id, 0);
+      }
+    })().catch(() => {});
 
     try {
       return await run_turn("", { is_opening_turn: true, signal });
@@ -247,15 +240,15 @@ export async function generate_opening(story_id, { signal = null } = {}) {
  */
 export async function generate_closing(story_id, conclusion_status = "CONCLUDED") {
   const node_id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `msg-${Date.now()}`;
-  const fractal_quadrant = normalize_entity(session?.active_fractal || {});
-  const ai_quadrant = normalize_entity(session?.active_ai || {});
-  const user_quadrant = normalize_entity(session?.active_user || {});
+  const fractal_quadrant = normalize_entity(session.active_fractal || {});
+  const ai_quadrant = normalize_entity(session.active_ai || {});
+  const user_quadrant = normalize_entity(session.active_user || {});
   const fractal_name = fractal_quadrant?.name || "Fractal Entity";
 
   try {
     const prompt = compile_prompt({
       core: "CHARACTER",
-      round: (Number(session?.round) || 1) + 1,
+      round: (Number(session.round) || 1) + 1,
       entities: { FRACTAL: fractal_quadrant, AI: ai_quadrant, USER: user_quadrant },
       task_options: { speaker_role: "fractal", is_epilogue: true, conclusion_status },
     });
@@ -442,19 +435,6 @@ export async function generate_user_draft(
 }
 
 /**
- * Triggers draft ghostwriting directly into interface store composer_draft.
- * @returns {Promise<string>}
- */
-export async function ghostwrite_user_draft() {
-  if (execution.busy) return "";
-  const draft = await generate_user_draft(app.composer_draft);
-  if (draft) {
-    app.composer_draft = draft;
-  }
-  return draft;
-}
-
-/**
  * Unified story-image capture helper across solo entities and group scene shots.
  *
  * @param {Object} options
@@ -523,7 +503,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       story_id,
       attachments: [{ src: null, metadata: { mode: target_mode, prompt: envision_source || prompt, requested_at } }],
     });
-    if (placeholder_entry?.id) mark_generation_in_flight?.(placeholder_entry.id, attach_idx);
+    if (placeholder_entry?.id) mark_generation_in_flight(placeholder_entry.id, attach_idx);
 
     let enhanced_negative = "";
     try {
@@ -579,7 +559,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
     }
     return result;
   } catch (err) {
-    const aborted = signal?.aborted || err?.name === "AbortError" || String(err?.message || "").includes("aborted");
+    const aborted = is_abort_error(err, signal);
     if (aborted) {
       console.warn(`[capture_story_image: ${subject}] Interrupted by user.`);
     } else {
@@ -603,7 +583,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
     }
     throw err;
   } finally {
-    if (placeholder_entry?.id) clear_generation_in_flight?.(placeholder_entry.id, attach_idx);
+    if (placeholder_entry?.id) clear_generation_in_flight(placeholder_entry.id, attach_idx);
     if (owned_controller && execution.stream.abort_controller === controller) {
       execution.stream.abort_controller = null;
     }

@@ -2,7 +2,7 @@ import * as media_module from "@media";
 import * as simulation_module from "@simulation";
 import { execution, session } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { continue_turn, dispatch_consolidation, maybe_spawn_turn_image, reset_turn_scope_for_testing, run_turn, write_back_turn_state } from "./turns.js";
+import { continue_turn, dispatch_consolidation, maybe_spawn_turn_image, reset_turn_scope, run_turn, write_back_turn_state } from "./turns.js";
 
 describe("src/engine/turns.js", () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe("src/engine/turns.js", () => {
     session.last_director_beat_round = -1;
     session.last_dynamics_beat_round = -1;
     session.feed = [];
-    reset_turn_scope_for_testing();
+    reset_turn_scope();
   });
 
   describe("Turn stage transitions & dynamics_baseline preservation", () => {

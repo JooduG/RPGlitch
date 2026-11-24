@@ -16,15 +16,16 @@ Internally, the five modules form a one-way dependency chain:
 
 External callers (`@ui`) import only from [`index.js`](./index.js). Internal helpers in [`steps.js`](./steps.js) and [`turns.js`](./turns.js) are imported directly by engine siblings, `sim-check.js`, and colocated unit tests.
 
-- **Session Facade** ([`chrono.svelte.js`](./chrono.svelte.js)): `ChronoEngine`, `chrono_engine` (`start(selection)`, `send(text)`, `retry()`, `continue(target_id)`, `advance_turn(input, options)`, `stop()`).
-- **Lifecycle Jobs** ([`lifecycle.js`](./lifecycle.js)): `refine_image_prompt`, `parse_entity_profile`, `generate_opening`, `generate_closing`, `create_entity_with_profile`, `generate_user_draft`, `ghostwrite_user_draft`, `capture_story_image`, `generate_image_candidates`, `import_entities`, `run_mock`.
-- **Transport** ([`transport.js`](./transport.js)): `get_transport`, `reset_transport`, `get_mock_message`.
+- **Session Facade** ([`chrono.svelte.js`](./chrono.svelte.js)): `chrono_engine` (`start(selection)`, `send(text)`, `retry()`, `continue(target_id)`, `advance_turn(input, options)`, `stop()`).
+- **Lifecycle Jobs** ([`lifecycle.js`](./lifecycle.js)): `refine_image_prompt`, `parse_entity_profile`, `generate_closing`, `create_entity_with_profile`, `generate_user_draft`, `capture_story_image`, `generate_image_candidates`, `import_entities`, `run_mock`.
+- **Transport** ([`transport.js`](./transport.js)): `get_transport`.
+- **Watchdog** ([`watchdog.js`](./watchdog.js)): `install_freeze_watchdog`.
 
 ## Internal Modules
 
 - **Stateless Steps** ([`steps.js`](./steps.js)): `run_planner_step`, `run_generation_step`, `continue_generation_step`, `run_memory_consolidation_step`, `run_image_prompt_step`, `run_schema_extraction_step`, `run_round`, `resolve_continuation_separator`.
-- **Stateful Turns** ([`turns.js`](./turns.js)): `run_turn`, `continue_turn`, `persist_turn_rows`, `write_back_turn_state`, `dispatch_consolidation`, `maybe_spawn_turn_image`, `reset_turn_scope_for_testing`.
-- **Abort Helper** ([`transport.js`](./transport.js)): `is_abort_error`, `create_live_stream_fn`.
+- **Stateful Turns** ([`turns.js`](./turns.js)): `run_turn`, `continue_turn`, `write_back_turn_state`, `dispatch_consolidation`, `maybe_spawn_turn_image`, `reset_turn_scope`.
+- **Lifecycle & Transport Helpers**: `generate_opening` ([`lifecycle.js`](./lifecycle.js)), `is_abort_error`, `create_live_stream_fn`, `reset_transport`, `get_mock_message` ([`transport.js`](./transport.js)), `uninstall_freeze_watchdog` ([`watchdog.js`](./watchdog.js)).
 
 ## Invariants
 

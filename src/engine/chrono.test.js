@@ -143,18 +143,4 @@ describe("ChronoEngine", () => {
       expect(session.round).toBe(initial_round);
     });
   });
-
-  describe("story conclusion and rewind", () => {
-    it("concludes story and bumps version", async () => {
-      const before = app.stories_version;
-      await chrono_engine.conclude_active_story({ with_epilogue: false });
-      expect(app.stories_version).toBe(before + 1);
-    });
-
-    it("rewinds story and bumps version", async () => {
-      const before = app.stories_version;
-      await chrono_engine.rewind_active_story();
-      expect(app.stories_version).toBe(before + 1);
-    });
-  });
 });
