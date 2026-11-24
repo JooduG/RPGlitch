@@ -20,7 +20,6 @@ import { clear_generation_in_flight, mark_generation_in_flight, visual_engine } 
 import {
   clean_generated_prose,
   compile_prompt,
-  extract_aesthetic_traits,
   get_resolution_string,
   parse_think_block,
   reconstruct_history_from_feed,
@@ -164,7 +163,7 @@ export async function generate_opening(story_id, { signal = null } = {}) {
     const prologue_prompt = compile_prompt({
       core: "CHARACTER",
       round: 0,
-      entities: { AI: fractal_quadrant, USER: user_quadrant, FRACTAL: fractal_quadrant },
+      entities: { USER: user_quadrant, FRACTAL: fractal_quadrant },
       task_options: { turn_tempo: 3 },
     });
 
@@ -235,7 +234,7 @@ export async function generate_opening(story_id, { signal = null } = {}) {
     }
 
     try {
-      return await run_turn(prologue_text, { is_opening_turn: true, signal });
+      return await run_turn("", { is_opening_turn: true, signal });
     } finally {
       release_prologue_image();
     }
@@ -521,17 +520,9 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
     }
 
     // The context-menu picture items must hit BOTH the visualizer LLM and the
-    // image engine. The menu passes no prompt for solo portraits, so derive an
-    // envision draft from the entity itself instead of skipping the LLM leg.
-    let envision_source = prompt;
-    if (!envision_source || !envision_source.trim()) {
-      try {
-        const traits = extract_aesthetic_traits(entity || {});
-        envision_source = (traits && traits.trim()) || entity?.description || entity?.name || "";
-      } catch {
-        envision_source = entity?.description || entity?.name || "";
-      }
-    }
+    // image engine. The menu passes no prompt for solo portraits, so fall back
+    // to the entity name; <MAIN_CHARACTER> and <SCENARIO> supply full details.
+    const envision_source = (prompt && prompt.trim()) || entity?.name || role_label;
 
     // Show the "image is generating" visual RIGHT AWAY, before the (slow)
     // visualizer LLM leg runs. The placeholder row renders a Shimmer while

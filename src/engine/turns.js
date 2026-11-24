@@ -201,14 +201,15 @@ export async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, frac
  */
 export async function run_turn(user_input, _options = {}) {
   const resubmitting = Boolean(_options.is_retry || _options.is_continue);
+  const allow_empty = Boolean(resubmitting || _options.is_opening_turn);
   const trimmed_input = typeof user_input === "string" ? user_input.trim() : "";
-  if (!resubmitting && !trimmed_input) return null;
+  if (!allow_empty && !trimmed_input) return null;
 
   begin_turn_scope();
 
   const { user_quadrant, ai_quadrant, fractal_quadrant, history } = build_turn_context(app, session.feed || []);
 
-  if (trimmed_input) {
+  if (!_options.is_opening_turn && trimmed_input) {
     const last_entry = history[history.length - 1];
     if (!(last_entry && last_entry.role === "user" && last_entry.text === trimmed_input)) {
       history.push({ role: "user", text: trimmed_input, round: Number(session.round || 0) + (resubmitting ? 0 : 1) });

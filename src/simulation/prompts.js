@@ -114,7 +114,8 @@ ${thinking_block}
     - Calibrate integer deltas for narrative tension; avoid extreme swings.
 
     ### Next Action *(\`next_action\`)*
-    - Active scene speaker: select one literal enum: \`MAIN_CHARACTER\`, \`SCENARIO\`, or \`OTHER_CHARACTERS\`.
+    - Active scene speaker: select one literal enum: ${context?.has_npc ? "`MAIN_CHARACTER`, `SCENARIO`, or `OTHER_CHARACTERS`" : "`MAIN_CHARACTER` or `SCENARIO`"}.
+    - Never route to or script the COUNTERPART (User).
     - Story climax/resolution:
       - Emit "EPILOGUE_CONCLUDED" when the scene reaches a conclusive win/resolution.
       - Emit "EPILOGUE_COLLAPSED" on fatal trauma or irreversible failure.
@@ -122,7 +123,7 @@ ${thinking_block}
     <OUTPUT_FORMAT mode="json">
       {
         "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0, "velocity": 0, "entropy": 0 },
-        "next_action": "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
+        "next_action": "${context?.has_npc ? "MAIN_CHARACTER | SCENARIO | OTHER_CHARACTERS" : "MAIN_CHARACTER | SCENARIO"} | EPILOGUE_COLLAPSED | EPILOGUE_CONCLUDED",
         "directors_note": "Scene guidance delivered to the above next_action",
         "camera_note": "Cinematically frame physical posture, lighting, and camera angle for visual synthesis"
       }
@@ -218,7 +219,9 @@ ${thinking_block}
       return "<think>\n";
     },
     resolve_identity_text: (context) =>
-      `You are ${context.speaker_name}, the main character of ${context.fractal_name}. ${context.listener_name} is also here.`,
+      context.is_character ?
+        `You are ${context.speaker_name}, the main character of ${context.fractal_name}. ${context.listener_name} is also here.`
+      : `You are the narrator of ${context.fractal_name}, setting the opening scene. Describe the environment and atmosphere—never speak as a character.`,
     task_block: (context) => {
       const tempo = context?.turn_tempo || 2;
       const is_first_person = context?.is_character && context?.pov === "1st_person";
@@ -262,7 +265,7 @@ ${thinking_block}
       const camera_note = raw_note ? String(raw_note).trim() : "";
       const aesthetic_direction =
         camera_note ?
-          `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - "${camera_note}"\n`
+          `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - ${camera_note}\n`
         : "";
 
       const subject_kind = context?.subject_kind || "character";
@@ -271,8 +274,8 @@ ${thinking_block}
 
       const focal_instruction =
         is_place ?
-          "1. **Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
-        : "1. **Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.";
+          "**Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
+        : "**Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.";
 
       const synthesis_focal_directive =
         is_place ?
@@ -404,6 +407,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     input_data: task_options.input_data || "",
     pov: ai?.pov || "3rd_person",
     is_character: Boolean(ai && ai.type !== "fractal"),
+    has_npc: Boolean(npc),
     directors_note: task_options.directors_note || "",
     camera_note: task_options.camera_note || "",
     subject_kind: task_options.subject_kind || "character",
@@ -420,7 +424,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   let b2 = "";
   if (fractal) {
     const fractal_eternal_phys = format_tagged_fields(fractal.eternal?.physical || "", { see_hidden, is_counterpart: false });
-    const fractal_eternal_non = fractal.eternal?.non_physical || "";
+    const fractal_eternal_non = format_tagged_fields(fractal.eternal?.non_physical || "", { see_hidden, is_counterpart: false });
     const reality_content = [fractal_eternal_phys, fractal_eternal_non].filter(Boolean).join("\n").trim();
     if (reality_content) {
       b2 = `  <REALITY>${reality_content}</REALITY>`;
@@ -531,7 +535,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   let trajectory_block = "";
   const traj_items = [fractal?.future, ai?.future]
     .filter(Boolean)
-    .map((s) => s.trim())
+    .map((s) => format_tagged_fields(s, { see_hidden, is_counterpart: false }).trim())
     .filter(Boolean);
   if (traj_items.length > 0) {
     trajectory_block = `  <TRAJECTORY>\n    ${traj_items.join("\n    ")}\n  </TRAJECTORY>`;

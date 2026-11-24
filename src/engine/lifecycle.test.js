@@ -74,7 +74,7 @@ describe("src/engine/lifecycle.js", () => {
       const result = await generate_opening("story-1", { signal: controller.signal });
 
       expect(stream_spy).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ signal: controller.signal }));
-      expect(run_turn_spy).toHaveBeenCalledWith("Rain lashes the spire.", { is_opening_turn: true, signal: controller.signal });
+      expect(run_turn_spy).toHaveBeenCalledWith("", { is_opening_turn: true, signal: controller.signal });
       expect(result.character_turn.prose).toBe("Orion looks up.");
       expect(execution.loading).toBe(false);
     });
