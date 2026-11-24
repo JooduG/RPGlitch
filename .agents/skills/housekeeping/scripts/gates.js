@@ -104,15 +104,12 @@ export const GATE_TABLE = Object.freeze([
 
 const HIGH_RISK_SUFFIXES = Object.freeze([
   "src/engine/transport.js",
-  "src/engine/gate.js",
-  "src/engine/kernel.svelte.js",
-  "src/engine/runs.js",
+  "src/engine/steps.js",
   "src/engine/lifecycle.js",
   "src/engine/turns.js",
-  "src/engine/prompts.js",
+  "src/simulation/prompts.js",
   "src/data/db.js",
-  "src/data/entities.js",
-  "src/data/parser.js",
+  "src/data/entity-repository.js",
 ]);
 
 /**

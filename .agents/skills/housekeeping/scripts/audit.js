@@ -17,8 +17,6 @@ import { COLORS, ROOT_DIRECTORY, run_audit } from "./lib/io.js";
 import { code_hygiene_rules, legislative_debt_rules, lexical_hygiene_rules } from "./rules/hygiene.js";
 import { sync_workspace } from "./sync-ignores.js";
 
-export { sync_workspace };
-
 /**
  * Executes the complete Hygiene & Debt Auditor across code, lexical, legislative dimensions.
  *

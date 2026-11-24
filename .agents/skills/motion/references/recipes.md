@@ -74,11 +74,11 @@ Use `@media` `overlay_in` (`300ms` default) and `overlay_out` (`160ms` default) 
 {/if}
 ```
 
-**Lane 5 Handoff (Card-Hand / ContextMenu -> Modal)**: Pass `launch_gesture={false}` on action cards inside a card-hand (`Import`, `Create New`) so they do not run a 350ms eject + `guarded_transition()`, and snap-close or keep the background stationary rather than animating two blurred backdrops simultaneously:
+**Lane 5 Handoff (Card-Hand / ContextMenu -> Modal)**: Action cards inside a card-hand (`Import`, `Create New`) should directly trigger their modal handler without running an eject flight or `guarded_transition()`, snapping closed or keeping the background stationary rather than animating two blurred backdrops simultaneously:
 
 ```svelte
 <!-- Action card inside card-hand: no eject launch or View Transition -->
-<EntityCard variant="library" role_label="Import" launch_gesture={false} onclick={handle_open_import} />
+<EntityCard variant="library" role_label="Import" onclick={handle_open_import} />
 ```
 
 ## 4. Compositor-Safe Accordions (CSS Grid Trick)

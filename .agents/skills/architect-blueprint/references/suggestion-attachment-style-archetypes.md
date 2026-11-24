@@ -25,7 +25,7 @@ Adding an explicit `attachment_style` to character entities establishes predicta
 ```
 
 ### Schema Integration Points
-- **`src/data/definitions/fragments.js`**: Add `attachment_style` to `ENTITY_FRAGMENTS.ETERNAL.NON_PHYSICAL` metadata schema.
+- **`src/definitions/fragments.js`**: Add `attachment_style` to `ENTITY_FRAGMENTS.ETERNAL.NON_PHYSICAL` metadata schema.
 - **`src/data/normalizer.js`**: Default fallback (`"secure"` for baseline, or `undefined` for unassigned).
 
 ---

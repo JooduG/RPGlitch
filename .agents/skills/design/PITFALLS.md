@@ -40,11 +40,11 @@
 - **Wrong Behavior**: Bypassing `<TextField>` to build a separate pill-bordered header + individual `1px` bordered cards around each bracket entry, or adding standalone `(i)` info icons next to header labels.
 - **Correct Behavior**: Render structured read-only content inside `<TextField>` via its `content` snippet (preserving the full `--signature-color` borderless header and `glass-input` hairline), separate rows cleanly with `divide-y divide-white/5`, attach `cursor-help` + `use:tooltip` directly to the header label (with `text-balance` in `Tooltip.svelte`), and reserve decorative borders strictly for purposeful top-level/focus/terminal containers per [DESIGN.md](../../../DESIGN.md).
 
-## Pitfall 7: `ProfilePicture` Placeholder Flicker & `z-10` Stacking Order (Occurrences: 1)
+## Pitfall 7: `Avatar` Placeholder Flicker & `z-10` Stacking Order (Occurrences: 1)
 
-- **Trigger**: Rendering `<ProfilePicture>` for an entity that already has `profile_picture`, or overlaying captions atop `<ProfilePicture>`.
-- **Wrong Behavior**: Mounting `Avatar.Fallback` unconditionally during `"loading"` (flashes initials before decode) or placing text overlays without a `z-index` (gets hidden behind `ProfilePicture`'s `z-10` loaded image layer).
-- **Correct Behavior**: Only render `Avatar.Fallback` in `ProfilePicture.svelte` when `!has_media` or `loading_status === "error"`, and give text overlays `z-20`+ inside the card container.
+- **Trigger**: Rendering `<Avatar>` for an entity that already has `profile_picture`, or overlaying captions atop `<Avatar>`.
+- **Wrong Behavior**: Mounting `Avatar.Fallback` unconditionally during `"loading"` (flashes initials before decode) or placing text overlays without a `z-index` (gets hidden behind `Avatar`'s `z-10` loaded image layer).
+- **Correct Behavior**: Only render `Avatar.Fallback` in `Avatar.svelte` when `!has_media` or `loading_status === "error"`, and give text overlays `z-20`+ inside the card container.
 
 ## Pitfall 8: `InterfaceStore` (`app`) Entity Lists (Occurrences: 1)
 
@@ -80,7 +80,7 @@
 
 - **Trigger**: Dimming or desaturating a card or media surface for secondary states (e.g., `incoming_only` on `EntityCard.svelte`).
 - **Wrong Behavior**: Applying `opacity-muted grayscale` to the outer card root (`[data-card-root]`), which multiplies `0.6` opacity and grayscale across child headlines, signature borders, and glass callout text, making foreground text illegible against the backdrop.
-- **Correct Behavior**: Scope `opacity-muted grayscale` strictly to the inner portrait/media wrapper (`<ProfilePicture>` container) so the artwork dims while card borders, titles, and foreground callouts render at 100% contrast (`text-frisk`).
+- **Correct Behavior**: Scope `opacity-muted grayscale` strictly to the inner portrait/media wrapper (`<Avatar>` container) so the artwork dims while card borders, titles, and foreground callouts render at 100% contrast (`text-frisk`).
 
 ## Pitfall 14: Dynamic `role` Ternaries With Nonnegative `tabindex` (`a11y_no_noninteractive_tabindex`) (Occurrences: 1)
 

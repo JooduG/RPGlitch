@@ -4,7 +4,7 @@
 
 > **Status:** Backlog Proposal & Conceptual Reference
 > **Domain:** Prompt Pipeline, Narrative Styles, Memory Tiering & Product Documentation
-> **Scope:** `src/data/definitions/narrative-styles.js`, `src/intelligence/prompts.js`, `README.md` / `FEATURES.md`
+> **Scope:** `src/definitions/narrative-styles.js`, `src/simulation/prompts.js`, `README.md` / `FEATURES.md`
 
 ---
 
@@ -13,7 +13,7 @@
 This reference captures key design principles from MoeChat's architecture (`tmp/SPEC-models.md` and `tmp/FEATURES.md`) adapted for RPGlitch's simulation physics and Svelte 5 engine.
 
 Rather than adopting MoeChat's rigid length dials or character chat structures directly, this proposal explores:
-1. **Model Overlays as Lens Presets ("The Presets Shelf")**: A declarative shelf of prompt pipeline overlays that can cross-reference and augment our existing [`narrative-styles.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/data/definitions/narrative-styles.js).
+1. **Model Overlays as Lens Presets ("The Presets Shelf")**: A declarative shelf of prompt pipeline overlays that can cross-reference and augment our existing [`narrative-styles.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/definitions/narrative-styles.js).
 2. **Dynamic Memory Tiering / Recall Ranks**: Decoupling memory write depth (which remains invariant to prevent story amnesia) from situational recall depth based on active narrative tension.
 3. **RPGlitch Product Tour ("FEATURES.md")**: Creating a consumer-facing, plain-language showcase document of RPGlitch's simulation mechanics, Somatic Physics, Epistemic Wall, and Story Triad.
 
@@ -24,7 +24,7 @@ Rather than adopting MoeChat's rigid length dials or character chat structures d
 ### Core Philosophy from `SPEC-models.md`
 > "A model is a package, not a length. It owns voice (its prompt overlay) + shape (its native structure) + memory rank + size ceiling."
 
-In RPGlitch, our Director pass (Shot 1) and Storyteller pass (Shot 2) already handle length dynamically via `BEAT_BUDGET` and `MOMENTUM`. However, we can adapt the concept of **Overlays** and **Preset Shelves** to enrich [`narrative-styles.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/data/definitions/narrative-styles.js):
+In RPGlitch, our Director pass (Shot 1) and Storyteller pass (Shot 2) already handle length dynamically via `BEAT_BUDGET` and `MOMENTUM`. However, we can adapt the concept of **Overlays** and **Preset Shelves** to enrich [`narrative-styles.js`](file:///c:/Users/johng/source/repos/RPGlitch/src/definitions/narrative-styles.js):
 
 ### 1. Cross-Referencing Narrative Styles with Structural Lenses
 Currently, `narrative-styles.js` defines author presets (`cormac_mccarthy`, `william_gibson`, `gothic`, `lovecraft`) with `rhythm`, `sensory`, `internal_ratio`, and `motifs`. We can expand this with modular **Structural Lenses** selectable from a UI "Shelf":

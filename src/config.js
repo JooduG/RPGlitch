@@ -83,6 +83,7 @@ export const LENGTH_THRESHOLDS = Object.freeze({
   COMPACT: 200, // Physical & agenda baseline floor
   MEDIUM: 300, // Psychological & past memory floor
   EXPANSIVE: 500, // Core personality floor & expansive input cadence (>= 500)
+  INGESTION: 8000, // Ingestion extraction & readable truncation ceiling
 });
 
 // ── 3. Visual Media Resolutions ──────────────────────────────────────────────

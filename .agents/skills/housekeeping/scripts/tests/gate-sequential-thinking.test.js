@@ -28,9 +28,13 @@ describe("gate sequential-thinking-gate", () => {
   });
 
   it("flags the rank-2 turn-pipeline + persistence spine as high risk", () => {
-    expect(is_high_risk_file("src/engine/runs.js")).toBe(true);
-    expect(is_high_risk_file("src/engine/prompts.js")).toBe(true);
+    expect(is_high_risk_file("src/engine/transport.js")).toBe(true);
+    expect(is_high_risk_file("src/engine/steps.js")).toBe(true);
+    expect(is_high_risk_file("src/engine/lifecycle.js")).toBe(true);
+    expect(is_high_risk_file("src/engine/turns.js")).toBe(true);
+    expect(is_high_risk_file("src/simulation/prompts.js")).toBe(true);
     expect(is_high_risk_file("src/data/db.js")).toBe(true);
+    expect(is_high_risk_file("src/data/entity-repository.js")).toBe(true);
     expect(is_high_risk_file("src/ui/organisms/ChatBubble.svelte")).toBe(false);
   });
 

@@ -73,10 +73,10 @@ Always read [DESIGN.md](../../../DESIGN.md) before UI work. `DESIGN.md` is the s
 ## 5. UI Atoms, Molecules, Organisms & State Sovereignty
 
 - **Directory Structure**:
-  - [src/ui/atoms/](../../../src/ui/atoms/README.md) (`14` atoms + `tooltip` action): `Accordion`, `Avatar`, `Backdrop`, `Button`, `DevGrid`, `Icon`, `Label`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `Toggle`, `Tooltip`, `Typewriter`.
-  - [src/ui/molecules/](../../../src/ui/molecules/README.md) (`9` molecules): `CardSkeleton`, `ContextMenu`, `Dialog`, `Dropdown`, `Meter`, `Modal`, `SourceField`, `TextField`, `UndoToast`.
-  - [src/ui/organisms/](../../../src/ui/organisms/README.md): `AudioWing`, `BracketList`, `ChatBubble`, `DevWing`, `EntityCard`, `entity-actions.js`, `ImagePreview.svelte.js`, `MacroText`, `Profile.svelte.js`, `ProfilePicture`, `RelationalGraph`, `StoryCard`, `StyleBadge`, `VisualWing`.
-  - `src/ui/` root stage views: `Storyboard.svelte`, `Storymode.svelte`, `Console.svelte`, `Profile.svelte`, `ImagePreview.svelte`.
+  - [src/ui/atoms/](../../../src/ui/atoms/README.md) (`15` atoms + `tooltip` action): `Accordion`, `Avatar`, `Backdrop`, `Button`, `Icon`, `Label`, `LayoutGrid`, `ProgressBar`, `ScrollArea`, `Shimmer`, `Slider`, `StyleTile`, `Toggle`, `Tooltip`, `Typewriter`.
+  - [src/ui/molecules/](../../../src/ui/molecules/README.md) (`11` molecules): `BracketList`, `CardSkeleton`, `Dialog`, `Dropdown`, `MacroText`, `Meter`, `Modal`, `SourceField`, `StoryboardTitle`, `StoryCard`, `TextField`, `UndoToast`.
+  - [src/ui/organisms/](../../../src/ui/organisms/README.md): `AudioWing`, `CardHand`, `ChatBubble`, `Console`, `ContextMenu`, `DevBubble`, `DevWing`, `EntityCard`, `ImageBubble`, `ImagePreview`, `ImagePreview.svelte.js`, `RelationalGraph`, `StoryLibrary`, `VisualWing`.
+  - `src/ui/` root stage views: `Storyboard.svelte`, `Storyboard.svelte.js`, `Storymode.svelte`, `Profile.svelte`, `Profile.svelte.js`.
 - **Bits UI (`^2.20.6`) Boundary**: Organisms and stage views consume `@atoms` and `@molecules` first. Direct `bits-ui` imports (`AlertDialog`, `Avatar`, `Button`, `Collapsible`, `Dialog`, `Label`, `Meter`, `Progress`, `ScrollArea`, `Select`, `Slider`, `Switch`, `Tooltip`) stay encapsulated inside `src/ui/atoms/` and `src/ui/molecules/`. `Dropdown.svelte` wraps `Select` (no `DropdownMenu` or `Popover` exists). Use `{#snippet child({ props })}` for render delegation and keep `bind:ref` and `origin-(--transform-origin)` internal to wrappers. Rely on `bits-ui` for ARIA roles and modal focus management.
 - **Reactive State Ownership Matrix**:
   - [src/state/session.svelte.js](../../../src/state/session.svelte.js) (`session`): Active entities (`active_user`, `active_ai`, `active_fractal`, `active_npcs`), dynamics (`ai_dynamics`, `fractal_dynamics`), `round`, `feed`.

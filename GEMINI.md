@@ -57,7 +57,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 - **Turn Execution & Streaming**: `execution` in [src/state/execution.svelte.js](./src/state/execution.svelte.js) (`phase`, `role`, `busy`, `loading`, `stream`, `recover`).
 - **UI Navigation, Settings & Staging**: `app` in [src/state/interface.svelte.js](./src/state/interface.svelte.js) (`view`, `profile_open`, `settings`, `selected_*`); image lightbox state lives in [src/ui/organisms/ImagePreview.svelte.js](./src/ui/organisms/ImagePreview.svelte.js) (`image_preview`).
 - **Audio Engine**: [src/media/audio.svelte.js](./src/media/audio.svelte.js) (`Audio`).
-- **Simulation & Vector Caps**: Detailed 3-turn heartbeat, Speaking Styles (`casual`, `lyrical`, `primal`, `clinical` + `detox_prose`), and Quad-Partitioned Entity schemas (`eternal`, `present`, `past`, `future`) live in [README.md](./README.md) and [.agents/skills/simulation/SKILL.md](./.agents/skills/simulation/SKILL.md). Ephemeral 384-d retrieval cache enforces `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` in [src/config.js](./src/config.js#L104); `usr_` memories carry `is_origin` (`1.5x` relevance multiplier).
+- **Simulation & Dynamics**: Detailed 3-turn heartbeat, Speaking Styles (`casual`, `lyrical`, `primal`, `clinical` + `detox_prose`), and Quad-Partitioned Entity schemas (`eternal`, `present`, `past`, `future`) live in [README.md](./README.md) and [.agents/skills/simulation/SKILL.md](./.agents/skills/simulation/SKILL.md); `usr_` memories carry `is_origin` (`1.5x` relevance multiplier).
 
 ---
 

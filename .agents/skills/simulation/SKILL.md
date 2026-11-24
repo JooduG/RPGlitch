@@ -27,7 +27,7 @@ description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/e
 ### Rank 1 (`src/simulation/`)
 
 - **Prompt Compilation (`src/simulation/prompts.js`)**: `PURPOSE_CORES` and `compile_prompt()` assemble the Spatial State Spine (`<SYSTEM>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, etc.). Keep the opening prefix byte-identical across turns for KV-cache reuse.
-- **Memory & Budgets (`src/simulation/retrieval.js`)**: Two-Tier Sieve RAG enforces character budgets (`FIELD_FLOORS`, `TOTAL_FIELD_FLOORS_CHARACTERS = 1700`) and `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` (`src/config.js`). `usr_` memories are origin-protected (`1.5x` relevance).
+- **Memory & Budgets (`src/simulation/retrieval.js`)**: Two-Tier Sieve RAG enforces character budgets (`FIELD_FLOORS`, `TOTAL_FIELD_FLOORS_CHARACTERS = 1700`). `usr_` memories are origin-protected (`1.5x` relevance).
 - **Dynamics & Output (`src/simulation/dynamics.js`, `brackets.js`, `history.js`, `llm-output.js`)**: `step_dynamics`, `resolve_caretaker_target`, `format_tagged_fields`, `clean_generated_prose`.
 
 ---
@@ -38,22 +38,22 @@ description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/e
 2. **Preserve Prefix & Agency**: Keep `<SYSTEM>` / `<AXIOMATIC_CONSTITUTION>` byte-identical across turns and never emit user-persona speech/thoughts.
 3. **Verify Epistemic & Visual Filters**: Ensure `format_tagged_fields` (`src/simulation/brackets.js`) and `build_aesthetic_map` (`src/simulation/prompts.js`) remain intact.
 4. **In-Folder Imports**: Use relative `./file.js` imports inside `src/engine/` (never `@engine`).
-5. **Test**: Run `npm run audit:simulation` and `npm run test:unit` after edits.
+5. **Test**: Run `npm run agent:test:simulation` and `npm run test:unit` after edits.
 
 ---
 
 ## 3. Counter-Rationalization Table
 
-| Excuse                                             | Reality                                                                                    |
-| :------------------------------------------------- | :----------------------------------------------------------------------------------------- |
-| "I'll just put the round number in `<SYSTEM>`."    | Breaks provider KV-cache prefix reuse. Put volatile state after the static prefix.         |
-| "I'll import from `@engine` inside `src/engine/`." | Causes circular barrel imports. Use relative `./file.js` inside `src/engine/`.             |
-| "It's just a small prompt tweak, no test needed."  | Prompt structure is contract-tested. Run `npm run audit:simulation` and `prompts.test.js`. |
+| Excuse                                             | Reality                                                                                         |
+| :------------------------------------------------- | :---------------------------------------------------------------------------------------------- |
+| "I'll just put the round number in `<SYSTEM>`."    | Breaks provider KV-cache prefix reuse. Put volatile state after the static prefix.              |
+| "I'll import from `@engine` inside `src/engine/`." | Causes circular barrel imports. Use relative `./file.js` inside `src/engine/`.                  |
+| "It's just a small prompt tweak, no test needed."  | Prompt structure is contract-tested. Run `npm run agent:test:simulation` and `prompts.test.js`. |
 
 ---
 
 ## 4. Verification Checklist
 
-- [ ] `npm run audit:simulation` passes (`sim-check.test.js`).
+- [ ] `npm run agent:test:simulation` passes (`sim-check.test.js`).
 - [ ] `npm run audit:layers` reports 0 layer boundary violations.
 - [ ] `npm run test:unit` passes with 0 regressions.

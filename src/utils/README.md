@@ -2,7 +2,7 @@
 
 ## Overview
 
-Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design tokens, deterministic palette resolution, numeric/vector math, string/XML escaping, inline Markdown tokenization, dot-path traversal, `@ENTITY` macro resolution, HTML sanitization/extraction, web/image ingestion, browser DOM actions, MiniLM embeddings, and async concurrency control.
+Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design tokens, deterministic palette resolution, numeric/vector math, string/XML escaping, inline Markdown tokenization, dot-path traversal, `@ENTITY` macro resolution, HTML sanitization/extraction, web/image ingestion, browser DOM actions, and async concurrency control.
 
 - **Barrel Entry Point**: [`index.js`](./index.js) re-exports `*` from all 10 implementation modules (`tokens.js`, `palette.js`, `math.js`, `text.js`, `field-path.js`, `macros.js`, `html.js`, `ingestion.js`, `dom.js`, `async.js`).
 - **Dependency Boundary**: Modules import only intra-package siblings, `@config`, `dompurify`, and `svelte/reactivity`. Upward imports from `@ui`, `@atoms`, `@molecules`, `@organisms`, `@engine`, `@state`, `@data`, `@media`, `@simulation`, or `@definitions` are forbidden.
@@ -28,11 +28,10 @@ Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design to
 
 - [`html.js`](./html.js): Exports `sanitize`, `sanitize_to_fragment`, `BLOCK_LEVEL_TAGS`, `NOISE_SELECTORS`, `decode_html_entities`, `html_to_plain_text`, and `truncate_readable`.
 - [`ingestion.js`](./ingestion.js): Exports `IMAGE_SIGNATURE_VALIDATORS`, `validate_image`, `blob_to_data_url`, `get_super_fetch_engine`, `validate_url`, and `fetch_web`.
-- [`dom.js`](./dom.js): Exports `install_environment_hardening`, `ensure_theme_tokens`, `resolve_px`, `resolve_ms`, `resolve_number`, `resolve_string`, `download_text_file`, `download_json_file`, `guarded_transition`, `use_actions`, `click_outside`, `safe_html`, and `auto_resize`.
+- [`dom.js`](./dom.js): Exports `install_environment_hardening`, `ensure_theme_tokens`, `resolve_px`, `resolve_ms`, `resolve_number`, `resolve_string`, `download_text_file`, `download_json_file`, `guarded_transition`, `click_outside`, `safe_html`, and `auto_resize`.
 
-### 5. Neural Embeddings & Async Control
+### 5. Async Concurrency & Circuit Breaking
 
-- [`embeddings.svelte.js`](./embeddings.svelte.js): Exports `load_model`, `embed`, `is_ready`, and `embeddings_engine` (`load_progress`, `is_loading`, `model_ready`, `cache_stats()`, `_debug_reset_cache()`, `_debug_set_pipeline()`).
 - [`async.js`](./async.js): Exports `CLEARED_RESULT`, `SUPERSEDED_RESULT`, `create_job_queue`, `LLM_PRIORITY`, `enqueue_llm_job`, `resolve_priority`, `get_queue_status`, `reset_queue_for_testing`, `merge_abort_signals`, `ExponentialBackoffRetryer`, and `CircuitBreaker`.
 
 ## Invariants
@@ -40,13 +39,13 @@ Rank-0 shared utilities package (`@utils`) for **RPGlitch**, providing design to
 - **Prototype Pollution Guard** ([`field-path.js`](./field-path.js)): `get_value` and `set_value` reject any segment in `UNSAFE_PATH_KEYS` (`__proto__`, `prototype`, `constructor`).
 - **XSS & Upload Safety** ([`html.js`](./html.js), [`ingestion.js`](./ingestion.js)): `sanitize` and `sanitize_to_fragment` enforce `{ SANITIZE_DOM: true, SANITIZE_NAMED_PROPS: true }` in browser contexts. `validate_url` allows only `https` (plus `http` when `allow_http` is set) and optional `allowed_hosts` suffixes; `validate_image` checks byte size, MIME allowlist, and 12-byte magic headers.
 - **CSPRNG & Hashing** ([`math.js`](./math.js)): `generate_uuid` and `generate_secure_seed` require `globalThis.crypto`; `generate_secure_seed` uses rejection sampling for `limit < 2^32`. `fnv1a_hash` returns `0` for non-strings.
-- **Embeddings & Concurrency** ([`embeddings.svelte.js`](./embeddings.svelte.js), [`async.js`](./async.js)): `load_model` enforces single-flight initialization with `wasm.proxy = false` and `wasm.numThreads = 1`; `embed` serializes inference via an internal `max_concurrency: 1` queue, validates `EMBEDDING_SPECS.DIMENSIONS` (`384`), bounds the `SvelteMap` LRU cache at `_max_cache`, and retries once on pipeline failure. `CircuitBreaker` transitions `CLOSED -> OPEN -> HALF_OPEN` and rejects queued callers on `reset()`.
+- **Async Concurrency & Circuit Breaking** ([`async.js`](./async.js)): `create_job_queue` serializes inference and operations via configurable `max_concurrency`. `CircuitBreaker` transitions `CLOSED -> OPEN -> HALF_OPEN` and rejects queued callers on `reset()`.
 - **DOM & View Transitions** ([`dom.js`](./dom.js)): `resolve_px` reads computed styles without injecting measurement DOM nodes; `guarded_transition` prevents re-entrant `document.startViewTransition` calls via `_transition_state.active`.
 
 ## Side Effects
 
-- **DOM & Window Mutation** ([`dom.js`](./dom.js)): `install_environment_hardening` wraps `console.error` and `window.onerror` and attaches capture-phase `error`/`unhandledrejection` listeners; `ensure_theme_tokens` sets missing CSS custom properties on `:root`; `download_*` creates and revokes Object URLs; `guarded_transition` toggles `options.className` on `documentElement`; `use_actions`, `click_outside`, `safe_html`, and `auto_resize` attach DOM listeners/observers and mutate element properties.
-- **Network & WASM Runtime** ([`embeddings.svelte.js`](./embeddings.svelte.js), [`ingestion.js`](./ingestion.js)): `load_model` fetches `@huggingface/transformers@3.5.2` from `esm.sh` and updates Svelte `$state` runes; `fetch_web` performs outbound requests via `super-fetch-plugin` or local-dev `fetch()`.
+- **DOM & Window Mutation** ([`dom.js`](./dom.js)): `install_environment_hardening` wraps `console.error` and `window.onerror` and attaches capture-phase `error`/`unhandledrejection` listeners; `ensure_theme_tokens` sets missing CSS custom properties on `:root`; `download_*` creates and revokes Object URLs; `guarded_transition` toggles `options.className` on `documentElement`; `click_outside`, `safe_html`, and `auto_resize` attach DOM listeners/observers and mutate element properties.
+- **Network Runtime** ([`ingestion.js`](./ingestion.js)): `fetch_web` performs outbound requests via `super-fetch-plugin` or local-dev `fetch()`.
 - **Timers & Entropy** ([`async.js`](./async.js), [`math.js`](./math.js), [`text.js`](./text.js)): `async.js` schedules `setTimeout` timers and `AbortSignal` listeners; `math.js` consumes `globalThis.crypto`; `format_datetime` reads local clock/timezone.
 
 ## Verification

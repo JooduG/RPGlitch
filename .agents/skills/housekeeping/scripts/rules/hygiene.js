@@ -7,7 +7,7 @@
 
 import fs from "fs";
 import path from "path";
-import { PROJECT_ROOT_DIRECTORY, ROOT_DIRECTORY, SKILLS_DIRECTORY, safe_stat_sync } from "../lib/io.js";
+import { ROOT_DIRECTORY, SKILLS_DIRECTORY, safe_stat_sync } from "../lib/io.js";
 
 // --- Group A: Code & Structural Hygiene Rules ---
 export const code_hygiene_rules = [
@@ -217,7 +217,7 @@ export const legislative_debt_rules = [
     message: "🚨 SKILL file deviates from Sovereign Template structure.",
     validate: (file_content, file_path) => {
       if (!file_path.endsWith("SKILL.md")) return true;
-      const relative_path = path.relative(PROJECT_ROOT_DIRECTORY, file_path).replace(/\\/g, "/");
+      const relative_path = path.relative(ROOT_DIRECTORY, file_path).replace(/\\/g, "/");
       if (!relative_path.startsWith(".agents/skills/")) return true;
       const skill_name = path.basename(path.dirname(file_path));
       return audit_skill_directory(skill_name);

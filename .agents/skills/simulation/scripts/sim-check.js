@@ -15,8 +15,8 @@
  *   mock transport, plus resolve_caretaker_target from
  *   src/simulation/dynamics.js.
  * - memory stress: rank_memories + select_context_memories + cosine_similarity
- *   from src/simulation/retrieval.js + src/utils/vectors.js (the real
- *   Two-Tier Sieve), token counting via count_text_tokens from
+ *   from src/simulation/retrieval.js + src/utils/math.js (the real
+ *   Two-Tier Sieve), token counting via count_tokens from
  *   src/utils/text.js.
  *
  * No byte pins: prompt bytes are environment truth (generated tokens.js, DESIGN
@@ -260,8 +260,8 @@ if (process.argv[1] && String(process.argv[1]).endsWith("sim-check.js")) {
  *   (deleted config keys). Asserts live shape + behavior only.
  * 2026-11-17: Phase 5 cutover - imports repointed to live homes (compile_prompt from
  *   @simulation/prompts, sieve via rank_memories/select_context_memories from
- *   @simulation/retrieval, cosine_similarity from @utils/vectors,
- *   count_text_tokens from @utils/text, turn verbs from @engine/runner,
+ *   @simulation/retrieval, cosine_similarity from @utils/math,
+ *   count_tokens from @utils/text, turn verbs from @engine/steps.js,
  *   resolve_caretaker_target from @simulation/dynamics). Structuring step now
  *   returns the parsed object directly.
  */

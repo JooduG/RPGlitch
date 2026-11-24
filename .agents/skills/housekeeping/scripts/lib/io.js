@@ -14,8 +14,7 @@ import { fileURLToPath } from "url";
 const CURRENT_FILE_PATH = fileURLToPath(import.meta.url);
 const CURRENT_DIRECTORY = path.dirname(CURRENT_FILE_PATH);
 export const ROOT_DIRECTORY = path.resolve(CURRENT_DIRECTORY, "..", "..", "..", "..", "..");
-export const PROJECT_ROOT_DIRECTORY = ROOT_DIRECTORY;
-export const SKILLS_DIRECTORY = path.join(PROJECT_ROOT_DIRECTORY, ".agents", "skills");
+export const SKILLS_DIRECTORY = path.join(ROOT_DIRECTORY, ".agents", "skills");
 
 export const COLORS = Object.freeze({ RED: "\x1b[31m", YELLOW: "\x1b[33m", GREEN: "\x1b[32m", CYAN: "\x1b[36m", RESET: "\x1b[0m" });
 

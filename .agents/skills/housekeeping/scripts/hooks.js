@@ -13,8 +13,7 @@
  *   - file-architecture-gate:   PreToolUse validation for file structure headers & changelogs.
  *   - grep-truncation:          PostToolUse hard-stop circuit breaker on capped grep results.
  *   - circuit-breaker:          PostToolUse 3-strike self-audit circuit breaker on tool failures.
- *   - svelte-pre-invocation:    PreInvocation prompt injection for svelte-autofixer awareness.
- *   - svelte-stop-gate:         Stop gate ensuring svelte-autofixer runs after .svelte changes.
+ *   - planning-handoff:         Stop gate verifying changes are recorded in CHANGELOG/ROADMAP.
  *   - stop-hygiene:             Stop gate preventing transient debris in repository root.
  */
 
@@ -494,77 +493,6 @@ export function handle_circuit_breaker(payload) {
 }
 
 /**
- * PreInvocation: Svelte Autofixer Prompt Injector.
- *
- * @param {any} payload Hook payload from stdin.
- */
-export function handle_svelte_pre_invocation(_payload) {
-  send_hook_response({ injectSteps: [] });
-}
-
-/**
- * Stop: Svelte Autofixer Verification Gate.
- *
- * @param {any} payload Hook payload from stdin.
- */
-export function handle_svelte_stop_gate(payload) {
-  const transcript_path = payload?.transcriptPath || "";
-  if (!transcript_path || !fs.existsSync(transcript_path)) {
-    send_hook_response({ decision: "stop" });
-    return;
-  }
-
-  let modified_svelte = false;
-  let ran_autofixer = false;
-
-  try {
-    const raw_transcript = fs.readFileSync(transcript_path, "utf-8");
-    const all_lines = raw_transcript.trim().split("\n");
-    // Optimize performance: slice trailing 60 lines (last turn) to avoid O(transcript) scan
-    const lines = all_lines.slice(-60);
-
-    for (let i = lines.length - 1; i >= 0; i--) {
-      const line = lines[i];
-      if (!line) continue;
-
-      try {
-        const step = JSON.parse(line);
-        if (step.type === "USER_INPUT") break;
-
-        const stringified = JSON.stringify(step);
-        if (stringified.includes("svelte-autofixer")) {
-          ran_autofixer = true;
-        }
-
-        if (
-          /\.svelte["']/.test(stringified) &&
-          (step.tool_calls?.some((tc) => tc.name === "write_to_file" || tc.name === "replace_file_content" || tc.name === "multi_replace_file_content") ||
-            step.content?.includes("write_to_file") ||
-            step.content?.includes("replace_file_content"))
-        ) {
-          modified_svelte = true;
-        }
-      } catch {
-        // Ignore JSON error
-      }
-    }
-  } catch {
-    // If read fails, allow stop
-  }
-
-  if (modified_svelte && !ran_autofixer) {
-    send_hook_response({
-      decision: "continue",
-      reason:
-        "Svelte component code was modified or created, but `svelte-autofixer` was not executed. You must call `call_mcp_tool` with ServerName: 'svelte' and ToolName: 'svelte-autofixer' on the modified Svelte file to verify and fix any component issues before concluding.",
-    });
-    return;
-  }
-
-  send_hook_response({ decision: "stop" });
-}
-
-/**
  * Stop: Planning Handoff Gate.
  * Validates that substantive changes in `src/` are recorded in CHANGELOG.md or ROADMAP.md,
  * and ensures spec-to-code alignment against the active blueprint in ROADMAP.md.
@@ -693,25 +621,17 @@ export function handle_stop_hygiene(payload) {
 
 const ALL_HANDLERS = {
   "command-guard": handle_command_guard,
-  "guard-commands": handle_command_guard,
   "sequential-thinking-gate": handle_sequential_thinking_gate,
   "mcp-argument-normalizer": handle_mcp_argument_normalizer,
-  "waldzell-router": handle_mcp_argument_normalizer,
   "file-architecture-gate": handle_file_architecture_gate,
   "grep-truncation": handle_grep_truncation,
   "circuit-breaker": handle_circuit_breaker,
-  "svelte-pre-invocation": handle_svelte_pre_invocation,
-  "svelte-stop-gate": handle_svelte_stop_gate,
   "planning-handoff": handle_planning_handoff,
   "stop-hygiene": handle_stop_hygiene,
-  "workspace-hygiene": handle_stop_hygiene,
 };
 
 const REGISTERED_SUBCOMMANDS = new Set(GATE_TABLE.map((gate) => gate.subcommand));
 
-// NOTE: svelte-pre-invocation / svelte-stop-gate and the waldzell-router /
-// guard-commands / workspace-hygiene aliases stay dispatchable for backward
-// compatibility but are no longer registered gates (see gates.js).
 const HOOK_DISPATCH_TABLE = Object.freeze(Object.fromEntries(Object.entries(ALL_HANDLERS).filter(([subcommand]) => REGISTERED_SUBCOMMANDS.has(subcommand))));
 
 /**
@@ -759,6 +679,7 @@ if (is_main_execution) {
 /**
  * CHANGELOG
  * -------------------------------------------------------------------------------------------------
+ * 2026-11-24: Pruned retired svelte handlers and legacy aliases per P4 zero backwards compatibility mandate.
  * 2026-11-14: Standardized workspace_root resolution in handle_sequential_thinking_gate via resolve_repo_root(payload) and updated CLI header path to .agents/skills/local-scripts/scripts/hooks.js.
  * 2026-11-10: Dispatch table + high-risk policy now driven by gates.js GATE_TABLE (single source;
  *   hooks.json regenerated via `node gates.js --dump`). Retired svelte-autofixer pair + aliases

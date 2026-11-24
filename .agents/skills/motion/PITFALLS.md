@@ -44,7 +44,7 @@
 
 - **Trigger**: Opening a modal or secondary drawer from inside an active card-hand drawer or context menu on the same synchronous tick.
 - **Wrong Behavior**: Playing a card eject animation (`350ms`), sliding the card-hand down (`300ms`), and fading out the card-hand backdrop (`150ms`) while simultaneously fading in a blurred modal backdrop (`150ms`) and rising the modal content (`300ms`). This forces the GPU to recalculate a 16px Gaussian blur every frame against moving geometry, causing compositor frame drops.
-- **Correct Behavior**: Skip leaf launch animations on action cards (`launch_gesture={false}`), snap the card-hand closed instantly or let it sit stationary beneath the incoming modal backdrop, and stagger surface transitions.
+- **Correct Behavior**: Skip leaf launch animations on action cards, snap the card-hand closed instantly or let it sit stationary beneath the incoming modal backdrop, and stagger surface transitions.
 
 ## Pitfall 8: Non-Morph View Transitions (`guarded_transition` on Actions) (Occurrences: 1)
 

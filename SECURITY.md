@@ -24,7 +24,7 @@ RPGlitch has no backend server; all state lives locally in the browser (IndexedD
 
 ### 2.2 HTML Sanitization & Markdown Rendering
 
-- **AST-Based Markdown (`src/utils/markdown.js`, `src/ui/molecules/TextField.svelte`)**: Markdown is parsed into an AST token array and rendered via native Svelte snippets (`{@render token_content(...)}`) without evaluating HTML strings.
+- **AST-Based Markdown (`src/utils/text.js`, `src/ui/molecules/TextField.svelte`)**: Markdown is parsed into an AST token array via `parse_markdown` and rendered via native Svelte snippets (`{@render token_content(...)}`) without evaluating HTML strings.
 - **DOMPurify (`src/utils/html.js`)**: `sanitize()` and `sanitize_to_fragment()` enforce `{ SANITIZE_NAMED_PROPS: true, SANITIZE_DOM: true }` to prevent XSS and DOM clobbering (verified by `SECURITY_DOMPURIFY_CONFIG` in `npm run audit:hygiene`).
 - **Sanitized Typewriter (`src/ui/atoms/Typewriter.svelte`)**: `current_word_html` runs through `sanitize()` once per phrase before `{@html sliced_html}` character slicing.
 

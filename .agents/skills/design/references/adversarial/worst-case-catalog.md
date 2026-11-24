@@ -99,7 +99,7 @@ _(Includes cross-domain currency/count edge cases alongside RPGlitch numeric met
 
 ## 6. Time & Chronology
 
-RPGlitch timestamps follow `GEMINI.md`'s **Swedish Date Standard (`YYYY-MM-DD HH:MM`, `Europe/Stockholm`)** via `format_datetime(ts)` (`src/utils/text.js`), while narrative turns display integer `round` counters (`runtime.svelte.js`):
+RPGlitch timestamps follow `GEMINI.md`'s **Swedish Date Standard (`YYYY-MM-DD HH:MM`, `Europe/Stockholm`)** via `format_datetime(ts)` (`src/utils/text.js`), while narrative turns display integer `round` counters (`session.svelte.js`):
 
 | Value                         | Breaks                                                                                    |
 | :---------------------------- | :---------------------------------------------------------------------------------------- |
@@ -118,7 +118,7 @@ Use `format_datetime()` (`sv-SE` / `Intl.DateTimeFormat`) for timestamps rather 
 
 | Value                                          | Breaks                                                                                         |
 | :--------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| Avatar URL returning `404`                     | Native broken-image icon instead of `ProfilePicture.svelte` `Avatar.Fallback` initials         |
+| Avatar URL returning `404`                     | Native broken-image icon instead of `Avatar.svelte` `Avatar.Fallback` initials                 |
 | No portrait media (`null` / `""`)              | Fallback contrast, centering, and sizing parity with loaded portraits                          |
 | `4000x200` extreme panorama                    | Stretches or squishes without `object-cover`                                                   |
 | `200x4000` extreme portrait                    | Overflows card height without constrained container bounds (`--spacing-character-card-height`) |

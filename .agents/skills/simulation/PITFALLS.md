@@ -26,7 +26,7 @@
 
 - **Trigger**: Reading older docs or writing new simulation tests/modules.
 - **Wrong Behavior**: Importing from eradicated `src/intelligence/*` paths, or assuming `PAST_VECTOR_CAP = 20`.
-- **Correct Behavior**: Use `src/engine/` (`chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`), `src/simulation/` (`brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`), `src/state/` (`execution.svelte.js`, `interface.svelte.js`, `session.svelte.js`), and `FIELD_FLOORS` / `EMBEDDING_SPECS.MAX_EPHEMERAL_VECTORS = 200` from `src/config.js`.
+- **Correct Behavior**: Use `src/engine/` (`chrono.svelte.js`, `lifecycle.js`, `steps.js`, `transport.js`, `turns.js`), `src/simulation/` (`brackets.js`, `dynamics.js`, `history.js`, `llm-output.js`, `prompts.js`, `retrieval.js`), `src/state/` (`execution.svelte.js`, `interface.svelte.js`, `session.svelte.js`), and `FIELD_FLOORS` from `src/config.js`.
 
 ## 5. Value-Referenced `[KEY: ... @TARGET ...]` & `<MEMORIES>` Key Preservation (Occurrences: 1)
 
