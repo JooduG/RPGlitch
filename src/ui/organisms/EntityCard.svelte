@@ -1,12 +1,8 @@
 <script module>
   let morph_epoch = $state(0);
 
-  export function claim_morph_epoch() {
+  function claim_morph_epoch() {
     morph_epoch += 1;
-    return morph_epoch;
-  }
-
-  export function get_morph_epoch() {
     return morph_epoch;
   }
 </script>
@@ -18,7 +14,6 @@
    */
   import { Avatar, Icon, StyleTile } from "@atoms";
   import { resolve_entity_style_tiles } from "@definitions";
-  import { motion } from "@media";
   import { BracketList, MacroText } from "@molecules";
   import { app, session } from "@state";
   import { entity_avatar_props, get_signature_color } from "@utils";
@@ -32,9 +27,6 @@
    * @property {boolean} [disabled]
    * @property {string} [role_label]
    * @property {() => void} [onclick]
-   * @property {() => void} [on_select]
-   * @property {boolean} [launch_gesture]
-   * @property {string | null} [description_override]
    * @property {any} [description_owner]
    * @property {Array<{ key: string, value: string, is_hidden?: boolean }> | null} [bracket_items]
    * @property {boolean} [incoming_only]
@@ -49,9 +41,6 @@
     disabled = false,
     role_label = "",
     onclick = undefined,
-    on_select = undefined,
-    launch_gesture = true,
-    description_override = null,
     description_owner = null,
     bracket_items = null,
     incoming_only = false,
@@ -59,11 +48,8 @@
   } = $props();
 
   let is_pressing = $state(false);
-  let is_launching = $state(false);
   let fractal_storymode_ratio = $state("4 / 3");
   let my_morph_epoch = 0;
-  /** @type {ReturnType<typeof setTimeout> | null} */
-  let fallback_timeout = null;
 
   // --- LAYOUT & MODE DERIVATIONS ---
   const is_empty = $derived(!entity);
@@ -73,16 +59,13 @@
   const is_storymode_fractal = $derived(is_fractal && app.view === "storymode" && !is_library && !is_message);
   const signature_color = $derived(get_signature_color(entity, is_library ? undefined : "var(--color-gunmetal)"));
   const name = $derived(entity?.name || "Untitled");
-  const select_handler = $derived(onclick || on_select || (() => {}));
 
   const has_brackets = $derived(Array.isArray(bracket_items) && bracket_items.length > 0);
   const total_bracket_chars = $derived(
     has_brackets ? bracket_items.reduce((sum, item) => sum + String(item?.key || "").length + String(item?.value || "").length, 0) : 0,
   );
   const hide_title_for_brackets = $derived(!incoming_only && is_library && has_brackets && (bracket_items.length > 1 || total_bracket_chars > 75));
-  const show_description = $derived(
-    !is_empty && !incoming_only && !has_brackets && (Boolean(description_override) || (!is_library && !is_message && app.view !== "storymode")),
-  );
+  const show_description = $derived(!is_empty && !incoming_only && !has_brackets && !is_library && !is_message && app.view !== "storymode");
   const needs_macro_context = $derived(has_brackets || show_description);
 
   const display_entities = $derived.by(() => {
@@ -115,7 +98,7 @@
     if (app.control_panel_open || app.card_hand.open || app.profile_open || app.suppress_card_transitions) return undefined;
     if (app.transitioning_profile) {
       if (is_library) return undefined;
-      return entity?.id === app.transition_target_id && my_morph_epoch === get_morph_epoch() ? `card-slot-${type}` : undefined;
+      return entity?.id === app.transition_target_id && my_morph_epoch === morph_epoch ? `card-slot-${type}` : undefined;
     }
     return is_library || is_message ? undefined : `card-slot-${type}`;
   });
@@ -135,30 +118,9 @@
     return () => window.removeEventListener("resize", update_ratio);
   });
 
-  $effect(() => () => {
-    if (fallback_timeout) clearTimeout(fallback_timeout);
-  });
-
   // --- INTERACTION ---
-  function complete_launch() {
-    if (!is_launching) return;
-    if (fallback_timeout) {
-      clearTimeout(fallback_timeout);
-      fallback_timeout = null;
-    }
-    is_launching = false;
-    select_handler();
-  }
-
   function handle_select() {
-    if (disabled) return;
-    if (is_library && !motion.is_reduced && launch_gesture) {
-      is_launching = true;
-      if (fallback_timeout) clearTimeout(fallback_timeout);
-      fallback_timeout = setTimeout(complete_launch, 350);
-    } else {
-      select_handler();
-    }
+    if (!disabled) onclick?.();
   }
 
   function handle_contextmenu(e) {
@@ -182,7 +144,6 @@
     : !preview &&
       "hover:border-(--signature-color) hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)] hover:after:border-(--signature-color,var(--color-slate-50)) hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]",
     is_pressing && !disabled && !preview && "scale-sink border-(--signature-color)",
-    is_launching && "z-20 animate-[rack-pull-eject_var(--transition-duration-standard)_var(--ease-out)_forwards]",
     is_library &&
       (is_fractal ?
         "h-[calc(var(--spacing-fractal-card-height)*0.5)] w-[calc(var(--spacing-fractal-card-width)*0.5)]"
@@ -204,7 +165,6 @@
   aria-label={aria_label}
   onclick={() => !disabled && !preview && handle_select()}
   oncontextmenu={handle_contextmenu}
-  onanimationend={(e) => e.animationName === "rack-pull-eject" && complete_launch()}
   onpointerdown={() => !disabled && !preview && is_library && (is_pressing = true)}
   onpointerup={() => (is_pressing = false)}
   onpointerleave={() => (is_pressing = false)}
@@ -279,13 +239,8 @@
     {:else if show_description}
       <p
         data-card-text
-        class={[
-          "type-body wrap-break-word whitespace-normal text-frisk transition-opacity duration-standard ease-in-out [text-shadow:0_1px_3px_rgb(from_var(--color-background-gradient-1)_r_g_b/0.8)]",
-          is_library && description_override ? "mt-0.5 line-clamp-2 max-h-9 opacity-90" : "mt-tight line-clamp-3 max-h-18 opacity-80",
-        ]}>
-        {#if description_override}
-          <MacroText text={description_override} owner={description_owner || entity} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
-        {:else if entity?.description}
+        class="mt-tight line-clamp-3 max-h-18 type-body wrap-break-word whitespace-normal text-frisk opacity-80 transition-opacity duration-standard ease-in-out [text-shadow:0_1px_3px_rgb(from_var(--color-background-gradient-1)_r_g_b/0.8)]">
+        {#if entity?.description}
           <MacroText text={entity.description} owner={entity} entities={display_entities} on_select={(ent) => app.open_profile(ent)} />
         {:else}
           No description provided.
@@ -311,24 +266,3 @@
     {/if}
   {/if}
 </div>
-
-<style>
-  @keyframes rack-pull-eject {
-    0% {
-      transform: scale(0.96) translateY(0);
-      box-shadow: var(--shadow-ghost);
-    }
-
-    40% {
-      transform: scale(1.04) translateY(calc(var(--spacing-unit) * -3));
-      filter: brightness(1.15);
-    }
-
-    100% {
-      transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
-      box-shadow:
-        0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6) rgb(from var(--color-neutral-900) r g b / 0.5),
-        0 0 calc(var(--spacing-unit) * 4) rgb(from var(--signature-color) r g b / var(--opacity-whisper));
-    }
-  }
-</style>

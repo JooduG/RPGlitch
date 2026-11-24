@@ -10,7 +10,7 @@
   import { open_image_preview } from "./ImagePreview.svelte.js";
   import { get_signature_color, on_dismiss_outside } from "@utils";
 
-  export const context_menu_state = $state({ open: false, entity: null, type: "ai", surface: "default", x: 0, y: 0, on_close: null });
+  const context_menu_state = $state({ open: false, entity: null, type: "ai", surface: "default", x: 0, y: 0, on_close: null });
 
   /** @param {{ entity: any, type?: string, surface?: string, x: number, y: number, on_close?: () => void }} options */
   export function open_context_menu(options) {
@@ -25,7 +25,7 @@
     set_tooltip_suppressed(true);
   }
 
-  export function close_context_menu() {
+  function close_context_menu() {
     if (!context_menu_state.open) return;
     const cb = context_menu_state.on_close;
     context_menu_state.open = false;
@@ -44,13 +44,12 @@
    * Builds surface-appropriate actions for an entity.
    * @param {any} entity
    * @param {string} surface
-   * @param {Object} [deps={}]
    */
-  export function build_entity_actions(entity, surface, deps = {}) {
+  function build_entity_actions(entity, surface) {
     if (!entity) return [];
-    const type = deps.type || context_menu_state.type || (entity.type === "fractal" ? "fractal" : "ai");
-    const on_open_profile = deps.on_open_profile || ((ent) => app.toggle_profile(true, ent, type));
-    const on_open_image = deps.on_open_image || ((payload) => open_image_preview(payload));
+    const type = context_menu_state.type || (entity.type === "fractal" ? "fractal" : "ai");
+    const on_open_profile = (ent) => app.toggle_profile(true, ent, type);
+    const on_open_image = (payload) => open_image_preview(payload);
 
     const m = entity?.modifiers;
     const portrait_meta = m ? { prompt: m.prompt, negative_prompt: m.negative_prompt, seed: m.last_generated_seed } : null;
@@ -145,14 +144,11 @@
   let {
     embedded = false,
     open = false,
-    x = 0,
-    y = 0,
     entity = null,
     surface = "default",
     target_name: explicit_name = "",
     portrait_src = "",
     signature_color: explicit_signature_color = "",
-    actions: explicit_actions = null,
     on_close = undefined,
   } = $props();
 
@@ -160,14 +156,14 @@
   let menu_el = $state(null);
 
   const is_visible = $derived(embedded ? open : open || context_menu_state.open);
-  const open_x = $derived(embedded ? x : context_menu_state.x);
-  const open_y = $derived(embedded ? y : context_menu_state.y);
+  const open_x = $derived(embedded ? 0 : context_menu_state.x);
+  const open_y = $derived(embedded ? 0 : context_menu_state.y);
   const active_entity = $derived(embedded ? entity : context_menu_state.entity);
   const active_surface = $derived(embedded ? surface : context_menu_state.surface);
   const target_name = $derived(explicit_name || active_entity?.name || "");
   const signature_color = $derived(explicit_signature_color || get_signature_color(active_entity, "var(--color-frisk)"));
   const resolved_portrait_src = $derived(portrait_src || active_entity?.profile_picture || "");
-  const resolved_actions = $derived(is_visible ? explicit_actions || build_entity_actions(active_entity, active_surface) : []);
+  const resolved_actions = $derived(is_visible ? build_entity_actions(active_entity, active_surface) : []);
 
   function portal_and_clamp(node, params) {
     if (!params.enabled) return {};
@@ -270,8 +266,8 @@
               onclick={() => handle_select(item)}
               class={[
                 "flex min-h-9 w-full! shrink-0 cursor-pointer items-center justify-start gap-tight rounded-none px-standard py-2 text-left type-interact transition-[background-color,color,transform] duration-fast ease-out outline-none select-none active:scale-sink disabled:cursor-not-allowed disabled:opacity-30",
-                item.danger ? "text-crimson-red/90 hover:bg-crimson-red/15 hover:text-crimson-red"
-                : item.active ? "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
+                item.active ?
+                  "text-(--signature-color) hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white"
                 : "text-frisk/90 hover:bg-[color-mix(in_srgb,var(--signature-color)_16%,transparent)] hover:text-pure-white",
               ]}>
               {#if item.active}

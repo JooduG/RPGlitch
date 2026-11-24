@@ -4,7 +4,6 @@
    * Unified Lightbox inspector and 3-card Polaroid candidate picker modal.
    */
   import { Button, Icon, Shimmer, tooltip } from "@atoms";
-  import { refine_image_prompt } from "@engine";
   import { motion } from "@media";
   import { Dropdown, Modal, TextField } from "@molecules";
   import { resolve_image_resolution } from "@simulation";
@@ -86,7 +85,7 @@
 
   async function handle_picker_regenerate() {
     if (!image_picker.candidates_ready && !image_picker.error) return;
-    await run_image_regeneration({ in_picker: true, refine_prompt: refine_image_prompt });
+    await run_image_regeneration({ in_picker: true });
   }
 </script>
 

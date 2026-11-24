@@ -86,6 +86,12 @@
     return match_entity_in_roster(target_name, roster_context, entity) || { name: String(target_name).replace(/_/g, " ") };
   }
 
+  function format_edge_dynamic(edge) {
+    return resolve_display_macro_segments(clean_dynamic_text(edge.dynamic), edge.source_entity, roster_context)
+      .map((s) => s.text)
+      .join("");
+  }
+
   const resolved_edges = $derived.by(() => {
     if (!entity?.name) return [];
     const current_name = norm(entity.name);
@@ -209,15 +215,7 @@
         is_outgoing: edge.is_outgoing,
         target_key: norm(edge.target_name),
         tooltip_text:
-          edge.is_outgoing ?
-            `${format_entity_handle(edge.source_entity)} → ${format_entity_handle(edge.target_entity)}: ${resolve_display_macro_segments(
-              clean_dynamic_text(edge.dynamic),
-              edge.source_entity,
-              roster_context,
-            )
-              .map((s) => s.text)
-              .join("")}`
-          : null,
+          edge.is_outgoing ? `${format_entity_handle(edge.source_entity)} → ${format_entity_handle(edge.target_entity)}: ${format_edge_dynamic(edge)}` : null,
       });
     }
     return list;
@@ -225,18 +223,7 @@
 
   const incoming_edges = $derived(resolved_edges.filter((edge) => !edge.is_outgoing));
   const incoming_tooltip_text = $derived(
-    incoming_edges
-      .map(
-        (edge) =>
-          `${format_entity_handle(edge.source_entity, edge.source_name)}: ${resolve_display_macro_segments(
-            clean_dynamic_text(edge.dynamic),
-            edge.source_entity,
-            roster_context,
-          )
-            .map((s) => s.text)
-            .join("")}`,
-      )
-      .join("\n") || null,
+    incoming_edges.map((edge) => `${format_entity_handle(edge.source_entity, edge.source_name)}: ${format_edge_dynamic(edge)}`).join("\n") || null,
   );
   const center_color = $derived(get_signature_color(entity));
 </script>
@@ -325,7 +312,7 @@
           onpointerleave={() => (hovered_node = null)}
           onfocus={() => (hovered_node = node)}
           onblur={() => (hovered_node = null)}
-          onclick={() => on_select_entity?.(node.entity || { name: node.name })}
+          onclick={() => on_select_entity(node.entity || { name: node.name })}
           oncontextmenu={(e) => {
             e.preventDefault();
             e.stopPropagation();

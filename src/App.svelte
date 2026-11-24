@@ -158,7 +158,6 @@
             preview={true}
             entity={preview_entity}
             type={preview_entity?.type === "fractal" ? "fractal" : "ai"}
-            launch_gesture={false}
             bracket_items={preview?.bracket_items ?? null}
             description_owner={preview?.description_owner ?? null}
             incoming_only={preview?.incoming_only ?? false} />

@@ -19,11 +19,12 @@
    * @typedef {Object} Props
    * @property {boolean} [is_open=false]
    * @property {"ai" | "user" | "fractal" | null} [card_hand_type=null]
-   * @property {number | null} [hovered_index=null]
    */
 
   /** @type {Props} */
-  let { is_open = false, card_hand_type = null, hovered_index = $bindable(null) } = $props();
+  let { is_open = false, card_hand_type = null } = $props();
+
+  let hovered_index = $state(null);
 
   let show_import_modal = $state(false);
   let flight_active = $state(false);
@@ -276,7 +277,7 @@
       style:transform={is_hovered && !disabled ?
         `rotate(${-(angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * ${lift})) scale(${scale})`
       : "none"}>
-      <EntityCard variant="library" {entity} type={card_hand_type ?? undefined} {role_label} {disabled} launch_gesture={false} {onclick} />
+      <EntityCard variant="library" {entity} type={card_hand_type ?? undefined} {role_label} {disabled} {onclick} />
     </div>
   </div>
 {/snippet}

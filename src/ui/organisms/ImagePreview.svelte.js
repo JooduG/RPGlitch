@@ -21,7 +21,6 @@ let preview_state = $state({
   metadata: /** @type {any} */ (null),
   on_regenerate: /** @type {Function | null} */ (null),
   on_delete: /** @type {Function | null} */ (null),
-  signature_color: /** @type {string | null} */ (null),
 });
 
 let picker_state = $state({
@@ -87,9 +86,6 @@ export const image_preview = {
   get on_delete() {
     return preview_state.on_delete;
   },
-  get signature_color() {
-    return preview_state.signature_color;
-  },
 };
 
 export function open_image_preview(options, caption = "") {
@@ -102,7 +98,6 @@ export function open_image_preview(options, caption = "") {
   preview_state.metadata = opts.metadata || null;
   preview_state.on_regenerate = opts.on_regenerate || null;
   preview_state.on_delete = opts.on_delete || null;
-  preview_state.signature_color = opts.signature_color || null;
 }
 
 export function close_image_preview() {
@@ -132,12 +127,6 @@ export const image_picker = {
   },
   get selected_index() {
     return picker_state.selected_index;
-  },
-  get on_select() {
-    return picker_state.on_select;
-  },
-  get signature_color() {
-    return picker_state.signature_color;
   },
   get error() {
     return picker_state.error;

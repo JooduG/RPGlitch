@@ -121,7 +121,7 @@
         type={slot.type}
         {entity}
         role_label={slot.role_label}
-        on_select={() => (entity ? app.toggle_profile(true, entity, slot.type) : app.open_card_hand(slot.type))} />
+        onclick={() => (entity ? app.toggle_profile(true, entity, slot.type) : app.open_card_hand(slot.type))} />
     {/if}
   </div>
 {/each}
