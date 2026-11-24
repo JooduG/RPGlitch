@@ -80,15 +80,6 @@ export function step_dynamics(
 }
 
 /**
- * Extracts metric baseline dynamics from an entity.
- * @param {any} entity
- * @returns {Record<string, number>}
- */
-export function extract_metric_baselines(entity) {
-  return entity?.dynamics_baseline || {};
-}
-
-/**
  * Evaluates active subtext protocols and dynamic somatic rules for the current
  * dynamics state, merged with manual/director keywords. Returns up to
  * `max_directives` ordered directive IDs plus any style-triggered protocol
@@ -140,24 +131,21 @@ export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamic
     }
   }
 
-  const dynamics = merged;
-  if (dynamics && typeof dynamics === "object") {
-    const candidates = [];
-    for (const rule of DYNAMICS_RULES) {
-      if (rule.priority === undefined || seen.has(rule.id)) continue;
-      if (typeof rule.when === "function" && rule.when(dynamics)) {
-        candidates.push(rule);
-      }
+  const candidates = [];
+  for (const rule of DYNAMICS_RULES) {
+    if (rule.priority === undefined || seen.has(rule.id)) continue;
+    if (typeof rule.when === "function" && rule.when(merged)) {
+      candidates.push(rule);
     }
+  }
 
-    candidates.sort((first, second) => (second.priority || 0) - (first.priority || 0));
+  candidates.sort((first, second) => (second.priority || 0) - (first.priority || 0));
 
-    for (const candidate of candidates) {
-      if (!seen.has(candidate.id)) {
-        seen.add(candidate.id);
-        directives.push(candidate.id);
-        if (directives.length >= max_directives) break;
-      }
+  for (const candidate of candidates) {
+    if (!seen.has(candidate.id)) {
+      seen.add(candidate.id);
+      directives.push(candidate.id);
+      if (directives.length >= max_directives) break;
     }
   }
 
@@ -165,7 +153,7 @@ export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamic
 }
 
 /** Default round-robin entity rotation for Turn 3 Caretaker consolidation */
-export const CARETAKER_ROTATION = Object.freeze(["AI", "USER", "FRACTAL"]);
+const CARETAKER_ROTATION = Object.freeze(["AI", "USER", "FRACTAL"]);
 
 /**
  * Resolves which entity key is targeted for Caretaker consolidation.

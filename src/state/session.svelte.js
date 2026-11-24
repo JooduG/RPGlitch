@@ -24,7 +24,7 @@ import {
   update_log_attachment,
 } from "@data";
 import { default_dynamics_for_scope } from "@definitions";
-import { decompose_story_title, resolve_entity_id_by_name } from "@simulation";
+import { decompose_story_title, match_speaker_snapshots } from "@simulation";
 import { get_signature_color } from "@utils";
 import { execution } from "./execution.svelte.js";
 import { app } from "./interface.svelte.js";
@@ -258,7 +258,7 @@ export class SessionStore {
     if (entry.id != null && this.#id_set.has(entry.id)) return;
     if (entry.id != null) this.#id_set.add(entry.id);
     if (entry && entry.entity_id == null && entry.character_name) {
-      const stamped = resolve_entity_id_by_name(entry.character_name, snapshots);
+      const stamped = match_speaker_snapshots(snapshots, entry.character_name);
       if (stamped) entry = { ...entry, entity_id: stamped };
     }
     this.feed.push(entry);

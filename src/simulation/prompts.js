@@ -655,7 +655,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
  * @param {string} promptText
  * @returns {Array<{ name: string, is_closing: boolean, is_self_closing: boolean, raw: string }>}
  */
-export function extract_tag_sequence(promptText) {
+function extract_tag_sequence(promptText) {
   if (typeof promptText !== "string") return [];
 
   // Match XML tags like <TAG>, </TAG>, <TAG attr="val">, <TAG />
@@ -682,7 +682,7 @@ export function extract_tag_sequence(promptText) {
  * @param {string} promptText
  * @returns {{ valid: boolean, errors: string[] }}
  */
-export function verify_tag_balance(promptText) {
+function verify_tag_balance(promptText) {
   const errors = [];
   const tags = extract_tag_sequence(promptText);
   const stack = [];
@@ -718,7 +718,7 @@ export function verify_tag_balance(promptText) {
  * @param {string} promptText
  * @returns {{ valid: boolean, errors: string[] }}
  */
-export function verify_system_envelope(promptText) {
+function verify_system_envelope(promptText) {
   const errors = [];
   const trimmed = promptText ? promptText.trim() : "";
 
@@ -739,7 +739,7 @@ export function verify_system_envelope(promptText) {
  * @param {string[]} expectedTagOrder
  * @returns {{ valid: boolean, missing: string[], out_of_order: string[] }}
  */
-export function verify_tag_order(promptText, expectedTagOrder) {
+function verify_tag_order(promptText, expectedTagOrder) {
   const tags = extract_tag_sequence(promptText)
     .filter((t) => !t.is_closing)
     .map((t) => t.name);
@@ -771,7 +771,7 @@ export function verify_tag_order(promptText, expectedTagOrder) {
  * @param {string} promptText
  * @returns {{ valid: boolean, violations: string[] }}
  */
-export function verify_prompt_hygiene(promptText) {
+function verify_prompt_hygiene(promptText) {
   const violations = [];
   if (!promptText || typeof promptText !== "string") {
     return { valid: false, violations: ["Empty or non-string prompt text."] };
@@ -781,11 +781,6 @@ export function verify_prompt_hygiene(promptText) {
   const unparsed_macros = promptText.match(/\{\{([a-zA-Z0-9_-]+)\}\}/g);
   if (unparsed_macros) {
     violations.push(`Unparsed mustache macro detected: ${unparsed_macros.join(", ")}`);
-  }
-
-  // Detect unclosed think markers
-  if (promptText.includes("<think>") && !promptText.includes("</think>")) {
-    // Note: <think> in prompt startWith is fine, but inside static spine must be closed or avoided
   }
 
   return { valid: violations.length === 0, violations };
@@ -908,7 +903,7 @@ export const IMAGE_TIERS = Object.freeze(["story_entities", "story_character", "
  * Resolution dimensions mapped by canonical tier identifier.
  * @type {Readonly<Record<string, { width: number, height: number }>>}
  */
-export const TIER_RESOLUTIONS = Object.freeze({
+const TIER_RESOLUTIONS = Object.freeze({
   story_scene: IMAGE_RESOLUTIONS.LANDSCAPE,
   solo_entity: IMAGE_RESOLUTIONS.PORTRAIT,
   story_character: IMAGE_RESOLUTIONS.PORTRAIT,
@@ -920,7 +915,7 @@ export const TIER_RESOLUTIONS = Object.freeze({
  * @param {string | null | undefined} target_type
  * @returns {"story_entities" | "story_character" | "solo_entity" | "story_scene"}
  */
-export function normalize_image_tier(target_type) {
+function normalize_image_tier(target_type) {
   if (!target_type) return "story_character";
   const str = String(target_type).trim().toLowerCase();
 
@@ -944,7 +939,7 @@ export function normalize_image_tier(target_type) {
  * @param {string | null | undefined} mode
  * @returns {{ width: number, height: number }}
  */
-export function get_resolution(mode) {
+function get_resolution(mode) {
   const tier = normalize_image_tier(mode);
   return TIER_RESOLUTIONS[tier] || TIER_RESOLUTIONS.story_entities;
 }
@@ -1071,7 +1066,7 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
   return { active, tier, source, signals: image_trigger_evaluation.signals, next_director_round, next_dynamics_round, director_explicit };
 }
 
-export const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
+const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
   "_visual_style_medium",
   "_visual_style_palette",
   "_visual_style_camera",
@@ -1087,7 +1082,7 @@ export const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
  */
 const BARE_MARKER_REGEX = new RegExp(`\\[(?:${CLOTHING_KEYS.join("|")})\\s*:\\s*(?:${[...CLEAR_TOKENS].join("|")})\\s*\\]`, "i");
 
-export function resolve_visual_engine_tokens(visual_style_key) {
+function resolve_visual_engine_tokens(visual_style_key) {
   const visual_style = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
   const engine = visual_style.engine || {};
 
@@ -1101,7 +1096,7 @@ export function resolve_visual_engine_tokens(visual_style_key) {
   };
 }
 
-export function build_aesthetic_map(entity = {}) {
+function build_aesthetic_map(entity = {}) {
   const eternal_parsed_object = safe_parse_pseudo_json(entity.eternal?.physical || "");
   const present_parsed_object = safe_parse_pseudo_json(entity.present?.physical || "");
 
@@ -1167,20 +1162,12 @@ export function build_aesthetic_map(entity = {}) {
   return merged_aesthetic_map;
 }
 
-export function flatten_aesthetic_map(entity = {}) {
+function flatten_aesthetic_map(entity = {}) {
   if (!entity) return "";
   const map = build_aesthetic_map(entity);
-  const style_keys = [
-    "_visual_style_medium",
-    "_visual_style_palette",
-    "_visual_style_camera",
-    "_visual_style_composition",
-    "_visual_style_texture",
-    "_visual_style_tags",
-  ];
-  const visual_values = style_keys.map((k) => map[k]).filter(Boolean);
+  const visual_values = ORDERED_VISUAL_STYLE_KEYS.map((k) => map[k]).filter(Boolean);
   const additional = Object.entries(map)
-    .filter(([k]) => !style_keys.includes(k))
+    .filter(([k]) => !ORDERED_VISUAL_STYLE_KEYS.includes(k))
     .map(([k, v]) => {
       const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
       return k.startsWith("_visual_style_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;

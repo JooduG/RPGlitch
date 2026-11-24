@@ -9,7 +9,6 @@ import { db, normalize_entity } from "@data";
 import { Audio, get_image_generation_queue, spawn_image_beat } from "@media";
 import {
   apply_tagged_field_deltas,
-  extract_metric_baselines,
   parse_think_block,
   reconstruct_history_from_feed,
   resolve_caretaker_target,
@@ -129,7 +128,7 @@ function apply_dynamics_step(ai_entity, fractal_entity, deltas) {
     for (const key of ["chaos", "intensity", "openness", "affinity"]) {
       if (deltas[key] !== undefined) ai_deltas[key] = deltas[key];
     }
-    const { next } = step_dynamics(ai_entity.dynamics, extract_metric_baselines(ai_entity) || {}, ai_deltas, { entropy, scope: "somatic" });
+    const { next } = step_dynamics(ai_entity.dynamics, ai_entity.dynamics_baseline || {}, ai_deltas, { entropy, scope: "somatic" });
     ai_entity.dynamics = { ...ai_entity.dynamics, ...next };
   }
 
@@ -138,7 +137,7 @@ function apply_dynamics_step(ai_entity, fractal_entity, deltas) {
     for (const key of ["velocity", "entropy"]) {
       if (deltas[key] !== undefined) fractal_deltas[key] = deltas[key];
     }
-    const { next } = step_dynamics(fractal_entity.dynamics, extract_metric_baselines(fractal_entity) || {}, fractal_deltas, { entropy, scope: "fractal" });
+    const { next } = step_dynamics(fractal_entity.dynamics, fractal_entity.dynamics_baseline || {}, fractal_deltas, { entropy, scope: "fractal" });
     fractal_entity.dynamics = { ...fractal_entity.dynamics, ...next };
   }
 }

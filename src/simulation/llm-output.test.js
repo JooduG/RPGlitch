@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { first_sentence, parse_think_block, safe_parse_json, strip_cognition_blocks } from "./llm-output.js";
+import { parse_think_block, safe_parse_json, strip_cognition_blocks } from "./llm-output.js";
 import { resolve_style } from "@utils";
 
 describe("resolve_style (pure, no bridge)", () => {
@@ -86,17 +86,5 @@ describe("strip_cognition_blocks (extended)", () => {
   it("handles null or empty inputs", () => {
     expect(strip_cognition_blocks(null)).toBe("");
     expect(strip_cognition_blocks("")).toBe("");
-  });
-});
-
-describe("first_sentence", () => {
-  it("extracts the first sentence within boundary", () => {
-    expect(first_sentence("The sky broke open. Rain poured down.")).toBe("The sky broke open.");
-    expect(first_sentence("A quick alert!")).toBe("A quick alert!");
-  });
-
-  it("returns empty string on empty input", () => {
-    expect(first_sentence(null)).toBe("");
-    expect(first_sentence("")).toBe("");
   });
 });

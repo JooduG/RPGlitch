@@ -1,20 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
-  AGGREGATE_KEYS,
   apply_tagged_field_deltas,
-  balance_brackets,
   CLEAR_TOKENS,
   CLOTHING_KEYS,
-  derive_vector_title,
   extract_entity_relationships,
-  format_relational_vector,
   format_tagged_fields,
   has_bracket_bond,
   parse_relationship_brackets,
-  parse_relational_vector,
   parse_tagged_fields,
   safe_parse_pseudo_json,
-  strip_leading_key_echo,
   VISUAL_EXCLUDED_KEYS,
 } from "./brackets.js";
 
@@ -92,14 +86,6 @@ describe("CLOTHING_KEYS", () => {
   });
 });
 
-describe("strip_leading_key_echo", () => {
-  it("strips matching underscore or spaced key echoes", () => {
-    expect(strip_leading_key_echo("STATE: protective", ["STATE"])).toBe("protective");
-    expect(strip_leading_key_echo("DENTAL FEATURES: sharp fangs", ["DENTAL_FEATURES"])).toBe("sharp fangs");
-    expect(strip_leading_key_echo("plain value", ["STATE"])).toBe("plain value");
-  });
-});
-
 describe("safe_parse_pseudo_json", () => {
   it("extracts bracketed key value pairs", () => {
     const parsed = safe_parse_pseudo_json("[SHIRT: leather jacket] [LOCATION: tavern]");
@@ -157,109 +143,12 @@ describe("safe_parse_pseudo_json", () => {
   });
 });
 
-describe("derive_vector_title", () => {
-  it("derives a clean title from short directive text", () => {
-    expect(derive_vector_title("Washed ashore at Mournhold.")).toBe("Washed ashore at Mournhold");
-  });
-
-  it("truncates long directive text with ellipsis at word boundary", () => {
-    const long_text = "This is a very long directive text that exceeds the maximum length limit allowed for headers";
-    const title = derive_vector_title(long_text, 38);
-    expect(title.length).toBeLessThanOrEqual(40);
-    expect(title.endsWith("…")).toBe(true);
-  });
-
-  it("handles null or non-string inputs gracefully", () => {
-    expect(derive_vector_title(null)).toBe("");
-    expect(derive_vector_title(undefined)).toBe("");
-    expect(derive_vector_title("")).toBe("");
-  });
-});
-
-describe("CLEAR_TOKENS & AGGREGATE_KEYS", () => {
-  it("exposes canonical clearing and aggregation tokens in frozen Sets", () => {
+describe("CLEAR_TOKENS & aggregate behavior", () => {
+  it("exposes canonical clearing tokens in a frozen Set and aggregates INVENTORY/STASH", () => {
     expect(CLEAR_TOKENS.has("none")).toBe(true);
     expect(CLEAR_TOKENS.has("healed")).toBe(true);
-    expect(AGGREGATE_KEYS.has("INVENTORY")).toBe(true);
-    expect(AGGREGATE_KEYS.has("STASH")).toBe(true);
-  });
-});
-
-describe("parse_relational_vector & format_relational_vector", () => {
-  it("parses valid unicode and ascii arrow relational vectors", () => {
-    const v1 = parse_relational_vector("Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry");
-    expect(v1).toEqual({
-      source_name: "Orion the Pink Protector",
-      target_name: "Glitch",
-      dynamic: "playful superhero vs hacker rivalry",
-      raw: "Orion the Pink Protector → Glitch: playful superhero vs hacker rivalry",
-    });
-
-    const v2 = parse_relational_vector("Glitch -> Dr. Elias Tariq: containment breach hacker sabotage");
-    expect(v2).toEqual({
-      source_name: "Glitch",
-      target_name: "Dr. Elias Tariq",
-      dynamic: "containment breach hacker sabotage",
-      raw: "Glitch -> Dr. Elias Tariq: containment breach hacker sabotage",
-    });
-
-    const v3 = parse_relational_vector("K-9 → Nova-City: defense patrol unit");
-    expect(v3).toEqual({ source_name: "K-9", target_name: "Nova-City", dynamic: "defense patrol unit", raw: "K-9 → Nova-City: defense patrol unit" });
-  });
-
-  it("handles vectors with no dynamic description", () => {
-    const v = parse_relational_vector("Julien → Ashenweald");
-    expect(v).toEqual({ source_name: "Julien", target_name: "Ashenweald", dynamic: "", raw: "Julien → Ashenweald" });
-  });
-
-  it("formats canonical relational vectors properly", () => {
-    expect(format_relational_vector("Orion", "Nova City", "protector")).toBe("Orion → Nova City: protector");
-    expect(format_relational_vector("Orion", "Nova City")).toBe("Orion → Nova City");
-    expect(format_relational_vector("", "Nova City")).toBe("");
-  });
-
-  it("handles null or malformed inputs safely", () => {
-    expect(parse_relational_vector(null)).toBeNull();
-    expect(parse_relational_vector("")).toBeNull();
-    expect(parse_relational_vector("Not a vector")).toBeNull();
-  });
-});
-
-describe("balance_brackets", () => {
-  it("encloses line that ends with ] but misses [", () => {
-    const input = "high-alert containment breach | w: 8]";
-    expect(balance_brackets(input)).toBe("[high-alert containment breach | w: 8]");
-  });
-
-  it("closes line that starts with [ but misses ]", () => {
-    const input = "[ANOMALY: imminent orbital dissemination of mind-wipe virus";
-    expect(balance_brackets(input)).toBe("[ANOMALY: imminent orbital dissemination of mind-wipe virus]");
-  });
-
-  it("repairs multiline text containing both opening and closing bracket errors", () => {
-    const input = "high-alert containment breach | w: 8]\n[ANOMALY: imminent orbital dissemination of mind-wipe virus";
-    expect(balance_brackets(input)).toBe("[high-alert containment breach | w: 8]\n[ANOMALY: imminent orbital dissemination of mind-wipe virus]");
-  });
-
-  it("leaves already balanced brackets untouched", () => {
-    const input = "[STATE: active] [MOOD: tense | w: 7]";
-    expect(balance_brackets(input)).toBe("[STATE: active] [MOOD: tense | w: 7]");
-  });
-
-  it("wraps unbracketed key-value or weight directives", () => {
-    expect(balance_brackets("ANOMALY: containment breach | w: 8")).toBe("[ANOMALY: containment breach | w: 8]");
-    expect(balance_brackets("@DR_TARIQ: hostile | hide")).toBe("[@DR_TARIQ: hostile | hide]");
-  });
-
-  it("does not wrap natural language prose lines with colons or pipes", () => {
-    expect(balance_brackets("Note: the corridor hums quietly.")).toBe("Note: the corridor hums quietly.");
-    expect(balance_brackets("He whispered: run before they find you.")).toBe("He whispered: run before they find you.");
-    expect(balance_brackets("They played hide and seek in the shadows.")).toBe("They played hide and seek in the shadows.");
-  });
-
-  it("handles null and empty input gracefully", () => {
-    expect(balance_brackets(null)).toBe("");
-    expect(balance_brackets("")).toBe("");
+    expect(apply_tagged_field_deltas("[INVENTORY: sword]", "[INVENTORY: shield]")).toContain("sword, shield");
+    expect(apply_tagged_field_deltas("[STASH: coin]", "[STASH: gem]")).toContain("coin, gem");
   });
 });
 

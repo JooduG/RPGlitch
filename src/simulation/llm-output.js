@@ -27,8 +27,8 @@
  */
 
 import { SPEAKING_STYLES } from "@config";
-import { ANTI_AI_REPLACEMENTS, SPEAKING_STYLE_RULES, TIER_2_CLUSTER_WORDS } from "@definitions";
-import { collapse_whitespace, match_case, stable_pick } from "@utils";
+import { ANTI_AI_REPLACEMENTS, SPEAKING_STYLE_RULES } from "@definitions";
+import { match_case, stable_pick } from "@utils";
 
 /**
  * Model artifact leading prefixes to strip from prose output.
@@ -253,22 +253,6 @@ export function parse_think_block(raw, start_with = "") {
   return { think: think_string || "", prose: cleaned_content, content: cleaned_content };
 }
 
-/**
- * Extracts a single short sentence (<= max_len chars) from a blob of text.
- * Strips think blocks, markdown fences, and excessive whitespace.
- * @param {string | null | undefined} text
- * @param {number} [max_len=160]
- * @returns {string}
- */
-export function first_sentence(text, max_len = 160) {
-  const clean = collapse_whitespace(strip_cognition_blocks(text).replace(/```/g, ""));
-  if (!clean) return "";
-  const regex = new RegExp(`^[^.!?]{1,${max_len}}[.!?:;]?`);
-  const m = clean.match(regex);
-  const sentence = (m ? m[0] : clean.slice(0, max_len)).trim();
-  return sentence;
-}
-
 // ============================================================================
 // [PROSE DETOX ENGINE]
 // ============================================================================
@@ -470,102 +454,6 @@ export function clean_generated_prose(raw_text, speaking_style = "casual", custo
 }
 
 // ============================================================================
-// [NARRATIVE SLOP LINTER]
-// ============================================================================
-
-/**
- * Frozen slop catalog: repetitive narrative clichés the detox pass does not
- * structurally rewrite, plus the cliché somatic-marker set capped at one
- * occurrence per reply. Data-only - detection and enforcement below walk it.
- */
-export const SLOP_PATTERNS = Object.freeze({
-  CLICHES: Object.freeze([
-    /\bagainst better judgment\b/i,
-    /\bfor what felt like an eternity\b/i,
-    /\btime (seemed|felt) to (slow|stop|stand still)\b/i,
-    /\ba shiver (ran|went|crawled) down\b/i,
-    /\bher word(s)? (hung|lingered) in the air\b/i,
-    /\bhis word(s)? (hung|lingered) in the air\b/i,
-    /\bwords? (hung|lingered) in the air\b/i,
-    /\bcould cut the tension with a knife\b/i,
-    /\bdeafening silence\b/i,
-    /\bpregnant (pause|silence)\b/i,
-  ]),
-  SOMATIC_MARKERS: Object.freeze([
-    /\bheart (pounded|hammered|raced|fluttered|thudded)\b/i,
-    /\bbreath (hitched|caught|hitched in|caught in|stuttered)\b/i,
-    /\bheld (his|her|their) breath\b/i,
-    /\bstomach (dropped|twisted|churned|lurched)\b/i,
-    /\bblood ran cold\b/i,
-    /\bskin (prickled|crawled)\b/i,
-    /\bknees (went weak|buckled)\b/i,
-    /\bhands? (trembled|shook)\b/i,
-    /\bpulse (quickened|roared|pounded)\b/i,
-    /\bthroat (went dry|tightened|closed)\b/i,
-    /\bghost of a (smirk|smile)\b/i,
-    /\bbarely above a whisper\b/i,
-    /\beyes (darkened|flashed|narrowed|hardened)\b/i,
-    /\b(jaw|mouth) (tight|tightened|set|clenched|locked)\b/i,
-    /\bfists? (clenched|tightened)\b/i,
-    /\bran a hand through (his|her|their) hair\b/i,
-    /\btime seemed to (stop|slow)\b/i,
-  ]),
-});
-
-/** Maximum physical cliché reaction markers permitted per turn before stripping */
-const SOMATIC_MARKER_CAP = 1;
-
-/**
- * Lints a prose reply for narrative slop: cliché hits plus cliché somatic
- * markers over the per-reply cap.
- * @param {string|null|undefined} text
- * @returns {Readonly<{ violations: ReadonlyArray<Readonly<{ kind: string, match: string }>>, somatic_count: number, over_cap: boolean }>}
- */
-// ignore-next-line: parked in ROADMAP.md (Narrative Slop & Macro-Shape Post-Processing)
-export function lint_narrative_slop(text) {
-  const source = String(text || "");
-  const violations = [];
-  for (const pattern of SLOP_PATTERNS.CLICHES) {
-    const hit = source.match(pattern);
-    if (hit) violations.push(Object.freeze({ kind: "cliche", match: hit[0] }));
-  }
-  let somatic_count = 0;
-  for (const pattern of SLOP_PATTERNS.SOMATIC_MARKERS) {
-    const hits = source.match(new RegExp(pattern.source, "gi")) || [];
-    for (const hit of hits) {
-      somatic_count += 1;
-      violations.push(Object.freeze({ kind: "somatic_marker", match: hit }));
-    }
-  }
-  return Object.freeze({ violations: Object.freeze(violations), somatic_count, over_cap: somatic_count > SOMATIC_MARKER_CAP });
-}
-
-/**
- * Enforces the somatic-marker cap: keeps the first marker occurrence intact and
- * strips the matched marker phrase from every later occurrence, collapsing the
- * leftover whitespace. Pure text surgery - sentence structure is preserved.
- * @param {string|null|undefined} text
- * @returns {string}
- */
-// ignore-next-line: parked in ROADMAP.md (Narrative Slop & Macro-Shape Post-Processing)
-export function cap_somatic_markers(text) {
-  const source = String(text || "");
-  if (!source) return "";
-  const hits = [];
-  for (const pattern of SLOP_PATTERNS.SOMATIC_MARKERS) {
-    for (const match of source.matchAll(new RegExp(pattern.source, "gi"))) {
-      hits.push({ index: match.index ?? 0, length: match[0].length });
-    }
-  }
-  if (hits.length <= SOMATIC_MARKER_CAP) return source;
-  hits.sort((left, right) => left.index - right.index);
-  const doomed = hits.slice(SOMATIC_MARKER_CAP).sort((left, right) => right.index - left.index);
-  let output = source;
-  for (const hit of doomed) output = output.slice(0, hit.index) + output.slice(hit.index + hit.length);
-  return output.replace(/[ \t]{2,}/g, " ").replace(/\s+([,;.!?])/g, "$1");
-}
-
-// ============================================================================
 // [STYLE HIERARCHY RESOLVERS]
 // ============================================================================
 
@@ -589,84 +477,4 @@ export function resolve_speaking_style(entity = null, narrative_style = null) {
   }
 
   return "casual";
-}
-
-// ============================================================================
-// [MACRO SHAPE AUDITOR]
-// ============================================================================
-
-/**
- * Audits macro shape of narrative prose:
- * - as_if_overuse: `as if` / `as though` > 2 in one reply
- * - every_para_question: every paragraph in a multi-paragraph reply ends in ?
- * - familiar_closer: final paragraph opens with Meanwhile / Then / Suddenly
- * - door_slam_closer: closing sentence ends on a door slam/shut beat
- *
- * @param {string|null|undefined} text
- */
-// ignore-next-line: parked in ROADMAP.md (Narrative Slop & Macro-Shape Post-Processing)
-export function audit_macro_shape(text) {
-  const source = String(text || "").trim();
-  if (!source) {
-    return Object.freeze({
-      as_if_count: 0,
-      as_if_overuse: false,
-      every_para_question: false,
-      familiar_closer: false,
-      door_slam_closer: false,
-      cluster_hit_count: 0,
-      vocabulary_cluster: false,
-      violations: Object.freeze([]),
-    });
-  }
-
-  const violations = [];
-
-  // 1. as if overuse (> 2)
-  const as_if_matches = source.match(/\bas\s+(?:if|though)\b/gi) || [];
-  const as_if_count = as_if_matches.length;
-  const as_if_overuse = as_if_count > 2;
-  if (as_if_overuse) violations.push("as-if-overuse");
-
-  // 2. every paragraph ends in a question
-  const paragraphs = source
-    .split(/\n\s*\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  const every_para_question = paragraphs.length >= 2 && paragraphs.every((p) => /\?["'”’]?$/.test(p));
-  if (every_para_question) violations.push("every-para-question");
-
-  // 3. familiar closer (final paragraph opens with Meanwhile / Then / Suddenly)
-  const last_para = paragraphs[paragraphs.length - 1] || "";
-  const familiar_closer = /^(?:meanwhile|then|suddenly)\b/i.test(last_para);
-  if (familiar_closer) violations.push("familiar-closer");
-
-  // 4. door slam closer
-  const sentences = (source.match(/[^.!?…\n]+[.!?…]*/g) || []).map((s) => s.trim()).filter(Boolean);
-  const last_sentence = sentences[sentences.length - 1] || "";
-  const door_slam_closer = /\b(?:the\s+)?door\s+(?:slammed|slams|slam|shut|clicked)\b/i.test(last_sentence);
-  if (door_slam_closer) violations.push("door-slam-closer");
-
-  // 5. Tier 2 vocabulary cluster (>= 2 cluster words in single response)
-  const cluster_words = TIER_2_CLUSTER_WORDS || [];
-  let cluster_hit_count = 0;
-  for (const word of cluster_words) {
-    const word_regex = new RegExp(`\\b${word}(?:s|ed|ing|ly)?\\b`, "i");
-    if (word_regex.test(source)) {
-      cluster_hit_count += 1;
-    }
-  }
-  const vocabulary_cluster = cluster_hit_count >= 2;
-  if (vocabulary_cluster) violations.push("vocabulary-cluster");
-
-  return Object.freeze({
-    as_if_count,
-    as_if_overuse,
-    every_para_question,
-    familiar_closer,
-    door_slam_closer,
-    cluster_hit_count,
-    vocabulary_cluster,
-    violations: Object.freeze(violations),
-  });
 }

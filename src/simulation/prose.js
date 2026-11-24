@@ -9,7 +9,6 @@ import { sanitize } from "@utils";
 import MarkdownIt from "markdown-it";
 import { format_tagged_fields } from "./brackets.js";
 import { clean_generated_prose, parse_think_block, strip_covert_directives } from "./llm-output.js";
-// Note: if `clean_image_prompts` is exported from `./retrieval.js` instead of `./prompts.js`, swap the path below.
 import { clean_image_prompts } from "./prompts.js";
 
 const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
@@ -20,7 +19,7 @@ const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
  * @param {string} html
  * @returns {string}
  */
-export function wrap_dialogue(html) {
+function wrap_dialogue(html) {
   if (!html) return "";
   const parts = html.split(/(<[^>]+>)/);
   let in_quote = false;

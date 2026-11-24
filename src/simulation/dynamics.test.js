@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CARETAKER_ROTATION, evaluate_dynamics_directives, resolve_caretaker_target, step_dynamics } from "./dynamics.js";
+import { evaluate_dynamics_directives, resolve_caretaker_target, step_dynamics } from "./dynamics.js";
 
 describe("step_dynamics", () => {
   it("settles toward baselines with the live physics (50+10 @entropy50 -> 59)", () => {
@@ -18,7 +18,6 @@ describe("directives + rotation", () => {
     expect(directives.length).toBeLessThanOrEqual(1);
   });
   it("rotates caretaker target", () => {
-    expect(CARETAKER_ROTATION.length).toBeGreaterThan(0);
     expect(typeof resolve_caretaker_target(0, {})).toBe("string");
   });
 });

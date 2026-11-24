@@ -22,7 +22,6 @@
 
 import { CANONICAL_ROLES, LENGTH_THRESHOLDS } from "@config";
 import { collapse_whitespace, truncate_at_word } from "@utils";
-import { escape_xml, prompt_escape } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
 /**
@@ -31,7 +30,7 @@ import { strip_cognition_blocks } from "./llm-output.js";
  * @param {string | null | undefined} role
  * @returns {"User" | "Fractal" | "Character"}
  */
-export function role_display_label(role) {
+function role_display_label(role) {
   const key = String(role || "").toLowerCase();
   if (key === "user" || key === "user_persona") return "User";
   if (key === "fractal") return "Fractal";
@@ -125,42 +124,6 @@ export function is_narrative_role(role) {
 }
 
 /**
- * Collapses conversation history into role-grouped entries.
- * Consecutive messages from the same character are merged into a single entry.
- * Cognition is stripped exactly once here; downstream serializers must not
- * strip collapsed entries a second time.
- */
-export function collapse_history(messages, options = {}) {
-  const { separator = "\n", stripBoldQuotes = false } = options;
-  if (!Array.isArray(messages) || messages.length === 0) return [];
-
-  const collapsed = [];
-  for (const m of messages) {
-    if (m.role === "system") continue;
-    const lower_role = (m.role || "").toLowerCase();
-    const role =
-      ["user", "user_persona"].includes(lower_role) ? "user_persona"
-      : ["prologue", "fractal"].includes(lower_role) ? "fractal"
-      : "ai_character";
-    const name = m.character_name || "";
-    let content = strip_cognition_blocks(m.content || m.text || "");
-    if (stripBoldQuotes) {
-      content = content.replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
-    }
-    if (!content) continue;
-
-    const last = collapsed[collapsed.length - 1];
-    const is_same_speaker = last && last.role === role && last.name === name && (last.origin || "") === (m.origin || "");
-    if (is_same_speaker) {
-      last.content += `${separator}${content}`;
-    } else {
-      collapsed.push({ role, name, content, origin: m.origin });
-    }
-  }
-  return collapsed;
-}
-
-/**
  * Filters a sequence of dialogue messages or log records to retain only narrative turns.
  * Strips out system messages and optionally excludes consolidated rounds.
  */
@@ -181,47 +144,6 @@ export function filter_narrative_messages(messages, options = {}) {
     }
     return true;
   });
-}
-
-/**
- * Universal conversation history serializer.
- * Transforms an array of messages/entries into clean XML `<ENTRY>` sequences with origin attributes,
- * round counters, and optional word-boundary truncation.
- *
- * Collapsed entries are already cognition-stripped by `collapse_history`;
- * raw entries (collapse: false) are stripped here. No double pass.
- */
-export function format_history_entries(messages, options = {}) {
-  if (!messages) return "";
-  if (typeof messages === "string") return messages;
-  if (!Array.isArray(messages) || messages.length === 0) return "";
-
-  const { limit, offset = 0, max_chars, collapse = true, separator = "\n\n", stripBoldQuotes = false, indent = 0 } = options;
-
-  const raw_entries = collapse ? collapse_history(messages, { separator, stripBoldQuotes }) : messages;
-
-  const total = raw_entries.length;
-  const start_index = limit ? Math.max(0, total - (limit + offset)) : 0;
-  const end_index = Math.max(0, total - offset);
-
-  const prefix = indent > 0 ? " ".repeat(indent) : "";
-
-  return raw_entries
-    .slice(start_index, end_index)
-    .map((entry, index) => {
-      const raw_text = String(entry?.content ?? entry?.text ?? "");
-      // Collapsed entries were stripped at collapse time; strip only raw ones.
-      const clean_text = (collapse ? raw_text : strip_cognition_blocks(raw_text)).trim();
-      if (!clean_text) return null;
-
-      const origin = entry.origin || entry.character_name || entry.name || (entry.role ? role_display_label(entry.role) : "") || "Character";
-      const round_number = start_index + index + 1;
-      const content = max_chars ? truncate_at_word(clean_text, max_chars) : clean_text;
-
-      return `${prefix}<ACTION round="${round_number}" origin="${escape_xml(origin)}">${prompt_escape(content)}</ACTION>`;
-    })
-    .filter(Boolean)
-    .join("\n");
 }
 
 /**
@@ -371,7 +293,10 @@ export function reconstruct_history_from_feed(feed = [], cast = {}) {
  * @param {string} key - lowercased trimmed speaker name
  * @returns {string|null} canonical entity id
  */
-export function match_speaker_snapshots(snapshots, key) {
+export function match_speaker_snapshots(snapshots, name) {
+  const key = String(name || "")
+    .toLowerCase()
+    .trim();
   if (!key || !snapshots || typeof snapshots !== "object") return null;
   const trio = [snapshots.AI ?? snapshots.ai, snapshots.USER ?? snapshots.user, snapshots.FRACTAL ?? snapshots.fractal];
   for (const candidate of trio) {
@@ -386,22 +311,6 @@ export function match_speaker_snapshots(snapshots, key) {
     if (npc?.name && String(npc.name).toLowerCase().trim() === key && npc?.id) return String(npc.id);
   }
   return null;
-}
-
-/**
- * Resolves a speaker display name to its canonical entity id against the
- * provided entity snapshots (trio + NPC cast, case-insensitive).
- * Null when no id matches. Snapshots arrive as parameters - never runtime.
- * @param {string} name
- * @param {{ AI?: any, USER?: any, FRACTAL?: any, NPCS?: any } | null} [snapshots=null]
- * @returns {string|null}
- */
-export function resolve_entity_id_by_name(name, snapshots = null) {
-  const key = String(name || "")
-    .toLowerCase()
-    .trim();
-  if (!key) return null;
-  return match_speaker_snapshots(snapshots, key);
 }
 
 // ============================================================================

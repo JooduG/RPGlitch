@@ -29,7 +29,7 @@ import { parse_tagged_fields } from "./brackets.js";
 const ORIGIN_SCORE_MULTIPLIER = 1.5;
 
 /** Total guaranteed character floor across all 6 profile fields (sum: 1700 chars) */
-export const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce((sum, floor) => sum + floor, 0);
+const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce((sum, floor) => sum + floor, 0);
 
 /**
  * Converts a canonical past multiline tagged-field string into candidate memory objects
@@ -49,37 +49,6 @@ export function extract_memory_candidates(past_text) {
     weight: typeof entry.weight === "number" ? entry.weight : 5,
     key: entry.key,
   }));
-}
-
-/**
- * Creates an in-memory ephemeral vector cache adapter.
- * Evicts the oldest entry (FIFO) when full - including when the write is an
- * update to an existing key (no silent over-capacity growth).
- *
- * @param {number} [max_entries=200] - Memory ceiling
- * @returns {{ get: (id: string) => Promise<Float32Array | null>, set: (id: string, vector: Float32Array) => Promise<void>, clear: () => Promise<void> }}
- */
-export function create_vector_cache(max_entries = 200) {
-  const store = new Map();
-
-  return {
-    async get(id) {
-      return store.get(id) || null;
-    },
-    async set(id, vector) {
-      if (!store.has(id) && store.size >= max_entries) {
-        // Evict oldest entry (FIFO) to enforce memory ceiling
-        const first_key = store.keys().next().value;
-        if (first_key !== undefined) {
-          store.delete(first_key);
-        }
-      }
-      store.set(id, vector);
-    },
-    async clear() {
-      store.clear();
-    },
-  };
 }
 
 /**

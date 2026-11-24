@@ -1,14 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   canonicalize_role,
-  collapse_history,
   decompose_story_title,
   filter_narrative_messages,
-  format_history_entries,
   is_empty_narrative_message,
   is_narrative_role,
   is_telemetry_meta,
-  role_display_label,
 } from "./history.js";
 
 describe("canonicalize_role", () => {
@@ -30,14 +27,6 @@ describe("history filters", () => {
     expect(is_telemetry_meta({ type: "DYNAMICS_DELTA" })).toBe(true);
     expect(is_telemetry_meta({})).toBe(false);
   });
-  it("collapse_history merges same-speaker runs", () => {
-    const out = collapse_history([
-      { role: "ai_character", character_name: "Beast", content: "One." },
-      { role: "ai_character", character_name: "Beast", content: "Two." },
-    ]);
-    expect(out).toHaveLength(1);
-    expect(out[0].content).toContain("Two.");
-  });
   it("filter_narrative_messages drops system rows", () => {
     const out = filter_narrative_messages([
       { role: "system", content: "x" },
@@ -47,15 +36,7 @@ describe("history filters", () => {
   });
 });
 
-describe("role_display_label & is_narrative_role", () => {
-  it("maps roles to display labels", () => {
-    expect(role_display_label("USER_PERSONA")).toBe("User");
-    expect(role_display_label("user")).toBe("User");
-    expect(role_display_label("FRACTAL")).toBe("Fractal");
-    expect(role_display_label("AI_CHARACTER")).toBe("Character");
-    expect(role_display_label(null)).toBe("Character");
-  });
-
+describe("is_narrative_role", () => {
   it("identifies narrative roles", () => {
     expect(is_narrative_role("ai")).toBe(true);
     expect(is_narrative_role("FRACTAL")).toBe(true);
@@ -63,29 +44,6 @@ describe("role_display_label & is_narrative_role", () => {
     expect(is_narrative_role("npc")).toBe(true);
     expect(is_narrative_role("system")).toBe(false);
     expect(is_narrative_role(null)).toBe(false);
-  });
-});
-
-describe("collapse_history", () => {
-  it("groups consecutive messages from the same role and character", () => {
-    const messages = [
-      { role: "user", text: "Hello", character_name: "Orion" },
-      { role: "user", text: "Are you there?", character_name: "Orion" },
-      { role: "assistant", text: "I am here.", character_name: "Glitch" },
-    ];
-    const collapsed = collapse_history(messages);
-    expect(collapsed).toEqual([
-      { role: "user_persona", name: "Orion", content: "Hello\nAre you there?" },
-      { role: "ai_character", name: "Glitch", content: "I am here." },
-    ]);
-  });
-
-  it("ignores system messages in collapsed history", () => {
-    const messages = [
-      { role: "system", text: "Telemetry delta" },
-      { role: "assistant", text: "Welcome.", character_name: "Glitch" },
-    ];
-    expect(collapse_history(messages)).toEqual([{ role: "ai_character", name: "Glitch", content: "Welcome." }]);
   });
 });
 
@@ -122,33 +80,6 @@ describe("filter_narrative_messages", () => {
   it("handles null or non-array inputs safely", () => {
     expect(filter_narrative_messages(null)).toEqual([]);
     expect(filter_narrative_messages(undefined)).toEqual([]);
-  });
-});
-
-describe("format_history_entries", () => {
-  it("formats messages into canonical XML <ACTION> sequences with origin, round, and stripped think tags", () => {
-    const messages = [
-      { role: "user", text: "Hello", character_name: "Orion", origin: "ORION" },
-      { role: "assistant", text: "<think>He greets me.</think>Greetings.", character_name: "Glitch", origin: "GLITCH" },
-    ];
-    const xml = format_history_entries(messages);
-    expect(xml).toContain('<ACTION round="1" origin="ORION">Hello</ACTION>');
-    expect(xml).toContain('<ACTION round="2" origin="GLITCH">Greetings.</ACTION>');
-    expect(xml).not.toContain("<think>");
-  });
-
-  it("collapses consecutive messages with separator and supports indent and max_chars", () => {
-    const messages = [
-      { role: "user", text: "One", character_name: "Orion" },
-      { role: "user", text: "Two", character_name: "Orion" },
-    ];
-    const xml = format_history_entries(messages, { separator: "\n\n", indent: 2 });
-    expect(xml).toBe('  <ACTION round="1" origin="Orion">One\n\nTwo</ACTION>');
-  });
-
-  it("returns empty string on empty or null inputs", () => {
-    expect(format_history_entries([])).toBe("");
-    expect(format_history_entries(null)).toBe("");
   });
 });
 

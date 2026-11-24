@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { collapse_whitespace, create_relational_context, parse_bracket_display_flags, parse_macros, truncate_at_word } from "@utils";
+import { collapse_whitespace, create_relational_context, parse_bracket_display_flags, parse_macros } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
 /**
@@ -633,7 +633,7 @@ export const CLEAR_TOKENS = Object.freeze(new Set(["none", "bare", "naked", "off
  * Keys whose repeated brackets aggregate into a single multi-item array.
  * @type {ReadonlySet<string>}
  */
-export const AGGREGATE_KEYS = Object.freeze(new Set(["INVENTORY", "STASH"]));
+const AGGREGATE_KEYS = Object.freeze(new Set(["INVENTORY", "STASH"]));
 
 /**
  * Keys that must NEVER reach an image-generation prompt (private state or physical inventory).
@@ -773,47 +773,6 @@ export const safe_parse_pseudo_json = (raw) => {
 };
 
 /**
- * Repairs unclosed or unopened brackets in state strings and directives.
- * Fixes malformed strings such as:
- * - "foo | w: 8]\n[BAR: baz" -> "[foo | w: 8]\n[BAR: baz]"
- * - "ANOMALY: alert" -> "[ANOMALY: alert]"
- *
- * @param {string | null | undefined} raw - Input string with potentially malformed brackets
- * @returns {string} Clean string where every bracket predicate is properly enclosed
- */
-export function balance_brackets(raw) {
-  if (!raw || typeof raw !== "string") return "";
-  const lines = raw.split(/\r?\n/);
-  const repaired_lines = lines.map((line) => {
-    let trimmed = line.trim();
-    if (!trimmed) return "";
-
-    // Case 1: Line ends with ']' but does not start with '['
-    if (trimmed.endsWith("]") && !trimmed.startsWith("[")) {
-      trimmed = `[${trimmed}`;
-    }
-
-    // Case 2: Line starts with '[' but does not end with ']'
-    if (trimmed.startsWith("[") && !trimmed.endsWith("]")) {
-      trimmed = `${trimmed}]`;
-    }
-
-    // Case 3: Line has no brackets at all, but looks like a key-value or weight directive
-    // e.g. "ANOMALY: alert | w: 8" or "@DR_TARIQ: hostile | hide"
-    if (!trimmed.includes("[") && !trimmed.includes("]")) {
-      const is_predicate = /^(@?[A-Z][A-Z0-9_]{1,24}:|[^:|]+\|\s*(?:w:\s*\d+|show|hide)\b)/.test(trimmed);
-      if (is_predicate) {
-        trimmed = `[${trimmed}]`;
-      }
-    }
-
-    return trimmed;
-  });
-
-  return repaired_lines.join("\n").trim();
-}
-
-/**
  * Checks whether an entity has a directed bracket bond ([@target: ...]) or key targeting
  * another entity's id or name (case-insensitively).
  *
@@ -900,88 +859,8 @@ export const CLOTHING_KEYS = Object.freeze([
 ]);
 
 // ============================================================================
-// [SECTION 3: PHYSICAL STATE NORMALIZATION]
-// ============================================================================
-
-/**
- * Canonical remaps for physical-state keys the Director may write as variants of
- * the shared vocabulary. Canonically-named keys always win over these aliases.
- * @type {Readonly<Record<string, string>>}
- */
-
-/**
- * Strips a duplicated "KEY:" prefix echoed inside its own value (e.g. the value
- * "STATE: protective" for key "STATE"). Matches whole underscore-or-space keys.
- * @param {string | null | undefined} value
- * @param {string | string[]} keys
- * @returns {string}
- */
-export function strip_leading_key_echo(value, keys = []) {
-  const text = String(value ?? "");
-  const patterns = (Array.isArray(keys) ? keys : [keys]).filter(Boolean).map((k) =>
-    String(k)
-      .replace(/[^A-Za-z0-9_]/g, "")
-      .replace(/_/g, "[_ ]"),
-  );
-  if (!patterns.length) return text.trim();
-  return text.replace(new RegExp("^\\s*(?:" + patterns.join("|") + ")\\s*:\\s*", "i"), "").trim();
-}
-
-// ============================================================================
 // [SECTION 4: RELATIONAL VECTOR CODECS]
 // ============================================================================
-
-/**
- * Parses a directed relational vector string: `"[Source] → [Target]: [Dynamic]"`.
- * Tolerates various arrow notations (`→`, `->`, `—>`, `=>`, `—`).
- * @param {string | null | undefined} vector_str
- * @returns {{ source_name: string, target_name: string, dynamic: string, raw: string } | null}
- */
-export function parse_relational_vector(vector_str) {
-  if (!vector_str || typeof vector_str !== "string") return null;
-  const raw = vector_str.trim();
-  if (!raw) return null;
-
-  // Match: Source → Target: Dynamic (or Source -> Target: Dynamic)
-  const match = raw.match(/^([^\n→—=>:]+?)\s*(?:→|->|—>|=>|—)\s*([^\n:]+?)(?:\s*:\s*([\s\S]*))?$/);
-  if (!match) return null;
-
-  const source_name = (match[1] || "").trim();
-  const target_name = (match[2] || "").trim();
-  const dynamic = (match[3] || "").trim();
-
-  if (!source_name || !target_name) return null;
-
-  return { source_name, target_name, dynamic, raw };
-}
-
-/**
- * Formats a canonical directed relational vector string.
- * @param {string} source_name
- * @param {string} target_name
- * @param {string} [dynamic=""]
- * @returns {string}
- */
-export function format_relational_vector(source_name, target_name, dynamic = "") {
-  const src = (source_name || "").trim();
-  const tgt = (target_name || "").trim();
-  const dyn = (dynamic || "").trim();
-  if (!src || !tgt) return "";
-  return dyn ? `${src} → ${tgt}: ${dyn}` : `${src} → ${tgt}`;
-}
-
-/**
- * Derives a punchy single-line header title from directive text.
- * @param {string | null | undefined} text - Raw directive text.
- * @param {number} [max_len=38] - Target maximum length.
- * @returns {string}
- */
-export function derive_vector_title(text, max_len = 38) {
-  if (!text || typeof text !== "string") return "";
-  const cleaned = collapse_whitespace(text.replace(/^["'“”«»]+|["'“”«»]+$/g, ""));
-  if (!cleaned) return "";
-  return truncate_at_word(cleaned, max_len, { min_bound_chars: 15, strip_trailing_punctuation: true });
-}
 
 /**
  * Parses structured relationship links across quadrants into unified bracket items.
