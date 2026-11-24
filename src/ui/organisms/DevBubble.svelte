@@ -4,7 +4,7 @@
    * DEVMODE system telemetry card (STORY_START, DYNAMICS_DELTA,
    * CONTINUUM_FORMATION, MEMORY_FORMATION, VECTOR_RESOLUTION).
    */
-  import { format_tagged_fields, parse_tagged_fields as parse_bracket_entries } from "@simulation";
+  import { format_tagged_fields, parse_message, parse_tagged_fields as parse_bracket_entries } from "@simulation";
   import { safe_html } from "@utils";
 
   const get_percentage = (value) => {
@@ -12,12 +12,10 @@
     const num = Number(value);
     return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : 50;
   };
-  import { parse_message } from "@simulation";
 
-  const ENTITY_KEYS = { AI_CHARACTER: "ai", USER_PERSONA: "user", FRACTAL: "fractal" };
   const DIRECTOR_AXES = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];
 
-  export function resolve_entity_name(key, runtime) {
+  function resolve_entity_name(key, runtime) {
     const map = {
       AI_CHARACTER: () => runtime?.active_ai?.name || "AI CHARACTER",
       USER_PERSONA: () => runtime?.active_user?.name || "USER PERSONA",
@@ -30,7 +28,7 @@
     return runtime?.active_npcs?.[key]?.name || String(key ?? "");
   }
 
-  export function get_telemetry_label(meta) {
+  function get_telemetry_label(meta) {
     if (meta?.type === "STORY_START") return "Simulation initiated";
     if (meta?.type === "MEMORY_FORMATION" || meta?.type === "CONTINUUM_FORMATION") {
       const raw = String(meta.target ?? "ENTITY").toUpperCase();
@@ -40,7 +38,7 @@
     return "Director turn";
   }
 
-  export function vector_label(type, fallback = "past") {
+  function vector_label(type, fallback = "past") {
     if (type == null) return fallback === "memory" || fallback === "past" ? "PAST" : fallback.toUpperCase();
     const t = String(type).toUpperCase();
     if (t === "PAST" || t === "MEMORY") return "PAST";
@@ -48,67 +46,13 @@
     return t;
   }
 
-  export function clean_text_debris(text) {
+  function clean_text_debris(text) {
     if (text == null) return "";
     return String(text)
       .trim()
       .replace(/^[\s,;]+|[\s,;]+$/g, "")
       .replace(/,(\s*,)+/g, ",")
       .trim();
-  }
-
-  /** Kept exported in case external tests/consumers reference it; unused internally. */
-  export function process_entity_blocks(meta) {
-    const updates = meta?.updates && typeof meta.updates === "object" ? meta.updates : {};
-    const blocks = [];
-    for (const [key, raw] of Object.entries(updates)) {
-      if (!raw || typeof raw !== "object") continue;
-      const block_key = ENTITY_KEYS[key];
-      if (!block_key) continue;
-
-      const dynamics = (Array.isArray(raw.dynamics) ? raw.dynamics : []).map((d) => ({
-        axis: d.axis,
-        value: d.new_value,
-        old_value: d.old_value,
-        new_value: d.new_value,
-        diff: d.diff,
-        has_delta: true,
-      }));
-      const new_vectors = (Array.isArray(raw.vectors?.new) ? raw.vectors.new : []).map((v) => ({
-        type: v.type,
-        weight: v.emotional_weight,
-        ...(v.id ? { id: v.id } : {}),
-        content: clean_text_debris(v.content),
-      }));
-      const retrieval = (Array.isArray(raw.vectors?.retrieval) ? raw.vectors.retrieval : []).map((v) => ({
-        type: v.type,
-        id: v.id,
-        content: clean_text_debris(v.content),
-        relevance: v._relevance,
-      }));
-      const physical = clean_text_debris(raw.present_mutations?.physical ?? "");
-      const non_physical = clean_text_debris(raw.present_mutations?.non_physical ?? "");
-      const eternal_physical = clean_text_debris(raw.eternal_mutations?.physical ?? "");
-      const eternal_non_physical = clean_text_debris(raw.eternal_mutations?.non_physical ?? "");
-
-      if (!dynamics.length && !new_vectors.length && !retrieval.length && !physical && !non_physical && !eternal_physical && !eternal_non_physical) {
-        continue;
-      }
-
-      blocks.push({
-        key: block_key,
-        name: raw.name || resolve_entity_name(key, {}),
-        physical,
-        non_physical,
-        eternal_physical,
-        eternal_non_physical,
-        dynamics,
-        new_vectors,
-        retrieval,
-        has_mods: Boolean(eternal_physical || eternal_non_physical),
-      });
-    }
-    return blocks;
   }
 </script>
 
@@ -226,7 +170,7 @@
         {#if meta.type === "STORY_START"}
           <p class="type-data text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
         {:else}
-          {#if meta.trigger_image === true || meta.image_trigger === true}
+          {#if meta.trigger_image === true}
             {@const disp = meta.image_signals?.displacement || 0}
             {@const disp_thresh = meta.image_signals?.displacement_threshold || 50}
             <div class="flex flex-wrap items-center gap-tight rounded border border-(--color-dev-accent)/20 bg-black/40 px-3 py-tight text-xs">
@@ -243,7 +187,7 @@
                 <span class="type-data text-slate-400">· Band: {be.axis} {be.from} → {be.to} ({be.band})</span>
               {/if}
               {#if disp > 0 && disp >= disp_thresh}
-                <span class="type-data text-slate-400">· Displacement: {disp}/{meta.image_signals.displacement_threshold}</span>
+                <span class="type-data text-slate-400">· Displacement: {disp}/{disp_thresh}</span>
               {/if}
             </div>
           {/if}

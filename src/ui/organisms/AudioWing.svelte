@@ -24,8 +24,7 @@
   sync_voice();
   $effect(sync_voice);
 
-  const active_voice_name = $derived(resolve_voice_name(profile_state.char?.voice?.name || profile_state.char?.voice?.uri || "Standard Voice"));
-  const dropdown_items = $derived((Audio?.voice?.voices ?? []).map((voice) => ({ value: voice.name, label: voice.name })));
+  const dropdown_items = $derived((Audio.voice.voices ?? []).map((voice) => ({ value: voice.name, label: voice.name })));
 
   const cadence_index = $derived.by(() => {
     const key = profile_state.char?.voice?.cadence || "standard";
@@ -74,7 +73,7 @@
       actions={[tooltip]}
       aria-label="Preview Voice"
       square
-      onclick={() => Audio?.voice?.preview?.(active_voice_name, get_cadence_rate(profile_state.char?.voice?.cadence))}
+      onclick={() => Audio.voice.preview(profile_state.char?.voice?.name, get_cadence_rate(profile_state.char?.voice?.cadence))}
       variant="secondary">
       <Icon name="volume" class="size-icon-small" />
     </Button>

@@ -18,7 +18,7 @@
 
   const signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
 
-  const get_src = (att) => (typeof att === "string" ? att : att?.src || att?.imageUrl || att?.url || "");
+  const get_src = (att) => (typeof att === "string" ? att : att?.src || "");
 
   function get_container_style(attachment, regenerate_key) {
     const fallback_mode = (image_picker.regenerating_key === regenerate_key && image_picker.last_mode) || (is_fractal ? "landscape" : "character");
@@ -104,11 +104,11 @@
                 Retry
               </Button>
             {/if}
-            {#if id}
+            {#if preview_options.on_delete}
               <Button
                 variant="bare"
-                onclick={() => session.delete_attachment(String(id), attach_idx)}
-                class="rounded-md border border-red-400/30 px-3 py-1 text-[11px] font-medium text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white">
+                onclick={preview_options.on_delete}
+                class="rounded-md border border-red-400/30 px-3 py-1 type-interact text-red-200/70 transition-colors hover:border-red-300/60 hover:text-white">
                 Remove
               </Button>
             {/if}

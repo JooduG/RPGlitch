@@ -48,8 +48,8 @@
     : is_fractal ? "fractal"
     : "ai",
   );
-  const voice_audible = $derived(Boolean(Audio?.is_role_enabled?.(speak_role)));
-  const is_speaking_this = $derived(Boolean(Audio?.voice?.is_speaking && Audio.voice.active_message_id === id));
+  const voice_audible = $derived(Boolean(Audio.is_role_enabled(speak_role)));
+  const is_speaking_this = $derived(Boolean(Audio.voice.is_speaking && Audio.voice.active_message_id === id));
 
   const entity = $derived(session.resolve_feed_entity(sender, character_name));
 
@@ -117,7 +117,7 @@
   }
 
   function handle_speak() {
-    if (!clean_markdown || !Audio?.voice || !Audio.is_role_enabled(speak_role)) return;
+    if (!clean_markdown || !Audio.voice || !Audio.is_role_enabled(speak_role)) return;
     Audio.voice.active_message_id = id;
     if (entity?.voice) {
       Audio.voice.selected_voice = resolve_voice_uri(entity.voice.name || entity.voice.uri);

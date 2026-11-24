@@ -3,7 +3,7 @@ export { default as CardHand } from "./CardHand.svelte";
 export { default as ChatBubble } from "./ChatBubble.svelte";
 export { default as Console } from "./Console.svelte";
 export { default as ContextMenu, build_entity_actions, close_context_menu, context_menu_state, open_context_menu } from "./ContextMenu.svelte";
-export { default as DevBubble, get_telemetry_label, process_entity_blocks, resolve_entity_name } from "./DevBubble.svelte";
+export { default as DevBubble } from "./DevBubble.svelte";
 export { default as DevWing } from "./DevWing.svelte";
 export { default as EntityCard } from "./EntityCard.svelte";
 export { default as ImageBubble } from "./ImageBubble.svelte";

@@ -8,7 +8,7 @@
   import { chrono_engine, generate_closing, generate_user_draft } from "@engine";
   import { Audio, pulse, roll, shimmy, stab } from "@media";
   import { Dialog, TextField } from "@molecules";
-  import { StoryLibrary } from "@organisms";
+  import StoryLibrary from "./StoryLibrary.svelte";
   import { app, execution, session } from "@state";
   import { download_text_file, embeddings_engine, get_signature_color } from "@utils";
   import { tick } from "svelte";
@@ -46,7 +46,6 @@
   const is_storymode = $derived(app.view === "storymode");
   const panel_open = $derived(app.control_panel_open);
   const has_text = $derived(value.length > 0);
-  const pending_count = $derived(pending.length);
   const is_muted = $derived(Audio.volume === 0 || explicitly_muted);
   const models_ready = $derived(embeddings_engine.model_ready);
   const has_active_story = $derived(Boolean(session.active_id));
@@ -56,9 +55,8 @@
   const send_blocked = $derived(execution.busy || execution.loading || panel_open);
   const signature_color = $derived(get_signature_color(session.active_user || app.selected_user, "var(--color-gunmetal)"));
 
-  const story_concluded = $derived(
-    session.feed.some((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.active_id))),
-  );
+  const is_active_epilogue = (e) => Boolean(e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.active_id)));
+  const story_concluded = $derived(session.feed.some(is_active_epilogue));
   const story_locked = $derived(execution.phase === "locked" || story_concluded);
 
   const label_text = $derived(
@@ -177,11 +175,7 @@
     ghostwrite_generation += 1;
     handled_ghostwrite_req = app.ghostwrite_request;
     is_ghostwriting = false;
-    try {
-      ghostwrite_controller?.abort();
-    } catch {
-      /* best-effort */
-    }
+    ghostwrite_controller?.abort();
     ghostwrite_controller = null;
     chrono_engine.abort();
   }
@@ -214,7 +208,7 @@
     if (is_rewinding || !session.active_id) return;
     is_rewinding = true;
     try {
-      const epilogues = session.feed.filter((e) => e?.meta?.is_epilogue && (e.story_id === undefined || String(e.story_id) === String(session.active_id)));
+      const epilogues = session.feed.filter(is_active_epilogue);
       for (const ep of epilogues) {
         if (ep?.id != null) await session.delete_entry(String(ep.id));
       }
@@ -346,14 +340,14 @@
     disabled={panel_open || is_ghostwriting}
     aria-label="Input message"></textarea>
 
-  {#if pending_count > 0}
+  {#if pending.length > 0}
     <span
       class="flex shrink-0 items-center gap-tight type-uppercase-label text-amber-300"
-      use:tooltip={pending_count > 1 ?
-        `${pending_count} messages queued; they send when the current turn finishes.`
+      use:tooltip={pending.length > 1 ?
+        `${pending.length} messages queued; they send when the current turn finishes.`
       : "Message queued; it sends when the current turn finishes."}>
       <span class="inline-block size-1.5 shrink-0 animate-pulse rounded-full bg-amber-400" role="status" aria-label="Status indicator"></span>
-      {pending_count > 1 ? `${pending_count} queued` : "Queued"}
+      {pending.length > 1 ? `${pending.length} queued` : "Queued"}
     </span>
   {/if}
 

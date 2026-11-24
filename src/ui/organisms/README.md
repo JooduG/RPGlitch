@@ -6,13 +6,13 @@ Domain-aware presentation components and controllers (`@organisms`) built atop `
 
 ## Interface
 
-- [`index.js`](./index.js): Barrel exporting `AudioWing`, `CardHand`, `ChatBubble` (`parse_message`), `Console`, `ContextMenu` (`build_entity_actions`, `close_context_menu`, `context_menu_state`, `open_context_menu`), `DevBubble` (`get_telemetry_label`, `process_entity_blocks`, `resolve_entity_name`), `DevWing`, `EntityCard`, `ImageBubble`, `ImagePreview`, `RelationalGraph`, `StoryLibrary`, `VisualWing`, and the reactive `ImagePreview.svelte.js` controllers (`image_preview`, `image_picker`, `open_image_preview`, `close_image_preview`, `open_picker`, `select_candidate`, `close_regenerate`, `regenerate_image`, `run_image_regeneration`).
+- [`index.js`](./index.js): Barrel exporting `AudioWing`, `CardHand`, `ChatBubble` (`parse_message`), `Console`, `ContextMenu` (`build_entity_actions`, `close_context_menu`, `context_menu_state`, `open_context_menu`), `DevBubble`, `DevWing`, `EntityCard`, `ImageBubble`, `ImagePreview`, `RelationalGraph`, `StoryLibrary`, `VisualWing`, and the reactive `ImagePreview.svelte.js` controllers (`image_preview`, `image_picker`, `open_image_preview`, `close_image_preview`, `open_picker`, `select_candidate`, `close_regenerate`, `regenerate_image`, `run_image_regeneration`).
 - [`AudioWing.svelte`](./AudioWing.svelte): Voice selection, preview, and cadence controls for `Profile`.
 - [`CardHand.svelte`](./CardHand.svelte): Orbital card-hand dialog and selection deck for `Storyboard`.
 - [`ChatBubble.svelte`](./ChatBubble.svelte) & `ChatBubble.svelte`: Narrative message chassis, `parse_message()` pipeline, attachments gallery, and telemetry cards.
 - [`Console.svelte`](./Console.svelte) & [`Console.test.js`](./Console.test.js): Persistent stage console (`[data-testid="unified-console"]`), composer, pending FIFO send queue, and collapsible settings/library panel.
 - [`ContextMenu.svelte`](./ContextMenu.svelte): Portalled viewport-clamped floating menu and entity action builder (`build_entity_actions`, `open_context_menu`, `close_context_menu`, `context_menu_state`).
-- [`DevBubble.svelte`](./DevBubble.svelte): Developer telemetry bubble (`get_telemetry_label`, `process_entity_blocks`, `resolve_entity_name`).
+- [`DevBubble.svelte`](./DevBubble.svelte): Developer telemetry bubble.
 - [`DevWing.svelte`](./DevWing.svelte): Developer dynamics grid (`Meter`) and raw entity JSON accordion.
 - [`EntityCard.svelte`](./EntityCard.svelte): Multi-variant (`library`, `slot`, `panel`, `message`) entity card with eject/swap transitions and context menus.
 - [`ImageBubble.svelte`](./ImageBubble.svelte): Inline generated image attachment bubble with lightbox and regeneration triggers.
