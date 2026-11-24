@@ -744,7 +744,7 @@
     {#if profile_state.is_editing && first_field_key}
       <button
         type="button"
-        class="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] tracking-[inherit] text-inherit uppercase outline-none focus-visible:underline"
+        class="cursor-pointer border-0 bg-transparent p-0 font-[inherit] text-[length:inherit] leading-[inherit] tracking-[inherit] text-inherit outline-none focus-visible:underline"
         onclick={() => document.getElementById(`field-${first_field_key.replace(".", "-")}`)?.focus()}>
         {label}
       </button>

@@ -105,3 +105,21 @@
 - **Trigger**: Relocating a component from `src/ui/` into `src/ui/organisms/` while retaining imports from `@ui` (or sibling stage views).
 - **Wrong Behavior**: Importing view-level singletons or controllers (e.g. `import { storyboard } from "@ui"`) inside `@organisms`, violating `rank5-organisms-downward` in `graphit.architecture.json`.
 - **Correct Behavior**: Pass view/controller actions and state down into the organism via props/callbacks from `App.svelte` (e.g. `<Console on_shuffle={() => storyboard.shuffle()} />`), preserving the strictly downward Rank 5 hierarchy.
+
+## Pitfall 18: `*:pointer-events-auto` & `Modal` `className` Breaking Click-Outside and Off-Screen Modals (Occurrences: 1)
+
+- **Trigger**: Wrapping full-viewport `pointer-events-none` containers inside `<Backdrop>` / `<Modal>` or passing panel layout classes (`relative`, `w-[...]`) to `<Modal class="...">`.
+- **Wrong Behavior**: Using Tailwind `*:pointer-events-auto` on Backdrop/Modal wrappers (overrides base `pointer-events-none` on children, blocking click-outside); forwarding `class={className}` to `<Backdrop>` instead of `<Dialog.Content>` (caller `relative` overrides `Backdrop`'s `fixed inset-0`, pushing the modal off-screen below `100dvh`).
+- **Correct Behavior**: Use `[&>*:not(.pointer-events-none)]:pointer-events-auto` on `<Backdrop>`/`<Modal>` wrappers, keep `<Backdrop>` strictly `fixed inset-0`, and pass `className` to `<Dialog.Content>`.
+
+## Pitfall 19: Capture-Phase `window` `blur` & Missing `pointer-events-auto` on Portaled `ContextMenu` (Occurrences: 1)
+
+- **Trigger**: Portaling floating menus (`ContextMenu.svelte`) to `document.body` or wiring `on_dismiss_outside` in `src/utils/dom.js`.
+- **Wrong Behavior**: Omitting `pointer-events-auto` and explicit `style:z-index="var(--z-index-tooltip)"` on portaled menus (inherits `body`'s `pointer-events: none` while `bits-ui` modals are open); registering `window.addEventListener("blur", handler, true)` in capture phase (intercepts every child element's `blur` when focus moves to a clicked menu button and unmounts the menu before `click` fires).
+- **Correct Behavior**: Give portaled menus `pointer-events-auto` + `style:z-index="var(--z-index-tooltip)"`, and register `window`'s `blur` listener with `capture: false` so it only fires when the browser window itself loses focus.
+
+## Pitfall 20: Custom Audit `ignore-next-line` Approval & Inline `style="..."` Stylelint Disables (Occurrences: 1)
+
+- **Trigger**: Suppressing custom audit rules (`audit:design:typography`, `audit:dead-code`, `audit:hygiene`) or Stylelint `property-disallowed-list` on inline `style="..."` attributes in `.svelte` files.
+- **Wrong Behavior**: Adding `<!-- ignore-next-line -->` silently instead of fixing the underlying violation; placing `/* stylelint-disable-next-line ... */` outside `style="..."` (invalid HTML attribute position) or using `next-line` on the same line as the disallowed property.
+- **Correct Behavior**: Fix violations directly and always ask user approval before using `<!-- ignore-next-line -->` / `// ignore-next-line`. For inline `style="..."` attributes, place `/* stylelint-disable-line <rule> */` **inside** the quotes on the same line as the property.
