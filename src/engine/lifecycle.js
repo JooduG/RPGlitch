@@ -4,9 +4,10 @@
  * prologue/epilogue beats, entity birth, and user draft ghostwriting.
  */
 
+import { IMAGE_POLICY } from "@config";
 import { apply_profile_to_entity, create_entity, detect_card_format, entities, normalize_entity, parse_character_card, stories } from "@data";
 import { get_visual_style } from "@definitions";
-import { clear_generation_in_flight, mark_generation_in_flight, visual_engine } from "@media";
+import { clear_generation_in_flight, count_pending_ghosts, mark_generation_in_flight, sweep_stale_ghosts, visual_engine } from "@media";
 import {
   clean_generated_prose,
   compile_prompt,
@@ -27,20 +28,19 @@ import { run_turn } from "./turns.js";
  * @param {string} text
  * @param {string} [type="character"]
  * @param {object | null} [entity=null]
- * @param {string | null} [app_style=null]
+ * @param {string | null} [explicit_style=null]
  * @param {AbortSignal | null} [signal=null]
  * @returns {Promise<{ prompt: string, negative_prompt: string, resolution?: string }>}
  */
-export async function refine_image_prompt(text, type = "character", entity = null, app_style = null, signal = null) {
+export async function refine_image_prompt(text, type = "character", entity = null, explicit_style = null, signal = null) {
   if (!text || typeof text !== "string") {
     return { prompt: "", negative_prompt: "" };
   }
 
-  const app_choice = app_style || app.settings?.visual_style;
   let style_key = "none";
 
-  if (app_choice && app_choice !== "none" && app_choice !== "default") {
-    style_key = app_choice;
+  if (explicit_style && explicit_style !== "none" && explicit_style !== "default") {
+    style_key = explicit_style;
   } else if (entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default") {
     style_key = entity.visual_style;
   } else if (session.active_fractal?.visual_style && session.active_fractal.visual_style !== "none" && session.active_fractal.visual_style !== "default") {
@@ -49,9 +49,6 @@ export async function refine_image_prompt(text, type = "character", entity = nul
 
   const style_def = get_visual_style(style_key);
   const tier_resolution = get_resolution_string(type);
-  if (style_def && style_def.llm_refine === false) {
-    return { prompt: text.trim(), negative_prompt: style_def.negative_prompt || "", resolution: tier_resolution };
-  }
 
   try {
     const target_entity = entity || (type === "fractal" ? session.active_fractal : session.active_ai);
@@ -180,16 +177,14 @@ export async function generate_opening(story_id, { signal = null } = {}) {
       mark_generation_in_flight(prologue_image_id, 0);
       await prologue_image_gate;
       try {
-        const img_result = await visual_engine.visualize(prologue_text, "story_scene", { silent: true, refine_prompt: refine_image_prompt }, { app, session });
+        const story_style = session.active_fractal?.visual_style || null;
+        const refined = await refine_image_prompt(prologue_text, "story_scene", session.active_fractal, story_style);
+        const final_prompt = refined?.prompt || prologue_text;
+        const img_result = await visual_engine.generate(final_prompt, { mode: "story_scene", negative_prompt: refined?.negative_prompt || "" });
         if (img_result?.image_url && session.active_id === story_id) {
           await session.update_attachment(prologue_image_id, 0, {
             src: img_result.image_url,
-            metadata: {
-              ...(img_result.metadata || {}),
-              prompt: img_result.refined_prompt || img_result.metadata?.prompt,
-              mode: "story_scene",
-              requested_at: prologue_image_requested_at,
-            },
+            metadata: { ...(img_result.metadata || {}), prompt: final_prompt, mode: "story_scene", requested_at: prologue_image_requested_at },
           });
         } else if (!img_result?.image_url && session.active_id === story_id) {
           await session.update_attachment(prologue_image_id, 0, {
@@ -449,6 +444,13 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
   const story_id = session.active_id;
   if (!story_id) return null;
 
+  if (background) {
+    await sweep_stale_ghosts({ session });
+    if ((await count_pending_ghosts({ session })) >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
+      return null;
+    }
+  }
+
   const entity_map = {
     ai: session.active_ai || app.selected_ai,
     user: session.active_user || app.selected_user,
@@ -505,10 +507,8 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
 
     let enhanced_negative = "";
     try {
-      const configured_style = app.settings?.visual_style;
-      const story_style = session.active_fractal?.visual_style;
-      const app_style = configured_style && configured_style !== "none" && configured_style !== "default" ? configured_style : story_style || null;
-      const enhanced = await refine_image_prompt(envision_source, subject, entity, app_style, signal);
+      const story_style = session.active_fractal?.visual_style || null;
+      const enhanced = await refine_image_prompt(envision_source, subject, entity, story_style, signal);
       if (enhanced?.prompt) refined_prompt = enhanced.prompt;
       if (enhanced?.negative_prompt) enhanced_negative = enhanced.negative_prompt;
     } catch (envision_err) {
@@ -527,18 +527,13 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       }
     }
 
-    const result = await visual_engine.visualize(
-      refined_prompt,
-      target_mode,
-      { subject, entity, negative_prompt: enhanced_negative, signal },
-      { app, session },
-    );
+    const result = await visual_engine.generate(refined_prompt, { mode: target_mode, negative_prompt: enhanced_negative, signal });
 
     if (session.active_id === story_id && placeholder_entry?.id) {
       if (result?.image_url) {
         await session.update_attachment(placeholder_entry.id, attach_idx, {
           src: result.image_url,
-          metadata: { mode: target_mode, ...(result.metadata || {}), prompt: result.refined_prompt || refined_prompt },
+          metadata: { mode: target_mode, ...(result.metadata || {}), prompt: refined_prompt },
         });
       } else {
         await session.update_attachment(placeholder_entry.id, attach_idx, {

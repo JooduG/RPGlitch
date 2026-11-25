@@ -36,7 +36,6 @@
   import { visual_engine } from "@media";
   import { Dropdown, SourceField, TextField } from "@molecules";
   import { extract_aesthetic_traits, sanitize_visual_text } from "@simulation";
-  import { app } from "@state";
   import { get_signature_label, PALETTE_CSS_VARIABLES } from "@utils";
 
   let { profile_state } = $props();
@@ -75,7 +74,7 @@
         profile_state.char.modifiers.prompt = extract_aesthetic_traits(profile_state.char);
         profile_state.mark_mutated();
       } else if (has_prompt_text) {
-        const result = await refine_image_prompt(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char, app.settings?.visual_style);
+        const result = await refine_image_prompt(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
         if (!result) return;
         const positive = sanitize_visual_text(result.prompt || "").trim();
         const negative = sanitize_visual_text(result.negative_prompt || "").trim();

@@ -30,8 +30,8 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 ### 3. Stateless Perchance Visual Dispatcher (`image-generation.js`)
 
 - `dispatch_visual_generation(payload, options = {})`: Dispatches visual generation to the host Perchance image plugin with `AbortSignal` cancellation, `CircuitBreaker` insulation, `ExponentialBackoffRetryer` retries, or offline SVG fallback.
-- In-Flight & Queue Bookkeeping: `mark_generation_in_flight()`, `clear_generation_in_flight()`, `is_generation_in_flight()`, `reset_generation_in_flight()`, `get_image_generation_queue()`, `reset_image_generation_queue()`.
-- Ghost & Beat Lifecycle: `spawn_image_beat(tier, options = {}, ctx)`, `sweep_stale_ghosts(ctx)`, `count_pending_ghosts(ctx)`, `mark_placeholder_failed(id, metadata = {}, ctx)`.
+- In-Flight Bookkeeping: `mark_generation_in_flight()`, `clear_generation_in_flight()`, `is_generation_in_flight()`, `reset_generation_in_flight()`.
+- Ghost Sweeps: `sweep_stale_ghosts(ctx)`, `count_pending_ghosts(ctx)`.
 - Host Plugin Discovery & Facade: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`generate`, `visualize`, `generate_candidates`), `visual_engine`.
 
 ### 4. Synchronized Stylesheet (`design.css`)
@@ -44,7 +44,7 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 - **Silent Boot & User Gesture Audio**: `AudioContext` is constructed lazily on demand, `is_muted` and `VoiceEngine.enabled` boot disabled, `init_audio_on_gesture()` races `context.resume()` against a 1500ms timeout, and `Audio.play("notification")` is gated by `Audio.notifications_enabled`.
 - **Accessibility & Card-Flight Locking**: `motion.is_reduced` suppresses kinetic actions, collapses Svelte transition durations to `0`, and short-circuits `fly_card_in`, `fly_card_out`, and `fly_storyboard_cards_into_prologue`.
 - **Bounded Queue & Stale Ghost Sweep**: Pending image beats and queue depth are capped at `IMAGE_POLICY.MAX_PENDING_IMAGES` (`5`), and `sweep_stale_ghosts(ctx)` sweeps unresolved entries older than `TIMING_MS.CEILING` (`120000` ms) while sparing `_in_flight_image_generations`.
-- **P4 Snake-Case Purity**: `VisualEngine.generate()` and `VisualEngine.visualize()` return `snake_case` fields (`image_url`, `refined_prompt`, `seed`, `metadata`) without camelCase compatibility aliases.
+- **P4 Snake-Case Purity**: `VisualEngine.generate()` returns `snake_case` fields (`image_url`, `seed`, `metadata`) without camelCase compatibility aliases.
 
 ## Side Effects
 

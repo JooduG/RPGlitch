@@ -14,7 +14,7 @@ describe("InterfaceStore (app)", () => {
   it("exports a singleton app instance with clean default state", () => {
     expect(app).toBeInstanceOf(InterfaceStore);
     expect(app.view).toBe("storyboard");
-    expect(app.settings).toEqual({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false, visual_style: "none" });
+    expect(app.settings).toEqual({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false });
   });
 
   it("tracks storyboard slot selections and clears claimed selections", () => {

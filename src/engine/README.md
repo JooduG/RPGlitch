@@ -38,7 +38,7 @@ External callers (`@ui`) import only from [`index.js`](./index.js). Internal hel
 ## Side Effects
 
 - **IndexedDB Writes**: [`turns.js`](./turns.js), [`lifecycle.js`](./lifecycle.js), and [`chrono.svelte.js`](./chrono.svelte.js) persist stories, entities, and log rows through `@state` (`session`) and `@data` (`db.simulation_log`, `upsert_entity`, `update_cast`, `update_entity`).
-- **External Plugins & Media**: [`transport.js`](./transport.js) calls `window.generate_text` via `resolve_perchance_plugin`; [`turns.js`](./turns.js) dispatches non-blocking `spawn_image_beat` calls and `Audio.play("notification")`; [`lifecycle.js`](./lifecycle.js) triggers prologue scene and character portrait generation through `visual_engine`.
+- **External Plugins & Media**: [`transport.js`](./transport.js) calls `window.generate_text` via `resolve_perchance_plugin`; [`turns.js`](./turns.js) dispatches non-blocking background `capture_story_image` calls and `Audio.play("notification")`; [`lifecycle.js`](./lifecycle.js) triggers prologue scene and character portrait generation through `visual_engine`.
 
 ## Verification
 

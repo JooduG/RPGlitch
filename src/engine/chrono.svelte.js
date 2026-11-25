@@ -4,7 +4,7 @@
  * retry, continue-in-place, abort rollback, and single-attempt orphan recovery.
  */
 
-import { reset_generation_in_flight, reset_image_generation_queue } from "@media";
+import { reset_generation_in_flight } from "@media";
 import { build_turn_summary } from "@simulation";
 import { app, execution, session } from "@state";
 import { create_from_selection, regenerate as regenerate_trailing_turns, send as send_user_turn } from "@data";
@@ -45,7 +45,7 @@ export class ChronoEngine {
     try {
       execution.recover(reason);
     } finally {
-      for (const reset_fn of [reset_turn_scope, reset_generation_in_flight, reset_image_generation_queue]) {
+      for (const reset_fn of [reset_turn_scope, reset_generation_in_flight]) {
         try {
           reset_fn();
         } catch {

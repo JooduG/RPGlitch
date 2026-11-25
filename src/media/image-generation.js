@@ -18,8 +18,8 @@
  * (Rank 2 cannot import Rank 3 or Rank 4).
  */
 
-import { IMAGE_POLICY, TIMING_MS } from "@config";
-import { compose_story_beat_prompt, get_resolution_string, get_tier_guidance_scale, resolve_story_beat_style, sanitize_visual_text } from "@simulation";
+import { TIMING_MS } from "@config";
+import { get_resolution_string, sanitize_visual_text } from "@simulation";
 import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, resolve_perchance_plugin } from "@utils";
 
 // ============================================================================
@@ -80,8 +80,6 @@ function create_offline_svg(width, height) {
  * @param {string} payload.prompt
  * @param {string} [payload.negative_prompt]
  * @param {string} [payload.resolution]
- * @param {string} [payload.mode] - tier mode used to derive the default guidance scale
- * @param {number} [payload.guidance_scale]
  * @param {number} [payload.seed]
  * @param {Object} [options={}]
  * @param {AbortSignal} [options.signal]
@@ -89,21 +87,13 @@ function create_offline_svg(width, height) {
  * @returns {Promise<{ image_url: string, seed: number, metadata: Record<string, any> }>}
  */
 export async function dispatch_visual_generation(payload, options = {}) {
-  const {
-    prompt: raw_prompt,
-    negative_prompt: raw_negative_prompt = "",
-    resolution = "512x768",
-    mode,
-    guidance_scale: explicit_guidance,
-    seed: explicit_seed,
-  } = payload || {};
+  const { prompt: raw_prompt, negative_prompt: raw_negative_prompt = "", resolution = "512x768", seed: explicit_seed } = payload || {};
 
   // The host image plugin evaluates prompt text as Perchance template syntax
   // (`{...}` / `[...]` are structural). Sanitize first so a persisted raw-JSON
   // blob or stray braces can never throw a curly-bracket mismatch downstream.
   const prompt = sanitize_visual_text(raw_prompt);
   const negative_prompt = sanitize_visual_text(raw_negative_prompt);
-  const guidance_scale = explicit_guidance ?? get_tier_guidance_scale(mode ?? options.mode);
   const seed = explicit_seed ?? generate_secure_seed();
   const [width_str, height_str] = String(resolution).split("x");
   const width = parseInt(width_str, 10) || 512;
@@ -120,7 +110,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
   const raw_engine = options.engine || find_image_engine();
 
   if (!raw_engine) {
-    return { image_url: create_offline_svg(width, height), seed, metadata: { offline: true, resolution, guidance_scale } };
+    return { image_url: create_offline_svg(width, height), seed, metadata: { offline: true, resolution } };
   }
 
   const execute_attempt = async () => {
@@ -128,7 +118,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
       throw new DOMException("Aborted", "AbortError");
     }
 
-    const engine_arguments = { prompt, negativePrompt: negative_prompt, resolution, guidanceScale: guidance_scale, seed };
+    const engine_arguments = { prompt, negativePrompt: negative_prompt, resolution, seed };
 
     let result = raw_engine(engine_arguments);
     if (result && typeof result.then === "function") {
@@ -140,7 +130,7 @@ export async function dispatch_visual_generation(payload, options = {}) {
       throw new Error("EMPTY_IMAGE_RESPONSE: Engine returned no image URL");
     }
 
-    return { image_url, seed, metadata: { resolution, guidance_scale, offline: false } };
+    return { image_url, seed, metadata: { resolution, offline: false } };
   };
 
   return await visual_circuit_breaker.execute(() => visual_retryer.retry(execute_attempt));
@@ -151,7 +141,6 @@ export async function dispatch_visual_generation(payload, options = {}) {
 // ============================================================================
 
 const _in_flight_image_generations = new Set();
-const _image_generation_queue = [];
 
 export function mark_generation_in_flight(id, attachment_index = 0) {
   if (id == null) return;
@@ -170,19 +159,6 @@ export function is_generation_in_flight(id, attachment_index = 0) {
 
 export function reset_generation_in_flight() {
   _in_flight_image_generations.clear();
-}
-
-export function get_image_generation_queue() {
-  return [..._image_generation_queue];
-}
-
-export function reset_image_generation_queue() {
-  _image_generation_queue.length = 0;
-}
-
-function _remove_from_image_generation_queue(id) {
-  const index = _image_generation_queue.findIndex((entry) => entry.id === id);
-  if (index !== -1) _image_generation_queue.splice(index, 1);
 }
 
 export async function count_pending_ghosts(ctx) {
@@ -205,47 +181,6 @@ export async function count_pending_ghosts(ctx) {
     return count;
   } catch {
     return 0;
-  }
-}
-
-export async function mark_placeholder_failed(id, metadata = {}, ctx) {
-  if (!id) return;
-  clear_generation_in_flight(id, 0);
-  try {
-    const key = isNaN(Number(id)) ? id : Number(id);
-    let has_narrative_text = false;
-
-    const current_story_id = ctx.session?.active_id;
-    const feed_match = ctx.session?.feed?.find(
-      (entry) =>
-        (!entry.story_id || !current_story_id || entry.story_id === current_story_id) &&
-        (entry.id === key || entry.id === id || String(entry.id) === String(id)),
-    );
-    if (feed_match && feed_match.text && feed_match.text.trim()) {
-      has_narrative_text = true;
-    } else {
-      try {
-        const database_entries = await ctx.session?.load_log(current_story_id);
-        const match = database_entries?.find((entry) => entry.id === key || entry.id === id || String(entry.id) === String(id));
-        if (match && match.text && match.text.trim()) has_narrative_text = true;
-      } catch {
-        /* db lookup fallback ignore */
-      }
-    }
-
-    if (has_narrative_text) {
-      await ctx.session?.update_attachment(id, 0, {
-        src: null,
-        metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
-      });
-      return;
-    }
-
-    await ctx.session?.delete_entry(id);
-    ctx.session?.remove?.(key);
-    ctx.session?.remove?.(id);
-  } catch (error) {
-    console.warn("[ImageQueue] Failed to mark image placeholder as failed:", error);
   }
 }
 
@@ -310,47 +245,15 @@ export class VisualEngine {
         prompt: typeof target === "string" ? target : options.prompt || "",
         negative_prompt: options.negative_prompt,
         resolution: options.resolution || tier_resolution,
-        mode,
-        guidance_scale: options.guidance_scale,
         seed: options.seed,
       },
       options,
     );
-  }
-
-  async visualize(text, tier, options = {}, ctx = {}) {
-    const base_prompt = typeof text === "string" ? text : options.prompt || "Narrative scene";
-    const tier_resolution = get_resolution_string(tier);
-    const style_key = resolve_story_beat_style({
-      style: options.style,
-      app_style: options.app_style ?? ctx.app?.settings?.visual_style,
-      fractal_style: options.fractal_style ?? ctx.session?.active_fractal?.visual_style,
-      entity: options.entity,
-    });
-    const staged = [base_prompt, options.visual_staging].filter((part) => part && String(part).trim()).join(" ");
-    const composed = compose_story_beat_prompt(staged, style_key, options.negative_prompt || "");
-    const dispatched = await dispatch_visual_generation(
-      {
-        prompt: composed.prompt,
-        negative_prompt: composed.negative_prompt,
-        resolution: options.resolution || tier_resolution,
-        mode: tier,
-        guidance_scale: options.guidance_scale,
-        seed: options.seed,
-      },
-      options,
-    );
-    return { image_url: dispatched.image_url, seed: dispatched.seed, refined_prompt: composed.prompt, metadata: { ...dispatched.metadata, style_key } };
   }
 
   async generate_candidates(prompt, options = {}) {
     const count = options.count ?? 3;
-    const base_options = {
-      mode: options.mode || "solo_entity",
-      negative_prompt: options.negative_prompt,
-      resolution: options.resolution,
-      guidance_scale: options.guidance_scale,
-    };
+    const base_options = { mode: options.mode || "solo_entity", negative_prompt: options.negative_prompt, resolution: options.resolution };
 
     const attempts = [];
     for (let index = 0; index < count; index++) {
@@ -418,84 +321,4 @@ function with_attempt_timeout(pending, signal = null) {
     clearTimeout(timer);
     if (signal && on_abort) signal.removeEventListener("abort", on_abort);
   });
-}
-
-/**
- * Runs a promise against the ceiling timeout and clears the timer on settlement.
- * @template T
- * @param {Promise<T>} work
- * @returns {Promise<T>}
- */
-function with_resolve_timeout(work) {
-  let timer;
-  const timeout = new Promise((_, reject) => {
-    timer = setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), TIMING_MS.CEILING);
-  });
-  return Promise.race([work, timeout]).finally(() => clearTimeout(timer));
-}
-
-export async function spawn_image_beat(tier, options = {}, ctx) {
-  const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
-  if (!tier || !IMAGE_POLICY.TIERS.includes(tier)) return;
-
-  const session_state = ctx.session || {};
-  const visual_prompt = String(prompt || "").trim() || "A significant narrative moment unfolds.";
-  const fractal_name = session_state.active_fractal?.name || "Fractal";
-
-  try {
-    await sweep_stale_ghosts(ctx);
-    const pending_ghosts = await count_pending_ghosts(ctx);
-
-    if (pending_ghosts >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
-      console.warn(`[Image Trigger] Skipped ${tier} - ${pending_ghosts} unresolved image beats pending (hard cap ${IMAGE_POLICY.MAX_PENDING_IMAGES}).`);
-      return;
-    }
-
-    const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit, requested_at: Date.now() };
-    const placeholder_entry = await ctx.session?.log_message("", "fractal", fractal_name, {
-      turn_type: "SYSTEM_TURN",
-      attachments: [{ src: null, metadata: placeholder_metadata }],
-    });
-    if (!placeholder_entry?.id) return;
-
-    _image_generation_queue.push({ id: placeholder_entry.id, tier, source, metadata: placeholder_metadata });
-    if (_image_generation_queue.length > IMAGE_POLICY.MAX_PENDING_IMAGES) {
-      const evicted = _image_generation_queue.shift();
-      if (evicted?.id) {
-        await mark_placeholder_failed(evicted.id, evicted.metadata, ctx);
-      }
-    }
-
-    mark_generation_in_flight(placeholder_entry.id, 0);
-    const resolve_placeholder = async () => {
-      try {
-        const active_engine = engine?.visualize ? engine : visual_engine;
-        const result = await with_resolve_timeout(active_engine.visualize(visual_prompt, tier, { silent: true, visual_staging }, ctx));
-
-        _remove_from_image_generation_queue(placeholder_entry.id);
-
-        if (result?.image_url) {
-          await ctx.session?.update_attachment(placeholder_entry.id, 0, {
-            src: result.image_url,
-            metadata: { mode: tier, image_source: source, ...result.metadata, prompt: result.refined_prompt },
-          });
-        } else {
-          await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata, ctx);
-          console.warn(`[Image Trigger] ${tier} generation returned no image.`);
-        }
-      } catch (error) {
-        _remove_from_image_generation_queue(placeholder_entry.id);
-        await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata, ctx);
-        throw error;
-      } finally {
-        clear_generation_in_flight(placeholder_entry.id, 0);
-      }
-    };
-
-    resolve_placeholder().catch((error) => {
-      console.warn(`[Image Trigger] Background resolution failed for beat ${placeholder_entry.id}:`, error);
-    });
-  } catch (error) {
-    console.warn("[Image Trigger] Failed to spawn image beat:", error);
-  }
 }

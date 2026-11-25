@@ -54,7 +54,7 @@
 - **Narrative Style Key & Voice Integrity (`narrative-styles.js`)**: Every entry in `NARRATIVE_STYLES` enforces `key === record.id` and `speaking_style` in `{"casual", "lyrical", "primal", "clinical"}`.
 - **Symmetric 4-Layer Schema & Merge Semantics (`profile-taxonomy.js`)**: Only `character` and `fractal` temporal layers become internal `FIELD_ATOMS` (excluding `name`, `description`, `signature_color`, `pov`); `merge` is `"append"` exclusively for `past` and `"replace"` for all other layers. `canonicalize_field_key()` checks `fractal` aliases before `character` aliases when `entity_type === "fractal"` (otherwise checking `character` aliases only) and requires string inputs.
 - **Four-Style Rule Completeness & Ordering (`speaking-styles.js`)**: Every non-callback rule in `SPEAKING_STYLE_RULES` supplies all 4 canonical speaking style keys (`casual`, `lyrical`, `primal`, `clinical`), retains identical `pattern` and `regex` `/gi` `RegExp` references, and maintains specific-before-generic ordering across concatenated categories.
-- **Visual Style Engine Mutual Exclusion (`visual-styles.js`)**: `"none"` omits `engine` and sets `llm_refine: false`; all 25 styled entries define `medium`, `palette`, `texture`, and strictly one of `camera` or `composition` (never both).
+- **Visual Style Engine Mutual Exclusion (`visual-styles.js`)**: `"none"` omits `engine`; all 25 styled entries define `medium`, `palette`, `texture`, and strictly one of `camera` or `composition` (never both).
 - **Premade Blueprint Shallow Freezing (`premades.js`)**: `PREMADES` is shallow-frozen (`Object.freeze([...])`) while individual blueprint objects are plain literals.
 
 ## Side Effects

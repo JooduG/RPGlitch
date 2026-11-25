@@ -12,9 +12,7 @@
  *      `select_context_memories` off the passed entities (an explicit array —
  *      even empty — is used as-is).
  * 2. Image & Diffusion Prompting (`resolve_image_resolution`,
- *    `get_resolution_string`, `get_tier_guidance_scale`, `build_aesthetic_map`,
- *    `extract_aesthetic_traits`, `resolve_story_beat_style`,
- *    `compose_story_beat_prompt`).
+ *    `get_resolution_string`, `extract_aesthetic_traits`).
  *
  * Pure, stateless, deterministic. No Svelte runes, no IndexedDB, no DOM.
  * Imports only Rank 0 (`@config`, `@definitions`, `@utils`) + siblings.
@@ -22,11 +20,10 @@
  */
 
 import { DYNAMICS, IMAGE_POLICY, TEMPO_ROUNDS } from "@config";
-import { VISUAL_STYLES, caretaker_brief, get_visual_style } from "@definitions";
-import { PALETTE, get_signature_label, normalize_comma_spacing, resolve_style } from "@utils";
-import { CLEAR_TOKENS, CLOTHING_KEYS, VISUAL_EXCLUDED_KEYS, format_tagged_fields, safe_parse_pseudo_json } from "./brackets.js";
+import { caretaker_brief, get_visual_style } from "@definitions";
+import { PALETTE, get_signature_label } from "@utils";
+import { format_tagged_fields } from "./brackets.js";
 import { evaluate_dynamics_directives } from "./dynamics.js";
-import { sanitize_visual_text } from "./llm-output.js";
 import { extract_memory_candidates, select_context_memories } from "./retrieval.js";
 
 // ============================================================================
@@ -573,49 +570,29 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
 // [PART 2: IMAGE & DIFFUSION PROMPTING]
 // ============================================================================
 
-/**
- * Resolution dimensions mapped by canonical tier identifier.
- * @type {Readonly<Record<string, { width: number, height: number }>>}
- */
-const TIER_RESOLUTIONS = Object.freeze({
-  story_scene: IMAGE_POLICY.RESOLUTIONS.LANDSCAPE,
-  solo_entity: IMAGE_POLICY.RESOLUTIONS.PORTRAIT,
-  story_character: IMAGE_POLICY.RESOLUTIONS.PORTRAIT,
-  story_entities: IMAGE_POLICY.RESOLUTIONS.SQUARE_LARGE,
+const TIER_ALIASES = Object.freeze({
+  characters: "story_entities",
+  group: "story_entities",
+  fractal_profile: "story_scene",
+  fractal: "story_scene",
+  scene: "story_scene",
+  prologue: "story_scene",
+  epilogue: "story_scene",
+  character: "solo_entity",
+  user: "solo_entity",
 });
 
 /**
- * Normalizes input tier keys or colloquial aliases to canonical tier names.
- * @param {string | null | undefined} target_type
- * @returns {"story_entities" | "story_character" | "solo_entity" | "story_scene"}
- */
-function normalize_image_tier(target_type) {
-  if (!target_type) return "story_character";
-  const str = String(target_type).trim().toLowerCase();
-
-  if (str === "characters" || str === "group" || str === "story_entities") {
-    return "story_entities";
-  }
-  if (str === "fractal_profile" || str === "fractal" || str === "scene" || str === "story_scene" || str === "prologue" || str === "epilogue") {
-    return "story_scene";
-  }
-  if (str === "character" || str === "user" || str === "solo_entity") {
-    return "solo_entity";
-  }
-  if (IMAGE_POLICY.TIERS.includes(/** @type {any} */ (str))) {
-    return /** @type {any} */ (str);
-  }
-  return "story_character";
-}
-
-/**
- * Resolves standard render resolution dimensions { width, height } for a tier mode.
+ * Resolves standard render resolution dimensions { width, height } for a tier mode or alias.
  * @param {string | null | undefined} mode
  * @returns {{ width: number, height: number }}
  */
 function get_resolution(mode) {
-  const tier = normalize_image_tier(mode);
-  return TIER_RESOLUTIONS[tier] || TIER_RESOLUTIONS.story_entities;
+  const key = String(mode || "")
+    .trim()
+    .toLowerCase();
+  const tier = TIER_ALIASES[key] || key;
+  return IMAGE_POLICY.TIER_RESOLUTIONS[tier] || IMAGE_POLICY.TIER_RESOLUTIONS.story_character;
 }
 
 /**
@@ -645,165 +622,26 @@ export function get_resolution_string(mode) {
   return `${dims.width}x${dims.height}`;
 }
 
-/**
- * Returns the baseline diffusion model guidance scale for a given tier.
- * Environmental scene shots use 7, while character portraits use a tighter baseline of 9.
- * @param {string | null | undefined} mode
- * @returns {number}
- */
-export function get_tier_guidance_scale(mode) {
-  return normalize_image_tier(mode) === "story_scene" ? IMAGE_POLICY.GUIDANCE.SCENE : IMAGE_POLICY.GUIDANCE.CHARACTER;
-}
-
-const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
-  "_visual_style_medium",
-  "_visual_style_palette",
-  "_visual_style_camera",
-  "_visual_style_composition",
-  "_visual_style_texture",
-  "_visual_style_tags",
-]);
-
-/**
- * Pre-compiled regex matching clothing removal markers in present state strings.
- * Built dynamically from shared canonical CLOTHING_KEYS and CLEAR_TOKENS sets.
- * @type {RegExp}
- */
-const BARE_MARKER_REGEX = new RegExp(`\\[(?:${CLOTHING_KEYS.join("|")})\\s*:\\s*(?:${[...CLEAR_TOKENS].join("|")})\\s*\\]`, "i");
-
-function build_aesthetic_map(entity = {}) {
-  const eternal_parsed_object = safe_parse_pseudo_json(entity.eternal?.physical || "");
-  const present_parsed_object = safe_parse_pseudo_json(entity.present?.physical || "");
-
-  /** @type {Record<string, any>} */
-  const merged_aesthetic_map = {};
-
-  /**
-   * @param {Record<string, any>} source_object
-   * @param {string} fallback_label
-   */
-  const merge_input_source = (source_object, fallback_label) => {
-    if (source_object.__raw_prose__) {
-      merged_aesthetic_map[fallback_label] = source_object.__raw_prose__;
-    } else {
-      Object.entries(source_object).forEach(([key, value]) => {
-        if (VISUAL_EXCLUDED_KEYS.has(key)) return;
-        merged_aesthetic_map[key] = value;
-      });
-    }
-  };
-
-  merge_input_source(eternal_parsed_object, "eternal");
-  merge_input_source(present_parsed_object, "present");
-
-  // --- Clothing Override Protocol ---
-  const raw_present_physical = entity.present?.physical || "";
-  const has_bare_clothing_marker = BARE_MARKER_REGEX.test(raw_present_physical);
-
-  if (has_bare_clothing_marker) {
-    for (const clothing_key of CLOTHING_KEYS) {
-      if (merged_aesthetic_map[clothing_key] && !(clothing_key in present_parsed_object)) {
-        delete merged_aesthetic_map[clothing_key];
-      }
-    }
-  }
-
-  // --- Visual Style Engine Injection ---
-  const visual_style_key = resolve_style(entity?.visual_style, null, VISUAL_STYLES, "none");
-  const visual_style_definition = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
-  const engine = visual_style_definition.engine || {};
-
-  if (engine.medium) merged_aesthetic_map._visual_style_medium = String(engine.medium).trim();
-  if (engine.palette) merged_aesthetic_map._visual_style_palette = String(engine.palette).trim();
-  if (engine.camera) merged_aesthetic_map._visual_style_camera = String(engine.camera).trim();
-  if (engine.composition) merged_aesthetic_map._visual_style_composition = String(engine.composition).trim();
-  if (engine.texture) merged_aesthetic_map._visual_style_texture = String(engine.texture).trim();
-  const style_keywords = visual_style_definition.keywords;
-  if (visual_style_key !== "none" && Array.isArray(style_keywords) && style_keywords.length) {
-    merged_aesthetic_map._visual_style_tags = style_keywords.join(", ");
-  }
-
-  if (Array.isArray(entity.tags) && entity.tags.length) {
-    merged_aesthetic_map.tags = entity.tags.join(", ");
-  }
-
-  // --- Palette Signature Color Binding ---
-  const signature_color_name = get_signature_label(entity);
-  if (signature_color_name) {
-    const signature_color_hex = /** @type {Record<string, string>} */ (PALETTE)[signature_color_name];
-    merged_aesthetic_map.aesthetic = signature_color_hex ? `in color ${signature_color_hex}` : `${signature_color_name.toLowerCase()} aesthetic`;
-  }
-
-  return merged_aesthetic_map;
-}
-
 export function extract_aesthetic_traits(entity = {}) {
-  const merged_aesthetic_map = build_aesthetic_map(entity);
-  const ordered_aesthetic_keys = [
-    ...ORDERED_VISUAL_STYLE_KEYS.filter((key) => merged_aesthetic_map[key]),
-    ...Object.keys(merged_aesthetic_map).filter((key) => !ORDERED_VISUAL_STYLE_KEYS.includes(key)),
-  ];
+  if (!entity) return "";
+  const parts = [];
 
-  return ordered_aesthetic_keys
-    .map((key) => {
-      const value = merged_aesthetic_map[key];
-      if (value === undefined || value === null) return "";
-      const value_string = Array.isArray(value) ? value.join(", ") : String(value).trim();
-      if (!value_string) return "";
-      const formatted_value = normalize_comma_spacing(value_string);
-      const cleaned_key = key.replace(/^_visual_style_/, "");
-      return `  "${cleaned_key}": "${formatted_value.replace(/"/g, '\\"')}"`;
-    })
-    .filter(Boolean)
-    .join(",\n");
-}
-
-/**
- * Resolves the visual style key governing a story image beat.
- * Pure parameter precedence — no state_bridge reads. Callers pass the app and
- * fractal choices explicitly.
- * Precedence: explicit option > app-level choice > active fractal (which
- * carries the story-level override) > caller-asserted subject entity > "none".
- * NOTE: entity flavor is deliberately last - story-level coherence wins for
- * beats (a story-wide monochrome stays monochrome); per-entity styles still
- * govern profile pictures via envision().
- */
-export function resolve_story_beat_style({ style, app_style, fractal_style, entity, entity_style } = {}) {
-  const explicit = style || app_style;
-  if (explicit && explicit !== "none" && explicit !== "default") return explicit;
-  if (fractal_style && fractal_style !== "none" && fractal_style !== "default") return fractal_style;
-  const entity_choice = entity_style || entity?.visual_style;
-  if (entity_choice && entity_choice !== "none" && entity_choice !== "default") return entity_choice;
-  return "none";
-}
-
-/**
- * Composes the final story-beat image prompt: prose + staging directive +
- * style engine tokens, with the style negative over the baseline floor.
- * Story beats never inherit the solo-portrait "empty background" guard -
- * characters belong in scenes here.
- */
-export function compose_story_beat_prompt(prompt_text, style_key, base_negative = "") {
-  const style_def = get_visual_style(style_key);
-  let prompt = String(prompt_text || "").trim();
-  const negatives = [];
-  if (String(base_negative || "").trim()) negatives.push(String(base_negative).trim());
-  if (style_def && style_key !== "none") {
-    const medium = style_def.engine?.medium || "";
-    const tokens = [style_def.engine?.medium, style_def.engine?.palette, style_def.engine?.camera, style_def.engine?.composition, style_def.engine?.texture]
-      .filter(Boolean)
-      .join(", ");
-    // Style tokens lead: image models weight early tokens most, and story
-    // prose is saturated with color words that would otherwise drown a style
-    // coda. The medium dedupe still guards against double-injection.
-    if (tokens && (!medium || !prompt.toLowerCase().includes(medium.toLowerCase()))) {
-      prompt = prompt ? `${tokens}, ${prompt}` : tokens;
-    }
-    if (style_def.negative_prompt) negatives.push(style_def.negative_prompt);
+  const style = entity.visual_style ? get_visual_style(entity.visual_style) : null;
+  if (style?.id !== "none" && style?.engine) {
+    const cues = [style.engine.medium, style.engine.palette, style.engine.camera, style.engine.composition, style.engine.texture].filter(Boolean).join(", ");
+    if (cues) parts.push(cues);
   }
-  const floor = get_visual_style("none")?.negative_prompt;
-  if (floor) negatives.push(floor);
-  return { prompt: sanitize_visual_text(prompt), negative_prompt: sanitize_visual_text(negatives.filter(Boolean).join(", ")) };
+
+  const color_label = get_signature_label(entity);
+  if (color_label) {
+    const hex = /** @type {Record<string, string>} */ (PALETTE)[color_label];
+    parts.push(hex ? `${color_label} (${hex})` : color_label);
+  }
+
+  if (entity.eternal?.physical?.trim()) parts.push(entity.eternal.physical.trim());
+  if (entity.present?.physical?.trim()) parts.push(entity.present.physical.trim());
+
+  return parts.join("\n");
 }
 
 /**

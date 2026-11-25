@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compose_story_beat_prompt, compile_prompt, extract_aesthetic_traits, PURPOSE_CORES, resolve_image_resolution } from "./prompts.js";
+import { compile_prompt, extract_aesthetic_traits, PURPOSE_CORES, resolve_image_resolution } from "./prompts.js";
 
 function assert_balanced_xml_and_hygiene(prompt) {
   expect(typeof prompt).toBe("string");
@@ -86,24 +86,17 @@ describe("purpose cores + optics", () => {
     for (const core of ["DIRECTOR", "CHARACTER", "CARETAKER", "VISUALIZER"]) expect(PURPOSE_CORES[core]).toBeTruthy();
   });
 
-  it("extract_aesthetic_traits strips VISUAL_EXCLUDED_KEYS and applies bare clothing override", () => {
+  it("extract_aesthetic_traits concatenates visual_style cues, signature_color, and raw physical fields", () => {
     const traits = extract_aesthetic_traits({
-      eternal: { physical: "[HAIR: auburn], [SHIRT: linen], [INVENTORY: brass key]" },
-      present: { physical: "[SHIRT: bare], [SECRET: hidden dagger | hide]" },
-      visual_style: "none",
+      eternal: { physical: "[HAIR: auburn], [SHIRT: linen]" },
+      present: { physical: "[SHIRT: bare]" },
+      visual_style: "noir",
+      signature_color: "Crimson Red",
     });
-    expect(traits).toContain('"HAIR": "auburn"');
-    expect(traits).not.toContain("INVENTORY");
-    expect(traits).not.toContain("SECRET");
-    expect(traits).not.toContain("SHIRT");
-  });
-
-  it("compose_story_beat_prompt prepends style tokens and strips template braces", () => {
-    const composed = compose_story_beat_prompt("Neon alley {rain|fog} @ORION", "noir", "watermark");
-    expect(composed.prompt).toContain("silver gelatin film print");
-    expect(composed.prompt).toContain("ORION");
-    expect(composed.prompt).not.toMatch(/[{}@]/);
-    expect(composed.negative_prompt).toContain("watermark");
+    expect(traits).toContain("silver gelatin film print");
+    expect(traits).toContain("Crimson Red (#ef4444)");
+    expect(traits).toContain("[HAIR: auburn], [SHIRT: linen]");
+    expect(traits).toContain("[SHIRT: bare]");
   });
 
   it("resolve_image_resolution resolves dimensions across objects, strings, and fallbacks", () => {

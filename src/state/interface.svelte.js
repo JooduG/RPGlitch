@@ -81,7 +81,7 @@ export class InterfaceStore {
   story_title_parts = $state([]);
 
   /** @type {AppSettings} */
-  settings = $state({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false, visual_style: "none" });
+  settings = $state({ call_mode: false, auto_scroll: true, dev_mode: false, dev_grid_visible: false });
 
   ghostwrite_request = $state(0);
   stories_version = $state(0);

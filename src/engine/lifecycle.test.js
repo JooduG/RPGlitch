@@ -1,5 +1,5 @@
 import * as data_module from "@data";
-import { app, execution, session } from "@state";
+import { execution, session } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   capture_story_image,
@@ -27,24 +27,23 @@ describe("src/engine/lifecycle.js", () => {
     session.feed = [];
     execution.complete();
     execution.set_loading(false);
-    app.settings.visual_style = "none";
   });
 
   describe("refine_image_prompt", () => {
-    it("returns empty prompt for invalid input and bypasses LLM when llm_refine is false", async () => {
+    it("returns empty prompt for invalid input", async () => {
       expect(await refine_image_prompt("")).toEqual({ prompt: "", negative_prompt: "" });
-
-      const result = await refine_image_prompt("  Moody rain alley  ", "fractal", null, "none");
-      expect(result.prompt).toBe("Moody rain alley");
     });
 
-    it("invokes visualizer step when active visual style enables LLM refinement", async () => {
+    it("invokes visualizer step for both styled and unstyled drafts", async () => {
       const mock_stream = vi.fn().mockResolvedValue(JSON.stringify({ prompt: "Cinematic neon street", negative_prompt: "blurry" }));
       vi.spyOn(transport_module, "get_transport").mockReturnValue({ stream: mock_stream });
 
-      const result = await refine_image_prompt("Neon street", "fractal", null, "cinematic");
-      expect(mock_stream).toHaveBeenCalled();
-      expect(result.prompt).toBe("Cinematic neon street");
+      const styled = await refine_image_prompt("Neon street", "fractal", null, "cinematic");
+      const unstyled = await refine_image_prompt("Moody rain alley", "fractal", null, "none");
+
+      expect(mock_stream).toHaveBeenCalledTimes(2);
+      expect(styled.prompt).toBe("Cinematic neon street");
+      expect(unstyled.prompt).toBe("Cinematic neon street");
     });
   });
 

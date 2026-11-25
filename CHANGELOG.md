@@ -35,6 +35,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Deleted `src/definitions/styles.js` (`resolve_entity_style_tiles`), moved initials derivation into `src/ui/atoms/Avatar.svelte` via `compute_initials(alt)`, simplified `src/ui/atoms/StyleTile.svelte` to accept raw style records, updated `Profile.svelte`, `EntityCard.svelte`, and `ChatBubble.svelte`, and synced `src/definitions/README.md`.
 - **`src/definitions/premades.js` Cleanup**:
   - Removed `voice` and `speaking_style` from all premade characters and fractals in `src/definitions/premades.js`, flattened `PREMADE_CHARACTERS`, `PREMADE_FRACTALS`, and `ALL_PREMADES` into `PREMADES`, and removed the obsolete premade-voice test from `src/media/audio.test.js`.
+- **`src/definitions/visual-styles.js` & `llm_refine` Removal**:
+  - Removed `llm_refine`, dead `guidance_scale`, `define_visual_style`, and `_VISUAL_STYLES` from `src/definitions/visual-styles.js`, and removed the `llm_refine === false` bypass from `src/engine/lifecycle.js` so all visual styles use LLM refinement uniformly.
+- **`IMAGE_POLICY.TIER_RESOLUTIONS` & Guidance Scale Purge**:
+  - Moved `TIER_RESOLUTIONS` into `IMAGE_POLICY` (`src/config.js`), purged `IMAGE_POLICY.GUIDANCE`, `get_tier_guidance_scale`, and `guidance_scale` / `guidanceScale` from `src/simulation/prompts.js` and `src/media/image-generation.js`, and simplified `get_resolution()` via `TIER_ALIASES`.
+- **Dead `app.settings.visual_style` Removal**:
+  - Removed dead `app.settings.visual_style` and unused `explicit`/`app_style` overrides from `src/state/interface.svelte.js`, `src/simulation/prompts.js`, `src/media/image-generation.js`, `src/engine/lifecycle.js`, and `src/ui/organisms/VisualWing.svelte`.
+- **Prompt vs. Image Pipeline Separation**:
+  - Simplified `extract_aesthetic_traits()` (`src/simulation/prompts.js`) to raw concatenation of `visual_style.engine`, `signature_color`, `eternal.physical`, and `present.physical`, deleting `build_aesthetic_map`, `BARE_MARKER_REGEX`, `ORDERED_VISUAL_STYLE_KEYS`, `resolve_story_beat_style`, and `compose_story_beat_prompt`.
+  - Turned `src/media/image-generation.js` into a pure transport pipe (`VisualEngine.generate`, `dispatch_visual_generation`), deleting `VisualEngine.visualize()`, `spawn_image_beat()`, `_image_generation_queue`, and `mark_placeholder_failed()`.
+  - Unified manual and automatic background story image captures through `capture_story_image()` -> `refine_image_prompt()` -> `visual_engine.generate()` in `src/engine/lifecycle.js` and `src/engine/turns.js`.
 
 ## `[0.2.1]` - 2026-11-25
 

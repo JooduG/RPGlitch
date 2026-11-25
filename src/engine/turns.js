@@ -4,9 +4,8 @@
  * row persistence, image beat triggers, and background Caretaker consolidation.
  */
 
-import { IMAGE_POLICY } from "@config";
 import { db, normalize_entity } from "@data";
-import { Audio, get_image_generation_queue, spawn_image_beat } from "@media";
+import { Audio } from "@media";
 import {
   apply_tagged_field_deltas,
   parse_think_block,
@@ -16,6 +15,7 @@ import {
   step_dynamics,
 } from "@simulation";
 import { app, execution, session } from "@state";
+import { capture_story_image } from "./lifecycle.js";
 import { continue_generation_step, resolve_continuation_separator, run_memory_consolidation_step, run_round } from "./steps.js";
 import { get_transport } from "./transport.js";
 
@@ -164,16 +164,15 @@ export async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, frac
     }
 
     if (resolved_image?.active && resolved_image?.tier) {
-      const queue = get_image_generation_queue();
-      if (Array.isArray(queue) && queue.length < IMAGE_POLICY.MAX_PENDING_IMAGES) {
-        spawn_image_beat(
-          resolved_image.tier,
-          { source: resolved_image.source || "dynamics", prompt: prose, visual_staging: outcome.director_staging?.camera_note || "" },
-          { app, session },
-        ).catch((image_err) => {
-          console.warn("[Turns] Automatic image beat dispatch error:", image_err);
-        });
-      }
+      const combined_prompt = [prose, outcome.director_staging?.camera_note].filter((part) => part && String(part).trim()).join(" ");
+      capture_story_image({
+        subject: resolved_image.tier === "story_scene" ? "fractal" : "ai",
+        kind: resolved_image.tier,
+        prompt: combined_prompt,
+        background: true,
+      }).catch((image_err) => {
+        console.warn("[Turns] Automatic image beat dispatch error:", image_err);
+      });
     }
   } catch (trigger_err) {
     console.warn("[Turns] Image trigger evaluation non-fatal warning:", trigger_err);

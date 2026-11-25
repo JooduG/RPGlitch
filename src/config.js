@@ -110,22 +110,19 @@ export const EMOTIONAL_WEIGHT = Object.freeze({
 export const CHARS_PER_TOKEN = 3.35;
 
 /**
- * Single home for image tuning, resolutions, trigger cadence, diffusion guidance, and upload bounds.
+ * Single home for image tuning, resolutions, trigger cadence, and upload bounds.
  */
 export const IMAGE_POLICY = Object.freeze({
   TIERS: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
-  RESOLUTIONS: Object.freeze({
-    PORTRAIT: Object.freeze({ width: 512, height: 768 }),
-    LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
-    SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
+  TIER_RESOLUTIONS: Object.freeze({
+    story_scene: Object.freeze({ width: 768, height: 512 }),
+    solo_entity: Object.freeze({ width: 512, height: 768 }),
+    story_character: Object.freeze({ width: 512, height: 768 }),
+    story_entities: Object.freeze({ width: 768, height: 768 }),
   }),
   DISPLACEMENT_THRESHOLD: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
   DEFAULT_TIER: "story_scene", // Fallback tier for auto-triggered beats
   MAX_PENDING_IMAGES: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
-  GUIDANCE: Object.freeze({
-    SCENE: 7, // story_scene tier baseline (environmental shots drift)
-    CHARACTER: 9, // solo_entity / story_character / story_entities baseline (portraits hold tighter)
-  }),
   UPLOAD: Object.freeze({
     MAX_IMAGE_SIZE_BYTES: 25 * 1024 * 1024, // 25 MB default maximum permissible image upload size
     ALLOWED_IMAGE_MIME_TYPES: Object.freeze(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]),

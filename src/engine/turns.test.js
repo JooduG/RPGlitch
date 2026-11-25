@@ -1,4 +1,3 @@
-import * as media_module from "@media";
 import * as simulation_module from "@simulation";
 import { execution, session } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -221,8 +220,8 @@ describe("src/engine/turns.js", () => {
       vi.spyOn(execution, "end_stream").mockImplementation(() => {});
 
       const log_spy = vi.spyOn(session, "log_message").mockResolvedValue({ id: 1 });
-      const spawn_spy = vi.spyOn(media_module, "spawn_image_beat").mockResolvedValue({ id: "img-1" });
-      const queue_spy = vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
+      const lifecycle_module = await import("./lifecycle.js");
+      const capture_spy = vi.spyOn(lifecycle_module, "capture_story_image").mockResolvedValue({ image_url: "data:image/png;base64,OK" });
       const trigger_spy = vi
         .spyOn(simulation_module, "resolve_image_trigger")
         .mockReturnValue({ active: true, tier: "story_scene", source: "dynamics", next_image_beat_round: 1 });
@@ -245,18 +244,16 @@ describe("src/engine/turns.js", () => {
       try {
         const outcome = await run_turn("Enter the observatory.");
         expect(outcome.character_turn.prose).toBe("The dust hangs frozen in the air.");
-        expect(queue_spy).toHaveBeenCalled();
         expect(trigger_spy).toHaveBeenCalledWith(
           expect.objectContaining({ prev_dynamics: expect.objectContaining({ ai: expect.any(Object), fractal: expect.any(Object) }) }),
         );
-        expect(spawn_spy).toHaveBeenCalledWith(
-          "story_scene",
+        expect(capture_spy).toHaveBeenCalledWith(
           expect.objectContaining({
-            source: "dynamics",
-            prompt: "The dust hangs frozen in the air.",
-            visual_staging: "Wide establishing shot of the overgrown observatory.",
+            subject: "fractal",
+            kind: "story_scene",
+            prompt: "The dust hangs frozen in the air. Wide establishing shot of the overgrown observatory.",
+            background: true,
           }),
-          expect.objectContaining({ app: expect.anything(), session: expect.anything() }),
         );
         expect(log_spy).toHaveBeenCalledWith(
           "",
@@ -269,7 +266,7 @@ describe("src/engine/turns.js", () => {
       }
     });
 
-    it("fails silently when spawn_image_beat rejects", async () => {
+    it("fails silently when capture_story_image rejects", async () => {
       session.active_ai = { id: "ai-1", name: "Lyra", dynamics: {} };
       session.active_user = { id: "u-1", name: "Glitch", dynamics: {} };
       session.active_fractal = { id: "f-1", name: "Station", dynamics: {} };
@@ -283,8 +280,8 @@ describe("src/engine/turns.js", () => {
       vi.spyOn(execution, "end_stream").mockImplementation(() => {});
       vi.spyOn(session, "log_message").mockResolvedValue({ id: 1 });
       vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character", source: "dynamics" });
-      vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
-      vi.spyOn(media_module, "spawn_image_beat").mockRejectedValue(new Error("Visual plugin timeout"));
+      const lifecycle_module = await import("./lifecycle.js");
+      vi.spyOn(lifecycle_module, "capture_story_image").mockRejectedValue(new Error("Visual plugin timeout"));
 
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async () => "<think>Thinking</think>Safe prose.");
@@ -299,7 +296,6 @@ describe("src/engine/turns.js", () => {
 
     it("forwards entity-keyed prev_dynamics through maybe_spawn_turn_image", async () => {
       const trigger_spy = vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: false, tier: null, source: null });
-      vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
       session.active_id = "story-prev-shape";
 
       const prev = { ai: { chaos: 10 }, fractal: { velocity: 20 } };
