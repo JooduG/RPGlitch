@@ -15,8 +15,7 @@ describe("src/engine/turns.js", () => {
     session.round = 0;
     session.back_shot_cursor = 0;
     session.active_id = null;
-    session.last_director_beat_round = -1;
-    session.last_dynamics_beat_round = -1;
+    session.last_image_beat_round = -1;
     session.feed = [];
     reset_turn_scope();
   });
@@ -226,7 +225,7 @@ describe("src/engine/turns.js", () => {
       const queue_spy = vi.spyOn(media_module, "get_image_generation_queue").mockReturnValue([]);
       const trigger_spy = vi
         .spyOn(simulation_module, "resolve_image_trigger")
-        .mockReturnValue({ active: true, tier: "story_scene", source: "director", director_explicit: true, next_director_round: 1 });
+        .mockReturnValue({ active: true, tier: "story_scene", source: "dynamics", next_image_beat_round: 1 });
 
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async ({ instruction }) => {
@@ -253,8 +252,7 @@ describe("src/engine/turns.js", () => {
         expect(spawn_spy).toHaveBeenCalledWith(
           "story_scene",
           expect.objectContaining({
-            explicit: true,
-            source: "director",
+            source: "dynamics",
             prompt: "The dust hangs frozen in the air.",
             visual_staging: "Wide establishing shot of the overgrown observatory.",
           }),

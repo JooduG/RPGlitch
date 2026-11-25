@@ -150,22 +150,17 @@ export async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, frac
   if (!prose || !session.active_id) return;
 
   try {
-    const last_director_beat_round = session.last_director_beat_round ?? -1;
-    const last_dynamics_beat_round = session.last_dynamics_beat_round ?? -1;
+    const last_image_beat_round = session.last_image_beat_round ?? -1;
     const resolved_image = resolve_image_trigger({
       snapshot: { ai: ai_quadrant, fractal: fractal_quadrant },
       prev_dynamics,
       director_data: outcome.director_staging || {},
       turn_round,
-      last_director_beat_round,
-      last_dynamics_beat_round,
+      last_image_beat_round,
     });
 
-    if (resolved_image?.next_director_round != null) {
-      session.last_director_beat_round = resolved_image.next_director_round;
-    }
-    if (resolved_image?.next_dynamics_round != null) {
-      session.last_dynamics_beat_round = resolved_image.next_dynamics_round;
+    if (resolved_image?.next_image_beat_round != null) {
+      session.last_image_beat_round = resolved_image.next_image_beat_round;
     }
 
     if (resolved_image?.active && resolved_image?.tier) {
@@ -173,12 +168,7 @@ export async function maybe_spawn_turn_image({ prose, outcome, ai_quadrant, frac
       if (Array.isArray(queue) && queue.length < IMAGE_POLICY.MAX_PENDING_IMAGES) {
         spawn_image_beat(
           resolved_image.tier,
-          {
-            explicit: resolved_image.director_explicit,
-            source: resolved_image.source || "dynamics",
-            prompt: prose,
-            visual_staging: outcome.director_staging?.camera_note || "",
-          },
+          { source: resolved_image.source || "dynamics", prompt: prose, visual_staging: outcome.director_staging?.camera_note || "" },
           { app, session },
         ).catch((image_err) => {
           console.warn("[Turns] Automatic image beat dispatch error:", image_err);

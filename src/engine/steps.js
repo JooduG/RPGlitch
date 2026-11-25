@@ -11,6 +11,7 @@ import {
   PURPOSE_CORES,
   resolve_caretaker_target,
   safe_parse_json,
+  sanitize_visual_text,
 } from "@simulation";
 
 const TERMINAL_PUNCTUATION_REGEX = /[.!?…"”'’*)\]]$/;
@@ -35,15 +36,6 @@ function extract_think_and_body(raw, start_with = "") {
 
 function clamp_delta(value) {
   return Math.max(-20, Math.min(20, Math.round(Number(value) || 0)));
-}
-
-function sanitize_diffusion_text(value) {
-  return String(value || "")
-    .replace(/@([A-Za-z0-9_-]+)/g, "$1")
-    .replace(/[{}[\]]/g, "")
-    .replace(/,\s*\./g, ",")
-    .replace(/\.\s*,/g, ",")
-    .trim();
 }
 
 /**
@@ -155,7 +147,7 @@ export async function continue_generation_step({
   signal = null,
 }) {
   const turn_tempo = 3;
-  const prompt = compile_prompt({ core: "CHARACTER", round, entities, history, memories, task_options: { turn_tempo, is_continuation: true } });
+  const prompt = compile_prompt({ core: "CHARACTER", round, entities, history, memories, task_options: { turn_tempo } });
 
   const clean_prose = typeof target_prose === "string" ? target_prose.trim() : "";
   const clean_think = typeof target_think === "string" ? target_think.trim() : "";
@@ -186,14 +178,7 @@ export async function continue_generation_step({
 
   if (!continuation_prose.trim() && clean_prose && !signal?.aborted) {
     const fallback_history = [...(Array.isArray(history) ? history : []), { role: "ai", text: clean_prose, round }];
-    const fallback_prompt = compile_prompt({
-      core: "CHARACTER",
-      round,
-      entities,
-      history: fallback_history,
-      memories,
-      task_options: { turn_tempo, is_continuation: true },
-    });
+    const fallback_prompt = compile_prompt({ core: "CHARACTER", round, entities, history: fallback_history, memories, task_options: { turn_tempo } });
     const fallback_start_with =
       "<think>Continue immediately from the final sentence of my last turn with the next physical action, sensory shift, or spoken beat without repeating prior text.</think>\n";
     const fallback_raw = await transport.stream(fallback_prompt, { onChunk, startWith: fallback_start_with, signal, silent: true });
@@ -278,10 +263,7 @@ export async function run_image_prompt_step({ transport, round = 1, entities = {
 
   if (!candidate_prompt && (body || raw)) {
     const text_to_search = body || raw;
-    const p_match = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(text_to_search);
-    if (p_match?.[1]) {
-      candidate_prompt = p_match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
-    }
+    candidate_prompt = text_to_search;
     const n_match = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i.exec(text_to_search);
     if (n_match?.[1]) {
       candidate_negative = n_match[1].replace(/\\"/g, '"').replace(/\\\\/g, "\\").trim();
@@ -289,8 +271,8 @@ export async function run_image_prompt_step({ transport, round = 1, entities = {
   }
 
   return {
-    prompt: sanitize_diffusion_text(candidate_prompt),
-    negative_prompt: sanitize_diffusion_text(candidate_negative),
+    prompt: sanitize_visual_text(candidate_prompt),
+    negative_prompt: sanitize_visual_text(candidate_negative),
     _thought_process: thought_process,
     raw: raw || "",
   };

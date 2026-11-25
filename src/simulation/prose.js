@@ -8,8 +8,7 @@
 import { sanitize } from "@utils";
 import MarkdownIt from "markdown-it";
 import { format_tagged_fields } from "./brackets.js";
-import { clean_generated_prose, parse_think_block, strip_covert_directives } from "./llm-output.js";
-import { clean_image_prompts } from "./prompts.js";
+import { clean_generated_prose, clean_image_prompts, parse_think_block, strip_covert_directives } from "./llm-output.js";
 
 const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
 

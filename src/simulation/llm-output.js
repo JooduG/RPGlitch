@@ -478,3 +478,75 @@ export function resolve_speaking_style(entity = null, narrative_style = null) {
 
   return "casual";
 }
+
+// ============================================================================
+// [VISUAL PROMPT SCRUBBING]
+// ============================================================================
+
+/**
+ * Removes <image_prompt> tags, <image> tags, and Markdown images from text.
+ *
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export function clean_image_prompts(text) {
+  if (!text) return "";
+  let clean = text.replace(/<image_prompt>[\s\S]*?<\/image_prompt>/gi, "");
+  clean = clean.replace(/<image>[\s\S]*?<\/image>/gi, "");
+  clean = clean.replace(/!\[.*?\]\(.*?\)/g, "");
+  return clean.trim();
+}
+
+const VISUAL_JSON_PROMPT_RE = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i;
+const VISUAL_JSON_NEG_RE = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i;
+
+function unescape_visual_json_value(value) {
+  return String(value || "")
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, "\n");
+}
+
+/** True when text still carries visualizer JSON structure instead of prose. */
+function looks_like_visual_json(text) {
+  const t = String(text || "");
+  return t.includes("_thought_process") || /"(negative_?prompt|prompt)"\s*:/i.test(t);
+}
+
+/**
+ * Rescues image prose out of a persisted raw-JSON blob (or a fragment of one
+ * whose opener was stripped upstream - prose then runs up to the negative
+ * key). Returns the input unchanged when it is already prose.
+ */
+function rescue_visual_prose(text) {
+  const t = String(text || "");
+  if (!looks_like_visual_json(t)) return t;
+  const full = VISUAL_JSON_PROMPT_RE.exec(t);
+  if (full && full[1]) {
+    const prose = unescape_visual_json_value(full[1]).trim();
+    if (prose && !looks_like_visual_json(prose)) return prose;
+  }
+  const neg = VISUAL_JSON_NEG_RE.exec(t);
+  if (neg && typeof neg.index === "number") {
+    const head = unescape_visual_json_value(t.slice(0, neg.index))
+      .replace(/["\s,]+$/, "")
+      .trim();
+    if (head && !looks_like_visual_json(head)) return head;
+  }
+  return t;
+}
+
+/**
+ * Makes prompt text safe for the template-evaluating image plugin: rescues
+ * prose out of JSON-shaped leftovers, strips image-prompt artifacts, removes
+ * '@' prefixes from @TARGET-style tokens (preserving the entity/target name),
+ * then drops `{`/`}`/`[`/`]` (which would otherwise be parsed as template
+ * syntax and throw).
+ */
+export function sanitize_visual_text(text) {
+  return clean_image_prompts(rescue_visual_prose(text))
+    .replace(/@([A-Za-z0-9_-]+)/g, "$1")
+    .replace(/[{}[\]]/g, "")
+    .replace(/,\s*\./g, ",")
+    .replace(/\.\s*,/g, ",")
+    .trim();
+}

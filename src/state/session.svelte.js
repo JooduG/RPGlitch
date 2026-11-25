@@ -82,8 +82,7 @@ export class SessionStore {
   active_story = $state(null);
   round = $state(0);
   turn_type = $state("USER_TURN");
-  last_director_beat_round = $state(-1);
-  last_dynamics_beat_round = $state(-1);
+  last_image_beat_round = $state(-1);
   back_shot_cursor = $state(0);
 
   // --- ACTIVE CAST & STORY DYNAMICS ---
@@ -189,8 +188,7 @@ export class SessionStore {
         const current_round = this.round;
         void this.#ai_dynamics;
         void this.#fractal_dynamics;
-        void this.last_director_beat_round;
-        void this.last_dynamics_beat_round;
+        void this.last_image_beat_round;
         if (this.#hydrated && !this.#auto_save_suspended && this.active_id) {
           this.#persist_story_snapshot(current_round).catch((err) => console.error("[Session] Auto-save failed:", err));
         }
@@ -216,8 +214,7 @@ export class SessionStore {
     this.active_npcs = {};
     this.round = 0;
     this.turn_type = "USER_TURN";
-    this.last_director_beat_round = -1;
-    this.last_dynamics_beat_round = -1;
+    this.last_image_beat_round = -1;
     this.back_shot_cursor = 0;
     this.#ai_dynamics = null;
     this.#fractal_dynamics = null;
@@ -431,8 +428,7 @@ export class SessionStore {
       if (typeof checkpoint?.round === "number" && checkpoint.round > (story.round ?? 0)) {
         this.round = checkpoint.round;
       }
-      this.last_director_beat_round = typeof story.last_director_beat_round === "number" ? story.last_director_beat_round : -1;
-      this.last_dynamics_beat_round = typeof story.last_dynamics_beat_round === "number" ? story.last_dynamics_beat_round : -1;
+      this.last_image_beat_round = typeof story.last_image_beat_round === "number" ? story.last_image_beat_round : -1;
 
       const [user_data, ai_data, fractal_data] = await Promise.all([
         /** @type {Promise<SimulationEntity | null>} */ (entities.get(story.user_id, "character")),
@@ -512,8 +508,7 @@ export class SessionStore {
       updated_at: Date.now(),
       ai_dynamics: $state.snapshot(this.#ai_dynamics),
       fractal_dynamics: $state.snapshot(this.#fractal_dynamics),
-      last_director_beat_round: this.last_director_beat_round,
-      last_dynamics_beat_round: this.last_dynamics_beat_round,
+      last_image_beat_round: this.last_image_beat_round,
     });
     return true;
   }

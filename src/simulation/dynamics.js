@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { DYNAMICS } from "@config";
+import { DYNAMICS, IMAGE_POLICY } from "@config";
 import { DYNAMICS_RULES } from "@definitions";
 import { clamp } from "@utils";
 
@@ -232,4 +232,61 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
     : default_tier;
 
   return { triggered, signals: { band_entry, displacement, displacement_threshold }, tier, deltas };
+}
+
+/**
+ * Resolves whether an image beat should trigger under a single shared cooldown
+ * across all image-beat sources, biasing tier selection from `camera_note`
+ * and current somatic dynamics.
+ *
+ * @param {object} parameters
+ * @param {any} [parameters.snapshot] - Current entity dynamics snapshot
+ * @param {any} [parameters.prev_dynamics] - Previous dynamics state
+ * @param {object} [parameters.director_data] - Parsed Director output
+ * @param {number} parameters.turn_round - Active round number
+ * @param {number} [parameters.last_image_beat_round] - Last round any image beat triggered
+ * @returns {{
+ *   active: boolean,
+ *   tier: string | null,
+ *   source: "dynamics" | null,
+ *   signals: any,
+ *   next_image_beat_round: number | null
+ * }}
+ */
+export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_image_beat_round }) {
+  const last_round = Number.isInteger(last_image_beat_round) ? last_image_beat_round : -1;
+  const cooldown_elapsed = last_round < 0 || turn_round >= last_round + IMAGE_POLICY.COOLDOWN_ROUNDS;
+
+  const raw_camera_note = typeof director_data?.camera_note === "string" ? director_data.camera_note.trim() : "";
+  const has_camera_note = Boolean(raw_camera_note);
+
+  // Character Optics Biasing (Anti-Wide Angle Lock):
+  // Environmental/panoramic camera_note cues preserve scene tier over character bias.
+  const ai_dynamics = snapshot?.ai?.dynamics || {};
+  const current_intensity = Number(ai_dynamics.intensity ?? DYNAMICS.SCALE.MID);
+  const current_affinity = Number(ai_dynamics.affinity ?? DYNAMICS.SCALE.MID);
+  const staging_has_scene_focus =
+    has_camera_note &&
+    /\b(?:wide|panoramic|landscape|establishing|environment|aerial|distant|overview|scenery|room|corridor|cityscape|horizon)\b/i.test(raw_camera_note);
+  const staging_has_character_focus =
+    has_camera_note &&
+    /\b(?:close-?ups?|portraits?|faces?|eyes?|expressions?|intimate|intimacy|confrontations?|clutch(?:es|ed|ing)?|hold(?:s|ing)?|held|holding|combats?|wounds?|wounded|touch(?:es|ed|ing)?|profiles?|headshots?)\b/i.test(
+      raw_camera_note,
+    );
+  const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH);
+  const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
+
+  const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
+    BAND_HIGH: DYNAMICS.SCALE.EXTREME_HIGH,
+    BAND_LOW: DYNAMICS.SCALE.EXTREME_LOW,
+    DISPLACEMENT_THRESHOLD: IMAGE_POLICY.DISPLACEMENT_THRESHOLD,
+    DEFAULT_TIER: IMAGE_POLICY.DEFAULT_TIER,
+  });
+
+  const active = image_trigger_evaluation.triggered && cooldown_elapsed;
+  const source = active ? "dynamics" : null;
+  const tier = active ? image_trigger_evaluation.tier || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER : null;
+  const next_image_beat_round = active ? turn_round : null;
+
+  return { active, tier, source, signals: image_trigger_evaluation.signals, next_image_beat_round };
 }

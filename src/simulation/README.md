@@ -11,12 +11,12 @@ Rank 1 deterministic simulation domain (`@simulation`) housing pure bracket/pseu
   - `parse_tagged_fields`, `format_tagged_fields`, `apply_tagged_field_deltas`, `extract_entity_relationships`, `has_bracket_bond`
   - `safe_parse_pseudo_json`, `parse_relationship_brackets`
   - Constants: `CLEAR_TOKENS`, `VISUAL_EXCLUDED_KEYS`, `CLOTHING_KEYS`
-- [`dynamics.js`](./dynamics.js): `step_dynamics`, `evaluate_dynamics_directives`, `resolve_caretaker_target`, `evaluate_image_trigger`.
+- [`dynamics.js`](./dynamics.js): `step_dynamics`, `evaluate_dynamics_directives`, `resolve_caretaker_target`, `evaluate_image_trigger`, `resolve_image_trigger`.
 - [`history.js`](./history.js): `canonicalize_role`, `normalize_history_beat`, `is_narrative_role`, `filter_narrative_messages`, `decompose_story_title`, `calculate_turn_tempo`, `build_turn_summary`, `reconstruct_history_from_feed`, `match_speaker_snapshots`, `is_telemetry_meta`, `is_empty_narrative_message`.
-- [`llm-output.js`](./llm-output.js): `strip_cognition_blocks`, `safe_parse_json`, `sanitize_llm`, `strip_covert_directives`, `parse_think_block`, `clean_generated_prose`, `resolve_speaking_style`.
+- [`llm-output.js`](./llm-output.js): `strip_cognition_blocks`, `safe_parse_json`, `sanitize_llm`, `strip_covert_directives`, `parse_think_block`, `clean_generated_prose`, `resolve_speaking_style`, `clean_image_prompts`, `sanitize_visual_text`.
 - [`prose.js`](./prose.js): `render_think_html`, `parse_message`.
 - [`retrieval.js`](./retrieval.js): `extract_memory_candidates`, `rank_memories`, `select_context_memories`.
-- [`prompts.js`](./prompts.js): `PURPOSE_CORES`, `render_thinking_mode`, `compile_prompt`, `verify_compiled_prompt`, `clean_image_prompts`, `rescue_visual_prose`, `sanitize_visual_text`, `IMAGE_TIERS`, `resolve_image_resolution`, `get_resolution_string`, `get_tier_guidance_scale`, `resolve_image_trigger`, `extract_aesthetic_traits`, `render_optics_fallback`, `resolve_portrait_visual_style_key`, `resolve_story_beat_style`, `compose_story_beat_prompt`.
+- [`prompts.js`](./prompts.js): `PURPOSE_CORES`, `compile_prompt`, `resolve_image_resolution`, `get_resolution_string`, `get_tier_guidance_scale`, `extract_aesthetic_traits`, `resolve_story_beat_style`, `compose_story_beat_prompt`.
 
 ## Invariants
 
@@ -30,7 +30,6 @@ Rank 1 deterministic simulation domain (`@simulation`) housing pure bracket/pseu
 ## Side Effects
 
 - `dynamics.js:step_dynamics` invokes `Math.random()` only when `jitter=true`.
-- `prompts.js:compile_prompt` calls `console.warn` in dev/test mode when `verify_compiled_prompt` fails.
 
 ## Verification
 

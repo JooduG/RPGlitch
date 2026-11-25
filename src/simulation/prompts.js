@@ -1,37 +1,20 @@
 /**
  * src/simulation/prompts.js
  * ============================================================================
- * 📜 UNIFIED PROMPT PIPELINE, XML VERIFIER & VISUAL OPTICS (Rank 1, pure simulation)
+ * 📜 UNIFIED PROMPT PIPELINE & VISUAL OPTICS (Rank 1, pure simulation)
  * ============================================================================
  *
- * Single consolidated prompt module:
- * 1. XML Narrative Compilation (`render_thinking_mode`, `PURPOSE_CORES`,
- *    `render_block_1_system`, `compile_prompt`) — from `src/engine/prompts.js`.
+ * 1. XML Narrative Compilation (`PURPOSE_CORES`, `render_block_1_system`,
+ *    `compile_prompt`):
  *    - `core` is normalized to uppercase before lookup.
  *    - `evaluate_dynamics_directives` is wired into the SCENARIO section.
  *    - `memories == null` triggers `extract_memory_candidates` +
  *      `select_context_memories` off the passed entities (an explicit array —
  *      even empty — is used as-is).
- *    - `verify_compiled_prompt` runs in dev/test mode only, read-only, never
- *      throws (production skips it for zero per-turn overhead).
- * 2. XML Verification (`extract_tag_sequence`, `verify_tag_balance`,
- *    `verify_system_envelope`, `verify_tag_order`, `verify_prompt_hygiene`,
- *    `verify_compiled_prompt`) — from `src/engine/verifier.js`, reusing a
- *    single `extract_tag_sequence` pass.
- * 3. Image & Diffusion Prompting (`sanitize_visual_text` unifying
- *    `visual.svelte.js#sanitize_visual_text` + `llm-sanitize.js#clean_image_prompts`
- *    + `turns.js#sanitize_diffusion_text`, `clean_image_prompts`,
- *    `rescue_visual_prose`, `ORDERED_VISUAL_STYLE_KEYS`,
- *    `resolve_visual_engine_tokens`, `build_aesthetic_map` (including the
- *    `_visual_style_texture` injection), `flatten_aesthetic_map`,
- *    `extract_aesthetic_traits`, `render_optics_fallback`,
- *    `resolve_portrait_visual_style_key`, `resolve_story_beat_style` (pure
- *    parameter precedence — no state_bridge reads), `compose_story_beat_prompt`,
- *    `resolve_image_trigger` + tier helpers) — from `src/media/optics.js` +
- *    `src/media/visual.svelte.js` beat composition.
- *
- * Deleted, not moved: `resolve_active_style_key` (zero callers) and
- * `resolve_story_visual_style_key` (zero callers).
+ * 2. Image & Diffusion Prompting (`resolve_image_resolution`,
+ *    `get_resolution_string`, `get_tier_guidance_scale`, `build_aesthetic_map`,
+ *    `extract_aesthetic_traits`, `resolve_story_beat_style`,
+ *    `compose_story_beat_prompt`).
  *
  * Pure, stateless, deterministic. No Svelte runes, no IndexedDB, no DOM.
  * Imports only Rank 0 (`@config`, `@definitions`, `@utils`) + siblings.
@@ -42,7 +25,8 @@ import { DYNAMICS, IMAGE_POLICY, TEMPO_ROUNDS } from "@config";
 import { VISUAL_STYLES, caretaker_brief, get_visual_style } from "@definitions";
 import { PALETTE, get_signature_label, normalize_comma_spacing, resolve_style } from "@utils";
 import { CLEAR_TOKENS, CLOTHING_KEYS, VISUAL_EXCLUDED_KEYS, format_tagged_fields, safe_parse_pseudo_json } from "./brackets.js";
-import { evaluate_dynamics_directives, evaluate_image_trigger } from "./dynamics.js";
+import { evaluate_dynamics_directives } from "./dynamics.js";
+import { sanitize_visual_text } from "./llm-output.js";
 import { extract_memory_candidates, select_context_memories } from "./retrieval.js";
 
 // ============================================================================
@@ -60,7 +44,7 @@ import { extract_memory_candidates, select_context_memories } from "./retrieval.
  * @param {boolean} [options.pivot_pov=false] - Whether to enforce 1st-to-3rd person pivot at \</think\>
  * @returns {string} Formatted markdown/text directives for <TASK>
  */
-export function render_thinking_mode({ mode = "analysis", lens = "", max_words = 120, pivot_pov = false } = {}) {
+function render_thinking_mode({ mode = "analysis", lens = "", max_words = 120, pivot_pov = false } = {}) {
   if (mode === "immersion") {
     const pov_rule =
       pivot_pov ?
@@ -258,8 +242,7 @@ ${thinking_block}
     start_with: () => "<think>\n",
     resolve_identity_text: () => "You are the Sensory Cortex synthesizing visual staging and descriptive optics.",
     task_block: (context) => {
-      const raw_note = typeof context === "string" ? context : context?.camera_note;
-      const camera_note = raw_note ? String(raw_note).trim() : "";
+      const camera_note = context?.camera_note ? String(context.camera_note).trim() : "";
       const aesthetic_direction =
         camera_note ?
           `\n    ### Aesthetic Direction\n    Anchor the visual staging to the following camera note and aesthetic style:\n    - ${camera_note}\n`
@@ -368,7 +351,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   const listener_name = user?.name || "USER";
   const fractal_name = fractal?.name || "World";
   const target_entity = task_options.target_entity_key ? entities[task_options.target_entity_key] : ai;
-  const target_name = target_entity?.name || task_options.target_entity_key || speaker_name;
+  const target_name = target_entity?.name || task_options.target_name || task_options.target_entity_key || speaker_name;
   const target_type =
     task_options.target_type || target_entity?.type || (core_key === "CARETAKER" && task_options.target_entity_key === "FRACTAL" ? "fractal" : "character");
 
@@ -459,7 +442,6 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   }
 
   if (user) {
-    // For counterpart, order appearance eternal then present for natural perspective
     characters_list.push(render_entity_character(user, "COUNTERPART", true));
   }
 
@@ -489,8 +471,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
       .join(" ");
     const attr_str = dyn_attrs ? ` ${dyn_attrs}` : "";
 
-    const fractal_present =
-      typeof fractal.present === "object" ? `${fractal.present?.physical || ""} ${fractal.present?.non_physical || ""}`.trim() : (fractal.present || "").trim();
+    const fractal_present = `${fractal.present?.physical || ""} ${fractal.present?.non_physical || ""}`.trim();
     const clean_present = format_tagged_fields(fractal_present, { see_hidden, is_counterpart: false }).trim();
 
     if (clean_present || attr_str) {
@@ -499,25 +480,13 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   }
 
   // Production dynamics wiring: live rule/style directives render alongside presence.
-  let directives_block = "";
-  try {
-    const { directives, protocols } = evaluate_dynamics_directives({
-      ai_dynamics: ai?.dynamics || {},
-      fractal_dynamics: fractal?.dynamics || {},
-      style: task_options.style || null,
-      manual_keywords: task_options.manual_keywords || [],
-    });
-    const directive_lines = [
-      ...directives.map((directive) => `Directive: ${directive}`),
-      ...protocols.map((protocol) => (protocol.text ? `Protocol ${protocol.id}: ${protocol.text}` : `Protocol: ${protocol.id}`)),
-    ];
-    if (directive_lines.length > 0) {
-      directives_block = `  <SCENARIO_DIRECTIVES>\n    ${directive_lines.join("\n    ")}\n  </SCENARIO_DIRECTIVES>`;
-    }
-  } catch {
-    /* Directive evaluation must never break prompt compilation. */
-  }
-  if (directives_block) {
+  const { directives, protocols } = evaluate_dynamics_directives({ ai_dynamics: ai?.dynamics || {}, fractal_dynamics: fractal?.dynamics || {} });
+  const directive_lines = [
+    ...directives.map((directive) => `Directive: ${directive}`),
+    ...protocols.map((protocol) => (protocol.text ? `Protocol ${protocol.id}: ${protocol.text}` : `Protocol: ${protocol.id}`)),
+  ];
+  if (directive_lines.length > 0) {
+    const directives_block = `  <SCENARIO_DIRECTIVES>\n    ${directive_lines.join("\n    ")}\n  </SCENARIO_DIRECTIVES>`;
     b5_scenario = b5_scenario ? `${b5_scenario}\n${directives_block}` : directives_block;
   }
 
@@ -534,20 +503,14 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   // --- RAG assembly: memories == null means "assemble from entities" ---
   let resolved_memories = memories;
   if (resolved_memories == null) {
-    try {
-      const primary = [...extract_memory_candidates(ai?.past || ""), ...extract_memory_candidates(user?.past || "")];
-      const lore = [
-        ...extract_memory_candidates(fractal?.past || ""),
-        ...extract_memory_candidates(typeof fractal?.eternal?.physical === "string" ? fractal.eternal.physical : ""),
-        ...extract_memory_candidates(typeof fractal?.eternal?.non_physical === "string" ? fractal.eternal.non_physical : ""),
-      ];
-      resolved_memories =
-        primary.length > 0 || lore.length > 0 ?
-          select_context_memories({ primary_memories: primary, lore_memories: lore, query_vector: task_options.query_vector || null }).selected
-        : [];
-    } catch {
-      resolved_memories = [];
-    }
+    const primary = [...extract_memory_candidates(ai?.past || ""), ...extract_memory_candidates(user?.past || "")];
+    const lore = [
+      ...extract_memory_candidates(fractal?.past || ""),
+      ...extract_memory_candidates(typeof fractal?.eternal?.physical === "string" ? fractal.eternal.physical : ""),
+      ...extract_memory_candidates(typeof fractal?.eternal?.non_physical === "string" ? fractal.eternal.non_physical : ""),
+    ];
+    resolved_memories =
+      primary.length > 0 || lore.length > 0 ? select_context_memories({ primary_memories: primary, lore_memories: lore, query_vector: null }).selected : [];
   }
 
   // --- Blocks 8, 9 & 10: Unified History (Memories + Recent Transcript) ---
@@ -601,287 +564,17 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   }
 
   // --- Block 11: Swappable Purpose Core ---
-  const task_block = typeof purpose_core.task_block === "function" ? purpose_core.task_block(core_context) : purpose_core.task_block;
+  const task_block = purpose_core.task_block(core_context);
 
   // Assemble blocks, cleanly filtering out any empty layers
   const spine_blocks = [b1, b2, characters_block, b5_scenario, trajectory_block, history_block, task_block].filter(Boolean);
 
-  const compiled = `${spine_blocks.join("\n\n")}\n</SYSTEM>`;
-
-  // Structural gate (dev/test only): every compiled prompt is verified for
-  // envelope closure, tag balance, and hygiene. Read-only and never throws —
-  // a malformed prompt still returns so the turn can proceed.
-  const verify_enabled =
-    (typeof import.meta !== "undefined" && import.meta.env && (import.meta.env.DEV || import.meta.env.MODE === "test")) ||
-    (typeof process !== "undefined" && process && process.env && process.env.NODE_ENV !== "production");
-  if (verify_enabled) {
-    try {
-      const verification = verify_compiled_prompt(compiled);
-      if (!verification.valid) {
-        console.warn(`[compile_prompt:${core_key}] prompt verification failed: ${verification.errors.join(" | ")}`);
-      }
-    } catch {
-      /* Verification must never break prompt compilation. */
-    }
-  }
-
-  return compiled;
+  return `${spine_blocks.join("\n\n")}\n</SYSTEM>`;
 }
 
 // ============================================================================
-// [PART 2: XML VERIFICATION]
+// [PART 2: IMAGE & DIFFUSION PROMPTING]
 // ============================================================================
-// Lean structural gatekeeper for prompt compilation. Verifies:
-// 1. Envelope closures (<SYSTEM ...> ... </SYSTEM>).
-// 2. Balance of all open and closing XML-style tags.
-// 3. Tag inventories: verifying ordered presence of mandatory structural layers.
-// 4. Prohibition of unescaped/naked control leaks.
-
-/**
- * Extracts all XML-style tags in order of appearance from a prompt string.
- * Returns an array of tag objects: { name, is_closing, is_self_closing, raw }
- * Single pass shared by every verification gate below.
- *
- * @param {string} promptText
- * @returns {Array<{ name: string, is_closing: boolean, is_self_closing: boolean, raw: string }>}
- */
-function extract_tag_sequence(promptText) {
-  if (typeof promptText !== "string") return [];
-
-  // Match XML tags like <TAG>, </TAG>, <TAG attr="val">, <TAG />
-  // Exclude KaTeX / mathematical symbols or plain brackets like [KEY: VAL]
-  const tag_regex = /<\/?([A-Za-z0-9_-]+)(?:\s+[^>]*)?\/?>/g;
-  const sequence = [];
-  let match;
-
-  while ((match = tag_regex.exec(promptText)) !== null) {
-    const raw = match[0];
-    const name = match[1];
-    const is_closing = raw.startsWith("</");
-    const is_self_closing = raw.endsWith("/>");
-
-    sequence.push({ name, is_closing, is_self_closing, raw });
-  }
-
-  return sequence;
-}
-
-/**
- * Validates that all opened tags in a prompt text are balanced and properly closed.
- *
- * @param {string} promptText
- * @returns {{ valid: boolean, errors: string[] }}
- */
-function verify_tag_balance(promptText) {
-  const errors = [];
-  const tags = extract_tag_sequence(promptText);
-  const stack = [];
-
-  for (const tag of tags) {
-    if (tag.is_self_closing) continue;
-
-    if (!tag.is_closing) {
-      stack.push(tag.name);
-    } else {
-      if (stack.length === 0) {
-        errors.push(`Unexpected closing tag </${tag.name}> with no matching opening tag.`);
-      } else {
-        const expected = stack.pop();
-        if (expected !== tag.name) {
-          errors.push(`Mismatched closing tag: expected </${expected}>, but encountered </${tag.name}>.`);
-        }
-      }
-    }
-  }
-
-  while (stack.length > 0) {
-    const unclosed = stack.pop();
-    errors.push(`Unclosed opening tag <${unclosed}>.`);
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Verifies that a prompt strictly begins with <SYSTEM and ends with </SYSTEM>.
- *
- * @param {string} promptText
- * @returns {{ valid: boolean, errors: string[] }}
- */
-function verify_system_envelope(promptText) {
-  const errors = [];
-  const trimmed = promptText ? promptText.trim() : "";
-
-  if (!trimmed.startsWith("<SYSTEM")) {
-    errors.push("Prompt envelope does not start with <SYSTEM opening tag.");
-  }
-  if (!trimmed.endsWith("</SYSTEM>")) {
-    errors.push("Prompt envelope does not end with </SYSTEM> closing tag.");
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-/**
- * Verifies that an expected sequence of tags appears in order in the prompt.
- *
- * @param {string} promptText
- * @param {string[]} expectedTagOrder
- * @returns {{ valid: boolean, missing: string[], out_of_order: string[] }}
- */
-function verify_tag_order(promptText, expectedTagOrder) {
-  const tags = extract_tag_sequence(promptText)
-    .filter((t) => !t.is_closing)
-    .map((t) => t.name);
-
-  const missing = [];
-  const out_of_order = [];
-  let last_index = -1;
-
-  for (const expected of expectedTagOrder) {
-    const current_index = tags.indexOf(expected, last_index + 1);
-    if (current_index === -1) {
-      // Check if it exists earlier (out of order) or is completely missing
-      if (tags.includes(expected)) {
-        out_of_order.push(expected);
-      } else {
-        missing.push(expected);
-      }
-    } else {
-      last_index = current_index;
-    }
-  }
-
-  return { valid: missing.length === 0 && out_of_order.length === 0, missing, out_of_order };
-}
-
-/**
- * Checks for forbidden leaks: raw prompt delimiters, unclosed directives, or naked variables.
- *
- * @param {string} promptText
- * @returns {{ valid: boolean, violations: string[] }}
- */
-function verify_prompt_hygiene(promptText) {
-  const violations = [];
-  if (!promptText || typeof promptText !== "string") {
-    return { valid: false, violations: ["Empty or non-string prompt text."] };
-  }
-
-  // Detect unparsed mustache macros like {{char}} or {{user}}
-  const unparsed_macros = promptText.match(/\{\{([a-zA-Z0-9_-]+)\}\}/g);
-  if (unparsed_macros) {
-    violations.push(`Unparsed mustache macro detected: ${unparsed_macros.join(", ")}`);
-  }
-
-  return { valid: violations.length === 0, violations };
-}
-
-/**
- * Combined verification gate for compiled prompts (single `extract_tag_sequence` pass per gate).
- *
- * @param {string} promptText
- * @param {{ expected_tags?: string[] }} options
- * @returns {{ valid: boolean, errors: string[] }}
- */
-export function verify_compiled_prompt(promptText, options = {}) {
-  const errors = [];
-
-  const envelope = verify_system_envelope(promptText);
-  if (!envelope.valid) errors.push(...envelope.errors);
-
-  const balance = verify_tag_balance(promptText);
-  if (!balance.valid) errors.push(...balance.errors);
-
-  if (options.expected_tags && options.expected_tags.length > 0) {
-    const order = verify_tag_order(promptText, options.expected_tags);
-    if (!order.valid) {
-      if (order.missing.length > 0) {
-        errors.push(`Missing mandatory tags: ${order.missing.join(", ")}`);
-      }
-      if (order.out_of_order.length > 0) {
-        errors.push(`Tags appeared out of order: ${order.out_of_order.join(", ")}`);
-      }
-    }
-  }
-
-  const hygiene = verify_prompt_hygiene(promptText);
-  if (!hygiene.valid) errors.push(...hygiene.violations);
-
-  return { valid: errors.length === 0, errors };
-}
-
-// ============================================================================
-// [PART 3: IMAGE & DIFFUSION PROMPTING]
-// ============================================================================
-
-/**
- * Removes <image_prompt> tags, <image> tags, and Markdown images from text.
- *
- * @param {string|null|undefined} text
- * @returns {string}
- */
-export function clean_image_prompts(text) {
-  if (!text) return "";
-  let clean = text.replace(/<image_prompt>[\s\S]*?<\/image_prompt>/gi, "");
-  clean = clean.replace(/<image>[\s\S]*?<\/image>/gi, "");
-  clean = clean.replace(/!\[.*?\]\(.*?\)/g, "");
-  return clean.trim();
-}
-
-const VISUAL_JSON_PROMPT_RE = /"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i;
-const VISUAL_JSON_NEG_RE = /"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i;
-
-function unescape_visual_json_value(value) {
-  return String(value || "")
-    .replace(/\\"/g, '"')
-    .replace(/\\n/g, "\n");
-}
-
-/** True when text still carries visualizer JSON structure instead of prose. */
-function looks_like_visual_json(text) {
-  const t = String(text || "");
-  return t.includes("_thought_process") || /"(negative_?prompt|prompt)"\s*:/i.test(t);
-}
-
-/**
- * Rescues image prose out of a persisted raw-JSON blob (or a fragment of one
- * whose opener was stripped upstream - prose then runs up to the negative
- * key). Returns the input unchanged when it is already prose.
- */
-export function rescue_visual_prose(text) {
-  const t = String(text || "");
-  if (!looks_like_visual_json(t)) return t;
-  const full = VISUAL_JSON_PROMPT_RE.exec(t);
-  if (full && full[1]) {
-    const prose = unescape_visual_json_value(full[1]).trim();
-    if (prose && !looks_like_visual_json(prose)) return prose;
-  }
-  const neg = VISUAL_JSON_NEG_RE.exec(t);
-  if (neg && typeof neg.index === "number") {
-    const head = unescape_visual_json_value(t.slice(0, neg.index))
-      .replace(/["\s,]+$/, "")
-      .trim();
-    if (head && !looks_like_visual_json(head)) return head;
-  }
-  return t;
-}
-
-/**
- * Makes prompt text safe for the template-evaluating image plugin: rescues
- * prose out of JSON-shaped leftovers, strips image-prompt artifacts, removes
- * '@' prefixes from @TARGET-style tokens (preserving the entity/target name),
- * then drops `{`/`}`/`[`/`]` (which would otherwise be parsed as template
- * syntax and throw). Unifies `visual.svelte.js#sanitize_visual_text` +
- * `llm-sanitize.js#clean_image_prompts` + `turns.js#sanitize_diffusion_text`.
- */
-export function sanitize_visual_text(text) {
-  return clean_image_prompts(rescue_visual_prose(text))
-    .replace(/@([A-Za-z0-9_-]+)/g, "$1")
-    .replace(/[{}[\]]/g, "")
-    .replace(/,\s*\./g, ",")
-    .replace(/\.\s*,/g, ",")
-    .trim();
-}
 
 /**
  * Resolution dimensions mapped by canonical tier identifier.
@@ -965,91 +658,6 @@ export function get_tier_guidance_scale(mode) {
   return normalize_image_tier(mode) === "story_scene" ? IMAGE_POLICY.GUIDANCE.SCENE : IMAGE_POLICY.GUIDANCE.CHARACTER;
 }
 
-/**
- * Resolves whether an image beat should trigger with independent cooldown timers and Priority 1 arbitration.
- * @param {object} parameters
- * @param {any} [parameters.snapshot] - Current entity dynamics snapshot
- * @param {any} [parameters.prev_dynamics] - Previous dynamics state
- * @param {object} [parameters.director_data] - Parsed Director output
- * @param {number} parameters.turn_round - Active round number
- * @param {number} [parameters.last_director_beat_round] - Last round Director triggered an image
- * @param {number} [parameters.last_dynamics_beat_round] - Last round Dynamics triggered an image
- * @returns {{
- *   active: boolean,
- *   tier: string | null,
- *   source: "director" | "dynamics" | null,
- *   signals: any,
- *   next_director_round: number | null,
- *   next_dynamics_round: number | null,
- *   director_explicit: boolean
- * }}
- */
-export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_director_beat_round, last_dynamics_beat_round }) {
-  const director_last_round = Number.isInteger(last_director_beat_round) ? last_director_beat_round : -1;
-  const dynamics_last_round = Number.isInteger(last_dynamics_beat_round) ? last_dynamics_beat_round : -1;
-
-  const is_cooldown_elapsed = (last_round) => last_round < 0 || turn_round >= last_round + IMAGE_POLICY.COOLDOWN_ROUNDS;
-  const director_cooldown_elapsed = is_cooldown_elapsed(director_last_round);
-  const dynamics_cooldown_elapsed = is_cooldown_elapsed(dynamics_last_round);
-
-  // 1. Evaluate Director Explicit Beat (Priority 1)
-  const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
-  const tier_from_string = typeof raw_trigger === "string" && IMAGE_POLICY.TIERS.includes(raw_trigger) ? raw_trigger : null;
-  const tier_from_preference =
-    typeof director_data?.image_tier === "string" && IMAGE_POLICY.TIERS.includes(director_data.image_tier) ? director_data.image_tier : null;
-  const raw_staging = typeof director_data?.visual_staging === "string" ? director_data.visual_staging.trim() : "";
-  const has_visual_staging = Boolean(raw_staging);
-  const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null || has_visual_staging;
-  const director_qualifies = director_explicit && director_cooldown_elapsed;
-
-  // 1.1 Character Optics Biasing (Anti-Wide Angle Lock):
-  // Check if visual_staging indicates character intimacy/confrontation or if dynamics show extreme intensity/affinity.
-  // Environmental/panoramic staging cues explicitly preserve scene tier over character bias.
-  const ai_dynamics = snapshot?.ai?.dynamics || {};
-  const current_intensity = Number(ai_dynamics.intensity ?? DYNAMICS.SCALE.MID);
-  const current_affinity = Number(ai_dynamics.affinity ?? DYNAMICS.SCALE.MID);
-  const staging_has_scene_focus =
-    has_visual_staging &&
-    /\b(?:wide|panoramic|landscape|establishing|environment|aerial|distant|overview|scenery|room|corridor|cityscape|horizon)\b/i.test(raw_staging);
-  const staging_has_character_focus =
-    has_visual_staging &&
-    /\b(?:close-?ups?|portraits?|faces?|eyes?|expressions?|intimate|intimacy|confrontations?|clutch(?:es|ed|ing)?|hold(?:s|ing)?|held|holding|combats?|wounds?|wounded|touch(?:es|ed|ing)?|profiles?|headshots?)\b/i.test(
-      raw_staging,
-    );
-  const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH);
-  const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
-
-  // 2. Evaluate Pure-JS Dynamics Gate (Priority 2)
-  const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
-    BAND_HIGH: DYNAMICS.SCALE.EXTREME_HIGH,
-    BAND_LOW: DYNAMICS.SCALE.EXTREME_LOW,
-    DISPLACEMENT_THRESHOLD: IMAGE_POLICY.DISPLACEMENT_THRESHOLD,
-    DEFAULT_TIER: IMAGE_POLICY.DEFAULT_TIER,
-  });
-  const dynamics_qualifies = image_trigger_evaluation.triggered && dynamics_cooldown_elapsed;
-
-  // 3. Priority Arbitration & 1-Image-Per-Round Ceiling
-  let active = false;
-  let tier = null;
-  let source = null;
-  let next_director_round = null;
-  let next_dynamics_round = null;
-
-  if (director_qualifies) {
-    active = true;
-    source = "director";
-    tier = tier_from_string || tier_from_preference || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER;
-    next_director_round = turn_round;
-  } else if (dynamics_qualifies) {
-    active = true;
-    source = "dynamics";
-    tier = image_trigger_evaluation.tier || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER;
-    next_dynamics_round = turn_round;
-  }
-
-  return { active, tier, source, signals: image_trigger_evaluation.signals, next_director_round, next_dynamics_round, director_explicit };
-}
-
 const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
   "_visual_style_medium",
   "_visual_style_palette",
@@ -1065,20 +673,6 @@ const ORDERED_VISUAL_STYLE_KEYS = Object.freeze([
  * @type {RegExp}
  */
 const BARE_MARKER_REGEX = new RegExp(`\\[(?:${CLOTHING_KEYS.join("|")})\\s*:\\s*(?:${[...CLEAR_TOKENS].join("|")})\\s*\\]`, "i");
-
-function resolve_visual_engine_tokens(visual_style_key) {
-  const visual_style = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
-  const engine = visual_style.engine || {};
-
-  return {
-    medium: String(engine.medium || "").trim(),
-    palette: String(engine.palette || "").trim(),
-    camera: String(engine.camera || "").trim(),
-    composition: String(engine.composition || "").trim(),
-    texture: String(engine.texture || "").trim(),
-    negative_prompt: String(visual_style.negative_prompt || "").trim(),
-  };
-}
 
 function build_aesthetic_map(entity = {}) {
   const eternal_parsed_object = safe_parse_pseudo_json(entity.eternal?.physical || "");
@@ -1118,17 +712,17 @@ function build_aesthetic_map(entity = {}) {
   }
 
   // --- Visual Style Engine Injection ---
-  const visual_style_key = resolve_portrait_visual_style_key(entity);
+  const visual_style_key = resolve_style(entity?.visual_style, null, VISUAL_STYLES, "none");
   const visual_style_definition = VISUAL_STYLES[visual_style_key] || VISUAL_STYLES.none;
-  const engine_tokens = resolve_visual_engine_tokens(visual_style_key);
+  const engine = visual_style_definition.engine || {};
 
-  if (engine_tokens.medium) merged_aesthetic_map._visual_style_medium = engine_tokens.medium;
-  if (engine_tokens.palette) merged_aesthetic_map._visual_style_palette = engine_tokens.palette;
-  if (engine_tokens.camera) merged_aesthetic_map._visual_style_camera = engine_tokens.camera;
-  if (engine_tokens.composition) merged_aesthetic_map._visual_style_composition = engine_tokens.composition;
-  if (engine_tokens.texture) merged_aesthetic_map._visual_style_texture = engine_tokens.texture;
-  const style_keywords = visual_style_definition.keywords || visual_style_definition.tags;
-  if (visual_style_key && visual_style_key !== "none" && Array.isArray(style_keywords) && style_keywords.length) {
+  if (engine.medium) merged_aesthetic_map._visual_style_medium = String(engine.medium).trim();
+  if (engine.palette) merged_aesthetic_map._visual_style_palette = String(engine.palette).trim();
+  if (engine.camera) merged_aesthetic_map._visual_style_camera = String(engine.camera).trim();
+  if (engine.composition) merged_aesthetic_map._visual_style_composition = String(engine.composition).trim();
+  if (engine.texture) merged_aesthetic_map._visual_style_texture = String(engine.texture).trim();
+  const style_keywords = visual_style_definition.keywords;
+  if (visual_style_key !== "none" && Array.isArray(style_keywords) && style_keywords.length) {
     merged_aesthetic_map._visual_style_tags = style_keywords.join(", ");
   }
 
@@ -1144,20 +738,6 @@ function build_aesthetic_map(entity = {}) {
   }
 
   return merged_aesthetic_map;
-}
-
-function flatten_aesthetic_map(entity = {}) {
-  if (!entity) return "";
-  const map = build_aesthetic_map(entity);
-  const visual_values = ORDERED_VISUAL_STYLE_KEYS.map((k) => map[k]).filter(Boolean);
-  const additional = Object.entries(map)
-    .filter(([k]) => !ORDERED_VISUAL_STYLE_KEYS.includes(k))
-    .map(([k, v]) => {
-      const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
-      return k.startsWith("_visual_style_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;
-    })
-    .filter(Boolean);
-  return normalize_comma_spacing([...visual_values, ...additional].join(". "));
 }
 
 export function extract_aesthetic_traits(entity = {}) {
@@ -1179,55 +759,6 @@ export function extract_aesthetic_traits(entity = {}) {
     })
     .filter(Boolean)
     .join(",\n");
-}
-
-/**
- * Deterministically compiles a fallback <image_prompt> block for an entity when
- * LLM prompt extraction fails or returns empty.
- *
- * @param {Object} [parameters={}]
- * @param {string} [parameters.tier="solo_entity"]
- * @param {"ai" | "user" | "fractal"} [parameters.subject="ai"]
- * @param {any} [parameters.ai]
- * @param {any} [parameters.user]
- * @param {any} [parameters.fractal]
- * @param {string} [parameters.intent=""]
- * @returns {string}
- */
-export function render_optics_fallback({ tier = "solo_entity", subject = "ai", ai, user, fractal, intent = "" } = {}) {
-  const normalized_tier = normalize_image_tier(tier);
-  const fallback_entity =
-    normalized_tier === "solo_entity" ?
-      subject === "user" ? user
-      : subject === "fractal" ? fractal
-      : ai
-    : normalized_tier === "story_scene" || normalized_tier === "story_entities" ? fractal
-    : subject === "user" ? user
-    : ai;
-
-  const fallback_description = flatten_aesthetic_map(fallback_entity);
-  const fallback_name = fallback_entity?.name || normalized_tier;
-  const short_intent = intent && intent.length < 200 ? intent : "";
-
-  if (normalized_tier === "story_character" && fractal) {
-    const fractal_description = flatten_aesthetic_map(fractal);
-    return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character"}, situated within ${fractal.name || "the setting"}, ${fractal_description || "atmospheric environment, dramatic lighting"}</image_prompt>`;
-  }
-  return `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_description || "detailed character portrait, dramatic lighting"}</image_prompt>`;
-}
-
-/**
- * Resolves the active visual style key for a character/entity portrait.
- * Moved from `src/definitions/visual-styles.js` (its only consumer was the
- * optics aesthetic-map builder, now co-located here).
- * Pure: optional app_style passed explicitly (no bridge reads).
- *
- * @param {any} [entity={}] - Character or entity record
- * @param {string | null} [app_style=null] - Caller-resolved app-level choice
- * @returns {string} Resolved visual style key
- */
-export function resolve_portrait_visual_style_key(entity = {}, app_style = null) {
-  return resolve_style(entity?.visual_style, app_style, VISUAL_STYLES, "none");
 }
 
 /**
@@ -1281,7 +812,8 @@ export function compose_story_beat_prompt(prompt_text, style_key, base_negative 
 /**
  * CHANGELOG
  * ----------------------------------------------------------------------------
+ * 2026-11-25: Pruned Part 2 XML verifier (moved to test/sim-check), re-homed
+ *   visual scrubbers to llm-output.js and resolve_image_trigger to dynamics.js,
+ *   deleted render_optics_fallback / flatten_aesthetic_map / dead options.
  * 2026-11-17: Phase 2 Rank 1 — consolidated prompt/verifier/optics module.
- *   compile_prompt: core uppercased; directives wired; memories==null RAG;
- *   verify dev/test-only. Texture token injected into the aesthetic map.
  */

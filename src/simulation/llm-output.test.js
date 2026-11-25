@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parse_think_block, safe_parse_json, strip_cognition_blocks } from "./llm-output.js";
+import { clean_image_prompts, parse_think_block, safe_parse_json, sanitize_visual_text, strip_cognition_blocks } from "./llm-output.js";
 import { resolve_style } from "@utils";
 
 describe("resolve_style (pure, no bridge)", () => {
@@ -86,5 +86,16 @@ describe("strip_cognition_blocks (extended)", () => {
   it("handles null or empty inputs", () => {
     expect(strip_cognition_blocks(null)).toBe("");
     expect(strip_cognition_blocks("")).toBe("");
+  });
+});
+
+describe("visual prompt scrubbing", () => {
+  it("clean_image_prompts strips image tags and markdown images", () => {
+    expect(clean_image_prompts("Hello <image_prompt>x</image_prompt> <image>y</image> ![alt](url) world")).toBe("Hello    world");
+  });
+
+  it("sanitize_visual_text rescues JSON prose and strips @tokens and template braces", () => {
+    const raw = '{"_thought_process": "ok", "prompt": "Rain on @ORION {coat}", "negative_prompt": "blurry"}';
+    expect(sanitize_visual_text(raw)).toBe("Rain on ORION coat");
   });
 });

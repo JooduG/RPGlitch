@@ -101,8 +101,29 @@ export function compile_live_cores() {
       continue;
     }
     systems[core] = system;
-    if (!system.endsWith("</SYSTEM>")) problems.push(`${core}: missing </SYSTEM> close`);
+    if (!system.trim().startsWith("<SYSTEM") || !system.trim().endsWith("</SYSTEM>")) {
+      problems.push(`${core}: invalid <SYSTEM>...</SYSTEM> envelope`);
+    }
     if ((system.match(/<TASK\b/g) || []).length !== 1) problems.push(`${core}: TASK count != 1`);
+    if (/\{\{([a-zA-Z0-9_-]+)\}\}/.test(system)) problems.push(`${core}: unparsed mustache macro`);
+
+    const tag_regex = /<\/?([A-Za-z0-9_-]+)(?:\s+[^>]*)?\/?>/g;
+    const stack = [];
+    let match;
+    while ((match = tag_regex.exec(system)) !== null) {
+      const raw = match[0];
+      const name = match[1];
+      if (raw.endsWith("/>")) continue;
+      if (raw.startsWith("</")) {
+        if (stack.pop() !== name) {
+          problems.push(`${core}: unbalanced XML tag </${name}>`);
+          break;
+        }
+      } else {
+        stack.push(name);
+      }
+    }
+    if (stack.length > 0) problems.push(`${core}: unclosed XML tags ${stack.join(", ")}`);
   }
   return { systems, problems };
 }

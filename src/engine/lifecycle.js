@@ -13,8 +13,6 @@ import {
   get_resolution_string,
   parse_think_block,
   reconstruct_history_from_feed,
-  render_optics_fallback,
-  rescue_visual_prose,
   sanitize_visual_text,
 } from "@simulation";
 import { app, execution, session } from "@state";
@@ -59,7 +57,9 @@ export async function refine_image_prompt(text, type = "character", entity = nul
     const target_entity = entity || (type === "fractal" ? session.active_fractal : session.active_ai);
     const style_cues =
       style_def?.engine ?
-        [style_def.engine.medium, style_def.engine.camera, style_def.engine.palette, style_def.engine.texture].filter(Boolean).join("; ")
+        [style_def.engine.medium, style_def.engine.camera, style_def.engine.composition, style_def.engine.palette, style_def.engine.texture]
+          .filter(Boolean)
+          .join("; ")
       : "";
     const trimmed_text = text.trim();
     const camera_note = style_cues ? `${trimmed_text} | Aesthetic Style: ${style_cues}` : trimmed_text;
@@ -140,8 +140,7 @@ export async function generate_opening(story_id, { signal = null } = {}) {
 
     session.round = 0;
     session.turn_type = "SYSTEM_TURN";
-    session.last_director_beat_round = 0;
-    session.last_dynamics_beat_round = 0;
+    session.last_image_beat_round = 0;
 
     await session.log_message("", "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
@@ -250,7 +249,6 @@ export async function generate_closing(story_id, conclusion_status = "CONCLUDED"
       core: "CHARACTER",
       round: (Number(session.round) || 1) + 1,
       entities: { FRACTAL: fractal_quadrant, AI: ai_quadrant, USER: user_quadrant },
-      task_options: { speaker_role: "fractal", is_epilogue: true, conclusion_status },
     });
 
     const response = await get_transport().stream(prompt, { role: "fractal", node_id, silent: true });
@@ -517,15 +515,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
       console.warn("[capture_story_image] Envision failed, falling back to draft prompt:", envision_err);
     }
 
-    if (!refined_prompt && !prompt) {
-      refined_prompt = render_optics_fallback({
-        tier: target_mode,
-        subject,
-        ai: session.active_ai,
-        user: session.active_user,
-        fractal: session.active_fractal,
-      });
-    }
+    if (!refined_prompt) refined_prompt = envision_source;
 
     // Keep the placeholder metadata honest once the LLM leg settles, so the
     // Shimmer row already shows the refined prompt before diffusion starts.
@@ -602,7 +592,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
  */
 export async function generate_image_candidates(prompt, options = {}) {
   const { mode = "story_character", negative_prompt = "", count = 3, min_success = 2 } = options;
-  let final_prompt = rescue_visual_prose(prompt) || prompt;
+  let final_prompt = String(prompt || "");
   let final_negative = negative_prompt;
 
   if (final_prompt.trim().startsWith("{")) {

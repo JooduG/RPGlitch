@@ -1,5 +1,28 @@
 import { describe, expect, it } from "vitest";
-import { compile_prompt, PURPOSE_CORES, resolve_image_resolution, resolve_portrait_visual_style_key, verify_compiled_prompt } from "./prompts.js";
+import { compose_story_beat_prompt, compile_prompt, extract_aesthetic_traits, PURPOSE_CORES, resolve_image_resolution } from "./prompts.js";
+
+function assert_balanced_xml_and_hygiene(prompt) {
+  expect(typeof prompt).toBe("string");
+  const trimmed = prompt.trim();
+  expect(trimmed.startsWith("<SYSTEM")).toBe(true);
+  expect(trimmed.endsWith("</SYSTEM>")).toBe(true);
+  expect(prompt).not.toMatch(/\{\{([a-zA-Z0-9_-]+)\}\}/);
+
+  const tag_regex = /<\/?([A-Za-z0-9_-]+)(?:\s+[^>]*)?\/?>/g;
+  const stack = [];
+  let match;
+  while ((match = tag_regex.exec(prompt)) !== null) {
+    const raw = match[0];
+    const name = match[1];
+    if (raw.endsWith("/>")) continue;
+    if (raw.startsWith("</")) {
+      expect(stack.pop()).toBe(name);
+    } else {
+      stack.push(name);
+    }
+  }
+  expect(stack).toEqual([]);
+}
 
 describe("compile_prompt", () => {
   const entities = {
@@ -7,11 +30,11 @@ describe("compile_prompt", () => {
     USER: { id: "U", name: "Us", type: "character", eternal: {}, present: {}, dynamics: {} },
     FRACTAL: { id: "F", name: "Wo", type: "fractal", eternal: {}, present: {}, dynamics: {} },
   };
-  it("compiles all cores to a closed envelope", () => {
+  it("compiles all cores to a closed, balanced envelope", () => {
     for (const core of ["director", "character", "caretaker", "visualizer"]) {
       const compiled = compile_prompt({ core, round: 1, entities, history: [] });
-      expect(compiled).toContain("<SYSTEM");
       expect(compiled).toContain("</SYSTEM>");
+      assert_balanced_xml_and_hygiene(compiled);
     }
   });
   it("wires RAG memories when memories == null", () => {
@@ -21,12 +44,17 @@ describe("compile_prompt", () => {
   });
   it("uppercases unknown cores into the CHARACTER fallback (still returns)", () => {
     const compiled = compile_prompt({ core: "nope", round: 1, entities, history: [] });
-    expect(typeof compiled).toBe("string");
     expect(compiled).toContain("</SYSTEM>");
+    assert_balanced_xml_and_hygiene(compiled);
   });
-  it("verifier passes a compiled prompt", () => {
-    const compiled = compile_prompt({ core: "character", round: 1, entities, history: [] });
-    expect(verify_compiled_prompt(compiled).valid).toBe(true);
+  it("honors task_options.target_name when entities is empty", () => {
+    const compiled = compile_prompt({
+      core: "CARETAKER",
+      round: 1,
+      entities: {},
+      task_options: { target_name: "New Character", target_type: "character", input_data: "wary scout" },
+    });
+    expect(compiled).toContain('target entity "New Character"');
   });
   it("strips | hide non_physical brackets from COUNTERPART across the Epistemic Wall", () => {
     const guarded = {
@@ -53,12 +81,29 @@ describe("compile_prompt", () => {
   });
 });
 
-describe("purpose cores + portrait", () => {
+describe("purpose cores + optics", () => {
   it("exposes all four cores", () => {
     for (const core of ["DIRECTOR", "CHARACTER", "CARETAKER", "VISUALIZER"]) expect(PURPOSE_CORES[core]).toBeTruthy();
   });
-  it("portrait resolver is pure (entity + explicit app value)", () => {
-    expect(resolve_portrait_visual_style_key({ visual_style: "x" }, null)).toBe("none");
+
+  it("extract_aesthetic_traits strips VISUAL_EXCLUDED_KEYS and applies bare clothing override", () => {
+    const traits = extract_aesthetic_traits({
+      eternal: { physical: "[HAIR: auburn], [SHIRT: linen], [INVENTORY: brass key]" },
+      present: { physical: "[SHIRT: bare], [SECRET: hidden dagger | hide]" },
+      visual_style: "none",
+    });
+    expect(traits).toContain('"HAIR": "auburn"');
+    expect(traits).not.toContain("INVENTORY");
+    expect(traits).not.toContain("SECRET");
+    expect(traits).not.toContain("SHIRT");
+  });
+
+  it("compose_story_beat_prompt prepends style tokens and strips template braces", () => {
+    const composed = compose_story_beat_prompt("Neon alley {rain|fog} @ORION", "noir", "watermark");
+    expect(composed.prompt).toContain("silver gelatin film print");
+    expect(composed.prompt).toContain("ORION");
+    expect(composed.prompt).not.toMatch(/[{}@]/);
+    expect(composed.negative_prompt).toContain("watermark");
   });
 
   it("resolve_image_resolution resolves dimensions across objects, strings, and fallbacks", () => {

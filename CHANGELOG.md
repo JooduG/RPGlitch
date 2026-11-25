@@ -15,6 +15,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **`src/simulation/prompts.js` & Rank-1 / Caller Pruning (`prune-execute`)**:
+  - Moved XML tag-balance and mustache hygiene assertions into `src/simulation/prompts.test.js` and `.agents/skills/simulation/scripts/sim-check.js`; removed Part 2 (`verify_compiled_prompt`, dead `verify_tag_order`, dev-only `try/catch` gate) and un-exported `render_thinking_mode` from `src/simulation/prompts.js`.
+  - Re-homed `clean_image_prompts` and `sanitize_visual_text` (with private `rescue_visual_prose`) to `src/simulation/llm-output.js`; updated `src/simulation/prose.js` and `src/engine/steps.js` (deleting duplicate `sanitize_diffusion_text`).
+  - Re-homed `resolve_image_trigger` to `src/simulation/dynamics.js` with a single unified `last_image_beat_round` cooldown across `src/state/session.svelte.js`, `src/engine/turns.js`, and `src/engine/lifecycle.js`, and pointed optical focus biasing at `director_data?.camera_note`.
+  - Deleted `render_optics_fallback`, `flatten_aesthetic_map`, and unwired/ignored `task_options` (`manual_keywords`, `query_vector`, `is_continuation`, `speaker_role`, `is_epilogue`, `conclusion_status`), while wiring `task_options.target_name` for schema extraction.
+  - Inlined `resolve_portrait_visual_style_key` and `resolve_visual_engine_tokens` into `build_aesthetic_map` and synced `src/simulation/README.md`.
+
 ## `[0.2.1]` - 2026-11-25
 
 - **Audit & Clean-Up Outside `src/` (`prune-execute`)**:
