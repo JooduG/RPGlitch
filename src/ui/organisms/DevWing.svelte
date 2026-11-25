@@ -14,7 +14,7 @@
     const dynamics = profile_state.char?.dynamics;
     if (!dynamics) return [];
     return Object.keys(dynamics).map((key) => {
-      const axis = DYNAMICS[key.toUpperCase()];
+      const axis = DYNAMICS.AXES[key];
       return { key, label: axis?.label || key.charAt(0).toUpperCase() + key.slice(1), desc: axis?.low && axis?.high ? `${axis.low} → ${axis.high}` : "" };
     });
   });

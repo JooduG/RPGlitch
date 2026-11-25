@@ -19,14 +19,7 @@
  */
 
 import { IMAGE_POLICY, TIMING_MS } from "@config";
-import {
-  compose_story_beat_prompt,
-  get_resolution_string,
-  get_tier_guidance_scale,
-  IMAGE_TIERS,
-  resolve_story_beat_style,
-  sanitize_visual_text,
-} from "@simulation";
+import { compose_story_beat_prompt, get_resolution_string, get_tier_guidance_scale, resolve_story_beat_style, sanitize_visual_text } from "@simulation";
 import { CircuitBreaker, ExponentialBackoffRetryer, generate_secure_seed, resolve_perchance_plugin } from "@utils";
 
 // ============================================================================
@@ -443,7 +436,7 @@ function with_resolve_timeout(work) {
 
 export async function spawn_image_beat(tier, options = {}, ctx) {
   const { explicit = false, source = "dynamics", prompt = "", visual_staging = "", engine = null } = options;
-  if (!tier || !IMAGE_TIERS.includes(tier)) return;
+  if (!tier || !IMAGE_POLICY.TIERS.includes(tier)) return;
 
   const session_state = ctx.session || {};
   const visual_prompt = String(prompt || "").trim() || "A significant narrative moment unfolds.";

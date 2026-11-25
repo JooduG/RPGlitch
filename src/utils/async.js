@@ -4,7 +4,7 @@
  * exponential backoff retries, and concurrency-aware circuit breaking.
  */
 
-import { PATIENCE_POLICY, TIMING_MS } from "@config";
+import { LLM_PRIORITY, PATIENCE_POLICY, TIMING_MS } from "@config";
 
 // ============================================================================
 // 1. Bounded Worker Queue
@@ -108,7 +108,7 @@ export function create_job_queue(options = {}) {
 // ============================================================================
 
 /** Foreground turns outrank background consolidation/optics jobs. */
-const LLM_PRIORITY = Object.freeze({ FOREGROUND: 10, BACKGROUND: 1 });
+// (LLM_PRIORITY lives in @config)
 
 /** @type {any} */
 let active_job = null;

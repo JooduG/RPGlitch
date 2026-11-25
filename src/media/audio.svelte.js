@@ -6,7 +6,7 @@
  * and Web Speech API fallback speech engine.
  */
 
-import { VOICE_CADENCE } from "@config";
+import { VOICE } from "@config";
 import { strip_cognition_blocks } from "@simulation";
 
 // ============================================================================
@@ -322,9 +322,9 @@ function schedule_sfx(context, master_gain, type, volume) {
 // [SECTION 3: VOICE HELPERS & CADENCES]
 // ============================================================================
 
-/** Labeled cadence picker list (view over VOICE_CADENCE.RATES) */
+/** Labeled cadence picker list (view over VOICE.RATES) */
 export const VOICE_CADENCES = Object.freeze(
-  Object.entries(VOICE_CADENCE.RATES).map(([id, rate]) => Object.freeze({ id, label: id.charAt(0).toUpperCase() + id.slice(1), rate })),
+  Object.entries(VOICE.RATES).map(([id, rate]) => Object.freeze({ id, label: id.charAt(0).toUpperCase() + id.slice(1), rate })),
 );
 
 /**
@@ -356,13 +356,13 @@ export function resolve_voice_name(name_or_uri) {
 }
 
 export function get_cadence_rate(cadence, dynamics_value = 50) {
-  const base_rate = VOICE_CADENCE.RATES[cadence] || 1.0;
+  const base_rate = VOICE.RATES[cadence] || 1.0;
   if (dynamics_value === undefined || dynamics_value === null || isNaN(Number(dynamics_value))) {
     return base_rate;
   }
   const sanitized_dynamics = Math.max(0, Math.min(100, Number(dynamics_value)));
-  const offset = (sanitized_dynamics - 50) * VOICE_CADENCE.SHAPING.DYNAMICS_OFFSET;
-  return Math.max(VOICE_CADENCE.SHAPING.MIN_RATE, Math.min(VOICE_CADENCE.SHAPING.MAX_RATE, base_rate + offset));
+  const offset = (sanitized_dynamics - 50) * VOICE.SHAPING.DYNAMICS_OFFSET;
+  return Math.max(VOICE.SHAPING.MIN_RATE, Math.min(VOICE.SHAPING.MAX_RATE, base_rate + offset));
 }
 
 // ============================================================================

@@ -59,7 +59,7 @@ export function step_dynamics(
   const variance = (active_entropy / 100) * DYNAMICS.PHYSICS.VARIANCE;
 
   for (const axis of axes) {
-    if (scope && DYNAMICS[axis.toUpperCase()]?.scope !== scope) continue;
+    if (scope && DYNAMICS.AXES[axis]?.scope !== scope) continue;
     const start = Number(current?.[axis] ?? 50) + Number(deltas?.[axis] ?? 0);
     const baseline = Number(baselines?.[axis] ?? 50);
     const axis_rate = jitter ? clamp(DYNAMICS.PHYSICS.GRAVITY + (Math.random() * 2 - 1) * variance, 0, 1) : rate;
@@ -71,7 +71,7 @@ export function step_dynamics(
     const diff = value - old_value;
     if (diff !== 0) {
       diffs.push({ axis, target, old_value, new_value: value, diff });
-      const axis_label = DYNAMICS[axis.toUpperCase()]?.label || axis.charAt(0).toUpperCase() + axis.slice(1);
+      const axis_label = DYNAMICS.AXES[axis]?.label || axis.charAt(0).toUpperCase() + axis.slice(1);
       log_strings.push(`${axis_label} ${diff > 0 ? "+" : ""}${diff}`);
     }
   }

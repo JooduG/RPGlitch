@@ -22,6 +22,7 @@
  * ============================================================================
  */
 
+import { LENGTH_THRESHOLDS, EMOTIONAL_WEIGHT } from "@config";
 import { collapse_whitespace, create_relational_context, parse_bracket_display_flags, parse_macros } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
@@ -104,7 +105,7 @@ export function parse_tagged_fields(text) {
           const value = segments[0] || "";
           let visibility = "show";
           let is_origin = false;
-          let weight = 5;
+          let weight = EMOTIONAL_WEIGHT.DEFAULT_WEIGHT;
           let status = "active";
 
           for (let flag_index = 1; flag_index < segments.length; flag_index++) {
@@ -316,7 +317,7 @@ function _reconstruct_entry(entry) {
   const flags = [];
   if (entry.visibility === "hide") flags.push("hide");
   if (entry.is_origin) flags.push("is_origin");
-  if (typeof entry.weight === "number" && !isNaN(entry.weight) && entry.weight !== 5) {
+  if (typeof entry.weight === "number" && !isNaN(entry.weight) && entry.weight !== EMOTIONAL_WEIGHT.DEFAULT_WEIGHT) {
     flags.push(`w: ${entry.weight}`);
   }
   const flag_part = flags.length > 0 ? ` | ${flags.join(" | ")}` : "";
@@ -341,7 +342,6 @@ function _reconstruct_entry(entry) {
  */
 export function apply_tagged_field_deltas(existing_text, delta_text, options = {}) {
   const multi_keys = options.multi_keys instanceof Set ? options.multi_keys : new Set(options.multi_keys || AGGREGATE_KEYS);
-  const MAX_FIELD_CHARS = 2000;
 
   const existing_entries = parse_tagged_fields(existing_text || "");
   const delta_entries = parse_tagged_fields(delta_text || "");
@@ -358,7 +358,7 @@ export function apply_tagged_field_deltas(existing_text, delta_text, options = {
   if (delta_entries.length === 0) {
     const base = existing_text ? existing_text.trim() : "";
     if (!prose_remainder) return base;
-    return _append_prose_remainder(base, prose_remainder, MAX_FIELD_CHARS);
+    return _append_prose_remainder(base, prose_remainder, LENGTH_THRESHOLDS.FIELD_CAP);
   }
 
   const current = existing_entries.map((entry) => ({ key: entry.key, raw: _reconstruct_entry(entry), value: entry.value }));
@@ -423,10 +423,10 @@ export function apply_tagged_field_deltas(existing_text, delta_text, options = {
   }
 
   let merged = current.map((entry) => entry.raw).join(", ");
-  if (prose_remainder) merged = _append_prose_remainder(merged, prose_remainder, MAX_FIELD_CHARS);
+  if (prose_remainder) merged = _append_prose_remainder(merged, prose_remainder, LENGTH_THRESHOLDS.FIELD_CAP);
 
-  if (merged.length > MAX_FIELD_CHARS) {
-    merged = merged.substring(merged.length - MAX_FIELD_CHARS);
+  if (merged.length > LENGTH_THRESHOLDS.FIELD_CAP) {
+    merged = merged.substring(merged.length - LENGTH_THRESHOLDS.FIELD_CAP);
   }
   return merged;
 }

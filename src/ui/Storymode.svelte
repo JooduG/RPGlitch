@@ -1,5 +1,6 @@
 <script>
   import { Button, ScrollArea } from "@atoms";
+  import { TIMING_MS } from "@config";
   import { chrono_engine } from "@engine";
   import { Audio, clear_card_location, item_in, motion, update_card_scrub } from "@media";
   import { CardSkeleton, Dialog, UndoToast } from "@molecules";
@@ -9,7 +10,6 @@
   import { onDestroy, tick } from "svelte";
 
   const AUTO_SCROLL_SLACK = 40;
-  const UNDO_DELETE_WINDOW_MS = 5000;
   const WHEEL_IGNORE_SELECTOR =
     "[data-modal-layer], [data-dropdown-menu], [role='menu'], [data-tooltip-preview], .dropdown-portal-wrapper, .menu, .tooltip-portal";
 
@@ -209,9 +209,9 @@
       const { [id]: _, ...rest } = pending_deletes;
       pending_deletes = rest;
       await session.delete_entry(String(id));
-    }, UNDO_DELETE_WINDOW_MS);
+    }, TIMING_MS.INTERACTION);
 
-    pending_deletes = { ...pending_deletes, [id]: { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS } };
+    pending_deletes = { ...pending_deletes, [id]: { timer, expires_at: Date.now() + TIMING_MS.INTERACTION } };
   }
 
   function undo_delete(id) {
@@ -265,7 +265,7 @@
             ]}
             in:item_in={{ duration: 200 }}>
             <div class="w-[calc(var(--spacing-column-unit)*5)]">
-              <UndoToast undo_window_ms={UNDO_DELETE_WINDOW_MS} on_undo={() => undo_delete(entry.id)} />
+              <UndoToast undo_window_ms={TIMING_MS.INTERACTION} on_undo={() => undo_delete(entry.id)} />
             </div>
           </div>
         {:else if is_telemetry_meta(entry.meta)}

@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-import { CANONICAL_ROLES, LENGTH_THRESHOLDS } from "@config";
+import { LENGTH_THRESHOLDS, ROLES } from "@config";
 import { collapse_whitespace, truncate_at_word } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
@@ -47,22 +47,10 @@ export function canonicalize_role(role) {
   const normalized = String(role || "")
     .toLowerCase()
     .trim();
-  if (normalized === "user" || normalized === "user_persona") {
-    return CANONICAL_ROLES.USER;
+  for (const [canonical, aliases] of Object.entries(ROLES)) {
+    if (aliases.includes(normalized)) return canonical;
   }
-  if (normalized === "ai" || normalized === "ai_character" || normalized === "model" || normalized === "assistant") {
-    return CANONICAL_ROLES.AI;
-  }
-  if (normalized === "npc") {
-    return CANONICAL_ROLES.NPC;
-  }
-  if (normalized === "fractal" || normalized === "prologue" || normalized === "epilogue" || normalized === "narrator") {
-    return CANONICAL_ROLES.FRACTAL;
-  }
-  if (normalized === "system" || normalized === "telemetry") {
-    return CANONICAL_ROLES.SYSTEM;
-  }
-  return role ? String(role).toLowerCase().trim() : CANONICAL_ROLES.AI;
+  return normalized || "ai";
 }
 
 /**
@@ -94,8 +82,8 @@ export function normalize_history_beat(entry, options = {}) {
   const fallback =
     label_fallback ??
     (label_policy === "visual" ? "narrator"
-    : canonical_role === CANONICAL_ROLES.USER ? "User"
-    : canonical_role === CANONICAL_ROLES.FRACTAL ? "Fractal"
+    : canonical_role === "user" ? "User"
+    : canonical_role === "fractal" ? "Fractal"
     : "Character");
 
   const origin =
@@ -104,7 +92,7 @@ export function normalize_history_beat(entry, options = {}) {
     : entry?.entity_id || entry?.origin || entry?.character_name || entry?.name || (entry?.role ? role_display_label(entry.role) : "") || fallback;
 
   const character_name = String(
-    entry?.character_name || (canonical_role === CANONICAL_ROLES.USER ? "You" : entry?.origin || entry?.name || (origin !== fallback ? origin : "")),
+    entry?.character_name || (canonical_role === "user" ? "You" : entry?.origin || entry?.name || (origin !== fallback ? origin : "")),
   ).trim();
 
   const attachments = Array.isArray(entry.attachments) ? Object.freeze([...entry.attachments]) : Object.freeze([]);
@@ -120,7 +108,7 @@ export function normalize_history_beat(entry, options = {}) {
  */
 export function is_narrative_role(role) {
   if (role == null) return false;
-  return String(role).toLowerCase() !== CANONICAL_ROLES.SYSTEM;
+  return String(role).toLowerCase() !== "system";
 }
 
 /**
@@ -132,7 +120,7 @@ export function filter_narrative_messages(messages, options = {}) {
   const { exclude_consolidated = false, keep_resolved_image_rows = false } = options;
 
   return messages.filter((message) => {
-    if (!message || message.role === CANONICAL_ROLES.SYSTEM) return false;
+    if (!message || message.role === "system") return false;
     if (exclude_consolidated && message.meta?.consolidated) return false;
     const text = String(message.content ?? message.text ?? "").trim();
     if (!text && !message.meta?.is_prologue && !message.meta?.is_epilogue) {

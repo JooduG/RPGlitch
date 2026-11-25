@@ -4,6 +4,7 @@
    * DEVMODE system telemetry card (STORY_START, DYNAMICS_DELTA,
    * CONTINUUM_FORMATION, MEMORY_FORMATION, VECTOR_RESOLUTION).
    */
+  import { DYNAMICS } from "@config";
   import { format_tagged_fields, parse_message, parse_tagged_fields as parse_bracket_entries } from "@simulation";
   import { safe_html } from "@utils";
 
@@ -12,8 +13,6 @@
     const num = Number(value);
     return Number.isFinite(num) ? Math.max(0, Math.min(100, Math.round(num))) : 50;
   };
-
-  const DIRECTOR_AXES = ["chaos", "intensity", "openness", "affinity", "velocity", "entropy"];
 
   function resolve_entity_name(key, runtime) {
     const map = {
@@ -76,12 +75,14 @@
     const deltas = meta?.deltas && typeof meta.deltas === "object" ? meta.deltas : null;
     if (!deltas) return [];
     const levels = meta?.levels && typeof meta.levels === "object" ? meta.levels : null;
-    return DIRECTOR_AXES.filter((axis) => deltas[axis] !== undefined).map((axis) => {
-      const delta = Number(deltas[axis]) || 0;
-      const level = levels?.[axis] !== undefined ? Number(levels[axis]) : null;
-      const fill = level != null && Number.isFinite(level) ? get_percentage(level) : Math.min(100, Math.abs(delta) * 10);
-      return { axis, delta, level, fill };
-    });
+    return Object.keys(DYNAMICS.AXES)
+      .filter((axis) => deltas[axis] !== undefined)
+      .map((axis) => {
+        const delta = Number(deltas[axis]) || 0;
+        const level = levels?.[axis] !== undefined ? Number(levels[axis]) : null;
+        const fill = level != null && Number.isFinite(level) ? get_percentage(level) : Math.min(100, Math.abs(delta) * 10);
+        return { axis, delta, level, fill };
+      });
   });
 
   const render_telemetry_text = (txt) => (txt ? parse_message(format_tagged_fields(clean_text_debris(txt), { see_hidden: "all" })).displayText : "");

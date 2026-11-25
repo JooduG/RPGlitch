@@ -5,14 +5,14 @@
  * ============================================================================
  */
 
-import { SPEAKING_STYLES } from "@config";
+import { VOICE } from "@config";
 import { describe, expect, it } from "vitest";
 import { SPEAKING_STYLE_RULES } from "./speaking-styles.js";
 
 describe("speaking-styles taxonomy", () => {
   it("exports canonical SPEAKING_STYLES containing the 4 balanced quartets", () => {
-    expect(SPEAKING_STYLES).toEqual(["casual", "lyrical", "primal", "clinical"]);
-    expect(Object.isFrozen(SPEAKING_STYLES)).toBe(true);
+    expect(VOICE.STYLES).toEqual(["casual", "lyrical", "primal", "clinical"]);
+    expect(Object.isFrozen(VOICE.STYLES)).toBe(true);
   });
 
   it("exports comprehensive frozen SPEAKING_STYLE_RULES", () => {

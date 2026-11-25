@@ -38,7 +38,7 @@
  * ============================================================================
  */
 
-import { DYNAMICS, IMAGE_POLICY, IMAGE_RESOLUTIONS, TEMPO_ROUNDS } from "@config";
+import { DYNAMICS, IMAGE_POLICY, TEMPO_ROUNDS } from "@config";
 import { VISUAL_STYLES, caretaker_brief, get_visual_style } from "@definitions";
 import { PALETTE, get_signature_label, normalize_comma_spacing, resolve_style } from "@utils";
 import { CLEAR_TOKENS, CLOTHING_KEYS, VISUAL_EXCLUDED_KEYS, format_tagged_fields, safe_parse_pseudo_json } from "./brackets.js";
@@ -97,7 +97,6 @@ export const PURPOSE_CORES = Object.freeze({
     task_block: (context) => {
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
       const thinking_block = render_thinking_mode({
-        mode: "analysis",
         max_words: 80,
         lens: `    - Causality & stakes: evaluate recent physical actions and participant hazards
     - Dynamics deltas & tension: calibrate numerical tension shifts
@@ -152,7 +151,6 @@ ${thinking_block}
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
 
       const thinking_block = render_thinking_mode({
-        mode: "analysis",
         max_words: 120,
         lens: `    - Entity change delta: identify what physical, emotional, or agenda state evolved
     - Temporal quadrant routing: map facts to eternal, present, future, or past
@@ -237,7 +235,6 @@ ${thinking_block}
         is_character ?
           render_thinking_mode({ mode: "immersion", max_words: 120, pivot_pov: !is_first_person })
         : render_thinking_mode({
-            mode: "analysis",
             max_words: 80,
             lens: `    - Physical causality & spatial resistance: how the environment shifts or obstructs
     - Atmospheric shift & environmental reaction: weather, ambient lighting, sensory pressure
@@ -272,21 +269,14 @@ ${thinking_block}
       const is_place = subject_kind === "place";
       const round_attr = context?.round !== undefined ? ` round="${context.round}"` : "";
 
-      const focal_instruction =
+      const focal_directive =
         is_place ?
-          "**Focal Subject & Environment**: The location and environment itself is the primary focal subject. Keep the scene devoid of people, characters, or human figures unless the camera note explicitly names one."
-        : "**Focal Subject & Pose**: Primary subject, active physical posture, and concrete expression.";
-
-      const synthesis_focal_directive =
-        is_place ?
-          "    - **Place Staging Mandate**: Emphasize architectural geometry, atmospheric depth, environmental textures, and weather/lighting. Do NOT place characters or human figures in frame unless explicitly requested in the camera note."
-        : "    - **First Sentence Mandate**: Immediately establish the focal subject and primary setting.";
+          "**Place Staging Mandate**: The location itself is the primary focal subject—emphasize architectural geometry, atmospheric depth, textures, and lighting. Keep the scene devoid of people unless the camera note explicitly names one."
+        : "**Focal Subject & Pose**: Immediately establish the primary subject, active physical posture, concrete expression, and primary setting.";
 
       const thinking_block = render_thinking_mode({
-        mode: "analysis",
         max_words: 120,
-        lens: `    - ${focal_instruction}
-    - Spatial Depth & Geometry: foreground, midground, background, and camera perspective
+        lens: `    - Spatial Depth & Geometry: foreground, midground, background, and camera perspective
     - Lighting & Luminary Sources: key light source, shadow falloff, color palette
     - Attire & Textures: fabric materials, physical surfaces, and visible details`,
       });
@@ -296,7 +286,7 @@ ${thinking_block}
 ${aesthetic_direction}
     ### Prompt Synthesis
     Synthesize an evocative, photographic or artistic description in natural prose:
-${synthesis_focal_directive}
+    - ${focal_directive}
     - **Sensory Optics & Textures**: Focus on physical surfaces, fabric drape, skin texture, and concrete light sources. Avoid empty buzzwords ('photorealistic', 'hyperrealistic', 'trending on artstation').
     - **Weight Discipline**: Never emit numeric weight math ('(word:1.3)', '[word:0.5]'). Emphasize through descriptive vocabulary and attenuation ('subtle', 'intense', 'faint').
     - **Affirmative Description**: Describe what IS visible in frame ('softly moonlit room' instead of 'no daylight').
@@ -894,20 +884,14 @@ export function sanitize_visual_text(text) {
 }
 
 /**
- * The 4 canonical image generation tiers.
- * @type {ReadonlyArray<"story_entities" | "story_character" | "solo_entity" | "story_scene">}
- */
-export const IMAGE_TIERS = Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]);
-
-/**
  * Resolution dimensions mapped by canonical tier identifier.
  * @type {Readonly<Record<string, { width: number, height: number }>>}
  */
 const TIER_RESOLUTIONS = Object.freeze({
-  story_scene: IMAGE_RESOLUTIONS.LANDSCAPE,
-  solo_entity: IMAGE_RESOLUTIONS.PORTRAIT,
-  story_character: IMAGE_RESOLUTIONS.PORTRAIT,
-  story_entities: IMAGE_RESOLUTIONS.SQUARE_LARGE,
+  story_scene: IMAGE_POLICY.RESOLUTIONS.LANDSCAPE,
+  solo_entity: IMAGE_POLICY.RESOLUTIONS.PORTRAIT,
+  story_character: IMAGE_POLICY.RESOLUTIONS.PORTRAIT,
+  story_entities: IMAGE_POLICY.RESOLUTIONS.SQUARE_LARGE,
 });
 
 /**
@@ -928,7 +912,7 @@ function normalize_image_tier(target_type) {
   if (str === "character" || str === "user" || str === "solo_entity") {
     return "solo_entity";
   }
-  if (IMAGE_TIERS.includes(/** @type {any} */ (str))) {
+  if (IMAGE_POLICY.TIERS.includes(/** @type {any} */ (str))) {
     return /** @type {any} */ (str);
   }
   return "story_character";
@@ -1010,9 +994,9 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
 
   // 1. Evaluate Director Explicit Beat (Priority 1)
   const raw_trigger = typeof director_data?.trigger_image === "string" ? director_data.trigger_image.trim() : director_data?.trigger_image;
-  const tier_from_string = typeof raw_trigger === "string" && IMAGE_TIERS.includes(raw_trigger) ? raw_trigger : null;
+  const tier_from_string = typeof raw_trigger === "string" && IMAGE_POLICY.TIERS.includes(raw_trigger) ? raw_trigger : null;
   const tier_from_preference =
-    typeof director_data?.image_tier === "string" && IMAGE_TIERS.includes(director_data.image_tier) ? director_data.image_tier : null;
+    typeof director_data?.image_tier === "string" && IMAGE_POLICY.TIERS.includes(director_data.image_tier) ? director_data.image_tier : null;
   const raw_staging = typeof director_data?.visual_staging === "string" ? director_data.visual_staging.trim() : "";
   const has_visual_staging = Boolean(raw_staging);
   const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null || has_visual_staging;

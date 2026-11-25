@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+## `[0.2.1]` - 2026-11-25
+
 - **Audit & Clean-Up Outside `src/` (`prune-execute`)**:
   - `src/config.js` & Runtime Micro-Fixes: Restored `INGESTION: 8000` to canonical `LENGTH_THRESHOLDS` in `src/config.js` to ensure clean resolution for `src/utils/html.js` (`truncate_readable`) and `src/utils/ingestion.js` (`fetch_web`); verified default param handling across test suites.
   - Root Configs & Tooling (`package.json`, `.agents/hooks.json`): Pruned orphaned/dead devDependencies (`@mermaid-lint/core`, `@sveltejs/mcp`, `@types/node`, `@vitest/browser`, `@vitest/browser-playwright`, `@vitest/ui`, `vitest-browser-svelte`); pruned dead npm scripts (`build:dev`, `test:interactive`); added canonical script aliases (`test:hooks` -> `agent:test:hooks`, `sync:gates` -> `agent:sync:hooks`); re-dumped active hook rules cleanly into `.agents/hooks.json`.

@@ -21,12 +21,9 @@
  * ============================================================================
  */
 
-import { FIELD_FLOORS } from "@config";
+import { FIELD_FLOORS, EMOTIONAL_WEIGHT } from "@config";
 import { cosine_similarity } from "@utils";
 import { parse_tagged_fields } from "./brackets.js";
-
-/** Origin protection multiplier boosting author canon and immutable memories */
-const ORIGIN_SCORE_MULTIPLIER = 1.5;
 
 /** Total guaranteed character floor across all 6 profile fields (sum: 1700 chars) */
 const TOTAL_FIELD_FLOORS_CHARACTERS = Object.values(FIELD_FLOORS).reduce((sum, floor) => sum + floor, 0);
@@ -75,7 +72,7 @@ export function rank_memories(candidates, queryVector) {
     }
 
     // Origin protection: author canonical facts receive a multiplier boost
-    const origin_multiplier = item.is_origin ? ORIGIN_SCORE_MULTIPLIER : 1.0;
+    const origin_multiplier = item.is_origin ? EMOTIONAL_WEIGHT.ORIGIN_SCORE_MULTIPLIER : 1.0;
 
     const final_score = similarity * origin_multiplier;
     const length = (item.text || "").length;

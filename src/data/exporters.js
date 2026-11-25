@@ -17,7 +17,7 @@
  * ============================================================================
  */
 
-import { CANONICAL_ROLES, NARRATOR_ROLES } from "@config";
+import { ROLES } from "@config";
 import { filter_narrative_messages, normalize_history_beat } from "@simulation";
 import { format_datetime } from "@utils";
 import { coerce_numeric_key, db } from "./db.js";
@@ -66,14 +66,14 @@ function format_story_beat(entry, options = {}) {
   const beat = normalize_history_beat(entry, { include_cognition: false, normalize_whitespace: false });
   if (!beat) return null;
 
-  if (beat.role === CANONICAL_ROLES.SYSTEM && !options.include_system) return null;
+  if (beat.role === "system" && !options.include_system) return null;
 
   const first_attachment = beat.attachments[0] || null;
   const image_src = typeof first_attachment?.src === "string" && first_attachment.src.trim() ? first_attachment.src.trim() : null;
 
   if (!beat.text && !image_src) return null;
 
-  const is_narrator_or_fractal = beat.role === CANONICAL_ROLES.FRACTAL || NARRATOR_ROLES.has(beat.raw_role.toLowerCase());
+  const is_narrator_or_fractal = beat.role === "fractal" || ROLES.fractal.includes(beat.raw_role.toLowerCase());
 
   if (image_src) {
     const prompt_caption =
@@ -89,12 +89,12 @@ function format_story_beat(entry, options = {}) {
     return `> ${beat.text.replace(/\n+/g, "\n> ")}`;
   }
 
-  if (beat.role === CANONICAL_ROLES.SYSTEM) {
+  if (beat.role === "system") {
     return `_${beat.text.replace(/\n+/g, " ")}_`;
   }
 
   const raw_name = String(/** @type {StoryBeatEntry} */ (entry).character_name || "").trim();
-  const label = beat.role === CANONICAL_ROLES.USER ? raw_name || "You" : raw_name || beat.origin || "Unknown";
+  const label = beat.role === "user" ? raw_name || "You" : raw_name || beat.origin || "Unknown";
   return `**${label}:** ${beat.text.replace(/\n+/g, " ")}`;
 }
 

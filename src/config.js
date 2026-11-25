@@ -37,6 +37,11 @@ export const PATIENCE_POLICY = Object.freeze({
   HARD_LIMIT: 3, // 3 strikes/attempts: max retry attempts, failure trip threshold, max concurrent probes
 });
 
+/**
+ * Priority tiers for the single-flight LLM request gate.
+ */
+export const LLM_PRIORITY = Object.freeze({ FOREGROUND: 10, BACKGROUND: 1 });
+
 // =============================================================================
 // [SECTION 2: CANONICAL DOMAIN HOMES - every number and shared vocabulary lives here exactly once]
 // =============================================================================
@@ -44,14 +49,13 @@ export const PATIENCE_POLICY = Object.freeze({
 // ── 1. Directorial Staging & Dynamic Equilibrium ─────────────────────────────
 /**
  * The dynamics domain (single home): SCALE = range + trigger bands, PHYSICS = drift math,
- * DELTA = prompt-doc strings, CHAOS…ENTROPY = the six axis definitions.
- * Axis children are UPPER (config convention); runtime axis ids are lowercase, so readers
- * index DYNAMICS[axis.toUpperCase()] - the `?.` guards degrade gracefully on mismatch.
+ * DELTA = prompt-doc strings, AXES = the six axis definitions keyed by lowercase runtime axis id.
  */
 export const DYNAMICS = Object.freeze({
   SCALE: Object.freeze({
     MIN: 1, // Lowest possible value on the 1-100 narrative tension and significance scale
     EXTREME_LOW: 15, // Collapse / isolation floor triggering automated emotional beats
+    LOW: 25,
     MID: 50, // Universal neutral equilibrium baseline for meters and new past-vector significance
     HIGH: 75, // High tension threshold triggering dramatic escalation, intimate framing, or Dutch angles
     EXTREME_HIGH: 85, // Climax / breakthrough ceiling triggering automated visual synthesis beats
@@ -66,54 +70,57 @@ export const DYNAMICS = Object.freeze({
     EXTREME: "±8-12", // High drama / crisis turn fluctuation guideline documented for LLM director in prompt
     CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
   }),
-  // Character (Somatic) axes
-  CHAOS: Object.freeze({ label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" }),
-  INTENSITY: Object.freeze({ label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" }),
-  OPENNESS: Object.freeze({ label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" }),
-  AFFINITY: Object.freeze({ label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" }),
-  // Fractal (Environmental) axes
-  VELOCITY: Object.freeze({ label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" }),
-  ENTROPY: Object.freeze({ label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" }),
+  AXES: Object.freeze({
+    // Character (Somatic) axes
+    chaos: Object.freeze({ label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" }),
+    intensity: Object.freeze({ label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" }),
+    openness: Object.freeze({ label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" }),
+    affinity: Object.freeze({ label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" }),
+    // Fractal (Environmental) axes
+    velocity: Object.freeze({ label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" }),
+    entropy: Object.freeze({ label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" }),
+  }),
 });
 
-// ── 2. Canonical Length Thresholds ───────────────────────────────────────────
+/** Canonical string-length thresholds across simulation, ingestion, and bracketed fields. */
 export const LENGTH_THRESHOLDS = Object.freeze({
   TINY: 25, // < 25 characters -> 1 snappy beat
   SMALL: 150, // < 150 characters -> 1-2 beats
   COMPACT: 200, // Physical & agenda baseline floor
   MEDIUM: 300, // Psychological & past memory floor
   EXPANSIVE: 500, // Core personality floor & expansive input cadence (>= 500)
+  FIELD_CAP: 2000, // Max character length cap for a single merged tagged-field string
   INGESTION: 8000, // Ingestion extraction & readable truncation ceiling
 });
 
-// ── 3. Visual Media Resolutions ──────────────────────────────────────────────
-export const IMAGE_RESOLUTIONS = Object.freeze({
-  PORTRAIT: Object.freeze({ width: 512, height: 768 }),
-  LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
-  SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
-});
-
-// ── 4. Unified Temporal Tempo ──────────────────────────────────────────────────
+/** Working memory window and stagnation disruption cadence (in rounds). */
 export const TEMPO_ROUNDS = Object.freeze({
   STANDARD: 8, // 8 rounds: Working memory transcript window & soft stagnation permit
   SLOW: 16, // 16 rounds: Critical hard stagnation disruption mandate
 });
 
-// ── 6. Tokenizer Calibration ─────────────────────────────────────────────────
-export const CHARS_PER_TOKEN = 3.35; // Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting
+/** Emotional weight multipliers and defaults for episodic memory retrieval and brackets. */
+export const EMOTIONAL_WEIGHT = Object.freeze({
+  ORIGIN_SCORE_MULTIPLIER: 1.5, // Origin protection multiplier boosting author canon and immutable memories
+  DEFAULT_WEIGHT: 5, // Default bracketed entry weight when no explicit `w:` flag is present
+});
 
-// ── 7. Image Policy ──────────────────────────────────────────────────────────
+/** Calibrated empirical ratio (~3.35 chars/token) for prompt text budgeting. */
+export const CHARS_PER_TOKEN = 3.35;
+
 /**
- * Single home for image tuning, both directions:
- * - Generation (optics/visual pipeline): trigger cadence (WHEN a beat earns an image)
- *   + diffusion guidance (HOW strongly).
- * - Intake (html.js upload validation): upload size/type bounds.
- * NOT here: tier resolutions (IMAGE_RESOLUTIONS §2.3 - structural, stable).
+ * Single home for image tuning, resolutions, trigger cadence, diffusion guidance, and upload bounds.
  */
 export const IMAGE_POLICY = Object.freeze({
+  TIERS: Object.freeze(["story_entities", "story_character", "solo_entity", "story_scene"]),
+  RESOLUTIONS: Object.freeze({
+    PORTRAIT: Object.freeze({ width: 512, height: 768 }),
+    LANDSCAPE: Object.freeze({ width: 768, height: 512 }),
+    SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
+  }),
   DISPLACEMENT_THRESHOLD: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
   COOLDOWN_ROUNDS: 3, // Unified cooldown (rounds) between automatic scene image generations
-  DEFAULT_TIER: "story_scene", // Fallback tier for auto-triggered beats (canonical tiers live in optics IMAGE_TIERS)
+  DEFAULT_TIER: "story_scene", // Fallback tier for auto-triggered beats
   MAX_PENDING_IMAGES: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
   GUIDANCE: Object.freeze({
     SCENE: 7, // story_scene tier baseline (environmental shots drift)
@@ -125,12 +132,12 @@ export const IMAGE_POLICY = Object.freeze({
   }),
 });
 
-// ── 8. Voice Cadence ─────────────────────────────────────────────────────────
 /**
- * Voice cadence model (single home; audio.js CADENCE_RATES/VOICE_CADENCES are views over RATES):
- * base speech-rate multipliers by cadence id + how far entity dynamics bend the base rate.
+ * Voice domain (single home; audio.js VOICE_CADENCES is a view over RATES):
+ * speaking style ids, base speech-rate multipliers by cadence id, and dynamics rate shaping.
  */
-export const VOICE_CADENCE = Object.freeze({
+export const VOICE = Object.freeze({
+  STYLES: Object.freeze(["casual", "lyrical", "primal", "clinical"]),
   RATES: Object.freeze({ drawl: 0.85, measured: 0.95, standard: 1.0, brisk: 1.1, rapid: 1.2 }),
   SHAPING: Object.freeze({
     DYNAMICS_OFFSET: 0.001, // Per-point rate bend per dynamics unit away from neutral 50
@@ -139,26 +146,19 @@ export const VOICE_CADENCE = Object.freeze({
   }),
 });
 
-// ── 9. Canonical Entity Roles ───────────────────────────────────────────────
-/**
- * Two role vocabularies - similar names, different jobs:
- * - CANONICAL_ROLES: normalized lowercase role map. Every log row's `role` holds one of these five;
- *   raw model roles (assistant/narrator/prologue…) fold into them via canonicalize_role (text.js).
- *   Narrative participants are everything but SYSTEM (see is_narrative_role in text.js).
- * - NARRATOR_ROLES: lowercase export set - raw_role values marking narrator-voiced beats for the story exporter.
- */
-export const CANONICAL_ROLES = Object.freeze({ USER: "user", AI: "ai", NPC: "npc", FRACTAL: "fractal", SYSTEM: "system" });
-export const NARRATOR_ROLES = Object.freeze(new Set(["prologue", "fractal", "narrator", "epilogue"]));
-
-// ── 10. Speaking Styles ──────────────────────────────────────────────────────
-/** Canonical speaking style ids (single home; the detox hardcoded twin, the registry derived twin, and the VALID Set twin are all gone - lookups use .includes()) */
-export const SPEAKING_STYLES = Object.freeze(["casual", "lyrical", "primal", "clinical"]);
+/** Canonical entity roles mapped to their accepted raw/subrole aliases. */
+export const ROLES = Object.freeze({
+  user: Object.freeze(["user", "user_persona"]),
+  ai: Object.freeze(["ai", "ai_character", "model", "assistant"]),
+  npc: Object.freeze(["npc"]),
+  fractal: Object.freeze(["fractal", "prologue", "epilogue", "narrator"]),
+  system: Object.freeze(["system", "telemetry"]),
+});
 
 // =============================================================================
-// [SECTION 3: DERIVED VIEWS & SINGLE-KEY POLICY - references §1/§2, plus a few homeless literals]
+// [SECTION 3: DERIVED VIEWS - references §1/§2]
 // =============================================================================
 
-// ── 1. Field Floors (view over LENGTH_THRESHOLDS) ────────────────────────────
 /**
  * Lean Floors per field (in string character length).
  * In Tier 1, every field reserves this minimum floor so core identity is never crowded out.

@@ -1,4 +1,4 @@
-import { SPEAKING_STYLES } from "@config";
+import { VOICE } from "@config";
 import { describe, expect, it } from "vitest";
 import { NARRATIVE_STYLES, get_narrative_style } from "./narrative-styles.js";
 
@@ -21,7 +21,7 @@ describe("NARRATIVE_STYLES Preset Catalog", () => {
       expect(style.name.length).toBeGreaterThan(0);
       expect(typeof style.description).toBe("string");
       expect(Array.isArray(style.motif_keys)).toBe(true);
-      expect(SPEAKING_STYLES).toContain(style.speaking_style);
+      expect(VOICE.STYLES).toContain(style.speaking_style);
       expect(Array.isArray(style.triggers)).toBe(true);
     }
   });

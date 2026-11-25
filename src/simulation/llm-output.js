@@ -26,7 +26,7 @@
  * ============================================================================
  */
 
-import { SPEAKING_STYLES } from "@config";
+import { VOICE } from "@config";
 import { ANTI_AI_REPLACEMENTS, SPEAKING_STYLE_RULES } from "@definitions";
 import { match_case, stable_pick } from "@utils";
 
@@ -325,7 +325,7 @@ function pick_replacement(match, pool, exact_voice = "casual", fallback_voice = 
 export function clean_generated_prose(raw_text, speaking_style = "casual", custom_rules = null) {
   if (!raw_text || typeof raw_text !== "string") return "";
 
-  const exact_voice = SPEAKING_STYLES.includes(speaking_style) ? speaking_style : "casual";
+  const exact_voice = VOICE.STYLES.includes(speaking_style) ? speaking_style : "casual";
   const fallback_voice = exact_voice === "lyrical" ? "lyrical" : "casual";
 
   const rules_to_run = custom_rules || SPEAKING_STYLE_RULES;
@@ -466,13 +466,13 @@ export function clean_generated_prose(raw_text, speaking_style = "casual", custo
  */
 export function resolve_speaking_style(entity = null, narrative_style = null) {
   const entity_style = entity?.speaking_style;
-  if (entity_style && SPEAKING_STYLES.includes(entity_style)) {
+  if (entity_style && VOICE.STYLES.includes(entity_style)) {
     return /** @type {SpeakingStyleId} */ (entity_style);
   }
 
   const style_speaking = typeof narrative_style === "object" && narrative_style !== null ? narrative_style.speaking_style : null;
 
-  if (style_speaking && SPEAKING_STYLES.includes(style_speaking)) {
+  if (style_speaking && VOICE.STYLES.includes(style_speaking)) {
     return /** @type {SpeakingStyleId} */ (style_speaking);
   }
 
