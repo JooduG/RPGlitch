@@ -255,7 +255,7 @@ export function run_sim_check() {
   const { systems, problems: compile_problems } = compile_live_cores();
   problems.push(...compile_problems);
   problems.push(...check_core_markers(systems));
-  const rotation = [1, 2, 3, 4].map((round) => resolve_caretaker_target(round, {}));
+  const rotation = [0, 1, 2, 3].map((cursor) => resolve_caretaker_target(cursor));
   if (rotation.join(",") !== "AI,USER,FRACTAL,AI") problems.push(`caretaker rotation broke: ${rotation.join(",")}`);
   if (cosine_similarity([1, 0], [1, 0]) !== 1) problems.push("cosine sanity failed");
   return { problems };

@@ -49,7 +49,7 @@
 ## Invariants
 
 - **Barrel Re-Export & Strictly Downward Imports (`index.js`)**: `src/definitions/index.js` re-exports `*` from all 7 definition modules; modules import solely from `@config` and `@utils`.
-- **Dynamics Axis & Rule Alignment (`dynamics-registry.js`)**: `DYNAMICS_RULES` is frozen (`Object.freeze([...])`); all 18 rules default missing axes to `50` (`?? MID`).
+- **Dynamics Axis & Rule Alignment (`dynamics-registry.js`)**: `DYNAMICS_RULES` is frozen (`Object.freeze([...])`); all 18 rules evaluate against a complete 6-axis dynamics map seeded at `DYNAMICS.SCALE.MID` (`50`).
 - **Narrative Style Key & Voice Integrity (`narrative-styles.js`)**: Every entry in `NARRATIVE_STYLES` enforces `key === record.id` and `speaking_style` in `{"casual", "lyrical", "primal", "clinical"}`.
 - **Symmetric 4-Layer Schema & Merge Semantics (`profile-taxonomy.js`)**: Only `character` and `fractal` temporal layers become internal `FIELD_ATOMS` (excluding `name`, `description`, `signature_color`, `pov`); `merge` is `"append"` exclusively for `past` and `"replace"` for all other layers. `canonicalize_field_key()` checks `fractal` aliases before `character` aliases when `entity_type === "fractal"` (otherwise checking `character` aliases only) and requires string inputs.
 - **Four-Style Rule Completeness & Ordering (`speaking-styles.js`)**: Every non-callback rule in `SPEAKING_STYLE_RULES` supplies all 4 canonical speaking style keys (`casual`, `lyrical`, `primal`, `clinical`), retains identical `pattern` and `regex` `/gi` `RegExp` references, and maintains specific-before-generic ordering across concatenated categories.

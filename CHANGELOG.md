@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **`src/definitions/dynamics-registry.js` & `src/simulation/dynamics.js` Pruning (`prune-execute`)**:
+  - Removed the dead `style` / `style.triggers` evaluation branch, unreachable `entities.NPC` branch, and `use_cursor` mode flag in `src/simulation/dynamics.js`, standardizing `resolve_caretaker_target(cursor = 0)` across `src/engine/steps.js`, `src/engine/turns.js`, and `.agents/skills/simulation/scripts/sim-check.js`.
+  - Seeded neutral scope defaults once via `default_dynamics_for_scope` in `evaluate_dynamics_directives` and stripped 54 redundant `?? MID` / optional-chaining guards across `DYNAMICS_RULES` in `src/definitions/dynamics-registry.js`.
+  - Added unit coverage for `default_dynamics_for_scope` and `resolve_caretaker_target` rotation in `src/simulation/dynamics.test.js`, and synced `src/definitions/README.md` and `src/simulation/README.md`.
 - **`src/simulation/prompts.js` & Rank-1 / Caller Pruning (`prune-execute`)**:
   - Moved XML tag-balance and mustache hygiene assertions into `src/simulation/prompts.test.js` and `.agents/skills/simulation/scripts/sim-check.js`; removed Part 2 (`verify_compiled_prompt`, dead `verify_tag_order`, dev-only `try/catch` gate) and un-exported `render_thinking_mode` from `src/simulation/prompts.js`.
   - Re-homed `clean_image_prompts` and `sanitize_visual_text` (with private `rescue_visual_prose`) to `src/simulation/llm-output.js`; updated `src/simulation/prose.js` and `src/engine/steps.js` (deleting duplicate `sanitize_diffusion_text`).

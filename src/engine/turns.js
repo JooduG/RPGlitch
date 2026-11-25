@@ -390,7 +390,7 @@ export async function dispatch_consolidation({ ai, user, fractal, history, round
   const context_round = typeof round === "number" ? round : Number(session.round ?? 0);
 
   try {
-    const target_entity_key = resolve_caretaker_target(session.back_shot_cursor ?? 0, entities, true);
+    const target_entity_key = resolve_caretaker_target(session.back_shot_cursor ?? 0);
 
     const caretaker_outcome = await run_memory_consolidation_step({
       transport,

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { default_dynamics_for_scope } from "@definitions";
 import { evaluate_dynamics_directives, resolve_caretaker_target, resolve_image_trigger, step_dynamics } from "./dynamics.js";
 
 describe("step_dynamics", () => {
@@ -22,7 +23,12 @@ describe("protocols + rotation", () => {
     expect(ids).toContain("ATTUNEMENT");
   });
   it("rotates caretaker target", () => {
-    expect(typeof resolve_caretaker_target(0, {})).toBe("string");
+    expect([0, 1, 2, 3].map((cursor) => resolve_caretaker_target(cursor))).toEqual(["AI", "USER", "FRACTAL", "AI"]);
+  });
+
+  it("builds neutral dynamics defaults per scope", () => {
+    expect(default_dynamics_for_scope("character")).toEqual({ chaos: 50, intensity: 50, openness: 50, affinity: 50 });
+    expect(default_dynamics_for_scope("fractal")).toEqual({ velocity: 50, entropy: 50 });
   });
 
   it("enforces mutual exclusion between single-axis protocols and Paradox Compounds", () => {

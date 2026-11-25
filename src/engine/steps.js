@@ -206,7 +206,7 @@ export async function run_memory_consolidation_step({ transport, round = 1, enti
     throw new Error("Stream aborted by user.");
   }
 
-  const target = target_entity_key || resolve_caretaker_target(round, entities);
+  const target = target_entity_key || resolve_caretaker_target((Number(round) || 1) - 1);
   const prompt = compile_prompt({ core: "CARETAKER", round, entities, history, task_options: { target_entity_key: target } });
   const start_prefix = PURPOSE_CORES.CARETAKER.start_with();
   const { raw, think, parsed } = await run_json_step({ transport, prompt, start_prefix, signal, priority: "background", retry: true });

@@ -18,7 +18,7 @@
  */
 
 import { DYNAMICS, IMAGE_POLICY, TEMPO_ROUNDS } from "@config";
-import { DYNAMICS_RULES } from "@definitions";
+import { DYNAMICS_RULES, default_dynamics_for_scope } from "@definitions";
 import { clamp } from "@utils";
 
 /**
@@ -52,30 +52,20 @@ export function step_dynamics(current = {}, baselines = {}, deltas = {}, { entro
 }
 
 /**
- * Evaluates all active dynamics rules and style-triggered protocols for the current
- * dynamics state.
+ * Evaluates all active dynamics rules for the current dynamics state.
  *
  * @param {object} [options={}]
  * @param {Record<string, number>} [options.ai_dynamics={}]
  * @param {Record<string, number>} [options.fractal_dynamics={}]
- * @param {object|null} [options.style=null]
  * @returns {Array<{ id: string, text?: string }>}
  */
-export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamics = {}, style = null } = {}) {
+export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamics = {} } = {}) {
+  const merged = { ...default_dynamics_for_scope("fractal"), ...default_dynamics_for_scope("character"), ...fractal_dynamics, ...ai_dynamics };
   const protocols = [];
-  const merged = { ...fractal_dynamics, ...ai_dynamics };
 
   for (const rule of DYNAMICS_RULES) {
     if (rule.when(merged)) {
       protocols.push({ id: rule.id, text: rule.directive });
-    }
-  }
-
-  if (style && typeof style === "object" && Array.isArray(style.triggers) && style.id !== "default") {
-    for (const trigger of style.triggers) {
-      if (typeof trigger.when === "function" && trigger.when(ai_dynamics, fractal_dynamics)) {
-        protocols.push({ id: trigger.id, text: trigger.directive });
-      }
     }
   }
 
@@ -87,21 +77,14 @@ const CARETAKER_ROTATION = Object.freeze(["AI", "USER", "FRACTAL"]);
 
 /**
  * Resolves which entity key is targeted for Caretaker consolidation.
- * Rotates sequentially across AI -> USER -> FRACTAL (+ any active NPC).
+ * Rotates sequentially across AI -> USER -> FRACTAL by 0-indexed cursor.
  *
- * @param {number} cursor_or_round - Active cursor index or round number
- * @param {object} [entities={}]
- * @param {boolean} [use_cursor=false] - Whether cursor_or_round is an absolute 0-indexed cursor
- * @returns {string} Target entity key (e.g., 'AI', 'USER', 'FRACTAL', 'NPC')
+ * @param {number} [cursor=0] - 0-indexed Caretaker rotation cursor
+ * @returns {string} Target entity key ('AI', 'USER', or 'FRACTAL')
  */
-export function resolve_caretaker_target(cursor_or_round, entities = {}, use_cursor = false) {
-  const cast = [...CARETAKER_ROTATION];
-  if (entities.NPC && entities.NPC.id) {
-    cast.push("NPC");
-  }
-  const index =
-    use_cursor ? Math.abs(Math.floor(Number(cursor_or_round) || 0)) % cast.length : Math.abs(Math.floor(Number(cursor_or_round) || 1) - 1) % cast.length;
-  return cast[index];
+export function resolve_caretaker_target(cursor = 0) {
+  const index = Math.abs(Math.floor(Number(cursor) || 0)) % CARETAKER_ROTATION.length;
+  return CARETAKER_ROTATION[index];
 }
 
 /**

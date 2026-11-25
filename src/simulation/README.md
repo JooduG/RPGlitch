@@ -23,13 +23,13 @@ Rank 1 deterministic simulation domain (`@simulation`) housing pure bracket/pseu
 - **Pipe-Safe Alternations (`brackets.js:parse_tagged_fields`)**: Pipes inside `{Option A | Option B}` alternation scopes never split metadata flags; weights clamp to `[1, 10]` and keys normalize to uppercase.
 - **Epistemic & Visual Filtering (`brackets.js:format_tagged_fields`)**: Drops `VISUAL_EXCLUDED_KEYS` when `visual_only=true` and excises `| hide` entries when `see_hidden === "none"` or (`see_hidden === "own"` and `is_counterpart`).
 - **Delta Merging (`brackets.js:apply_tagged_field_deltas`)**: Single-value keys overwrite while preserving `| hide` unless explicitly overridden; aggregate keys (`INVENTORY`, `STASH`) and `@`-keys deduplicate case-insensitively; `CLEAR_TOKENS` delete keys (`[CLOTHING: <clear>]` purges all `CLOTHING_KEYS`); output caps at trailing `2000` characters.
-- **Pure Dynamics (`dynamics.js:step_dynamics`, `evaluate_image_trigger`)**: Never mutates inputs; returns frozen next values clamped to `[min, max]` (default `[5, 95]`). `evaluate_image_trigger` compares each entity strictly against its own previous axis values.
+- **Pure Dynamics (`dynamics.js:step_dynamics`, `resolve_image_trigger`)**: Never mutates inputs; returns frozen next values clamped to `[5, 95]`. `resolve_image_trigger` compares each entity strictly against its own previous axis values.
 - **RAG Origin Weighting (`retrieval.js:rank_memories`)**: Applies `ORIGIN_SCORE_MULTIPLIER` (`1.5x`) to `is_origin` memories and `0.5` fallback similarity to unvectorized items.
 - **Prompt Compilation (`prompts.js:compile_prompt`)**: Normalizes `core` to uppercase; `memories == null` triggers RAG assembly while an explicit array (including `[]`) is used as-is; history caps at `TEMPO_ROUNDS.STANDARD`; dev/test verification is read-only and never throws.
 
 ## Side Effects
 
-- `dynamics.js:step_dynamics` invokes `Math.random()` only when `jitter=true`.
+- **Pure Deterministic Module**: Zero external I/O, storage writes, DOM access, or `Math.random()` calls.
 
 ## Verification
 
