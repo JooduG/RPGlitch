@@ -192,7 +192,7 @@ export function create_entity(type = "character", overrides = {}) {
   return normalize_entity({
     name: entity_type === "character" ? "New Character" : "New Fractal",
     type: entity_type,
-    dynamics: default_dynamics_for_scope(entity_type === "character" ? "somatic" : "fractal"),
+    dynamics: default_dynamics_for_scope(entity_type === "character" ? "character" : "fractal"),
     ...overrides,
   });
 }

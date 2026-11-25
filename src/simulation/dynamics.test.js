@@ -12,13 +12,29 @@ describe("step_dynamics", () => {
   });
 });
 
-describe("directives + rotation", () => {
-  it("returns at most max_directives", () => {
-    const { directives } = evaluate_dynamics_directives({ ai_dynamics: { chaos: 90 }, fractal_dynamics: {}, style: null, max_directives: 1 });
-    expect(directives.length).toBeLessThanOrEqual(1);
+describe("protocols + rotation", () => {
+  it("emits matching baseline protocols", () => {
+    const { protocols } = evaluate_dynamics_directives({ ai_dynamics: { chaos: 90 }, fractal_dynamics: {} });
+    const ids = protocols.map((p) => p.id);
+    expect(ids).toContain("UNBOUND");
   });
   it("rotates caretaker target", () => {
     expect(typeof resolve_caretaker_target(0, {})).toBe("string");
+  });
+
+  it("enforces mutual exclusion between single-axis protocols and Paradox Compounds", () => {
+    const adr = evaluate_dynamics_directives({ ai_dynamics: { intensity: 75 }, fractal_dynamics: { velocity: 50 } }).protocols.map((p) => p.id);
+    expect(adr).toContain("ADRENALINE");
+    expect(adr).not.toContain("TENSION");
+
+    const sus = evaluate_dynamics_directives({ ai_dynamics: { intensity: 50 }, fractal_dynamics: { velocity: 25 } }).protocols.map((p) => p.id);
+    expect(sus).toContain("SUSPENSION");
+    expect(sus).not.toContain("TENSION");
+
+    const ten = evaluate_dynamics_directives({ ai_dynamics: { intensity: 75 }, fractal_dynamics: { velocity: 25 } }).protocols.map((p) => p.id);
+    expect(ten).toContain("TENSION");
+    expect(ten).not.toContain("ADRENALINE");
+    expect(ten).not.toContain("SUSPENSION");
   });
 });
 
@@ -49,5 +65,27 @@ describe("resolve_image_trigger", () => {
     expect(result.tier).toBeNull();
     expect(result.source).toBeNull();
     expect(result.next_image_beat_round).toBeNull();
+  });
+
+  it("applies biased_character_tier on displacement triggers and respects scene-focus veto", () => {
+    const biased = resolve_image_trigger({
+      snapshot: { ai: { dynamics: { chaos: 65, intensity: 76 } }, fractal: { dynamics: { velocity: 65 } } },
+      prev_dynamics: { ai: { chaos: 45, intensity: 60 }, fractal: { velocity: 50 } },
+      director_data: { camera_note: "Close-up on her expression." },
+      turn_round: 5,
+      last_image_beat_round: -1,
+    });
+    expect(biased.active).toBe(true);
+    expect(biased.tier).toBe("story_character");
+
+    const vetoed = resolve_image_trigger({
+      snapshot: { ai: { dynamics: { chaos: 65, intensity: 76 } }, fractal: { dynamics: { velocity: 65 } } },
+      prev_dynamics: { ai: { chaos: 45, intensity: 60 }, fractal: { velocity: 50 } },
+      director_data: { camera_note: "Wide establishing shot of the corridor." },
+      turn_round: 5,
+      last_image_beat_round: -1,
+    });
+    expect(vetoed.active).toBe(true);
+    expect(vetoed.tier).toBe("story_scene");
   });
 });

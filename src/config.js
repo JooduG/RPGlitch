@@ -71,14 +71,14 @@ export const DYNAMICS = Object.freeze({
     CLIP: "5-95", // Safety buffer preventing ordinary turns from artificially slamming against scale endpoints
   }),
   AXES: Object.freeze({
-    // Character (Somatic) axes
-    chaos: Object.freeze({ label: "Chaos", low: "Order", high: "Volatility", scope: "somatic" }),
-    intensity: Object.freeze({ label: "Intensity", low: "Stillness", high: "Surge", scope: "somatic" }),
-    openness: Object.freeze({ label: "Openness", low: "Insulation", high: "Permeability", scope: "somatic" }),
-    affinity: Object.freeze({ label: "Affinity", low: "Isolation", high: "Coalescence", scope: "somatic" }),
+    // Character axes
+    chaos: Object.freeze({ low: "Restraint", high: "Unbound", scope: "character" }),
+    intensity: Object.freeze({ low: "Hush", high: "Adrenaline", scope: "character" }),
+    openness: Object.freeze({ low: "Reserve", high: "Exposure", scope: "character" }),
+    affinity: Object.freeze({ low: "Aversion", high: "Attunement", scope: "character" }),
     // Fractal (Environmental) axes
-    velocity: Object.freeze({ label: "Velocity", low: "Suspension", high: "Acceleration", scope: "fractal" }),
-    entropy: Object.freeze({ label: "Entropy", low: "Coherence", high: "Glitching", scope: "fractal" }),
+    velocity: Object.freeze({ low: "Suspension", high: "Momentum", scope: "fractal" }),
+    entropy: Object.freeze({ low: "Stability", high: "Distortion", scope: "fractal" }),
   }),
 });
 

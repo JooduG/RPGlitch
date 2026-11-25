@@ -128,7 +128,7 @@ function apply_dynamics_step(ai_entity, fractal_entity, deltas) {
     for (const key of ["chaos", "intensity", "openness", "affinity"]) {
       if (deltas[key] !== undefined) ai_deltas[key] = deltas[key];
     }
-    const { next } = step_dynamics(ai_entity.dynamics, ai_entity.dynamics_baseline || {}, ai_deltas, { entropy, scope: "somatic" });
+    const { next } = step_dynamics(ai_entity.dynamics, ai_entity.dynamics_baseline || {}, ai_deltas, { entropy, scope: "character" });
     ai_entity.dynamics = { ...ai_entity.dynamics, ...next };
   }
 

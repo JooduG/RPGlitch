@@ -11,7 +11,7 @@ Rank 1 deterministic simulation domain (`@simulation`) housing pure bracket/pseu
   - `parse_tagged_fields`, `format_tagged_fields`, `apply_tagged_field_deltas`, `extract_entity_relationships`, `has_bracket_bond`
   - `safe_parse_pseudo_json`, `parse_relationship_brackets`
   - Constants: `CLEAR_TOKENS`, `VISUAL_EXCLUDED_KEYS`, `CLOTHING_KEYS`
-- [`dynamics.js`](./dynamics.js): `step_dynamics`, `evaluate_dynamics_directives`, `resolve_caretaker_target`, `evaluate_image_trigger`, `resolve_image_trigger`.
+- [`dynamics.js`](./dynamics.js): `step_dynamics`, `evaluate_dynamics_directives`, `resolve_caretaker_target`, `resolve_image_trigger`.
 - [`history.js`](./history.js): `canonicalize_role`, `normalize_history_beat`, `filter_narrative_messages`, `decompose_story_title`, `calculate_turn_tempo`, `build_turn_summary`, `reconstruct_history_from_feed`, `match_speaker_snapshots`, `is_telemetry_meta`, `is_empty_narrative_message`.
 - [`llm-output.js`](./llm-output.js): `strip_cognition_blocks`, `safe_parse_json`, `sanitize_llm`, `parse_think_block`, `clean_generated_prose`, `resolve_speaking_style`, `clean_image_prompts`, `sanitize_visual_text`.
 - [`prose.js`](./prose.js): `render_think_html`, `parse_message`.

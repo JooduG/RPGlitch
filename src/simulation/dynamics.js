@@ -40,7 +40,7 @@ import { clamp } from "@utils";
  * @param {number} [options.min=5] - Lower clamp bound for the turn pipeline band
  * @param {number} [options.max=95] - Upper clamp bound for the turn pipeline band
  * @param {boolean} [options.jitter=false] - Randomize gravity per axis (legacy gravity path)
- * @param {string|null} [options.scope=null] - Restrict settlement to a DYNAMICS scope ("somatic"|"fractal")
+ * @param {string|null} [options.scope=null] - Restrict settlement to a DYNAMICS scope ("character"|"fractal")
  * @param {string|null} [options.target=null] - Label used for the returned diff records
  * @returns {{ next: Readonly<Record<string, number>>, diffs: Array<{ axis: string, target: string|null, old_value: number, new_value: number, diff: number }>, log_strings: string[] }}
  */
@@ -71,7 +71,7 @@ export function step_dynamics(
     const diff = value - old_value;
     if (diff !== 0) {
       diffs.push({ axis, target, old_value, new_value: value, diff });
-      const axis_label = DYNAMICS.AXES[axis]?.label || axis.charAt(0).toUpperCase() + axis.slice(1);
+      const axis_label = axis.charAt(0).toUpperCase() + axis.slice(1);
       log_strings.push(`${axis_label} ${diff > 0 ? "+" : ""}${diff}`);
     }
   }
@@ -80,76 +80,34 @@ export function step_dynamics(
 }
 
 /**
- * Evaluates active subtext protocols and dynamic somatic rules for the current
- * dynamics state, merged with manual/director keywords. Returns up to
- * `max_directives` ordered directive IDs plus any style-triggered protocol
- * texts.
+ * Evaluates all active dynamics rules and style-triggered protocols for the current
+ * dynamics state.
  *
  * @param {object} [options={}]
  * @param {Record<string, number>} [options.ai_dynamics={}]
  * @param {Record<string, number>} [options.fractal_dynamics={}]
  * @param {object|null} [options.style=null]
- * @param {string[]} [options.manual_keywords=[]]
- * @param {number} [options.max_directives=2]
- * @returns {{ directives: string[], protocols: Array<{ id: string, text?: string }> }}
+ * @returns {{ protocols: Array<{ id: string, text?: string }> }}
  */
-export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamics = {}, style = null, manual_keywords = [], max_directives = 2 } = {}) {
-  const directives = [];
-  const seen = new Set();
+export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamics = {}, style = null } = {}) {
   const protocols = [];
-
-  if (Array.isArray(manual_keywords)) {
-    for (const raw_keyword of manual_keywords) {
-      if (typeof raw_keyword === "string" && raw_keyword.trim()) {
-        const upper_keyword = raw_keyword.trim().toUpperCase();
-        if (!seen.has(upper_keyword)) {
-          seen.add(upper_keyword);
-          directives.push(upper_keyword);
-          if (directives.length >= max_directives) return { directives, protocols };
-        }
-      }
-    }
-  }
-
   const merged = { ...(fractal_dynamics || {}), ...(ai_dynamics || {}) };
 
   for (const rule of DYNAMICS_RULES) {
-    if (rule.priority === undefined && typeof rule.when === "function") {
-      if (rule.when(merged)) {
-        protocols.push({ id: rule.id });
-      }
+    if (typeof rule.when === "function" && rule.when(merged)) {
+      protocols.push({ id: rule.id });
     }
   }
 
   if (style && typeof style === "object" && Array.isArray(style.triggers) && style.id !== "default") {
     for (const trigger of style.triggers) {
-      if (typeof trigger.when === "function") {
-        if (trigger.when(ai_dynamics, fractal_dynamics)) {
-          protocols.push({ id: trigger.id, text: trigger.directive });
-        }
+      if (typeof trigger.when === "function" && trigger.when(ai_dynamics, fractal_dynamics)) {
+        protocols.push({ id: trigger.id, text: trigger.directive });
       }
     }
   }
 
-  const candidates = [];
-  for (const rule of DYNAMICS_RULES) {
-    if (rule.priority === undefined || seen.has(rule.id)) continue;
-    if (typeof rule.when === "function" && rule.when(merged)) {
-      candidates.push(rule);
-    }
-  }
-
-  candidates.sort((first, second) => (second.priority || 0) - (first.priority || 0));
-
-  for (const candidate of candidates) {
-    if (!seen.has(candidate.id)) {
-      seen.add(candidate.id);
-      directives.push(candidate.id);
-      if (directives.length >= max_directives) break;
-    }
-  }
-
-  return { directives, protocols };
+  return { protocols };
 }
 
 /** Default round-robin entity rotation for Turn 3 Caretaker consolidation */
@@ -184,11 +142,10 @@ export function resolve_caretaker_target(cursor_or_round, entities = {}, use_cur
  * @param {Record<string, any>} [options={}]
  * @returns {{ triggered: boolean, signals: any, tier: string, deltas: any[] }}
  */
-export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
-  const band_high = options.BAND_HIGH ?? 85;
-  const band_low = options.BAND_LOW ?? 15;
-  const displacement_threshold = options.DISPLACEMENT_THRESHOLD ?? 50;
-  const default_tier = options.DEFAULT_TIER ?? "story_scene";
+function evaluate_image_trigger(current = {}, previous = {}) {
+  const band_high = DYNAMICS.SCALE.EXTREME_HIGH;
+  const band_low = DYNAMICS.SCALE.EXTREME_LOW;
+  const displacement_threshold = IMAGE_POLICY.DISPLACEMENT_THRESHOLD;
 
   const entities_set = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
   const character_domain_entities = new Set(["ai", "user"]);
@@ -229,7 +186,7 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
   const tier =
     character_band_entry ? "story_character"
     : band_entries.length > 0 ? "story_scene"
-    : default_tier;
+    : null;
 
   return { triggered, signals: { band_entry, displacement, displacement_threshold }, tier, deltas };
 }
@@ -273,15 +230,10 @@ export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, 
     /\b(?:close-?ups?|portraits?|faces?|eyes?|expressions?|intimate|intimacy|confrontations?|clutch(?:es|ed|ing)?|hold(?:s|ing)?|held|holding|combats?|wounds?|wounded|touch(?:es|ed|ing)?|profiles?|headshots?)\b/i.test(
       raw_camera_note,
     );
-  const dynamics_have_character_focus = !staging_has_scene_focus && (current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH);
+  const dynamics_have_character_focus = current_intensity >= DYNAMICS.SCALE.HIGH || current_affinity >= DYNAMICS.SCALE.HIGH;
   const biased_character_tier = !staging_has_scene_focus && (staging_has_character_focus || dynamics_have_character_focus) ? "story_character" : null;
 
-  const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics, {
-    BAND_HIGH: DYNAMICS.SCALE.EXTREME_HIGH,
-    BAND_LOW: DYNAMICS.SCALE.EXTREME_LOW,
-    DISPLACEMENT_THRESHOLD: IMAGE_POLICY.DISPLACEMENT_THRESHOLD,
-    DEFAULT_TIER: IMAGE_POLICY.DEFAULT_TIER,
-  });
+  const image_trigger_evaluation = evaluate_image_trigger({ ai: snapshot?.ai?.dynamics, fractal: snapshot?.fractal?.dynamics }, prev_dynamics);
 
   const active = image_trigger_evaluation.triggered && cooldown_elapsed;
   const source = active ? "dynamics" : null;

@@ -13,7 +13,7 @@
 ### 2. Dynamics Registry & Physics Rules (`dynamics-registry.js`)
 
 - [`dynamics-registry.js`](./dynamics-registry.js):
-  - `default_dynamics_for_scope(scope)`: Builds an axis-to-`DYNAMICS.SCALE.MID` (`50`) map for `"somatic"` or `"fractal"` scope.
+  - `default_dynamics_for_scope(scope)`: Builds an axis-to-`DYNAMICS.SCALE.MID` (`50`) map for `"character"` or `"fractal"` scope.
   - `PHYSICS_PROTOCOLS`: Frozen dictionary of 30 directive strings (12 somatic/trauma archetypes and 18 dynamics triggers, parked in `ROADMAP.md`).
   - `DYNAMICS_RULES`: Array of 27 threshold/trigger predicate objects `{ id, when, priority? }` (9 priority-ranked reaction thresholds and 18 baseline/composite triggers).
 

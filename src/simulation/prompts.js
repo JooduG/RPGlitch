@@ -480,11 +480,8 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   }
 
   // Production dynamics wiring: live rule/style directives render alongside presence.
-  const { directives, protocols } = evaluate_dynamics_directives({ ai_dynamics: ai?.dynamics || {}, fractal_dynamics: fractal?.dynamics || {} });
-  const directive_lines = [
-    ...directives.map((directive) => `Directive: ${directive}`),
-    ...protocols.map((protocol) => (protocol.text ? `Protocol ${protocol.id}: ${protocol.text}` : `Protocol: ${protocol.id}`)),
-  ];
+  const { protocols } = evaluate_dynamics_directives({ ai_dynamics: ai?.dynamics || {}, fractal_dynamics: fractal?.dynamics || {} });
+  const directive_lines = protocols.map((protocol) => (protocol.text ? `Protocol ${protocol.id}: ${protocol.text}` : `Protocol: ${protocol.id}`));
   if (directive_lines.length > 0) {
     const directives_block = `  <SCENARIO_DIRECTIVES>\n    ${directive_lines.join("\n    ")}\n  </SCENARIO_DIRECTIVES>`;
     b5_scenario = b5_scenario ? `${b5_scenario}\n${directives_block}` : directives_block;

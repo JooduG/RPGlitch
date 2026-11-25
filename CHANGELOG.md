@@ -23,6 +23,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Removed unused `is_narrative_role` from `src/simulation/history.js`.
   - Wired `TEMPO_ROUNDS.SLOW` into `build_turn_summary` (`src/simulation/history.js`) and updated `TEMPO_ROUNDS` comments in `src/config.js`.
   - Moved `IMAGE_POLICY.COOLDOWN_ROUNDS` (`3`) to `TEMPO_ROUNDS.FAST` (`src/config.js`, `src/simulation/dynamics.js`).
+  - Un-exported `evaluate_image_trigger`, removed its redundant config options bag, and fixed displacement-trigger `biased_character_tier` precedence in `src/simulation/dynamics.js`.
+  - Standardized `DYNAMICS_RULES` thresholds in `src/definitions/dynamics-registry.js` on `DYNAMICS.SCALE` (`LOW`, `MID`, `HIGH`, `EXTREME_HIGH`).
+  - Renamed dynamics scope `"somatic"` to `"character"` across `src/config.js`, `src/data/records.js`, `src/definitions/dynamics-registry.js`, `src/definitions/README.md`, `src/engine/turns.js`, `src/simulation/dynamics.js`, and `src/state/session.svelte.js`.
+  - Aligned all 12 dynamics pole keywords across `src/config.js` (`DYNAMICS.AXES`) and `src/definitions/dynamics-registry.js` (`COMPOSURE`/`VOLATILITY`, `STILLNESS`/`ADRENALINE`, `GUARDED`/`EXPOSED`, `FRICTION`/`RAPPORT`, `STASIS`/`MOMENTUM`, `COHERENCE`/`INSTABILITY`).
+  - Dropped redundant `label` from `DYNAMICS.AXES` (`src/config.js`, `src/simulation/dynamics.js`, `src/ui/organisms/DevWing.svelte`) and unified `DYNAMICS_RULES` evaluation in `evaluate_dynamics_directives` without `priority` or `max_directives`.
+  - Synced `DYNAMICS.AXES` pole labels in `src/config.js` (`Restraint`/`Unbound`, `Hush`/`Adrenaline`, `Reserve`/`Exposure`, `Aversion`/`Attunement`, `Suspension`/`Momentum`, `Stability`/`Distortion`) to match `src/definitions/dynamics-registry.js` and updated `src/simulation/dynamics.test.js` for the Paradox Compound rules.
   - Inlined `resolve_portrait_visual_style_key` and `resolve_visual_engine_tokens` into `build_aesthetic_map`, inlined `strip_covert_directives` from `src/simulation/llm-output.js` into `src/simulation/prose.js`, and synced `src/simulation/README.md`.
 
 ## `[0.2.1]` - 2026-11-25

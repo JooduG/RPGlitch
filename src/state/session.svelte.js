@@ -162,7 +162,7 @@ export class SessionStore {
   }
 
   set ai_dynamics(value) {
-    const next = value || default_dynamics_for_scope("somatic");
+    const next = value || default_dynamics_for_scope("character");
     this.#ai_dynamics = next;
     if (this.active_ai) {
       this.active_ai.dynamics = next;
