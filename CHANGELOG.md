@@ -31,6 +31,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Synced `DYNAMICS.AXES` pole labels in `src/config.js` (`Restraint`/`Unbound`, `Hush`/`Adrenaline`, `Reserve`/`Exposure`, `Aversion`/`Attunement`, `Suspension`/`Momentum`, `Stability`/`Distortion`) to match `src/definitions/dynamics-registry.js` and updated `src/simulation/dynamics.test.js` for the Paradox Compound rules.
   - Wired `rule.directive` prose into `evaluate_dynamics_directives` (`src/simulation/dynamics.js`) and removed 6 leftover composite suppression guards from `src/definitions/dynamics-registry.js`.
   - Inlined `resolve_portrait_visual_style_key` and `resolve_visual_engine_tokens` into `build_aesthetic_map`, inlined `strip_covert_directives` from `src/simulation/llm-output.js` into `src/simulation/prose.js`, and synced `src/simulation/README.md`.
+- **`src/definitions/styles.js` Removal & `Avatar.svelte` Initials (`prune-execute`)**:
+  - Deleted `src/definitions/styles.js` (`resolve_entity_style_tiles`), moved initials derivation into `src/ui/atoms/Avatar.svelte` via `compute_initials(alt)`, simplified `src/ui/atoms/StyleTile.svelte` to accept raw style records, updated `Profile.svelte`, `EntityCard.svelte`, and `ChatBubble.svelte`, and synced `src/definitions/README.md`.
+- **`src/definitions/premades.js` Cleanup**:
+  - Removed `voice` and `speaking_style` from all premade characters and fractals in `src/definitions/premades.js`, flattened `PREMADE_CHARACTERS`, `PREMADE_FRACTALS`, and `ALL_PREMADES` into `PREMADES`, and removed the obsolete premade-voice test from `src/media/audio.test.js`.
 
 ## `[0.2.1]` - 2026-11-25
 

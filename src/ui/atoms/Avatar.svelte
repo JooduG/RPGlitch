@@ -3,11 +3,12 @@
    * @file src/ui/atoms/Avatar.svelte
    * Pure avatar image renderer with blurred contain backdrop and error/no-media initials fallback.
    */
+  import { compute_initials } from "@utils";
 
   let {
     src = null,
     alt = "",
-    initials = "?",
+    initials = undefined,
     signature_color = "var(--color-gunmetal)",
     flipped = false,
     contain = false,
@@ -20,6 +21,7 @@
 
   let has_error = $state(false);
   const has_media = $derived(Boolean(src));
+  const resolved_initials = $derived(initials ?? compute_initials(alt));
 
   $effect(() => {
     void src;
@@ -40,7 +42,7 @@
         "pointer-events-none absolute inset-0 z-0 flex h-full w-full items-center justify-center bg-(--signature-color,#555d66) p-0 text-center font-heading text-[clamp(0.6rem,60cqi,6rem)] font-bold text-nowrap text-pure-white uppercase opacity-95 filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))] select-none [text-shadow:var(--spacing-pixel)_var(--spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--color-void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.6)]",
         fallback_class,
       ]}>
-      {initials}
+      {resolved_initials}
     </div>
   {:else}
     {#if contain}

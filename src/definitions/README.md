@@ -2,13 +2,13 @@
 
 ## Overview
 
-`src/definitions/` holds the declarative rules, taxonomies, and style catalogs for **RPGlitch**: dynamics equilibrium protocols and trigger predicates, literary narrative style catalogs, the 4-layer character/fractal profile taxonomy, starter character and fractal blueprints, regex-based speaking-style and anti-AI prose detox dictionaries, diffusion visual style specifications, and unified style tile resolution. Its public barrel [`index.js`](./index.js) (`@definitions`) re-exports `*` from all 7 definition modules, accompanied by 5 unit test suites (`narrative-styles.test.js`, `premades.test.js`, `profile-taxonomy.test.js`, `speaking-styles.test.js`, `visual-styles.test.js`).
+`src/definitions/` holds the declarative rules, taxonomies, and style catalogs for **RPGlitch**: dynamics equilibrium protocols and trigger predicates, literary narrative style catalogs, the 4-layer character/fractal profile taxonomy, starter character and fractal blueprints, regex-based speaking-style and anti-AI prose detox dictionaries, and diffusion visual style specifications. Its public barrel [`index.js`](./index.js) (`@definitions`) re-exports `*` from all 6 definition modules, accompanied by 5 unit test suites (`narrative-styles.test.js`, `premades.test.js`, `profile-taxonomy.test.js`, `speaking-styles.test.js`, `visual-styles.test.js`).
 
 ## Interface
 
 ### 1. Barrel Entry Point (`index.js`)
 
-- [`index.js`](./index.js) (`@definitions`): Re-exports `*` from `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, `speaking-styles.js`, `styles.js`, and `visual-styles.js`.
+- [`index.js`](./index.js) (`@definitions`): Re-exports `*` from `dynamics-registry.js`, `narrative-styles.js`, `premades.js`, `profile-taxonomy.js`, `speaking-styles.js`, and `visual-styles.js`.
 
 ### 2. Dynamics Registry & Physics Rules (`dynamics-registry.js`)
 
@@ -45,14 +45,7 @@
 ### 7. Premade Entities & Blueprints (`premades.js`, `premades.test.js`)
 
 - [`premades.js`](./premades.js) (tested by [`premades.test.js`](./premades.test.js)):
-  - `PREMADE_CHARACTERS`: Shallow-frozen array (`Object.freeze([...])`) of 7 starter character blueprints (`orion`, `glitch`, `silvers`, `hank`, `elias`, `julien`, `beast`).
-  - `PREMADE_FRACTALS`: Shallow-frozen array (`Object.freeze([...])`) of 3 starter fractal blueprints (`nova`, `ashenweald`, `tartarus`).
-  - `ALL_PREMADES`: Consolidated shallow-frozen array (`Object.freeze([...])`) of all 10 starter blueprints.
-
-### 8. Style Tile Resolution (`styles.js`)
-
-- [`styles.js`](./styles.js):
-  - `resolve_entity_style_tiles(entity, options = {})`: Maps `entity.narrative_style` and `entity.visual_style` into `{ narrative: StyleTileDescriptor | null, visual: StyleTileDescriptor | null }` (`{ name, portrait, fallback, tooltip, size_tier: "sm" }`), omitting `"default"` and `"none"` unless `options.include_defaults` is `true`.
+  - `PREMADES`: Shallow-frozen array (`Object.freeze([...])`) of all 10 starter blueprints (7 characters: `orion`, `glitch`, `silvers`, `hank`, `elias`, `julien`, `beast`; 3 fractals: `nova`, `ashenweald`, `tartarus`).
 
 ## Invariants
 
@@ -62,7 +55,7 @@
 - **Symmetric 4-Layer Schema & Merge Semantics (`profile-taxonomy.js`)**: Only `character` and `fractal` temporal layers become internal `FIELD_ATOMS` (excluding `name`, `description`, `signature_color`, `pov`); `merge` is `"append"` exclusively for `past` and `"replace"` for all other layers. `canonicalize_field_key()` checks `fractal` aliases before `character` aliases when `entity_type === "fractal"` (otherwise checking `character` aliases only) and requires string inputs.
 - **Four-Style Rule Completeness & Ordering (`speaking-styles.js`)**: Every non-callback rule in `SPEAKING_STYLE_RULES` supplies all 4 canonical speaking style keys (`casual`, `lyrical`, `primal`, `clinical`), retains identical `pattern` and `regex` `/gi` `RegExp` references, and maintains specific-before-generic ordering across concatenated categories.
 - **Visual Style Engine Mutual Exclusion (`visual-styles.js`)**: `"none"` omits `engine` and sets `llm_refine: false`; all 25 styled entries define `medium`, `palette`, `texture`, and strictly one of `camera` or `composition` (never both).
-- **Premade Blueprint Shallow Freezing (`premades.js`)**: Outer arrays (`PREMADE_CHARACTERS`, `PREMADE_FRACTALS`, `ALL_PREMADES`) are shallow-frozen (`Object.freeze([...])`) while individual blueprint objects are plain literals.
+- **Premade Blueprint Shallow Freezing (`premades.js`)**: `PREMADES` is shallow-frozen (`Object.freeze([...])`) while individual blueprint objects are plain literals.
 
 ## Side Effects
 

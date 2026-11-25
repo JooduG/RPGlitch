@@ -13,7 +13,7 @@
    * Unified card component supporting library fan, storyboard slot/panel, and message variants.
    */
   import { Avatar, Icon, StyleTile } from "@atoms";
-  import { resolve_entity_style_tiles } from "@definitions";
+  import { get_narrative_style, get_visual_style } from "@definitions";
   import { BracketList, MacroText } from "@molecules";
   import { app, session } from "@state";
   import { entity_avatar_props, get_signature_color } from "@utils";
@@ -249,15 +249,16 @@
   </div>
 
   {#if is_fractal && variant === "panel" && app.view !== "storymode"}
-    {@const tiles = resolve_entity_style_tiles(entity)}
-    {@const active_tiles = [tiles.narrative, tiles.visual].filter(Boolean)}
+    {@const narrative_style = entity?.narrative_style ? get_narrative_style(entity.narrative_style) : null}
+    {@const visual_style = entity?.visual_style ? get_visual_style(entity.visual_style) : null}
+    {@const active_tiles = [narrative_style?.id !== "default" ? narrative_style : null, visual_style?.id !== "none" ? visual_style : null].filter(Boolean)}
     {#if active_tiles.length > 0}
       <div data-card-badge class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-20 flex flex-col gap-tight">
         {#each active_tiles as tile (tile.name)}
           <StyleTile
             {tile}
             {signature_color}
-            tooltip_text={tile.tooltip}
+            tooltip_text={tile.description}
             fallback_class="text-[clamp(0.75rem,8cqi,1.1rem)]"
             class="h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)] transform-gpu rounded-[clamp(0.5rem,9cqi,1rem)]" />
         {/each}

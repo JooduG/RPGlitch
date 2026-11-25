@@ -51,3 +51,15 @@
 - **Trigger**: Editing `capture_story_image()` or `refine_image_prompt()` (`src/engine/lifecycle.js`).
 - **Wrong Behavior**: Calling `extract_aesthetic_traits(entity)` inside `capture_story_image()`, which duplicates `<MAIN_CHARACTER>` appearance and injects the character's portrait `visual_style` alongside the Fractal's `Aesthetic Style`.
 - **Correct Behavior**: Inside a story, the Fractal owns the aesthetic style—pass `(prompt && prompt.trim()) || entity?.name || role_label` in `capture_story_image()`. Reserve Character `visual_style` for Profile Picture generation in `VisualWing.svelte`.
+
+## 9. Dropped `rule.directive` & Orphaned Suppression Guards in `DYNAMICS_RULES` (Occurrences: 1)
+
+- **Trigger**: Editing `DYNAMICS_RULES` (`src/definitions/dynamics-registry.js`) or `evaluate_dynamics_directives()` (`src/simulation/dynamics.js`).
+- **Wrong Behavior**: Pushing `{ id: rule.id }` without `text: rule.directive` (leaving all directive prose unread) or deleting a compound rule without removing its mutual-exclusion guards from constituent baselines (creating silent dead zones where neither baseline fires).
+- **Correct Behavior**: Emit `{ id: rule.id, text: rule.directive }` into `<SCENARIO_DIRECTIVES>`, and keep baseline suppression guards strictly matched to live Paradox Compounds (`DEVOTION`, `TENSION`, `SOLACE`).
+
+## 10. Truthy `default_tier` Short-Circuiting Optical Tier Bias (Occurrences: 1)
+
+- **Trigger**: Modifying `evaluate_image_trigger()` or `resolve_image_trigger()` in `src/simulation/dynamics.js`.
+- **Wrong Behavior**: Returning a truthy `default_tier` (`"story_scene"`) from `evaluate_image_trigger()` on displacement-only triggers, which short-circuits `tier || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER` and silently disables `camera_note` / high-dynamics character-portrait biasing.
+- **Correct Behavior**: Return `null` for `tier` on displacement-only triggers so `biased_character_tier` is evaluated before falling back to `IMAGE_POLICY.DEFAULT_TIER`.

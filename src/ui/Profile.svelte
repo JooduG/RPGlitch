@@ -5,15 +5,7 @@
    */
   import { Avatar, Button, Icon, Label, Shimmer, StyleTile, tooltip } from "@atoms";
   import { serialize_character_card, serialize_entity_for_export } from "@data";
-  import {
-    NARRATIVE_STYLES,
-    PROFILE_FIELDS,
-    PROFILE_SECTIONS_BY_TYPE,
-    VISUAL_STYLES,
-    get_narrative_style,
-    get_visual_style,
-    resolve_entity_style_tiles,
-  } from "@definitions";
+  import { NARRATIVE_STYLES, PROFILE_FIELDS, PROFILE_SECTIONS_BY_TYPE, VISUAL_STYLES, get_narrative_style, get_visual_style } from "@definitions";
   import { motion } from "@media";
   import { BracketList, Dialog, Dropdown, MacroText, Modal, TextField } from "@molecules";
   import { AudioWing, DevWing, RelationalGraph, VisualWing } from "@organisms";
@@ -69,7 +61,6 @@
 
   const fractal_styles = $derived.by(() => {
     if (!is_fractal || !profile_state.char) return [];
-    const tiles = resolve_entity_style_tiles(profile_state.char, { include_defaults: true });
     return [
       {
         key: "narrative_style",
@@ -77,7 +68,6 @@
         aria_label: "Select Narrative Style",
         items: AUTHOR_OPTIONS,
         is_default: !profile_state.char.narrative_style || profile_state.char.narrative_style === "default",
-        tile: tiles.narrative,
         active: get_narrative_style(profile_state.char.narrative_style),
         match_width_mobile: false,
       },
@@ -87,7 +77,6 @@
         aria_label: "Select Visual Style",
         items: VISUAL_STYLE_OPTIONS,
         is_default: !profile_state.char.visual_style || profile_state.char.visual_style === "none",
-        tile: tiles.visual,
         active: get_visual_style(profile_state.char.visual_style),
         match_width_mobile: true,
       },
@@ -364,7 +353,7 @@
                     trigger_style="width: 8.5rem; height: 8.5rem;"
                     onchange={() => profile_state.mark_mutated()}>
                     {#snippet trigger_content({ selected_item })}
-                      <StyleTile tile={style_cfg.tile} {signature_color} tooltip_text={selected_item?.tooltip} class="size-full transform-gpu rounded-xl" />
+                      <StyleTile tile={style_cfg.active} {signature_color} tooltip_text={selected_item?.tooltip} class="size-full transform-gpu rounded-xl" />
                     {/snippet}
                   </Dropdown>
                 {/if}

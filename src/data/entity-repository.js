@@ -5,11 +5,11 @@
  * ============================================================================
  *
  * IndexedDB CRUD for characters and fractals with adapt-on-read normalization,
- * plus idempotent starter entity seeding (`ALL_PREMADES`).
+ * plus idempotent starter entity seeding (`PREMADES`).
  * ============================================================================
  */
 
-import { ALL_PREMADES } from "@definitions";
+import { PREMADES } from "@definitions";
 import { db } from "./db.js";
 import { normalize_entity } from "./records.js";
 
@@ -34,7 +34,7 @@ export async function seed_premades() {
       const existing_by_id = new Map(existing_records.map((record) => [record.id, record]));
 
       const to_put = [];
-      for (const premade of ALL_PREMADES) {
+      for (const premade of PREMADES) {
         if (!existing_by_id.has(premade.id)) {
           to_put.push(normalize_entity(premade));
         }

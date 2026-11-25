@@ -1,6 +1,6 @@
 ---
 name: simulation
-description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/engine/`), prompt compilation, Sieve RAG memory, and deterministic somatic physics (`src/simulation/`). Use when modifying `transport.js`, `steps.js`, `turns.js`, `lifecycle.js`, `chrono.svelte.js`, `prompts.js`, `retrieval.js`, or `dynamics.js`. Do NOT use for UI components or runes (use `svelte`), visual tokens/layouts (use `design`), animations (use `motion`), or Web Audio/TTS (use `audio`).
+description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/engine/`), prompt compilation, Sieve RAG memory, and deterministic character & fractal physics (`src/simulation/`). Use when modifying `transport.js`, `steps.js`, `turns.js`, `lifecycle.js`, `chrono.svelte.js`, `prompts.js`, `retrieval.js`, or `dynamics.js`. Do NOT use for UI components or runes (use `svelte`), visual tokens/layouts (use `design`), animations (use `motion`), or Web Audio/TTS (use `audio`).
 ---
 
 # Simulation Engine Runbook
@@ -28,7 +28,7 @@ description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/e
 
 - **Prompt Compilation (`src/simulation/prompts.js`)**: `PURPOSE_CORES` and `compile_prompt()` assemble the Spatial State Spine (`<SYSTEM>`, `<AXIOMATIC_CONSTITUTION>`, `<PROTOCOLS>`, etc.). Keep the opening prefix byte-identical across turns for KV-cache reuse.
 - **Memory & Budgets (`src/simulation/retrieval.js`)**: Two-Tier Sieve RAG enforces character budgets (`FIELD_FLOORS`, `TOTAL_FIELD_FLOORS_CHARACTERS = 1700`). `usr_` memories are origin-protected (`1.5x` relevance).
-- **Dynamics & Output (`src/simulation/dynamics.js`, `brackets.js`, `history.js`, `llm-output.js`)**: `step_dynamics`, `resolve_caretaker_target`, `format_tagged_fields`, `clean_generated_prose`.
+- **Dynamics & Output (`src/simulation/dynamics.js`, `brackets.js`, `history.js`, `llm-output.js`)**: `step_dynamics` (`"character"` / `"fractal"` scopes), `evaluate_dynamics_directives`, `resolve_image_trigger` (unified `TEMPO_ROUNDS.FAST` cooldown), `resolve_caretaker_target`, `format_tagged_fields`, `clean_generated_prose`, `clean_image_prompts`, `sanitize_visual_text`.
 
 ---
 

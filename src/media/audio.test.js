@@ -1,9 +1,8 @@
 /**
  * @file src/media/audio.test.js
- * Unit tests verifying audio engine, voice role gating, notifications, and premade voice configurations.
+ * Unit tests verifying audio engine, voice role gating, and notifications.
  */
 import { describe, expect, it } from "vitest";
-import { PREMADE_FRACTALS } from "@definitions";
 import { get_cadence_rate, voice_role_key, resolve_voice_name, resolve_voice_uri, Audio, play_sfx } from "./audio.svelte.js";
 
 describe("voice_role_key", () => {
@@ -21,16 +20,6 @@ describe("voice_role_key", () => {
 });
 
 describe("Audio & Voice Configurations", () => {
-  it("assigns valid voice configurations to all premade fractals", () => {
-    expect(PREMADE_FRACTALS.length).toBeGreaterThan(0);
-
-    PREMADE_FRACTALS.forEach((fractal) => {
-      expect(fractal.voice).toBeDefined();
-      expect(typeof (fractal.voice.name || fractal.voice.uri)).toBe("string");
-      expect(typeof fractal.voice.cadence).toBe("string");
-    });
-  });
-
   it("calculates cadence rates with dynamics offsets accurately", () => {
     expect(get_cadence_rate("standard", 50)).toBe(1.0);
     expect(get_cadence_rate("standard", 100)).toBeCloseTo(1.05, 3);

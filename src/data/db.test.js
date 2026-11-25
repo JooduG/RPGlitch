@@ -3,7 +3,7 @@
  * Unit tests for Dexie premade seeding and entity CRUD.
  */
 
-import { ALL_PREMADES } from "@definitions";
+import { PREMADES } from "@definitions";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db, reset_database } from "./db.js";
 import { entities, seed_premades } from "./entity-repository.js";
@@ -17,7 +17,7 @@ describe("seed_premades & entity-repository", () => {
     await Promise.all([seed_premades(), seed_premades()]);
 
     const stored = await db.entities.toArray();
-    expect(stored).toHaveLength(ALL_PREMADES.length);
+    expect(stored).toHaveLength(PREMADES.length);
   });
 
   it("preserves user DB edits (including pov) on existing premades across subsequent boots", async () => {

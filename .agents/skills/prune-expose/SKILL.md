@@ -30,5 +30,6 @@ Separate production call counts from `*.test.js` calls using `npm run audit:dead
 2. Classify each item as **`LOAD-BEARING`** (contract, host boundary, or layer facade) or **`INCIDENTAL`** (safe to delete, inline, or merge).
 3. Summarize the **Load-Bearing Core Contract** that must survive.
 4. Propose concrete vertical slices (`<= 5` files per slice) and stop for user approval before invoking `prune-execute`.
+5. When combined with `/grill-me`, always emit the full read-only audit and slice table first before asking clarifying questions so the user can see every candidate.
 
 End your response with `[skill: prune-expose]`.

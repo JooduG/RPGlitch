@@ -3,7 +3,7 @@
    * @file src/ui/organisms/ChatBubble.svelte
    * Unified message chassis for headers, narrative prose, thoughts, dormant TTS wires, edits, and prologue/epilogue cards.
    */
-  import { resolve_entity_style_tiles } from "@definitions";
+  import { get_narrative_style, get_visual_style } from "@definitions";
   import { app, execution, session } from "@state";
   import { Audio, get_cadence_rate, motion, resolve_voice_uri } from "@media";
   import { StoryboardTitle, TextField } from "@molecules";
@@ -173,8 +173,9 @@
       </div>
     {/if}
     {#if f}
-      {@const f_tiles = resolve_entity_style_tiles(f)}
-      {@const active_tiles = [f_tiles.narrative, f_tiles.visual].filter(Boolean)}
+      {@const narrative_style = f.narrative_style ? get_narrative_style(f.narrative_style) : null}
+      {@const visual_style = f.visual_style ? get_visual_style(f.visual_style) : null}
+      {@const active_tiles = [narrative_style?.id !== "default" ? narrative_style : null, visual_style?.id !== "none" ? visual_style : null].filter(Boolean)}
       <div class="flex min-w-0 grow-2 flex-col gap-tight max-md:min-w-56 md:gap-standard" data-msg-card="fractal">
         <div class="min-h-0 flex-1">
           <EntityCard entity={f} type="fractal" variant="message" onclick={() => app.open_profile(f, "fractal")} />

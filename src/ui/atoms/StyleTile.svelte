@@ -8,7 +8,7 @@
 
   /**
    * @typedef {Object} Props
-   * @property {{ portrait?: string, name?: string, fallback?: string, tooltip?: string } | null} tile
+   * @property {{ portrait?: string, name?: string, description?: string } | null} tile
    * @property {string} [signature_color="var(--color-gunmetal)"]
    * @property {boolean} [show_label_overlay=false]
    * @property {string} [tooltip_text]
@@ -35,7 +35,7 @@
       "group/badge pointer-events-auto relative flex items-center justify-center overflow-hidden border border-solid border-(--signature-color) bg-black/40 shadow-md transition duration-300 ease-in-out",
       className,
     ]}>
-    <Avatar src={tile.portrait || ""} alt={tile.name || "Style"} initials={tile.fallback || "?"} {signature_color} {fallback_class} class="rounded-[inherit]">
+    <Avatar src={tile.portrait || ""} alt={tile.name || "Style"} {signature_color} {fallback_class} class="rounded-[inherit]">
       {#snippet overlay()}
         {#if show_label_overlay && tile.name}
           <div

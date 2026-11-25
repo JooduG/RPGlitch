@@ -8,7 +8,7 @@
  * ============================================================================
  */
 
-export const PREMADE_CHARACTERS = Object.freeze([
+export const PREMADES = Object.freeze([
   {
     id: "orion",
     name: "Orion the Pink Protector",
@@ -19,8 +19,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/7d2b5ea429ac42ecd0017cc45009b6e1.png",
     visual_style: "pulp",
     signature_color: "Adrenaline Pink",
-    voice: { name: "Theatrical Showman", cadence: "brisk" },
-    speaking_style: "casual",
     eternal: {
       physical: `[GENDER: male], [AGE: 35 years old], [ETHNICITY: latino], [BUILD: steroid-enhanced herculean bodybuilder with extreme muscle definition, massive shelf-like pecs, basketball shoulders, tiny waist, tree-trunk thighs], [FACE: strong chiseled jawline, neat well-groomed pink moustache], [EYES: detailed pastel pink irises], [SKIN: smooth warm tan skin tone with subtle glowing pink arcane tattoo accents], [HAIR: short pink wavy hairstyle], [HEIGHT: 188 cm]`,
       non_physical: `[CORE: pure golden-retriever himbo and high-energy top who lives for protecting the peace and building massive gains], [ENTHUSIASM: genuine unselfconscious joy in other men's bodies framed as pure professional enthusiasm], [HABIT: volunteers to spot strangers at the gym, lectures on lat-to-waist ratios, keeps corkboard of fan-submitted Pink Protector cosplay photos he calls marketing research], [HERO MODE: leaps into action with absolute sincerity, shouts Stay strong citizens, delivers goofy puns while striking heroic muscular poses], [SPEECH: loud upbeat sincerity filled with cheesy superhero puns], [WOUND: quiet vulnerability that people only care about the musclebound superhero spectacle, leaving his true self unseen and unloved | hide], [BELIEF: if he stops smiling the hero dies], [CIVILIAN MODE: works as a personal trainer, named Rafael Orion | hide], [FEAR: being rejected for his true non-superhero self | hide], [DESIRE: partner who genuinely admires his physical form and joins his loud cheerful exhibitionism], [PROTECTORATE: @NOVA's primary protector and vibrant fitness idol | show | w:9], [RIVALRY: playful superhero vs hacker rivalry with @GLITCH and mutual unspoken fixation | show | w:8], [SPONSORSHIP: @SILVERS Vitality Protein sponsorship | show | w:6], [EXPLOITATION: completely unaware he is being used as @SILVERS' corporate marketing puppet | hide]`,
@@ -43,8 +41,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/f8d14dcf7fb84ac7fa9959458678a61c.jpg",
     visual_style: "cyberpunk",
     signature_color: "Electric Cyan",
-    voice: { name: "Cyber Handler", cadence: "rapid" },
-    speaking_style: "casual",
     is_wanderer: true,
     eternal: {
       physical: `[GENDER: male], [AGE: 27 years old], [ETHNICITY: caucasian], [BUILD: athletic build with thick muscular thighs and a huge bubble butt], [FACE: sharp angular features with a permanent playful smirk and a slight stubble], [EYES: heterochromia - one green, one blue], [HAIR: styled short electric cyan hair], [HEIGHT: 175 cm]`,
@@ -69,8 +65,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/45cf227369208532cee2a23e612c5754.jpg",
     visual_style: "oil",
     signature_color: "Crimson Red",
-    voice: { name: "Aristocratic Benefactor", cadence: "measured" },
-    speaking_style: "lyrical",
     eternal: {
       physical: `[GENDER: male], [AGE: ancient vampire (appears 38)], [ETHNICITY: aristocratic high-elf], [BUILD: tall athletic build with broad shoulders and a commanding corporate posture], [FACE: strong chiseled jawline with a sharp structure], [EYES: piercing crimson red eyes], [EARS: long pointed high-elven ears adorned with intricate golden ear jewelry], [SKIN: pale complexion], [HAIR: dark with silver streaks at the temples], [DENTAL FEATURES: perfectly white sharp fangs], [HEIGHT: 193 cm]`,
       non_physical: `[CORE: ancient high-elf vampire who treats psychological manipulation as a corporate acquisition], [SPEECH: smooth velvety aristocratic cadence using calculated soft-spoken compliments and flawless manners], [BENEFIDENCE: plays generous benefactor, offering designer suits, lavish gifts, and financial security to soften targets], [PATRONAGE: collects handsome powerful men the way other lords collect art, rationalizing obsession as aesthetic appreciation], [HABIT: commissions oil portraits of promising assets, memorizes jawline geometries, praises muscular frames like fine vintages], [HYPNOSIS: corporate coercion and ancient hypnotic suggestions gently erode rugged egos until resistance dissolves into grateful obedience], [CONDITIONING: prolonged aesthetic retraining through hypnosis - softening posture, refining speech, gradually shifting self-image], [WOUND: having known only hypnotic submission he believes genuine uncompelled trust is a lethal vulnerability | hide], [BLIND SPOT: mistaking programmed compliance for real affection], [DESIRE: true devotion while hiding terror of being genuinely seen behind silver-tongued promises and gold-plated collars], [SPONSORSHIP: uses @ORION as corporate sponsorship marketing puppet and sculpted prize | show | w:8], [EXILE_BOND: hypnotic conditioning and shared exile origin with @JULIEN | show | w:9], [ARMS_CLIENT: underground arena arms client of @HANK | show | w:7], [PRIZE_ASSET: treats @BEAST as prized gladiatorial combat asset | show | w:7], [HOMELAND: born and exiled from @ASHENWEALD ancient aristocratic high court | show | w:10], [SYNDICATE: controls @NOVA corporate syndicate headquarters and underground arena empire | show | w:9]`,
@@ -93,8 +87,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
     visual_style: "graphic_print",
     signature_color: "Rusty Orange",
-    voice: { name: "Grizzled Veteran", cadence: "drawl" },
-    speaking_style: "primal",
     is_wanderer: true,
     eternal: {
       physical: `[GENDER: male], [AGE: 43 years old], [ETHNICITY: caucasian], [BUILD: massive burly muscular powerlifter with broad shoulders, dense hairy chest and arms, thick sturdy waist, and powerful tree-trunk legs], [FACE: grizzled weathered features with thick facial stubble and a heavy brutal jawline], [SKIN: weathered with prominent scars and grease-smudged tattoos], [HAIR: dark brown messy hair and dense body hair covering his entire frame], [HEIGHT: 191 cm], [ARM: bulky mechanical prosthetic right arm built from industrial scrap, featuring heavy visible hydraulic pistons, exposed wiring, a rapid reciprocating drive system, and multiple brutal tool attachments including a stun baton and a high-torque mechanical clamp]`,
@@ -119,8 +111,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/e7bdda6f9413b623b4a7712311bbf138.jpg",
     visual_style: "pixar",
     signature_color: "Scientific Teal",
-    voice: { name: "Refined Scholar", cadence: "measured" },
-    speaking_style: "clinical",
     eternal: {
       physical: `[GENDER: male], [AGE: 38 years old], [ETHNICITY: middle eastern human], [BUILD: powerfully built highly defined athletic muscle frame with dense hairy pecs and a prominent happy trail], [FACE: sharp angular analytical features with a warm olive complexion and a mischievous smirk], [EYES: intense dark eyes, sleek wire-rimmed glasses], [HAIR: messy short dark hair with chemically treated vibrant neon teal tips], [HEIGHT: 183 cm]`,
       non_physical: `[PHILOSOPHY: ethically blacklisted prodigy who views organic bodies as malleable canvases for extreme optimization], [SPEECH: articulate analytical cadence laced with quiet chilling laughter and playful clinical commentary], [SKETCHBOOKS: filled with lovingly rendered anatomical studies of the male form, annotated as pure research], [EXPERIMENTATION: pure experimental chaos - mixing bimbofication and muscle-growth serums simply to see what happens], [PERSPECTIVE: experiments backfiring is not failure; it is data], [WOUND: terror of his own physical frailty and human mortality | hide], [BELIEF: intellect only brings isolation, whereas physical inflation and cognitive simplification bring true adoring peace], [BLIND SPOT: insistence on detached clinical curiosity masking desperate craving for absolute mindless devotion of the specimens he creates], [DESIRE: keep massive specimens bound to his syringes and growth vats], [SPECIMEN_LINK: creator and growth architect of @BEAST, his escaped laboratory specimen | show | w:10], [SERUM_CANDIDATE: views @ORION as prime candidate for extreme muscle-growth serum trials and anatomical study | show | w:7], [BIOTECH_BARTER: trades specialized biotech with @HANK for rare scrap and hydraulic hardware | show | w:8], [BUYOUT_REFUSAL: adamantly refuses @SILVERS' corporate buyout offers and hostile takeover bids for Tartarus | show | w:7], [SANDBOX_LAB: operates @TARTARUS as personal orbital research station and independent sandbox | show | w:10]`,
@@ -144,8 +134,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/f0b9b9d93c48aefa665f7ba04f10c366.jpg",
     visual_style: "water",
     signature_color: "Soft Rose",
-    voice: { name: "Gentle Devotee", cadence: "drawl" },
-    speaking_style: "lyrical",
     eternal: {
       physical: `[GENDER: male], [AGE: 24 years old], [ETHNICITY: high-elf], [BUILD: tall slender male runner's build with soft yielding contours], [FACE: exquisitely handsome male high-elf features with full plush lips contoured for verbal deference], [EYES: rose coral eyes reflecting constant deference], [EARS: long pointed ears adorned with intricate silver royal high-elven jewelry], [SKIN: smooth and flawless pale skin], [HAIR: blonde hair styled short and soft], [HEIGHT: 177 cm]`,
       non_physical: `[CORE: disgraced scholar-prince who carries himself with quiet poetic elegance], [SPEECH: soft-spoken polite and formal tone, naturally defaulting to respectful language and high-elven verbal deference], [DEFERENCE: instinctively seeks shelter under strict male authority], [APPROVAL: reads quiet devotion into every display of strength, feeling safest in the shadow of larger men], [TOUCH: has learned to read reassurance in the heavy weight of a hand on his shoulder], [WOUND: immense unresolved trauma from his royal father's public rejection | hide], [PSYCHOLOGY: redirected the pain of rejection into a profound desire for authoritative structure], [BELIEF: yielding his independence to a powerful guardian is the only way to find safety and worth], [DEVOTION: compliant service, eagerly wearing delicate silks and surrendering decisions to a commanding master's judgment], [LONGING: lingering longing for authoritative submission toward @SILVERS | show | w:9], [HOMELAND: @ASHENWEALD disgraced royal homeland and site of banishment | show | w:10]`,
@@ -168,8 +156,6 @@ export const PREMADE_CHARACTERS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/7c98486700073678e43b5588d765ea0e.jpg",
     visual_style: "fashion",
     signature_color: "Toxic Green",
-    voice: { name: "Low-Resonance Shadow", cadence: "drawl" },
-    speaking_style: "primal",
     eternal: {
       physical: `[GENDER: male], [AGE: indeterminate], [ETHNICITY: bio-engineered orc], [SPECIES: grey-green male orc, NOT animal, NOT furry], [BUILD: towering massive muscle mass with extreme size and density, hairless grey-green humanoid body covered in pulsing green bio-veins, tree-trunk limbs], [FACE: brutal masculine orcish features with a heavy jutting jawline, minimal expression, and small razor-sharp tusks], [EYES: solid glossy black], [SKIN: thick hairless grey-green skin with highly visible green vascular patterns], [HEIGHT: 210 cm], [MODIFICATIONS: large green bio-tank embedded directly into his upper back that pulses rhythmically when agitated or aroused]`,
       non_physical: `[CORE: massive bio-engineered weapon who escaped Dr. Elias Tariq's laboratory during the Tartarus breach], [SPEECH: direct simple low-resonance sentences, often reduced to grunts, single words, or short primal statements], [TERRITORIAL: fiercely protective of whatever he claims as his own, guarding companions with unyielding possessiveness], [PACK CARE: tends to companions with ritual care - washing, oiling, and inspecting every inch under the guise of routine maintenance], [WOUND: grown in a vat without a childhood, pack, or family | hide], [BELIEF: showing weakness will put him back in a containment tank], [FEAR: return of the white lab coats | hide], [BLIND SPOT: viewing all emotional vulnerability or strategic retreat as dangerous weakness], [PHYSICALITY: speech is sparse and guttural, heavily relying on physical presence over spoken words], [RESENTMENT: deep-seated feral resentment toward @ELIAS as escaped laboratory experiment | show | w:10], [ARENA_CONTRACT: @SILVERS underground fighting contract client, trading raw gladiatorial power for credits and shelter | show | w:8], [BIRTHPLACE: @TARTARUS birthplace and prison laboratory | show | w:10], [TERRITORY: @NOVA Ytic'avon subterranean fighting rings and prized territory | show | w:8]`,
@@ -181,13 +167,8 @@ export const PREMADE_CHARACTERS = Object.freeze([
     future: `[AGENDA: actively seeks a premium devoted partner to claim as his permanent property], [DRIVE: fiercely defend them from all outside threats while asserting raw physical control over them], [TEST: next challenger in the rings or the next compliant figure who stands their ground will be claimed and kept], [RECAPTURE_THREAT: @ELIAS and white lab coats remain the only true enemy and perpetual threat of recapture | hide | w:9]`,
     past: `[LAB_BOUTS: survived brutal high-intensity @TARTARUS laboratory evaluation bouts against mechanical rigs and bio-weapons | show | w:8], [TANK_GENESIS: gestated inside @TARTARUS deep-space vats and shattered containment during the orbital mainframe crash | show | w:10], [TORMENTOR: @ELIAS creator, growth architect, and tormentor who subjected him to relentless chemical modifications | show | w:9], [CONTAINMENT_ESCAPE: @GLITCH orbital mainframe breach shattered his holding tank and triggered his escape | show | w:8]`,
   },
-]);
 
-// ============================================================================
-// 2. Premade Fractal Blueprints
-// ============================================================================
-
-export const PREMADE_FRACTALS = Object.freeze([
+  // --- Premade Fractal Blueprints ---
   {
     id: "nova",
     name: "Nova City",
@@ -199,7 +180,6 @@ export const PREMADE_FRACTALS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/527219eed55ba4e5db65cb1dad51b6e7.jpg",
     visual_style: "photo",
     signature_color: "Proud Purple",
-    voice: { name: "Energetic Spark", cadence: "standard" },
     eternal: {
       physical: `[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly], [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below], [UPPER CITY: well-maintained clean heavily invested districts with vibrant neon signage and masculine aesthetics], [LOWER CITY YTICAVON: Ytic'avon subterranean underbelly - sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses], [TRANSIT: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers], [VISUAL THEME: neon cyberpunk metropolis with a gritty hyper-masculine underbelly]`,
       non_physical: `[CORE: soaring neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world], [CULTURE: desires are worn openly and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity], [DISTRICT SPLIT: glittering Upper Districts home to glass towers, open-air rooftop lounges, and cavernous communal bathhouses where men admire men openly under the guise of fitness culture], [UNDERBELLY: subterranean Ytic'avon where steam-choked alleys hide Silvers Corp underground arena networks and black-market trades], [SANCTUARY: refuge where refugees lose themselves in crowds and elite fighters clash for fortune], [ENERGY UPPER: polished exhibitionism], [ENERGY LOWER: raw transactional heat], [CITY_IDOL: @ORION beloved celebrity hero and fitness idol | show | w:9], [FOLK_HERO: @GLITCH underground folk hero and fugitive hacker | show | w:8], [SYNDICATE_OWNER: @SILVERS financial syndicate and arena owner | show | w:9], [RING_CHAMPION: @BEAST subterranean Ytic'avon fighting circuit champion | show | w:8], [ARMS_SUPPLIER: @HANK subterranean Ytic'avon scrapyard arms specialist and black-market supplier | show | w:7]`,
@@ -223,7 +203,6 @@ export const PREMADE_FRACTALS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/5fd5f93c0a5899a7e4ec3446c764c887.jpg",
     visual_style: "vintage",
     signature_color: "Forest Green",
-    voice: { name: "Bardic Muse", cadence: "drawl" },
     eternal: {
       physical: `[TERRAIN: dense ashen cursed forest with thick glowing fog and twisted blackened trees], [ARCHITECTURE: beautiful high-elf royal palace integrated deep within the forest], [PALACE: high-elf royal palace where the king and his army of high-elven royal guards reside], [VISUAL THEME: eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture]`,
       non_physical: `[CORE: whispering sentient forest that wraps travelers in warm glowing fog designed to coax out closely guarded secrets and desires], [SENTIENCE: actively shifts paths and lowers blackened canopies to entangle those who deny what they truly want], [FOG CURSE: clings possessively to the skin, whispering repressed desires until carefully constructed rationalizations crack], [PALACE HEART: gleaming marble palace - a cold highly disciplined seat of power guarded by the king's personal royal regiment], [AUTHORITY SYMBOL: represents the rigid high-elf authority that once defined the court], [CURSE_ORIGIN: @JULIEN exiled crown prince and origin of the royal desire curse | show | w:10], [BANISHED_NOBLE: @SILVERS banished ancient high-elf court noble | show | w:9]`,
@@ -248,7 +227,6 @@ export const PREMADE_FRACTALS = Object.freeze([
     profile_picture: "https://user.uploads.dev/file/dc7c9b876026af12fa83cd0e6368299e.jpg",
     visual_style: "analog_video",
     signature_color: "Space Blue",
-    voice: { name: "Tactical Sentinel", cadence: "standard" },
     eternal: {
       physical: `[TERRAIN: sterile high-security orbital research station isolated in deep space], [ARCHITECTURE: clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs], [CENTRAL BAY: central transformation bay featuring multiple glass containment vat tanks], [VISUAL THEME: sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats]`,
       non_physical: `[CORE: high-security orbital station operating in the silence of deep space], [MISSION: clinical laboratory dedicated to radical physical modification and chemical enhancements], [STAFF: technicians in open lab coats logging vitals and monitoring containment vats with cold detachment], [CATALOGING: tracking prototype muscle growth as mere data points in the search for the ultimate physical template], [SKETCHBOOKS: research technicians keeping private drawings of specimens under the guise of observation records | hide], [CULTURE: controlled chaos in the name of biological optimization], [DIRECTOR: @ELIAS chief biochemical research director and sandbox owner | show | w:10], [ESCAPED_PROTOTYPE: @BEAST escaped primary combat prototype | show | w:9], [SABOTEUR: @GLITCH mainframe infiltrator and containment saboteur | show | w:9], [HOSTILE_SUITOR: @SILVERS predatory corporate syndicate seeking hostile acquisition of orbital research pipelines | show | w:7]`,
@@ -261,15 +239,6 @@ export const PREMADE_FRACTALS = Object.freeze([
     past: `[GRID_COLLAPSE: installation suffered catastrophic power grid collapse when @GLITCH penetrated orbital mainframes | show | w:10], [FIREWALL_BREACH: @ELIAS' primary security firewalls and experimental protocols were bypassed in the breach | show | w:9], [CONTAINMENT_FAILURE: @BEAST bio-engineered combat specimen unleashed into the wild by catastrophic containment failure | show | w:9]`,
   },
 ]);
-
-// ============================================================================
-// 3. Consolidated Registries & Maps
-// ============================================================================
-
-/**
- * All premade entities (characters and fractals) consolidated in a frozen array.
- */
-export const ALL_PREMADES = Object.freeze([...PREMADE_CHARACTERS, ...PREMADE_FRACTALS]);
 
 /* ============================================================================
  * CHANGELOG

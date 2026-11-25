@@ -47,7 +47,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
 - **Epistemic Wall & Relational Syntax Law**:
   - Entity relations use value-referenced `@TARGET_ID` tokens inside semantic brackets (`[KEY: ... @TARGET_ID ... | flags]`).
   - Filter **all** `physical` and `non_physical` bracketed state via `format_tagged_fields(..., { see_hidden, is_counterpart })` in [src/simulation/brackets.js](./src/simulation/brackets.js), and strip `INVENTORY`/`STASH` + `| hide` via `build_aesthetic_map()` in [src/simulation/prompts.js](./src/simulation/prompts.js).
-- **Premade vs. Database Sovereignty**: Static premade catalogs (`ALL_PREMADES`, `PREMADE_*`) may only be imported by [src/data/entity-repository.js](./src/data/entity-repository.js) and `src/definitions/` (enforced by `premades.test.js`). Runtime code reads entities strictly from IndexedDB / runtime state; `seed_premades()` never overwrites existing DB fields.
+- **Premade vs. Database Sovereignty**: Static premade catalogs (`PREMADES`) may only be imported by [src/data/entity-repository.js](./src/data/entity-repository.js) and `src/definitions/` (enforced by `premades.test.js`). Runtime code reads entities strictly from IndexedDB / runtime state; `seed_premades()` never overwrites existing DB fields.
 
 ---
 
