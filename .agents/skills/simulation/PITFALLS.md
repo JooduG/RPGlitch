@@ -20,7 +20,7 @@
 
 - **Trigger**: Modifying entity rendering, `compile_prompt()`, `RelationalGraph.svelte`, or diffusion prompt builders (`src/simulation/brackets.js`, `src/simulation/prompts.js`).
 - **Wrong Behavior**: Passing raw `non_physical` bracketed state (e.g., `fractal.eternal.non_physical` in `<REALITY>`, `future` in `<TRAJECTORY>`, or `eternal.non_physical` / `present.non_physical`) without `format_tagged_fields`, harvesting incoming `RelationalGraph` edges with `perspective = "owner"` outside `dev_mode`, or leaking `INVENTORY`/`STASH` into image prompts.
-- **Correct Behavior**: Route **all** `physical`, `non_physical`, `<REALITY>`, and `<TRAJECTORY>` state in `compile_prompt()` through `format_tagged_fields(text, { see_hidden, is_counterpart })`, pass `perspective = app.settings.dev_mode ? "omniscient" : "other"` for incoming `RelationalGraph` edges, and route visual prompts through `build_aesthetic_map(entity)`.
+- **Correct Behavior**: Route **all** `physical`, `non_physical`, `<REALITY>`, and `<TRAJECTORY>` state in `compile_prompt()` through `format_tagged_fields(text, { see_hidden, is_counterpart })`, pass `perspective = app.settings.dev_mode ? "omniscient" : "other"` for incoming `RelationalGraph` edges, and let `PURPOSE_CORES.VISUALIZER` enforce `see_hidden: "none"` + `strip_inventory: true` through `format_tagged_fields()`.
 
 ## 4. Stale `src/intelligence/` or `PAST_VECTOR_CAP` References (Occurrences: 3)
 
@@ -37,7 +37,7 @@
 ## 6. `normalize_entity()` Strips `dynamics_baseline` Before Gravity Stepping (Occurrences: 1)
 
 - **Trigger**: Building transient turn copies with `normalize_entity()` in `src/engine/turns.js` before calling `step_dynamics()`.
-- **Wrong Behavior**: Passing raw `normalize_entity(source)` output to `extract_metric_baselines()`, which drops `dynamics_baseline` and silently defaults every axis baseline to `50`.
+- **Wrong Behavior**: Passing raw `normalize_entity(source)` output to `step_dynamics()`, which drops `dynamics_baseline` and silently defaults every axis baseline to `50`.
 - **Correct Behavior**: Copy `source.dynamics_baseline` onto the transient normalized entity (e.g., via `clone_entity_for_turn()`) before `step_dynamics()` runs.
 
 ## 7. Prologue Fractal Identity & Opening Turn Duplication (Occurrences: 1)
@@ -56,10 +56,22 @@
 
 - **Trigger**: Editing `DYNAMICS_RULES` (`src/definitions/dynamics-registry.js`) or `evaluate_dynamics_directives()` (`src/simulation/dynamics.js`).
 - **Wrong Behavior**: Pushing `{ id: rule.id }` without `text: rule.directive` (leaving all directive prose unread) or deleting a compound rule without removing its mutual-exclusion guards from constituent baselines (creating silent dead zones where neither baseline fires).
-- **Correct Behavior**: Emit `{ id: rule.id, text: rule.directive }` into `<SCENARIO_DIRECTIVES>`, and keep baseline suppression guards strictly matched to live Paradox Compounds (`DEVOTION`, `TENSION`, `SOLACE`).
+- **Correct Behavior**: Emit `{ id: rule.id, text: rule.directive }` into `<SCENARIO_DIRECTIVES>`, and keep baseline suppression guards strictly matched to live Paradox Compounds (`DEVOTION`, `TENSION`, `SOLACE`, `SUPPRESSED`, `GLIDING`, `STERILE`).
 
 ## 10. Truthy `default_tier` Short-Circuiting Optical Tier Bias (Occurrences: 1)
 
-- **Trigger**: Modifying `evaluate_image_trigger()` or `resolve_image_trigger()` in `src/simulation/dynamics.js`.
-- **Wrong Behavior**: Returning a truthy `default_tier` (`"story_scene"`) from `evaluate_image_trigger()` on displacement-only triggers, which short-circuits `tier || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER` and silently disables `camera_note` / high-dynamics character-portrait biasing.
-- **Correct Behavior**: Return `null` for `tier` on displacement-only triggers so `biased_character_tier` is evaluated before falling back to `IMAGE_POLICY.DEFAULT_TIER`.
+- **Trigger**: Modifying `resolve_image_trigger()` in `src/simulation/dynamics.js`.
+- **Wrong Behavior**: Returning a truthy `default_tier` (`"story_scene"`) on displacement-only triggers, which short-circuits `band_tier || biased_character_tier || IMAGE_POLICY.DEFAULT_TIER` and silently disables `camera_note` / high-dynamics character-portrait biasing.
+- **Correct Behavior**: Return `null` for `band_tier` on displacement-only triggers so `biased_character_tier` is evaluated before falling back to `IMAGE_POLICY.DEFAULT_TIER`.
+
+## 11. Double-Styling & Prompt Logic Leaking into `@media/image-generation.js` (Occurrences: 1)
+
+- **Trigger**: Modifying image generation flows in `src/engine/lifecycle.js`, `src/engine/turns.js`, or `src/media/image-generation.js`.
+- **Wrong Behavior**: Injecting `visual_style` tokens or `negative_prompt` inside `@media/image-generation.js` after `refine_image_prompt()` already ran (double-applying raw + LLM-processed styles), or forwarding `guidanceScale` instead of using the Perchance plugin default.
+- **Correct Behavior**: Keep `src/media/image-generation.js` a pure transport pipe (`{ prompt, negative_prompt, resolution, seed } -> { image_url, seed }` with `sanitize_visual_text()` at the Perchance boundary). Route all styled images through `refine_image_prompt()` -> `visual_engine.generate()`, and route all story images (manual, prologue, background beats) through `capture_story_image()`.
+
+## 12. Bypassing `session` Dynamics Setters on Story Hydration (Occurrences: 1)
+
+- **Trigger**: Hydrating or updating dynamics in `src/state/session.svelte.js`.
+- **Wrong Behavior**: Writing directly to `this.#ai_dynamics` / `this.#fractal_dynamics` during `hydrate_story()`, leaving `active_ai.dynamics` / `active_fractal.dynamics` stale until the next turn.
+- **Correct Behavior**: Assign via `this.ai_dynamics = ...` / `this.fractal_dynamics = ...` setters so both the private state field and the active entity stay synchronized atomically.

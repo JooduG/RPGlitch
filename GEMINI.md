@@ -46,7 +46,7 @@ Enforced by [graphit.architecture.json](./graphit.architecture.json) (`npm run a
   - Lower layers (`@data`, `@media`, `@simulation`, `@definitions`, `@utils`) must never initiate LLM jobs; all LLM queuing and single-flight preemption flow from `src/engine/transport.js` (`LLM_PRIORITY.FOREGROUND = 10`, `BACKGROUND = 1`).
 - **Epistemic Wall & Relational Syntax Law**:
   - Entity relations use value-referenced `@TARGET_ID` tokens inside semantic brackets (`[KEY: ... @TARGET_ID ... | flags]`).
-  - Filter **all** `physical` and `non_physical` bracketed state via `format_tagged_fields(..., { see_hidden, is_counterpart })` in [src/simulation/brackets.js](./src/simulation/brackets.js), and strip `INVENTORY`/`STASH` + `| hide` via `build_aesthetic_map()` in [src/simulation/prompts.js](./src/simulation/prompts.js).
+  - Filter **all** `physical` and `non_physical` bracketed state via `format_tagged_fields(..., { see_hidden, is_counterpart })` in [src/simulation/brackets.js](./src/simulation/brackets.js), and keep visual prompt/style construction strictly in the prompt pipeline (`refine_image_prompt()` -> `visual_engine.generate()`) while `src/media/image-generation.js` stays a pure transport pipe with `sanitize_visual_text()` at the Perchance boundary.
 - **Premade vs. Database Sovereignty**: Static premade catalogs (`PREMADES`) may only be imported by [src/data/entity-repository.js](./src/data/entity-repository.js) and `src/definitions/` (enforced by `premades.test.js`). Runtime code reads entities strictly from IndexedDB / runtime state; `seed_premades()` never overwrites existing DB fields.
 
 ---

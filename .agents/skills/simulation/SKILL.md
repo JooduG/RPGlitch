@@ -20,8 +20,8 @@ description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/e
   - **Turn 1 (Director)**: `run_planner_step` — evaluates dynamics deltas (`[-20, 20]`), delegates `next_action`, and emits `directors_note` + `camera_note`.
   - **Turn 2 (Character)**: `run_generation_step`, `continue_generation_step`, `run_round`.
   - **Turn 3 (Caretaker / Schemas)**: `run_memory_consolidation_step`, `run_schema_extraction_step`, `run_image_prompt_step`.
-- **Stateful Turns (`src/engine/turns.js`)**: `run_turn`, `continue_turn`, `persist_turn_rows`, `write_back_turn_state`, `dispatch_consolidation`, `maybe_spawn_turn_image` (clamps dynamics to `[5, 95]` via `step_dynamics`, preserves `dynamics_baseline`, schedules non-blocking `spawn_image_beat`).
-- **Lifecycle (`src/engine/lifecycle.js`)**: `generate_opening`, `generate_closing`, `refine_image_prompt`, `parse_entity_profile`, `create_entity_with_profile`, `generate_user_draft`.
+- **Stateful Turns (`src/engine/turns.js`)**: `run_turn`, `continue_turn`, `persist_turn_rows`, `write_back_turn_state`, `dispatch_consolidation`, `maybe_spawn_turn_image` (clamps dynamics to `[5, 95]` via `step_dynamics`, preserves `dynamics_baseline`, schedules non-blocking `capture_story_image({ ..., background: true })`).
+- **Lifecycle (`src/engine/lifecycle.js`)**: `generate_opening`, `generate_closing`, `refine_image_prompt`, `capture_story_image`, `parse_entity_profile`, `create_entity_with_profile`, `generate_user_draft`.
 - **Facade (`src/engine/chrono.svelte.js`)**: `ChronoEngine` / `chrono_engine` (`start`, `send`, `retry`, `continue`, `advance_turn`, `stop`).
 
 ### Rank 1 (`src/simulation/`)
@@ -36,7 +36,7 @@ description: Operational runbook for RPGlitch's 3-turn simulation engine (`src/e
 
 1. **Ground**: Read [PITFALLS.md](./PITFALLS.md) and the target `src/engine/` or `src/simulation/` module(s).
 2. **Preserve Prefix & Agency**: Keep `<SYSTEM>` / `<AXIOMATIC_CONSTITUTION>` byte-identical across turns and never emit user-persona speech/thoughts.
-3. **Verify Epistemic & Visual Filters**: Ensure `format_tagged_fields` (`src/simulation/brackets.js`) and `build_aesthetic_map` (`src/simulation/prompts.js`) remain intact.
+3. **Verify Epistemic & Visual Filters**: Ensure `format_tagged_fields` (`src/simulation/brackets.js`, including `strip_inventory: see_hidden === "none"`) remains intact inside `compile_prompt()`.
 4. **In-Folder Imports**: Use relative `./file.js` imports inside `src/engine/` (never `@engine`).
 5. **Test**: Run `npm run agent:test:simulation` and `npm run test:unit` after edits.
 
