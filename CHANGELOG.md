@@ -45,6 +45,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Simplified `extract_aesthetic_traits()` (`src/simulation/prompts.js`) to raw concatenation of `visual_style.engine`, `signature_color`, `eternal.physical`, and `present.physical`, deleting `build_aesthetic_map`, `BARE_MARKER_REGEX`, `ORDERED_VISUAL_STYLE_KEYS`, `resolve_story_beat_style`, and `compose_story_beat_prompt`.
   - Turned `src/media/image-generation.js` into a pure transport pipe (`VisualEngine.generate`, `dispatch_visual_generation`), deleting `VisualEngine.visualize()`, `spawn_image_beat()`, `_image_generation_queue`, and `mark_placeholder_failed()`.
   - Unified manual and automatic background story image captures through `capture_story_image()` -> `refine_image_prompt()` -> `visual_engine.generate()` in `src/engine/lifecycle.js` and `src/engine/turns.js`.
+- **Dynamics Subsystem Pruning (`prune-execute`)**:
+  - Removed `DYNAMICS.PHYSICS.VARIANCE` (`src/config.js`), froze `DYNAMICS_RULES` (`src/definitions/dynamics-registry.js`), simplified `step_dynamics` to return `next` directly (dropping `jitter`/`diffs`/`log_strings`), inlined `evaluate_image_trigger` into `resolve_image_trigger` (dropping `source`/`signals`), and returned `protocols` directly from `evaluate_dynamics_directives` (`src/simulation/dynamics.js`).
+  - Removed redundant axis pre-filtering in `src/engine/turns.js`, deduplicated `normalize_dynamics` / `create_entity` in `src/data/records.js`, used scope-driven dynamics XML attributes in `src/simulation/prompts.js`, and routed story hydration through `ai_dynamics`/`fractal_dynamics` setters in `src/state/session.svelte.js`.
 
 ## `[0.2.1]` - 2026-11-25
 

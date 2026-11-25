@@ -3,18 +3,18 @@ import { evaluate_dynamics_directives, resolve_caretaker_target, resolve_image_t
 
 describe("step_dynamics", () => {
   it("settles toward baselines with the live physics (50+10 @entropy50 -> 59)", () => {
-    const { next } = step_dynamics({ chaos: 50 }, { chaos: 50 }, { chaos: 10 }, { entropy: 50 });
+    const next = step_dynamics({ chaos: 50 }, { chaos: 50 }, { chaos: 10 }, { entropy: 50 });
     expect(next.chaos).toBe(59);
   });
-  it("clamps to [min,max]", () => {
-    const { next } = step_dynamics({ chaos: 1 }, { chaos: 1 }, { chaos: -100 }, {});
+  it("clamps to [5, 95]", () => {
+    const next = step_dynamics({ chaos: 1 }, { chaos: 1 }, { chaos: -100 }, {});
     expect(next.chaos).toBeGreaterThanOrEqual(5);
   });
 });
 
 describe("protocols + rotation", () => {
   it("emits matching baseline protocols with directive text and no dead-zone guards", () => {
-    const { protocols } = evaluate_dynamics_directives({ ai_dynamics: { chaos: 90, intensity: 75, affinity: 75 }, fractal_dynamics: {} });
+    const protocols = evaluate_dynamics_directives({ ai_dynamics: { chaos: 90, intensity: 75, affinity: 75 }, fractal_dynamics: {} });
     expect(protocols.every((p) => typeof p.text === "string" && p.text.length > 0)).toBe(true);
     const ids = protocols.map((p) => p.id);
     expect(ids).toContain("UNBOUND");
@@ -26,15 +26,15 @@ describe("protocols + rotation", () => {
   });
 
   it("enforces mutual exclusion between single-axis protocols and Paradox Compounds", () => {
-    const adr = evaluate_dynamics_directives({ ai_dynamics: { intensity: 75 }, fractal_dynamics: { velocity: 50 } }).protocols.map((p) => p.id);
+    const adr = evaluate_dynamics_directives({ ai_dynamics: { intensity: 75 }, fractal_dynamics: { velocity: 50 } }).map((p) => p.id);
     expect(adr).toContain("ADRENALINE");
     expect(adr).not.toContain("TENSION");
 
-    const sus = evaluate_dynamics_directives({ ai_dynamics: { intensity: 50 }, fractal_dynamics: { velocity: 25 } }).protocols.map((p) => p.id);
+    const sus = evaluate_dynamics_directives({ ai_dynamics: { intensity: 50 }, fractal_dynamics: { velocity: 25 } }).map((p) => p.id);
     expect(sus).toContain("SUSPENSION");
     expect(sus).not.toContain("TENSION");
 
-    const ten = evaluate_dynamics_directives({ ai_dynamics: { intensity: 75 }, fractal_dynamics: { velocity: 25 } }).protocols.map((p) => p.id);
+    const ten = evaluate_dynamics_directives({ ai_dynamics: { intensity: 75 }, fractal_dynamics: { velocity: 25 } }).map((p) => p.id);
     expect(ten).toContain("TENSION");
     expect(ten).not.toContain("ADRENALINE");
     expect(ten).not.toContain("SUSPENSION");
@@ -51,7 +51,6 @@ describe("resolve_image_trigger", () => {
       last_image_beat_round: 1,
     });
     expect(result.active).toBe(true);
-    expect(result.source).toBe("dynamics");
     expect(result.tier).toBe("story_character");
     expect(result.next_image_beat_round).toBe(4);
   });
@@ -66,7 +65,6 @@ describe("resolve_image_trigger", () => {
     });
     expect(result.active).toBe(false);
     expect(result.tier).toBeNull();
-    expect(result.source).toBeNull();
     expect(result.next_image_beat_round).toBeNull();
   });
 

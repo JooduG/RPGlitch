@@ -37,19 +37,13 @@ function clamp_dynamic(value, fallback = DYNAMICS.SCALE.MID) {
  * @returns {Record<string, number>}
  */
 function normalize_dynamics(raw_dynamics, entity_type) {
-  const is_character = entity_type !== "fractal";
+  const scope = entity_type === "fractal" ? "fractal" : "character";
   const dynamics = typeof raw_dynamics === "object" && raw_dynamics !== null ? raw_dynamics : {};
-
-  if (is_character) {
-    return {
-      chaos: clamp_dynamic(dynamics.chaos, 50),
-      intensity: clamp_dynamic(dynamics.intensity, 50),
-      openness: clamp_dynamic(dynamics.openness, 50),
-      affinity: clamp_dynamic(dynamics.affinity, 50),
-    };
+  const normalized = {};
+  for (const axis of Object.keys(default_dynamics_for_scope(scope))) {
+    normalized[axis] = clamp_dynamic(dynamics[axis], DYNAMICS.SCALE.MID);
   }
-
-  return { velocity: clamp_dynamic(dynamics.velocity, 50), entropy: clamp_dynamic(dynamics.entropy, 50) };
+  return normalized;
 }
 
 /**
@@ -189,12 +183,7 @@ export function normalize_entity(raw = {}) {
  */
 export function create_entity(type = "character", overrides = {}) {
   const entity_type = type === "fractal" ? "fractal" : "character";
-  return normalize_entity({
-    name: entity_type === "character" ? "New Character" : "New Fractal",
-    type: entity_type,
-    dynamics: default_dynamics_for_scope(entity_type === "character" ? "character" : "fractal"),
-    ...overrides,
-  });
+  return normalize_entity({ name: entity_type === "character" ? "New Character" : "New Fractal", type: entity_type, ...overrides });
 }
 
 /**

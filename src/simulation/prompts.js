@@ -404,6 +404,16 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   // --- Blocks 3 & 4: Main Character & Counterpart ---
   const characters_list = [];
 
+  function format_dynamics_attrs(dynamics, scope) {
+    if (!dynamics) return "";
+    const attrs = Object.entries(DYNAMICS.AXES)
+      .filter(([, def]) => def.scope === scope && dynamics[def.scope ? undefined : ""] === undefined)
+      .map(([axis]) => (dynamics[axis] !== undefined ? `${axis}="${dynamics[axis]}"` : ""))
+      .filter(Boolean)
+      .join(" ");
+    return attrs ? ` ${attrs}` : "";
+  }
+
   function render_entity_character(entity, tag_name, is_counterpart) {
     if (!entity) return "";
     const strip_inventory = see_hidden === "none";
@@ -411,7 +421,6 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
     const eter_phys = format_tagged_fields(entity.eternal?.physical || "", { see_hidden, is_counterpart, strip_inventory });
     const eter_non = format_tagged_fields(entity.eternal?.non_physical || "", { see_hidden, is_counterpart }).trim();
     const pres_non = format_tagged_fields(entity.present?.non_physical || "", { see_hidden, is_counterpart }).trim();
-    const dyn = entity.dynamics || {};
 
     const children = [];
     if (eter_non) children.push(`      ### Personality\n      ${eter_non}`);
@@ -421,16 +430,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
       children.push(`      ### Appearance\n      ${appearance_content}`);
     }
 
-    const dyn_attrs = [
-      dyn.chaos !== undefined ? `chaos="${dyn.chaos}"` : "",
-      dyn.intensity !== undefined ? `intensity="${dyn.intensity}"` : "",
-      dyn.openness !== undefined ? `openness="${dyn.openness}"` : "",
-      dyn.affinity !== undefined ? `affinity="${dyn.affinity}"` : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-    const attr_str = dyn_attrs ? ` ${dyn_attrs}` : "";
+    const attr_str = format_dynamics_attrs(entity.dynamics, "character");
     return `    <${tag_name} id="${entity.id || tag_name}" name="${entity.name || tag_name}"${attr_str}>\n${children.join("\n\n")}\n    </${tag_name}>`;
   }
 
@@ -459,14 +459,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   // --- Block 5: Scenario Presence + live dynamics directives ---
   let b5_scenario = "";
   if (fractal) {
-    const frac_dyn = fractal.dynamics || {};
-    const dyn_attrs = [
-      frac_dyn.velocity !== undefined ? `velocity="${frac_dyn.velocity}"` : "",
-      frac_dyn.entropy !== undefined ? `entropy="${frac_dyn.entropy}"` : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-    const attr_str = dyn_attrs ? ` ${dyn_attrs}` : "";
+    const attr_str = format_dynamics_attrs(fractal.dynamics, "fractal");
 
     const fractal_present = `${fractal.present?.physical || ""} ${fractal.present?.non_physical || ""}`.trim();
     const clean_present = format_tagged_fields(fractal_present, { see_hidden, is_counterpart: false }).trim();
@@ -477,7 +470,7 @@ export function compile_prompt({ core = "character", round = 1, entities = {}, h
   }
 
   // Production dynamics wiring: live rule/style directives render alongside presence.
-  const { protocols } = evaluate_dynamics_directives({ ai_dynamics: ai?.dynamics || {}, fractal_dynamics: fractal?.dynamics || {} });
+  const protocols = evaluate_dynamics_directives({ ai_dynamics: ai?.dynamics || {}, fractal_dynamics: fractal?.dynamics || {} });
   const directive_lines = protocols.map((protocol) => (protocol.text ? `Protocol ${protocol.id}: ${protocol.text}` : `Protocol: ${protocol.id}`));
   if (directive_lines.length > 0) {
     const directives_block = `  <SCENARIO_DIRECTIVES>\n    ${directive_lines.join("\n    ")}\n  </SCENARIO_DIRECTIVES>`;

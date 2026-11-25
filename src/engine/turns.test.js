@@ -222,9 +222,7 @@ describe("src/engine/turns.js", () => {
       const log_spy = vi.spyOn(session, "log_message").mockResolvedValue({ id: 1 });
       const lifecycle_module = await import("./lifecycle.js");
       const capture_spy = vi.spyOn(lifecycle_module, "capture_story_image").mockResolvedValue({ image_url: "data:image/png;base64,OK" });
-      const trigger_spy = vi
-        .spyOn(simulation_module, "resolve_image_trigger")
-        .mockReturnValue({ active: true, tier: "story_scene", source: "dynamics", next_image_beat_round: 1 });
+      const trigger_spy = vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_scene", next_image_beat_round: 1 });
 
       const original_gen = window.generate_text;
       window.generate_text = vi.fn(async ({ instruction }) => {
@@ -279,7 +277,7 @@ describe("src/engine/turns.js", () => {
       vi.spyOn(execution, "update_stream").mockImplementation(() => {});
       vi.spyOn(execution, "end_stream").mockImplementation(() => {});
       vi.spyOn(session, "log_message").mockResolvedValue({ id: 1 });
-      vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character", source: "dynamics" });
+      vi.spyOn(simulation_module, "resolve_image_trigger").mockReturnValue({ active: true, tier: "story_character" });
       const lifecycle_module = await import("./lifecycle.js");
       vi.spyOn(lifecycle_module, "capture_story_image").mockRejectedValue(new Error("Visual plugin timeout"));
 

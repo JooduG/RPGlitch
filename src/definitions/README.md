@@ -14,8 +14,7 @@
 
 - [`dynamics-registry.js`](./dynamics-registry.js):
   - `default_dynamics_for_scope(scope)`: Builds an axis-to-`DYNAMICS.SCALE.MID` (`50`) map for `"character"` or `"fractal"` scope.
-  - `PHYSICS_PROTOCOLS`: Frozen dictionary of 30 directive strings (12 somatic/trauma archetypes and 18 dynamics triggers, parked in `ROADMAP.md`).
-  - `DYNAMICS_RULES`: Array of 27 threshold/trigger predicate objects `{ id, when, priority? }` (9 priority-ranked reaction thresholds and 18 baseline/composite triggers).
+  - `DYNAMICS_RULES`: Frozen array (`Object.freeze([...])`) of 18 threshold/trigger predicate objects `{ id, when, directive }` (12 single-axis baselines and 6 Paradox Compounds).
 
 ### 3. Literary Narrative Styles (`narrative-styles.js`, `narrative-styles.test.js`)
 
@@ -50,7 +49,7 @@
 ## Invariants
 
 - **Barrel Re-Export & Strictly Downward Imports (`index.js`)**: `src/definitions/index.js` re-exports `*` from all 7 definition modules; modules import solely from `@config` and `@utils`.
-- **Dynamics Axis & Rule Alignment (`dynamics-registry.js`)**: All 27 `DYNAMICS_RULES` IDs exist in `PHYSICS_PROTOCOLS` and default missing axes to `50` (`?? 50`).
+- **Dynamics Axis & Rule Alignment (`dynamics-registry.js`)**: `DYNAMICS_RULES` is frozen (`Object.freeze([...])`); all 18 rules default missing axes to `50` (`?? MID`).
 - **Narrative Style Key & Voice Integrity (`narrative-styles.js`)**: Every entry in `NARRATIVE_STYLES` enforces `key === record.id` and `speaking_style` in `{"casual", "lyrical", "primal", "clinical"}`.
 - **Symmetric 4-Layer Schema & Merge Semantics (`profile-taxonomy.js`)**: Only `character` and `fractal` temporal layers become internal `FIELD_ATOMS` (excluding `name`, `description`, `signature_color`, `pov`); `merge` is `"append"` exclusively for `past` and `"replace"` for all other layers. `canonicalize_field_key()` checks `fractal` aliases before `character` aliases when `entity_type === "fractal"` (otherwise checking `character` aliases only) and requires string inputs.
 - **Four-Style Rule Completeness & Ordering (`speaking-styles.js`)**: Every non-callback rule in `SPEAKING_STYLE_RULES` supplies all 4 canonical speaking style keys (`casual`, `lyrical`, `primal`, `clinical`), retains identical `pattern` and `regex` `/gi` `RegExp` references, and maintains specific-before-generic ordering across concatenated categories.

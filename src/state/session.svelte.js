@@ -442,7 +442,7 @@ export class SessionStore {
 
       if (ai_data) {
         this.active_ai = ai_data;
-        this.#ai_dynamics =
+        this.ai_dynamics =
           story.ai_dynamics ? { ...story.ai_dynamics }
           : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics }
           : { ...ai_data.dynamics };
@@ -457,7 +457,7 @@ export class SessionStore {
           ...(effective_visual_style ? { visual_style: effective_visual_style } : {}),
           ...(effective_narrative_style ? { narrative_style: effective_narrative_style } : {}),
         };
-        this.#fractal_dynamics =
+        this.fractal_dynamics =
           story.fractal_dynamics ? { ...story.fractal_dynamics }
           : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics }
           : { ...fractal_data.dynamics };

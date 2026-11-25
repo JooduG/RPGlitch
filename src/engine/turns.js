@@ -124,20 +124,12 @@ function apply_dynamics_step(ai_entity, fractal_entity, deltas) {
   const entropy = Number(fractal_entity?.dynamics?.entropy ?? 50);
 
   if (ai_entity && typeof ai_entity.dynamics === "object") {
-    const ai_deltas = {};
-    for (const key of ["chaos", "intensity", "openness", "affinity"]) {
-      if (deltas[key] !== undefined) ai_deltas[key] = deltas[key];
-    }
-    const { next } = step_dynamics(ai_entity.dynamics, ai_entity.dynamics_baseline || {}, ai_deltas, { entropy, scope: "character" });
+    const next = step_dynamics(ai_entity.dynamics, ai_entity.dynamics_baseline || {}, deltas, { entropy, scope: "character" });
     ai_entity.dynamics = { ...ai_entity.dynamics, ...next };
   }
 
   if (fractal_entity && typeof fractal_entity.dynamics === "object") {
-    const fractal_deltas = {};
-    for (const key of ["velocity", "entropy"]) {
-      if (deltas[key] !== undefined) fractal_deltas[key] = deltas[key];
-    }
-    const { next } = step_dynamics(fractal_entity.dynamics, fractal_entity.dynamics_baseline || {}, fractal_deltas, { entropy, scope: "fractal" });
+    const next = step_dynamics(fractal_entity.dynamics, fractal_entity.dynamics_baseline || {}, deltas, { entropy, scope: "fractal" });
     fractal_entity.dynamics = { ...fractal_entity.dynamics, ...next };
   }
 }

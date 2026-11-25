@@ -31,11 +31,11 @@ export function default_dynamics_for_scope(scope) {
 const { LOW, MID, HIGH } = DYNAMICS.SCALE;
 
 /**
- * Unified dynamics rules & somatic subtext protocols (12 somatic archetypes + 18 dynamics triggers).
+ * Unified dynamics rules & somatic subtext protocols (12 single-axis baselines + 6 Paradox Compounds).
  *
- * @type {Array<{ id: string, directive: string, when?: ((dynamics: any) => boolean) | ((ai: any, fractal?: any) => boolean) }>}
+ * @type {ReadonlyArray<{ id: string, directive: string, when: (dynamics: any) => boolean }>}
  */
-export const DYNAMICS_RULES = [
+export const DYNAMICS_RULES = Object.freeze([
   // ── Baselines (12 Keywords Across 6 Stats) ──────────────────────────────────
   // 📈 INTENSITY
   {
@@ -150,4 +150,4 @@ export const DYNAMICS_RULES = [
     directive:
       "Cool emotional detachment inside steady, predictable physical space. Maintain crisp distance and low warmth between characters while keeping the environment grounded, orderly, and consistent.",
   },
-];
+]);

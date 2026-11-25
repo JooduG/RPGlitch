@@ -63,7 +63,6 @@ export const DYNAMICS = Object.freeze({
   }),
   PHYSICS: Object.freeze({
     GRAVITY: 0.08, // Natural per-turn pull of unprovoked tension meters back toward MID
-    VARIANCE: 0.05, // Random atmospheric variance factor applied during turn dynamics progression
   }),
   DELTA: Object.freeze({
     STANDARD: "±1-4", // Normal turn fluctuation guideline documented for LLM director in prompt
