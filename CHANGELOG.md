@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Aligned all 12 dynamics pole keywords across `src/config.js` (`DYNAMICS.AXES`) and `src/definitions/dynamics-registry.js` (`COMPOSURE`/`VOLATILITY`, `STILLNESS`/`ADRENALINE`, `GUARDED`/`EXPOSED`, `FRICTION`/`RAPPORT`, `STASIS`/`MOMENTUM`, `COHERENCE`/`INSTABILITY`).
   - Dropped redundant `label` from `DYNAMICS.AXES` (`src/config.js`, `src/simulation/dynamics.js`, `src/ui/organisms/DevWing.svelte`) and unified `DYNAMICS_RULES` evaluation in `evaluate_dynamics_directives` without `priority` or `max_directives`.
   - Synced `DYNAMICS.AXES` pole labels in `src/config.js` (`Restraint`/`Unbound`, `Hush`/`Adrenaline`, `Reserve`/`Exposure`, `Aversion`/`Attunement`, `Suspension`/`Momentum`, `Stability`/`Distortion`) to match `src/definitions/dynamics-registry.js` and updated `src/simulation/dynamics.test.js` for the Paradox Compound rules.
+  - Wired `rule.directive` prose into `evaluate_dynamics_directives` (`src/simulation/dynamics.js`) and removed 6 leftover composite suppression guards from `src/definitions/dynamics-registry.js`.
   - Inlined `resolve_portrait_visual_style_key` and `resolve_visual_engine_tokens` into `build_aesthetic_map`, inlined `strip_covert_directives` from `src/simulation/llm-output.js` into `src/simulation/prose.js`, and synced `src/simulation/README.md`.
 
 ## `[0.2.1]` - 2026-11-25

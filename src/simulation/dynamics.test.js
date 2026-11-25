@@ -13,10 +13,13 @@ describe("step_dynamics", () => {
 });
 
 describe("protocols + rotation", () => {
-  it("emits matching baseline protocols", () => {
-    const { protocols } = evaluate_dynamics_directives({ ai_dynamics: { chaos: 90 }, fractal_dynamics: {} });
+  it("emits matching baseline protocols with directive text and no dead-zone guards", () => {
+    const { protocols } = evaluate_dynamics_directives({ ai_dynamics: { chaos: 90, intensity: 75, affinity: 75 }, fractal_dynamics: {} });
+    expect(protocols.every((p) => typeof p.text === "string" && p.text.length > 0)).toBe(true);
     const ids = protocols.map((p) => p.id);
     expect(ids).toContain("UNBOUND");
+    expect(ids).toContain("ADRENALINE");
+    expect(ids).toContain("ATTUNEMENT");
   });
   it("rotates caretaker target", () => {
     expect(typeof resolve_caretaker_target(0, {})).toBe("string");

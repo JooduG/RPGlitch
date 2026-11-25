@@ -40,7 +40,7 @@ export const DYNAMICS_RULES = [
   // 📈 INTENSITY
   {
     id: "ADRENALINE",
-    when: (d) => (d?.intensity ?? MID) >= HIGH && (d?.affinity ?? MID) < HIGH && (d?.velocity ?? MID) > LOW, // Suppressed by TENSION
+    when: (d) => (d?.intensity ?? MID) >= HIGH && (d?.velocity ?? MID) > LOW, // Suppressed by TENSION
     directive:
       "Spiked pulse and heightened sensory urgency. Expand decisive micro-beats, immediate physical reactions, and sharp focus on threats or leverage.",
   },
@@ -54,7 +54,7 @@ export const DYNAMICS_RULES = [
   // 🤝 AFFINITY
   {
     id: "ATTUNEMENT",
-    when: (d) => (d?.affinity ?? MID) >= HIGH && (d?.intensity ?? MID) < HIGH && (d?.entropy ?? MID) < HIGH, // Suppressed by SOLACE
+    when: (d) => (d?.affinity ?? MID) >= HIGH && (d?.entropy ?? MID) < HIGH, // Suppressed by SOLACE
     directive: "Deep interpersonal sync and shared timing. Track subtle shifts in posture, breath, and unspoken cues between characters.",
   },
   {
@@ -66,7 +66,7 @@ export const DYNAMICS_RULES = [
   // 🔓 OPENNESS
   {
     id: "EXPOSURE",
-    when: (d) => (d?.openness ?? MID) >= HIGH && (d?.velocity ?? MID) > LOW && (d?.chaos ?? MID) > LOW, // Suppressed by DEVOTION
+    when: (d) => (d?.openness ?? MID) >= HIGH && (d?.chaos ?? MID) > LOW, // Suppressed by DEVOTION
     directive:
       "Defenses lowered and internal states laid bare. Let honest impulses, raw reactions, and unprotected feelings show through without reflexive deflection.",
   },
@@ -84,14 +84,14 @@ export const DYNAMICS_RULES = [
   },
   {
     id: "SUSPENSION",
-    when: (d) => (d?.velocity ?? MID) <= LOW && (d?.openness ?? MID) < HIGH && (d?.intensity ?? MID) < HIGH, // Suppressed by TENSION
+    when: (d) => (d?.velocity ?? MID) <= LOW && (d?.intensity ?? MID) < HIGH, // Suppressed by TENSION
     directive: "Time stretched taut and unhurried. Linger on suspended moments, held breaths, and deliberate beats before anything moves on.",
   },
 
   // 📉 ENTROPY
   {
     id: "DISTORTION",
-    when: (d) => (d?.entropy ?? MID) >= HIGH && (d?.velocity ?? MID) < HIGH && (d?.affinity ?? MID) < HIGH, // Suppressed by SOLACE
+    when: (d) => (d?.entropy ?? MID) >= HIGH && (d?.affinity ?? MID) < HIGH, // Suppressed by SOLACE
     directive:
       "Unreliable physical reality and warped sensory geometry. Weave shifting light, spatial glitches, strange proportions, or fractured physics straight into the environment.",
   },
@@ -109,7 +109,7 @@ export const DYNAMICS_RULES = [
   },
   {
     id: "RESTRAINT",
-    when: (d) => (d?.chaos ?? MID) <= LOW && (d?.entropy ?? MID) > LOW && (d?.openness ?? MID) < HIGH, // Suppressed by DEVOTION
+    when: (d) => (d?.chaos ?? MID) <= LOW && (d?.openness ?? MID) < HIGH, // Suppressed by DEVOTION
     directive: "Tight self-command and deliberate holding back. Channel energy through measured control rather than reckless release.",
   },
 

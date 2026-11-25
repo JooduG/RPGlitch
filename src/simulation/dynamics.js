@@ -95,7 +95,7 @@ export function evaluate_dynamics_directives({ ai_dynamics = {}, fractal_dynamic
 
   for (const rule of DYNAMICS_RULES) {
     if (typeof rule.when === "function" && rule.when(merged)) {
-      protocols.push({ id: rule.id });
+      protocols.push({ id: rule.id, text: rule.directive });
     }
   }
 
