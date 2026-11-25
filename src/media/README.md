@@ -29,10 +29,9 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 
 ### 3. Stateless Perchance Visual Dispatcher (`image-generation.js`)
 
-- `dispatch_visual_generation(payload, options = {})`: Dispatches visual generation to the host Perchance image plugin with `AbortSignal` cancellation, `CircuitBreaker` insulation, `ExponentialBackoffRetryer` retries, or offline SVG fallback.
-- In-Flight Bookkeeping: `mark_generation_in_flight()`, `clear_generation_in_flight()`, `is_generation_in_flight()`, `reset_generation_in_flight()`.
-- Ghost Sweeps: `sweep_stale_ghosts(ctx)`, `count_pending_ghosts(ctx)`.
-- Host Plugin Discovery & Facade: `find_image_engine()`, `reset_cached_image_engine()`, `VisualEngine` (`generate`, `visualize`, `generate_candidates`), `visual_engine`.
+- Facade: `visual_engine` (`generate(target, options)`, `generate_candidates(prompt, options)`), backed by `resolve_perchance_plugin("generate_image")`, `AbortSignal` cancellation, `CircuitBreaker` insulation, `TIMING_MS.CEILING` attempt timeout, and offline SVG fallback.
+- In-Flight Bookkeeping: `mark_generation_in_flight(id, attachment_index)`, `clear_generation_in_flight(id, attachment_index)`, `reset_generation_in_flight()`.
+- Ghost Sweeps: `sweep_stale_ghosts(ctx)` (returns remaining pending ghost count in a single pass).
 
 ### 4. Synchronized Stylesheet (`design.css`)
 
@@ -44,13 +43,13 @@ Public exports are exposed via [`index.js`](./index.js), plus [`design.css`](./d
 - **Silent Boot & User Gesture Audio**: `AudioContext` is constructed lazily on demand, `is_muted` and `VoiceEngine.enabled` boot disabled, `init_audio_on_gesture()` races `context.resume()` against a 1500ms timeout, and `Audio.play("notification")` is gated by `Audio.notifications_enabled`.
 - **Accessibility & Card-Flight Locking**: `motion.is_reduced` suppresses kinetic actions, collapses Svelte transition durations to `0`, and short-circuits `fly_card_in`, `fly_card_out`, and `fly_storyboard_cards_into_prologue`.
 - **Bounded Queue & Stale Ghost Sweep**: Pending image beats and queue depth are capped at `IMAGE_POLICY.MAX_PENDING_IMAGES` (`5`), and `sweep_stale_ghosts(ctx)` sweeps unresolved entries older than `TIMING_MS.CEILING` (`120000` ms) while sparing `_in_flight_image_generations`.
-- **P4 Snake-Case Purity**: `VisualEngine.generate()` returns `snake_case` fields (`image_url`, `seed`, `metadata`) without camelCase compatibility aliases.
+- **P4 Snake-Case Purity**: `visual_engine.generate()` returns `snake_case` fields (`image_url`, `seed`, `metadata`) without camelCase compatibility aliases.
 
 ## Side Effects
 
 - **Web Audio & Speech Synthesis (`audio.svelte.js`)**: Lazily constructs and resumes `AudioContext` on user gesture, fetches `DEFAULT_NOTIFICATION_SOUND` for `"notification"` cues, and drives `window.speechSynthesis` utterances.
 - **DOM & CSS Animations (`motion.svelte.js`)**: Attaches `prefers-reduced-motion` media query listeners, clones/animates floating card elements on `document.body`, and updates CSS custom properties during card scrubs.
-- **Host Image Plugin & Queue State (`image-generation.js`)**: Invokes the host Perchance image plugin (or SVG fallback), mutates `_in_flight_image_generations` and `_image_generation_queue`, and updates beat attachments via `ctx`.
+- **Host Image Plugin & Queue State (`image-generation.js`)**: Invokes the host Perchance image plugin (or SVG fallback), mutates `_in_flight_image_generations`, and updates beat attachments via `ctx`.
 
 ## Verification
 

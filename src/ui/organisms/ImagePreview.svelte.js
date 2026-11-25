@@ -252,7 +252,7 @@ export async function run_image_regeneration(options = {}) {
       }
     }
 
-    const candidates = await generate_image_candidates(final_prompt, { mode, negative_prompt: final_negative, count: 3, min_success: 2 });
+    const candidates = await generate_image_candidates(final_prompt, { mode, negative_prompt: final_negative, count: 3 });
     if (current_req !== _request_id) return;
 
     if (candidates.length < 2) {

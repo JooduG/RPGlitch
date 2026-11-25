@@ -108,8 +108,6 @@
         mode: profile_state.char?.type === "fractal" ? "story_scene" : "solo_entity",
         negative_prompt: m.negative_prompt || undefined,
         seed: has_seed ? Number(m.profile_picture_seed) : undefined,
-        returnPayload: true,
-        _entity: profile_state.char,
       });
 
       if (payload?.image_url) {

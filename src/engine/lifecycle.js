@@ -7,10 +7,11 @@
 import { IMAGE_POLICY } from "@config";
 import { apply_profile_to_entity, create_entity, detect_card_format, entities, normalize_entity, parse_character_card, stories } from "@data";
 import { get_visual_style } from "@definitions";
-import { clear_generation_in_flight, count_pending_ghosts, mark_generation_in_flight, sweep_stale_ghosts, visual_engine } from "@media";
+import { clear_generation_in_flight, mark_generation_in_flight, sweep_stale_ghosts, visual_engine } from "@media";
 import {
   clean_generated_prose,
   compile_prompt,
+  extract_aesthetic_traits,
   get_resolution_string,
   parse_think_block,
   reconstruct_history_from_feed,
@@ -343,17 +344,13 @@ export async function create_entity_with_profile(type, draft = {}, options = {})
   if (options.generate_portrait !== false && entity_type === "character") {
     if (typeof visual_engine?.generate === "function" && typeof window !== "undefined") {
       try {
-        const portrait_promise = visual_engine
-          .generate(saved_entity.id, { mode: "solo_entity", resolution: "512x512", _entity: saved_entity })
-          .then(async (image_result) => {
-            if (image_result && saved_entity.id) {
-              const data_url = typeof image_result === "object" ? image_result.image_url : image_result;
-              if (data_url) {
-                await entities.update(saved_entity.id, { profile_picture: data_url });
-                await session.update_entity?.("character", saved_entity.id, { profile_picture: data_url });
-              }
-            }
-          });
+        const portrait_prompt = saved_entity.modifiers?.prompt || extract_aesthetic_traits(saved_entity) || saved_entity.description || saved_entity.name;
+        const portrait_promise = visual_engine.generate(portrait_prompt, { mode: "solo_entity", resolution: "512x512" }).then(async (image_result) => {
+          if (image_result?.image_url && saved_entity.id) {
+            await entities.update(saved_entity.id, { profile_picture: image_result.image_url });
+            await session.update_entity?.("character", saved_entity.id, { profile_picture: image_result.image_url });
+          }
+        });
         if (portrait_promise && typeof portrait_promise.catch === "function") {
           portrait_promise.catch((error) => console.warn(`[Lifecycle] Portrait generation for "${name}" failed:`, error?.message || error));
         }
@@ -445,8 +442,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
   if (!story_id) return null;
 
   if (background) {
-    await sweep_stale_ghosts({ session });
-    if ((await count_pending_ghosts({ session })) >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
+    if ((await sweep_stale_ghosts({ session })) >= IMAGE_POLICY.MAX_PENDING_IMAGES) {
       return null;
     }
   }
@@ -586,7 +582,7 @@ export async function capture_story_image({ subject = "ai", prompt = "", kind = 
  * @returns {Promise<Array<any>>}
  */
 export async function generate_image_candidates(prompt, options = {}) {
-  const { mode = "story_character", negative_prompt = "", count = 3, min_success = 2 } = options;
+  const { mode = "story_character", negative_prompt = "", count = 3 } = options;
   let final_prompt = String(prompt || "");
   let final_negative = negative_prompt;
 
@@ -605,7 +601,7 @@ export async function generate_image_candidates(prompt, options = {}) {
   final_prompt = sanitize_visual_text(final_prompt);
   final_negative = sanitize_visual_text(final_negative);
 
-  return await visual_engine.generate_candidates(final_prompt, { mode, negative_prompt: final_negative, count, min_success });
+  return await visual_engine.generate_candidates(final_prompt, { mode, negative_prompt: final_negative, count });
 }
 
 /**

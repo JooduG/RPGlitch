@@ -1,24 +1,12 @@
 /**
  * @file src/media/image-generation.test.js
- * Unit tests verifying Perchance image dispatcher, VisualEngine, queue/in-flight bookkeeping, and ghost sweeps.
+ * Unit tests verifying Perchance image dispatcher, visual_engine, in-flight bookkeeping, and ghost sweeps.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  clear_generation_in_flight,
-  count_pending_ghosts,
-  dispatch_visual_generation,
-  find_image_engine,
-  is_generation_in_flight,
-  mark_generation_in_flight,
-  reset_cached_image_engine,
-  reset_generation_in_flight,
-  sweep_stale_ghosts,
-  visual_engine,
-} from "./image-generation.js";
+import { clear_generation_in_flight, mark_generation_in_flight, reset_generation_in_flight, sweep_stale_ghosts, visual_engine } from "./image-generation.js";
 
 describe("image-generation", () => {
   beforeEach(() => {
-    reset_cached_image_engine();
     reset_generation_in_flight();
   });
 
@@ -27,46 +15,41 @@ describe("image-generation", () => {
     vi.restoreAllMocks();
   });
 
-  it("discovers and caches host image engine on window", () => {
-    const mock_fn = vi.fn();
-    window.generate_image = mock_fn;
-    expect(find_image_engine()).toBe(mock_fn);
-
-    delete window.generate_image;
-    expect(find_image_engine()).toBe(mock_fn);
-
-    reset_cached_image_engine();
-    expect(find_image_engine()).toBeNull();
-  });
-
-  it("returns an offline SVG fallback when no host engine is available", async () => {
-    const res = await dispatch_visual_generation({ prompt: "Neon {city} [alley] @USER", resolution: "512x768" });
+  it("returns an offline SVG fallback with seed metadata when no host engine is available", async () => {
+    const res = await visual_engine.generate("Neon {city} [alley] @USER", { resolution: "512x768" });
     expect(res.image_url.startsWith("data:image/svg+xml;utf8,")).toBe(true);
     expect(res.metadata.offline).toBe(true);
     expect(res.metadata.resolution).toBe("512x768");
+    expect(typeof res.metadata.seed).toBe("number");
   });
 
-  it("dispatches sanitized prompt payloads to the host engine and returns snake_case fields", async () => {
-    const engine = vi.fn().mockResolvedValue({ dataUrl: "data:image/png;base64,AAA" });
-    const res = await visual_engine.generate("A {rainy} [street] @AI", { mode: "story_scene", engine });
-    expect(engine).toHaveBeenCalledTimes(1);
-    const sent = engine.mock.calls[0][0];
+  it("discovers window.generate_image, sanitizes payloads, and propagates inputs.seed", async () => {
+    const mock_fn = vi.fn().mockResolvedValue({ dataUrl: "data:image/png;base64,AAA", inputs: { seed: 4242 } });
+    window.generate_image = mock_fn;
+
+    const res = await visual_engine.generate("A {rainy} [street] @AI", { mode: "story_scene" });
+    expect(mock_fn).toHaveBeenCalledTimes(1);
+    const sent = mock_fn.mock.calls[0][0];
     expect(sent.prompt).not.toContain("{");
     expect(sent.prompt).not.toContain("}");
     expect(sent.prompt).not.toContain("[");
     expect(sent.prompt).not.toContain("]");
+    expect(sent.prompt).not.toContain("@");
     expect(res.image_url).toBe("data:image/png;base64,AAA");
+    expect(res.seed).toBe(4242);
+    expect(res.metadata.seed).toBe(4242);
   });
 
-  it("tracks in-flight generation keys cleanly", () => {
-    mark_generation_in_flight("msg-1", 0);
-    expect(is_generation_in_flight("msg-1", 0)).toBe(true);
-    expect(is_generation_in_flight("msg-1", 1)).toBe(false);
-    clear_generation_in_flight("msg-1", 0);
-    expect(is_generation_in_flight("msg-1", 0)).toBe(false);
+  it("rejects immediately with AbortError when signal is aborted", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const engine = vi.fn();
+
+    await expect(visual_engine.generate("A portrait", { signal: controller.signal, engine })).rejects.toMatchObject({ name: "AbortError" });
+    expect(engine).not.toHaveBeenCalled();
   });
 
-  it("counts pending ghosts and sweeps stale empty placeholders while sparing in-flight beats", async () => {
+  it("sweeps stale placeholders in one pass while sparing in-flight beats and returning remaining pending count", async () => {
     const stale_ts = Date.now() - 200_000;
     const entries = [
       { id: "empty-stale", text: "", created_at: stale_ts, attachments: [{ src: null, metadata: { requested_at: stale_ts } }] },
@@ -81,12 +64,10 @@ describe("image-generation", () => {
         load_log: vi.fn().mockResolvedValue(entries),
         delete_entry: vi.fn().mockResolvedValue(true),
         update_attachment: vi.fn().mockResolvedValue(true),
-        remove: vi.fn(),
       },
     };
 
-    expect(await count_pending_ghosts(ctx)).toBe(3);
-    await sweep_stale_ghosts(ctx);
+    expect(await sweep_stale_ghosts(ctx)).toBe(1);
     expect(ctx.session.delete_entry).toHaveBeenCalledWith("empty-stale");
     expect(ctx.session.delete_entry).not.toHaveBeenCalledWith("in-flight");
     expect(ctx.session.update_attachment).toHaveBeenCalledWith(
@@ -94,5 +75,8 @@ describe("image-generation", () => {
       0,
       expect.objectContaining({ src: null, metadata: expect.objectContaining({ failed: true, image_ghost_swept: true }) }),
     );
+
+    clear_generation_in_flight("in-flight", 0);
+    expect(await sweep_stale_ghosts(ctx)).toBe(0);
   });
 });

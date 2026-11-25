@@ -15,6 +15,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## `[Unreleased]`
 
+- **`src/media/image-generation.js` & Caller Pruning (`prune-execute`)**:
+  - Removed `cached_image_engine`, `find_image_engine`, `reset_cached_image_engine`, `is_generation_in_flight` export, `count_pending_ghosts`, `VisualEngine` class wrapper, `ExponentialBackoffRetryer` retry multiplication, buggy `visual_circuit_breaker.is_open` pre-check, and speculative result URL aliases (`url`/`imageUrl`/`image_url`/`image`) in `src/media/image-generation.js`.
+  - Standardized `visual_engine` as a frozen facade calling `resolve_perchance_plugin("generate_image")`, propagating `inputs.seed` into `metadata.seed`, resetting `visual_circuit_breaker` inside `reset_generation_in_flight()`, deduplicating `with_attempt_timeout` abort/timeout teardown, and returning the remaining pending ghost count from `sweep_stale_ghosts(ctx)` in a single IndexedDB pass.
+  - Updated `src/engine/lifecycle.js` (single-pass `sweep_stale_ghosts`, `extract_aesthetic_traits` portrait prompt fix, removed `min_success`), `src/ui/organisms/VisualWing.svelte` (removed `returnPayload`/`_entity`), `src/ui/organisms/ImagePreview.svelte.js` (removed `min_success`), `src/media/image-generation.test.js`, and `src/media/README.md`.
+
 - **`src/definitions/dynamics-registry.js` & `src/simulation/dynamics.js` Pruning (`prune-execute`)**:
   - Removed the dead `style` / `style.triggers` evaluation branch, unreachable `entities.NPC` branch, and `use_cursor` mode flag in `src/simulation/dynamics.js`, standardizing `resolve_caretaker_target(cursor = 0)` across `src/engine/steps.js`, `src/engine/turns.js`, and `.agents/skills/simulation/scripts/sim-check.js`.
   - Seeded neutral scope defaults once via `default_dynamics_for_scope` in `evaluate_dynamics_directives` and stripped 54 redundant `?? MID` / optional-chaining guards across `DYNAMICS_RULES` in `src/definitions/dynamics-registry.js`.
