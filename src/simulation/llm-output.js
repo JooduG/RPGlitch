@@ -11,7 +11,7 @@
  *
  * Phase 2 unification: merged from `src/utils/llm-sanitize.js`
  * (`strip_cognition_blocks`, `safe_parse_json`, `sanitize_llm`,
- * `strip_covert_directives`, `parse_think_block` unified with
+ * `parse_think_block` unified with
  * `turns.js#extract_think_and_body`) + `src/utils/detox.js`
  * (`detox_prose` as `clean_generated_prose`) + `src/utils/styles.js`
  * (`resolve_style`, `resolve_speaking_style`, `lint_narrative_slop`,
@@ -168,20 +168,6 @@ export function sanitize_llm(text) {
   }
 
   return out;
-}
-
-/**
- * Strips private directive brackets across entity boundaries.
- *
- * @param {string|null|undefined} text
- * @returns {string}
- */
-export function strip_covert_directives(text) {
-  if (!text || typeof text !== "string") return "";
-  return text
-    .replace(/\[(?:covert|secret|private|hidden)\s*:[^\]]*\]/gi, "")
-    .replace(/«(?:covert|secret|private|hidden)(?::[^»]*)?»/gi, "")
-    .replace(/[ \t]{2,}/g, " ");
 }
 
 /**

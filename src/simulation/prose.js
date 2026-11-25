@@ -8,7 +8,7 @@
 import { sanitize } from "@utils";
 import MarkdownIt from "markdown-it";
 import { format_tagged_fields } from "./brackets.js";
-import { clean_generated_prose, clean_image_prompts, parse_think_block, strip_covert_directives } from "./llm-output.js";
+import { clean_generated_prose, clean_image_prompts, parse_think_block } from "./llm-output.js";
 
 const markdown = new MarkdownIt({ html: false, breaks: true, linkify: true });
 
@@ -67,8 +67,11 @@ export function parse_message(raw_text, register = "casual") {
   let text = clean_image_prompts(raw_text || "");
   const { content, think } = parse_think_block(text);
 
-  text = clean_generated_prose(content, register);
-  text = format_tagged_fields(strip_covert_directives(text), { see_hidden: "none" });
+  text = clean_generated_prose(content, register)
+    .replace(/\[(?:covert|secret|private|hidden)\s*:[^\]]*\]/gi, "")
+    .replace(/«(?:covert|secret|private|hidden)(?::[^»]*)?»/gi, "")
+    .replace(/[ \t]{2,}/g, " ");
+  text = format_tagged_fields(text, { see_hidden: "none" });
 
   const rendered = wrap_dialogue(sanitize(markdown.render(text).trim()));
   return { displayText: rendered, think: render_think_html(think, register), rawThink: think || null, detoxedText: text };

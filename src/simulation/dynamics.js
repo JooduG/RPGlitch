@@ -22,7 +22,7 @@
  * ============================================================================
  */
 
-import { DYNAMICS, IMAGE_POLICY } from "@config";
+import { DYNAMICS, IMAGE_POLICY, TEMPO_ROUNDS } from "@config";
 import { DYNAMICS_RULES } from "@definitions";
 import { clamp } from "@utils";
 
@@ -255,7 +255,7 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
  */
 export function resolve_image_trigger({ snapshot, prev_dynamics, director_data, turn_round, last_image_beat_round }) {
   const last_round = Number.isInteger(last_image_beat_round) ? last_image_beat_round : -1;
-  const cooldown_elapsed = last_round < 0 || turn_round >= last_round + IMAGE_POLICY.COOLDOWN_ROUNDS;
+  const cooldown_elapsed = last_round < 0 || turn_round >= last_round + TEMPO_ROUNDS.FAST;
 
   const raw_camera_note = typeof director_data?.camera_note === "string" ? director_data.camera_note.trim() : "";
   const has_camera_note = Boolean(raw_camera_note);

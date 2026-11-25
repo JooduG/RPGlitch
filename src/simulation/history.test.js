@@ -1,12 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  canonicalize_role,
-  decompose_story_title,
-  filter_narrative_messages,
-  is_empty_narrative_message,
-  is_narrative_role,
-  is_telemetry_meta,
-} from "./history.js";
+import { canonicalize_role, decompose_story_title, filter_narrative_messages, is_empty_narrative_message, is_telemetry_meta } from "./history.js";
 
 describe("canonicalize_role", () => {
   it("maps model/assistant to ai", () => {
@@ -33,17 +26,6 @@ describe("history filters", () => {
       { role: "ai_character", content: "y" },
     ]);
     expect(out).toHaveLength(1);
-  });
-});
-
-describe("is_narrative_role", () => {
-  it("identifies narrative roles", () => {
-    expect(is_narrative_role("ai")).toBe(true);
-    expect(is_narrative_role("FRACTAL")).toBe(true);
-    expect(is_narrative_role("user")).toBe(true);
-    expect(is_narrative_role("npc")).toBe(true);
-    expect(is_narrative_role("system")).toBe(false);
-    expect(is_narrative_role(null)).toBe(false);
   });
 });
 

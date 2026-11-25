@@ -20,7 +20,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Re-homed `clean_image_prompts` and `sanitize_visual_text` (with private `rescue_visual_prose`) to `src/simulation/llm-output.js`; updated `src/simulation/prose.js` and `src/engine/steps.js` (deleting duplicate `sanitize_diffusion_text`).
   - Re-homed `resolve_image_trigger` to `src/simulation/dynamics.js` with a single unified `last_image_beat_round` cooldown across `src/state/session.svelte.js`, `src/engine/turns.js`, and `src/engine/lifecycle.js`, and pointed optical focus biasing at `director_data?.camera_note`.
   - Deleted `render_optics_fallback`, `flatten_aesthetic_map`, and unwired/ignored `task_options` (`manual_keywords`, `query_vector`, `is_continuation`, `speaker_role`, `is_epilogue`, `conclusion_status`), while wiring `task_options.target_name` for schema extraction.
-  - Inlined `resolve_portrait_visual_style_key` and `resolve_visual_engine_tokens` into `build_aesthetic_map` and synced `src/simulation/README.md`.
+  - Removed unused `is_narrative_role` from `src/simulation/history.js`.
+  - Wired `TEMPO_ROUNDS.SLOW` into `build_turn_summary` (`src/simulation/history.js`) and updated `TEMPO_ROUNDS` comments in `src/config.js`.
+  - Moved `IMAGE_POLICY.COOLDOWN_ROUNDS` (`3`) to `TEMPO_ROUNDS.FAST` (`src/config.js`, `src/simulation/dynamics.js`).
+  - Inlined `resolve_portrait_visual_style_key` and `resolve_visual_engine_tokens` into `build_aesthetic_map`, inlined `strip_covert_directives` from `src/simulation/llm-output.js` into `src/simulation/prose.js`, and synced `src/simulation/README.md`.
 
 ## `[0.2.1]` - 2026-11-25
 

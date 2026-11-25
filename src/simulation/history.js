@@ -20,7 +20,7 @@
  * ============================================================================
  */
 
-import { LENGTH_THRESHOLDS, ROLES } from "@config";
+import { LENGTH_THRESHOLDS, ROLES, TEMPO_ROUNDS } from "@config";
 import { collapse_whitespace, truncate_at_word } from "@utils";
 import { strip_cognition_blocks } from "./llm-output.js";
 
@@ -100,15 +100,6 @@ export function normalize_history_beat(entry, options = {}) {
   const timestamp = entry.timestamp ?? entry.created_at ?? null;
 
   return Object.freeze({ role: canonical_role, raw_role, origin: String(origin), character_name, text, attachments, round, timestamp, raw_entry: entry });
-}
-
-/**
- * @param {string | null | undefined} role
- * @returns {boolean} Whether a role is a narrative participant.
- */
-export function is_narrative_role(role) {
-  if (role == null) return false;
-  return String(role).toLowerCase() !== "system";
 }
 
 /**
@@ -222,7 +213,7 @@ export function calculate_turn_tempo(history = []) {
  * @returns {string}
  */
 export function build_turn_summary(feed, round) {
-  const tail = (feed || []).slice(-16);
+  const tail = (feed || []).slice(-TEMPO_ROUNDS.SLOW);
   const counts = {};
   for (const m of tail) {
     if (!m || m.role === "system") continue;

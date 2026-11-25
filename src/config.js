@@ -93,10 +93,11 @@ export const LENGTH_THRESHOLDS = Object.freeze({
   INGESTION: 8000, // Ingestion extraction & readable truncation ceiling
 });
 
-/** Working memory window and stagnation disruption cadence (in rounds). */
+/** Image-beat cooldown, working-memory transcript window, and turn-summary tail (in rounds). */
 export const TEMPO_ROUNDS = Object.freeze({
-  STANDARD: 8, // 8 rounds: Working memory transcript window & soft stagnation permit
-  SLOW: 16, // 16 rounds: Critical hard stagnation disruption mandate
+  FAST: 3, // 3 rounds: Unified cooldown between automatic image beats
+  STANDARD: 8, // 8 rounds: Working memory <RECENT> transcript window
+  SLOW: 16, // 16 rounds: Turn-summary feed tail window
 });
 
 /** Emotional weight multipliers and defaults for episodic memory retrieval and brackets. */
@@ -119,7 +120,6 @@ export const IMAGE_POLICY = Object.freeze({
     SQUARE_LARGE: Object.freeze({ width: 768, height: 768 }),
   }),
   DISPLACEMENT_THRESHOLD: 50, // Cumulative cross-axis delta sum tripping an automatic scene image
-  COOLDOWN_ROUNDS: 3, // Unified cooldown (rounds) between automatic scene image generations
   DEFAULT_TIER: "story_scene", // Fallback tier for auto-triggered beats
   MAX_PENDING_IMAGES: 5, // Max queued + unresolved image beats before eviction (queue) / skip (spawn)
   GUIDANCE: Object.freeze({
